@@ -1,6 +1,6 @@
 # Architecture and ownership
 
-Status: M0 shell plus M2-01–04 headless native document/persistence boundary and receipt-driven frontend state. [SPEC S03-S04](../SPEC.md#s03), [S17](../SPEC.md#s17); APP-01, DOC-01, SAVE-01, SEC-01, QA-01.
+Status: M0 shell plus M2-01–04 headless native document/persistence boundary, receipt-driven frontend state, and M2-05A read-only startup recovery boundary. [SPEC S03-S04](../SPEC.md#s03), [S17](../SPEC.md#s17); APP-01, DOC-01, SAVE-01, SEC-01, QA-01.
 
 Current paths: `src/app/App.tsx` owns the visible placeholder; `src/application/appInfo.ts` defines the typed boundary; `src/infrastructure/nativeAppInfo.ts` invokes the app-info Tauri command, while `browserAppInfo.ts` declares browser-only unavailability. `src-tauri/src/lib.rs` has thin command wiring. `crates/screenwriter-core/src/lib.rs` owns app-info and the headless document service. There is one frontend package and one Rust workspace; native registrations retain immutable initial source snapshots; no live editor exists; native recovery/source queues own persistence; typed IPC and a headless frontend controller connect captured snapshots to exact receipts.
 

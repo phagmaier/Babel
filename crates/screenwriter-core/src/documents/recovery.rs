@@ -182,12 +182,21 @@ fn decode_frame(bytes: &[u8]) -> Result<(Checkpoint, usize), TailStatus> {
     if &bytes[..8] != MAGIC {
         return Err(TailStatus::Corrupt);
     }
-    let schema = u32::from_le_bytes(bytes[8..12].try_into().unwrap());
+    let Ok(schema_bytes): Result<[u8; 4], _> = bytes[8..12].try_into() else {
+        return Err(TailStatus::Corrupt);
+    };
+    let schema = u32::from_le_bytes(schema_bytes);
     if schema != 1 {
         return Err(TailStatus::UnsupportedSchema);
     }
-    let metadata_len = u32::from_le_bytes(bytes[12..16].try_into().unwrap()) as usize;
-    let source_len = u64::from_le_bytes(bytes[16..24].try_into().unwrap());
+    let Ok(meta_len_bytes): Result<[u8; 4], _> = bytes[12..16].try_into() else {
+        return Err(TailStatus::Corrupt);
+    };
+    let metadata_len = u32::from_le_bytes(meta_len_bytes) as usize;
+    let Ok(source_len_bytes): Result<[u8; 8], _> = bytes[16..24].try_into() else {
+        return Err(TailStatus::Corrupt);
+    };
+    let source_len = u64::from_le_bytes(source_len_bytes);
     if metadata_len > MAX_DRAFT_METADATA_BYTES || source_len > MAX_SOURCE_BYTES as u64 {
         return Err(TailStatus::TooLarge);
     }

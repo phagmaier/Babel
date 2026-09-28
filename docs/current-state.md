@@ -1,10 +1,10 @@
-# Current state — M2-05A complete
+# Current state — M2-05A complete, merged to main
 
 Date: 2026-09-28 PDT. Application: **babel**. Authority: [SPEC](../SPEC.md), [TODO](../TODO.md), [M2 evidence](test-evidence/M2.md#m2-05a--read-only-startup-recovery-review), [ADR 0016](decisions/0016-read-only-startup-recovery-review.md).
 
 ## Active task and trust boundary
 
-M0/bounded M1 and M2-01–04 are complete. M2-01 (`7e1ea90`) and M2-02 (`6039ccc`) were merged into local main at owner request. **M2-05A Startup recovery review is complete**, uncommitted on `M2-05A-startup-recovery-review`, preserving M2-03/04 work. Review baseline: `/tmp/babel-m2-05a-baseline-tdsoslt0`; nothing committed/pushed. M2-05 is decomposed into A (read-only review), B (explicit choices/source comparison), C (snapshots/retention/backup), D (protected close). Parent M2-05/full M2 exit remain open.
+M0/bounded M1 and M2-01–04 are complete. M2-01 (`7e1ea90`) and M2-02 (`6039ccc`) were merged into local main at owner request. **M2-05A Startup recovery review is complete and merged into local `main` (`a968318`, in sync with `origin/main`) at owner request**, preserving M2-03/04 work. M2-05 is decomposed into A (read-only review, done), B (explicit choices/source comparison), C (snapshots/retention/backup), D (protected close). Parent M2-05/full M2 exit remain open.
 
 The app can inspect private loose/unsaved recovery and defer review. It remains unsafe for important manuscripts: source picker/writer registration, editing, adoption/copy/save and protected close UI are unavailable, New/Open disabled. No production editor, PDF export, history UI or remote operation exists.
 

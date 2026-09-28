@@ -26,9 +26,18 @@ export function App({
 
   useEffect(() => {
     let active = true;
-    void appInfo.getAppInfo().then((value) => {
-      if (active) setResult(value);
-    });
+    void appInfo
+      .getAppInfo()
+      .then((value) => {
+        if (active) setResult(value);
+      })
+      .catch(() => {
+        if (active)
+          setResult({
+            status: 'unavailable',
+            reason: 'Native app information could not be read.',
+          });
+      });
     return () => {
       active = false;
     };

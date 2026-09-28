@@ -1,6 +1,6 @@
 # Development and toolchain
 
-Status: M0 shell, isolated M1-01–05 proofs and M2-01 headless native open; no production editor. See [SPEC S13-S15](../SPEC.md#s13), [S17](../SPEC.md#s17), [APP-01, QA-01, QA-02](requirements.md), [M1 evidence](test-evidence/M1.md).
+Status: M0 shell, isolated M1-01–05 proofs, M2-01–04 headless native document/persistence boundary and receipt-driven frontend state, plus M2-05A read-only startup review; no production editor. See [SPEC S13-S15](../SPEC.md#s13), [S17](../SPEC.md#s17), [APP-01, QA-01, QA-02](requirements.md), [M1 evidence](test-evidence/M1.md), [M2 evidence](test-evidence/M2.md).
 
 ## Recorded host and pins
 

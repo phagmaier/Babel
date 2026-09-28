@@ -24,6 +24,8 @@ impl Drop for Permit {
         if let Ok(mut budget) = self.budget.lock() {
             budget.jobs -= 1;
             budget.bytes -= self.bytes;
+        } else {
+            debug_assert!(false, "budget mutex poisoned; budget leaked fail-closed");
         }
     }
 }
@@ -34,7 +36,8 @@ impl DocumentHost {
             .budget
             .lock()
             .map_err(|_| DocumentError::new(ErrorCode::NativeUnavailable))?;
-        if budget.jobs >= MAX_QUEUED_SAVES || bytes > MAX_QUEUED_BYTES - budget.bytes {
+        if budget.jobs >= MAX_QUEUED_SAVES || bytes > MAX_QUEUED_BYTES.saturating_sub(budget.bytes)
+        {
             return Err(DocumentError::new(ErrorCode::SaveQueueFull));
         }
         budget.jobs += 1;

@@ -74,6 +74,14 @@ fn transaction(checkpoint: &Checkpoint) -> Result<Transaction, DocumentError> {
     Ok(t)
 }
 
+/// Fail-closed metadata length: serialization failure counts as full budget so
+/// admission denies new work instead of panicking on an infallible type.
+fn metadata_len(value: &serde_json::Value) -> usize {
+    serde_json::to_vec(value)
+        .map(|bytes| bytes.len())
+        .unwrap_or(recovery::MAX_DRAFT_METADATA_BYTES)
+}
+
 fn single<'a>(read: &'a JournalRead, id: &str) -> Result<&'a Checkpoint, DocumentError> {
     if read.tail != TailStatus::Clean || read.checkpoints.len() != 1 {
         return Err(error(ErrorCode::SaveNeedsAttention));
@@ -134,17 +142,18 @@ impl DocumentService {
             .documents
             .values()
             .flat_map(|r| &r.queue)
-            .map(|s| s.source.len() + serde_json::to_vec(&s.draft_metadata).unwrap().len())
+            .map(|s| s.source.len() + metadata_len(&s.draft_metadata))
             .sum();
         if count >= MAX_QUEUED_SAVES
-            || bytes
-                + request.source.len()
-                + serde_json::to_vec(&request.draft_metadata).unwrap().len()
+            || bytes + request.source.len() + metadata_len(&request.draft_metadata)
                 > MAX_QUEUED_BYTES
         {
             return Err(error(ErrorCode::SaveQueueFull));
         }
-        let record = self.documents.get_mut(&request.identity.handle).unwrap();
+        let record = self
+            .documents
+            .get_mut(&request.identity.handle)
+            .ok_or_else(|| error(ErrorCode::InvalidHandle))?;
         record.last_admitted = Some((
             request.version,
             request.source_sha256.clone(),
@@ -211,7 +220,10 @@ impl DocumentService {
         let Some(request) = self
             .documents
             .get_mut(&identity.handle)
-            .unwrap()
+            .ok_or_else(|| {
+                failure.error = error(ErrorCode::InvalidHandle);
+                Box::new(failure.clone())
+            })?
             .queue
             .pop_front()
         else {
@@ -262,18 +274,23 @@ impl DocumentService {
             }
             if duplicate {
                 let record = self.registered(identity)?;
-                let anchor = record.anchor.as_ref().unwrap();
+                let anchor = record.anchor.as_ref().ok_or_else(|| error(ErrorCode::Io))?;
                 read_file(&anchor.parent, &anchor.name)?
                     .sync_all()
                     .map_err(io_error)?;
                 anchor.parent.sync_all().map_err(io_error)?;
                 self.validate_owner(identity)?;
-                let mut last = record.last_save.as_ref().unwrap().0.clone();
+                let mut last = record
+                    .last_save
+                    .as_ref()
+                    .ok_or_else(|| error(ErrorCode::Io))?
+                    .0
+                    .clone();
                 last.recovery = receipt;
                 return Ok(last);
             }
             let record = self.registered(identity)?;
-            let anchor = record.anchor.as_ref().unwrap();
+            let anchor = record.anchor.as_ref().ok_or_else(|| error(ErrorCode::Io))?;
             plain_metadata(&read_file(&anchor.parent, &anchor.name)?)?;
             let (old, baseline) = anchor.snapshot()?;
             if record.baseline.as_ref() != Some(&baseline)
@@ -389,13 +406,13 @@ impl DocumentService {
             // Retain the new inode's lease even when any subsequent confirmation fails.
             self.documents
                 .get_mut(&identity.handle)
-                .unwrap()
+                .ok_or_else(|| error(ErrorCode::Io))?
                 .leases
                 .push(new_lease);
             gate(Stage::Replaced)?;
             gate(Stage::BeforeDirectorySync)?;
             let record = self.registered(identity)?;
-            let anchor = record.anchor.as_ref().unwrap();
+            let anchor = record.anchor.as_ref().ok_or_else(|| error(ErrorCode::Io))?;
             anchor.parent.sync_all().map_err(io_error)?;
             gate(Stage::DirectorySynced)?;
             self.validate_save_location(identity, &dir)?;
@@ -432,7 +449,10 @@ impl DocumentService {
                 recovery: receipt,
                 protection: SaveProtection::SourceFile,
             };
-            let record = self.documents.get_mut(&identity.handle).unwrap();
+            let record = self
+                .documents
+                .get_mut(&identity.handle)
+                .ok_or_else(|| error(ErrorCode::Io))?;
             record.baseline = Some(fingerprint);
             // Keep the document lease and new source lease; explicitly unlock the superseded inode.
             record.leases.remove(0);
@@ -444,10 +464,9 @@ impl DocumentService {
             failure.error = e;
             if replaced {
                 failure.replacement = ReplacementState::ReplacedButUnconfirmed;
-                self.documents
-                    .get_mut(&identity.handle)
-                    .unwrap()
-                    .save_uncertain = true;
+                if let Some(record) = self.documents.get_mut(&identity.handle) {
+                    record.save_uncertain = true;
+                }
             }
             Box::new(failure)
         })
@@ -485,7 +504,7 @@ impl DocumentService {
             return Err(error(ErrorCode::OwnershipLost));
         }
         let record = self.registered(identity)?;
-        let anchor = record.anchor.as_ref().unwrap();
+        let anchor = record.anchor.as_ref().ok_or_else(|| error(ErrorCode::Io))?;
         let (kind, id, reason) = project_identity(anchor);
         if kind != record.initial.kind
             || reason.is_some()

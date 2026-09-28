@@ -1,5 +1,7 @@
 # M1 exit and M2 contract review
 
+> Historical: M1-exit record. M2-01–04 and M2-05A are complete; current next task lives in [TODO](../TODO.md) and [current-state](current-state.md).
+
 Date: 2026-09-27. Task: M1-05. Authority: SPEC S03/S10/S11/S16/S19;
 [TODO](../TODO.md), [M1 evidence](test-evidence/M1.md).
 

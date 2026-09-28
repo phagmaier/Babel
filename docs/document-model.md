@@ -1,6 +1,6 @@
 # Fountain source and document model
 
-Status: M1-01 isolated codec proof and M2-01 native byte-preserving open exist; no production parser/editor model is implemented. See [ADR 0007](decisions/0007-source-aware-fountain-contract.md) and [M1 evidence](test-evidence/M1.md). [SPEC S05-S06](../SPEC.md#s05); DOC-01–DOC-04, INV-02/03/11.
+Status: M1-01 isolated codec proof, M2-01 native byte-preserving open, and M2-02–04 immutable checkpoint/save payload contracts exist; no production parser/editor model is implemented. See [ADR 0007](decisions/0007-source-aware-fountain-contract.md) and [M1 evidence](test-evidence/M1.md). [SPEC S05-S06](../SPEC.md#s05); DOC-01–DOC-04, INV-02/03/11.
 
 Ordinary UTF-8 Fountain is the portable author-content source. A no-op open/save must preserve bytes, BOM, CRLF, spacing, and unknown fields; ideally it performs no source write. New sources default to UTF-8/LF. An edited document should preserve untouched source regions and reserialize only affected grammar context. Unsupported input stays verbatim in a raw region or opens source-preserving read-only. No save, export, validation, or recovery path may silently normalize text.
 

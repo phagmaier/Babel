@@ -412,7 +412,7 @@ export function rejected(
     identity(value.identity) &&
     !sameIdentity(state.identity, value.identity)
   )
-    return state;
+    return failed(state, operation, 'invalidReceipt', undefined, null);
   if (
     object(value) &&
     identity(value.identity) &&
