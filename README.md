@@ -1,6 +1,6 @@
 # babel
 
-babel is a planned local-first desktop screenwriting application. This repository is at **M0: development skeleton plus isolated M1 technical proofs** (Fountain contract, native editor input, PDF renderer, durable replacement, history store). The current app displays a home placeholder and reads its name/version through a harmless Tauri command. New, Open, saving, editing, PDF, history, recovery, and remote transfer are unavailable. **Do not use this build for important manuscripts.**
+babel is a planned local-first desktop screenwriting application. This repository is at **M2-01: headless identity and safe open, plus the M0 shell and isolated M1 proofs** (Fountain contract, native editor input, PDF renderer, durable replacement, history store). The native core can safely register synthetic sources, with opaque identities and conservative ownership. The current app displays a home placeholder and reads its name/version through a harmless Tauri command. New, Open, saving, editing, PDF, history, recovery, and remote transfer are unavailable. **Do not use this build for important manuscripts.**
 
 `SPEC.md` is the product contract. [Documentation](docs/index.md), [tasks](TODO.md), and [current state](docs/current-state.md) contain the implementation map and exact verification status. The app name **babel** was chosen by the owner; the starter spec's "Screenwriter" label was a placeholder. The npm package is `babel-screenwriter`; the Rust crate `screenwriter-core` keeps its technical name (see [naming map](docs/architecture.md)).
 

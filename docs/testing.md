@@ -27,3 +27,13 @@ recovery isolation. Local transport does not close M7 authenticated transport,
 server race, cancellation or privacy gates; no Git power-loss claim is made.
 The [M1 gate review](m1-gate-review.md) carries unverified product/platform
 contracts into their owning M2–M7 tasks.
+
+M2-01 adds production headless Linux safe-open tests on owned synthetic tmpfs
+and Btrfs directories. They cover exact source bytes/fingerprints, malformed
+UTF-8 and metadata, native path/mode/ownership validation, stable identities,
+external divergence, opaque session validation and an execed second-process
+lease check without Git. Tauri MockRuntime tests exercise generated command
+dispatch; TypeScript tests mock invoke. Neither is native WebView E2E. The
+shell remains disabled for manuscripts; no save/recovery/close protection or
+M2 safety exit is asserted. [M2 evidence](test-evidence/M2.md) records commands,
+failed development checks, final results and excluded platforms/semantics.

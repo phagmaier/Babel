@@ -1,6 +1,6 @@
 # Development and toolchain
 
-Status: M0 shell plus isolated M1-01–05 proofs; no production editor. See [SPEC S13-S15](../SPEC.md#s13), [S17](../SPEC.md#s17), [APP-01, QA-01, QA-02](requirements.md), [M1 evidence](test-evidence/M1.md).
+Status: M0 shell, isolated M1-01–05 proofs and M2-01 headless native open; no production editor. See [SPEC S13-S15](../SPEC.md#s13), [S17](../SPEC.md#s17), [APP-01, QA-01, QA-02](requirements.md), [M1 evidence](test-evidence/M1.md).
 
 ## Recorded host and pins
 
@@ -36,7 +36,7 @@ Do not interpret `pnpm test` or `pnpm test:browser` as native IPC verification. 
 
 ## Dependencies and licensing
 
-Direct runtime dependencies are React, React DOM, and Tauri API; build/test dependencies are Vite, TypeScript, Vitest, testing-library, JSDOM, ESLint, Prettier, Playwright core, Tauri CLI, six pinned ProseMirror packages used only by the isolated M1-02 proof, and `pdf-lib` 1.17.1 (MIT, pure JS) used only by the isolated M1-03 fallback probe. The M1-03 primary render ran in a disposable venv with pinned `screenplain==0.12.0` (MIT), `reportlab==4.4.7` (BSD), `pypdf==6.19.0`, `pillow==12.3.0`, `charset-normalizer==3.5.1`, and bundled Courier Prime (OFL 1.1); none is an app runtime dependency. Rust runtime is Tauri plus serde and `screenwriter-core`; its `native-editor-proof` feature is off by default. No PDF, Git, cloud, production editor, or database package is an application runtime dependency. `pnpm-lock.yaml`/`Cargo.lock` capture transitive packages. These dependencies use third-party licenses that must be collected and reviewed before distribution; application code remains unlicensed pending owner direction. Packaging must verify Linux system library expectations and bundled resources. No runtime account or network access is configured.
+Direct runtime dependencies are React, React DOM, and Tauri API; build/test dependencies are Vite, TypeScript, Vitest, testing-library, JSDOM, ESLint, Prettier, Playwright core, Tauri CLI, six pinned ProseMirror packages used only by the isolated M1-02 proof, and `pdf-lib` 1.17.1 (MIT, pure JS) used only by the isolated M1-03 fallback probe. The M1-03 primary render ran in a disposable venv with pinned `screenplain==0.12.0` (MIT), `reportlab==4.4.7` (BSD), `pypdf==6.19.0`, `pillow==12.3.0`, `charset-normalizer==3.5.1`, and bundled Courier Prime (OFL 1.1); none is an app runtime dependency. Rust runtime is Tauri plus `screenwriter-core` with pinned serde/JSON/SHA-256/UUID and Linux rustix; its `native-editor-proof` feature is off by default. No PDF, Git, cloud, production editor, or database package is an application runtime dependency. `pnpm-lock.yaml`/`Cargo.lock` capture transitive packages. These dependencies use third-party licenses that must be collected and reviewed before distribution; application code remains unlicensed pending owner direction. Packaging must verify Linux system library expectations and bundled resources. No runtime account or network access is configured.
 
 Registry metadata checked during M0: React/React DOM and Vite use MIT; Tauri API/CLI and Rust Tauri use MIT OR Apache-2.0; TypeScript and Playwright core use Apache-2.0. This is a direct-package snapshot, not a complete transitive notice file. Before distributing a release, collect the exact locked transitive notices and inspect bundled GTK/WebKit and other native license obligations. The app source has no owner-selected open-source license.
 
@@ -60,3 +60,24 @@ proof-only git2 0.21.0 (MIT OR Apache-2.0) with vendored libgit2 1.9.7
 SHA-256 dependencies, omits HTTPS/SSH/credential features and does not link
 into the desktop. [ADR 0011](decisions/0011-git2-history-store.md) records
 exact native/transitive license and distribution-review limits.
+
+## M2-01 native open
+
+Focused native check: `CARGO_HOME=/tmp/babel-cargo cargo test -p screenwriter-core --test safe_open --locked`.
+Prepend `BABEL_OPEN_TEST_ROOT=/home/phagmaier/Code/babel` for Btrfs fixtures.
+IPC contract check: `CARGO_HOME=/tmp/babel-cargo cargo test -p babel-desktop --locked`.
+The desktop tests enable Tauri's `test` feature through dev-dependencies only;
+production builds have no MockRuntime/test path selection hook. Actual native
+filesystem tests are separate from mocked Tauri/TypeScript dispatch tests.
+
+M2-01 pins production `serde_json` 1.0.151 and `sha2` 0.10.9 (MIT OR Apache-2.0),
+`uuid` 1.26.1 with v4 (Apache-2.0 OR MIT) and Linux-only `rustix` 1.1.4
+(Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT). Rustix adds locked
+`linux-raw-sys` 0.12.1 under the same license alternatives and `errno` 0.3.14
+(MIT OR Apache-2.0); other locked dependencies are reused. UUID uses native
+OS randomness via the already locked getrandom. License values were read from
+the exact downloaded Cargo.toml files; complete transitive notices and release
+review remain M6. The Linux adapter needs no runtime Git, account, helper,
+network service or new privileged system package. It is not an installed-app
+or non-Linux packaging claim. [ADR 0012](decisions/0012-native-document-identity.md)
+records its conservative permissions/path policy and remaining limits.

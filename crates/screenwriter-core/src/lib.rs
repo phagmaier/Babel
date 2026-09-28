@@ -1,5 +1,7 @@
 use serde::Serialize;
 
+pub mod documents;
+
 /// Harmless M0 build information; no document or filesystem access.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "camelCase")]
