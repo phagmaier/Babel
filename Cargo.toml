@@ -1,5 +1,5 @@
 [workspace]
-members = ["src-tauri", "crates/screenwriter-core"]
+members = ["src-tauri", "crates/screenwriter-core", "prototypes/durable-replacement"]
 resolver = "2"
 
 [workspace.package]

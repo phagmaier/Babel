@@ -1,6 +1,6 @@
 # Development and toolchain
 
-Status: M0 shell plus isolated M1-01/02/03 proofs; no production editor. See [SPEC S13-S15](../SPEC.md#s13), [S17](../SPEC.md#s17), [APP-01, QA-01, QA-02](requirements.md), [M1 evidence](test-evidence/M1.md).
+Status: M0 shell plus isolated M1-01/02/03/04 proofs; no production editor. See [SPEC S13-S15](../SPEC.md#s13), [S17](../SPEC.md#s17), [APP-01, QA-01, QA-02](requirements.md), [M1 evidence](test-evidence/M1.md).
 
 ## Recorded host and pins
 
@@ -41,3 +41,10 @@ Direct runtime dependencies are React, React DOM, and Tauri API; build/test depe
 Registry metadata checked during M0: React/React DOM and Vite use MIT; Tauri API/CLI and Rust Tauri use MIT OR Apache-2.0; TypeScript and Playwright core use Apache-2.0. This is a direct-package snapshot, not a complete transitive notice file. Before distributing a release, collect the exact locked transitive notices and inspect bundled GTK/WebKit and other native license obligations. The app source has no owner-selected open-source license.
 
 M1-02 registry metadata checked all six direct ProseMirror proof packages (`commands`, `history`, `keymap`, `schema-basic`, `state`, `view`) at their pinned versions as MIT. The lockfile adds transitive `model` and `transform`; their exact distribution notices still require release review. M3 will move selected editor packages from dev to runtime dependencies when a production editor exists.
+
+M1-04 isolated native filesystem proof (Linux, unprivileged user):
+`CARGO_HOME=/tmp/babel-cargo cargo test -p durable-replacement-proof --locked`.
+To exercise the host Btrfs workspace rather than tmpfs, prepend
+`BABEL_PROOF_ROOT=/home/phagmaier/Code/babel`. No new third-party dependency
+is added and the desktop does not link this proof crate. See the
+[proof README](../prototypes/durable-replacement/README.md) for scope/cleanup.

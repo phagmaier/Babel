@@ -1,6 +1,6 @@
 # Persistence and recovery
 
-Status: planned; M0 has no manuscript I/O. [SPEC S10](../SPEC.md#s10); SAVE-01–05, INV-04–08/10/20.
+Status: M1-04 Linux replacement proof complete; production persistence remains planned. M0 has no manuscript I/O. [SPEC S10](../SPEC.md#s10); SAVE-01–05, INV-04–08/10/20.
 
 One native writer queue per document serializes immutable save requests. Requests bind opaque handle, project/session ID, monotonically increasing document version, source hash, and expected disk fingerprint. Track `liveVersion`, `journaledVersion`, and `fileSavedVersion` separately. An acknowledgement for v21 cannot make v22 "Saved locally"; a recovery checkpoint is not a file-save acknowledgement. Native code computes/verifies the saved hash and sends the exact result. Emergency raw protection does not depend on Script Check passing.
 
@@ -11,3 +11,12 @@ Recovery records are framed/versioned/checksummed. A torn tail must leave earlie
 External changes and multiple instances require explicit ownership/conflict handling. Watcher events are hints; hashes/identity and pre-write checks matter. Dirty/external divergence preserves both. Close after a failed save must expose retry/emergency-copy/risk rather than silently discarding. [Testing](testing.md) lists the fault matrix; [ADR 0005](decisions/0005-layered-safety.md) records the accepted direction.
 
 Auxiliary JSON files (`project.json`, `preferences.json`, the recent-project registry) carry schema versions. Readers stay backward-compatible or offer a safe export path; unknown newer schemas open conservatively and are never deleted to make startup succeed.
+
+M1-04 [ADR 0010](decisions/0010-linux-durable-replacement.md) records the tested
+Linux adapter plan: independent verified recovery/previous copies and their
+directory sync precede candidate sync/verify, rename, directory sync and exact
+receipt. Btrfs/tmpfs fault and SIGKILL evidence is in [M1](test-evidence/M1.md).
+A post-rename failure is replaced-but-unconfirmed, never success; artifacts
+remain available. Final-check external races, power-loss guarantees, secure
+handle-relative paths, production checkpoint framing, ownership/ACL/xattr
+policy and other platforms remain explicit M2/M6 work.

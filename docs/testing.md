@@ -1,6 +1,6 @@
 # Test layers and gates
 
-Status: M0 unit/UI/browser scaffolding plus Rust tests; M1-01 source contract, M1-02 isolated native input, and M1-03 isolated PDF renderer proofs recorded. Later suites are planned. [SPEC S15/S20](../SPEC.md#s15); QA-01–03, INV-18.
+Status: M0 unit/UI/browser scaffolding plus Rust tests; M1-01 source contract, M1-02 isolated native input, M1-03 isolated PDF renderer, and M1-04 native replacement proofs recorded. Later suites are planned. [SPEC S15/S20](../SPEC.md#s15); QA-01–03, INV-18.
 
 `pnpm test` is Vitest/JSDOM with an injected typed app-info port; it verifies visible shell status and disabled future actions. `pnpm test:browser` starts Vite and uses system Chromium to verify the same in a real browser. Browser preview deliberately reports native IPC unavailable. `cargo test -p screenwriter-core` tests the headless value, and `cargo test --workspace` also tests host command wiring. A native smoke must actually start Tauri and observe the app-info response in WebKit; mocked/browser results cannot substitute. [M0 evidence](test-evidence/M0.md) records what ran.
 
@@ -11,3 +11,10 @@ Mandatory save faults from [SPEC S15.2](../SPEC.md#s15): crash before/after temp
 For each task, record exact command, host, outcome, skipped checks, and evidence. A source-only unit pass does not close a native packaging gate. Local-v1 adoption additionally needs an installed offline app, disposable writing/recovery/backup drills, migration review, and owner-reviewed pilot per [SPEC S15.5](../SPEC.md#s15).
 
 Evidence convention: one compact report per milestone at `docs/test-evidence/M*.md` (`M0.md` exists; add `M1.md`, `M2.md`, …). Keep large logs outside routinely loaded docs and reference them by path.
+
+M1-04 adds a Linux-only, dependency-free Rust workspace proof under
+`prototypes/durable-replacement/`. Its tests perform actual native file
+operations and pipe-barrier SIGKILL drills on disposable synthetic data.
+Injected I/O/ENOSPC errors are simulation, while permission/rename/lock and
+process-interruption results are native evidence. Neither proves power loss;
+non-Linux tests are cfg-excluded and are not platform passes.

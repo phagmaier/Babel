@@ -1,6 +1,6 @@
 # Requirement trace
 
-Authority: [SPEC S02.2](../SPEC.md#s02). Product requirements remain **unverified for Local v1**. M1-01 supplies a bounded source/model proof for DOC-01–04 and INV-02/03/11; M1-02 supplies native editor-input evidence on one host for EDIT-01/02/06 and QA-02; M1-03 supplies an offline PDF renderer proof with explicit gaps for PDF-01/03/04 and INV-03/13. No proof completes the product requirements. A disabled placeholder or app-info command does not satisfy a Local v1 requirement. Task IDs are in [TODO](../TODO.md). [M0 evidence](test-evidence/M0.md) covers the skeleton; [M1 evidence](test-evidence/M1.md) records the bounded proofs.
+Authority: [SPEC S02.2](../SPEC.md#s02). Product requirements remain **unverified for Local v1**. M1-01 supplies a bounded source/model proof for DOC-01–04 and INV-02/03/11; M1-02 supplies native editor-input evidence on one host for EDIT-01/02/06 and QA-02; M1-03 supplies an offline PDF renderer proof with explicit gaps for PDF-01/03/04 and INV-03/13. M1-04 supplies Linux replacement/failure evidence for SAVE-01–03 and INV-04/05. No proof completes the product requirements. A disabled placeholder or app-info command does not satisfy a Local v1 requirement. Task IDs are in [TODO](../TODO.md). [M0 evidence](test-evidence/M0.md) covers the skeleton; [M1 evidence](test-evidence/M1.md) records the bounded proofs.
 
 | ID       | Target / task                  | Planned acceptance evidence                                                                                    |
 | -------- | ------------------------------ | -------------------------------------------------------------------------------------------------------------- |
@@ -21,9 +21,9 @@ Authority: [SPEC S02.2](../SPEC.md#s02). Product requirements remain **unverifie
 | NAV-03   | Local v1 · M4-G                | Command palette keyboard test (planned)                                                                        |
 | CHECK-01 | Local v1 · M4-G                | Snapshot diagnostic/navigation/no-edit tests (planned)                                                         |
 | CHECK-02 | Local v1 · M4-G                | Severity/export-limitation/style distinction tests (planned)                                                   |
-| SAVE-01  | Local v1 · M1-04, M2-03        | Native replacement fault matrix (planned)                                                                      |
-| SAVE-02  | Local v1 · M2-04               | Version/session acknowledgement race tests (planned)                                                           |
-| SAVE-03  | Local v1 · M2-02, M2-05        | Journal corruption and restart recovery drills (planned)                                                       |
+| SAVE-01  | Local v1 · M1-04, M2-03        | M1-04 Btrfs/tmpfs fault + SIGKILL proof; production replacement remains M2-03                                  |
+| SAVE-02  | Local v1 · M1-04, M2-04        | M1-04 exact receipt/failure boundary; session/stale-version races remain M2-04                                 |
+| SAVE-03  | Local v1 · M1-04, M2-02, M2-05 | M1-04 independent recovery-copy proof; framed journal/restart remains M2                                       |
 | SAVE-04  | Local v1 · M2-05, M6-G         | Snapshot retention, restore, separate backup drill (planned)                                                   |
 | SAVE-05  | Local v1 · M2-01, M2-05, M6-G  | External/instance/Save As/close failure tests (planned)                                                        |
 | HIST-01  | Local v1 · M1-05, M2-06, M6-G  | Disposable native Git revision tests (planned)                                                                 |
