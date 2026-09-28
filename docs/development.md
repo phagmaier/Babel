@@ -1,6 +1,6 @@
 # Development and toolchain
 
-Status: M0 shell, isolated M1-01–05 proofs, M2-01–04 headless native document/persistence boundary and receipt-driven frontend state, plus M2-05A read-only startup review; no production editor. See [SPEC S13-S15](../SPEC.md#s13), [S17](../SPEC.md#s17), [APP-01, QA-01, QA-02](requirements.md), [M1 evidence](test-evidence/M1.md), [M2 evidence](test-evidence/M2.md).
+Status: M0 shell, isolated M1-01–05 proofs, M2-01–04 headless native document/persistence boundary and receipt-driven frontend state, plus M2-05A read-only startup review and M2-05B explicit recovery choices; no production editor. See [SPEC S13-S15](../SPEC.md#s13), [S17](../SPEC.md#s17), [APP-01, QA-01, QA-02](requirements.md), [M1 evidence](test-evidence/M1.md), [M2 evidence](test-evidence/M2.md).
 
 ## Recorded host and pins
 
@@ -133,3 +133,17 @@ Read-only native smoke uses an isolated per-process `XDG_DATA_HOME` with synthet
 checksummed frames and the real WebKit window; never seed the owner's app data.
 [M2 evidence](test-evidence/M2.md#m2-05a--read-only-startup-recovery-review)
 records exact commands, immutable-artifact checks and actual UI inspection.
+
+## M2-05B choice checks
+
+Focused native choice checks:
+`CARGO_HOME=/tmp/babel-cargo cargo test -p screenwriter-core --lib choices_store --locked -- --nocapture`
+and `CARGO_HOME=/tmp/babel-cargo cargo test -p screenwriter-core --test recovery_choices --locked -- --nocapture`.
+Set `BABEL_CHOICES_TEST_ROOT=/home/phagmaier/Code/babel` for owned Btrfs
+choice fixtures. Command checks use
+`CARGO_HOME=/tmp/babel-cargo cargo test -p babel-desktop --locked -- --nocapture`.
+Focused frontend choice/adapter:
+`pnpm exec vitest run tests/contract/recovery-choices.test.ts tests/ui/RecoveryChoices.test.tsx`.
+Fault gates compile only into unit test binaries; no runtime hook exists.
+[M2 evidence](test-evidence/M2.md#m2-05b--explicit-recovery-choices-and-external-changes)
+records exact commands and native-versus-mocked limits.

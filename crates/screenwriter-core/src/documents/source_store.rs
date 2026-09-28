@@ -14,14 +14,14 @@ pub struct SaveInspection {
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
-struct Transaction {
+pub(super) struct Transaction {
     schema_version: u32,
-    candidate_name: String,
-    draft_metadata: serde_json::Value,
+    pub(super) candidate_name: String,
+    pub(super) draft_metadata: serde_json::Value,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum Stage {
+pub(super) enum Stage {
     RecoveryProtected,
     BeforeIntentWrite,
     IntentPartialWrite,
@@ -44,7 +44,11 @@ enum Stage {
     Confirmed,
 }
 
-fn read_optional(dir: &File, name: &str, limit: usize) -> Result<Option<Vec<u8>>, DocumentError> {
+pub(super) fn read_optional(
+    dir: &File,
+    name: &str,
+    limit: usize,
+) -> Result<Option<Vec<u8>>, DocumentError> {
     let file = match read_file(dir, OsStr::new(name)) {
         Ok(file) => file,
         Err(e) if e.code == ErrorCode::MissingSource => return Ok(None),
@@ -60,7 +64,7 @@ fn read_optional(dir: &File, name: &str, limit: usize) -> Result<Option<Vec<u8>>
     Ok(Some(bytes))
 }
 
-fn transaction(checkpoint: &Checkpoint) -> Result<Transaction, DocumentError> {
+pub(super) fn transaction(checkpoint: &Checkpoint) -> Result<Transaction, DocumentError> {
     let t: Transaction = serde_json::from_value(checkpoint.metadata.draft_metadata.clone())
         .map_err(|_| error(ErrorCode::SaveNeedsAttention))?;
     let prefix = ".babel-save-";
@@ -82,7 +86,7 @@ fn metadata_len(value: &serde_json::Value) -> usize {
         .unwrap_or(recovery::MAX_DRAFT_METADATA_BYTES)
 }
 
-fn single<'a>(read: &'a JournalRead, id: &str) -> Result<&'a Checkpoint, DocumentError> {
+pub(super) fn single<'a>(read: &'a JournalRead, id: &str) -> Result<&'a Checkpoint, DocumentError> {
     if read.tail != TailStatus::Clean || read.checkpoints.len() != 1 {
         return Err(error(ErrorCode::SaveNeedsAttention));
     }
@@ -201,7 +205,8 @@ impl DocumentService {
         self.save_next_with(identity, |_| Ok(()))
     }
 
-    fn save_next_with(
+    /// Test-only fault injection. Unit test binaries only; no runtime hook.
+    pub(super) fn save_next_with(
         &mut self,
         identity: &DocumentRequest,
         mut gate: impl FnMut(Stage) -> Result<(), DocumentError>,
@@ -472,7 +477,7 @@ impl DocumentService {
         })
     }
 
-    fn source_directory(
+    pub(super) fn source_directory(
         &self,
         identity: &DocumentRequest,
         create: bool,
@@ -493,7 +498,7 @@ impl DocumentService {
             .and_then(|dir| private_directory(&dir, &identity.document_id, create))
     }
 
-    fn validate_save_location(
+    pub(super) fn validate_save_location(
         &self,
         identity: &DocumentRequest,
         dir: &File,
@@ -609,7 +614,7 @@ impl DocumentService {
 }
 
 // Do not silently discard ACLs or extended attributes that this adapter cannot preserve.
-fn plain_metadata(file: &File) -> Result<(), DocumentError> {
+pub(super) fn plain_metadata(file: &File) -> Result<(), DocumentError> {
     if fs::flistxattr(file, &mut [] as &mut [u8]).map_err(syscall_error)? != 0 {
         return Err(error(ErrorCode::SaveNeedsAttention));
     }

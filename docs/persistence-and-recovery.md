@@ -1,6 +1,6 @@
 # Persistence and recovery
 
-Status: M1-04 Linux replacement proof and M2-01 native identity/open boundary exist; M2-02 native recovery framing/publication exists; M2-03 native source replacement and M2-04 typed worker IPC/headless state exist; M2-05A read-only local startup review exists; visible editor integration and full recovery resolution remain planned. [SPEC S10](../SPEC.md#s10); SAVE-01–05, INV-04–08/10/20.
+Status: M1-04 Linux replacement proof and M2-01 native identity/open boundary exist; M2-02 native recovery framing/publication exists; M2-03 native source replacement and M2-04 typed worker IPC/headless state exist; M2-05A read-only local startup review and M2-05B explicit recovery choices exist; visible editor integration and retention/close remain planned. [SPEC S10](../SPEC.md#s10); SAVE-01–05, INV-04–08/10/20.
 
 One native writer queue per document serializes immutable save requests. Requests bind opaque handle, project/session ID, monotonically increasing document version, source hash, and expected disk fingerprint. Track `liveVersion`, `journaledVersion`, and `fileSavedVersion` separately. An acknowledgement for v21 cannot make v22 "Saved locally"; a recovery checkpoint is not a file-save acknowledgement. Native code computes/verifies the saved hash and sends the exact result. Emergency raw protection does not depend on Script Check passing.
 
@@ -158,8 +158,28 @@ current session and does not resolve or prune it. Local checkpoints may share a
 disk with the source and are not a separate backup.
 
 This task covers loose/unsaved private-store recovery only; the source has not
-been selected or compared. Managed-source comparison and protected recovery/copy/
-keep choices remain M2-05B; snapshots/retention/backup remain M2-05C; protected
-close remains M2-05D. Parent M2-05 stays open. [ADR 0016](decisions/0016-read-only-startup-recovery-review.md)
+been selected or compared. Headless managed/loose/unsaved comparison and
+protected recovery/copy/keep/finalize/relink choices are M2-05B;
+snapshots/retention/backup remain M2-05C; protected close remains M2-05D.
+Parent M2-05 stays open. [ADR 0016](decisions/0016-read-only-startup-recovery-review.md)
 and [M2 evidence](test-evidence/M2.md#m2-05a--read-only-startup-recovery-review)
+record the contract and native/mocked verification boundary.
+
+## M2-05B explicit choices and external changes
+
+Comparison, adoption, keep, sibling copy, transaction finalize and safe
+relinking operate on a natively opened (`open_selected`) registration anchor;
+no IPC path exists and no choice deletes material. The older-session journal
+gate stays closed for ordinary checkpoints/saves; only an explicit choice
+reconciles it in memory for the current registration, and a restart requires
+a fresh choice. Recover as Current adopts selected bytes as a strictly newer
+version through the M2-03 recovery-first transaction with an exact source
+receipt; Keep verifies both unchanged and writes nothing; Save Recovered Copy
+writes exact bytes (including malformed UTF-8) to a synced sibling and
+reports only the file name; finalize completes only the two safe
+post-replacement states; relinking is native-only with managed/loose
+continuity checks. Timestamps never select a winner; a second unresolved
+corruption still blocks. Retention/pruning, Save As, external backup
+destinations and protected close remain M2-05C/D. [ADR 0017](decisions/0017-explicit-recovery-choices.md)
+and [M2 evidence](test-evidence/M2.md#m2-05b--explicit-recovery-choices-and-external-changes)
 record the contract and native/mocked verification boundary.

@@ -238,8 +238,9 @@ export function RecoveryReview({ port }: { port: RecoveryPort }) {
         </section>
       )}
       <p>
-        Recover as Current, Save Recovered Copy, and Keep Current File require
-        the upcoming source-comparison flow.
+        Recover as Current, Save Recovered Copy, and Keep Current File run
+        through explicit native comparison once a source is natively selected.
+        This build keeps New/Open disabled, so no source is selected here.
       </p>
       <div className="actions">
         <button

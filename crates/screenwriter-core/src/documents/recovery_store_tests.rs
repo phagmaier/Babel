@@ -21,6 +21,7 @@ fn checkpoint(
             draft_metadata,
             base_fingerprint: None,
         },
+        false,
         ownership,
         gate,
     )

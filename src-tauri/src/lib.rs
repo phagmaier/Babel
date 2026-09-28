@@ -4,8 +4,13 @@ use screenwriter_core::documents::DocumentService;
 use screenwriter_core::documents::{DocumentError, DocumentRequest, ErrorCode, OpenDocument};
 use std::sync::{Arc, Mutex};
 mod persistence_host;
+mod recovery_choices_host;
 mod startup_host;
 use persistence_host::{Budget, checkpoint_document, save_document};
+use recovery_choices_host::{
+    compare_recovery, keep_current_source, recover_checkpoint_as_current, resolve_save_transaction,
+    save_recovered_copy,
+};
 use startup_host::{RecoveryHost, list_local_recovery, read_local_recovery};
 use tauri::Manager;
 
@@ -109,6 +114,11 @@ pub fn run() {
         read_local_recovery,
         checkpoint_document,
         save_document,
+        compare_recovery,
+        recover_checkpoint_as_current,
+        keep_current_source,
+        save_recovered_copy,
+        resolve_save_transaction,
         record_native_editor_proof
     ]);
     #[cfg(not(feature = "native-editor-proof"))]
@@ -119,7 +129,12 @@ pub fn run() {
         list_local_recovery,
         read_local_recovery,
         checkpoint_document,
-        save_document
+        save_document,
+        compare_recovery,
+        recover_checkpoint_as_current,
+        keep_current_source,
+        save_recovered_copy,
+        resolve_save_transaction
     ]);
     builder
         .run(tauri::generate_context!())
@@ -147,6 +162,9 @@ mod tests {
 
 #[cfg(all(test, target_os = "linux"))]
 mod document_ipc_tests;
+
+#[cfg(all(test, target_os = "linux"))]
+mod recovery_choices_ipc_tests;
 
 #[cfg(all(test, target_os = "linux"))]
 mod startup_ipc_tests;

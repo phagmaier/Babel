@@ -1,6 +1,7 @@
 //! Headless native authority. No parser or path-based IPC. Source writes are native-only.
 use serde::{Deserialize, Serialize};
 
+pub mod choices;
 pub mod persistence;
 pub mod recovery;
 pub mod saving;

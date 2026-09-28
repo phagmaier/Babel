@@ -181,6 +181,7 @@ pub(super) fn checkpoint(
     dir: &File,
     request: &DocumentRequest,
     snapshot: DraftSnapshot<'_>,
+    allow_older_session: bool,
     mut ownership: impl FnMut() -> Result<(), DocumentError>,
     mut gate: impl FnMut(Stage) -> Result<(), DocumentError>,
 ) -> Result<CheckpointReceipt, DocumentError> {
@@ -203,7 +204,9 @@ pub(super) fn checkpoint(
         return Err(error(ErrorCode::RecoveryNeedsAttention));
     }
     if let Some(last) = &state.latest {
-        if last.metadata.session_id != request.session_id {
+        // An older session blocks new writes until an explicit M2-05B choice
+        // reconciles it for the current registration. Timestamps never decide.
+        if last.metadata.session_id != request.session_id && !allow_older_session {
             return Err(error(ErrorCode::RecoveryNeedsAttention));
         }
         if version < last.metadata.version {

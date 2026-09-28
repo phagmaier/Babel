@@ -1,6 +1,6 @@
 # Test layers and gates
 
-Status: M0 unit/UI/browser scaffolding plus Rust tests; M1-01 source contract, M1-02 isolated native input, M1-03 isolated PDF renderer, M1-04 native replacement, and M1-05 native history proofs recorded, plus M2-01–04 headless and M2-05A startup-review suites. Later (M2-05B–D, M2-06+) suites are planned. [SPEC S15/S20](../SPEC.md#s15); QA-01–03, INV-18.
+Status: M0 unit/UI/browser scaffolding plus Rust tests; M1-01 source contract, M1-02 isolated native input, M1-03 isolated PDF renderer, M1-04 native replacement, and M1-05 native history proofs recorded, plus M2-01–04 headless, M2-05A startup-review and M2-05B choice suites. Later (M2-05C–D, M2-06+) suites are planned. [SPEC S15/S20](../SPEC.md#s15); QA-01–03, INV-18.
 
 `pnpm test` is Vitest/JSDOM with an injected typed app-info port; it verifies visible shell status and disabled future actions. `pnpm test:browser` starts Vite and uses system Chromium to verify the same in a real browser. Browser preview deliberately reports native IPC unavailable. `cargo test -p screenwriter-core` tests the headless value, and `cargo test --workspace` also tests host command wiring. A native smoke must actually start Tauri and observe the app-info response in WebKit; mocked/browser results cannot substitute. [M0 evidence](test-evidence/M0.md) records what ran.
 
@@ -95,3 +95,19 @@ text, malformed bytes as hex, stale/deferred responses, damaged/incomplete lists
 fixed errors/retry and bounded Unicode preview. Native window smoke is distinct
 from these injected-port/MockRuntime tests. [M2 evidence](test-evidence/M2.md#m2-05a--read-only-startup-recovery-review)
 records scope and limits; adoption/retention/close remain separate gates.
+
+M2-05B adds native choice tests over synthetic loose/managed sources:
+identical/diverged/missing comparison, stale/foreign/malformed selection
+rejection without disk writes, protected adoption with previous-copy and
+restart evidence, older-session blocking until explicit recover/keep,
+stale/diverged/unsupported-encoding/view-only adoption refusal, disk-identical
+keep, sibling and emergency copies, second-instance compare-only, loose-move
+and managed-rename relinking with unrelated/read-only rejection, and
+no-transaction finalize. In-crate fault-gate tests complete
+replaced-but-unconfirmed saves and leave prepared/diverged states untouched.
+Generated MockRuntime dispatch tests exercise the five path-free commands,
+strict envelopes, stale/foreign rejection and uninitialized-host failures.
+Injected-port UI tests cover comparison display, explicit versioned recovery,
+keep/copy/resolve flows, divergence blocking and substituted-generation
+rejection. [M2 evidence](test-evidence/M2.md#m2-05b--explicit-recovery-choices-and-external-changes)
+records scope and limits; retention/backup/close remain separate gates.

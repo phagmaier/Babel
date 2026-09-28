@@ -1,6 +1,6 @@
 # Architecture and ownership
 
-Status: M0 shell plus M2-01–04 headless native document/persistence boundary, receipt-driven frontend state, and M2-05A read-only startup recovery boundary. [SPEC S03-S04](../SPEC.md#s03), [S17](../SPEC.md#s17); APP-01, DOC-01, SAVE-01, SEC-01, QA-01.
+Status: M0 shell plus M2-01–04 headless native document/persistence boundary, receipt-driven frontend state, M2-05A read-only startup recovery boundary and M2-05B explicit recovery-choice boundary. [SPEC S03-S04](../SPEC.md#s03), [S17](../SPEC.md#s17); APP-01, DOC-01, SAVE-01, SEC-01, QA-01.
 
 Current paths: `src/app/App.tsx` owns the visible placeholder; `src/application/appInfo.ts` defines the typed boundary; `src/infrastructure/nativeAppInfo.ts` invokes the app-info Tauri command, while `browserAppInfo.ts` declares browser-only unavailability. `src-tauri/src/lib.rs` has thin command wiring. `crates/screenwriter-core/src/lib.rs` owns app-info and the headless document service. There is one frontend package and one Rust workspace; native registrations retain immutable initial source snapshots; no live editor exists; native recovery/source queues own persistence; typed IPC and a headless frontend controller connect captured snapshots to exact receipts.
 
@@ -116,5 +116,19 @@ commands run in bounded blocking jobs. The Linux `LocalRecoveryReader` reuses
 anchored/no-follow recovery reads without source writes, leases, lock creation
 or adoption. Missing directories are not created. Unsafe stores fail visibly.
 The frontend `RecoveryReview` uses `RecoveryPort` and the native adapter; browser
-preview reports unavailable. Managed source comparison and resolution remain
-M2-05B. See [ADR 0016](decisions/0016-read-only-startup-recovery-review.md).
+preview reports unavailable. See [ADR 0016](decisions/0016-read-only-startup-recovery-review.md).
+
+## M2-05B recovery choices
+
+`documents/choices.rs` owns strict path-free choice envelopes;
+Linux `documents/choices_store.rs` owns comparison, protected adoption through
+the M2-03 transaction, explicit keep, sibling emergency copy, post-replacement
+finalize and native-only relinking on `open_selected` anchors. The
+older-session journal gate gains an in-memory, per-registration reconciliation
+set only by an explicit choice. Five writer-host commands
+(`compare_recovery`, `recover_checkpoint_as_current`, `keep_current_source`,
+`save_recovered_copy`, `resolve_save_transaction`) dispatch on bounded
+blocking workers within the shared M2-04 job/payload budget; each reserves one
+source bound of logical payload. The frontend `RecoveryChoicePanel` uses the
+`RecoveryChoicesPort` with stale-result guards; production host and picker
+wiring remain uninitialized. See [ADR 0017](decisions/0017-explicit-recovery-choices.md).

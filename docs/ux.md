@@ -1,6 +1,6 @@
 # UX and accessibility
 
-Status: M0 shell plus M2-05A read-only local startup recovery review. [SPEC S08/S14](../SPEC.md#s08); APP-02, NAV-01–03, UX-01–03, SEC-01, INV-10.
+Status: M0 shell plus M2-05A read-only local startup recovery review and M2-05B headless recovery-choice contracts. [SPEC S08/S14](../SPEC.md#s08); APP-02, NAV-01–03, UX-01–03, SEC-01, INV-10.
 
 M0 presents an application heading, explicit development status, and disabled New/Open actions. It has no recent registry, recovery list, manuscript status, or editor. The future home screen must make New, Open Fountain, recent/missing files, and recovery distinct. Remove from Recents cannot delete source. Project creation asks for a destination or explicitly creates a recoverable unsaved draft.
 
@@ -13,6 +13,14 @@ notices, text/hex previews, Refresh and Inspect Later. Content is rendered as
 literal text, with truncated display explicitly labeled. Failure never exposes
 arbitrary transport text or claims an empty successful scan. Deferral does not
 resolve/delete the case, and previews do not restore/save a screenplay. Explain
-that these local checkpoints are not a separate disk backup. Native source
-selection/comparison and the three resolution choices remain M2-05B, alongside
-future managed-project discovery. New/Open remain disabled. [ADR 0016](decisions/0016-read-only-startup-recovery-review.md).
+that these local checkpoints are not a separate disk backup.
+
+M2-05B adds the headless choice contracts and a `RecoveryChoicePanel` with
+comparison facts, fixed transaction/source wording, an explicit new-version
+input and Recover/Keep/Copy/Resolve actions guarded against stale results;
+adoption stays disabled on divergence, stale comparisons or stuck
+transactions, with only the emergency copy available then. No source is
+natively selected in this build, so New/Open remain disabled and the startup
+review says so explicitly. [ADR 0017](decisions/0017-explicit-recovery-choices.md).
+Production picker wiring and managed-project discovery remain later tasks.
+New/Open remain disabled. [ADR 0016](decisions/0016-read-only-startup-recovery-review.md).

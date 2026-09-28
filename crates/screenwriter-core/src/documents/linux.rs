@@ -10,6 +10,8 @@ use std::io::{Read, Write};
 use std::path::{Component, Path, PathBuf};
 use uuid::Uuid;
 
+#[path = "choices_store.rs"]
+mod choices_store;
 #[path = "recovery_store.rs"]
 mod recovery_store;
 #[path = "source_store.rs"]
@@ -230,6 +232,10 @@ struct Registered {
     last_save: Option<(SaveReceipt, serde_json::Value)>,
     last_admitted: Option<(u64, String, serde_json::Value)>,
     save_uncertain: bool,
+    /// Set only by an explicit M2-05B recovery choice in this session. It relaxes
+    /// the older-session journal gate for later checkpoints; a restart requires
+    /// a fresh choice. Never persisted.
+    recovery_reconciled: bool,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -463,6 +469,7 @@ impl DocumentService {
                 last_save: None,
                 last_admitted: None,
                 save_uncertain: false,
+                recovery_reconciled: false,
                 initial: initial.clone(),
                 anchor: Some(anchor),
                 leases,
@@ -496,6 +503,7 @@ impl DocumentService {
                 last_save: None,
                 last_admitted: None,
                 save_uncertain: false,
+                recovery_reconciled: false,
                 initial: initial.clone(),
                 anchor: None,
                 leases: vec![lease],
@@ -688,6 +696,12 @@ impl DocumentService {
         }
         let dir = self.recovery_directory(Some(request), true)?;
         let _lease = self.lease(&format!("recovery:{}", request.document_id))?;
+        // An explicit M2-05B choice reconciles an older session for this
+        // registration only; ordinary checkpoints keep the session gate.
+        let reconciled = self
+            .registered(request)
+            .map(|record| record.recovery_reconciled)
+            .unwrap_or(false);
         recovery_store::checkpoint(
             &dir,
             request,
@@ -697,6 +711,7 @@ impl DocumentService {
                 draft_metadata,
                 base_fingerprint: base,
             },
+            reconciled,
             || {
                 self.validate_recovery_owner(request)?;
                 let current = self.recovery_directory(Some(request), false)?;
