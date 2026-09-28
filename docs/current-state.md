@@ -24,6 +24,7 @@ Host: Linux 7.2.5-3-omarchy x86_64; Cargo 1.97.1, Node 26.7.0, pnpm 11.22.0; tmp
 - Passed unchanged implementation checks: 28 core unit + 11 choice API, 17 desktop and six injected frontend tests. Desktop generated dispatch uses MockRuntime with native files; no new WebView E2E claim.
 - Reproduced counterexamples: two diagnostic probes in an isolated `/tmp` archive, on tmpfs and Btrfs. fsync forwarding logger observed only transaction-directory sync during finalize. Diagnostic passes reproduce incorrect behavior; they are not corrected acceptance or power-loss proof.
 - Documentation formatting, changed-link audit and final diff/implementation-preservation checks: see evidence. Historical M2-05B native startup smoke remains historical and does not close these findings.
+- Owner-approved Git integration: review/workflow commit `3a13157` fast-forwarded into main; all three fully merged stale local branches deleted, leaving only main. Exact commands/results are in [M2 review evidence](test-evidence/M2.md#m2-05b-r--independent-acceptance-review). The owner explicitly authorized pushing this integrated checkpoint to origin/main.
 
 ## Next safe action
 
