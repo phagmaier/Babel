@@ -1,22 +1,22 @@
-# Current state — M1-01 complete
+# Current state — M1-01/02 complete
 
 Date: 2026-09-27 PDT. Application: **babel**; `screenwriter-core` remains the technical Rust crate name. Authority: [SPEC](../SPEC.md), [TODO](../TODO.md), [M0 evidence](test-evidence/M0.md), [M1 evidence](test-evidence/M1.md).
 
 ## Active milestone and trust boundary
 
-M0 is complete on the recorded host. **M1-01 is complete** on branch `M1-01-fountain-contract`; M1-02–05 remain open. No task is currently claimed after M1-01. The app remains a development skeleton, unsafe for important manuscripts: New/Open are disabled, and no production editor, save/recovery, PDF, history, or remote operation exists. The M1-01 codec is isolated under `prototypes/` and is not wired to the app.
+M0, M1-01, and **M1-02** are complete on the recorded Linux host. No further task is claimed. The application remains a development skeleton, unsafe for important manuscripts: New/Open are disabled; no production editor, save/recovery, PDF, history, or remote operation exists. M1 source and native editor proofs are isolated under `prototypes/`. The native report command exists only with the explicit `native-editor-proof` Cargo feature.
 
 ## Completed work and touched paths
 
-M1-01 added four original adversarial byte fixtures and their manifest (`fixtures/fountain/`), a disposable source-span codec (`prototypes/fountain/codec.ts`), focused tests (`tests/contract/fountain.test.ts`), ownership/exception [ADR 0007](decisions/0007-source-aware-fountain-contract.md), and [M1 evidence](test-evidence/M1.md). Updated `TODO.md`, `docs/index.md`, `docs/document-model.md`, `docs/requirements.md`, and `fixtures/README.md`. The source prototype proves exact no-op bytes and selected edits with semantic reparse; it rejects ambiguous neighboring changes and protects raw/invalid UTF-8 input. No production requirement is marked complete.
+M1-01 committed the adversarial Fountain fixture/source model proof and [ADR 0007](decisions/0007-source-aware-fountain-contract.md). M1-02 added the [native ProseMirror proof harness](../prototypes/native-editor/README.md), deterministic 120/300/600 workload generator and hashes, feature-gated Tauri diagnostic sink, pinned MIT ProseMirror proof dependencies, [ADR 0008](decisions/0008-native-editor-input.md), and native input/performance evidence. Updated `package.json`, `pnpm-lock.yaml`, `tsconfig.json`, `src-tauri/Cargo.toml`, `src-tauri/src/lib.rs`, `src-tauri/tauri.native-proof.conf.json`, `TODO.md`, `docs/development.md`, `docs/testing.md`, `docs/editor-behavior.md`, `docs/requirements.md`, `docs/decisions/0003-editor-and-native-ownership.md`, and `docs/test-evidence/M1.md`. No Local v1 product requirement is marked complete.
 
-The repository has a prior initial commit and no remote. M0 shell, manifests, commands, ADRs, and the 41-ID trace remain described in [M0 evidence](test-evidence/M0.md) and [architecture](architecture.md). No commit/push was made for M1-01.
+The repository has a local `main` branch and no remote. M0 shell and earlier decisions remain described in [M0 evidence](test-evidence/M0.md) and [architecture](architecture.md). No push or publication was made.
 
-## Exact verification and blockers
+## Exact verification and remaining limits
 
-- Passed on Omarchy 4.0.4/Linux x86_64, 2026-09-27 PDT: `pnpm test -- tests/contract/fountain.test.ts` (2 files, 13 tests); `pnpm typecheck`; `pnpm check` (format, lint, typecheck, 13 tests, Vite build); `sha256sum fixtures/fountain/*.fountain`; `file fixtures/fountain/*.fountain`; `git diff --check`. Exact outcomes, fixture hashes, and the corrected initial lint failure are in [M1 evidence](test-evidence/M1.md).
-- Native editor, installed app, and other OS checks were not part of M1-01. No task blocker remains. Full grammar conformance, structured note/title edits, hard breaks, caret/IME/undo, and production saving remain follow-on gates, not claimed by this proof.
+- Passed on Omarchy/Linux x86_64, AMD Ryzen 7 7840U, WebKitGTK 2.52.6: `node prototypes/native-editor/hash-fixtures.mjs`; `CARGO_HOME=/tmp/babel-cargo pnpm tauri dev --features native-editor-proof --config src-tauri/tauri.native-proof.conf.json` (real native selection, typing, undo/redo, paste/undo, dead-key composition, 139 paced key samples at each workload); `pnpm check`; `cargo fmt --all -- --check`; `CARGO_HOME=/tmp/babel-cargo cargo test --workspace --locked`; `CARGO_HOME=/tmp/babel-cargo cargo test -p babel-desktop --features native-editor-proof --locked`; both default and feature-enabled Clippy checks; `XDG_CACHE_HOME=/tmp/babel-cache CARGO_HOME=/tmp/babel-cargo pnpm tauri build` (default-feature AppImage). Exact outcomes, fixture hashes, performance numbers, corrected setup failures, and local screenshot path: [M1 evidence](test-evidence/M1.md).
+- The keydown-to-frame result is a WebView timing proxy, not compositor paint. Full CJK/RTL IME, other OS/WebView builds, screenplay-specific schema/Enter behavior, codec integration, long-session memory, and production save remain unverified. A dead-key Return ended composition before a non-composing Enter keydown; M3 needs an event-sequence guard. This did not change the SPEC Enter table.
 
 ## Next safe action
 
-Start **M1-02 Native editor input proof** on its own branch after reading SPEC S07/S13–S15 and the editor/testing contracts. Record native WebView selection, composition, undo, paste, caret, and latency evidence on synthetic text. M1-03 and M1-04 are also dependency-ready bounded tasks if priority changes.
+Start **M1-03 PDF renderer proof** on its own branch. Read SPEC S12, `docs/pdf-and-formatting.md`, and the M1-03 TODO entry. Test only synthetic samples and record rendered/packaging/font evidence; no production export UI yet. M1-04 and M1-05 are also dependency-ready separate tasks.

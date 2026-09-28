@@ -9,6 +9,9 @@ license = "UNLICENSED"
 name = "babel_desktop_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
+[features]
+native-editor-proof = []
+
 [build-dependencies]
 tauri-build = { version = "=2.7.0", features = [] }
 

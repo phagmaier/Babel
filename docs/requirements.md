@@ -1,6 +1,6 @@
 # Requirement trace
 
-Authority: [SPEC S02.2](../SPEC.md#s02). Product requirements remain **unverified for Local v1**. M1-01 supplies a bounded source/model proof for DOC-01–04 and INV-02/03/11; it does not complete those requirements or EDIT-01. A disabled placeholder or app-info command does not satisfy a Local v1 requirement. Task IDs are in [TODO](../TODO.md). [M0 evidence](test-evidence/M0.md) covers the skeleton; [M1 evidence](test-evidence/M1.md) records the bounded proof.
+Authority: [SPEC S02.2](../SPEC.md#s02). Product requirements remain **unverified for Local v1**. M1-01 supplies a bounded source/model proof for DOC-01–04 and INV-02/03/11; M1-02 supplies native editor-input evidence on one host for EDIT-01/02/06 and QA-02. Neither proof completes the product requirements. A disabled placeholder or app-info command does not satisfy a Local v1 requirement. Task IDs are in [TODO](../TODO.md). [M0 evidence](test-evidence/M0.md) covers the skeleton; [M1 evidence](test-evidence/M1.md) records the bounded proofs.
 
 | ID       | Target / task                  | Planned acceptance evidence                                                 |
 | -------- | ------------------------------ | --------------------------------------------------------------------------- |
@@ -10,12 +10,12 @@ Authority: [SPEC S02.2](../SPEC.md#s02). Product requirements remain **unverifie
 | DOC-02   | Local v1 · M1-01, M3-G         | M1-01 selected byte no-op/edited semantic proof; full codec remains planned |
 | DOC-03   | Local v1 · M1-01, M2-01, M3-G  | M1-01 raw/read-only probes; native import remains planned                   |
 | DOC-04   | Local v1 · M1-01, M3-G         | M1-01 selected element corpus; full conformance remains planned             |
-| EDIT-01  | Local v1 · M1-02, M3-G         | Native selection/caret and editor integration tests (planned)               |
+| EDIT-01  | Local v1 · M1-02, M3-G         | M1-02 native selection/caret proof; editor integration remains planned      |
 | EDIT-02  | Local v1 · M3-G                | Table-driven smart key/source/undo tests (planned)                          |
 | EDIT-03  | Local v1 · M3-G                | Remappable shortcut and picker keyboard tests (planned)                     |
 | EDIT-04  | Local v1 · M3-G                | Local character/location/heading/time completion tests (planned)            |
 | EDIT-05  | Local v1 · M3-G, M4-G          | Structural undo and replace-all tests (planned)                             |
-| EDIT-06  | Local v1 · M1-02, M3-G         | Native IME/Unicode/paste tests (planned)                                    |
+| EDIT-06  | Local v1 · M1-02, M3-G         | M1-02 native dead-key/Unicode/paste proof; full IME matrix remains planned  |
 | NAV-01   | Local v1 · M4-G                | Scene/section move, keyboard, undo tests (planned)                          |
 | NAV-02   | Local v1 · M4-G                | Find/replace scopes and hidden text tests (planned)                         |
 | NAV-03   | Local v1 · M4-G                | Command palette keyboard test (planned)                                     |
@@ -38,7 +38,7 @@ Authority: [SPEC S02.2](../SPEC.md#s02). Product requirements remain **unverifie
 | SEC-01   | Local v1 · M0-02, M6-G         | Restricted capability audit and offline runtime test (planned)              |
 | SEC-02   | Local v1 · M2-01, M3-G, M6-G   | Untrusted input/path/HTML/credential/helper tests (planned)                 |
 | QA-01    | Every milestone · M0-04, M1–M7 | Layered unit/property/UI/native/recovery/visual reports (planned beyond M0) |
-| QA-02    | Local v1 · M1-02, M6-G         | Recorded native performance/platform matrix (planned)                       |
+| QA-02    | Local v1 · M1-02, M6-G         | M1-02 one-host key/frame baseline; Tier 1 platform matrix remains planned   |
 | QA-03    | Local v1 · M6-G                | Migration pilot, restore drill, owner-reviewed adoption (planned)           |
 | SYNC-01  | Remote · M7-G                  | Same home/editor explicit operations (planned)                              |
 | SYNC-02  | Remote · M7-G                  | Save-before-fetch/divergence/no-force tests (planned)                       |

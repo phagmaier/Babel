@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>M1-02 native editor proof</title>
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1>M1-02 native editor proof</h1>
+        <p>
+          Disposable synthetic ProseMirror input probe. No manuscript or save
+          path.
+        </p>
+        <p id="status" role="status">Loading fixture…</p>
+        <p id="summary"></p>
+        <button id="focus-end" type="button">Focus editor at end (F7)</button>
+        <button id="copy-report" type="button">Record report (F8)</button>
+        <span>F10 cycles workload: 120 → 300 → 600.</span>
+      </header>
+      <section aria-label="Synthetic editor" id="editor"></section>
+      <label for="report">Native observation report</label>
+      <textarea id="report" readonly rows="10"></textarea>
+    </main>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

@@ -1,0 +1,15 @@
+{
+  "build": {
+    "devUrl": "http://localhost:5173/prototypes/native-editor/index.html?pages=120"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "babel M1-02 native editor proof",
+        "width": 1100,
+        "height": 800
+      }
+    ]
+  }
+}
