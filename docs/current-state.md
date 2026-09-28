@@ -4,7 +4,7 @@ Date: 2026-09-28 PDT. Application: **babel**. Authority: [SPEC](../SPEC.md), [TO
 
 ## Active task and trust boundary
 
-M0 and bounded M1 proofs are complete. M2-01 is committed (`7e1ea90`) and merged into local main at owner request. **M2-02 Recovery checkpoint format is complete** on `M2-02-recovery-checkpoints`; the owner authorized committing and merging this task into local main as the final handoff step. No next task is claimed. The app remains unsafe for important manuscripts: New/Open are disabled and native picker/checkpoint IPC/startup UI are unwired. No source saving, production editor, PDF export, history UI or remote operation exists. M2 exit is open; production PDF UI stays gated to M5.
+M0 and bounded M1 proofs are complete. M2-01 is committed (`7e1ea90`) and merged into local main at owner request. **M2-02 Recovery checkpoint format is complete**, committed (`6039ccc`) on `M2-02-recovery-checkpoints` and fast-forwarded into local main at owner request. Both M2-01/02 implementation commits are local; nothing was pushed. No next task is claimed. The app remains unsafe for important manuscripts: New/Open are disabled and native picker/checkpoint IPC/startup UI are unwired. No source saving, production editor, PDF export, history UI or remote operation exists. M2 exit is open; production PDF UI stays gated to M5.
 
 ## Completed work and touched paths
 
@@ -26,4 +26,4 @@ Host: Linux 7.2.5-3-omarchy x86_64; Rust/Cargo 1.97.1, Node 26.7.0, pnpm 11.22.0
 
 No recovery format/publication host blocker. Linux-only; no hardware power-loss, ACL/xattr/network filesystem or Tier 1 package claim. Errors after publication return failure; pending/quarantine artifacts remain protected. Older-session recovery blocks writes until explicit M2-05 adoption; no automatic cleanup, global orphan retention, restore, protected close or UI acknowledgement state. Same-disk recovery is not a disaster backup. Advisory ownership cannot exclude arbitrary external writers.
 
-Finish the authorized commit/merge handoff, then claim **M2-03 Serialized source replacement** on its own branch. Read SPEC S10/S15, persistence/testing docs and ADRs 0010/0012/0013. Use native anchors/leases, independently protect recovery/previous source, implement serialized immutable requests and exact replacement success/failure classification. M2-04 owns IPC/UI stale receipts; M2-05 owns startup/retention/close. No editor before full M2 exit or real remote operation before M7 privacy/destination approval.
+Claim **M2-03 Serialized source replacement** on its own branch. Read SPEC S10/S15, persistence/testing docs and ADRs 0010/0012/0013. Use native anchors/leases, independently protect recovery/previous source, implement serialized immutable requests and exact replacement success/failure classification. M2-04 owns IPC/UI stale receipts; M2-05 owns startup/retention/close. No editor before full M2 exit or real remote operation before M7 privacy/destination approval.
