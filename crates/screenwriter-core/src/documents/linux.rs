@@ -10,6 +10,11 @@ use std::io::{Read, Write};
 use std::path::{Component, Path, PathBuf};
 use uuid::Uuid;
 
+#[path = "recovery_store.rs"]
+mod recovery_store;
+use super::recovery::{CheckpointReceipt, source_hash};
+pub use recovery_store::RecoveryInspection;
+
 const MAX_METADATA_BYTES: usize = 16 * 1024;
 
 fn error(code: ErrorCode) -> DocumentError {
@@ -448,7 +453,7 @@ impl DocumentService {
         Ok(initial)
     }
 
-    /// Allocates identity only. Recovery availability is NOT claimed before M2-02.
+    /// Allocates identity/lease only. Recovery availability requires a checkpoint receipt.
     pub fn register_unsaved(&mut self) -> Result<OpenDocument, DocumentError> {
         self.check_capacity()?;
         let initial = OpenDocument {
@@ -464,12 +469,13 @@ impl DocumentService {
             source: Vec::new(),
             fingerprint: None,
         };
+        let lease = self.lease(&format!("document:{}", initial.identity.document_id))?;
         self.documents.insert(
             initial.identity.handle.clone(),
             Registered {
                 initial: initial.clone(),
                 anchor: None,
-                leases: Vec::new(),
+                leases: vec![lease],
             },
         );
         Ok(initial)
@@ -538,6 +544,128 @@ impl DocumentService {
             }
         }
         Ok(())
+    }
+
+    fn validate_recovery_owner(&self, request: &DocumentRequest) -> Result<(), DocumentError> {
+        let record = self.registered(request)?;
+        if record.initial.ownership != Ownership::Exclusive {
+            return Err(error(ErrorCode::OwnershipRequired));
+        }
+        self.verify_store()?;
+        for lease in &record.leases {
+            self.verify_lease(lease)?;
+        }
+        // External source divergence must not block independent raw recovery protection.
+        Ok(())
+    }
+
+    fn recovery_directory(
+        &self,
+        request: Option<&DocumentRequest>,
+        create: bool,
+    ) -> Result<File, DocumentError> {
+        self.verify_store()?;
+        let managed = request
+            .map(|r| self.registered(r))
+            .transpose()?
+            .filter(|r| r.initial.kind == DocumentKind::Managed);
+        let parent = if let Some(record) = managed {
+            let anchor = record
+                .anchor
+                .as_ref()
+                .ok_or_else(|| error(ErrorCode::UnsafePath))?;
+            anchor.verify_location()?;
+            child_directory(&anchor.parent, OsStr::new(".screenwriter"))?
+        } else {
+            self.store.try_clone().map_err(io_error)?
+        };
+        let info = stat(&parent)?;
+        if info.st_uid != geteuid().as_raw() || info.st_mode & 0o7022 != 0 {
+            return Err(error(ErrorCode::IdentityStoreUnavailable));
+        }
+        if create {
+            match fs::mkdirat(&parent, "recovery", Mode::from_raw_mode(0o700)) {
+                Ok(()) => parent.sync_all().map_err(io_error)?,
+                Err(Errno::EXIST) => (),
+                Err(err) => return Err(syscall_error(err)),
+            }
+        }
+        let dir = child_directory(&parent, OsStr::new("recovery"))?;
+        let info = stat(&dir)?;
+        if info.st_uid != geteuid().as_raw() || info.st_mode & 0o7777 != 0o700 {
+            return Err(error(ErrorCode::IdentityStoreUnavailable));
+        }
+        Ok(dir)
+    }
+
+    /// Native-only serialized recovery write. No source file is changed or acknowledged.
+    pub fn checkpoint(
+        &mut self,
+        request: &DocumentRequest,
+        version: u64,
+        source: &[u8],
+        declared_sha256: &str,
+        draft_metadata: serde_json::Value,
+    ) -> Result<CheckpointReceipt, DocumentError> {
+        self.validate_recovery_owner(request)?;
+        if source.len() > MAX_SOURCE_BYTES || source_hash(source) != declared_sha256 {
+            return Err(error(ErrorCode::InvalidCheckpoint));
+        }
+        let dir = self.recovery_directory(Some(request), true)?;
+        let _lease = self.lease(&format!("recovery:{}", request.document_id))?;
+        recovery_store::checkpoint(
+            &dir,
+            request,
+            recovery_store::DraftSnapshot {
+                version,
+                source,
+                draft_metadata,
+                base_fingerprint: self.registered(request)?.initial.fingerprint.clone(),
+            },
+            || {
+                self.validate_recovery_owner(request)?;
+                let current = self.recovery_directory(Some(request), false)?;
+                if !same_file(&stat(&dir)?, &stat(&current)?) {
+                    return Err(error(ErrorCode::OwnershipLost));
+                }
+                Ok(())
+            },
+            |_| Ok(()),
+        )
+    }
+
+    pub fn inspect_recovery(
+        &self,
+        request: &DocumentRequest,
+    ) -> Result<RecoveryInspection, DocumentError> {
+        self.registered(request)?;
+        self.inspect_in(
+            self.recovery_directory(Some(request), false),
+            &request.document_id,
+        )
+    }
+
+    /// Native restart lookup for loose/unsaved identities; no frontend path or disk write.
+    pub fn inspect_local_recovery(
+        &self,
+        document_id: &str,
+    ) -> Result<RecoveryInspection, DocumentError> {
+        if !valid_uuid(document_id) {
+            return Err(error(ErrorCode::InvalidHandle));
+        }
+        self.inspect_in(self.recovery_directory(None, false), document_id)
+    }
+
+    fn inspect_in(
+        &self,
+        dir: Result<File, DocumentError>,
+        document_id: &str,
+    ) -> Result<RecoveryInspection, DocumentError> {
+        match dir {
+            Ok(dir) => recovery_store::inspect(&dir, document_id),
+            Err(err) if err.code == ErrorCode::MissingSource => Ok(RecoveryInspection::default()),
+            Err(err) => Err(err),
+        }
     }
 }
 

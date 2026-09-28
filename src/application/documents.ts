@@ -57,6 +57,10 @@ export interface DocumentError {
     | 'ownershipLost'
     | 'tooManyDocuments'
     | 'nativeUnavailable'
+    | 'recoveryNeedsAttention'
+    | 'invalidCheckpoint'
+    | 'staleRecoveryVersion'
+    | 'checkpointConflict'
     | 'io';
   action: 'selectSourceAgain' | 'reopenOrSaveCopy' | 'retry';
 }

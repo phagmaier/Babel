@@ -81,3 +81,17 @@ review remain M6. The Linux adapter needs no runtime Git, account, helper,
 network service or new privileged system package. It is not an installed-app
 or non-Linux packaging claim. [ADR 0012](decisions/0012-native-document-identity.md)
 records its conservative permissions/path policy and remaining limits.
+
+## M2-02 recovery checks
+
+No new dependencies or permission capabilities. Focused format/fault tests:
+`CARGO_HOME=/tmp/babel-cargo cargo test -p screenwriter-core --lib --locked`.
+Native recovery integration/stress:
+`CARGO_HOME=/tmp/babel-cargo cargo test -p screenwriter-core --test recovery --locked -- --nocapture`.
+Prepend `BABEL_RECOVERY_TEST_ROOT=/home/phagmaier/Code/babel` for Btrfs fixture
+roots. This variable applies only to recovery tests, not the safe-open suite.
+For production-like latency, use the same test with `--release` and filter
+`large_stress_fixture_has_bounded_growth_and_measured_checkpoint_latency`.
+The exact commands/results are in [M2 evidence](test-evidence/M2.md#m2-02--recovery-checkpoint-format).
+Fault/SIGKILL stage hooks and child-process environment controls compile only
+in unit test binaries; no runtime hook or general filesystem IPC is added.

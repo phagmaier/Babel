@@ -16,5 +16,4 @@ native path, not content. Invalid UTF-8 remains verbatim and view-only; valid
 UTF-8 unknown syntax is returned raw without claiming parser support. Native
 initial snapshots are immutable. [ADR 0012](decisions/0012-native-document-identity.md)
 and [M2 evidence](test-evidence/M2.md) describe conservative metadata/rename
-behavior, bounds and ownership. Unsaved identities are allocated but do not
-claim recovery availability until M2-02 creates a checkpoint.
+behavior, bounds and ownership. Unsaved identities are allocated before naming; M2-02 adds native checkpoint receipts. Recovery protection applies only to the acknowledged snapshot, not later live edits or the source file.

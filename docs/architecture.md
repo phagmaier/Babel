@@ -51,3 +51,13 @@ Bounds, schema and platform limits live in [ADR 0012](decisions/0012-native-docu
 exercise the real generated command handler against native synthetic files;
 the runtime is mocked and is not WebView E2E evidence. Blocking open/identity
 I/O stays native-only; future picker wiring must dispatch it to a native worker.
+
+M2-02 adds native-only `checkpoint`, `inspect_recovery` and
+`inspect_local_recovery` methods. They are not exposed through Tauri commands;
+checkpoint IPC and versioned UI state wait for M2-04. Pure framing lives in
+`documents/recovery.rs`; Linux publication in `documents/recovery_store.rs`.
+Receipts are explicitly tagged `recoveryCheckpoint` and carry the exact
+identity/version/hash/generation. The service does not maintain mutable live
+editor content. Managed recovery stays in the project auxiliary directory;
+loose/unsaved recovery stays in private app data. [ADR 0013](decisions/0013-recovery-checkpoint-journal.md)
+records schema, publication, bounds and restart limits.

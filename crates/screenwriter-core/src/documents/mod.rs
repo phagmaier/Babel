@@ -1,10 +1,12 @@
-//! Headless native authority. No parser, source writes, recovery or path-based IPC.
+//! Headless native authority. No parser, source writes or path-based IPC.
 use serde::{Deserialize, Serialize};
+
+pub mod recovery;
 
 #[cfg(target_os = "linux")]
 mod linux;
 #[cfg(target_os = "linux")]
-pub use linux::DocumentService;
+pub use linux::{DocumentService, RecoveryInspection};
 
 pub const MAX_SOURCE_BYTES: usize = 16 * 1024 * 1024;
 pub const MAX_OPEN_DOCUMENTS: usize = 32;
@@ -100,6 +102,10 @@ pub enum ErrorCode {
     OwnershipLost,
     TooManyDocuments,
     NativeUnavailable,
+    RecoveryNeedsAttention,
+    InvalidCheckpoint,
+    StaleRecoveryVersion,
+    CheckpointConflict,
     Io,
 }
 
@@ -125,9 +131,10 @@ impl DocumentError {
             ErrorCode::MissingSource | ErrorCode::UnsafePath | ErrorCode::NotRegularFile => {
                 RecoveryAction::SelectSourceAgain
             }
-            ErrorCode::SourceChanged | ErrorCode::OwnershipLost | ErrorCode::OwnershipRequired => {
-                RecoveryAction::ReopenOrSaveCopy
-            }
+            ErrorCode::SourceChanged
+            | ErrorCode::OwnershipLost
+            | ErrorCode::OwnershipRequired
+            | ErrorCode::RecoveryNeedsAttention => RecoveryAction::ReopenOrSaveCopy,
             _ => RecoveryAction::Retry,
         };
         Self { code, action }

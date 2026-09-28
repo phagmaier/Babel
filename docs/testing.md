@@ -37,3 +37,16 @@ dispatch; TypeScript tests mock invoke. Neither is native WebView E2E. The
 shell remains disabled for manuscripts; no save/recovery/close protection or
 M2 safety exit is asserted. [M2 evidence](test-evidence/M2.md) records commands,
 failed development checks, final results and excluded platforms/semantics.
+
+M2-02 tests every second-frame truncation and one-byte mutation, malformed
+buffers and bounded headers/schema/version/hash/draft metadata. Native tests
+cover exact recovery-only receipts, no source write, named/unsaved/managed
+restart lookup, source divergence independent of recovery, duplicates/stale
+versions/session isolation, tail quarantine, predecessor fallback, unknown
+schemas, oversized files and unsafe paths. The 15-stage injected failure
+matrix and simulated ENOSPC are simulations; six pipe-barrier SIGKILL stages
+exercise native process interruption. SIGKILL leaves kernel caches alive and
+does not prove power-loss behavior. The 600-workload stress fixture uses the
+independently recorded M1-02 byte count/hash and measures 32 checkpoints;
+format, growth and debug/release timings are recorded in [M2 evidence](test-evidence/M2.md#m2-02--recovery-checkpoint-format).
+No native WebView checkpoint or startup-choice UI is claimed.
