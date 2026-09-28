@@ -1,0 +1,9 @@
+# Local history and explicit remote transfer
+
+Status: planned; M0 has neither Git manuscript history nor remote adapter. [SPEC S11](../SPEC.md#s11); HIST-01/02, SYNC-01–05, INV-07–09/15/20.
+
+Local history will store curated Fountain/profile revisions through a native `HistoryStore`, independent of editor undo, recovery, current file, and backups. M1 tests a Git implementation on disposable repositories, including library/license/bundling behavior; no library is chosen yet. Revisions are made periodically and before risky operations, not per keystroke. Restore creates a new revision after protecting current content; it never resets away later history. History failure must not block emergency source saving. No system Git installation is assumed for end users.
+
+Remote M7 is manual: Upload Current Draft, Check Remote, Get Latest, Open from Remote. The app must use the same service from home/editor. A transfer captures an exact saved/checkpointed version and preserves local work before fetch or adoption, including home-screen operations. Fetch does not change the active source. Compare project identity and revision ancestry, not timestamps; preserve both heads on divergence and require explicit conflict review. Publication is non-force and no auto-merge is performed. An uncertain transfer result asks for a fresh check.
+
+Private Git hosting is only a candidate. **Private hosting is access control, not end-to-end encryption.** The provider/authentication/privacy decision remains deferred. No real upload is allowed until the owner selects a destination and acknowledges whether provider-readable storage is acceptable; provider-blind storage requires a separate encrypted design. Credentials never enter Fountain, manifests, logs, URLs, or repository source. No auto-upload or runtime network dependency is configured. [ADR 0006](decisions/0006-explicit-remote-gate.md).

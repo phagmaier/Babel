@@ -1,0 +1,10 @@
+node_modules
+dist
+target
+src-tauri/gen
+pnpm-lock.yaml
+Cargo.lock
+fixtures
+SPEC.md
+BOOTSTRAP_PROMPT.md
+AGENTS.md

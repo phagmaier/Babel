@@ -1,0 +1,16 @@
+node_modules/
+dist/
+target/
+src-tauri/gen/
+*.log
+.env
+.env.*
+!.env.example
+.DS_Store
+coverage/
+playwright-report/
+test-results/
+# This is application source, never manuscript runtime storage.
+*.fountain
+!fixtures/fountain/*.fountain
+.screenwriter/
