@@ -59,3 +59,34 @@ it('relinquishes the exact session and preserves release failure', async () => {
   invoke.mockRejectedValue(failure);
   await expect(nativeDocuments.release(identity)).rejects.toBe(failure);
 });
+
+it('sends strict save/checkpoint envelopes through separate commands and preserves protection tags', async () => {
+  const { opened, snapshot, receiptFor } =
+    await import('./persistence-fixtures');
+  const initial = opened();
+  const capture = snapshot(21);
+  const request = {
+    identity: initial.identity,
+    version: capture.version,
+    source: capture.source,
+    sourceSha256: capture.sourceSha256,
+    expectedFingerprint: initial.fingerprint!,
+    draftMetadata: capture.draftMetadata,
+  };
+  const saved = receiptFor(21);
+  invoke.mockResolvedValue(saved.recovery);
+  expect(await nativeDocuments.checkpoint(request)).toBe(saved.recovery);
+  expect(invoke).toHaveBeenLastCalledWith('checkpoint_document', { request });
+  invoke.mockResolvedValue(saved);
+  expect(await nativeDocuments.save(request)).toBe(saved);
+  expect(invoke).toHaveBeenLastCalledWith('save_document', { request });
+  const failure = {
+    identity: initial.identity,
+    version: 21,
+    error: { code: 'io', action: 'retry' },
+    replacement: 'replacedButUnconfirmed',
+    recovery: saved.recovery,
+  };
+  invoke.mockRejectedValue(failure);
+  await expect(nativeDocuments.save(request)).rejects.toBe(failure);
+});

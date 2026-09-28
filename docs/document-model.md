@@ -17,3 +17,17 @@ UTF-8 unknown syntax is returned raw without claiming parser support. Native
 initial snapshots are immutable. [ADR 0012](decisions/0012-native-document-identity.md)
 and [M2 evidence](test-evidence/M2.md) describe conservative metadata/rename
 behavior, bounds and ownership. Unsaved identities are allocated before naming; M2-02 adds native checkpoint receipts. Recovery protection applies only to the acknowledged snapshot, not later live edits or the source file.
+
+M2-03 keeps that initial snapshot immutable and advances a separate native disk
+baseline only after exact source-save confirmation. Admitted save payloads are
+immutable FIFO requests, never a second live authoring buffer. No Fountain
+parser or normalization participates in source replacement. See
+[ADR 0014](decisions/0014-serialized-source-replacement.md).
+
+M2-04's headless persistence controller accepts immutable captured source bytes,
+version, SHA-256 and opaque JSON draft metadata. Its owned submission copy does
+not interpret Fountain or normalize bytes. A producer must advance the version
+for source or draft-metadata changes, including undo; restoring old content is
+a new version. The receipt state stores only protection facts and fingerprints,
+not a second live manuscript. Editor/hash production and save cadence remain
+future integration. [ADR 0015](decisions/0015-versioned-persistence-ipc.md).

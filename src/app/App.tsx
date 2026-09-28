@@ -1,12 +1,27 @@
 import { useEffect, useState } from 'react';
 import type { AppInfoPort, AppInfoResult } from '../application/appInfo';
+import { RecoveryReview } from './RecoveryReview';
+import {
+  unavailableRecovery,
+  type RecoveryPort,
+} from '../application/startupRecovery';
+import { nativeRecovery } from '../infrastructure/nativeRecovery';
 import { browserAppInfo } from '../infrastructure/browserAppInfo';
 import { nativeAppInfo } from '../infrastructure/nativeAppInfo';
 
 const defaultPort =
   '__TAURI_INTERNALS__' in window ? nativeAppInfo : browserAppInfo;
 
-export function App({ appInfo = defaultPort }: { appInfo?: AppInfoPort }) {
+const defaultRecovery =
+  '__TAURI_INTERNALS__' in window ? nativeRecovery : unavailableRecovery;
+
+export function App({
+  appInfo = defaultPort,
+  recovery = defaultRecovery,
+}: {
+  appInfo?: AppInfoPort;
+  recovery?: RecoveryPort;
+}) {
   const [result, setResult] = useState<AppInfoResult | null>(null);
 
   useEffect(() => {
@@ -24,7 +39,7 @@ export function App({ appInfo = defaultPort }: { appInfo?: AppInfoPort }) {
       <div className="mark" aria-hidden="true">
         b
       </div>
-      <p className="eyebrow">Local-first screenwriting · M0</p>
+      <p className="eyebrow">Local-first screenwriting · Safety foundation</p>
       <h1>babel</h1>
       <p className="subtitle">A place for stories to take shape.</p>
       <section aria-labelledby="status-heading" className="card">
@@ -49,8 +64,9 @@ export function App({ appInfo = defaultPort }: { appInfo?: AppInfoPort }) {
           Open Fountain · coming later
         </button>
       </div>
+      <RecoveryReview port={recovery} />
       <p className="footer">
-        Recent projects and recovery will appear in a later milestone.
+        Source opening, editing and recovery adoption will follow.
       </p>
     </main>
   );

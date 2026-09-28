@@ -95,3 +95,41 @@ For production-like latency, use the same test with `--release` and filter
 The exact commands/results are in [M2 evidence](test-evidence/M2.md#m2-02--recovery-checkpoint-format).
 Fault/SIGKILL stage hooks and child-process environment controls compile only
 in unit test binaries; no runtime hook or general filesystem IPC is added.
+
+## M2-03 source replacement checks
+
+Focused native transaction/fault/API checks:
+`CARGO_HOME=/tmp/babel-cargo cargo test -p screenwriter-core --lib --test source_save --locked -- --nocapture`.
+Prepend `BABEL_SAVE_TEST_ROOT=/home/phagmaier/Code/babel` for Btrfs fixtures.
+Recovery unit tests additionally use `BABEL_RECOVERY_TEST_ROOT`; the source-save
+root does not change those tests' fixture location. Save fault/SIGKILL hooks
+exist only in unit test binaries. No dependency, filesystem permission,
+frontend save command or runtime fault control is added. Full shared checks
+and Linux limitations are in [M2 evidence](test-evidence/M2.md#m2-03--serialized-source-replacement).
+
+## M2-04 IPC/state checks
+
+Focused native worker and generated dispatch tests:
+`CARGO_HOME=/tmp/babel-cargo cargo test -p babel-desktop -p screenwriter-core --lib --locked -- --nocapture`.
+Use `BABEL_IPC_TEST_ROOT=/home/phagmaier/Code/babel` with
+`CARGO_HOME=/tmp/babel-cargo cargo test -p babel-desktop --locked -- --nocapture`
+for owned Btrfs worker/persistence fixtures. Focused headless frontend contracts:
+`pnpm exec vitest run tests/contract/persistence-state.test.ts tests/contract/persistence-controller.test.ts tests/contract/document-ipc.test.ts`.
+The controller tests inject ports; generated Tauri command tests use MockRuntime
+and real synthetic Linux files. Neither proves native WebView UI integration.
+No new dependency or permission capability. [M2 evidence](test-evidence/M2.md#m2-04--versioned-acknowledgements-and-ipc)
+records shared checks, worker cancellation and conservative unknown outcomes.
+
+## M2-05A startup review checks
+
+Focused native reader checks:
+`CARGO_HOME=/tmp/babel-cargo cargo test -p screenwriter-core --test startup_recovery --locked -- --nocapture`.
+Set `BABEL_STARTUP_TEST_ROOT=/home/phagmaier/Code/babel` for owned Btrfs reader
+and startup command fixtures. Command checks use
+`CARGO_HOME=/tmp/babel-cargo cargo test -p babel-desktop --locked -- --nocapture`.
+Focused frontend review/adapter:
+`pnpm exec vitest run tests/ui/RecoveryReview.test.tsx tests/ui/App.test.tsx tests/contract/startup-ipc.test.ts`.
+Read-only native smoke uses an isolated per-process `XDG_DATA_HOME` with synthetic
+checksummed frames and the real WebKit window; never seed the owner's app data.
+[M2 evidence](test-evidence/M2.md#m2-05a--read-only-startup-recovery-review)
+records exact commands, immutable-artifact checks and actual UI inspection.

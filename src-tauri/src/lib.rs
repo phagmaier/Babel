@@ -2,15 +2,21 @@ use screenwriter_core::AppInfo;
 #[cfg(target_os = "linux")]
 use screenwriter_core::documents::DocumentService;
 use screenwriter_core::documents::{DocumentError, DocumentRequest, ErrorCode, OpenDocument};
-use std::sync::Mutex;
+use std::sync::{Arc, Mutex};
+mod persistence_host;
+mod startup_host;
+use persistence_host::{Budget, checkpoint_document, save_document};
+use startup_host::{RecoveryHost, list_local_recovery, read_local_recovery};
+use tauri::Manager;
 
-#[derive(Default)]
+#[derive(Clone, Default)]
 struct DocumentHost {
     // Initialized only by a future native picker/controller, never an IPC path.
     #[cfg(target_os = "linux")]
-    service: Mutex<Option<DocumentService>>,
+    service: Arc<Mutex<Option<DocumentService>>>,
     #[cfg(not(target_os = "linux"))]
-    service: Mutex<()>,
+    service: Arc<Mutex<()>>,
+    budget: Arc<Mutex<Budget>>,
 }
 
 impl DocumentHost {
@@ -50,19 +56,19 @@ impl DocumentHost {
 }
 
 #[tauri::command]
-fn read_open_document(
+async fn read_open_document(
     request: DocumentRequest,
     state: tauri::State<'_, DocumentHost>,
 ) -> Result<OpenDocument, DocumentError> {
-    state.read(&request)
+    state.read_worker(request).await
 }
 
 #[tauri::command]
-fn release_open_document(
+async fn release_open_document(
     request: DocumentRequest,
     state: tauri::State<'_, DocumentHost>,
 ) -> Result<(), DocumentError> {
-    state.release(&request)
+    state.release_worker(request).await
 }
 
 #[tauri::command]
@@ -82,19 +88,38 @@ fn record_native_editor_proof(report: String) -> Result<(), &'static str> {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    let builder = tauri::Builder::default().manage(DocumentHost::default());
+    let builder = tauri::Builder::default()
+        .manage(DocumentHost::default())
+        .manage(RecoveryHost::default())
+        .setup(|app| {
+            // Resolve only. Startup review does not initialize/create the writer store or a source.
+            let root = app.path().app_data_dir().ok();
+            *app.state::<RecoveryHost>()
+                .root
+                .lock()
+                .map_err(|_| std::io::Error::other("recovery host unavailable"))? = root;
+            Ok(())
+        });
     #[cfg(feature = "native-editor-proof")]
     let builder = builder.invoke_handler(tauri::generate_handler![
         app_info,
         read_open_document,
         release_open_document,
+        list_local_recovery,
+        read_local_recovery,
+        checkpoint_document,
+        save_document,
         record_native_editor_proof
     ]);
     #[cfg(not(feature = "native-editor-proof"))]
     let builder = builder.invoke_handler(tauri::generate_handler![
         app_info,
         read_open_document,
-        release_open_document
+        release_open_document,
+        list_local_recovery,
+        read_local_recovery,
+        checkpoint_document,
+        save_document
     ]);
     builder
         .run(tauri::generate_context!())
@@ -122,3 +147,6 @@ mod tests {
 
 #[cfg(all(test, target_os = "linux"))]
 mod document_ipc_tests;
+
+#[cfg(all(test, target_os = "linux"))]
+mod startup_ipc_tests;

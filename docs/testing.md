@@ -50,3 +50,48 @@ does not prove power-loss behavior. The 600-workload stress fixture uses the
 independently recorded M1-02 byte count/hash and measures 32 checkpoints;
 format, growth and debug/release timings are recorded in [M2 evidence](test-evidence/M2.md#m2-02--recovery-checkpoint-format).
 No native WebView checkpoint or startup-choice UI is claimed.
+
+M2-03 adds production native save API/FIFO and transaction tests on synthetic
+sources. They cover exact no-op bytes, mode/group and inode lease transitions,
+immutable initial snapshots, queue count/byte/version/session bounds, duplicate
+flush, stale/conflicting requests, managed/loose storage, external edit/delete/
+rename/permission changes, ACL/xattr refusal and recovery failure. Twenty
+injected source stages, simulated ENOSPC, transaction-directory substitution,
+pre/post-replacement external edits and eight SIGKILL barriers preserve valid
+source/previous/recovery generations and classify uncertainty honestly. Fixed
+pending/intent artifacts block accumulation and remain read-only on inspection.
+The hooks compile only into unit tests; no production fault environment or save
+IPC existed in that task. [M2 evidence](test-evidence/M2.md#m2-03--serialized-source-replacement)
+records tmpfs/Btrfs and full shared-check results; M2-05/06 and visible UI gates stay open.
+
+M2-04 adds pure state tests for exact v21/v22 protection, all 24 result-delivery
+permutations, session token isolation, stale failures, receipt-schema/hash/length
+validation and separate journal/source states. Injected controller ports test
+immutable captures, bounded serial dispatch, causal fingerprint advancement,
+fresh duplicate flush calls, native failure propagation and unknown-result
+source blocking with continued raw recovery. Mocked invoke checks exact command
+names/envelopes; these frontend tests perform no native I/O.
+
+Generated Tauri MockRuntime dispatch tests use the real Linux service and owned
+synthetic files: checkpoint/source receipt separation, duplicate flush/stale
+rejection, strict path-free requests, cross-session/hash/version rejection,
+external divergence with recovery retained, malformed raw unsaved recovery and
+uninitialized host failures. Worker tests exercise job/byte budgets, mutex wait
+off the caller, abandoned response with native completion, stale frontend
+fingerprint recovery, poisoned mutex uncertainty and isolation from an existing
+native queue. The poisoned-mutex test deliberately catches a panic; it is not
+an application crash. Filesystem/worker operations are native evidence on the
+recorded host; MockRuntime dispatch is not native WebView E2E. No cadence,
+latency, power-loss, startup UI or other-platform claim is made.
+See [M2 evidence](test-evidence/M2.md#m2-04--versioned-acknowledgements-and-ipc).
+
+M2-05A tests read-only restart discovery/raw metadata fidelity, missing-directory
+no-create, damaged-tail predecessor inspection, stale and metadata-only changed
+selection rejection, pending/future/quarantined/conflicting generation exposure,
+unsafe symlink/store substitution and scan/document limits. Generated MockRuntime
+commands perform real synthetic native reads, strict path-free/stale checks and
+confirm the writer host stays uninitialized. UI contracts exercise literal HTML
+text, malformed bytes as hex, stale/deferred responses, damaged/incomplete lists,
+fixed errors/retry and bounded Unicode preview. Native window smoke is distinct
+from these injected-port/MockRuntime tests. [M2 evidence](test-evidence/M2.md#m2-05a--read-only-startup-recovery-review)
+records scope and limits; adoption/retention/close remain separate gates.

@@ -1,6 +1,6 @@
 # Persistence and recovery
 
-Status: M1-04 Linux replacement proof and M2-01 native identity/open boundary exist; M2-02 native recovery framing/publication exists; production source saving and startup UI remain planned. [SPEC S10](../SPEC.md#s10); SAVE-01–05, INV-04–08/10/20.
+Status: M1-04 Linux replacement proof and M2-01 native identity/open boundary exist; M2-02 native recovery framing/publication exists; M2-03 native source replacement and M2-04 typed worker IPC/headless state exist; M2-05A read-only local startup review exists; visible editor integration and full recovery resolution remain planned. [SPEC S10](../SPEC.md#s10); SAVE-01–05, INV-04–08/10/20.
 
 One native writer queue per document serializes immutable save requests. Requests bind opaque handle, project/session ID, monotonically increasing document version, source hash, and expected disk fingerprint. Track `liveVersion`, `journaledVersion`, and `fileSavedVersion` separately. An acknowledgement for v21 cannot make v22 "Saved locally"; a recovery checkpoint is not a file-save acknowledgement. Native code computes/verifies the saved hash and sends the exact result. Emergency raw protection does not depend on Script Check passing.
 
@@ -34,8 +34,8 @@ race limitation. No source or managed metadata is written during open.
 
 Private schema-1 loose identity records use exclusive creation and sync;
 corrupt/future entries remain intact and cause ephemeral view-only open.
-Locks are never unlinked. M2-02 adds native recovery checkpoints; no source-file acknowledgement, automatic
-reload, Save As or protected close is implemented. `release_open_document`
+Locks are never unlinked. M2-02 adds native recovery checkpoints; M2-03 adds native-only source receipts; automatic
+reload, Save As and protected close remain unimplemented. `release_open_document`
 is registration relinquishment only and must not become an editor close
 without the M2-05 protection protocol. See [ADR 0012](decisions/0012-native-document-identity.md)
 and [M2 evidence](test-evidence/M2.md). Full source replacement must use the
@@ -73,7 +73,93 @@ conflicting generation, pending artifact or older session requires attention;
 none is overwritten to make startup or a save succeed. Read-only inspection
 exposes published and pending candidates separately. It never claims that a
 receipt reached an editor or that the Fountain source was saved. Startup
-choice/adoption/retention flows remain M2-05, save queues M2-03 and IPC/UI
-acknowledgement state M2-04. Checkpoint work must run outside the typing path
-when native/UI integration is added. [M2 evidence](test-evidence/M2.md#m2-02--recovery-checkpoint-format)
+choice/adoption/retention flows remain M2-05. M2-03 adds save queues; M2-04
+adds typed checkpoint IPC and receipt-driven state, dispatching filesystem work
+on blocking native workers. [M2 evidence](test-evidence/M2.md#m2-02--recovery-checkpoint-format)
 records failure/property/restart/SIGKILL tests and measured growth/latency.
+
+## M2-03 serialized source replacement
+
+Native-only `enqueue_save(SaveRequest)` takes ownership of immutable UTF-8
+source/version/hash/draft metadata and an expected native fingerprint;
+`save_next(identity)` executes one registration's FIFO request. Admission is
+not persistence evidence. There are eight pending slots and a 32 MiB global
+source-plus-metadata budget; versions remain ordered even after failure.
+Requests admitted together may share a disk baseline. Only a confirmed native
+predecessor advances the execution baseline; external disk bytes never do.
+The initial open snapshot stays immutable.
+
+Recovery protection precedes divergence checks and source writes. An anchored
+transaction frame records the local source and random same-directory candidate
+name before any candidate exists. An independently synced/verified previous
+source and its directory entry precede candidate write/sync/verification, inode
+lease acquisition, final source/ownership recheck, atomic rename, directory sync
+and exact installed-byte verification. Ordinary owner/group/mode survive; ACLs
+and xattrs are conservatively rejected rather than discarded. Confirmed metadata
+is synced/reverified before the exact `sourceFile` receipt and disk baseline
+advance. Exact duplicates perform fresh sync/verification without replacement.
+
+Errors distinguish source unchanged by this operation from replaced but
+unconfirmed. The latter blocks further replacement and bare release while
+retaining both inode leases, baseline, recovery and previous source; independent
+raw checkpoints remain possible. `inspect_source_save` only reports artifacts
+and source observations after restart, never a delivered receipt or automatic
+adoption. Partial, corrupt, newer-schema, unsafe or unresolved artifacts block
+source replacement and remain protected. See [ADR 0014](decisions/0014-serialized-source-replacement.md)
+for layout/bounds, FIFO semantics and success/failure boundaries. M2-04 adds
+worker/IPC and headless state; editor save scheduling/coalescing remains open.
+M2-05 owns startup choices, missing-source relinking,
+transaction resolution/cleanup, retention, Save As and protected close. Linux
+support remains bounded to this tested adapter; no power-loss/platform exit claim.
+
+## M2-04 receipt-driven protection
+
+Source receipts contain an exact, separately tagged recovery receipt. A native
+source failure may include that verified recovery receipt without granting
+file-save credit. `sourceUnchanged` describes this operation only;
+`replacedButUnconfirmed` describes the known post-replacement failure boundary;
+`outcomeUnknown` covers worker/transport loss without an exact completion result.
+Unknown or malformed results freeze source operations, retain prior confirmed
+state and permit independent raw checkpoints. External source divergence has
+a distinct state and preserves both versions. No automatic retry/adoption occurs.
+
+State changes require the original immutable operation token plus the exact
+session/version/hash and valid receipt schema. An acknowledgement for v21 may
+advance historical protection but cannot clear v22. Late results cannot regress
+fingerprints or newer completion states; tokens from another session do nothing
+even when numeric operation IDs repeat. Errors shown by state use typed codes,
+never arbitrary transport text. Native errors are propagated by the adapter.
+
+The controller owns submitted byte/JSON copies, not the live manuscript.
+Checkpoint and source calls are serial and bounded; successor source calls use
+only validated predecessor fingerprints. Native recovery uses its own trusted
+baseline, so a lost source receipt and stale frontend fingerprint cannot block
+newer raw protection. No debounce interval, maximum dirty age, coalescing,
+protected close or editor integration is delivered here. Those product gates
+remain open. [ADR 0015](decisions/0015-versioned-persistence-ipc.md) and
+[M2 evidence](test-evidence/M2.md#m2-04--versioned-acknowledgements-and-ipc)
+record contract/failure coverage and native-versus-mocked limits.
+
+## M2-05A startup review
+
+On startup, inspect existing native private recovery without creating the store,
+writing recovery/source bytes or acquiring a writer lease. Bound discovery to
+4096 directory entries/64 draft UUIDs and expose incomplete scans. Read artifact
+origins independently; valid prefixes remain inspectable despite corrupt tails,
+future schemas, pending writes or generation conflicts elsewhere. Never infer a
+winner/receipt/source-save from these observations. Unknown/unsafe material stays
+on disk and is reported, not deleted to make the list look healthy.
+
+A selected preview binds its artifact origin and full canonical checkpoint hash,
+including draft metadata. Re-read and verify before returning exact raw bytes;
+a changed selection fails rather than switching versions. UI text/hex previews
+are bounded and explicitly read-only. Inspect Later only hides review for the
+current session and does not resolve or prune it. Local checkpoints may share a
+disk with the source and are not a separate backup.
+
+This task covers loose/unsaved private-store recovery only; the source has not
+been selected or compared. Managed-source comparison and protected recovery/copy/
+keep choices remain M2-05B; snapshots/retention/backup remain M2-05C; protected
+close remains M2-05D. Parent M2-05 stays open. [ADR 0016](decisions/0016-read-only-startup-recovery-review.md)
+and [M2 evidence](test-evidence/M2.md#m2-05a--read-only-startup-recovery-review)
+record the contract and native/mocked verification boundary.

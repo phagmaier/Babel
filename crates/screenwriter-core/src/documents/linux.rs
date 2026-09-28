@@ -12,8 +12,16 @@ use uuid::Uuid;
 
 #[path = "recovery_store.rs"]
 mod recovery_store;
+#[path = "source_store.rs"]
+mod source_store;
+#[path = "startup_reader.rs"]
+mod startup_reader;
 use super::recovery::{CheckpointReceipt, source_hash};
+use super::saving::*;
 pub use recovery_store::RecoveryInspection;
+pub use source_store::SaveInspection;
+pub use startup_reader::LocalRecoveryReader;
+use std::collections::VecDeque;
 
 const MAX_METADATA_BYTES: usize = 16 * 1024;
 
@@ -217,6 +225,11 @@ struct Registered {
     initial: OpenDocument,
     anchor: Option<Anchor>,
     leases: Vec<Lease>,
+    baseline: Option<DiskFingerprint>,
+    queue: VecDeque<SaveRequest>,
+    last_save: Option<(SaveReceipt, serde_json::Value)>,
+    last_admitted: Option<(u64, String, serde_json::Value)>,
+    save_uncertain: bool,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -445,6 +458,11 @@ impl DocumentService {
         self.documents.insert(
             initial.identity.handle.clone(),
             Registered {
+                baseline: initial.fingerprint.clone(),
+                queue: VecDeque::new(),
+                last_save: None,
+                last_admitted: None,
+                save_uncertain: false,
                 initial: initial.clone(),
                 anchor: Some(anchor),
                 leases,
@@ -473,6 +491,11 @@ impl DocumentService {
         self.documents.insert(
             initial.identity.handle.clone(),
             Registered {
+                baseline: initial.fingerprint.clone(),
+                queue: VecDeque::new(),
+                last_save: None,
+                last_admitted: None,
+                save_uncertain: false,
                 initial: initial.clone(),
                 anchor: None,
                 leases: vec![lease],
@@ -514,7 +537,10 @@ impl DocumentService {
 
     /// M2-01 relinquish only. No close-after-edits promise until the M2-05 close protocol.
     pub fn release(&mut self, request: &DocumentRequest) -> Result<(), DocumentError> {
-        self.registered(request)?;
+        let record = self.registered(request)?;
+        if !record.queue.is_empty() || record.save_uncertain {
+            return Err(error(ErrorCode::SaveNeedsAttention));
+        }
         self.documents.remove(&request.handle);
         Ok(())
     }
@@ -530,7 +556,7 @@ impl DocumentService {
         }
         if let Some(anchor) = &record.anchor {
             let (_, current) = anchor.snapshot()?;
-            if Some(&current) != record.initial.fingerprint.as_ref()
+            if Some(&current) != record.baseline.as_ref()
                 || !view_reasons(&current, &stat(&anchor.parent)?).is_empty()
             {
                 return Err(error(ErrorCode::SourceChanged));
@@ -607,6 +633,55 @@ impl DocumentService {
         declared_sha256: &str,
         draft_metadata: serde_json::Value,
     ) -> Result<CheckpointReceipt, DocumentError> {
+        let record = self.registered(request)?;
+        let base = if record.last_save.as_ref().is_some_and(|(saved, metadata)| {
+            saved.version == version
+                && saved.source_sha256 == declared_sha256
+                && *metadata == draft_metadata
+        }) {
+            // Confirmation advances the disk baseline, not an already immutable recovery frame.
+            // Re-flushing that same saved version must verify its original base rather than conflict.
+            self.inspect_recovery(request)?
+                .latest
+                .filter(|c| c.metadata.version == version)
+                .map_or_else(|| record.baseline.clone(), |c| c.metadata.base_fingerprint)
+        } else {
+            record.baseline.clone()
+        };
+        self.checkpoint_with_base(
+            request,
+            version,
+            source,
+            declared_sha256,
+            draft_metadata,
+            base,
+        )
+    }
+
+    /// Path-free raw protection. The caller's disk fingerprint is a hint, not authority;
+    /// a lost source receipt must not prevent newer raw recovery. Use the native baseline.
+    pub fn checkpoint_request(
+        &mut self,
+        request: persistence::CheckpointRequest,
+    ) -> Result<CheckpointReceipt, DocumentError> {
+        self.checkpoint(
+            &request.identity,
+            request.version,
+            &request.source,
+            &request.source_sha256,
+            request.draft_metadata,
+        )
+    }
+
+    fn checkpoint_with_base(
+        &mut self,
+        request: &DocumentRequest,
+        version: u64,
+        source: &[u8],
+        declared_sha256: &str,
+        draft_metadata: serde_json::Value,
+        base: Option<DiskFingerprint>,
+    ) -> Result<CheckpointReceipt, DocumentError> {
         self.validate_recovery_owner(request)?;
         if source.len() > MAX_SOURCE_BYTES || source_hash(source) != declared_sha256 {
             return Err(error(ErrorCode::InvalidCheckpoint));
@@ -620,7 +695,7 @@ impl DocumentService {
                 version,
                 source,
                 draft_metadata,
-                base_fingerprint: self.registered(request)?.initial.fingerprint.clone(),
+                base_fingerprint: base,
             },
             || {
                 self.validate_recovery_owner(request)?;

@@ -1,12 +1,15 @@
-//! Headless native authority. No parser, source writes or path-based IPC.
+//! Headless native authority. No parser or path-based IPC. Source writes are native-only.
 use serde::{Deserialize, Serialize};
 
+pub mod persistence;
 pub mod recovery;
+pub mod saving;
+pub mod startup;
 
 #[cfg(target_os = "linux")]
 mod linux;
 #[cfg(target_os = "linux")]
-pub use linux::{DocumentService, RecoveryInspection};
+pub use linux::{DocumentService, LocalRecoveryReader, RecoveryInspection, SaveInspection};
 
 pub const MAX_SOURCE_BYTES: usize = 16 * 1024 * 1024;
 pub const MAX_OPEN_DOCUMENTS: usize = 32;
@@ -58,7 +61,7 @@ pub enum SourceEncoding {
 
 /// String device/inode fields avoid rounding in JavaScript. Hash is native SHA-256.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct DiskFingerprint {
     pub device: String,
     pub inode: String,
@@ -106,6 +109,11 @@ pub enum ErrorCode {
     InvalidCheckpoint,
     StaleRecoveryVersion,
     CheckpointConflict,
+    InvalidSave,
+    StaleSaveVersion,
+    SaveConflict,
+    SaveQueueFull,
+    SaveNeedsAttention,
     Io,
 }
 
@@ -134,7 +142,8 @@ impl DocumentError {
             ErrorCode::SourceChanged
             | ErrorCode::OwnershipLost
             | ErrorCode::OwnershipRequired
-            | ErrorCode::RecoveryNeedsAttention => RecoveryAction::ReopenOrSaveCopy,
+            | ErrorCode::RecoveryNeedsAttention
+            | ErrorCode::SaveNeedsAttention => RecoveryAction::ReopenOrSaveCopy,
             _ => RecoveryAction::Retry,
         };
         Self { code, action }

@@ -117,3 +117,38 @@ button:disabled {
     color: #bdcbbf;
   }
 }
+
+.recovery {
+  margin-top: 24px;
+}
+.recovery-list {
+  list-style: none;
+  padding: 0;
+}
+.recovery-list > li {
+  border-top: 1px solid #cad2c7;
+  padding: 18px 0;
+}
+.recovery h3 {
+  font-size: 1rem;
+  overflow-wrap: anywhere;
+}
+.hash {
+  overflow-wrap: anywhere;
+  font-size: 0.8rem;
+}
+.recovery-preview pre {
+  max-height: 320px;
+  overflow: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 0.85rem;
+}
+button:not(:disabled) {
+  cursor: pointer;
+}
+button:focus-visible,
+pre:focus-visible {
+  outline: 3px solid #64816c;
+  outline-offset: 3px;
+}

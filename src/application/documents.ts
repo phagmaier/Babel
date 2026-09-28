@@ -61,6 +61,11 @@ export interface DocumentError {
     | 'invalidCheckpoint'
     | 'staleRecoveryVersion'
     | 'checkpointConflict'
+    | 'invalidSave'
+    | 'staleSaveVersion'
+    | 'saveConflict'
+    | 'saveQueueFull'
+    | 'saveNeedsAttention'
     | 'io';
   action: 'selectSourceAgain' | 'reopenOrSaveCopy' | 'retry';
 }
@@ -69,4 +74,55 @@ export interface DocumentError {
 export interface DocumentPort {
   readInitial(identity: DocumentIdentity): Promise<OpenDocument>;
   release(identity: DocumentIdentity): Promise<void>;
+  checkpoint(request: CheckpointRequest): Promise<CheckpointReceipt>;
+  save(request: SaveRequest): Promise<SaveReceipt>;
+}
+
+export type JsonValue =
+  | null
+  | boolean
+  | number
+  | string
+  | readonly JsonValue[]
+  | { readonly [key: string]: JsonValue };
+
+export interface CheckpointRequest {
+  identity: DocumentIdentity;
+  version: number;
+  source: readonly number[];
+  sourceSha256: string;
+  expectedFingerprint: DiskFingerprint | null;
+  draftMetadata: JsonValue;
+}
+
+export interface SaveRequest extends CheckpointRequest {
+  expectedFingerprint: DiskFingerprint;
+}
+
+export interface CheckpointReceipt {
+  identity: DocumentIdentity;
+  version: number;
+  sourceSha256: string;
+  generation: number;
+  protection: 'recoveryCheckpoint';
+}
+
+export interface SaveReceipt {
+  identity: DocumentIdentity;
+  version: number;
+  sourceSha256: string;
+  fingerprint: DiskFingerprint;
+  recovery: CheckpointReceipt;
+  protection: 'sourceFile';
+}
+
+export interface CheckpointFailure {
+  identity: DocumentIdentity;
+  version: number;
+  error: DocumentError;
+}
+
+export interface SaveFailure extends CheckpointFailure {
+  replacement: 'sourceUnchanged' | 'replacedButUnconfirmed' | 'outcomeUnknown';
+  recovery: CheckpointReceipt | null;
 }

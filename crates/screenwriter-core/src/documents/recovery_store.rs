@@ -45,7 +45,7 @@ fn same_generation(a: &Stat, b: &Stat) -> bool {
     )
 }
 
-fn read_bytes(dir: &File, name: &str) -> Result<Option<Vec<u8>>, DocumentError> {
+pub(super) fn read_bytes(dir: &File, name: &str) -> Result<Option<Vec<u8>>, DocumentError> {
     let mut file = match read_file(dir, OsStr::new(name)) {
         Ok(file) => file,
         Err(err) if err.code == ErrorCode::MissingSource => return Ok(None),
@@ -71,7 +71,11 @@ fn read_bytes(dir: &File, name: &str) -> Result<Option<Vec<u8>>, DocumentError> 
     Ok(Some(bytes))
 }
 
-fn read(dir: &File, id: &str, suffix: &str) -> Result<Option<JournalRead>, DocumentError> {
+pub(super) fn read(
+    dir: &File,
+    id: &str,
+    suffix: &str,
+) -> Result<Option<JournalRead>, DocumentError> {
     let value = read_bytes(dir, &name(id, suffix))?.map(|bytes| decode_journal(&bytes));
     if value
         .as_ref()
