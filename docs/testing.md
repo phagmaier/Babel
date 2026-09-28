@@ -111,3 +111,5 @@ Injected-port UI tests cover comparison display, explicit versioned recovery,
 keep/copy/resolve flows, divergence blocking and substituted-generation
 rejection. [M2 evidence](test-evidence/M2.md#m2-05b--explicit-recovery-choices-and-external-changes)
 records scope and limits; retention/backup/close remain separate gates.
+
+The [M2-05B independent review](reviews/2026-09-28-m2-05b-review.md) found two cases absent from those suites: finalization interrupted before source-directory sync and relinking from a view-only caller. Existing passes do not close them. M2-05B-R1 owns their correction/regression evidence; M1-06 separately owns native codec/editor/save composition.

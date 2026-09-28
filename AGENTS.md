@@ -2,38 +2,38 @@
 
 ## Mission and scope
 
-Build the local-first screenwriting application defined in `SPEC.md`. Protect author content before adding features. The repository, not chat history, is project memory.
+Build the local-first screenwriting application in `SPEC.md`. Protect author content first. The repository is project memory.
 
-**Fresh repository:** if only the starter files exist, follow `BOOTSTRAP_PROMPT.md`, complete only milestone M0, and stop. No editor, persistence engine, PDF, history, or remote transfer during bootstrap.
+**Fresh repository:** follow `BOOTSTRAP_PROMPT.md`, complete M0 and stop. No editor, persistence engine, PDF, history or remote transfer during bootstrap.
 
 ## Start every session
 
-1. Read this file and applicable local instructions. Inspect `git status` and existing changes; preserve work you did not create.
-2. Read `docs/index.md`, `docs/current-state.md`, and the relevant `TODO.md` task entry (by ID) including its Dependencies/Read/Acceptance lines. Missing files are expected before bootstrap.
-3. Select one ready, bounded task with satisfied dependencies unless assigned otherwise. `M*-G` groups are not ready until decomposed into `M*-NN` tasks with an updated requirement trace. State the task ID and deliverable.
-4. Read its referenced spec sections, subsystem docs, code, and tests. Read the entire `SPEC.md` only during bootstrap, not repeatedly for routine tasks.
-5. Identify required checks/safety impact before changing code. A task blocked by its dependencies is not ready.
+1. Read applicable instructions; inspect `git status` and preserve existing work.
+2. Read `docs/index.md`, `docs/current-state.md` and the selected `TODO.md` entry including Dependencies/Read/Acceptance. Files may be absent before bootstrap.
+3. Choose one ready, bounded task unless assigned otherwise. `M*-G` groups require `M*-NN` decomposition and an updated trace. State task ID and deliverable.
+4. Use the task's Read list and routing table to find the relevant contract sections, code, and tests. Read whole documents only when the scope requires it; read the entire `SPEC.md` during bootstrap.
+5. Identify checks/safety impact before editing. Unsatisfied dependencies block implementation.
 
 ## Where to read
 
 | Work | Required context |
 | --- | --- |
-| Scope, tradeoffs, architecture | `SPEC.md` S02-S04/S16; `docs/architecture.md`; relevant `docs/decisions/` |
+| Architecture | `SPEC.md` S02-S04/S16; `docs/architecture.md`; relevant ADRs |
 | Source/model/import/export | `SPEC.md` S05-S06; `docs/document-model.md` |
 | Editor, keys, completion, selection | `SPEC.md` S07; `docs/editor-behavior.md`; document-model contract |
-| Home, sidebar, find/replace, accessibility | `SPEC.md` S08/S14; `docs/ux.md` |
+| Workflows/accessibility | `SPEC.md` S08/S14; `docs/ux.md` |
 | Script Check | `SPEC.md` S09; `docs/screenplay-validation.md` |
 | Saving, recovery, snapshots | `SPEC.md` S10; `docs/persistence-and-recovery.md` |
 | Revisions, remote operations | `SPEC.md` S11; `docs/sync-and-versioning.md`; persistence contract |
 | PDF, pagination, fonts | `SPEC.md` S12; `docs/pdf-and-formatting.md` |
 | Build, tests, performance | `SPEC.md` S13-S15; `docs/development.md`; `docs/testing.md` |
-| Task/handoff conventions | `SPEC.md` S17-S20; `TODO.md`; `docs/current-state.md`; `docs/index.md`; `docs/requirements.md` |
+| Task/handoff conventions | `SPEC.md` S17-S20; task, state, index and requirement trace |
 
-These docs are generated during bootstrap. Consult relevant nested `AGENTS.md` files explicitly if introduced (none exist yet); do not assume every harness loads every nested file automatically.
+Consult relevant nested `AGENTS.md` files explicitly; do not assume the harness loads them.
 
 ## Authority and non-negotiable rules
 
-`SPEC.md` owns product requirements/invariants. Accepted ADRs document implementation choices within them. Subsystem docs explain contracts; TODO/current-state report progress. Do not silently resolve contradictions or weaken a requirement. Update the specification and related ADR/tests together for an approved contract change. ADRs live in `docs/decisions/NNNN-slug.md` with status + explicit Evidence still needed.
+`SPEC.md` owns requirements/invariants; ADRs own choices; subsystem docs explain contracts; TODO/current-state report progress. Do not silently resolve contradictions or weaken requirements. Approved contract changes update SPEC and related ADR/tests together. ADRs: `docs/decisions/NNNN-slug.md`, status + Evidence still needed. Create them for lasting choices/tradeoffs in ownership, format, durability, platform policy or dependencies. Routine details belong in code/owning docs; no automatic ADR per task.
 
 - Fountain contains portable author content. Preserve unknown regions, meaningful whitespace, and no-op source bytes. Never silently normalize a manuscript on save.
 - One live editor authority; native services own disk/history/remote operations. No arbitrary filesystem or shell endpoint in the frontend.
@@ -47,32 +47,38 @@ These docs are generated during bootstrap. Consult relevant nested `AGENTS.md` f
 
 ## Implementation discipline
 
-Keep changes task-scoped and maintain module boundaries. Prefer existing, verified libraries over new frameworks. Pin dependencies; record license/packaging; no redundant engines or paid features.
+Keep changes task-scoped and preserve module boundaries. Prefer verified libraries; pin dependencies and record license/packaging. No redundant engines or paid features.
 
-Implement tests with behavior, including failure paths and undo where relevant. Use synthetic fixtures, temporary directories, and disposable remotes. Never test on the owner's only manuscript or auto-discover/use personal credentials.
+Implement behavior tests including failures/undo where relevant. Use synthetic fixtures, temporary directories and disposable remotes. Never test on the owner's only manuscript or auto-discover/use personal credentials.
 
-Use the actual commands in `docs/development.md`. During bootstrap, establish those commands instead of inventing successful results. Required checks normally include formatting, lint, typecheck, focused and shared tests, relevant builds, and native/UI checks appropriate to the task. Record results in `docs/test-evidence/M<milestone>.md` labeled native vs mocked/browser; end with `git diff --check`. Record platform-dependent blockers separately. Never disable a check or broaden permissions just to get green output.
+Use `docs/development.md` commands for changed behavior/acceptance gates. Docs-only: formatting, changed local-link checks, `git diff --check`; executable checks if commands/config change. Code: required focused/shared tests, formatting, lint/typecheck, relevant builds and native/UI checks. Focused tests cannot replace required shared/milestone gates.
 
-Preserve fixture bytes: formatters and Git newline conversion must not rewrite intentional Fountain whitespace, CRLF/BOM, or malformed fixtures. Do not regenerate expected results from the implementation and accept them without independent review.
+Filesystem matrix: replacement/recovery/journal/history publication, sync/interruption, identity publication, leases and native metadata/path behavior. Pure codec/envelope/state tests need no second filesystem run. Record coverage/omissions; never disable a check or broaden permissions just to get green output.
+
+Record exact command, host, outcome and evidence path once in `docs/test-evidence/M<milestone>.md`; label native vs mocked/browser and skipped/blocked gates. Task/trace/handoff docs link results instead of duplicating tables. Lists suffice. Bootstrap establishes actual commands; finish with `git diff --check`.
+
+Preserve fixture bytes: formatters/Git must not rewrite Fountain whitespace, CRLF/BOM or malformed fixtures. Expected results generated by the implementation require independent review.
 
 ## Context efficiency and handoffs
 
-Use targeted searches and bounded file ranges. Do not dump the whole repository, lockfiles, generated output, full logs, or this entire specification for a small task. Save verbose logs locally and summarize exact failures. Do not install plugins/MCP servers or change global settings for poor context use.
+Use targeted searches and bounded reads. Keep verbose logs outside routinely loaded docs; summarize exact failures. Do not dump repositories, lockfiles or generated output, or change global settings/install plugins to compensate for poor context use.
 
-Before stopping or handing off, update `docs/current-state.md` with active task, completed work, touched paths, exact checks/results, blockers, and next safe action. Keep under ~120 lines / 8 KiB; archive detail in owning docs/evidence. Record exact command, host, result, and evidence path.
+Before stopping/handoff, update `docs/current-state.md`: task, work, paths, checks/results, blockers, next action; under ~120 lines / 8 KiB, linking commands/host/detail in evidence. If the owner forbids editing another coordinator's files, leave them untouched; record base commit, paths, checks and next action in a task-local report.
 
-Only mark TODO items done after acceptance evidence exists. Update relevant docs and the requirement trace when behavior changes. If interrupted, leave honest in-progress state and recovery instructions, not a false completion checkmark.
+Only mark TODO items done after acceptance evidence exists. Update owning docs for substantive behavior changes and affected trace entries when requirement coverage, task mapping, acceptance or evidence status changes. Do not rewrite unchanged trace rows or repeat the handoff in each doc. If interrupted, record honest progress and recovery instructions.
 
-Parallel agents need explicit file ownership and bounded tasks. One coordinator owns shared task/status files, dependencies, and integration. Claim the task in `docs/current-state.md` and use one branch per task (`M<milestone>-<NN>-<slug>`, e.g. `M2-05B-recovery-choices`); never push to main without human review. Starting from uncommitted prior work requires commit/merge first (with approval) or recording base commit + dirty paths in `docs/current-state.md`. Shared files (`TODO.md`, `docs/requirements.md`, `docs/current-state.md`, `docs/index.md`, ADRs) are coordinator-owned; task entries must name owned paths. Prefer isolated worktrees. Subagents return concise summaries; avoid recursive delegation/overlapping edits.
+Claim tasks in `docs/current-state.md`. With one editing agent, work on `main` and commit completed work directly there; put task IDs in commit messages, not branch names. Tag verified milestone gates instead of creating milestone branches. Never push without human review and explicit authorization.
+
+Create a short-lived branch, preferably in a Git worktree, only when two or more agents will edit concurrently; delete it after merge. Parallel tasks need bounded scope and file ownership. One coordinator owns shared task/status files, dependencies and integration (`TODO.md`, `docs/requirements.md`, `docs/current-state.md`, `docs/index.md`, ADRs). Preserve prior dirty work and record base commit + dirty paths in the handoff. Task entries name owned paths; subagents return concise summaries. Avoid recursive delegation/overlapping edits.
 
 ## Permissions and stopping
 
-Proceed on reversible, in-scope defaults. Do not delete unrelated files, overwrite existing work, force-reset Git, commit/push/publish without authorization, create cloud resources, spend money, change global settings, or install privileged system packages. Initializing a local source repository during the requested bootstrap is allowed if none exists (bootstrap-only; moot).
+Proceed on reversible, in-scope defaults. No unrelated deletion/overwrite, force-reset, unauthorized commit/push/publish, cloud resources, spending, global settings or privileged packages. Local Git initialization is allowed only for requested bootstrap.
 
-If a prerequisite is missing, document the failed command and next safe step. Continue independent work where useful, but leave the affected gate blocked. Escalate privacy/destructive/cost decisions rather than guessing; do not ask again for information already recorded.
+For missing prerequisites record failed command and next safe step; continue independent work, leaving affected gates blocked. Escalate privacy/destructive/cost decisions; do not repeat questions already answered.
 
-At completion report: task IDs, concise changes, exact checks with passed/failed/blocked status, remaining risks, and next task. Stop at the requested milestone boundary.
+Report task IDs, changes, exact checks/status, risks and next task. Stop at the requested milestone boundary.
 
 ## Code review priorities
 
-Review for silent data loss, stale version races, lossy serialization, unsafe native privileges, content/credential egress, unsupported pagination claims, incomplete input/undo behavior, missing failure tests, and contract drift. Never weaken persistence for a prettier interface.
+Review data loss, stale races, lossy serialization, native privileges, content/credential egress, unsupported pagination, incomplete input/undo, missing failure tests and contract drift. Never weaken persistence for a prettier interface.

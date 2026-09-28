@@ -12,9 +12,11 @@
 | Content protection                     | [persistence](persistence-and-recovery.md), [history/remote](sync-and-versioning.md)                                                                             |
 | Publication                            | [PDF](pdf-and-formatting.md)                                                                                                                                     |
 | Requirement coverage                   | [requirements](requirements.md)                                                                                                                                  |
-| Next agent task                        | [TODO](../TODO.md) (ready: M2-05C after M2-05B review), [current-state](current-state.md)                                                                        |
+| Next agent task                        | [TODO](../TODO.md) (ready: M2-05B-R1 corrections), [current-state](current-state.md)                                                                             |
 
 The [fixture guide](../fixtures/README.md) defines synthetic test data. Product authority remains with [SPEC S00-S03](../SPEC.md#s00). If a contract here disagrees with the spec, record and resolve it; do not silently weaken the spec.
 
 [M1 exit and M2 contract review](m1-gate-review.md) records the bounded-proof
 exit and the safety contracts carried into the next milestone.
+
+[Independent M2-05B review](reviews/2026-09-28-m2-05b-review.md) requires corrections before acceptance. [M1-06 composition proof](editor-composition-proof.md) is registered and blocked on those corrections; its reviewed bounded conclusion precedes M2-05C. [Process review](reviews/2026-09-28-process-review.md) records documentation conventions and retained safety rules.

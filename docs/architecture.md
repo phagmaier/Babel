@@ -120,6 +120,8 @@ preview reports unavailable. See [ADR 0016](decisions/0016-read-only-startup-rec
 
 ## M2-05B recovery choices
 
+Acceptance is reopened by the [independent review](reviews/2026-09-28-m2-05b-review.md): finalization currently omits source-directory resync and relink omits exclusive caller validation. M2-05B-R1 must correct these before the contract below is treated as verified.
+
 `documents/choices.rs` owns strict path-free choice envelopes;
 Linux `documents/choices_store.rs` owns comparison, protected adoption through
 the M2-03 transaction, explicit keep, sibling emergency copy, post-replacement

@@ -167,6 +167,8 @@ record the contract and native/mocked verification boundary.
 
 ## M2-05B explicit choices and external changes
 
+Acceptance is reopened by the [independent review](reviews/2026-09-28-m2-05b-review.md): finalization currently omits source-directory resync and relink omits exclusive caller validation. M2-05B-R1 must correct these before the contract below is treated as verified.
+
 Comparison, adoption, keep, sibling copy, transaction finalize and safe
 relinking operate on a natively opened (`open_selected`) registration anchor;
 no IPC path exists and no choice deletes material. The older-session journal

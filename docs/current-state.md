@@ -1,35 +1,32 @@
-# Current state — M2-05B complete on its branch, awaiting review
+# Current state — M2-05B review requires corrections
 
-Date: 2026-09-28 PDT. Application: **babel**. Authority: [SPEC](../SPEC.md), [TODO](../TODO.md), [M2 evidence](test-evidence/M2.md#m2-05b--explicit-recovery-choices-and-external-changes), [ADR 0017](decisions/0017-explicit-recovery-choices.md).
+Date: 2026-09-28 PDT. Application: **babel**. Authority: [SPEC](../SPEC.md), [TODO](../TODO.md), [M2 review](reviews/2026-09-28-m2-05b-review.md), [review evidence](test-evidence/M2.md#m2-05b-r--independent-acceptance-review).
 
 ## Active task and trust boundary
 
-M0/bounded M1 and M2-01–04 are complete. M2-01 (`7e1ea90`) and M2-02 (`6039ccc`) were merged into local main at owner request. **M2-05A Startup recovery review is complete and merged into local `main` (`a968318`) at owner request**, preserving M2-03/04 work, plus local hardening (`bd91b84`, ahead of `origin/main`; no push without owner review). **M2-05B Explicit recovery choices and external changes is implemented and verified on branch `M2-05B-recovery-choices` (base `bd91b84`, clean tree at start); no commit/push without owner review.** M2-05 is decomposed into A (read-only review, done), B (explicit choices/source comparison, done pending review), C (snapshots/retention/backup), D (protected close). Parent M2-05/full M2 exit remain open.
+M0, bounded M1-01–05 and M2-01–04/05A retain their recorded completion. M2-05B is implemented at `de8b86b51f3b2bc3eef2825adfa9a41d9caae328`; local main already contains it. The earlier uncommitted/branch-only handoff was stale. **M2-05B-R independent review is complete; M2-05B acceptance is reopened until M2-05B-R1 corrections pass.** Parent M2-05/full M2 exit remain open.
 
-The app can compare a selected recovery checkpoint against a natively opened source and resolve it through explicit Recover as Current, Keep Current File, Save Recovered Copy, or interrupted-transaction finalize, plus native-only safe relinking. It remains unsafe for important manuscripts: production picker/writer registration, editing, Save As, retention/pruning and protected close UI are unavailable, New/Open disabled. No production editor, PDF export, history UI or remote operation exists.
+The owner authorized PROCESS-01, M2-05B review/coordinator registration, and then commit/merge to main, deletion of fully merged stale local branches and push to origin/main. The single-editor workflow now uses main, task IDs in commit messages and tags for verified milestone gates; short-lived worktree branches are reserved for concurrent editing. Review base: `de8b86b`. Git integration results are recorded below; no production implementation change was performed.
 
-## Completed work and touched paths
+The product remains a disabled writing shell with read-only startup recovery inspection. Native choice APIs and the reusable panel exist, but the production picker/writer is uninitialized. Editing, source-save/reopen UI, Save As, retention/protected close, history and remote operations remain unavailable. **Do not use important manuscripts.**
 
-- Path-free `compare_recovery` over `open_selected` anchors: recovery facts plus source status/fingerprint/hash, byte identity, external divergence and transaction observation. No timestamps, no winner. Read-only registrations may compare; adoption/finalize/relink require exclusive ownership.
-- `recover_checkpoint_as_current` adopts selected UTF-8 bytes as a strictly newer version through the M2-03 recovery-first transaction with exact source receipt; previous copy and journal retained. Malformed recovery is refused for adoption but stays copyable. Stale version/fingerprint, divergence, queued/uncertain state and stuck transactions fail without writing.
-- `keep_current_source` verifies both generations unchanged and reconciles the session in memory with zero disk writes; restarts require a fresh choice. `save_recovered_copy` writes exact bytes to a synced exclusive sibling (name only over IPC), even for missing/unreadable sources. `finalize_interrupted_save` completes only the two safe post-replacement states; `Prepared` and all other states return untouched.
-- Older-session journal gate stays closed for ordinary checkpoints/saves; only an explicit choice sets the in-memory per-registration reconciled flag. Five strict writer-host IPC commands on bounded blocking workers; uninitialized host honestly reports `nativeUnavailable`. `RecoveryChoicePanel` with stale-result guards and fixed wording; startup review notes the explicit native-comparison path with New/Open disabled.
-- Touched this task: core `documents/{choices.rs,choices_store.rs,choices_store_tests.rs,linux.rs,mod.rs,recovery_store.rs,recovery_store_tests.rs,source_store.rs}`, `tests/recovery_choices.rs`, native `{lib.rs,recovery_choices_host.rs,recovery_choices_ipc_tests.rs}`, `src/app/{RecoveryChoicePanel.tsx,RecoveryReview.tsx}`, `src/application/{recoveryChoices.ts}`, `src/infrastructure/nativeRecoveryChoices.ts`, `tests/{contract/recovery-choices.test.ts,ui/RecoveryChoices.test.tsx}`; README/TODO, architecture/persistence/UX/development/testing/requirements/current-state/index, ADR 0017 and M2 evidence. No lockfile or byte-sensitive fixture changes.
+## Completed review and touched paths
 
-## Exact verification
+- PROCESS-01 tightened read/check/evidence/ADR conventions in AGENTS; all original invariant bullets and both anti-false-claim rules survive. [Process report](reviews/2026-09-28-process-review.md) owns the measured verdicts; no further broad instruction trimming is needed.
+- M2-05B-R independently reproduced two gaps on synthetic tmpfs/Btrfs files: finalize issues a source receipt without retrying source-directory sync after a post-rename interruption; a view-only caller can relink and create identity/lease records. [Review](reviews/2026-09-28-m2-05b-review.md) owns severity, reproduction and required corrections. Existing passes do not cover these cases.
+- Registered M2-05B-R1 (ready native corrections) and [M1-06 composition proof](editor-composition-proof.md) (blocked on accepted corrections). M2-05C follows the proof's reviewed bounded conclusion. Production M3 still requires full M2 exit/decomposition.
+- Touched: AGENTS; README/TODO; current-state/index/requirements; architecture/persistence/testing review-status notes; M2 evidence append; two review reports and the composition plan. No source code, lockfile, capability, ADR or existing evidence section changed.
 
-Host: Linux 7.2.5-3-omarchy x86_64, Rust/Cargo 1.97.1, Node 26.7.0, pnpm 11.22.0; tmpfs/Btrfs; GTK 3.24.52/WebKitGTK 4.1 2.52.6. Full commands/logs/corrected failures and native-versus-mocked labels are in [M2-05B evidence](test-evidence/M2.md#m2-05b--explicit-recovery-choices-and-external-changes).
+## Verification
 
-- Passed: `CARGO_HOME=/tmp/babel-cargo cargo test --workspace --locked` — 136 entries (28 core incl. 2 choice, 11 choice API, 12 recovery API, 9 save API, 26 open, 7 startup, 17 desktop incl. 3 choice dispatch, 13 replacement, 13 history).
-- Passed: `BABEL_CHOICES_TEST_ROOT=/home/phagmaier/Code/babel ... --test recovery_choices` — 11 Btrfs entries; `BABEL_STARTUP_TEST_ROOT=... cargo test -p babel-desktop` — 17 (new choice dispatch on Btrfs, existing suites tmpfs). MockRuntime is not WebView E2E.
-- Passed: `pnpm check` — format/lint/typecheck, 49 tests and Vite build; `pnpm test:browser` — disabled-shell browser smoke.
-- Passed: `cargo fmt --all -- --check`; workspace clippy; desktop feature clippy; feature tests — 18; desktop build; no-Git `recovery_choices` (11) and desktop-lib (17) runs.
-- Passed real native smoke: `pnpm dev --host 127.0.0.1` and `env XDG_DATA_HOME=/tmp/babel-m2-05b-native-1ixj9x10/data ./target/debug/babel-desktop`; keyboard text preview, Inspect Later/restart with reappearing case. Six app-only screenshots visually inspected; exact input/crop commands in M2 evidence. One capture discarded after an unrelated overlay covered the crop; stale pre-disconnect processes were stopped before the recorded run. Both test processes stopped.
-- Passed: `python3 /tmp/babel-m2-05b-native-verify.py /tmp/babel-m2-05b-native-1ixj9x10` — all seeded artifacts retained hash/inode/mode/mtime after preview/deferral/restart/exit. Synthetic data only; owner's app data untouched. Access time is not asserted unchanged.
-- Passed: final docs Prettier check, local file-target link audit, and `git diff --check`. Exact formatting command/log in M2 evidence.
+Host: Linux 7.2.5-3-omarchy x86_64; Cargo 1.97.1, Node 26.7.0, pnpm 11.22.0; tmpfs `/tmp`, Btrfs workspace. Exact commands/logs are recorded once in [M2 review evidence](test-evidence/M2.md#m2-05b-r--independent-acceptance-review).
 
-## Remaining limits and next safe action
+- Passed unchanged implementation checks: 28 core unit + 11 choice API, 17 desktop and six injected frontend tests. Desktop generated dispatch uses MockRuntime with native files; no new WebView E2E claim.
+- Reproduced counterexamples: two diagnostic probes in an isolated `/tmp` archive, on tmpfs and Btrfs. fsync forwarding logger observed only transaction-directory sync during finalize. Diagnostic passes reproduce incorrect behavior; they are not corrected acceptance or power-loss proof.
+- Documentation formatting, changed-link audit and final diff/implementation-preservation checks: see evidence. Historical M2-05B native startup smoke remains historical and does not close these findings.
 
-No M2-05B host blocker. Linux-only support, retention/pruning, Save As, external backup destination and protected close remain open. Same-disk sibling copies are not disaster backups; prepared-intent cleanup is M2-05C pruning, not an automatic delete; advisory leases still cannot exclude arbitrary external writers between check and rename; existing ACL-xattr/power-loss/platform limits apply.
+## Next safe action
 
-Next ready task: **M2-05C Rolling snapshots and backup copies** on its own branch after M2-05B review. M2-05D owns protected close; M2-06 owns history/full safety exit. No editor before full M2 exit, no real remote transfer before M7 privacy/destination approval.
+Claim **M2-05B-R1** here and implement on main, starting from the integrated review commit. Own only the native correction/test paths named in TODO; preserve prior dirty work. Commit completed work with the task ID; push only after human review and explicit authorization. After regression/shared/failure checks and review acceptance, claim **M1-06** and work on main. The proof is registered, not implemented, and cannot write through the uncorrected writer. Do not start 05C before the bounded investigation's reviewed conclusion.
+
+Same-disk copies are not disaster backups; arbitrary external writers can still race advisory checks; power-loss, other platforms, package adoption and full IME/editor composition remain unverified.
