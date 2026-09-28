@@ -1,6 +1,6 @@
 # Requirement trace
 
-Authority: [SPEC S02.2](../SPEC.md#s02). Product requirements remain **unverified for Local v1**. M1-01 supplies a bounded source/model proof for DOC-01–04 and INV-02/03/11; M1-02 supplies native editor-input evidence on one host for EDIT-01/02/06 and QA-02; M1-03 supplies an offline PDF renderer proof with explicit gaps for PDF-01/03/04 and INV-03/13. M1-04 supplies Linux replacement/failure evidence for SAVE-01–03 and INV-04/05. No proof completes the product requirements. A disabled placeholder or app-info command does not satisfy a Local v1 requirement. Task IDs are in [TODO](../TODO.md). [M0 evidence](test-evidence/M0.md) covers the skeleton; [M1 evidence](test-evidence/M1.md) records the bounded proofs.
+Authority: [SPEC S02.2](../SPEC.md#s02). Product requirements remain **unverified for Local v1**. M1-01 supplies a bounded source/model proof for DOC-01–04 and INV-02/03/11; M1-02 supplies native editor-input evidence on one host for EDIT-01/02/06 and QA-02; M1-03 supplies an offline PDF renderer proof with explicit gaps for PDF-01/03/04 and INV-03/13. M1-04 supplies Linux replacement/failure evidence for SAVE-01–03 and INV-04/05. M1-05 supplies native history/restore/conflict and local transport evidence for HIST-01/02 and INV-07/08. No proof completes the product requirements. A disabled placeholder or app-info command does not satisfy a Local v1 requirement. Task IDs are in [TODO](../TODO.md). [M0 evidence](test-evidence/M0.md) covers the skeleton; [M1 evidence](test-evidence/M1.md) records the bounded proofs.
 
 | ID       | Target / task                  | Planned acceptance evidence                                                                                    |
 | -------- | ------------------------------ | -------------------------------------------------------------------------------------------------------------- |
@@ -26,8 +26,8 @@ Authority: [SPEC S02.2](../SPEC.md#s02). Product requirements remain **unverifie
 | SAVE-03  | Local v1 · M1-04, M2-02, M2-05 | M1-04 independent recovery-copy proof; framed journal/restart remains M2                                       |
 | SAVE-04  | Local v1 · M2-05, M6-G         | Snapshot retention, restore, separate backup drill (planned)                                                   |
 | SAVE-05  | Local v1 · M2-01, M2-05, M6-G  | External/instance/Save As/close failure tests (planned)                                                        |
-| HIST-01  | Local v1 · M1-05, M2-06, M6-G  | Disposable native Git revision tests (planned)                                                                 |
-| HIST-02  | Local v1 · M6-G                | Timeline/diff/non-destructive restore tests (planned)                                                          |
+| HIST-01  | Local v1 · M1-05, M2-06, M6-G  | M1-05 curated snapshots/refs/failure/local-transport proof; production remains M2/M6                           |
+| HIST-02  | Local v1 · M1-05, M6-G         | M1-05 new-child restore and preserved parents; timeline/diff UI remains M6                                     |
 | PDF-01   | Local v1 · M1-03, M5-G         | M1-03 Screenplain offline profile probe on synthetic corpus; frozen profile and bundled package remain planned |
 | PDF-02   | Local v1 · M5-G                | Versioned page-count and preview/export agreement (planned)                                                    |
 | PDF-03   | Local v1 · M1-03, M5-G         | M1-03 wrapping/continuation/split/dual visual probe with explicit gaps; goldens remain planned                 |

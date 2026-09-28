@@ -6,4 +6,6 @@ Context: [SPEC S10/S11](../../SPEC.md#s10), SAVE-01–05, HIST-01/02, INV-04–0
 
 M1-04 Linux replacement evidence is recorded in [ADR 0010](0010-linux-durable-replacement.md); production safety remains unimplemented.
 
-Evidence still needed: M1-05 history-store proof; M2 fault matrix and platform-specific durability evidence.
+M1-05 history evidence is recorded in [ADR 0011](0011-git2-history-store.md).
+
+Evidence still needed: M2 integration/fault matrix and platform-specific durability evidence.

@@ -14,3 +14,6 @@
 | Requirement coverage                   | [requirements](requirements.md)                                                                                              |
 
 The [fixture guide](../fixtures/README.md) defines synthetic test data. Product authority remains with [SPEC S00-S03](../SPEC.md#s00). If a contract here disagrees with the spec, record and resolve it; do not silently weaken the spec.
+
+[M1 exit and M2 contract review](m1-gate-review.md) records the bounded-proof
+exit and the safety contracts carried into the next milestone.

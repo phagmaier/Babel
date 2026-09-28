@@ -1,6 +1,6 @@
 # Development and toolchain
 
-Status: M0 shell plus isolated M1-01/02/03/04 proofs; no production editor. See [SPEC S13-S15](../SPEC.md#s13), [S17](../SPEC.md#s17), [APP-01, QA-01, QA-02](requirements.md), [M1 evidence](test-evidence/M1.md).
+Status: M0 shell plus isolated M1-01–05 proofs; no production editor. See [SPEC S13-S15](../SPEC.md#s13), [S17](../SPEC.md#s17), [APP-01, QA-01, QA-02](requirements.md), [M1 evidence](test-evidence/M1.md).
 
 ## Recorded host and pins
 
@@ -48,3 +48,15 @@ To exercise the host Btrfs workspace rather than tmpfs, prepend
 `BABEL_PROOF_ROOT=/home/phagmaier/Code/babel`. No new third-party dependency
 is added and the desktop does not link this proof crate. See the
 [proof README](../prototypes/durable-replacement/README.md) for scope/cleanup.
+
+M1-05 Linux native history proof:
+`CARGO_HOME=/tmp/babel-cargo cargo test -p history-store-proof --locked`;
+prepend `BABEL_HISTORY_PROOF_ROOT=/home/phagmaier/Code/babel` for Btrfs.
+Bundle probe: `CARGO_HOME=/tmp/babel-cargo cargo build -p history-store-proof --release --locked`,
+then `env PATH=/nonexistent ./target/release/history-store-proof` and
+`ldd target/release/history-store-proof`. This separate workspace member adds
+proof-only git2 0.21.0 (MIT OR Apache-2.0) with vendored libgit2 1.9.7
+(GPL v2 with linking exception) and host zlib. It reuses pinned serde/JSON/
+SHA-256 dependencies, omits HTTPS/SSH/credential features and does not link
+into the desktop. [ADR 0011](decisions/0011-git2-history-store.md) records
+exact native/transitive license and distribution-review limits.

@@ -1,6 +1,6 @@
 # Test layers and gates
 
-Status: M0 unit/UI/browser scaffolding plus Rust tests; M1-01 source contract, M1-02 isolated native input, M1-03 isolated PDF renderer, and M1-04 native replacement proofs recorded. Later suites are planned. [SPEC S15/S20](../SPEC.md#s15); QA-01–03, INV-18.
+Status: M0 unit/UI/browser scaffolding plus Rust tests; M1-01 source contract, M1-02 isolated native input, M1-03 isolated PDF renderer, M1-04 native replacement, and M1-05 native history proofs recorded. Later suites are planned. [SPEC S15/S20](../SPEC.md#s15); QA-01–03, INV-18.
 
 `pnpm test` is Vitest/JSDOM with an injected typed app-info port; it verifies visible shell status and disabled future actions. `pnpm test:browser` starts Vite and uses system Chromium to verify the same in a real browser. Browser preview deliberately reports native IPC unavailable. `cargo test -p screenwriter-core` tests the headless value, and `cargo test --workspace` also tests host command wiring. A native smoke must actually start Tauri and observe the app-info response in WebKit; mocked/browser results cannot substitute. [M0 evidence](test-evidence/M0.md) records what ran.
 
@@ -18,3 +18,12 @@ operations and pipe-barrier SIGKILL drills on disposable synthetic data.
 Injected I/O/ENOSPC errors are simulation, while permission/rename/lock and
 process-interruption results are native evidence. Neither proves power loss;
 non-Linux tests are cfg-excluded and are not platform passes.
+
+M1-05 runs native git2/libgit2 operations against synthetic bare repositories
+and local bare peers, without invoking Git. Btrfs/tmpfs and no-Git-PATH runs
+exercise byte fidelity, curated-tree validation, restore ancestry, concurrent
+CAS/ref failures, divergent non-force push, corrupted history and source/
+recovery isolation. Local transport does not close M7 authenticated transport,
+server race, cancellation or privacy gates; no Git power-loss claim is made.
+The [M1 gate review](m1-gate-review.md) carries unverified product/platform
+contracts into their owning M2–M7 tasks.
