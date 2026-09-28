@@ -505,6 +505,17 @@ impl DocumentService {
         &mut self,
         request: &ResolveRequest,
     ) -> Result<TransactionResolution, DocumentError> {
+        self.finalize_interrupted_save_with(request, |_| Ok(()))
+    }
+
+    /// Test-only fault injection for finalize durability. The gate runs before
+    /// source-directory durability; production IPC uses the no-op gate above,
+    /// so no runtime hook or general filesystem endpoint is added.
+    pub(super) fn finalize_interrupted_save_with(
+        &mut self,
+        request: &ResolveRequest,
+        mut gate: impl FnMut(source_store::Stage) -> Result<(), DocumentError>,
+    ) -> Result<TransactionResolution, DocumentError> {
         let identity = &request.identity;
         self.validate_recovery_owner(identity)?;
         let state = self.inspect_source_save(identity)?;
@@ -522,7 +533,7 @@ impl DocumentService {
                 });
             }
         }
-        let completed = self.complete_replacement(identity, &state)?;
+        let completed = self.complete_replacement(identity, &state, &mut gate)?;
         Ok(TransactionResolution {
             identity: identity.clone(),
             observation: ChoiceTransaction::ConfirmedRecordMatchesSource,
@@ -535,6 +546,7 @@ impl DocumentService {
         &mut self,
         identity: &DocumentRequest,
         state: &SaveInspection,
+        gate: &mut impl FnMut(source_store::Stage) -> Result<(), DocumentError>,
     ) -> Result<SaveReceipt, DocumentError> {
         let frame = state.intent.as_ref().or(state.confirmed.as_ref());
         let Some(read) = frame else {
@@ -599,6 +611,40 @@ impl DocumentService {
             return Err(error(ErrorCode::SourceChanged));
         }
         source_store::plain_metadata(&read_file(&anchor.parent, &anchor.name)?)?;
+        // SPEC S10.4 step 8: the ordinary save syncs the source directory
+        // after rename, but an interruption at Replaced/BeforeDirectorySync
+        // skips it. Finalize must finish source/file/directory durability and
+        // revalidate before any receipt; failure preserves uncertainty and
+        // returns no receipt. This covers both the post-rename intent branch
+        // and the already-confirmed branch after restart.
+        gate(source_store::Stage::BeforeDirectorySync)?;
+        read_file(&anchor.parent, &anchor.name)?
+            .sync_all()
+            .map_err(io_error)?;
+        anchor.parent.sync_all().map_err(io_error)?;
+        gate(source_store::Stage::DirectorySynced)?;
+        let (installed_after, fingerprint_after) = anchor
+            .snapshot()
+            .map_err(|_| error(ErrorCode::SourceChanged))?;
+        if installed_after != checkpoint.source {
+            return Err(error(ErrorCode::SourceChanged));
+        }
+        if fingerprint_after.device != fingerprint.device
+            || fingerprint_after.inode != fingerprint.inode
+            || fingerprint_after.mode != fingerprint.mode
+            || fingerprint_after.owner != fingerprint.owner
+            || fingerprint_after.links != 1
+        {
+            return Err(error(ErrorCode::SourceChanged));
+        }
+        source_store::plain_metadata(&read_file(&anchor.parent, &anchor.name)?)?;
+        self.validate_save_location(identity, &dir)
+            .map_err(|_| error(ErrorCode::SaveNeedsAttention))?;
+        if source_store::read_optional(&dir, "previous", MAX_SOURCE_BYTES)?.as_deref()
+            != Some(previous.as_slice())
+        {
+            return Err(error(ErrorCode::SaveNeedsAttention));
+        }
         if state.intent.is_some() {
             fs::renameat(&dir, "intent", &dir, "confirmed").map_err(syscall_error)?;
             dir.sync_all().map_err(io_error)?;
@@ -607,9 +653,13 @@ impl DocumentService {
             if decode_journal(&confirmed).checkpoints.first() != Some(checkpoint) {
                 return Err(error(ErrorCode::Io));
             }
-            if anchor.snapshot()?.1 != fingerprint {
+            if anchor.snapshot()?.1 != fingerprint_after {
                 return Err(error(ErrorCode::SourceChanged));
             }
+        } else {
+            // Already-confirmed records were synced at publication; refresh
+            // transaction-directory durability before acknowledging.
+            dir.sync_all().map_err(io_error)?;
         }
         self.validate_save_location(identity, &dir)
             .map_err(|_| error(ErrorCode::SaveNeedsAttention))?;
@@ -623,8 +673,8 @@ impl DocumentService {
         let saved = SaveReceipt {
             identity: identity.clone(),
             version: checkpoint.metadata.version,
-            source_sha256: source_hash(&installed),
-            fingerprint: fingerprint.clone(),
+            source_sha256: source_hash(&installed_after),
+            fingerprint: fingerprint_after.clone(),
             recovery,
             protection: SaveProtection::SourceFile,
         };
@@ -640,7 +690,7 @@ impl DocumentService {
             }
             record.save_uncertain = false;
         }
-        record.baseline = Some(fingerprint);
+        record.baseline = Some(fingerprint_after);
         record.last_save = Some((saved.clone(), draft_metadata));
         Ok(saved)
     }
@@ -654,6 +704,12 @@ impl DocumentService {
         identity: &DocumentRequest,
         path: &Path,
     ) -> Result<OpenDocument, DocumentError> {
+        // ADR 0017 requires exclusive ownership for relink. A view-only caller
+        // must not mutate identity/lease storage, and invalidated leases must
+        // refuse before any write. The obsolete source may be missing or
+        // renamed, so only caller ownership/held leases are validated here;
+        // source divergence is handled by the move continuity checks below.
+        self.validate_recovery_owner(identity)?;
         let record = self.registered(identity)?;
         if record.anchor.is_none() {
             return Err(error(ErrorCode::InvalidSave));

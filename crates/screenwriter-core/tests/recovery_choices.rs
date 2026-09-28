@@ -765,3 +765,82 @@ fn resolve_reports_no_transaction_without_writing() {
     assert!(!resolution.previous_preserved);
     assert_eq!(disk_state(&fixture.0), before);
 }
+
+#[test]
+fn view_only_caller_cannot_relink_and_leaves_disk_identical() {
+    // R2: a second service holds the source view-only while the owner keeps
+    // exclusive leases. Relinking from the view-only registration must refuse
+    // before any identity/lease mutation.
+    let fixture = Fixture::new();
+    let mut owner = fixture.service();
+    let path = fixture.source("story.fountain", b"original");
+    let owned = owner.open_selected(&path).unwrap();
+    assert_eq!(
+        owned.ownership,
+        screenwriter_core::documents::Ownership::Exclusive
+    );
+    let mut other = fixture.service();
+    let viewed = other.open_selected(&path).unwrap();
+    assert!(matches!(
+        viewed.ownership,
+        screenwriter_core::documents::Ownership::ViewOnly { .. }
+    ));
+    let target = fixture.source("unrelated.fountain", b"unrelated");
+    let before = disk_state(&fixture.0);
+    assert_eq!(
+        other
+            .relink_selected(&viewed.identity, &target)
+            .unwrap_err()
+            .code,
+        ErrorCode::OwnershipRequired
+    );
+    assert_eq!(disk_state(&fixture.0), before);
+    assert_eq!(fs::read(&path).unwrap(), b"original");
+    assert_eq!(fs::read(&target).unwrap(), b"unrelated");
+    // The exclusive owner still relinks a genuine move.
+    let moved = fixture.0.join("moved.fountain");
+    fs::rename(&path, &moved).unwrap();
+    let relinked = owner.relink_selected(&owned.identity, &moved).unwrap();
+    assert_eq!(relinked.identity.document_id, owned.identity.document_id);
+    assert_eq!(fs::read(&moved).unwrap(), b"original");
+}
+
+#[test]
+fn invalidated_leases_refuse_relink_without_disk_change() {
+    let fixture = Fixture::new();
+    let mut service = fixture.service();
+    let path = fixture.source("story.fountain", b"original");
+    let opened = service.open_selected(&path).unwrap();
+    assert_eq!(
+        opened.ownership,
+        screenwriter_core::documents::Ownership::Exclusive
+    );
+    // Replace held lock inodes so held leases no longer verify.
+    let held_locks: Vec<_> = fs::read_dir(fixture.store())
+        .unwrap()
+        .map(|entry| entry.unwrap().path())
+        .filter(|path| path.extension().is_some_and(|ext| ext == "lock"))
+        .collect();
+    assert!(!held_locks.is_empty());
+    for lock in held_locks {
+        fs::remove_file(&lock).unwrap();
+        fs::write(&lock, b"").unwrap();
+    }
+    let target = fixture.source("moved.fountain", b"original");
+    let before = disk_state(&fixture.0);
+    let code = service
+        .relink_selected(&opened.identity, &target)
+        .unwrap_err()
+        .code;
+    assert!(
+        matches!(
+            code,
+            ErrorCode::OwnershipLost
+                | ErrorCode::OwnershipRequired
+                | ErrorCode::IdentityStoreUnavailable
+        ),
+        "unexpected relink error {code:?}"
+    );
+    assert_eq!(disk_state(&fixture.0), before);
+    assert_eq!(fs::read(&path).unwrap(), b"original");
+}
