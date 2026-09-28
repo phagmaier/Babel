@@ -1,26 +1,22 @@
-# Current state — M0 bootstrap
+# Current state — M1-01 complete
 
-Date: 2026-09-28. Application name: **babel** (owner-selected); `screenwriter-core` retains its technical crate name. Authority: [SPEC](../SPEC.md); [tasks](../TODO.md); [M0 evidence](test-evidence/M0.md).
+Date: 2026-09-27 PDT. Application: **babel**; `screenwriter-core` remains the technical Rust crate name. Authority: [SPEC](../SPEC.md), [TODO](../TODO.md), [M0 evidence](test-evidence/M0.md), [M1 evidence](test-evidence/M1.md).
 
 ## Active milestone and trust boundary
 
-M0 is complete on the recorded host: `M0-01` through `M0-04` have evidence in the [M0 report](test-evidence/M0.md). M1 has **not** started. The app is a development skeleton, unsafe for important manuscripts. New/Open are disabled; editor, save/recovery, PDF, local history, and remote operations do not exist.
+M0 is complete on the recorded host. **M1-01 is complete** on branch `M1-01-fountain-contract`; M1-02–05 remain open. No task is currently claimed after M1-01. The app remains a development skeleton, unsafe for important manuscripts: New/Open are disabled, and no production editor, save/recovery, PDF, history, or remote operation exists. The M1-01 codec is isolated under `prototypes/` and is not wired to the app.
 
-## What exists
+## Completed work and touched paths
 
-Local Git repository without commit/remote; preserved starter `SPEC.md`, `AGENTS.md`, `BOOTSTRAP_PROMPT.md`; pinned pnpm/Node/Rust manifests with real lockfiles. One React/Vite package, Tauri host, headless core, typed app-info port/command, explicit browser-unavailable adapter, empty native capability permissions, two UI tests, one browser smoke, two Rust tests, minimal CI. Focused docs, six status-labeled ADRs, 41-ID requirement trace, M1/M2 task decomposition, later milestone gates, fixture conventions. Paths: `src/`, `src-tauri/`, `crates/screenwriter-core/`, `tests/`, `docs/`, `TODO.md`, `.github/workflows/check.yml`.
+M1-01 added four original adversarial byte fixtures and their manifest (`fixtures/fountain/`), a disposable source-span codec (`prototypes/fountain/codec.ts`), focused tests (`tests/contract/fountain.test.ts`), ownership/exception [ADR 0007](decisions/0007-source-aware-fountain-contract.md), and [M1 evidence](test-evidence/M1.md). Updated `TODO.md`, `docs/index.md`, `docs/document-model.md`, `docs/requirements.md`, and `fixtures/README.md`. The source prototype proves exact no-op bytes and selected edits with semantic reparse; it rejects ambiguous neighboring changes and protects raw/invalid UTF-8 input. No production requirement is marked complete.
 
-## Exact verification
+The repository has a prior initial commit and no remote. M0 shell, manifests, commands, ADRs, and the 41-ID trace remain described in [M0 evidence](test-evidence/M0.md) and [architecture](architecture.md). No commit/push was made for M1-01.
 
-- Passed (M0, recorded host — see [M0 report](test-evidence/M0.md) for full detail): `pnpm check` (format/lint/typecheck/2 UI tests/Vite build); `pnpm test:browser` (Chromium screenshot `/tmp/babel-m0-browser.png`); `cargo fmt --all -- --check`; `CARGO_HOME=/tmp/babel-cargo cargo test -p screenwriter-core --locked` (1); `CARGO_HOME=/tmp/babel-cargo cargo clippy --workspace --all-targets --locked -- -D warnings`; `CARGO_HOME=/tmp/babel-cargo cargo test --workspace --locked` (2 total); `XDG_CACHE_HOME=/tmp/babel-cache CARGO_HOME=/tmp/babel-cargo pnpm tauri build` (98.48 MiB AppImage); `CARGO_HOME=/tmp/babel-cargo pnpm tauri dev` startup; release-binary native IPC visual smoke; 41-ID trace and relative-link audits.
-- Open later gates: remote CI has not run; AppImage installation/offline execution and other OS targets are not proven by M0. The dev GUI run was intentionally stopped after observation.
-- Environment note: default pnpm/Cargo/Tauri caches were read-only in this sandbox, so writable `/tmp` stores were used; this is not a product runtime dependency. `appindicator3-0.1` and `xvfb-run` are absent, but the host package and real WebKit window succeeded. The owner uses mise; no toolchain installation was needed.
-- Passed (doc/workflow pass 2026-09-28, docs only, no product code): `pnpm prettier --check` on all 17 touched/created Markdown files; relative-link audit over touched docs; 41-ID requirement-trace audit; `AGENTS.md` measures 7905 bytes (under ~8 KiB). Local Git still has no commits or remote; first commit awaits human review.
+## Exact verification and blockers
 
-## Doc/workflow pass 2026-09-28
-
-Owner-approved review findings applied. `AGENTS.md` now mandates `docs/index.md` reading, blocks `M*-G` groups until decomposed into `M*-NN` tasks with an updated trace, and defines task claiming, one-branch-per-task (`M1-01-<slug>`), ADR naming/status, and `docs/test-evidence/M*.md` evidence paths. `TODO.md` dependencies normalized to task IDs; added `M3-00` decomposition gate, M1-05 local-transport proof, M2-02 journal-growth bound, M1-02 hardware-baseline/Enter-table amendment rule, and a pre-M6 Tier 1 OS/arch owner decision. Also: naming map in [architecture](architecture.md), ADR template plus `Evidence still needed` lines in [decisions](decisions/README.md), evidence convention in [testing](testing.md), aux-JSON versioning in [persistence](persistence-and-recovery.md), completed banner on `BOOTSTRAP_PROMPT.md`. Touched: `BOOTSTRAP_PROMPT.md`, `README.md`, `AGENTS.md`, `TODO.md`, `docs/architecture.md`, `docs/index.md`, `docs/testing.md`, `docs/persistence-and-recovery.md`, `docs/decisions/README.md` (new), `docs/decisions/0001`–`0006`.
+- Passed on Omarchy 4.0.4/Linux x86_64, 2026-09-27 PDT: `pnpm test -- tests/contract/fountain.test.ts` (2 files, 13 tests); `pnpm typecheck`; `pnpm check` (format, lint, typecheck, 13 tests, Vite build); `sha256sum fixtures/fountain/*.fountain`; `file fixtures/fountain/*.fountain`; `git diff --check`. Exact outcomes, fixture hashes, and the corrected initial lint failure are in [M1 evidence](test-evidence/M1.md).
+- Native editor, installed app, and other OS checks were not part of M1-01. No task blocker remains. Full grammar conformance, structured note/title edits, hard breaks, caret/IME/undo, and production saving remain follow-on gates, not claimed by this proof.
 
 ## Next safe action
 
-Stop at M0. The first eligible M1 task is `M1-01` Fountain/editor contract proof; read SPEC S05–S07, `docs/document-model.md`, `docs/editor-behavior.md`, and TODO before working. It requires synthetic fixtures and a bounded source/model proof, not application features in this handoff.
+Start **M1-02 Native editor input proof** on its own branch after reading SPEC S07/S13–S15 and the editor/testing contracts. Record native WebView selection, composition, undo, paste, caret, and latency evidence on synthetic text. M1-03 and M1-04 are also dependency-ready bounded tasks if priority changes.

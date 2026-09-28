@@ -1,15 +1,15 @@
 # Requirement trace
 
-Authority: [SPEC S02.2](../SPEC.md#s02). All product requirements below are **planned/unverified** at M0. A disabled placeholder or app-info command does not satisfy a Local v1 requirement. Task IDs are in [TODO](../TODO.md). Test/evidence locations marked _planned_ do not yet exist; [M0 evidence](test-evidence/M0.md) covers only the skeleton.
+Authority: [SPEC S02.2](../SPEC.md#s02). Product requirements remain **unverified for Local v1**. M1-01 supplies a bounded source/model proof for DOC-01–04 and INV-02/03/11; it does not complete those requirements or EDIT-01. A disabled placeholder or app-info command does not satisfy a Local v1 requirement. Task IDs are in [TODO](../TODO.md). [M0 evidence](test-evidence/M0.md) covers the skeleton; [M1 evidence](test-evidence/M1.md) records the bounded proof.
 
 | ID       | Target / task                  | Planned acceptance evidence                                                 |
 | -------- | ------------------------------ | --------------------------------------------------------------------------- |
 | APP-01   | Local v1 · M0-02, M6-G         | Native offline installed app smoke and package report (planned)             |
 | APP-02   | Local v1 · M4-G                | Home/new/open/recent/missing/recovery UI and native flows (planned)         |
-| DOC-01   | Local v1 · M1-01, M2-01, M3-G  | Fountain source/independent-open contract fixtures (planned)                |
-| DOC-02   | Local v1 · M1-01, M3-G         | Byte no-op and edited semantic round-trips (planned)                        |
-| DOC-03   | Local v1 · M1-01, M2-01, M3-G  | Unknown/raw and safe read-only import fixtures (planned)                    |
-| DOC-04   | Local v1 · M1-01, M3-G         | Element/title/dual/notes/omission/format corpus (planned)                   |
+| DOC-01   | Local v1 · M1-01, M2-01, M3-G  | M1-01 synthetic Fountain source fixture; independent open remains planned   |
+| DOC-02   | Local v1 · M1-01, M3-G         | M1-01 selected byte no-op/edited semantic proof; full codec remains planned |
+| DOC-03   | Local v1 · M1-01, M2-01, M3-G  | M1-01 raw/read-only probes; native import remains planned                   |
+| DOC-04   | Local v1 · M1-01, M3-G         | M1-01 selected element corpus; full conformance remains planned             |
 | EDIT-01  | Local v1 · M1-02, M3-G         | Native selection/caret and editor integration tests (planned)               |
 | EDIT-02  | Local v1 · M3-G                | Table-driven smart key/source/undo tests (planned)                          |
 | EDIT-03  | Local v1 · M3-G                | Remappable shortcut and picker keyboard tests (planned)                     |
