@@ -1,6 +1,6 @@
 # Test layers and gates
 
-Status: M0 unit/UI/browser scaffolding plus Rust tests; M1-01 source contract and M1-02 isolated native input proofs recorded. Later suites are planned. [SPEC S15/S20](../SPEC.md#s15); QA-01–03, INV-18.
+Status: M0 unit/UI/browser scaffolding plus Rust tests; M1-01 source contract, M1-02 isolated native input, and M1-03 isolated PDF renderer proofs recorded. Later suites are planned. [SPEC S15/S20](../SPEC.md#s15); QA-01–03, INV-18.
 
 `pnpm test` is Vitest/JSDOM with an injected typed app-info port; it verifies visible shell status and disabled future actions. `pnpm test:browser` starts Vite and uses system Chromium to verify the same in a real browser. Browser preview deliberately reports native IPC unavailable. `cargo test -p screenwriter-core` tests the headless value, and `cargo test --workspace` also tests host command wiring. A native smoke must actually start Tauri and observe the app-info response in WebKit; mocked/browser results cannot substitute. [M0 evidence](test-evidence/M0.md) records what ran.
 

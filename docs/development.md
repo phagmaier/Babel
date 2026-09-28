@@ -1,6 +1,6 @@
 # Development and toolchain
 
-Status: M0 shell plus isolated M1-01/02 proofs; no production editor. See [SPEC S13-S15](../SPEC.md#s13), [S17](../SPEC.md#s17), [APP-01, QA-01, QA-02](requirements.md), [M1 evidence](test-evidence/M1.md).
+Status: M0 shell plus isolated M1-01/02/03 proofs; no production editor. See [SPEC S13-S15](../SPEC.md#s13), [S17](../SPEC.md#s17), [APP-01, QA-01, QA-02](requirements.md), [M1 evidence](test-evidence/M1.md).
 
 ## Recorded host and pins
 
@@ -36,7 +36,7 @@ Do not interpret `pnpm test` or `pnpm test:browser` as native IPC verification. 
 
 ## Dependencies and licensing
 
-Direct runtime dependencies are React, React DOM, and Tauri API; build/test dependencies are Vite, TypeScript, Vitest, testing-library, JSDOM, ESLint, Prettier, Playwright core, Tauri CLI, and six pinned ProseMirror packages used only by the isolated M1-02 proof. Rust runtime is Tauri plus serde and `screenwriter-core`; its `native-editor-proof` feature is off by default. No PDF, Git runtime, cloud, production editor, or database package is installed. `pnpm-lock.yaml`/`Cargo.lock` capture transitive packages. These dependencies use third-party licenses that must be collected and reviewed before distribution; application code remains unlicensed pending owner direction. Packaging must verify Linux system library expectations and bundled resources. No runtime account or network access is configured.
+Direct runtime dependencies are React, React DOM, and Tauri API; build/test dependencies are Vite, TypeScript, Vitest, testing-library, JSDOM, ESLint, Prettier, Playwright core, Tauri CLI, six pinned ProseMirror packages used only by the isolated M1-02 proof, and `pdf-lib` 1.17.1 (MIT, pure JS) used only by the isolated M1-03 fallback probe. The M1-03 primary render ran in a disposable venv with pinned `screenplain==0.12.0` (MIT), `reportlab==4.4.7` (BSD), `pypdf==6.19.0`, `pillow==12.3.0`, `charset-normalizer==3.5.1`, and bundled Courier Prime (OFL 1.1); none is an app runtime dependency. Rust runtime is Tauri plus serde and `screenwriter-core`; its `native-editor-proof` feature is off by default. No PDF, Git, cloud, production editor, or database package is an application runtime dependency. `pnpm-lock.yaml`/`Cargo.lock` capture transitive packages. These dependencies use third-party licenses that must be collected and reviewed before distribution; application code remains unlicensed pending owner direction. Packaging must verify Linux system library expectations and bundled resources. No runtime account or network access is configured.
 
 Registry metadata checked during M0: React/React DOM and Vite use MIT; Tauri API/CLI and Rust Tauri use MIT OR Apache-2.0; TypeScript and Playwright core use Apache-2.0. This is a direct-package snapshot, not a complete transitive notice file. Before distributing a release, collect the exact locked transitive notices and inspect bundled GTK/WebKit and other native license obligations. The app source has no owner-selected open-source license.
 

@@ -1,0 +1,47 @@
+Title: Pagination Probe
+Author: N. Example
+Draft date: 2026-09-27
+
+INT. LONG HALLWAY - DAY
+
+The first action paragraph is intentionally long. The hallway stretches past doors that never open, past windows that show only rain, past a clock that has stopped at half past four, and the footsteps keep a steady rhythm against the tile while the light thins at the far end.
+
+The second action paragraph continues the pressure toward the foot of the page. Crates line the left wall. A cart blocks half the passage. Someone has chalked small marks beside every third door. The air smells of oil and wet wool.
+
+The third action paragraph pushes the next heading toward the page foot so the keep-with-next rule can be observed. If the heading would strand alone at the bottom, the renderer should keep a reasonable amount of following content with it rather than orphaning it.
+
+The fourth action paragraph is a single very long paragraph that must flow across a page boundary on its own: rain hammers the skylights while the hallway fills with the smell of wet plaster, a distant generator coughs and catches, doors slam somewhere below in a rhythm like slow applause, the chalk marks multiply beside every third door until the walls look charted, the cart rolls an inch and stops against a crate that was not there yesterday, a radio hisses static between stations without ever finding a voice, the clock that stopped at half past four loses its minute hand to the tile with a sound like a dropped coin, footsteps approach and pass and approach again without ever resolving into anyone, the light at the far end thins to a gray seam and then widens as clouds tear open above the roof, paint blisters along the window frames in the damp heat, a gull lands on the skylight and stares down with one flat eye, the chalk dust drifts and resettles over footprints that point the wrong way down the corridor, somebody laughs once on the floor below and does not laugh again, the generator note climbs half a step and holds there like a held breath, and still the corridor offers no exit but forward.
+
+INT. SMALL ROOM - CONTINUOUS #12#
+
+MARA
+This speech is long enough to span lines and test wrapping inside the dialogue column. It keeps going past the point where a narrow column must wrap, and it carries a parenthetical before the break.
+
+(quietly, without looking up)
+The door is locked from the outside, so we will have to talk through the glass until someone brings the key back from the dock.
+
+MARA
+A repeated cue follows the first speech to check continued-speaker handling. The source carries no intentional continuation text, so any continuation marker in the layout would be a generated artifact and must be reported as such.
+
+MARA
+A long monologue follows to force a natural page-spanning speech with no explicit break: listen, because I will only say this once and the hallway is still settling behind us. The tide charts were wrong three days running, the ferry manifest lists cargo that never arrived, the lantern oil is cut with something that burns too fast and too bright, the chalk marks are not mine and I stopped asking whose they are, the cart moves when none of us touches it, the radio found a voice at dawn and it read our names in alphabetical order like a roll call, the clock lost its hand and keeps ticking anyway, the doors keep their own slow applause going whether or not anyone is listening, the skylight above the stairwell is already cracked in a ring where the gull keeps landing, the stairs themselves are missing every second brass nosing like a mouth missing teeth, the roof door key hangs on a nail behind the generator where somebody left it for somebody who never came, the tar up there will be soft from the morning sun and will hold our footprints in a straight line to the ledge, the ledge will show us the whole harbor laid out like a call sheet with every boat in its place, the ferry will be at the far dock taking on crates that are marked for a port that closed last winter, the lighthouse will flash twice and go dark the way it has every night since the storm took the keeper's boat, somebody will wave from the breakwater whether or not there is anybody there to see it, the gulls will settle on the warm tar in a long white row like notes on a staff, the tide will turn at noon and take the chalk dust out past the breakwater with it, the hallway below will keep its slow applause going for an empty house, the radio will find the voice again at dusk and read a second list that is only numbers, the numbers will mean nothing until the ferry manifest matches them line for line, the manifest will match them because the cargo was never cargo at all but spare parts for the lighthouse lamp, the lamp will burn too fast and too bright on the cut oil until somebody brings clean oil up the stairs that are missing their brass like a mouth missing teeth, and if the roof access is still chained when we get up there, we will go through the skylight and let the rain have the hallway back.
+
+> PAGE BREAK TEST FOLLOWS:
+
+===
+
+INT. ROOFTOP - NIGHT #13#
+
+A short action paragraph after an explicit break. The city hums below.
+
+KIM ^
+Left side of a dual dialogue pair, kept short.
+
+PAT ^
+Right side of a dual dialogue pair, kept short.
+
+~A lyric line that must remain readable near the break.
+
+>Centered signal line.<
+
+The final action line closes the pagination probe without trailing blank-page claims.

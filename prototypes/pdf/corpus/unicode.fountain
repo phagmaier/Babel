@@ -1,0 +1,23 @@
+Title: Glyph Probe
+Author: Zoë Example
+Draft date: 2026-09-27
+
+INT. CAFÉ - DAY #7#
+
+Café lights hum over Zoë as she reads 漢字 beside a smiling 😀 face.
+
+ZOE
+Naïve dialogue with accents, 漢字, and 😀 in one cue-attached speech.
+
+@MCBRIDE (O.S.)
+An unbreakable name SupercalifragilisticexpialidociousSupercalifragilisticexpialidocious tests long-word wrapping without silent hyphenation.
+
+Action with *bold*, _italic_, and **bold-italic** emphasis plus a literal \*star\* that must not become formatting.
+
+> CUT TO:
+
+INT. NIGHT MARKET - NIGHT
+
+مرحبا action line with right-to-left text that must survive in source even if the selected Courier profile cannot shape every glyph.
+
+The closing line repeats café, naïve, Zoë, 漢字, and 😀 so missing-glyph behavior can be compared between text extraction and rendered pixels.

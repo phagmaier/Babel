@@ -5,6 +5,8 @@ src-tauri/gen
 pnpm-lock.yaml
 Cargo.lock
 fixtures
+prototypes/pdf/corpus
+prototypes/pdf/out
 SPEC.md
 BOOTSTRAP_PROMPT.md
 AGENTS.md

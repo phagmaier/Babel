@@ -1,0 +1,8 @@
+# M1-03 PDF proof pins (isolated prototype, not app runtime).
+# Install into a disposable venv: python3 -m venv /tmp/babel-pdf-venv && /tmp/babel-pdf-venv/bin/pip install -r prototypes/pdf/requirements.txt
+screenplain==0.12.0
+reportlab==4.4.7
+pypdf==6.19.0
+# ReportLab transitives, pinned to the inspected proof environment.
+pillow==12.3.0
+charset-normalizer==3.5.1

@@ -1,0 +1,74 @@
+Title: A Title Page That Runs Long On Purpose
+Credit: written by
+Author: N. Example
+Authors: N. Example and J. Doe
+Source: An original synthetic probe
+Draft date: 2026-09-27, revised 2026-09-28
+Contact:
+    Box 7, Dockside
+    Second contact line for overflow pressure
+    Third contact line for overflow pressure
+    Fourth contact line for overflow pressure
+    Fifth contact line for overflow pressure
+    Sixth contact line for overflow pressure
+    Seventh contact line for overflow pressure
+    Eighth contact line for overflow pressure
+    Ninth contact line for overflow pressure
+    Tenth contact line for overflow pressure
+    Eleventh contact line for overflow pressure
+    Twelfth contact line for overflow pressure
+    Thirteenth contact line for overflow pressure
+    Fourteenth contact line for overflow pressure
+    Fifteenth contact line for overflow pressure
+    Sixteenth contact line for overflow pressure
+    Seventeenth contact line for overflow pressure
+    Eighteenth contact line for overflow pressure
+    Nineteenth contact line for overflow pressure
+    Twentieth contact line for overflow pressure
+    Twenty-first contact line for overflow pressure
+    Twenty-second contact line for overflow pressure
+    Twenty-third contact line for overflow pressure
+    Twenty-fourth contact line for overflow pressure
+    Twenty-fifth contact line for overflow pressure
+    Twenty-sixth contact line for overflow pressure
+    Twenty-seventh contact line for overflow pressure
+    Twenty-eighth contact line for overflow pressure
+    Twenty-ninth contact line for overflow pressure
+    Thirtieth contact line for overflow pressure
+    Thirty-first contact line for overflow pressure
+    Thirty-second contact line for overflow pressure
+    Thirty-third contact line for overflow pressure
+    Thirty-fourth contact line for overflow pressure
+    Thirty-fifth contact line for overflow pressure
+    Thirty-sixth contact line for overflow pressure
+    Thirty-seventh contact line for overflow pressure
+    Thirty-eighth contact line for overflow pressure
+    Thirty-ninth contact line for overflow pressure
+    Fortieth contact line for overflow pressure
+    Forty-first contact line for overflow pressure
+    Forty-second contact line for overflow pressure
+    Forty-third contact line for overflow pressure
+    Forty-fourth contact line for overflow pressure
+    Forty-fifth contact line for overflow pressure
+    Forty-sixth contact line for overflow pressure
+    Forty-seventh contact line for overflow pressure
+    Forty-eighth contact line for overflow pressure
+    Forty-ninth contact line for overflow pressure
+    Fiftieth contact line for overflow pressure
+Copyright: (c) 2026 N. Example. Synthetic probe only.
+Unmapped title field: this value must be preserved in source even if the PDF profile has no slot for it
+
+INT. HARBOR OFFICE - MORNING
+
+A single body paragraph follows the overflowing title so page numbering can be checked: neither title page carries a number, and the first body page records whichever number the renderer prints after overflow.
+
+[[An inline note that the PDF adapter must not silently drop without a warning.]]
+
+/*A boneyard block that the PDF adapter must not silently drop without a warning.
+It spans two lines on purpose.*/
+
+# Appendix Section That Must Not Silently Vanish
+
+= A synopsis line attached to the section above.
+
+The closing action confirms the body starts after the title break.
