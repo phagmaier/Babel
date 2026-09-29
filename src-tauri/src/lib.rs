@@ -11,6 +11,8 @@ use editor_composition_proof::{
 };
 mod document_entry_host;
 use document_entry_host::{create_unsaved_draft, open_source_via_picker, select_destination};
+mod save_as_host;
+use save_as_host::{save_as_copy, select_save_destination};
 mod persistence_host;
 mod recovery_choices_host;
 mod snapshot_host;
@@ -189,6 +191,8 @@ pub fn run() {
         create_unsaved_draft,
         open_source_via_picker,
         select_destination,
+        select_save_destination,
+        save_as_copy,
         release_open_document,
         release_open_document_at_risk,
         list_local_recovery,
@@ -219,6 +223,8 @@ pub fn run() {
         create_unsaved_draft,
         open_source_via_picker,
         select_destination,
+        select_save_destination,
+        save_as_copy,
         release_open_document,
         release_open_document_at_risk,
         list_local_recovery,
@@ -245,6 +251,8 @@ pub fn run() {
         create_unsaved_draft,
         open_source_via_picker,
         select_destination,
+        select_save_destination,
+        save_as_copy,
         release_open_document,
         release_open_document_at_risk,
         list_local_recovery,
@@ -298,6 +306,9 @@ mod document_entry_ipc_tests;
 
 #[cfg(all(test, target_os = "linux"))]
 mod persistence_cadence_tests;
+
+#[cfg(all(test, target_os = "linux"))]
+mod save_as_ipc_tests;
 
 #[cfg(all(test, target_os = "linux"))]
 mod document_ipc_tests;

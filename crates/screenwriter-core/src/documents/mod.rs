@@ -5,6 +5,7 @@ pub mod choices;
 pub mod history;
 pub mod persistence;
 pub mod recovery;
+pub mod save_as;
 pub mod saving;
 pub mod snapshots;
 pub mod startup;

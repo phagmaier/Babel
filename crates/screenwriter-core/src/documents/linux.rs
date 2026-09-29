@@ -16,6 +16,8 @@ mod choices_store;
 mod history_store;
 #[path = "recovery_store.rs"]
 mod recovery_store;
+#[path = "save_as_store.rs"]
+mod save_as_store;
 #[path = "snapshot_store.rs"]
 mod snapshot_store;
 #[path = "source_store.rs"]
@@ -271,6 +273,7 @@ pub struct DocumentService {
     store_path: PathBuf,
     documents: HashMap<String, Registered>,
     copy_destinations: HashMap<String, snapshot_store::Destination>,
+    save_destinations: HashMap<String, save_as_store::SaveDestination>,
 }
 
 impl DocumentService {
@@ -297,6 +300,7 @@ impl DocumentService {
             store_path: app_data.to_path_buf(),
             documents: HashMap::new(),
             copy_destinations: HashMap::new(),
+            save_destinations: HashMap::new(),
         })
     }
 
@@ -563,6 +567,7 @@ impl DocumentService {
             return Err(error(ErrorCode::SaveNeedsAttention));
         }
         self.copy_destinations.retain(|_, d| &d.identity != request);
+        self.save_destinations.retain(|_, d| &d.identity != request);
         self.documents.remove(&request.handle);
         Ok(())
     }
@@ -575,6 +580,7 @@ impl DocumentService {
             return Err(error(ErrorCode::SaveNeedsAttention));
         }
         self.copy_destinations.retain(|_, d| &d.identity != request);
+        self.save_destinations.retain(|_, d| &d.identity != request);
         self.documents.remove(&request.handle);
         Ok(())
     }
