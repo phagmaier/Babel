@@ -1,0 +1,539 @@
+{
+  "schema": 1,
+  "provenance": "Original literal/semantic expectations authored without invoking codec or renderer; separately checked against SPEC S05–S06/S07.7 and official Fountain syntax. Hashes derive only from literals. No golden updater.",
+  "cases": [
+    {
+      "id": "title",
+      "source": "﻿Title:\r\n    Quiet Tide\r\n\tSecond Line\r\nUnmapped field: keep this value\r\nContact:\r\n    Box 9\r\n\r\nINT. OFFICE - NIGHT\r\n\r\n!The desk waits.",
+      "edited": "﻿Title:\r\n    _Quiet Light_\r\n\tSecond Line\r\nUnmapped field: keep this value\r\nContact:\r\n    Box 9\r\n\r\nINT. OFFICE - NIGHT\r\n\r\n!The desk waits.",
+      "operation": {
+        "type": "title",
+        "field": 0,
+        "key": "Title",
+        "values": [
+          "",
+          "_Quiet Light_",
+          "Second Line"
+        ]
+      },
+      "before": {
+        "title": [
+          {
+            "key": "Title",
+            "values": [
+              "",
+              "Quiet Tide",
+              "Second Line"
+            ]
+          },
+          {
+            "key": "Unmapped field",
+            "values": [
+              "keep this value"
+            ]
+          },
+          {
+            "key": "Contact",
+            "values": [
+              "",
+              "Box 9"
+            ]
+          }
+        ]
+      },
+      "after": {
+        "title": [
+          {
+            "key": "Title",
+            "values": [
+              "",
+              "_Quiet Light_",
+              "Second Line"
+            ]
+          },
+          {
+            "key": "Unmapped field",
+            "values": [
+              "keep this value"
+            ]
+          },
+          {
+            "key": "Contact",
+            "values": [
+              "",
+              "Box 9"
+            ]
+          }
+        ]
+      },
+      "renderer": {
+        "shared": true,
+        "gaps": [
+          "Bare HTML omits title content; parser title values are compared separately."
+        ]
+      },
+      "sourceSha256": "d6a22719b190314180e148ae506240faab2b0f768fd420d50fc5ced270c80d12",
+      "editedSha256": "0b64ca7814b303c015b7aeec468aff3dc5e74c0f8dbf340edaeaf579ed733a32"
+    },
+    {
+      "id": "hidden",
+      "source": "\n[[A note.\r\n  \r\nKeep the tail.]]\r\n\r\n/*\r\nEXT. UNUSED ROAD - NIGHT\r\n\r\nThe old route.\r\n*/\r\n\r\n{{keep this raw region}}",
+      "edited": "\n[[A better note.\r\n  \r\nKeep the tail.]]\r\n\r\n/*\r\nEXT. UNUSED ROAD - NIGHT\r\n\r\nThe old route.\r\n*/\r\n\r\n{{keep this raw region}}",
+      "operation": {
+        "type": "hidden",
+        "region": 0,
+        "content": [
+          "A better note.",
+          "  ",
+          "Keep the tail."
+        ]
+      },
+      "before": {
+        "hidden": [
+          {
+            "kind": "note",
+            "content": "A note.\r\n  \r\nKeep the tail.",
+            "closed": true
+          },
+          {
+            "kind": "boneyard",
+            "content": "\r\nEXT. UNUSED ROAD - NIGHT\r\n\r\nThe old route.\r\n",
+            "closed": true
+          }
+        ]
+      },
+      "after": {
+        "hidden": [
+          {
+            "kind": "note",
+            "content": "A better note.\r\n  \r\nKeep the tail.",
+            "closed": true
+          },
+          {
+            "kind": "boneyard",
+            "content": "\r\nEXT. UNUSED ROAD - NIGHT\r\n\r\nThe old route.\r\n",
+            "closed": true
+          }
+        ]
+      },
+      "renderer": {
+        "shared": false,
+        "gaps": [
+          "Renderer omits hidden author content and guesses unknown raw syntax; literal bytes and region content are authoritative."
+        ]
+      },
+      "sourceSha256": "fe3ae34100ba70aad479319295147ad9046229c248866f11eeea7b6b11a87b7c",
+      "editedSha256": "5a11ef27f60248db23faaee8bc29fc905246bd1a4aae680ad90ec43452f92f3d"
+    },
+    {
+      "id": "dual",
+      "source": "\n@Mara\n(waiting)\nFirst signal.\n\n@Ivo\nReply.",
+      "edited": "\n@Mara\n(waiting)\nFirst signal.\n\n@Ivo ^\nReply.",
+      "operation": {
+        "type": "dual",
+        "left": 0,
+        "right": 1
+      },
+      "before": {
+        "groups": [
+          {
+            "cue": 1,
+            "speech": [
+              2,
+              3
+            ],
+            "dual": null
+          },
+          {
+            "cue": 5,
+            "speech": [
+              6
+            ],
+            "dual": null
+          }
+        ]
+      },
+      "after": {
+        "groups": [
+          {
+            "cue": 1,
+            "speech": [
+              2,
+              3
+            ],
+            "dual": null
+          },
+          {
+            "cue": 5,
+            "speech": [
+              6
+            ],
+            "dual": 1
+          }
+        ]
+      },
+      "renderer": {
+        "shared": true,
+        "gaps": []
+      },
+      "sourceSha256": "4830dac8e5a1accce51e93ef9741bead4bd266809d7f19036aef5f8c80c6a407",
+      "editedSha256": "cb5af5497dd5259f8eb49690f57063f5d849d9fbaab5cce25d2274911e287278"
+    },
+    {
+      "id": "inline",
+      "source": "\n!A *small* **bright** _low_ ***quiet*** \\*literal\\* bell.\n",
+      "edited": "\n!A *gentle* **bright** _low_ ***quiet*** \\*literal\\* bell.\n",
+      "operation": {
+        "type": "inline",
+        "line": 1,
+        "runs": [
+          {
+            "text": "A ",
+            "styles": []
+          },
+          {
+            "text": "gentle",
+            "styles": [
+              "italic"
+            ]
+          },
+          {
+            "text": " ",
+            "styles": []
+          },
+          {
+            "text": "bright",
+            "styles": [
+              "bold"
+            ]
+          },
+          {
+            "text": " ",
+            "styles": []
+          },
+          {
+            "text": "low",
+            "styles": [
+              "underline"
+            ]
+          },
+          {
+            "text": " ",
+            "styles": []
+          },
+          {
+            "text": "quiet",
+            "styles": [
+              "bold",
+              "italic"
+            ]
+          },
+          {
+            "text": " *literal* bell.",
+            "styles": []
+          }
+        ]
+      },
+      "before": {
+        "runs": [
+          [
+            {
+              "text": "A ",
+              "styles": []
+            },
+            {
+              "text": "small",
+              "styles": [
+                "italic"
+              ]
+            },
+            {
+              "text": " ",
+              "styles": []
+            },
+            {
+              "text": "bright",
+              "styles": [
+                "bold"
+              ]
+            },
+            {
+              "text": " ",
+              "styles": []
+            },
+            {
+              "text": "low",
+              "styles": [
+                "underline"
+              ]
+            },
+            {
+              "text": " ",
+              "styles": []
+            },
+            {
+              "text": "quiet",
+              "styles": [
+                "bold",
+                "italic"
+              ]
+            },
+            {
+              "text": " *literal* bell.",
+              "styles": []
+            }
+          ]
+        ]
+      },
+      "after": {
+        "runs": [
+          [
+            {
+              "text": "A ",
+              "styles": []
+            },
+            {
+              "text": "gentle",
+              "styles": [
+                "italic"
+              ]
+            },
+            {
+              "text": " ",
+              "styles": []
+            },
+            {
+              "text": "bright",
+              "styles": [
+                "bold"
+              ]
+            },
+            {
+              "text": " ",
+              "styles": []
+            },
+            {
+              "text": "low",
+              "styles": [
+                "underline"
+              ]
+            },
+            {
+              "text": " ",
+              "styles": []
+            },
+            {
+              "text": "quiet",
+              "styles": [
+                "bold",
+                "italic"
+              ]
+            },
+            {
+              "text": " *literal* bell.",
+              "styles": []
+            }
+          ]
+        ]
+      },
+      "renderer": {
+        "shared": true,
+        "gaps": []
+      },
+      "sourceSha256": "72b892a058e3248b14bb7be628b846fb1fb39f20eb27f7c89a3665385eeafd69",
+      "editedSha256": "edb9cc120866ce16d35a9a6b08d55f7c73b10389361c335edbc13261a1a76507"
+    },
+    {
+      "id": "action-break",
+      "source": "﻿\n!A lens turns.\r\n\r\n@Zoë\r\nSignal.",
+      "edited": "﻿\n!A lens\r\n!turns.\r\n\r\n@Zoë\r\nSignal.",
+      "operation": {
+        "type": "break",
+        "line": 1,
+        "texts": [
+          "A lens",
+          "turns."
+        ]
+      },
+      "before": {
+        "breaks": []
+      },
+      "after": {
+        "breaks": [
+          {
+            "from": 1,
+            "to": 2,
+            "kind": "action",
+            "newline": "\r\n"
+          }
+        ]
+      },
+      "renderer": {
+        "shared": true,
+        "gaps": []
+      },
+      "sourceSha256": "e2e5f4d16ab304bc838149ad4c37065e5c00aa0fe501c1f2e76b9eb38aacf3f8",
+      "editedSha256": "c2ce71922864a8746ed403ac7366876e65e092518f45face5d9a2c7dab30883e"
+    },
+    {
+      "id": "dialogue-break",
+      "source": "\n@Zoë\nFirst last.\n\nTail.",
+      "edited": "\n@Zoë\nFirst.\n  \nLast.\n\nTail.",
+      "operation": {
+        "type": "break",
+        "line": 2,
+        "texts": [
+          "First.",
+          "",
+          "Last."
+        ]
+      },
+      "before": {
+        "breaks": []
+      },
+      "after": {
+        "breaks": [
+          {
+            "from": 2,
+            "to": 3,
+            "kind": "dialogue",
+            "newline": "\n"
+          },
+          {
+            "from": 3,
+            "to": 4,
+            "kind": "dialogue",
+            "newline": "\n"
+          }
+        ]
+      },
+      "renderer": {
+        "shared": false,
+        "gaps": [
+          "Renderer trims the two-space speech separator; literal source/explicit speech relationships are authoritative."
+        ]
+      },
+      "sourceSha256": "e8edf94f1bc214b1452a172ce9494b6db318361a1ca592797323607a84fb85cf",
+      "editedSha256": "df50d33963fe0b8853c28233915ec3e0189757f35f77aa875a9e0e98b720c4c3"
+    },
+    {
+      "id": "raw-conversion",
+      "source": "\n{{future: retain an original copy}}\n\n!A lens.\n",
+      "edited": "\n!A reviewed interpretation.\n\n!A lens.\n",
+      "operation": {
+        "type": "conversion",
+        "from": 1,
+        "count": 1,
+        "edits": [
+          {
+            "source": "!A reviewed interpretation.",
+            "kind": "action",
+            "text": "A reviewed interpretation."
+          }
+        ]
+      },
+      "before": {},
+      "after": {},
+      "renderer": {
+        "shared": false,
+        "gaps": [
+          "Unknown original syntax has no independent semantic renderer authority; proposal and exact originals are checked before explicit acceptance."
+        ]
+      },
+      "sourceSha256": "9b6d4270db95f6c1ef7ee83b102d89ef42e985b302359d484874d180d4dd22a6",
+      "editedSha256": "3c6a3e995127468d606b37837467f4431011f34c9edeff6a94ddf78fde7b11ac"
+    },
+    {
+      "id": "nested-inline",
+      "source": "\n!A **low *gentle*** bell.\n",
+      "edited": "\n!A **low *soft*** bell.\n",
+      "operation": {
+        "type": "inline",
+        "line": 1,
+        "runs": [
+          {
+            "text": "A ",
+            "styles": []
+          },
+          {
+            "text": "low ",
+            "styles": [
+              "bold"
+            ]
+          },
+          {
+            "text": "soft",
+            "styles": [
+              "bold",
+              "italic"
+            ]
+          },
+          {
+            "text": " bell.",
+            "styles": []
+          }
+        ]
+      },
+      "before": {
+        "runs": [
+          [
+            {
+              "text": "A ",
+              "styles": []
+            },
+            {
+              "text": "low ",
+              "styles": [
+                "bold"
+              ]
+            },
+            {
+              "text": "gentle",
+              "styles": [
+                "bold",
+                "italic"
+              ]
+            },
+            {
+              "text": " bell.",
+              "styles": []
+            }
+          ]
+        ]
+      },
+      "after": {
+        "runs": [
+          [
+            {
+              "text": "A ",
+              "styles": []
+            },
+            {
+              "text": "low ",
+              "styles": [
+                "bold"
+              ]
+            },
+            {
+              "text": "soft",
+              "styles": [
+                "bold",
+                "italic"
+              ]
+            },
+            {
+              "text": " bell.",
+              "styles": []
+            }
+          ]
+        ]
+      },
+      "renderer": {
+        "shared": true,
+        "gaps": []
+      },
+      "sourceSha256": "d0f7320113e059f82dbb929568783a61cd2f35f389dda2a8c9097ff7eed2d14d",
+      "editedSha256": "3c4f0fad61962d0d3fd6ca0e91b71386f1b2b97d2025e6b32fd302b93a487c0a"
+    }
+  ]
+}

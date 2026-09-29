@@ -6,7 +6,13 @@ import type {
   FountainRecovery,
   LineEdit,
   Newline,
-} from './fountainModel';
+  SourceLineEdit,
+  ConversionProposal,
+  StyledText,
+} from './fountainModel.ts';
+import { parseInline, richView, sourceForInline } from './fountainInline.ts';
+import { structureFountain } from './fountainStructure.ts';
+import { unescapedIndex } from './fountainSyntax.ts';
 
 // No writable source buffer is exposed to consumers, even through document.bytes.
 const snapshots = new WeakMap<FountainDocument, Uint8Array>();
@@ -25,17 +31,18 @@ const protectedKinds = new Set<FountainKind>([
 ]);
 
 export class FountainEditError extends Error {
-  constructor(
-    readonly code:
-      | 'read-only'
-      | 'range'
-      | 'protected-region'
-      | 'invalid-edit'
-      | 'round-trip'
-      | 'neighbor-drift',
-    message: string,
-  ) {
+  readonly code:
+    | 'read-only'
+    | 'range'
+    | 'protected-region'
+    | 'invalid-edit'
+    | 'round-trip'
+    | 'neighbor-drift'
+    | 'unrepresentable'
+    | 'stale-conversion';
+  constructor(code: FountainEditError['code'], message: string) {
     super(message);
+    this.code = code;
     this.name = 'FountainEditError';
   }
 }
@@ -104,11 +111,12 @@ function classify(
     };
     if (hidden) {
       emit(hidden.kind);
-      if (raw.includes(hidden.close)) {
-        // A closing delimiter mixed with visible text needs the later complex-region parser.
+      if (unescapedIndex(raw, hidden.close) >= 0) {
+        // Mixed visible text stays raw; region spans are derived separately.
         if (
-          raw.slice(raw.indexOf(hidden.close) + hidden.close.length).trim() !==
-          ''
+          raw
+            .slice(unescapedIndex(raw, hidden.close) + hidden.close.length)
+            .trim() !== ''
         ) {
           result[result.length - 1] = {
             ...result.at(-1)!,
@@ -153,14 +161,29 @@ function classify(
     if (leadingTrimmed.startsWith('[[') || leadingTrimmed.startsWith('/*')) {
       const kind = leadingTrimmed.startsWith('[[') ? 'note' : 'boneyard';
       const close = kind === 'note' ? ']]' : '*/';
-      const end = leadingTrimmed.indexOf(close, 2);
+      const end = unescapedIndex(leadingTrimmed, close, 2);
       emit(end >= 0 && leadingTrimmed.slice(end + 2).trim() ? 'raw' : kind);
       if (end < 0) hidden = { kind, close, start: index };
       speaker = undefined;
       continue;
     }
-    if (/\{\{|\[\[|\]\]|\/\*|\*\//.test(raw)) {
+    if (
+      raw.includes('{{') ||
+      ['[[', ']]', '/*', '*/'].some(
+        (marker) => unescapedIndex(raw, marker) >= 0,
+      )
+    ) {
       emit('raw');
+      const opening = ['[[', '/*']
+        .map((marker) => ({ marker, at: unescapedIndex(raw, marker) }))
+        .filter((candidate) => candidate.at >= 0)
+        .sort((a, b) => a.at - b.at)[0];
+      if (opening) {
+        const kind = opening.marker === '[[' ? 'note' : 'boneyard';
+        const close = kind === 'note' ? ']]' : '*/';
+        if (unescapedIndex(raw, close, opening.at + 2) < 0)
+          hidden = { kind, close, start: index };
+      }
       diagnose(
         'unsupported-region',
         index,
@@ -359,8 +382,18 @@ function snapshot(
     0,
   ),
 ): FountainDocument {
+  const structure = readOnlyReason
+    ? {
+        lines,
+        titleFields: [],
+        hiddenRegions: [],
+        dialogueGroups: [],
+        sourceBreaks: [],
+        diagnostics: [],
+      }
+    : structureFountain(bytes, lines, bom);
   const frozenLines = Object.freeze(
-    lines.map((line) => Object.freeze({ ...line })),
+    structure.lines.map((line) => Object.freeze({ ...line })),
   );
   const document: FountainDocument = Object.freeze({
     get bytes() {
@@ -370,9 +403,20 @@ function snapshot(
     bom,
     readOnlyReason,
     diagnostics: Object.freeze(
-      diagnostics.map((diagnostic) => Object.freeze({ ...diagnostic })),
+      [
+        ...new Map(
+          [...diagnostics, ...structure.diagnostics].map((diagnostic) => [
+            JSON.stringify(diagnostic),
+            diagnostic,
+          ]),
+        ).values(),
+      ].map((diagnostic) => Object.freeze({ ...diagnostic })),
     ),
     recovery: recoveryFor(frozenLines, nextId, bom),
+    titleFields: Object.freeze(structure.titleFields),
+    hiddenRegions: Object.freeze(structure.hiddenRegions),
+    dialogueGroups: Object.freeze(structure.dialogueGroups),
+    sourceBreaks: Object.freeze(structure.sourceBreaks),
   });
   snapshots.set(document, bytes);
   nextIds.set(document, nextId);
@@ -543,6 +587,9 @@ export function semanticView(document: FountainDocument) {
       dualWith,
       dualMarker,
       speechOf,
+      titleOf,
+      hiddenOf,
+      inline,
     }) => ({
       kind,
       text,
@@ -554,6 +601,16 @@ export function semanticView(document: FountainDocument) {
       dualWith,
       dualMarker,
       speechOf: speechOf === undefined ? undefined : indices.get(speechOf),
+      titleOf: titleOf === undefined ? undefined : indices.get(titleOf),
+      hiddenOf:
+        hiddenOf === undefined
+          ? undefined
+          : hiddenOf
+              .split(',')
+              .map((id) =>
+                document.hiddenRegions.findIndex((region) => region.id === id),
+              ),
+      inline: inline ? richView(inline.runs) : undefined,
     }),
   );
 }
@@ -575,6 +632,11 @@ function sourceFor(edit: LineEdit, previous: FountainLine | undefined): string {
     throw new FountainEditError(
       'invalid-edit',
       'Line text contains an unpaired UTF-16 surrogate',
+    );
+  if (edit.dualWith !== undefined && edit.kind !== 'character')
+    throw new FountainEditError(
+      'invalid-edit',
+      'Dual target requires a character cue',
     );
   if (edit.sceneNumber !== undefined && edit.kind !== 'sceneHeading')
     throw new FountainEditError(
@@ -614,7 +676,7 @@ function sourceFor(edit: LineEdit, previous: FountainLine | undefined): string {
       return `.${edit.text}${number == null ? '' : ` #${number}#`}`;
     }
     case 'character':
-      return `@${edit.text}${previous?.kind === 'character' && previous.dualMarker ? ' ^' : ''}`;
+      return `@${edit.text}${edit.dualWith === undefined ? (previous?.kind === 'character' && previous.dualMarker ? ' ^' : '') : edit.dualWith === null ? '' : ' ^'}`;
     case 'dialogue':
       return edit.text;
     case 'parenthetical':
@@ -682,14 +744,6 @@ export function replaceLines(
       'Structured editing of raw/title/hidden/malformed regions requires explicit safe conversion',
     );
   if (count === 0 && edits.length === 0) return document;
-  const defaultNewline =
-    owned.find((line) => line.newline !== '')?.newline ||
-    document.lines[from - 1]?.newline ||
-    document.lines[from]?.newline ||
-    document.lines.find((line) => line.newline !== '')?.newline ||
-    '\n';
-  const start = document.lines[from]?.sourceStart ?? bytes.length;
-  const end = owned.at(-1)?.sourceEnd ?? start;
   const sources = edits.map((edit, index) => {
     const prior = owned[index];
     const generated = sourceFor(edit, prior);
@@ -700,15 +754,116 @@ export function replaceLines(
       (edit.sceneNumber === undefined ||
         (edit.sceneNumber ?? undefined) === prior.sceneNumber) &&
       (edit.sectionLevel === undefined ||
-        edit.sectionLevel === prior.sectionLevel)
+        edit.sectionLevel === prior.sectionLevel) &&
+      edit.dualWith === undefined
     )
       return prior.sourceText;
     return generated;
   });
+  return transactSource(
+    document,
+    from,
+    count,
+    sources,
+    (after) => {
+      const lines = after.lines;
+      for (const [offset, edit] of edits.entries()) {
+        const line = lines[from + offset]!;
+        const recoverableDraft =
+          line.intendedKind === edit.kind &&
+          compatibleDraft(line, line.intendedKind);
+        if (
+          (!recoverableDraft && line.kind !== edit.kind) ||
+          line.text !== edit.text ||
+          !line.editable
+        )
+          throw new FountainEditError(
+            'round-trip',
+            'Requested element cannot round-trip unambiguously; source remains unchanged',
+          );
+        const prior = owned[offset];
+        const expectedNumber =
+          edit.kind === 'sceneHeading'
+            ? edit.sceneNumber === undefined
+              ? prior?.kind === 'sceneHeading'
+                ? prior.sceneNumber
+                : undefined
+              : (edit.sceneNumber ?? undefined)
+            : undefined;
+        const expectedLevel =
+          edit.kind === 'section'
+            ? (edit.sectionLevel ??
+              (prior?.kind === 'section' ? prior.sectionLevel : undefined) ??
+              1)
+            : undefined;
+        if (
+          line.sceneNumber !== expectedNumber ||
+          line.sectionLevel !== expectedLevel
+        )
+          throw new FountainEditError(
+            'round-trip',
+            'Requested element fields cannot round-trip unambiguously',
+          );
+        if (edit.dualWith !== undefined)
+          validateDualContext(
+            document,
+            after,
+            from,
+            count,
+            edits.length,
+            offset,
+          );
+        if (
+          edit.dualWith !== undefined &&
+          (edit.dualWith === null
+            ? line.dualMarker
+            : lines[line.dualWith ?? -1]?.id !== edit.dualWith)
+        )
+          throw new FountainEditError(
+            'round-trip',
+            'Requested dual group does not match source grouping',
+          );
+        // Group relationship transformations need explicit ownership and intent.
+        if (
+          (edit.dualWith === undefined &&
+            prior?.dualMarker !== line.dualMarker) ||
+          (edit.dualWith === undefined &&
+            prior?.dualWith !== undefined &&
+            document.lines[prior.dualWith]?.id !==
+              lines[line.dualWith ?? -1]?.id)
+        )
+          throw new FountainEditError(
+            'round-trip',
+            'Dual relationship transformation requires explicit owned group intent',
+          );
+      }
+    },
+    edits,
+  );
+}
+
+function transactSource(
+  document: FountainDocument,
+  from: number,
+  count: number,
+  sources: readonly string[],
+  validate: (after: FountainDocument) => void,
+  intents?: readonly LineEdit[],
+): FountainDocument {
+  const bytes = snapshots.get(document)!;
+  const owned = document.lines.slice(from, from + count);
+  const defaultNewline =
+    owned.find((line) => line.newline !== '')?.newline ||
+    document.lines[from - 1]?.newline ||
+    document.lines[from]?.newline ||
+    document.lines.find((line) => line.newline !== '')?.newline ||
+    '\n';
+  const start = document.lines[from]?.sourceStart ?? bytes.length;
+  const end = owned.at(-1)?.sourceEnd ?? start;
   // Preserve existing endings per line and EOF convention. New contexts inherit a local ending.
-  const endings = edits.map((_, index) => {
+  const endings = sources.map((_, index) => {
     if (
-      index === edits.length - 1 &&
+      index === sources.length - 1 &&
       count > 0 &&
       from + count === document.lines.length
     )
@@ -734,7 +889,7 @@ export function replaceLines(
   output.set(replacement, start);
   output.set(bytes.subarray(end), start + replacement.length);
   const reparsed = parseFountain(output);
-  if (reparsed.lines.length !== document.lines.length - count + edits.length)
+  if (reparsed.lines.length !== document.lines.length - count + sources.length)
     throw new FountainEditError(
       'round-trip',
       'Edit cannot retain every intended source line (empty EOF needs a line ending)',
@@ -748,15 +903,19 @@ export function replaceLines(
     return id;
   };
   const lines = reparsed.lines.map((line, index): FountainLine => {
-    const inside = index >= from && index < from + edits.length;
+    const inside = index >= from && index < from + sources.length;
     const previous =
       index < from
         ? document.lines[index]
         : inside
           ? owned[index - from]
-          : document.lines[index - edits.length + count];
-    const edit = inside ? edits[index - from] : undefined;
-    const intendedKind = edit ? draftIntent(edit) : previous?.intendedKind;
+          : document.lines[index - sources.length + count];
+    const edit = inside ? intents?.[index - from] : undefined;
+    const intendedKind = edit
+      ? draftIntent(edit)
+      : inside && previous?.sourceText !== line.sourceText
+        ? undefined
+        : previous?.intendedKind;
     return {
       ...line,
       id: previous?.id ?? allocate(),
@@ -789,83 +948,35 @@ export function replaceLines(
       lines[index] = { ...line, speechOf: lines[cueIndex]!.id };
     }
   }
-  for (const [offset, edit] of edits.entries()) {
-    const line = lines[from + offset]!;
-    const recoverableDraft =
-      line.intendedKind === edit.kind &&
-      compatibleDraft(line, line.intendedKind);
-    if (
-      (!recoverableDraft && line.kind !== edit.kind) ||
-      line.text !== edit.text ||
-      !line.editable
-    )
-      throw new FountainEditError(
-        'round-trip',
-        'Requested element cannot round-trip unambiguously; source remains unchanged',
-      );
-    const prior = owned[offset];
-    const expectedNumber =
-      edit.kind === 'sceneHeading'
-        ? edit.sceneNumber === undefined
-          ? prior?.kind === 'sceneHeading'
-            ? prior.sceneNumber
-            : undefined
-          : (edit.sceneNumber ?? undefined)
-        : undefined;
-    const expectedLevel =
-      edit.kind === 'section'
-        ? (edit.sectionLevel ??
-          (prior?.kind === 'section' ? prior.sectionLevel : undefined) ??
-          1)
-        : undefined;
-    if (
-      line.sceneNumber !== expectedNumber ||
-      line.sectionLevel !== expectedLevel
-    )
-      throw new FountainEditError(
-        'round-trip',
-        'Requested element fields cannot round-trip unambiguously',
-      );
-    // Group relationship transformations need explicit complex-region intent in M3-03.
-    if (
-      prior?.dualMarker !== line.dualMarker ||
-      (prior?.dualWith !== undefined &&
-        document.lines[prior.dualWith]?.id !== lines[line.dualWith ?? -1]?.id)
-    )
-      throw new FountainEditError(
-        'round-trip',
-        'Dual relationship transformation requires complex-region support',
-      );
-  }
   const afterDocument = snapshot(
     output,
     lines,
     reparsed.diagnostics,
     reparsed.bom,
   );
+  validate(afterDocument);
   const beforeMeaning = semanticView(document);
   const afterMeaning = semanticView(afterDocument);
   for (const [index, prior] of document.lines.entries()) {
     if (index >= from && index < from + count) continue;
-    const nextIndex = index < from ? index : index - count + edits.length;
-    const next = lines[nextIndex]!;
-    // Index-valued relationships are compared by stable cue IDs across insertion/deletion.
-    const {
-      dualWith: beforeDual,
-      speechOf: beforeSpeech,
-      ...before
-    } = beforeMeaning[index]!;
-    const {
-      dualWith: afterDual,
-      speechOf: afterSpeech,
-      ...after
-    } = afterMeaning[nextIndex]!;
-    void beforeSpeech;
-    void afterSpeech;
+    const nextIndex = index < from ? index : index - count + sources.length;
+    const next = afterDocument.lines[nextIndex]!;
+    const before = {
+      ...beforeMeaning[index],
+      dualWith: document.lines[prior.dualWith ?? -1]?.id,
+      speechOf: prior.speechOf,
+      titleOf: prior.titleOf,
+      hiddenOf: prior.hiddenOf,
+    };
+    const after = {
+      ...afterMeaning[nextIndex],
+      dualWith: afterDocument.lines[next.dualWith ?? -1]?.id,
+      speechOf: next.speechOf,
+      titleOf: next.titleOf,
+      hiddenOf: next.hiddenOf,
+    };
     if (
       JSON.stringify(before) !== JSON.stringify(after) ||
-      prior.speechOf !== next.speechOf ||
-      document.lines[beforeDual ?? -1]?.id !== lines[afterDual ?? -1]?.id ||
       prior.editable !== next.editable ||
       prior.intendedKind !== next.intendedKind ||
       prior.actionSubtype !== next.actionSubtype
@@ -875,6 +986,7 @@ export function replaceLines(
         'Edit would change neighboring Fountain interpretation; include affected lines explicitly',
       );
   }
+
   const diagnostics = [...reparsed.diagnostics];
   for (const [index, line] of lines.entries()) {
     if (line.intendedKind)
@@ -907,4 +1019,502 @@ export function replaceLine(
   edit: LineEdit,
 ): FountainDocument {
   return replaceLines(document, index, 1, [edit]);
+}
+
+function sourceContext(
+  document: FountainDocument,
+  from: number,
+  count: number,
+  conversion: boolean,
+  mixedHidden: boolean,
+) {
+  if (!snapshots.has(document))
+    throw new TypeError('Expected a codec-owned immutable document');
+  if (document.readOnlyReason)
+    throw new FountainEditError('read-only', document.readOnlyReason);
+  if (
+    !Number.isSafeInteger(from) ||
+    !Number.isSafeInteger(count) ||
+    from < 0 ||
+    count < 0 ||
+    from + count > document.lines.length
+  )
+    throw new FountainEditError('range', 'Invalid source line range');
+  const end = from + count;
+  const intersects = (start: number, length: number) =>
+    start < end && start + length > from;
+  const includes = (start: number, length: number) =>
+    from <= start && end >= start + length;
+  for (const field of document.titleFields) {
+    if (
+      intersects(field.from, field.count) &&
+      !includes(field.from, field.count)
+    )
+      throw new FountainEditError(
+        'protected-region',
+        'Title edits must own the complete field and continuations',
+      );
+  }
+  for (const region of document.hiddenRegions) {
+    if (
+      intersects(region.from, region.count) &&
+      (!includes(region.from, region.count) ||
+        (!conversion && (!region.closed || region.ambiguous)))
+    )
+      throw new FountainEditError(
+        'protected-region',
+        'Hidden edits must own a complete unambiguous region; preserve a copy before conversion',
+      );
+  }
+  if (
+    !conversion &&
+    document.lines
+      .slice(from, end)
+      .some(
+        (line) =>
+          (line.kind === 'raw' && !mixedHidden) ||
+          (!line.editable && !line.titleOf && !line.hiddenOf),
+      )
+  )
+    throw new FountainEditError(
+      'protected-region',
+      'Raw or imported malformed content requires a conversion proposal',
+    );
+}
+
+function validateDualContext(
+  before: FountainDocument,
+  after: FountainDocument,
+  from: number,
+  count: number,
+  added: number,
+  offset: number,
+) {
+  const prior = before.lines[from + offset];
+  const line = after.lines[from + offset]!;
+  const beforeTarget = before.lines[prior?.dualWith ?? -1]?.id;
+  const afterTarget = after.lines[line.dualWith ?? -1]?.id;
+  if (beforeTarget === afterTarget && prior?.dualMarker === line.dualMarker)
+    return;
+  for (const [document, cueId, target, size] of [
+    [before, prior?.id, beforeTarget, count],
+    [after, line.id, afterTarget, added],
+  ] as const) {
+    if (!target) continue;
+    const right = document.dialogueGroups.find((group) => group.id === cueId)!;
+    const left = document.dialogueGroups.find((group) => group.id === target)!;
+    if (
+      !left ||
+      !right ||
+      !left.complete ||
+      !right.complete ||
+      from > left.from ||
+      from + size < right.from + right.count ||
+      document.dialogueGroups.some(
+        (group) =>
+          (group.id === left.id && group.dualWith) ||
+          (group.dualWith === left.id && group.id !== right.id) ||
+          group.dualWith === right.id,
+      )
+    )
+      throw new FountainEditError(
+        'unrepresentable',
+        'Dual changes must own both complete groups without overlapping a third group',
+      );
+  }
+}
+
+function concreteTransaction(
+  document: FountainDocument,
+  from: number,
+  count: number,
+  edits: readonly SourceLineEdit[],
+  conversion = false,
+  mixedHidden = false,
+): FountainDocument {
+  sourceContext(document, from, count, conversion, mixedHidden);
+  for (const edit of edits) {
+    if (
+      typeof edit.source !== 'string' ||
+      /[\r\n]/.test(edit.source) ||
+      /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/u.test(
+        edit.source,
+      )
+    )
+      throw new FountainEditError(
+        'invalid-edit',
+        'Source drafts must contain one valid Unicode physical line',
+      );
+  }
+  return transactSource(
+    document,
+    from,
+    count,
+    edits.map((edit) => edit.source),
+    (after) => {
+      for (const [offset, edit] of edits.entries()) {
+        const line = after.lines[from + offset]!;
+        if (
+          line.kind !== edit.kind ||
+          line.text !== edit.text ||
+          line.titleKey !== edit.titleKey ||
+          line.sceneNumber !== edit.sceneNumber ||
+          line.sectionLevel !== edit.sectionLevel
+        )
+          throw new FountainEditError(
+            'round-trip',
+            'Concrete source does not match requested element content/fields',
+          );
+        const old = document.lines[from + offset];
+        const expectedDual =
+          edit.dualWith === undefined
+            ? document.lines[old?.dualWith ?? -1]?.id
+            : (edit.dualWith ?? undefined);
+        const actualDual = after.lines[line.dualWith ?? -1]?.id;
+        validateDualContext(document, after, from, count, edits.length, offset);
+        if (
+          actualDual !== expectedDual ||
+          (edit.dualWith === null && line.dualMarker) ||
+          (edit.dualWith === undefined && line.dualMarker !== old?.dualMarker)
+        )
+          throw new FountainEditError(
+            'round-trip',
+            'Concrete source changes a dual relationship without explicit intent',
+          );
+        if (line.kind === 'raw' && !line.hiddenOf)
+          throw new FountainEditError(
+            'unrepresentable',
+            'Conversion still contains unsupported raw syntax; original bytes remain available',
+          );
+      }
+      for (const region of after.hiddenRegions) {
+        if (
+          region.from < from + edits.length &&
+          region.from + region.count > from &&
+          (!region.closed ||
+            region.ambiguous ||
+            region.from < from ||
+            region.from + region.count > from + edits.length)
+        )
+          throw new FountainEditError(
+            'unrepresentable',
+            'Changed hidden region is incomplete, ambiguous or crosses owned context',
+          );
+      }
+      for (const field of after.titleFields) {
+        if (
+          field.from < from + edits.length &&
+          field.from + field.count > from &&
+          (field.from < from || field.from + field.count > from + edits.length)
+        )
+          throw new FountainEditError(
+            'neighbor-drift',
+            'Title continuations would attach outside the owned field',
+          );
+      }
+    },
+  );
+}
+
+/** Complete known-region edits. Unknown/malformed conversion must use the proposal lifecycle. */
+export function replaceKnownSourceContext(
+  document: FountainDocument,
+  from: number,
+  count: number,
+  edits: readonly SourceLineEdit[],
+): FountainDocument {
+  return concreteTransaction(document, from, count, edits);
+}
+
+const proposals = new WeakMap<
+  ConversionProposal,
+  { before: FountainDocument; after: FountainDocument }
+>();
+export function proposeSourceConversion(
+  document: FountainDocument,
+  from: number,
+  count: number,
+  edits: readonly SourceLineEdit[],
+): ConversionProposal {
+  const after = concreteTransaction(document, from, count, edits, true);
+  const proposal: ConversionProposal = Object.freeze({
+    sourceStart:
+      document.lines[from]?.sourceStart ?? snapshots.get(document)!.length,
+    sourceEnd:
+      document.lines[from + count - 1]?.sourceEnd ??
+      document.lines[from]?.sourceStart ??
+      snapshots.get(document)!.length,
+    get originalBytes() {
+      return serializeFountain(document);
+    },
+    get candidateBytes() {
+      return serializeFountain(after);
+    },
+  });
+  proposals.set(proposal, { before: document, after });
+  return proposal;
+}
+
+/** An editor's explicit acceptance event. A stale proposal cannot replace newer authoring state. */
+export function acceptSourceConversion(
+  current: FountainDocument,
+  proposal: ConversionProposal,
+): FountainDocument {
+  const pair = proposals.get(proposal);
+  if (!pair)
+    throw new FountainEditError(
+      'invalid-edit',
+      'Expected a codec-owned conversion proposal',
+    );
+  if (current !== pair.before)
+    throw new FountainEditError(
+      'stale-conversion',
+      'Source changed since conversion was proposed; original and candidate copies remain available',
+    );
+  return pair.after;
+}
+
+function existingSource(
+  line: FountainLine,
+  document: FountainDocument,
+): SourceLineEdit {
+  return {
+    source: line.sourceText,
+    kind: line.kind,
+    text: line.text,
+    titleKey: line.titleKey,
+    sceneNumber: line.sceneNumber,
+    sectionLevel: line.sectionLevel,
+    dualWith: document.lines[line.dualWith ?? -1]?.id ?? null,
+  };
+}
+
+export function replaceTitleField(
+  document: FountainDocument,
+  id: string,
+  key: string,
+  values: readonly string[],
+): FountainDocument {
+  const field = document.titleFields.find((candidate) => candidate.id === id);
+  if (!field)
+    throw new FountainEditError('range', 'No title field with that ID');
+  if (
+    !key ||
+    /^\s|^[!@>.~#=]|[:\r\n]/.test(key) ||
+    values.length === 0 ||
+    values.some((value) => /[\r\n]/.test(value))
+  )
+    throw new FountainEditError(
+      'unrepresentable',
+      'Title key/values cannot be represented as a complete field',
+    );
+  const first = document.lines[field.from]!;
+  const prefix =
+    key === field.key
+      ? first.sourceText.slice(0, first.sourceText.length - first.text.length)
+      : `${key}: `;
+  const edits = values.map((text, index): SourceLineEdit => {
+    const prior = document.lines[field.from + index];
+    const indent =
+      prior?.kind === 'titleContinuation'
+        ? prior.sourceText.slice(0, prior.sourceText.length - prior.text.length)
+        : '    ';
+    return index === 0
+      ? { source: prefix + text, kind: 'title', text, titleKey: key }
+      : { source: indent + text, kind: 'titleContinuation', text };
+  });
+  return replaceKnownSourceContext(document, field.from, field.count, edits);
+}
+
+/** Content rows include leading/trailing empty entries when wrappers occupy their own lines. */
+export function replaceHiddenContent(
+  document: FountainDocument,
+  id: string,
+  contentLines: readonly string[],
+): FountainDocument {
+  const region = document.hiddenRegions.find(
+    (candidate) => candidate.id === id,
+  );
+  if (!region)
+    throw new FountainEditError('range', 'No hidden region with that ID');
+  if (!region.closed || region.ambiguous)
+    throw new FountainEditError(
+      'unrepresentable',
+      'Incomplete/ambiguous hidden syntax requires an explicit conversion proposal and exact copy',
+    );
+  const open = region.kind === 'note' ? '[[' : '/*';
+  const close = region.kind === 'note' ? ']]' : '*/';
+  if (
+    !contentLines.length ||
+    contentLines.some(
+      (line) =>
+        /[\r\n]/.test(line) || line.includes(open) || line.includes(close),
+    )
+  )
+    throw new FountainEditError(
+      'unrepresentable',
+      'Hidden content would introduce or cross a delimiter',
+    );
+  const first = document.lines[region.from]!;
+  const last = document.lines[region.from + region.count - 1]!;
+  const bytes = snapshots.get(document)!;
+  const prefix = decoder.decode(
+    bytes.subarray(first.sourceStart, region.sourceStart),
+  );
+  const suffix = decoder.decode(
+    bytes.subarray(region.sourceEnd, last.contentEnd),
+  );
+  const source = prefix + open + contentLines.join('\n') + close + suffix;
+  const physical = source.split('\n');
+  const edits = physical.map((text, index): SourceLineEdit => ({
+    source: text,
+    text,
+    kind:
+      (index === 0 && prefix.trim() !== '') ||
+      (index === physical.length - 1 && suffix.trim() !== '')
+        ? 'raw'
+        : region.kind,
+  }));
+  return concreteTransaction(
+    document,
+    region.from,
+    region.count,
+    edits,
+    false,
+    true,
+  );
+}
+
+export function replaceInline(
+  document: FountainDocument,
+  index: number,
+  runs: readonly StyledText[],
+): FountainDocument {
+  const line = document.lines[index];
+  if (!line?.inline)
+    throw new FountainEditError(
+      'unrepresentable',
+      'This source region has no editable inline interpretation; preserve an exact copy',
+    );
+  let text: string;
+  try {
+    text = sourceForInline(runs);
+  } catch (error) {
+    throw new FountainEditError(
+      'unrepresentable',
+      error instanceof Error ? error.message : 'Unrepresentable inline content',
+    );
+  }
+  if (
+    JSON.stringify(richView(line.inline.runs)) ===
+    JSON.stringify(richView(runs))
+  )
+    return document;
+  if (line.titleOf) {
+    const field = document.titleFields.find(
+      (candidate) => candidate.id === line.titleOf,
+    )!;
+    return replaceTitleField(
+      document,
+      field.id,
+      field.key,
+      field.values.map((value) =>
+        value.lineId === line.id ? text : value.text,
+      ),
+    );
+  }
+  const after = replaceLine(document, index, {
+    kind: line.kind as LineEdit['kind'],
+    text,
+  });
+  if (
+    JSON.stringify(richView(after.lines[index]!.inline!.runs)) !==
+    JSON.stringify(richView(runs))
+  )
+    throw new FountainEditError(
+      'round-trip',
+      'Inline semantics changed while serializing grammar context',
+    );
+  return after;
+}
+
+export function setDualDialogue(
+  document: FountainDocument,
+  rightId: string,
+  leftId: string | null,
+): FountainDocument {
+  const right = document.dialogueGroups.find((group) => group.id === rightId);
+  const left = document.dialogueGroups.find(
+    (group) => group.id === (leftId ?? right?.dualWith),
+  );
+  if (
+    !right ||
+    !left ||
+    left.cueLine >= right.cueLine ||
+    !left.complete ||
+    !right.complete
+  )
+    throw new FountainEditError(
+      'unrepresentable',
+      'Dual dialogue needs two complete preceding/following speech groups',
+    );
+  if (
+    document.dialogueGroups.some(
+      (group) =>
+        (group.id === left.id && group.dualWith) ||
+        (group.dualWith === left.id && group.id !== right.id) ||
+        group.dualWith === right.id,
+    )
+  )
+    throw new FountainEditError(
+      'unrepresentable',
+      'Dual relationship would overlap another group',
+    );
+  if (
+    left.from + left.count < right.from &&
+    document.lines
+      .slice(left.from + left.count, right.from)
+      .some((line) => line.kind !== 'blank')
+  )
+    throw new FountainEditError(
+      'unrepresentable',
+      'Dual groups must be adjacent except for retained separators',
+    );
+  const from = left.from;
+  const count = right.from + right.count - from;
+  const edits = document.lines
+    .slice(from, from + count)
+    .map((line) => existingSource(line, document));
+  const cue = document.lines[right.cueLine]!;
+  edits[right.cueLine - from] = {
+    ...existingSource(cue, document),
+    source: `@${cue.text}${leftId === null ? '' : ' ^'}`,
+    dualWith: leftId,
+  };
+  return replaceKnownSourceContext(document, from, count, edits);
+}
+
+/** Primary intentional breaks use physical Fountain lines; no invisible/new portable marker. */
+export function replaceLineWithBreaks(
+  document: FountainDocument,
+  index: number,
+  texts: readonly string[],
+): FountainDocument {
+  const prior = document.lines[index];
+  if (
+    !prior ||
+    !['action', 'dialogue'].includes(prior.kind) ||
+    texts.length === 0 ||
+    texts.some((text) => !parseInline(text).complete)
+  )
+    throw new FountainEditError(
+      'unrepresentable',
+      'Break is not representable in this element/emphasis context; preserve an exact source copy',
+    );
+  const edits = texts.map((text): LineEdit => ({
+    kind: prior.kind as 'action' | 'dialogue',
+    text: prior.kind === 'dialogue' && text === '' ? '  ' : text,
+    actionSubtype: prior.actionSubtype,
+  }));
+  return replaceLines(document, index, 1, edits);
 }

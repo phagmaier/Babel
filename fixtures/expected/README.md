@@ -1,5 +1,13 @@
 # M3 independent Fountain oracles
 
+## M3-03 complex literals
+
+[m3-complex.json](m3-complex.json) adds eight synthetic cases with complete original/edited source literals and 16 SHA-256 expectations. Sources, edits, title/hidden/group/rich/break projections and renderer expectations were written as literal data before comparison, with hashes calculated only from those literals. There is no golden updater. A separate single-agent source/spec review checked BOM/CRLF/EOF, unknown title continuations, note two-space rows, boneyard blank rows, dual adjacency, combined/nested emphasis, escaped literal stars, action/dialogue physical breaks and explicit raw conversion. This is not a claim of a second reviewer.
+
+The [complex contract suite](../../tests/contract/fountain-complex.test.ts) and [production comparison](../../tests/tooling/fountain-complex-compare.ts) consume this data without changing the original M3-01 corpus below. Five complex cases declare renderer sharing for both versions; hidden presentation, two-space speech paragraph shape and raw conversion retain source/structure oracles with named gaps. Other literal escapes receive codec literal/refusal checks; this does not establish every renderer's escape behavior. [M3-03 evidence](../../docs/test-evidence/M3.md#m3-03--complex-fountain-regions-and-inline-semantics) records the actual comparison.
+
+## M3-01 original corpus
+
 [M3-01](../../TODO.md) establishes data and a runnable comparison, not a production codec. [m3-conformance.json](m3-conformance.json) contains 12 original synthetic sources, nine complete edited-source literals and semantic expectations. The matching `.fountain` files live in [fountain](../fountain/README.md). Invalid UTF-8 is covered by the existing M1 literal hex/hash oracle. All text was authored for this repository and may be reused for project testing; no private or third-party screenplay is included.
 
 ## Authority and review

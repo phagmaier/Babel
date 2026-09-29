@@ -44,11 +44,14 @@ export interface FountainLine {
   readonly characterName?: string;
   readonly characterExtension?: string;
   readonly speechOf?: string;
-  /** Physical cue line index. Complex group transformations remain M3-03. */
+  /** Physical cue line index; the document also exposes group relationships by cue ID. */
   readonly dualWith?: number;
   readonly dualMarker?: boolean;
   readonly actionSubtype?: 'shot';
   readonly intendedKind?: DraftKind;
+  readonly inline?: InlineContent;
+  readonly titleOf?: string;
+  readonly hiddenOf?: string;
   /** Classification is not permission to remove any authored blank bytes. */
   readonly blankRole?: 'source' | 'draft';
 }
@@ -62,7 +65,10 @@ export interface CodecDiagnostic {
     | 'malformed-parenthetical'
     | 'unclosed-region'
     | 'draft-intent'
-    | 'recovery-mismatch';
+    | 'recovery-mismatch'
+    | 'inline-incomplete'
+    | 'ambiguous-region'
+    | 'ambiguous-dual';
   readonly line?: number;
   readonly message: string;
 }
@@ -94,6 +100,10 @@ export interface FountainDocument {
   readonly diagnostics: readonly CodecDiagnostic[];
   readonly readOnlyReason?: string;
   readonly recovery: FountainRecovery;
+  readonly titleFields: readonly TitleField[];
+  readonly hiddenRegions: readonly HiddenRegion[];
+  readonly dialogueGroups: readonly DialogueGroup[];
+  readonly sourceBreaks: readonly SourceBreak[];
 }
 
 /** A complete intended replacement of one physical source line. No newline characters. */
@@ -104,4 +114,94 @@ export interface LineEdit {
   readonly sceneNumber?: string | null;
   readonly sectionLevel?: number;
   readonly actionSubtype?: 'shot' | null;
+  readonly dualWith?: string | null;
+}
+
+export type InlineStyle = 'bold' | 'italic' | 'underline';
+export interface StyledText {
+  readonly text: string;
+  readonly styles: readonly InlineStyle[];
+}
+export interface InlineRun extends StyledText {
+  /** UTF-16 offsets into the line's extracted Fountain text, including escapes. */
+  readonly start: number;
+  readonly end: number;
+}
+export interface InlineDelimiter {
+  readonly marker: string;
+  readonly start: number;
+  readonly end: number;
+  readonly closingStart: number;
+  readonly closingEnd: number;
+}
+export interface InlineContent {
+  readonly text: string;
+  readonly runs: readonly InlineRun[];
+  readonly delimiters: readonly InlineDelimiter[];
+  /** Unmatched/crossing syntax is retained literally; rich editing requires a representable result. */
+  readonly complete: boolean;
+}
+export interface TitleField {
+  readonly id: string;
+  readonly key: string;
+  readonly unknown: boolean;
+  readonly from: number;
+  readonly count: number;
+  readonly sourceStart: number;
+  readonly sourceEnd: number;
+  readonly values: readonly {
+    readonly lineId: string;
+    readonly text: string;
+    readonly inline: InlineContent;
+  }[];
+}
+export interface HiddenRegion {
+  readonly id: string;
+  readonly kind: 'note' | 'boneyard';
+  readonly from: number;
+  readonly count: number;
+  readonly sourceStart: number;
+  readonly sourceEnd: number;
+  readonly contentStart: number;
+  readonly contentEnd: number;
+  readonly content: string;
+  readonly closed: boolean;
+  readonly ambiguous: boolean;
+}
+export interface DialogueGroup {
+  readonly id: string;
+  readonly cueLine: number;
+  readonly from: number;
+  readonly count: number;
+  readonly lineIds: readonly string[];
+  readonly dualWith?: string;
+  readonly complete: boolean;
+}
+export interface SourceBreak {
+  readonly fromId: string;
+  readonly toId: string;
+  readonly kind: 'action' | 'dialogue';
+  readonly newline: Newline;
+  readonly sourceStart: number;
+  readonly sourceEnd: number;
+}
+
+/** Exact concrete syntax plus independently requested extracted meaning for a declared context. */
+export interface SourceLineEdit {
+  readonly source: string;
+  readonly kind: FountainKind;
+  readonly text: string;
+  readonly titleKey?: string;
+  readonly sceneNumber?: string;
+  readonly sectionLevel?: number;
+  /** A cue ID, or null for explicitly absent dual association. */
+  readonly dualWith?: string | null;
+}
+export interface ConversionProposal {
+  /** Selected range in the original full snapshot, in UTF-8 bytes. */
+  readonly sourceStart: number;
+  readonly sourceEnd: number;
+  /** Each getter returns an owned copy of the full original/candidate source. */
+  readonly originalBytes: Uint8Array;
+  readonly candidateBytes: Uint8Array;
 }
