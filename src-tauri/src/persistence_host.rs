@@ -76,6 +76,20 @@ impl DocumentHost {
         .map_err(|_| DocumentError::new(ErrorCode::NativeUnavailable))?
     }
 
+    pub(super) async fn release_at_risk_worker(
+        &self,
+        request: DocumentRequest,
+    ) -> Result<(), DocumentError> {
+        let permit = self.reserve(0)?;
+        let host = self.clone();
+        tauri::async_runtime::spawn_blocking(move || {
+            let _permit = permit;
+            host.release_at_risk(&request)
+        })
+        .await
+        .map_err(|_| DocumentError::new(ErrorCode::NativeUnavailable))?
+    }
+
     async fn checkpoint(
         &self,
         request: CheckpointRequest,
@@ -377,5 +391,56 @@ mod tests {
             .unwrap()
             .unwrap();
         assert_eq!(saved.version, 21);
+    }
+
+    #[test]
+    fn risk_release_refuses_queued_work_and_relinquishes_only_the_exact_registration() {
+        let f = Fixture::new();
+        let (host, opened) = f.host();
+        let mut wrong = opened.identity.clone();
+        wrong.session_id = "11111111-1111-4111-8111-111111111111".to_string();
+        assert_eq!(
+            tauri::async_runtime::block_on(host.release_at_risk_worker(wrong))
+                .unwrap_err()
+                .code,
+            ErrorCode::IdentityMismatch
+        );
+        host.service
+            .lock()
+            .unwrap()
+            .as_mut()
+            .unwrap()
+            .enqueue_save(request(&opened, 21, b"queued writing"))
+            .unwrap();
+        assert_eq!(
+            tauri::async_runtime::block_on(host.release_at_risk_worker(opened.identity.clone()))
+                .unwrap_err()
+                .code,
+            ErrorCode::SaveNeedsAttention
+        );
+        assert_eq!(
+            std::fs::read(f.0.join("source.fountain")).unwrap(),
+            b"original"
+        );
+        host.service
+            .lock()
+            .unwrap()
+            .as_mut()
+            .unwrap()
+            .save_next(&opened.identity)
+            .unwrap()
+            .unwrap();
+        tauri::async_runtime::block_on(host.release_at_risk_worker(opened.identity.clone()))
+            .unwrap();
+        assert_eq!(
+            tauri::async_runtime::block_on(host.read_worker(opened.identity.clone()))
+                .unwrap_err()
+                .code,
+            ErrorCode::InvalidHandle
+        );
+        assert_eq!(
+            std::fs::read(f.0.join("source.fountain")).unwrap(),
+            b"queued writing"
+        );
     }
 }

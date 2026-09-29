@@ -14,4 +14,7 @@ export const nativeDocuments: DocumentPort = {
   release(identity) {
     return invoke('release_open_document', { request: identity });
   },
+  releaseAtRisk(identity) {
+    return invoke('release_open_document_at_risk', { request: identity });
+  },
 };

@@ -167,3 +167,16 @@ feature-gated marked synthetic root, fixed proof-only copy destination and real
 WebKit keyboard/independent audit sequence. Production source/destination picker
 initialization and background cadence remain absent. Exact executed commands,
 outcomes and artifacts are in [M2 evidence](test-evidence/M2.md#m2-05c--rolling-snapshots-and-backup-copies).
+
+## M2-05D protected close checks
+
+Focused frontend checks: `pnpm exec vitest run tests/contract/protected-close.test.ts tests/ui/ProtectedClosePanel.test.tsx`.
+Native uncertainty/risk relinquishment: `CARGO_HOME=/tmp/babel-cargo cargo test -p screenwriter-core --lib post_replace_external_edit_reports_uncertainty_and_blocks_relinquishment --locked`
+and `CARGO_HOME=/tmp/babel-cargo cargo test -p babel-desktop --lib risk_release --locked`.
+Set `BABEL_SAVE_TEST_ROOT=/home/phagmaier/Code/babel` for an owned Btrfs
+source-fault fixture. Shared checks remain mandatory. The feature-only
+[composition diagnostic](../prototypes/editor-composition/README.md) now routes
+F3 and F9/window close through the protected close coordinator; F10 chooses
+only its fixed marked synthetic copy destination, and F11 requires its risk
+checkbox. Exact native WebKit drills and limits are recorded in
+[M2 evidence](test-evidence/M2.md#m2-05d--protected-close-and-failure-escalation).

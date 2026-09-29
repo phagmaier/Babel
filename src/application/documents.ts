@@ -78,6 +78,7 @@ export interface DocumentError {
 export interface DocumentPort {
   readInitial(identity: DocumentIdentity): Promise<OpenDocument>;
   release(identity: DocumentIdentity): Promise<void>;
+  releaseAtRisk(identity: DocumentIdentity): Promise<void>;
   checkpoint(request: CheckpointRequest): Promise<CheckpointReceipt>;
   save(request: SaveRequest): Promise<SaveReceipt>;
 }

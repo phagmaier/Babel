@@ -29,6 +29,7 @@ function port(): DocumentPort {
   return {
     readInitial: async () => opened(),
     release: async () => undefined,
+    releaseAtRisk: async () => undefined,
     checkpoint: vi.fn(
       async (req: CheckpointRequest): Promise<CheckpointReceipt> => ({
         identity: req.identity,

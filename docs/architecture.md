@@ -156,4 +156,19 @@ only its exact tagged source receipt may update the editor owner. No new history
 filesystem engine, library, runtime network or frontend capability is added.
 [ADR 0018](decisions/0018-portable-snapshot-retention.md) owns durable format,
 retention/pruning and destination tradeoffs. Production picker/cadence/restore UI,
-M2-05D close and M2-06 curated safety revisions remain separate integration gates.
+M2-06 curated safety revisions remain a separate integration gate.
+
+## M2-05D close and window lifecycle
+
+`src/application/protectedClose.ts` coordinates a synchronously frozen editor
+capture with the existing exact receipt controller. Source, recovery and external
+copy acknowledgements remain separate. `ProtectedClosePanel` exposes Retry,
+Emergency Copy and explicit risk; the production shell has no editor to mount
+it. Native `release_open_document_at_risk` is a distinct bounded worker command
+that can relinquish an uncertain registration after an explicit risk or verified
+copy choice, but refuses queued writes. Ordinary release stays conservative.
+The native window event cancels close while registrations exist and emits
+`protected-close-requested`. Only event-listen and window-close core permissions
+were added; no filesystem, shell or remote permission was added. The marked
+synthetic editor consumes this event and tests real WebKit close. See
+[ADR 0019](decisions/0019-protected-close-lifecycle.md).

@@ -877,7 +877,7 @@ fn snapshot_and_destination_permissions_anchors_and_cross_session_are_revalidate
 #[test]
 fn pruning_refuses_external_queued_and_unconfirmed_source_operations() {
     let f = Fixture::new();
-    let (mut service, open) = f.open();
+    let (service, open) = f.open();
     let old = create_at(&service, &open, ORIGINAL, SnapshotKind::Rolling, 1);
     create_at(&service, &open, NEW, SnapshotKind::Rolling, 40 * 86400);
     std::fs::write(f.0.join("source.fountain"), b"external writer").unwrap();

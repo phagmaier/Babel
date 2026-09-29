@@ -40,5 +40,13 @@ wording states that losing the backing disk loses the copy; different-filesystem
 wording says the physical disk is unverified. No automatic backup success or
 alternate location is inferred. The native picker/controller is still absent in
 the production shell; this panel is mounted only by the marked synthetic native
-[diagnostic](../prototypes/snapshot-review/README.md) or injected tests. M2-05D owns
-protected close; M2-06 owns curated history protection.
+[diagnostic](../prototypes/snapshot-review/README.md) or injected tests. M2-06 owns
+curated history protection.
+
+M2-05D adds an injected `ProtectedClosePanel` and a synthetic native editor
+close flow. Close failure remains visible with Retry, Save Emergency Copy and
+explicit risk. When both normal and recovery storage fail, it states that newer
+changes exist only in memory. An unsaved draft closes after a fresh recovery
+receipt with recovery-only wording. The source is never labeled saved from a
+checkpoint or backup copy. Production editor/picker wiring and full keyboard,
+screenreader and installed-app close review remain open.

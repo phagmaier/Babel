@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { invoke } from '@tauri-apps/api/core';
+import { listen } from '@tauri-apps/api/event';
+import { getCurrentWindow } from '@tauri-apps/api/window';
 import { SnapshotPanel } from '../../src/app/SnapshotPanel';
 import type {
   CheckpointRequest,
@@ -8,6 +10,7 @@ import type {
 } from '../../src/application/documents';
 import type { CopyDestination } from '../../src/application/snapshots';
 import { nativeSnapshots } from '../../src/infrastructure/nativeSnapshots';
+import { nativeDocuments } from '../../src/infrastructure/nativeDocuments';
 import '../../src/styles.css';
 import './style.css';
 async function sha(bytes: readonly number[]) {
@@ -56,6 +59,29 @@ function Proof() {
       await report('ready', { current, destination });
     })().catch(() => setStatus('Native proof initialization failed.'));
   }, []);
+  useEffect(() => {
+    let active = true;
+    let unlisten: (() => void) | undefined;
+    void listen('protected-close-requested', () => {
+      if (!current) return;
+      void nativeDocuments
+        .release(current.identity)
+        .then(() => getCurrentWindow().close())
+        .catch(() => {
+          if (active)
+            setStatus(
+              'Close stopped: native registration could not be released. Keep this synthetic root for inspection.',
+            );
+        });
+    }).then((stop) => {
+      if (active) unlisten = stop;
+      else stop();
+    });
+    return () => {
+      active = false;
+      unlisten?.();
+    };
+  }, [current]);
   useEffect(() => {
     const run = async () => {
       if (!current || !current.expectedFingerprint || !destination) return;

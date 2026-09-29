@@ -1,6 +1,6 @@
 # Persistence and recovery
 
-Status: M1-04 Linux replacement proof and M2-01 native identity/open boundary exist; M2-02 native recovery framing/publication exists; M2-03 native source replacement and M2-04 typed worker IPC/headless state exist; M2-05A read-only local startup review and M2-05B explicit recovery choices exist; M2-05C native snapshots/retention/external copies exist; visible editor integration and protected close remain planned. [SPEC S10](../SPEC.md#s10); SAVE-01–05, INV-04–08/10/20.
+Status: M1-04 Linux replacement proof and M2-01–04 native persistence boundaries exist; M2-05A–C recovery choices/snapshots/copies and M2-05D protected close have bounded Linux evidence. Production editor/picker/cadence integration remains open. [SPEC S10](../SPEC.md#s10); SAVE-01–05, INV-04–08/10/20.
 
 One native writer queue per document serializes immutable save requests. Requests bind opaque handle, project/session ID, monotonically increasing document version, source hash, and expected disk fingerprint. Track `liveVersion`, `journaledVersion`, and `fileSavedVersion` separately. An acknowledgement for v21 cannot make v22 "Saved locally"; a recovery checkpoint is not a file-save acknowledgement. Native code computes/verifies the saved hash and sends the exact result. Emergency raw protection does not depend on Script Check passing.
 
@@ -231,4 +231,32 @@ still has no production source/destination picker, editor, cadence, Save As or
 configured recurring backup. The [synthetic diagnostic](../prototypes/snapshot-review/README.md)
 exercises real WebKit/native commands; [M2 evidence](test-evidence/M2.md#m2-05c--rolling-snapshots-and-backup-copies)
 separates native files/interruptions, mocked dispatch, UI injection and limits.
-M2-05D, M2-06 and full M2 exit remain open.
+M2-06 and full M2 exit remain open.
+
+## M2-05D protected close and failure escalation
+
+The editor owner freezes input synchronously, then derives the latest immutable
+version/hash/bytes. `ProtectedClose` rejects a stale capture. Named sources get
+a fresh explicit save; only its exact source receipt permits ordinary native
+release. Unsaved drafts get a fresh checkpoint and may close with recovery-only
+wording. A source failure can still yield an independent recovery receipt, but
+does not close. Diverged/uncertain source state is not retried against a guessed
+fingerprint; raw recovery remains available.
+
+After failure the editor stays editable with Retry, native-selected Emergency
+Copy and explicit risk choices. A copy receipt must match the latest
+identity/session/version/hash/length, and never grants source/recovery credit.
+Copy failure does not close. If both source and recovery fail, the UI says newer
+changes exist only in memory. Risk close requires a fresh explicit checkbox and
+claims no persistence. The separate native risk release rejects queued writes,
+preserves journal/transaction artifacts and revokes only the exact registration.
+
+The desktop prevents OS window close while a native registration exists and
+emits a close request to the editor. The marked synthetic WebKit editor routes
+this through the same policy, including a held-open source-divergence drill,
+emergency copy and memory-only explicit risk drill. `release_open_document`
+remains a low-level registration operation; a production editor must use the
+close coordinator. The default shell has no editor/picker/cadence and no Local
+v1 adoption claim. [ADR 0019](decisions/0019-protected-close-lifecycle.md)
+records the lifecycle choice; [M2 evidence](test-evidence/M2.md#m2-05d--protected-close-and-failure-escalation)
+owns exact checks and limits.

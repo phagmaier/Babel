@@ -1,31 +1,21 @@
-# Current state — M2-05C snapshots and copies passed
+# Current state — M2-05D protected close passed
 
-Date: 2026-09-28 PDT. Application: **babel**. Authority: [SPEC](../SPEC.md), [TODO](../TODO.md), [ADR 0018](decisions/0018-portable-snapshot-retention.md), [M2-05C evidence](test-evidence/M2.md#m2-05c--rolling-snapshots-and-backup-copies).
+Date: 2026-09-28 PDT. Application: **babel**. Authority: [SPEC](../SPEC.md), [TODO](../TODO.md), [ADR 0019](decisions/0019-protected-close-lifecycle.md), [M2-05D evidence](test-evidence/M2.md#m2-05d--protected-close-and-failure-escalation).
 
 ## Completed task and trust boundary
 
-**M2-05C completed its headless snapshot/retention/external-copy acceptance on main.** The owner accepted the preceding M1-06 bounded checkpoint and requested continuation to M2-05C. Base `172260c`; clean starting tree, no prior dirty paths. M0, bounded M1 proofs and M2-01–04/05A/B retain their recorded completion. Parent M2-05/full M2 exit and Local v1 remain open.
+**M2-05D completed its bounded headless/Linux native/WebKit acceptance on main.** Base `e099840`, clean starting tree and no dirty paths. M2-05A–D now pass their recorded bounded gates, so parent M2-05 is complete. M2-06 and the full M2 exit remain open; Local v1 remains unverified. No production picker, editor, cadence or Save As was added.
 
-Native snapshots are exact source-readable `.fountain` blobs plus immutable checksummed records, independently of journals and Git. Changed rolling requests obey five-minute admission; retention keeps five-minute/hourly/daily representatives, newest/future-clock entries and all named/pre-destructive versions. Admission is bounded to 256 records/256 MiB of source bytes per identity; caps fail without deleting protected writing. Publication and pruning order keep retained records' blobs intact. Pending/orphan/damaged/unknown material stays visible and blocks snapshot maintenance.
+`ProtectedClose` synchronously freezes the sole editor owner, captures the latest version and waits for an exact source receipt (named file) or recovery receipt (unsaved draft). Failure thaws and keeps the editor open. Retry, native-selected Emergency Copy and explicit risk remain available. A copy receipt grants no source/recovery credit; both source and recovery failure visibly means newer edits exist only in memory. Native risk release is a separate exact-registration operation that refuses queued work and retains uncertainty artifacts. The desktop blocks OS window close while a registration exists and routes the event to the synthetic editor's close policy.
 
-Protected restore checkpoints current live bytes, snapshots both live and disk bytes, then uses the existing serialized writer for a new version. Recovery adoption also protects a disk snapshot first. Explicit external copies bind immutable bytes to an opaque native-selected document/session destination; exclusive publication and sync/verify precede receipts. Copy/snapshot receipts never grant source/recovery credit. Same-filesystem wording explains disk-loss limits; a different filesystem does not prove a different physical disk.
+## Paths and checks
 
-The default product remains a disabled writing shell with read-only startup recovery review and uninitialized source/destination selection. The injected snapshot panel and feature-only marked synthetic diagnostic exercise these contracts; they are not a production editor, native picker, cadence, Save As, recurring backup or protected-close implementation. **Do not use important manuscripts.**
+- Core/desktop: `documents/linux.rs`, `source_store_tests.rs`, `src-tauri/src/{lib.rs,persistence_host.rs}`, narrowly scoped event-listen/window-close capabilities. Existing source/recovery/copy engines and production picker initialization remain as before.
+- Frontend/diagnostic: `protectedClose.ts`, `ProtectedClosePanel.tsx`, native adapter/types and injected tests; synthetic composition editor F3/F9/F10/F11 close routes; snapshot diagnostic handles native release. ADR 0019 and owning docs/trace/TODO updated.
+- [M2-05D evidence](test-evidence/M2.md#m2-05d--protected-close-and-failure-escalation) records exact commands, host, logs/screenshots and native versus mocked results. Real WebKit: latest v8 native close saved exact bytes; external divergence held the window and exact v7 emergency copy preserved both; simultaneous source/recovery failure held the window with memory-only warning until explicit checkbox risk close. Native tmpfs/Btrfs risk/fault paths and strict frontend/UI cases passed. Full workspace outside sandbox passed 160 entries. Initial sandbox ACL/xattr `EINVAL` was reproduced, then the same focused and workspace tests passed outside the sandbox on Btrfs without disabling the test.
 
-## Paths and ownership
+## Limits and next action
 
-- Core: new `documents/{snapshots.rs,snapshot_store.rs,snapshot_store_tests.rs}`; Linux module/error/token lifecycle registration and pre-destructive choice protection.
-- Desktop: `snapshot_host.rs`, `snapshot_ipc_tests.rs`, command registration; fixed synthetic destination selection gated by the existing proof feature and `tauri.snapshot-proof.conf.json`.
-- Frontend: snapshot contracts/native adapter, `SnapshotPanel`/scoped CSS and contract/UI checks. `prototypes/snapshot-review/` owns the synthetic native page, real-keyboard smoke and independent byte/checksum audit.
-- Coordinator: owning persistence/UX/architecture/testing/development docs, ADR 0018, TODO/trace/index and this handoff; exact results in the single M2 evidence section.
-- Existing codec, editor composition model/fixtures, writer transaction pipeline, production capabilities/config and dependency lockfiles preserved. The only existing proof module extension selects the fixed marked synthetic copy folder. Owned native processes stopped; Btrfs synthetic root archived outside the repository and removed with marker checks.
+The close panel is an integration contract; production editor/picker/cadence wiring and installed/offline close testing remain. Synthetic ENOSPC and existing SIGKILL matrices do not prove hardware power loss. The event guard fails closed if delivery fails. Other platforms, actual disk-full, physical-disk independence, configured backups and Save As are open. M2-06 owns curated history primitives and a full M2 safety gate; M6 owns production integration/adoption. Do not use important manuscripts in this build.
 
-## Checks and limits
-
-[M2-05C evidence](test-evidence/M2.md#m2-05c--rolling-snapshots-and-backup-copies) owns exact commands, host, logs, screenshots, independent oracles, failures/corrections and final gates. Passing native coverage: 16 snapshot entries on tmpfs/Btrfs, seven actual SIGKILL boundaries each, snapshot/prune/copy I/O/ENOSPC fault stages, two generated MockRuntime dispatch entries on both filesystems, changed choice integration/finalize checks on Btrfs and real WebKit snapshot/copy/restore/reopen audits on both filesystems. Injected frontend tests remain labeled separately. Shared Rust workspace/Clippy, proof-feature checks and default release build passed; frontend aggregate and final hygiene results are linked in evidence.
-
-ENOSPC is simulated; SIGKILL keeps kernel caches and is not power loss. The byte-cap boundary is tested without filling the owner's disk; full-size snapshot timing is unmeasured. Interrupted pending/orphan artifacts require inspection; automatic repair and protected-version deletion are not implemented. No other-platform, network/sync-folder filesystem, installed/offline packaging, physical-disk independence, complete accessibility or Local v1 adoption claim. Advisory leases cannot exclude arbitrary external writers. M2-06 still owns curated safety revisions/history integration.
-
-## Next safe action
-
-Review this M2-05C checkpoint, then select **M2-05D protected close and failure escalation**. It depends on accepted M2-05B and completed M2-05C. M2-06 follows full M2-05; production M3 remains gated by M2 exit/decomposition. This task stops at M2-05C. Work on main with task IDs in commit messages; never push without human review and explicit authorization.
+Next: select **M2-06 small history primitives and safety gate** after reviewing this checkpoint. Work on main, put task ID in commit messages, and never push without human review and explicit authorization.

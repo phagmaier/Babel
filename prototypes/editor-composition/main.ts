@@ -1,4 +1,6 @@
 import { invoke } from '@tauri-apps/api/core';
+import { listen } from '@tauri-apps/api/event';
+import { getCurrentWindow } from '@tauri-apps/api/window';
 import { baseKeymap } from 'prosemirror-commands';
 import { redo, undo } from 'prosemirror-history';
 import { keymap } from 'prosemirror-keymap';
@@ -10,6 +12,8 @@ import {
 } from '../../src/application/persistenceController';
 import type { OpenDocument } from '../../src/application/documents';
 import { nativeDocuments } from '../../src/infrastructure/nativeDocuments';
+import { nativeSnapshots } from '../../src/infrastructure/nativeSnapshots';
+import { ProtectedClose } from '../../src/application/protectedClose';
 import { apply, createState, currentVersion, snapshot } from './model';
 import './style.css';
 
@@ -22,9 +26,11 @@ if (requested && ['lf', 'crlf', 'no-final-newline'].includes(requested))
 let view: EditorView | undefined;
 let opened: OpenDocument | undefined;
 let controller: PersistenceController | undefined;
+let close: ProtectedClose | undefined;
 let captureTail: Promise<void> = Promise.resolve();
 let busy = false;
 let opening = false;
+let pendingWindowClose = false;
 let activeFixture = '';
 const events: string[] = [];
 const transactionMs: number[] = [];
@@ -137,16 +143,11 @@ async function open(reopening = false) {
 async function openFixture(reopening: boolean) {
   if (opened) {
     await captureTail;
-    if (
-      !controller ||
-      !view ||
-      controller.state.fileSavedVersion !== currentVersion(view.state)
-    )
-      throw new Error(
-        'Save the exact live version before releasing this proof registration',
-      );
-    await nativeDocuments.release(opened.identity);
+    if (!close) throw new Error('Close policy unavailable');
+    await close.retry();
+    await report('protected-close', close.assessment).catch(() => undefined);
     controller = undefined;
+    close = undefined;
     opened = undefined;
   }
   const fixture = reopening ? activeFixture : select.value;
@@ -163,6 +164,20 @@ async function openFixture(reopening: boolean) {
     ],
   });
   controller = new PersistenceController(opened, nativeDocuments);
+  close = new ProtectedClose(controller, nativeDocuments, nativeSnapshots, {
+    freeze() {
+      opening = true;
+      view?.setProps({ editable: () => false });
+      return () => {
+        opening = false;
+        view?.setProps({ editable: () => Boolean(controller) });
+      };
+    },
+    capture() {
+      if (!view) throw new Error('Editor unavailable');
+      return capture(view.state);
+    },
+  });
   view?.destroy();
   view = new EditorView(document.querySelector<HTMLElement>('#editor')!, {
     state,
@@ -251,11 +266,75 @@ async function run(work: () => Promise<void>) {
   try {
     await work();
   } catch (error) {
-    status.textContent = `Refused/failed: ${describe(error)}`;
+    status.textContent =
+      close?.assessment.phase === 'attention'
+        ? close.assessment.message
+        : `Refused/failed: ${describe(error)}`;
   } finally {
     busy = false;
+    if (pendingWindowClose) {
+      pendingWindowClose = false;
+      queueMicrotask(() => void run(closeWindowSafely));
+    }
   }
 }
+async function closeWindowSafely() {
+  if (close && opened) {
+    await close.retry();
+    await report('protected-window-close', close.assessment).catch(
+      () => undefined,
+    );
+    opened = undefined;
+    controller = undefined;
+    close = undefined;
+  }
+  await getCurrentWindow().close();
+}
+async function copyAndClose() {
+  if (!close || !opened) throw new Error('Open a fixture first');
+  const destination = await invoke<{ token: string }>(
+    'select_snapshot_proof_destination',
+    {
+      request: opened.identity,
+    },
+  );
+  const receipt = await close.saveEmergencyCopy(destination.token);
+  await report('emergency-copy-close', receipt).catch(() => undefined);
+  opened = undefined;
+  controller = undefined;
+  close = undefined;
+  await getCurrentWindow().close();
+}
+async function riskAndClose() {
+  if (!close || !opened) throw new Error('Open a fixture first');
+  const checked =
+    document.querySelector<HTMLInputElement>('#close-risk-check')!.checked;
+  await close.acceptRisk(checked);
+  await report('explicit-risk-close', close.assessment).catch(() => undefined);
+  opened = undefined;
+  controller = undefined;
+  close = undefined;
+  await getCurrentWindow().close();
+}
+void listen('protected-close-requested', () => {
+  void report('window-close-requested').catch(() => undefined);
+  if (busy) pendingWindowClose = true;
+  else void run(closeWindowSafely);
+}).catch((error) => {
+  status.textContent = `Native close listener unavailable: ${describe(error)}`;
+});
+document
+  .querySelector('#close-retry')!
+  .addEventListener('click', () => void run(closeWindowSafely));
+document
+  .querySelector('#close-window-request')!
+  .addEventListener('click', () => void getCurrentWindow().close());
+document
+  .querySelector('#close-copy')!
+  .addEventListener('click', () => void run(copyAndClose));
+document
+  .querySelector('#close-risk')!
+  .addEventListener('click', () => void run(riskAndClose));
 document.querySelector('#open')!.addEventListener('click', () => {
   void run(() => open());
 });
@@ -274,6 +353,9 @@ document.addEventListener('keydown', (event) => {
     F2: save,
     F3: () => open(true),
     F8: () => report('observed'),
+    F9: () => getCurrentWindow().close(),
+    F10: copyAndClose,
+    F11: riskAndClose,
   };
   if (commands[event.key]) {
     event.preventDefault();

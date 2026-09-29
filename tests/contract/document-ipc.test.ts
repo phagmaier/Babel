@@ -60,6 +60,18 @@ it('relinquishes the exact session and preserves release failure', async () => {
   await expect(nativeDocuments.release(identity)).rejects.toBe(failure);
 });
 
+it('uses a separate native command for explicit risk relinquishment', async () => {
+  const identity = { handle: 'h', documentId: 'd', sessionId: 's' };
+  invoke.mockResolvedValue(null);
+  await nativeDocuments.releaseAtRisk(identity);
+  expect(invoke).toHaveBeenCalledExactlyOnceWith(
+    'release_open_document_at_risk',
+    {
+      request: identity,
+    },
+  );
+});
+
 it('sends strict save/checkpoint envelopes through separate commands and preserves protection tags', async () => {
   const { opened, snapshot, receiptFor } =
     await import('./persistence-fixtures');

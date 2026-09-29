@@ -271,6 +271,10 @@ pub struct DocumentService {
 }
 
 impl DocumentService {
+    pub fn has_open_documents(&self) -> bool {
+        !self.documents.is_empty()
+    }
+
     /// Caller supplies the OS app-data location, never a frontend string.
     /// Parent must exist; creates only the private final directory, mode 0700.
     pub fn new(app_data: &Path) -> Result<Self, DocumentError> {
@@ -551,6 +555,18 @@ impl DocumentService {
     pub fn release(&mut self, request: &DocumentRequest) -> Result<(), DocumentError> {
         let record = self.registered(request)?;
         if !record.queue.is_empty() || record.save_uncertain {
+            return Err(error(ErrorCode::SaveNeedsAttention));
+        }
+        self.copy_destinations.retain(|_, d| &d.identity != request);
+        self.documents.remove(&request.handle);
+        Ok(())
+    }
+
+    /// Explicit risk close only. Pending writes still prohibit relinquishing the lease;
+    /// uncertainty and recovery artifacts remain on disk for startup inspection.
+    pub fn release_at_risk(&mut self, request: &DocumentRequest) -> Result<(), DocumentError> {
+        let record = self.registered(request)?;
+        if !record.queue.is_empty() {
             return Err(error(ErrorCode::SaveNeedsAttention));
         }
         self.copy_destinations.retain(|_, d| &d.identity != request);

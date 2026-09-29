@@ -23,7 +23,7 @@ use snapshot_host::{
     save_external_copy,
 };
 use startup_host::{RecoveryHost, list_local_recovery, read_local_recovery};
-use tauri::Manager;
+use tauri::{Emitter, Manager};
 
 #[derive(Clone, Default)]
 struct DocumentHost {
@@ -37,6 +37,17 @@ struct DocumentHost {
 }
 
 impl DocumentHost {
+    fn has_open_documents(&self) -> bool {
+        #[cfg(target_os = "linux")]
+        return self.service.lock().map_or(true, |s| {
+            s.as_ref().is_some_and(DocumentService::has_open_documents)
+        });
+        #[cfg(not(target_os = "linux"))]
+        {
+            false
+        }
+    }
+
     fn read(&self, request: &DocumentRequest) -> Result<OpenDocument, DocumentError> {
         let service = self
             .service
@@ -70,6 +81,23 @@ impl DocumentHost {
             Err(DocumentError::new(ErrorCode::NativeUnavailable))
         }
     }
+
+    fn release_at_risk(&self, request: &DocumentRequest) -> Result<(), DocumentError> {
+        let mut service = self
+            .service
+            .lock()
+            .map_err(|_| DocumentError::new(ErrorCode::NativeUnavailable))?;
+        #[cfg(target_os = "linux")]
+        return service
+            .as_mut()
+            .ok_or_else(|| DocumentError::new(ErrorCode::NativeUnavailable))?
+            .release_at_risk(request);
+        #[cfg(not(target_os = "linux"))]
+        {
+            let _ = (service, request);
+            Err(DocumentError::new(ErrorCode::NativeUnavailable))
+        }
+    }
 }
 
 #[tauri::command]
@@ -86,6 +114,14 @@ async fn release_open_document(
     state: tauri::State<'_, DocumentHost>,
 ) -> Result<(), DocumentError> {
     state.release_worker(request).await
+}
+
+#[tauri::command]
+async fn release_open_document_at_risk(
+    request: DocumentRequest,
+    state: tauri::State<'_, DocumentHost>,
+) -> Result<(), DocumentError> {
+    state.release_at_risk_worker(request).await
 }
 
 #[tauri::command]
@@ -108,6 +144,16 @@ pub fn run() {
     let builder = tauri::Builder::default()
         .manage(DocumentHost::default())
         .manage(RecoveryHost::default())
+        .on_window_event(|window, event| {
+            if let tauri::WindowEvent::CloseRequested { api, .. } = event
+                && window.state::<DocumentHost>().has_open_documents()
+            {
+                api.prevent_close();
+                if let Err(error) = window.emit("protected-close-requested", ()) {
+                    eprintln!("protected close event unavailable: {error}");
+                }
+            }
+        })
         .setup(|app| {
             // Resolve only. Startup review does not initialize/create the writer store or a source.
             let root = app.path().app_data_dir().ok();
@@ -127,6 +173,7 @@ pub fn run() {
         app_info,
         read_open_document,
         release_open_document,
+        release_open_document_at_risk,
         list_local_recovery,
         read_local_recovery,
         checkpoint_document,
@@ -152,6 +199,7 @@ pub fn run() {
         app_info,
         read_open_document,
         release_open_document,
+        release_open_document_at_risk,
         list_local_recovery,
         read_local_recovery,
         checkpoint_document,
@@ -173,6 +221,7 @@ pub fn run() {
         app_info,
         read_open_document,
         release_open_document,
+        release_open_document_at_risk,
         list_local_recovery,
         read_local_recovery,
         checkpoint_document,

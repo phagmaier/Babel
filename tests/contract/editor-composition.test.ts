@@ -202,6 +202,7 @@ describe('M1-06 bounded typed editor/source composition (no native I/O)', () => 
     const port: DocumentPort = {
       readInitial: async () => opened,
       release: async () => undefined,
+      releaseAtRisk: async () => undefined,
       checkpoint: async () => {
         throw new Error('Unexpected checkpoint in mock barrier');
       },

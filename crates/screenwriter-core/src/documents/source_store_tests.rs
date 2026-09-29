@@ -559,6 +559,22 @@ fn post_replace_external_edit_reports_uncertainty_and_blocks_relinquishment() {
             service.inspect_recovery(id).unwrap().latest.unwrap().source,
             OLD
         );
+        let transaction_entries = std::fs::read_dir(f.artifacts(&id.document_id))
+            .unwrap()
+            .count();
+        assert!(transaction_entries > 0);
+        service.release_at_risk(id).unwrap();
+        assert_eq!(
+            service.read_initial(id).unwrap_err().code,
+            ErrorCode::InvalidHandle
+        );
+        assert_eq!(f.bytes(), b"racing external generation");
+        assert_eq!(
+            std::fs::read_dir(f.artifacts(&id.document_id))
+                .unwrap()
+                .count(),
+            transaction_entries
+        );
     }
 }
 

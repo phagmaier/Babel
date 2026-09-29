@@ -25,6 +25,23 @@
       ><button id="save">Safe save (F2)</button
       ><button id="reopen">Reopen (F3)</button
       ><button id="report">Report (F8)</button>
+      <section aria-labelledby="close-proof-heading">
+        <h2 id="close-proof-heading">Protected close</h2>
+        <p>
+          Window close waits for the latest exact save or recovery receipt. If
+          protection fails, this synthetic editor stays open.
+        </p>
+        <button id="close-retry">Retry save and close</button>
+        <button id="close-window-request">
+          Request native window close (F9)
+        </button>
+        <button id="close-copy">Save Emergency Copy and close (F10)</button>
+        <label
+          ><input id="close-risk-check" type="checkbox" /> I understand
+          unprotected changes may be lost.</label
+        >
+        <button id="close-risk">Close with this risk (F11)</button>
+      </section>
       <p id="status" role="status">Waiting for native host</p>
       <pre id="receipt"></pre>
       <p>

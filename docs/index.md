@@ -12,7 +12,7 @@
 | Content protection                     | [persistence](persistence-and-recovery.md), [history/remote](sync-and-versioning.md)                                                                             |
 | Publication                            | [PDF](pdf-and-formatting.md)                                                                                                                                     |
 | Requirement coverage                   | [requirements](requirements.md)                                                                                                                                  |
-| Next agent task                        | [TODO](../TODO.md) (M2-05C acceptance passed; M2-05D next), [current-state](current-state.md)                                                                    |
+| Next agent task                        | [TODO](../TODO.md) (M2-05D acceptance passed; M2-06 next), [current-state](current-state.md)                                                                     |
 
 The [fixture guide](../fixtures/README.md) defines synthetic test data. Product authority remains with [SPEC S00-S03](../SPEC.md#s00). If a contract here disagrees with the spec, record and resolve it; do not silently weaken the spec.
 
@@ -21,4 +21,4 @@ exit and the safety contracts carried into the next milestone.
 
 [Independent M2-05B review](reviews/2026-09-28-m2-05b-review.md) required corrections; the owner [accepted M2-05B-R1](test-evidence/M2.md#r1-owner-acceptance-and-m1-06-claim) at `5e84879` on 2026-09-28. [M1-06 composition proof](editor-composition-proof.md) passed its declared subset on the reference host; its reviewed bounded conclusion precedes M2-05C. [Process review](reviews/2026-09-28-process-review.md) records documentation conventions and retained safety rules.
 
-[M2-05C snapshots and copies](test-evidence/M2.md#m2-05c--rolling-snapshots-and-backup-copies) passed the bounded native Linux acceptance. [ADR 0018](decisions/0018-portable-snapshot-retention.md) records portable snapshots, protected retention and explicit native copy destinations. M2-05D protected close is next; parent M2/full Local v1 remain open.
+[M2-05C snapshots and copies](test-evidence/M2.md#m2-05c--rolling-snapshots-and-backup-copies) and [M2-05D protected close](test-evidence/M2.md#m2-05d--protected-close-and-failure-escalation) passed bounded native Linux/WebKit acceptance. [ADR 0018](decisions/0018-portable-snapshot-retention.md) records portable snapshots; [ADR 0019](decisions/0019-protected-close-lifecycle.md) records window and risk-close policy. M2-06 follows; full M2 exit and Local v1 remain open.

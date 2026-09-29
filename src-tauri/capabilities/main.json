@@ -1,7 +1,7 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "main",
-  "description": "M0 shell only; no file, shell, or remote permissions",
+  "description": "Shell and protected window close; no file, shell, or remote permissions",
   "windows": ["main"],
-  "permissions": []
+  "permissions": ["core:event:allow-listen", "core:window:allow-close"]
 }

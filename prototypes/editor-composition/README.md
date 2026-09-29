@@ -32,7 +32,17 @@ env BABEL_EDITOR_COMPOSITION_ROOT=/tmp/babel-editor-composition-REPLACE \
 
 Native initialization requires an absolute canonical private root with the `babel-editor-composition-` name prefix and exact private single-link `SYNTHETIC-M1-06` marker. The opening command accepts only `lf`, `crlf` or `no-final-newline`; their filenames are chosen natively. Native source permission/ownership/lease checks still apply. No frontend path or shell endpoint is introduced. Startup recovery is also isolated beneath this root; production writer initialization and capabilities are unchanged. Root/marker checks are diagnostic safeguards for owned synthetic data, not a sandbox against a malicious local account racing these checks.
 
-F1 opens the selected fixture; F2 checkpoints and safely saves; F3 freezes editor input while checking and releasing/reopening the exact saved live version; F4 cycles fixture before opening; F7 focuses the action end; F6 selects `lamp`; F8 logs a bounded native report. Open a fresh seed/process for another fixture or fault run. Stop after reopen; earlier-session recovery adoption is a separate native recovery workflow, and this proof does not bypass it.
+F1 opens the selected fixture; F2 checkpoints and safely saves; F3 freezes editor input and invokes the M2-05D protected close policy on the latest capture before reopening; F4 cycles fixture before opening; F7 focuses the action end; F6 selects `lamp`; F8 logs a bounded native report. Open a fresh seed/process for another fixture or fault run. Stop after reopen; earlier-session recovery adoption is a separate native recovery workflow, and this proof does not bypass it.
+
+M2-05D close drills: F9 requests a native window close; the host prevents it
+while a registration is open and the editor captures/saves the latest version.
+F10 chooses only the fixed proof destination for an emergency copy and closes
+after its exact receipt. F11 closes with risk only after checking the visible
+"I understand" control. For failure drills use only a newly marked synthetic
+root: modify its fixture source externally after typing to force divergence,
+or make its private recovery directory unavailable to verify the memory-only
+warning. A failed F9 leaves the editor open. The default shell and ordinary
+manuscripts never use this diagnostic selector.
 
 ## Checks and native observation
 
