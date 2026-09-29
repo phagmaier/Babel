@@ -312,3 +312,9 @@ emergency-copy saving; destructive import/recovery still require their safety
 protection. [ADR 0026](decisions/0026-writing-lifecycle.md) owns coordination.
 [M3-12 evidence](test-evidence/M3.md#m3-12--production-writing-lifecycle-and-failure-ui)
 records the default-app filesystem/failure drill and remaining limits.
+
+## M3-13 review corrections
+
+The [separate review](reviews/2026-09-29-m3-13-review.md) identifies a live/controller version gap after capture refusal: the newer Parenthetical split stays only in EditorState, old source/checkpoints remain intact, status still says saved, and emergency copying cannot capture the draft. [M3-12-R1](tasks/M3-12-R1.md) owns truthful immediate status and a preservation route for the latest uncapturable draft.
+
+Unsaved checkpoints survive acknowledged restart and can be inspected, but the default home has no resume/export action ([M3-09-R1](tasks/M3-09-R1.md)). Read-only sources currently disable Save As, contrary to S05.2 ([M3-11-R1](tasks/M3-11-R1.md)). M3-13 cannot certify these cases until corrections pass; prior named-source recovery/publication evidence stays bounded.

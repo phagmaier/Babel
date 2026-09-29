@@ -216,6 +216,17 @@ def new_session():
 try:
     wait(lambda: request('GET', '/status'), 'WebDriver starts')
     new_session()
+    if '--latency-review' in sys.argv:
+        from editor_exit import review_latency
+        review_latency(sys.modules[__name__])
+        sys.exit(0)
+    if '--capture-review' in sys.argv:
+        from editor_exit import review_capture
+        review_capture(sys.modules[__name__])
+        sys.exit(0)
+    if '--editor-exit' in sys.argv:
+        from editor_exit import run
+        run(sys.modules[__name__])
     click('New screenplay', actions=True)
     wait(lambda: 'Protect draft' in body(), 'New draft opens')
     type_text('Mist curls.')

@@ -1,21 +1,26 @@
-# Current state — M3-12 complete; M3-13 ready
+# Current state — M3-13 reviewed; integrated exit open
 
 Date: 2026-09-29 PDT. Application: **babel**. Authority: [SPEC](../SPEC.md), [TODO](../TODO.md), [index](index.md).
 
 ## Task and work
 
-**M3-12** bounded Linux acceptance passed. One editing agent on main from `bceaa9d`, preserving and completing the previous model’s uncommitted work. Inherited dirty paths: documents linux/mod + app_dir_tests, Tauri lib, App/WritingView/recovery/snapshot panels, application persistenceController/saveCadence/shortcuts/writingSession, editor shortcuts, editor-shortcuts/EditorControls/Snapshots/WritingView/writing-session tests and ADR 0026. Original `/tmp/babel-lifecycle-01` and `-02` synthetic drill artifacts remain intact.
+**M3-13** integration and separate safety review performed by one editing agent on main from `7a2642a`, clean initial tree. No application implementation, dependencies, capabilities, SPEC or fixture bytes changed. Previous M3-12 work and synthetic recovery artifacts remain intact. No push authorized.
 
-Default native New/Open now connects one editor to serial persistence, cadence, Save As/export, recovery/restore/snapshots and protected close. Fixed F6 escape, frozen/read-only transaction rejection, deferred capture races, strict Save As IPC, caret/fresh identity adoption, receipt validation before replacement, old-resolution baseline handling, staged import loss and stale close-risk acceptance. The app-data root is safely narrowed before strict native initialization. [ADR 0026](decisions/0026-writing-lifecycle.md) records ownership/ordering; owning architecture/editor/UX/persistence docs are updated.
-
-Changed code is in `src/app`, `src/application`, `src/editor`, `src-tauri` and core documents; focused contracts/UI tests plus `tests/native/writing-lifecycle` own regression coverage. No fixture bytes, dependency/lock, capability or SPEC invariant changed.
+Added `tests/native/writing-lifecycle/editor_exit.py` and three optional runner modes: independent default-app corpus/input audits, a separate uncapturable-draft safety reproduction, and integrated row-workload timing. Updated runner instructions, [review](reviews/2026-09-29-m3-13-review.md), evidence, affected contracts/trace/task/index/state docs, and four bounded correction briefs.
 
 ## Checks and evidence
 
-[M3-12 evidence](test-evidence/M3.md#m3-12--production-writing-lifecycle-and-failure-ui) owns exact commands, host, logs and limits: focused 75, shared 477 frontend tests; formatting/lint/typecheck/build/browser smoke; Rust fmt/clippy, 192 native workspace tests on each filesystem, 32 feature tests and default embedded release build. Initial sandbox ACL failure and corrected harness attempts are recorded honestly.
+[M3-13 evidence](test-evidence/M3.md#m3-13--integrated-editor-gate-and-separate-safety-review) owns exact commands, host, roots, logs and failed attempts. Shared checks passed: 477 frontend tests, formatting/lint/typecheck/build/browser smoke, Rust fmt/clippy, 192 native workspace tests on each of tmpfs/Btrfs, default embedded release build, Python compilation and hostile-HTML browser request interception.
 
-Production UI/IPC drills passed on tmpfs and Btrfs with real GTK pickers, independent bytes/hash/caret/frame audits, native restore/Undo, acknowledged-checkpoint restart, history failure, external divergence and protected emergency-copy close. Artifacts: `/tmp/babel-writing-hucrvgtn` and `target/babel-writing-l5sle2t4`. No personal manuscript was used. No push authorized.
+Both filesystems completed the default native editor/lifecycle drill: 21 no-op sources, eight edited-source/Undo oracles, semantic/group/scene fields, trusted clipboard/Unicode/IME, completion/caret/keys, Save As/cancel, real save/close/reopen, restore/Undo, acknowledged-checkpoint SIGKILL/restart, ordinary permission failure, history isolation, external divergence and exact emergency copy. Positive roots: `/tmp/babel-writing-kyq8e7ai`, `target/babel-writing-1w2c4ij0`. Browser/mocked checks are labeled separately from native evidence.
 
-## Next action and limits
+## Required corrections and next action
 
-Select **M3-13** [brief](tasks/M3-13.md): full core/complex/unsupported source, keyboard/completion/paste/IME/undo in the default app, independent audits and separate data-loss/stale-result/privilege/egress review. Required unresolved cases keep the M3 exit open. Full compositor paint/page-equivalent performance, other platforms, installed/offline adoption and Local v1 remain open; full home/recents and revision navigation belong to later milestones.
+M3-13 remains **unchecked**. The [separate review](reviews/2026-09-29-m3-13-review.md) requires:
+
+- **R03 / [M3-12-R1](tasks/M3-12-R1.md), next ready task:** accepted middle-Parenthetical split cannot capture; newer text is only in memory, but source/close status claims the earlier version saved. Emergency copy repeats capture failure. Native reproduction on tmpfs/Btrfs retains live rows, exact original source/journals and screenshots.
+- **R02 / [M3-09-R1](tasks/M3-09-R1.md):** acknowledged unsaved checkpoint survives restart and is inspectable, but no default-app resume/export action exists.
+- **R01 / [M3-11-R1](tasks/M3-11-R1.md):** actual permission-read-only source disables Save As, contrary to SPEC S05.2; an existing test mandates this refusal.
+- **R04 / [M3-04-R1](tasks/M3-04-R1.md):** integrated 2,400-row typing has sustained event-loop stalls. Earlier probes stopped before input drained; the complete tmpfs run verifies all 120 trusted inputs/exact source but records rAF proxy p95 436 ms, max 592 ms, 119/120 above 100 ms; complete Btrfs also verifies 120 exact inputs, with p95 451 ms/max 612 ms and 116/120 above 100 ms. Detailed filesystem results are in evidence; this is not compositor paint or page calibration.
+
+Complete the corrections and rerun affected/shared/native gates before accepting M3 or decomposing M4. Do not normalize away unrepresentable drafts or weaken native ownership to obtain a pass. Full compositor paint/page-equivalent performance, other platforms, installed/offline adoption, PDF, M4 workflows and Local v1 remain open.

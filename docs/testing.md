@@ -30,6 +30,6 @@ Detailed per-task coverage lives in [development](development.md) (commands) and
 
 - **M1 proofs**: Fountain round-trip, native editor input, PDF renderer, durable replacement, history store, bounded composition
 - **M2 headless**: Safe open, recovery checkpoints, serialized source replacement, versioned IPC, startup review, recovery choices, snapshots, protected close, curated history
-- **M3 codec/editor**: Independent conformance corpus, production primary codec, complex Fountain regions, editor state/source captures, structural keys, picker/shortcut routing/remapping, local completion source/caret/ranking/key/pointer acceptance and undo; M3-08 clipboard/emphasis/protected import tests and native row/latency proxies with blocked full real IME/cancellation gates
+- **M3 codec/editor**: Independent conformance corpus, production primary codec, complex Fountain regions, editor state/source captures, structural keys, picker/shortcut routing/remapping, local completion source/caret/ranking/key/pointer acceptance and undo; M3-08 clipboard/emphasis/protected import and real IME commit/cancel/Enter; M3-13 default-app corpus/input/lifecycle matrix and separate safety review, with required corrections keeping the exit open
 
 Each area's exact commands, host, outcomes, and limitations are recorded in the linked evidence files.

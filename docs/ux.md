@@ -84,3 +84,5 @@ native emergency-copy selection and explicit risk choices; changing the draft
 invalidates old risk acceptance. A verified copy never marks the source saved.
 Native default-build and injected UI evidence is linked from
 [M3-12](test-evidence/M3.md#m3-12--production-writing-lifecycle-and-failure-ui).
+
+The [M3-13 review](reviews/2026-09-29-m3-13-review.md) records required production gaps: an uncapturable newer draft can still show saved/protected facts for the earlier controller version and cannot use the emergency-copy action; unsaved recovery is inspectable after restart but cannot be resumed/exported; read-only Save As is disabled. M3-12-R1, M3-09-R1 and M3-11-R1 own corrections. These cases keep the integrated M3 gate open.

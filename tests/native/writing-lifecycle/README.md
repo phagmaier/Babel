@@ -47,3 +47,45 @@ network requests to a remote service. The resource assertion observes embedded
 WebView resource entries; it is not a packet capture. Full compositor paint,
 page-calibrated performance, other platforms and installed/offline adoption
 remain separate gates.
+
+## M3-13 integrated editor and separate review
+
+After the default release build and keyboard helper above, run sequentially:
+
+```sh
+python3 tests/native/writing-lifecycle/drill.py /tmp --editor-exit
+python3 tests/native/writing-lifecycle/drill.py /home/phagmaier/Code/babel/target --editor-exit
+python3 tests/native/writing-lifecycle/drill.py /tmp --capture-review
+python3 tests/native/writing-lifecycle/drill.py /home/phagmaier/Code/babel/target --capture-review
+python3 tests/native/writing-lifecycle/drill.py /tmp --latency-review
+python3 tests/native/writing-lifecycle/drill.py /home/phagmaier/Code/babel/target --latency-review
+```
+
+`--editor-exit` adds independent no-op audits of 12 conformance sources, eight
+complex sources and invalid UTF-8; eight literal edits/Undo; primary semantic,
+scene-number and speech/dual relationship audits; backward selection, rich
+native clipboard, Unicode/graphemes, real pinyin commit/cancel and mozc Enter;
+completion/caret/Undo, smart speech, F6 and Enter/joins/Tab. Ordinary default-app
+pickers and controls then run the original lifecycle failure/restart drill.
+The native input method is temporarily selected and restored in `finally`.
+The clipboard receives only synthetic content, replacing its previous contents.
+DOM selection setup is explicitly distinguished from physical Shift+Home and
+trusted key/clipboard/composition events in `trusted-input.json`.
+
+The runner also records known read-only Save As and unsaved-restart route gaps
+in `editor-exit.json`; observing them is **not a passed milestone**. Update these
+negative assertions when their owning correction tasks implement the contract.
+`--capture-review` separately reproduces the documented unrepresentable middle
+Parenthetical split and independently audits old source/checkpoints, live rows,
+stale status and failed emergency copy. `--latency-review` uses trusted Ctrl+End
+before 120 physical inputs in a 2,400-row source, recording exact bytes, delivered
+keys and raw key-to-rAF samples with production capture/cadence/completion active.
+It asserts key delivery and bytes before any timing claim. rAF is an event-loop
+proxy, not compositor paint or a page-equivalent benchmark.
+
+Each mode retains its private artifact root. The test process/session teardown
+at the end of the capture review discards only that synthetic in-memory draft;
+its observed rows remain in `capture-review.json`. See the
+[M3-13 review](../../../docs/reviews/2026-09-29-m3-13-review.md) and
+[evidence](../../../docs/test-evidence/M3.md#m3-13--integrated-editor-gate-and-separate-safety-review)
+for the gate decision and exact results.
