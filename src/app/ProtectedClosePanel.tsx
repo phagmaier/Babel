@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react';
 import type { ProtectedClose } from '../application/protectedClose';
-import type { CopyDestination } from '../application/snapshots';
+import {
+  destinationExplanation,
+  type CopyDestination,
+} from '../application/snapshots';
 
 /** Mounted only with a live editor owner and native-selected copy destination. */
 export function ProtectedClosePanel({
@@ -68,6 +71,7 @@ export function ProtectedClosePanel({
       {!destination && (
         <p>Select a destination natively to enable an emergency copy.</p>
       )}
+      {destination && <p>{destinationExplanation(destination)}</p>}
       <label>
         <input
           type="checkbox"

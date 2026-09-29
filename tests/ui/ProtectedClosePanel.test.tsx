@@ -78,6 +78,9 @@ it('uses only a native-selected destination token for an emergency copy', async 
       onClosed={onClosed}
     />,
   );
+  expect(
+    screen.getByText(/does not protect against losing that backing disk/),
+  ).toBeTruthy();
   fireEvent.click(
     screen.getByRole('button', { name: 'Save Emergency Copy and close' }),
   );
