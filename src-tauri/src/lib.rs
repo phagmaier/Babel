@@ -9,6 +9,8 @@ mod editor_composition_proof;
 use editor_composition_proof::{
     open_composition_fixture, record_composition_proof, select_snapshot_proof_destination,
 };
+mod document_entry_host;
+use document_entry_host::{create_unsaved_draft, open_source_via_picker, select_destination};
 mod persistence_host;
 mod recovery_choices_host;
 mod snapshot_host;
@@ -160,7 +162,19 @@ pub fn run() {
             *app.state::<RecoveryHost>()
                 .root
                 .lock()
-                .map_err(|_| std::io::Error::other("recovery host unavailable"))? = root;
+                .map_err(|_| std::io::Error::other("recovery host unavailable"))? = root.clone();
+            #[cfg(target_os = "linux")]
+            {
+                // Production writer store lives in private app data only. A
+                // failure leaves the host uninitialized; entry commands then
+                // report nativeUnavailable instead of inventing a manuscript.
+                if let Some(dir) = root
+                    && let Ok(service) = DocumentService::new(&dir)
+                    && let Ok(mut host) = app.state::<DocumentHost>().service.lock()
+                {
+                    *host = Some(service);
+                }
+            }
             #[cfg(all(feature = "editor-composition-proof", target_os = "linux"))]
             editor_composition_proof::initialize(app)?;
             Ok(())
@@ -172,6 +186,9 @@ pub fn run() {
     let builder = builder.invoke_handler(tauri::generate_handler![
         app_info,
         read_open_document,
+        create_unsaved_draft,
+        open_source_via_picker,
+        select_destination,
         release_open_document,
         release_open_document_at_risk,
         list_local_recovery,
@@ -199,6 +216,9 @@ pub fn run() {
     let builder = builder.invoke_handler(tauri::generate_handler![
         app_info,
         read_open_document,
+        create_unsaved_draft,
+        open_source_via_picker,
+        select_destination,
         release_open_document,
         release_open_document_at_risk,
         list_local_recovery,
@@ -222,6 +242,9 @@ pub fn run() {
     let builder = builder.invoke_handler(tauri::generate_handler![
         app_info,
         read_open_document,
+        create_unsaved_draft,
+        open_source_via_picker,
+        select_destination,
         release_open_document,
         release_open_document_at_risk,
         list_local_recovery,
@@ -269,6 +292,9 @@ mod tests {
         );
     }
 }
+
+#[cfg(all(test, target_os = "linux"))]
+mod document_entry_ipc_tests;
 
 #[cfg(all(test, target_os = "linux"))]
 mod document_ipc_tests;

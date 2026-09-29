@@ -29,8 +29,9 @@ M3-04's [editor contract](editor-behavior.md#m3-04-sole-state-and-capture-bounda
 `crates/screenwriter-core/src/documents/` owns the headless Linux service.
 Only a native controller may construct it with the OS app-data directory,
 call `open_selected(absolute_path)`, or allocate `register_unsaved()`. Paths
-are not IPC arguments. Production `DocumentHost` remains uninitialized until
-native picker integration; the shell still disables New/Open.
+are not IPC arguments. Production `DocumentHost` initializes from the OS app-data directory during
+setup (M3-09); entry stays path-free through picker/unsaved/destination
+commands, and the shell still disables New/Open until M3-12 activation.
 
 | IPC command             | Request                                      | Response                                                   |
 | ----------------------- | -------------------------------------------- | ---------------------------------------------------------- |
@@ -105,7 +106,7 @@ Each explicit save, including a duplicate, sends a fresh native flush.
 Unknown results freeze further source saves while allowing raw recovery.
 Native checkpoint frames use the trusted native baseline even when a lost
 source response leaves the frontend fingerprint stale. See [ADR 0015](decisions/0015-versioned-persistence-ipc.md).
-Production registration remains unavailable until native picker integration;
+Production registration is available through the M3-09 native entry commands;
 no WebView save UI or cadence/latency guarantee is asserted.
 
 ## M2-05A read-only startup review
@@ -148,7 +149,8 @@ same serialized `DocumentService`/host mutex as saves and choices. Snapshot,
 preview, maintenance, restore and external-copy commands run on bounded blocking
 workers; they do not run on typing or mutate a live editor. The native controller
 alone selects an external destination and obtains a document/session-bound token;
-IPC contains no path. The default host remains uninitialized. The existing
+IPC contains no path. Production folder selection is available through the
+M3-09 `select_destination` command; the existing
 composition-proof feature additionally exposes only a fixed marked synthetic
 copy folder for the [M2-05C diagnostic](../prototypes/snapshot-review/README.md).
 

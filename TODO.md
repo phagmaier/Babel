@@ -48,7 +48,7 @@ M2 headless Linux exit passed. This is a bounded headless foundation; no Local-v
 - [x] **M3-06 Element picker and configurable shortcut registry** — [Evidence](docs/test-evidence/M3.md#m3-06--element-picker-and-configurable-shortcut-registry). Deps: M3-05.
 - [x] **M3-07 Local character and heading completion** — [Evidence](docs/test-evidence/M3.md#m3-07--local-character-and-heading-completion). Deps: M3-06.
 - [ ] **M3-08 Paste, inline formatting and native input matrix** — [Brief](docs/tasks/M3-08.md). Deps: M3-05, M3-06, M3-07. Bounded implementation/checks recorded; acceptance blocked by full real IME/cancellation; S13 proxy measurements retain later full-performance gates.
-- [ ] **M3-09 Native source/destination picker and recoverable drafts** — [Brief](docs/tasks/M3-09.md). Deps: M3-00, M2-06. Also dependency-ready.
+- [x] **M3-09 Native source/destination picker and recoverable drafts** — Evidence: [M3 report](docs/test-evidence/M3.md#m3-09--native-sourcedestination-picker-and-recoverable-drafts). Deps: M3-00, M2-06.
 - [ ] **M3-10 Recovery/source cadence and visible protection state** — [Brief](docs/tasks/M3-10.md). Deps: M3-04, M3-09, M2-04, M2-05C.
 - [ ] **M3-11 Native Save As identity and publication** — [Brief](docs/tasks/M3-11.md). Deps: M3-09, M3-10.
 - [ ] **M3-12 Production writing lifecycle and failure UI** — [Brief](docs/tasks/M3-12.md). Deps: M3-08, M3-10, M3-11, M2-05D.
