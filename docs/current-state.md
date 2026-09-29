@@ -1,20 +1,22 @@
-# Current state — M2-06 and bounded M2 headless exit passed
+# Current state — M3-00 decomposition complete
 
-Date: 2026-09-28 PDT. Application: **babel**. Authority: [SPEC](../SPEC.md), [TODO](../TODO.md), [ADR 0020](decisions/0020-native-curated-history.md), [M2-06 evidence](test-evidence/M2.md#m2-06--small-history-primitives-and-safety-gate).
+Date: 2026-09-28 PDT. Application: **babel**. Authority: [SPEC](../SPEC.md), [TODO](../TODO.md), [M3-00 evidence](test-evidence/M3.md#m3-00--decomposition).
 
 ## Completed task and trust boundary
 
-**M2-06 passed its bounded Linux headless acceptance on main.** Base `7ea1355`, clean starting tree and no dirty paths. Native `DocumentService` now owns private bare per-document history repositories, curated exact-byte source/profile commits, checked main/safety refs, explicit revision and health methods. Recovery adoption and snapshot restore create a history safety revision before source replacement; corrupt history stops those destructive choices. Ordinary source saves and recovery checkpoints stay independent. No system Git executable, user Git config, transport, frontend filesystem path or runtime network operation was added.
+**M3-00: docs-only decomposition**, one editing agent on main. Base `2a43954`; clean starting tree and no prior dirty paths. [TODO](../TODO.md) now defines M3-01–13: independent conformance, primary/complex codec, sole editor bridge, keys/undo, picker/remapping, completion, paste/IME, native file selection/drafts, cadence/status, native Save As, production lifecycle and the separate M3 safety review. [Requirement coverage](requirements.md#m3-decomposition-coverage-planned) maps each core requirement and save/security/measurement integration to these tasks. All implementation tasks remain open.
 
-The combined native drill opened/saved/reopened synthetic Fountain bytes, recovered a newer acknowledged checkpoint and retained the previous source/history generation. Existing M2 fault/race/SIGKILL suites, plus new history interruption/failure tests, passed on tmpfs and Btrfs. This closes the **M2 headless Linux exit** described in [SPEC S16](../SPEC.md#s16), not Local v1 or a production writing workflow.
+The [M2-06 headless Linux exit](test-evidence/M2.md#m2-06--small-history-primitives-and-safety-gate) remains the latest implemented milestone. M1-06 demonstrates only its declared composition subset. The default desktop still cannot create/open/edit/save a screenplay. Production editor, picker, cadence, Save As and Local v1 adoption remain open; this task adds no runtime behavior or dependency.
 
 ## Paths and checks
 
-- Core: `crates/screenwriter-core/src/documents/{history.rs,history_store.rs,history_store_tests.rs,choices_store.rs,snapshot_store.rs}` and `tests/{recovery_choices.rs,m2_exit.rs}`; pinned `git2` core dependency. TypeScript error-code contract extended. [ADR 0020](decisions/0020-native-curated-history.md), history/architecture/testing/development docs and trace/TODO updated.
-- [M2-06 evidence](test-evidence/M2.md#m2-06--small-history-primitives-and-safety-gate) owns exact host/commands/log paths and native versus browser limits. Full Rust workspace: 167 entries each on tmpfs and Btrfs after the final managed-profile test; 79 frontend tests, format/lint/typecheck, native release build and no-Git-PATH focused run passed. See evidence for final recorded counts and any reruns.
+- Changed: TODO.md, docs/{requirements.md,index.md,current-state.md,test-evidence/M3.md}. No source, fixture bytes, SPEC, ADR or executable configuration changed. Unaffected requirement rows retained byte-for-byte.
+- [M3-00 evidence](test-evidence/M3.md#m3-00--decomposition) owns exact documentation check commands, host and outcomes. Formatting, task/requirement/dependency and changed local-link/anchor audit, and diff checks passed. Code/native/renderer checks are not run for this docs-only task.
 
 ## Limits and next action
 
-The default desktop has no history command/UI, production editor, picker, save cadence or Save As. M6 owns timeline/diff/named restore, installed/offline package/adoption, license notices and full product verification; M3 owns production editor integration. Git ref/object power-loss durability, actual disk full, physical-disk independence and other OS adapters remain unverified. Existing source/recovery/snapshot layers remain the primary data safety mechanisms. Do not use important manuscripts in this build.
+**Next ready task: M3-01 Independent conformance corpus and oracle.** Read its TODO entry, SPEC S05–S06/S15.3, document-model contract, ADR 0007, fixture guide and the linked M1 codec/PDF/composition proof limits. Establish independently reviewed byte/semantic expectations and a renderer-supported comparison before implementing the production codec. M3-09 is independently dependency-ready, but the single-editor sequence begins with M3-01; other tasks wait for their listed predecessors.
 
-Next: **M3-00 Decompose M3-G**, then select one ready M3 task. Stop at this requested M2 boundary. Work on main with task IDs in commits; never push without human review and explicit authorization.
+M3-08 must verify a real IME, including the composition-to-Enter boundary; dead-key evidence alone cannot close it. M3-11 must resolve lasting Save As identity/publication choices with an ADR when implemented. M3-13 requires actual default-app native writing, recovery and failure evidence. M4 workflows, M5 PDF and M6 history UX/configured backup/installed-offline/migration/owner pilot remain separate gates; Tier 1 targets are required before M6 implementation. Git power-loss durability, actual disk full, physical-disk independence and other OS adapters remain unverified.
+
+Stop after M3-00 decomposition; no M3 implementation started. Continue on main with task IDs in commits; never push without human review and explicit authorization.
