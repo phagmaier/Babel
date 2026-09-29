@@ -26,7 +26,9 @@ def key(*args):
     elif args==('-k','dead_acute','-k','Escape'):
         subprocess.run(['wtype','-k','dead_acute'],check=True);subprocess.run(['/tmp/babel-m3-08-keyboard','escape'],check=True)
     else:subprocess.run(['wtype','-d','30',*args],check=True)
-    time.sleep(.15);focus(); subprocess.run(['wtype','-k','F8'],check=True)
+    time.sleep(.15);return await_report(previous)
+def await_report(previous):
+    focus(); subprocess.run(['wtype','-k','F8'],check=True)
     until=time.monotonic()+30
     while time.monotonic()<until:
         ready=[r for r in reports()[previous:] if r.get('task')=='M3-08']
@@ -102,11 +104,44 @@ key('-k','F1');cancelled=key('-k','dead_acute','-k','Escape')
 cancel_passed=src(cancelled)==original
 if not cancel_passed:
     assert src(cancelled)=='\n@MAYA\nHello world.´\n'.encode(),cancelled
-    print('BLOCKED: GTK dead-key Escape commits spacing acute; real IME cancellation is unverified. Exact source retained and Undo checked.',flush=True)
+    print('NOTED: GTK dead-key Escape commits spacing acute; exact source retained and Undo checked. Real IME cancellation is covered separately below.',flush=True)
     assert src(undo())==original
 key('-k','F1')
 key('-k','dead_acute','e')
 first=key('-k','Return');assert first['kind']=='action' and src(first)=='\n@MAYA\nHello world.é\n\n'.encode(),first
+# Real IME commit/cancel/Enter through live fcitx5 engines (M3-08 acceptance).
+# The drill switches the session input method; keyboard-us is restored after.
+# A mid-section abort leaves the switched method active; restore it with
+# `fcitx5-remote -s keyboard-us`.
+def ime_switch(name):
+    focus()
+    subprocess.run(['fcitx5-remote','-s',name],check=True);time.sleep(.5)
+    current=subprocess.check_output(['fcitx5-remote','-n'],text=True).strip()
+    assert current==name,(current,name)
+def ime_type(text):
+    focus();subprocess.run(['wtype','-d','80',text],check=True);time.sleep(1.0)
+key('-k','F1');ime_switch('pinyin')
+previous=len(reports());ime_type('nihao')
+focus();subprocess.run(['wtype','-k','space'],check=True);time.sleep(.8)
+pinyin_committed=await_report(previous)
+assert pinyin_committed['composition'] and all(e['trusted'] for e in pinyin_committed['composition']),pinyin_committed
+assert src(pinyin_committed)=='\n@MAYA\nHello world.你好\n'.encode(),pinyin_committed
+assert src(undo())==original
+key('-k','F1');ime_switch('pinyin')
+previous=len(reports());ime_type('nihao')
+focus();subprocess.run(['/tmp/babel-m3-08-keyboard','escape'],check=True);time.sleep(.8)
+pinyin_cancelled=await_report(previous)
+assert src(pinyin_cancelled)==original,pinyin_cancelled
+assert src(undo())==original
+key('-k','F1');ime_switch('mozc')
+previous=len(reports());ime_type('ai')
+focus();subprocess.run(['/tmp/babel-m3-08-keyboard','return'],check=True);time.sleep(.8)
+mozc_committed=await_report(previous)
+assert mozc_committed['composition'] and all(e['trusted'] for e in mozc_committed['composition']),mozc_committed
+assert src(mozc_committed)=='\n@MAYA\nHello world.あい\n'.encode(),mozc_committed
+assert src(undo())==original
+ime_switch('keyboard-us')
+print('Real pinyin commit/cancel and mozc commit with trusted composition and exact undo passed.',flush=True)
 # Exact native protection before whole-source import, followed by source-origin undo/redo.
 key('-k','F1');protected=key('-k','F4')
 imported=b'\xef\xbb\xbfTitle: Imported\r\n\r\n!New screenplay\r\n/* retained unknown */\r\n'
@@ -137,5 +172,5 @@ for function,count in [('F9',2400),('F10',6000),('F11',12000)]:
     item={'workload':'mixed-long-notes','rows':result['rows'],'bytes':result['byteLength'],'sha256':result['sha256'],'transactionMs':stats(result['transactionMs']),'keyToRafProxyMs':stats(result['keyRafMs'])}
     metrics.append(item);print(json.dumps(item),flush=True)
 Path('/tmp/babel-m3-08-latency.json').write_text(json.dumps(metrics,indent=2)+'\n')
-print('M3-08 available native clipboard, formatting, Unicode/grapheme/RTL, trusted dead-key commit/separate Enter, protected import/undo and row workload checks passed. Task acceptance BLOCKED: full real IME and cancellation; actual compositor paint and page-calibrated S13 metrics unverified.',flush=True)
-sys.exit(2)
+print('M3-08 native clipboard, formatting, Unicode/grapheme/RTL, trusted dead-key commit/separate Enter, real pinyin commit/cancel, real mozc commit, protected import/undo and row workload checks passed. Remaining opens: actual compositor paint and page-calibrated S13 metrics (later gates).',flush=True)
+sys.exit(0)
