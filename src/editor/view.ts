@@ -2,6 +2,7 @@ import { EditorView } from 'prosemirror-view';
 import type { EditorState } from 'prosemirror-state';
 import { applyEditorTransaction, editorOrigin } from './state';
 import { routeEditorShortcut } from './shortcuts';
+import type { LocalCompletion } from './completion';
 import type { ShortcutRegistry } from '../application/shortcuts';
 import {
   cycleEditorElement,
@@ -17,6 +18,7 @@ export function mountScreenplayEditor(
     changed?: (state: EditorState) => void;
     refused?: (reason?: string) => void;
     shortcuts?: ShortcutRegistry;
+    completion?: LocalCompletion;
     completionKey?: (view: EditorView, event: KeyboardEvent) => boolean;
     escapeFocus?: () => void;
   } = {},
@@ -30,11 +32,27 @@ export function mountScreenplayEditor(
       const result = applyEditorTransaction(view.state, transaction);
       view.updateState(result.state);
       if (!result.accepted) observers.refused?.();
-      else if (transaction.docChanged || transaction.selectionSet)
+      else if (transaction.docChanged || transaction.selectionSet) {
         observers.changed?.(result.state);
+        observers.completion?.changed(view);
+        if (
+          transaction.getMeta('paste') ||
+          transaction.getMeta('uiEvent') === 'paste'
+        )
+          observers.completion?.dismiss();
+      }
     },
     handleDOMEvents: {
+      focus() {
+        observers.completion?.changed(view);
+        return false;
+      },
+      blur() {
+        observers.completion?.dismiss();
+        return false;
+      },
       compositionstart() {
+        observers.completion?.suspend();
         composing = true;
         compositionEndedBeforeKeyup = false;
         return false;
@@ -42,6 +60,8 @@ export function mountScreenplayEditor(
       compositionend() {
         composing = false;
         compositionEndedBeforeKeyup = true;
+        observers.completion?.dismiss();
+        observers.completion?.resume(view);
         return false;
       },
       keyup() {
@@ -57,13 +77,16 @@ export function mountScreenplayEditor(
         event.keyCode === 229 ||
         event.key === 'Dead' ||
         event.key === 'Process'
-      )
+      ) {
+        observers.completion?.dismiss();
         return false;
+      }
       if (event.key === 'Enter' && compositionEndedBeforeKeyup) {
         compositionEndedBeforeKeyup = false;
         return true;
       }
       compositionEndedBeforeKeyup = false;
+      if (observers.completion?.key(current, event)) return true;
       if (observers.completionKey?.(current, event)) return true;
       if (
         observers.shortcuts &&
@@ -116,10 +139,12 @@ export function mountScreenplayEditor(
     },
     // Clipboard policies/structural commands have their own M3 gates.
     handlePaste() {
+      observers.completion?.dismiss();
       observers.refused?.();
       return true;
     },
     handleDrop() {
+      observers.completion?.dismiss();
       observers.refused?.();
       return true;
     },

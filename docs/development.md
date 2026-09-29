@@ -1,6 +1,6 @@
 # Development and toolchain
 
-Status: M0 shell, isolated M1 proofs and M2-01–06 Linux headless safety foundation; M3-04–06 editor/source/keys/picker/shortcut foundation exists, with default-app activation, native file picker, cadence and Save As still open. See [SPEC S13-S15](../SPEC.md#s13), [S17](../SPEC.md#s17), [APP-01, QA-01, QA-02](requirements.md), [M1 evidence](test-evidence/M1.md), [M2 evidence](test-evidence/M2.md).
+Status: M0 shell, isolated M1 proofs and M2-01–06 Linux headless safety foundation; M3-04–07 editor/source/keys/picker/shortcut/completion foundation exists, with default-app activation, native file picker, cadence and Save As still open. See [SPEC S13-S15](../SPEC.md#s13), [S17](../SPEC.md#s17), [APP-01, QA-01, QA-02](requirements.md), [M1 evidence](test-evidence/M1.md), [M2 evidence](test-evidence/M2.md).
 
 ## Recorded host and pins
 
@@ -87,3 +87,5 @@ Per-task focused commands and their exact results are recorded in the linked evi
 All focused commands use `CARGO_HOME=/tmp/babel-cargo` and `--locked` where applicable. Btrfs fixture roots are set via `BABEL_*_TEST_ROOT` environment variables as documented in each evidence file. Shared gates (`pnpm check`, `pnpm test:browser`, `cargo fmt --all -- --check`, `cargo clippy --workspace --all-targets -- -D warnings`, `cargo test --workspace`) remain mandatory for all tasks.
 
 M3-06 native picker/shortcut diagnostic: [instructions](../tests/native/editor-shortcuts/README.md). It uses production controls and the existing feature-only report transport on synthetic text; local remapping is exercised in a fresh private WebKit profile. No manuscript is opened/saved and default writing activation remains M3-12.
+
+M3-07 focused check: `pnpm exec vitest run tests/contract/editor-completion.test.ts tests/ui/CompletionPopup.test.ts tests/contract/editor-shortcuts.test.ts tests/ui/EditorControls.test.tsx tests/contract/editor-keys.test.ts tests/contract/editor-bridge.test.ts tests/contract/fountain-complex.test.ts tests/contract/production-fountain.test.ts`. The [native completion diagnostic](../tests/native/editor-completion/README.md) uses real WebKit keys and an optional actual Wayland pointer helper on synthetic text. Its pinned MIT wlr development protocol and host Wayland tools are test-only; they add no application dependency or bundled runtime. [M3-07 evidence](test-evidence/M3.md#m3-07--local-character-and-heading-completion) distinguishes real input from synthetic mouse/composition events.

@@ -1,0 +1,15 @@
+{
+  "build": {
+    "devUrl": "http://localhost:5173/tests/native/editor-completion/index.html"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "babel M3-07 synthetic completion",
+        "width": 1100,
+        "height": 1000
+      }
+    ]
+  }
+}

@@ -1,0 +1,23 @@
+.completion-popup {
+  position: fixed;
+  z-index: 20;
+  width: 260px;
+  max-height: 260px;
+  overflow-y: auto;
+  padding: 4px;
+  border: 1px solid #697482;
+  border-radius: 4px;
+  background: #fff;
+  color: #18212b;
+  box-shadow: 0 3px 12px #0003;
+  font:
+    14px/1.5 system-ui,
+    sans-serif;
+}
+.completion-popup [role='option'] {
+  padding: 4px 8px;
+  cursor: pointer;
+}
+.completion-popup [aria-selected='true'] {
+  background: #d9e8fa;
+}

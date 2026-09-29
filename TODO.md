@@ -46,7 +46,7 @@ M2 headless Linux exit passed. This is a bounded headless foundation; no Local-v
 - [x] **M3-04 Sole editor authority and source bridge** — Evidence: [M3 report](docs/test-evidence/M3.md#m3-04--sole-editor-authority-and-source-bridge).
 - [x] **M3-05 Smart keys, joins and structural undo** — Evidence: [M3 report](docs/test-evidence/M3.md#m3-05--smart-keys-joins-and-structural-undo). Deps: M3-04.
 - [x] **M3-06 Element picker and configurable shortcut registry** — [Evidence](docs/test-evidence/M3.md#m3-06--element-picker-and-configurable-shortcut-registry). Deps: M3-05.
-- [ ] **M3-07 Local character and heading completion** — [Brief](docs/tasks/M3-07.md). Deps: M3-06.
+- [x] **M3-07 Local character and heading completion** — [Evidence](docs/test-evidence/M3.md#m3-07--local-character-and-heading-completion). Deps: M3-06.
 - [ ] **M3-08 Paste, inline formatting and native input matrix** — [Brief](docs/tasks/M3-08.md). Deps: M3-05, M3-06, M3-07.
 - [ ] **M3-09 Native source/destination picker and recoverable drafts** — [Brief](docs/tasks/M3-09.md). Deps: M3-00, M2-06. Also dependency-ready.
 - [ ] **M3-10 Recovery/source cadence and visible protection state** — [Brief](docs/tasks/M3-10.md). Deps: M3-04, M3-09, M2-04, M2-05C.
