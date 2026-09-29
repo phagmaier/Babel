@@ -134,3 +134,7 @@ blocking workers within the shared M2-04 job/payload budget; each reserves one
 source bound of logical payload. The frontend `RecoveryChoicePanel` uses the
 `RecoveryChoicesPort` with stale-result guards; production host and picker
 wiring remain uninitialized. See [ADR 0017](decisions/0017-explicit-recovery-choices.md).
+
+## M1-06 diagnostic composition boundary
+
+A feature-only Linux native module initializes the writer during setup only after validating an explicitly supplied private marked synthetic root. Its opening command maps fixed fixture IDs to native filenames; checkpoint/save use the existing DocumentHost worker/controller. The diagnostic page has one typed EditorState authority with immutable original source data and derived captures. The default production handler/route/capabilities and uninitialized writer boundary remain unchanged. See the [proof](../prototypes/editor-composition/README.md) and [bounded evidence](test-evidence/M1.md#m1-06--bounded-codeceditornative-composition-proof).

@@ -11,6 +11,7 @@ crate-type = ["staticlib", "cdylib", "rlib"]
 
 [features]
 native-editor-proof = []
+editor-composition-proof = []
 
 [build-dependencies]
 tauri-build = { version = "=2.7.0", features = [] }

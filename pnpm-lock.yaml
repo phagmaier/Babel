@@ -63,6 +63,9 @@ importers:
       prosemirror-keymap:
         specifier: 1.2.3
         version: 1.2.3
+      prosemirror-model:
+        specifier: 1.25.12
+        version: 1.25.12
       prosemirror-schema-basic:
         specifier: 1.2.5
         version: 1.2.5

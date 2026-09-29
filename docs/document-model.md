@@ -31,3 +31,5 @@ for source or draft-metadata changes, including undo; restoring old content is
 a new version. The receipt state stores only protection facts and fingerprints,
 not a second live manuscript. Editor/hash production and save cadence remain
 future integration. [ADR 0015](decisions/0015-versioned-persistence-ipc.md).
+
+M1-06 composes the existing codec with typed editor nodes while retaining the original source as immutable plugin data inside the sole EditorState. Captures derive current source ranges and UTF-16/UTF-8 selection anchors from those nodes. The bounded heading/action/cue/dialogue subset preserves blank/raw regions and passes literal LF/BOM-CRLF/no-final-newline oracles, native saves and reopen. Full grammar and context-spanning transformations remain M3 gates. See the [proof](../prototypes/editor-composition/README.md) and [M1 evidence](test-evidence/M1.md#m1-06--bounded-codeceditornative-composition-proof).

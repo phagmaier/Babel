@@ -3,6 +3,10 @@ use screenwriter_core::AppInfo;
 use screenwriter_core::documents::DocumentService;
 use screenwriter_core::documents::{DocumentError, DocumentRequest, ErrorCode, OpenDocument};
 use std::sync::{Arc, Mutex};
+#[cfg(all(feature = "editor-composition-proof", target_os = "linux"))]
+mod editor_composition_proof;
+#[cfg(all(feature = "editor-composition-proof", target_os = "linux"))]
+use editor_composition_proof::{open_composition_fixture, record_composition_proof};
 mod persistence_host;
 mod recovery_choices_host;
 mod startup_host;
@@ -16,7 +20,8 @@ use tauri::Manager;
 
 #[derive(Clone, Default)]
 struct DocumentHost {
-    // Initialized only by a future native picker/controller, never an IPC path.
+    // Production initialization belongs to a future native picker/controller, never an IPC path.
+    // Proof builds initialize only their marked synthetic store during setup.
     #[cfg(target_os = "linux")]
     service: Arc<Mutex<Option<DocumentService>>>,
     #[cfg(not(target_os = "linux"))]
@@ -103,9 +108,14 @@ pub fn run() {
                 .root
                 .lock()
                 .map_err(|_| std::io::Error::other("recovery host unavailable"))? = root;
+            #[cfg(all(feature = "editor-composition-proof", target_os = "linux"))]
+            editor_composition_proof::initialize(app)?;
             Ok(())
         });
-    #[cfg(feature = "native-editor-proof")]
+    #[cfg(all(
+        feature = "native-editor-proof",
+        not(all(feature = "editor-composition-proof", target_os = "linux"))
+    ))]
     let builder = builder.invoke_handler(tauri::generate_handler![
         app_info,
         read_open_document,
@@ -121,7 +131,10 @@ pub fn run() {
         resolve_save_transaction,
         record_native_editor_proof
     ]);
-    #[cfg(not(feature = "native-editor-proof"))]
+    #[cfg(not(any(
+        feature = "native-editor-proof",
+        all(feature = "editor-composition-proof", target_os = "linux")
+    )))]
     let builder = builder.invoke_handler(tauri::generate_handler![
         app_info,
         read_open_document,
@@ -135,6 +148,25 @@ pub fn run() {
         keep_current_source,
         save_recovered_copy,
         resolve_save_transaction
+    ]);
+    #[cfg(all(feature = "editor-composition-proof", target_os = "linux"))]
+    let builder = builder.invoke_handler(tauri::generate_handler![
+        app_info,
+        read_open_document,
+        release_open_document,
+        list_local_recovery,
+        read_local_recovery,
+        checkpoint_document,
+        save_document,
+        compare_recovery,
+        recover_checkpoint_as_current,
+        keep_current_source,
+        save_recovered_copy,
+        resolve_save_transaction,
+        open_composition_fixture,
+        record_composition_proof,
+        #[cfg(feature = "native-editor-proof")]
+        record_native_editor_proof
     ]);
     builder
         .run(tauri::generate_context!())

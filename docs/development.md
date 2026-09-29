@@ -147,3 +147,7 @@ Focused frontend choice/adapter:
 Fault gates compile only into unit test binaries; no runtime hook exists.
 [M2 evidence](test-evidence/M2.md#m2-05b--explicit-recovery-choices-and-external-changes)
 records exact commands and native-versus-mocked limits.
+
+## M1-06 isolated composition proof
+
+The Linux `editor-composition-proof` feature and [proof config](../src-tauri/tauri.editor-composition-proof.conf.json) initialize only an explicitly seeded private synthetic root during native setup. The [proof README](../prototypes/editor-composition/README.md) owns launch/input instructions; [M1 evidence](test-evidence/M1.md#m1-06--bounded-codeceditornative-composition-proof) owns exact checks/results. Production initialization and capabilities remain unchanged. `prosemirror-model` 1.25.12 (MIT, inspected pinned package manifest) is exposed as a dev dependency for schema construction/types; it was already present transitively in the lockfile. No runtime dependency promotion or new Rust dependency occurs; release notices/packaging remain M6.

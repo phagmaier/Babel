@@ -1,6 +1,6 @@
 # M1-06 — Bounded codec/editor/native composition proof
 
-Status: **claimed on main, implementation not started**. The owner [accepted M2-05B-R1](test-evidence/M2.md#r1-owner-acceptance-and-m1-06-claim) at `5e84879` on 2026-09-28; the writer dependency is satisfied. Owner authorized the investigation order on 2026-09-28. This closes an unanswered M1 composition question under [SPEC S16/S19.2](../SPEC.md#s16); it is not production M3 implementation or a full M2/M3 exit.
+Status: **bounded investigation passed on the reference Linux/WebKit host**, with [evidence and reviewed conclusion](test-evidence/M1.md#m1-06--bounded-codeceditornative-composition-proof) and a [runnable diagnostic](../prototypes/editor-composition/README.md). Implementation base `d64f3ab` contains the owner-accepted writer `5e84879`; starting tree was clean. This resolves the declared subset of the M1 composition question under [SPEC S16/S19.2](../SPEC.md#s16). Full grammar, structural editing, IME and production M2/M3 exit remain open.
 
 ## Question and ownership
 
@@ -32,4 +32,4 @@ Checks: focused codec/editor contracts, required shared frontend/native checks f
 
 ## Stop and resume
 
-M1-06 is claimed from the owner-accepted writer baseline `5e84879`; begin the bounded investigation in a subsequent implementation session. The acceptance/claim handoff adds no proof code or execution evidence. After the proof's reviewed bounded conclusion, resume M2-05C; 05D/06 retain their safety dependencies, and production M3 remains behind full M2 exit/decomposition. An inconclusive or failed proof must name the remaining composition gate and next action; no placeholder or mock result is promoted to a native pass.
+The bounded investigation stopped at a passing subset and reviewed conclusion. The owner excluded M2-05C from this task, so it was not started. Review this checkpoint before selecting subsequent work; 05D/06 retain their safety dependencies, and production M3 remains behind full M2 exit/decomposition. An inconclusive or failed proof must name the remaining composition gate and next action; no placeholder or mock result is promoted to a native pass.

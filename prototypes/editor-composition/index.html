@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>M1-06 composition proof</title>
+  </head>
+  <body>
+    <main>
+      <h1>M1-06 · synthetic composition proof</h1>
+      <p>
+        Disposable files only. Heading, action, cue/dialogue and Unicode text
+        edits; protected source regions remain verbatim. Structural
+        transformations are refused.
+      </p>
+      <label
+        >Fixture
+        <select id="fixture">
+          <option>lf</option>
+          <option>crlf</option>
+          <option>no-final-newline</option>
+        </select></label
+      >
+      <button id="open">Open (F1)</button
+      ><button id="save">Safe save (F2)</button
+      ><button id="reopen">Reopen (F3)</button
+      ><button id="report">Report (F8)</button>
+      <p id="status" role="status">Waiting for native host</p>
+      <pre id="receipt"></pre>
+      <p>
+        F7: action end · F6: select “lamp” · Ctrl+Z / Ctrl+Shift+Z: undo/redo ·
+        F8: exact diagnostic report.
+      </p>
+      <div id="editor"></div>
+    </main>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

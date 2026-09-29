@@ -12,11 +12,11 @@
 | Content protection                     | [persistence](persistence-and-recovery.md), [history/remote](sync-and-versioning.md)                                                                             |
 | Publication                            | [PDF](pdf-and-formatting.md)                                                                                                                                     |
 | Requirement coverage                   | [requirements](requirements.md)                                                                                                                                  |
-| Next agent task                        | [TODO](../TODO.md) (M1-06 claimed, implementation not started), [current-state](current-state.md)                                                                |
+| Next agent task                        | [TODO](../TODO.md) (M1-06 bounded proof passed; checkpoint review next), [current-state](current-state.md)                                                       |
 
 The [fixture guide](../fixtures/README.md) defines synthetic test data. Product authority remains with [SPEC S00-S03](../SPEC.md#s00). If a contract here disagrees with the spec, record and resolve it; do not silently weaken the spec.
 
 [M1 exit and M2 contract review](m1-gate-review.md) records the bounded-proof
 exit and the safety contracts carried into the next milestone.
 
-[Independent M2-05B review](reviews/2026-09-28-m2-05b-review.md) required corrections; the owner [accepted M2-05B-R1](test-evidence/M2.md#r1-owner-acceptance-and-m1-06-claim) at `5e84879` on 2026-09-28. [M1-06 composition proof](editor-composition-proof.md) is claimed but unexecuted; its reviewed bounded conclusion precedes M2-05C. [Process review](reviews/2026-09-28-process-review.md) records documentation conventions and retained safety rules.
+[Independent M2-05B review](reviews/2026-09-28-m2-05b-review.md) required corrections; the owner [accepted M2-05B-R1](test-evidence/M2.md#r1-owner-acceptance-and-m1-06-claim) at `5e84879` on 2026-09-28. [M1-06 composition proof](editor-composition-proof.md) passed its declared subset on the reference host; its reviewed bounded conclusion precedes M2-05C. [Process review](reviews/2026-09-28-process-review.md) records documentation conventions and retained safety rules.
