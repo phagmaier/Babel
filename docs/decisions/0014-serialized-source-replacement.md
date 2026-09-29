@@ -4,7 +4,7 @@ Status: Accepted direction. Date: 2026-09-28. Task: M2-03.
 Authority: [SPEC S10/S15](../../SPEC.md#s10), SAVE-01, INV-04/05/07;
 [persistence](../persistence-and-recovery.md), [ADR 0010](0010-linux-durable-replacement.md),
 [ADR 0012](0012-native-document-identity.md), [ADR 0013](0013-recovery-checkpoint-journal.md).
-Evidence: [M2 report](../test-evidence/M2.md#m2-03--serialized-source-replacement).
+Evidence: [M2 report](../test-evidence/M2-03.md).
 
 ## Decision
 

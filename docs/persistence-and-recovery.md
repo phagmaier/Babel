@@ -75,7 +75,7 @@ exposes published and pending candidates separately. It never claims that a
 receipt reached an editor or that the Fountain source was saved. Startup
 choice/adoption/retention flows remain M2-05. M2-03 adds save queues; M2-04
 adds typed checkpoint IPC and receipt-driven state, dispatching filesystem work
-on blocking native workers. [M2 evidence](test-evidence/M2.md#m2-02--recovery-checkpoint-format)
+on blocking native workers. [M2 evidence](test-evidence/M2-02.md)
 records failure/property/restart/SIGKILL tests and measured growth/latency.
 
 ## M2-03 serialized source replacement
@@ -137,7 +137,7 @@ baseline, so a lost source receipt and stale frontend fingerprint cannot block
 newer raw protection. No debounce interval, maximum dirty age, coalescing,
 protected close or editor integration is delivered here. Those product gates
 remain open. [ADR 0015](decisions/0015-versioned-persistence-ipc.md) and
-[M2 evidence](test-evidence/M2.md#m2-04--versioned-acknowledgements-and-ipc)
+[M2 evidence](test-evidence/M2-04.md)
 record contract/failure coverage and native-versus-mocked limits.
 
 ## M2-05A startup review
@@ -162,12 +162,12 @@ been selected or compared. Headless managed/loose/unsaved comparison and
 protected recovery/copy/keep/finalize/relink choices are M2-05B;
 snapshots/retention/backup remain M2-05C; protected close remains M2-05D.
 Parent M2-05 stays open. [ADR 0016](decisions/0016-read-only-startup-recovery-review.md)
-and [M2 evidence](test-evidence/M2.md#m2-05a--read-only-startup-recovery-review)
+and [M2 evidence](test-evidence/M2-05A.md)
 record the contract and native/mocked verification boundary.
 
 ## M2-05B explicit choices and external changes
 
-M2-05B-R1 corrects the two [independent review](reviews/2026-09-28-m2-05b-review.md) gaps: finalization now finishes source file/directory durability and revalidates before any receipt, and relink requires exclusive caller ownership with held-lease verification. The owner [accepted R1](test-evidence/M2.md#r1-owner-acceptance-and-m1-06-claim) at `5e84879` on 2026-09-28, closing M2-05B acceptance within its recorded Linux/native and mocked coverage.
+M2-05B-R1 corrects the two [independent review](reviews/2026-09-28-m2-05b-review.md) gaps: finalization now finishes source file/directory durability and revalidates before any receipt, and relink requires exclusive caller ownership with held-lease verification. The owner [accepted R1](test-evidence/M2-05B-R1.md) at `5e84879` on 2026-09-28, closing M2-05B acceptance within its recorded Linux/native and mocked coverage.
 
 Comparison, adoption, keep, sibling copy, transaction finalize and safe
 relinking operate on a natively opened (`open_selected`) registration anchor;
@@ -183,7 +183,7 @@ post-replacement states; relinking is native-only with managed/loose
 continuity checks. Timestamps never select a winner; a second unresolved
 corruption still blocks. Retention/pruning, Save As, external backup
 destinations and protected close remain M2-05C/D. [ADR 0017](decisions/0017-explicit-recovery-choices.md)
-and [M2 evidence](test-evidence/M2.md#m2-05b--explicit-recovery-choices-and-external-changes)
+and [M2 evidence](test-evidence/M2-05B.md)
 record the contract and native/mocked verification boundary.
 
 ## M2-05C snapshots, retention and external copies
@@ -231,10 +231,10 @@ The injected `SnapshotPanel` displays retention/cap/attention facts, explicit
 named/restore/copy actions and these storage distinctions. The default shell
 still has no production source/destination picker, editor, cadence, Save As or
 configured recurring backup. The [synthetic diagnostic](../prototypes/snapshot-review/README.md)
-exercises real WebKit/native commands; [M2 evidence](test-evidence/M2.md#m2-05c--rolling-snapshots-and-backup-copies)
+exercises real WebKit/native commands; [M2 evidence](test-evidence/M2-05C.md)
 separates native files/interruptions, mocked dispatch, UI injection and limits.
 The bounded M2 headless Linux exit passed; Local v1 remains open. See
-[M2-06 evidence](test-evidence/M2.md#m2-06--small-history-primitives-and-safety-gate).
+[M2-06 evidence](test-evidence/M2-06.md).
 
 ## M2-05D protected close and failure escalation
 
@@ -261,5 +261,5 @@ emergency copy and memory-only explicit risk drill. `release_open_document`
 remains a low-level registration operation; a production editor must use the
 close coordinator. The default shell has no editor/picker/cadence and no Local
 v1 adoption claim. [ADR 0019](decisions/0019-protected-close-lifecycle.md)
-records the lifecycle choice; [M2 evidence](test-evidence/M2.md#m2-05d--protected-close-and-failure-escalation)
+records the lifecycle choice; [M2 evidence](test-evidence/M2-05D.md)
 owns exact checks and limits.

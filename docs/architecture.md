@@ -122,7 +122,7 @@ preview reports unavailable. See [ADR 0016](decisions/0016-read-only-startup-rec
 
 ## M2-05B recovery choices
 
-M2-05B-R1 corrects the two [independent review](reviews/2026-09-28-m2-05b-review.md) gaps: finalization finishes source file/directory durability before any receipt, and relink requires exclusive caller ownership with held-lease verification. The owner [accepted R1](test-evidence/M2.md#r1-owner-acceptance-and-m1-06-claim) at `5e84879` on 2026-09-28, closing M2-05B acceptance within its recorded Linux/native and mocked coverage.
+M2-05B-R1 corrects the two [independent review](reviews/2026-09-28-m2-05b-review.md) gaps: finalization finishes source file/directory durability before any receipt, and relink requires exclusive caller ownership with held-lease verification. The owner [accepted R1](test-evidence/M2-05B-R1.md) at `5e84879` on 2026-09-28, closing M2-05B acceptance within its recorded Linux/native and mocked coverage.
 
 `documents/choices.rs` owns strict path-free choice envelopes;
 Linux `documents/choices_store.rs` owns comparison, protected adoption through

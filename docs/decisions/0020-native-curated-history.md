@@ -2,7 +2,7 @@
 
 Status: Accepted direction. Date: 2026-09-28. Task: M2-06.
 Authority: [SPEC S10.2/S10.8/S11.1–11.2/S15.2](../../SPEC.md#s11), HIST-01, SAVE-04, INV-08; [history contract](../sync-and-versioning.md), [ADR 0011](0011-git2-history-store.md).
-Evidence: [M2-06 report](../test-evidence/M2.md#m2-06--small-history-primitives-and-safety-gate).
+Evidence: [M2-06 report](../test-evidence/M2-06.md).
 
 ## Decision
 

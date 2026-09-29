@@ -4,7 +4,7 @@ Status: Accepted direction. Date: 2026-09-28. Task: M2-05A.
 Authority: [SPEC S10.5–10.8](../../SPEC.md#s10), SAVE-03, INV-07/10/20;
 [persistence](../persistence-and-recovery.md), [ADR 0013](0013-recovery-checkpoint-journal.md),
 [ADR 0015](0015-versioned-persistence-ipc.md).
-Evidence: [M2 report](../test-evidence/M2.md#m2-05a--read-only-startup-recovery-review).
+Evidence: [M2 report](../test-evidence/M2-05A.md).
 
 ## Context and decision
 

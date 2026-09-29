@@ -3,7 +3,7 @@
 Status: Accepted direction. Date: 2026-09-28. Task: M2-05C.
 Authority: [SPEC S10.6–10.8](../../SPEC.md#s10), SAVE-04, INV-04/07/10/20;
 [persistence](../persistence-and-recovery.md).
-Evidence: [M2 report](../test-evidence/M2.md#m2-05c--rolling-snapshots-and-backup-copies).
+Evidence: [M2 report](../test-evidence/M2-05C.md).
 
 ## Decision
 

@@ -2,7 +2,7 @@
 
 Status: Accepted direction. Date: 2026-09-28. Task: M2-02.
 Authority: SPEC S03/S10/S15; SAVE-03, INV-04/06.
-Evidence: [M2 report](../test-evidence/M2.md#m2-02--recovery-checkpoint-format).
+Evidence: [M2 report](../test-evidence/M2-02.md).
 
 ## Decision and format
 

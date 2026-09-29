@@ -32,4 +32,4 @@ installed-package, other-platform or hardware power-loss support.
 
 Archive the owned synthetic root outside the repo before cleanup and stop its
 owned native process first. Exact executed commands, host, archives and results
-are recorded once in [M2 evidence](../../docs/test-evidence/M2.md#m2-05c--rolling-snapshots-and-backup-copies).
+are recorded once in [M2 evidence](../../docs/test-evidence/M2-05C.md).

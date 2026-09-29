@@ -62,160 +62,24 @@ link into the desktop; M2-06 promoted the same pinned adapter into core.
 [ADR 0011](decisions/0011-git2-history-store.md) records
 exact native/transitive license and distribution-review limits.
 
-## M2-01 native open
+## Task-specific focused checks
 
-Focused native check: `CARGO_HOME=/tmp/babel-cargo cargo test -p screenwriter-core --test safe_open --locked`.
-Prepend `BABEL_OPEN_TEST_ROOT=/home/phagmaier/Code/babel` for Btrfs fixtures.
-IPC contract check: `CARGO_HOME=/tmp/babel-cargo cargo test -p babel-desktop --locked`.
-The desktop tests enable Tauri's `test` feature through dev-dependencies only;
-production builds have no MockRuntime/test path selection hook. Actual native
-filesystem tests are separate from mocked Tauri/TypeScript dispatch tests.
+Per-task focused commands and their exact results are recorded in the linked evidence files:
 
-M2-01 pins production `serde_json` 1.0.151 and `sha2` 0.10.9 (MIT OR Apache-2.0),
-`uuid` 1.26.1 with v4 (Apache-2.0 OR MIT) and Linux-only `rustix` 1.1.4
-(Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT). Rustix adds locked
-`linux-raw-sys` 0.12.1 under the same license alternatives and `errno` 0.3.14
-(MIT OR Apache-2.0); other locked dependencies are reused. UUID uses native
-OS randomness via the already locked getrandom. License values were read from
-the exact downloaded Cargo.toml files; complete transitive notices and release
-review remain M6. The Linux adapter needs no runtime Git, account, helper,
-network service or new privileged system package. It is not an installed-app
-or non-Linux packaging claim. [ADR 0012](decisions/0012-native-document-identity.md)
-records its conservative permissions/path policy and remaining limits.
+| Task   | Evidence                                                                          | Focused command(s)                                                                                                        |
+| ------ | --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| M2-01  | [M2-01.md](test-evidence/M2-01.md)                                                | `cargo test -p screenwriter-core --test safe_open --locked`                                                               |
+| M2-02  | [M2-02.md](test-evidence/M2-02.md)                                                | `cargo test -p screenwriter-core --lib --test recovery --locked`                                                          |
+| M2-03  | [M2-03.md](test-evidence/M2-03.md)                                                | `cargo test -p screenwriter-core --lib --test source_save --locked`                                                       |
+| M2-04  | [M2-04.md](test-evidence/M2-04.md)                                                | `cargo test -p babel-desktop -p screenwriter-core --lib --locked`                                                         |
+| M2-05A | [M2-05A.md](test-evidence/M2-05A.md)                                              | `cargo test -p screenwriter-core --test startup_recovery --locked`                                                        |
+| M2-05B | [M2-05B.md](test-evidence/M2-05B.md)                                              | `cargo test -p screenwriter-core --lib choices_store --locked`                                                            |
+| M2-05C | [M2-05C.md](test-evidence/M2-05C.md)                                              | `cargo test -p screenwriter-core --lib snapshot_store --locked`                                                           |
+| M2-05D | [M2-05D.md](test-evidence/M2-05D.md)                                              | `cargo test -p screenwriter-core --lib post_replace_external_edit_reports_uncertainty_and_blocks_relinquishment --locked` |
+| M2-06  | [M2-06.md](test-evidence/M2-06.md)                                                | `cargo test -p screenwriter-core --lib history_store --locked`                                                            |
+| M3-01  | [M3.md](test-evidence/M3.md#m3-01--independent-conformance-corpus-and-oracle)     | `pnpm exec vitest run tests/contract/fountain-conformance.test.ts`                                                        |
+| M3-02  | [M3.md](test-evidence/M3.md#m3-02--production-source-aware-codec-foundation)      | `pnpm exec vitest run tests/contract/production-fountain.test.ts`                                                         |
+| M3-03  | [M3.md](test-evidence/M3.md#m3-03--complex-fountain-regions-and-inline-semantics) | `pnpm exec vitest run tests/contract/fountain-complex.test.ts tests/contract/production-fountain.test.ts`                 |
+| M3-04  | [M3.md](test-evidence/M3.md#m3-04--sole-editor-authority-and-source-bridge)       | `pnpm exec vitest run tests/contract/editor-bridge.test.ts`                                                               |
 
-## M2-02 recovery checks
-
-No new dependencies or permission capabilities. Focused format/fault tests:
-`CARGO_HOME=/tmp/babel-cargo cargo test -p screenwriter-core --lib --locked`.
-Native recovery integration/stress:
-`CARGO_HOME=/tmp/babel-cargo cargo test -p screenwriter-core --test recovery --locked -- --nocapture`.
-Prepend `BABEL_RECOVERY_TEST_ROOT=/home/phagmaier/Code/babel` for Btrfs fixture
-roots. This variable applies only to recovery tests, not the safe-open suite.
-For production-like latency, use the same test with `--release` and filter
-`large_stress_fixture_has_bounded_growth_and_measured_checkpoint_latency`.
-The exact commands/results are in [M2 evidence](test-evidence/M2.md#m2-02--recovery-checkpoint-format).
-Fault/SIGKILL stage hooks and child-process environment controls compile only
-in unit test binaries; no runtime hook or general filesystem IPC is added.
-
-## M2-03 source replacement checks
-
-Focused native transaction/fault/API checks:
-`CARGO_HOME=/tmp/babel-cargo cargo test -p screenwriter-core --lib --test source_save --locked -- --nocapture`.
-Prepend `BABEL_SAVE_TEST_ROOT=/home/phagmaier/Code/babel` for Btrfs fixtures.
-Recovery unit tests additionally use `BABEL_RECOVERY_TEST_ROOT`; the source-save
-root does not change those tests' fixture location. Save fault/SIGKILL hooks
-exist only in unit test binaries. No dependency, filesystem permission,
-frontend save command or runtime fault control is added. Full shared checks
-and Linux limitations are in [M2 evidence](test-evidence/M2.md#m2-03--serialized-source-replacement).
-
-## M2-04 IPC/state checks
-
-Focused native worker and generated dispatch tests:
-`CARGO_HOME=/tmp/babel-cargo cargo test -p babel-desktop -p screenwriter-core --lib --locked -- --nocapture`.
-Use `BABEL_IPC_TEST_ROOT=/home/phagmaier/Code/babel` with
-`CARGO_HOME=/tmp/babel-cargo cargo test -p babel-desktop --locked -- --nocapture`
-for owned Btrfs worker/persistence fixtures. Focused headless frontend contracts:
-`pnpm exec vitest run tests/contract/persistence-state.test.ts tests/contract/persistence-controller.test.ts tests/contract/document-ipc.test.ts`.
-The controller tests inject ports; generated Tauri command tests use MockRuntime
-and real synthetic Linux files. Neither proves native WebView UI integration.
-No new dependency or permission capability. [M2 evidence](test-evidence/M2.md#m2-04--versioned-acknowledgements-and-ipc)
-records shared checks, worker cancellation and conservative unknown outcomes.
-
-## M2-05A startup review checks
-
-Focused native reader checks:
-`CARGO_HOME=/tmp/babel-cargo cargo test -p screenwriter-core --test startup_recovery --locked -- --nocapture`.
-Set `BABEL_STARTUP_TEST_ROOT=/home/phagmaier/Code/babel` for owned Btrfs reader
-and startup command fixtures. Command checks use
-`CARGO_HOME=/tmp/babel-cargo cargo test -p babel-desktop --locked -- --nocapture`.
-Focused frontend review/adapter:
-`pnpm exec vitest run tests/ui/RecoveryReview.test.tsx tests/ui/App.test.tsx tests/contract/startup-ipc.test.ts`.
-Read-only native smoke uses an isolated per-process `XDG_DATA_HOME` with synthetic
-checksummed frames and the real WebKit window; never seed the owner's app data.
-[M2 evidence](test-evidence/M2.md#m2-05a--read-only-startup-recovery-review)
-records exact commands, immutable-artifact checks and actual UI inspection.
-
-## M2-05B choice checks
-
-Focused native choice checks:
-`CARGO_HOME=/tmp/babel-cargo cargo test -p screenwriter-core --lib choices_store --locked -- --nocapture`
-and `CARGO_HOME=/tmp/babel-cargo cargo test -p screenwriter-core --test recovery_choices --locked -- --nocapture`.
-Set `BABEL_CHOICES_TEST_ROOT=/home/phagmaier/Code/babel` for owned Btrfs
-choice fixtures. Command checks use
-`CARGO_HOME=/tmp/babel-cargo cargo test -p babel-desktop --locked -- --nocapture`.
-Focused frontend choice/adapter:
-`pnpm exec vitest run tests/contract/recovery-choices.test.ts tests/ui/RecoveryChoices.test.tsx`.
-Fault gates compile only into unit test binaries; no runtime hook exists.
-[M2 evidence](test-evidence/M2.md#m2-05b--explicit-recovery-choices-and-external-changes)
-records exact commands and native-versus-mocked limits.
-
-## M1-06 isolated composition proof
-
-The Linux `editor-composition-proof` feature and [proof config](../src-tauri/tauri.editor-composition-proof.conf.json) initialize only an explicitly seeded private synthetic root during native setup. The [proof README](../prototypes/editor-composition/README.md) owns launch/input instructions; [M1 evidence](test-evidence/M1.md#m1-06--bounded-codeceditornative-composition-proof) owns exact checks/results. Production initialization and capabilities remain unchanged. `prosemirror-model` 1.25.12 (MIT, inspected pinned package manifest) is exposed as a dev dependency for schema construction/types; it was already present transitively in the lockfile. No runtime dependency promotion or new Rust dependency occurs; release notices/packaging remain M6.
-
-## M2-05C snapshot checks
-
-No new dependency or production frontend filesystem capability. Focused native
-checks: `cargo test -p screenwriter-core --lib snapshot_store --locked`;
-prepend `BABEL_SNAPSHOT_TEST_ROOT=/home/phagmaier/Code/babel` for this host's Btrfs
-matrix. Generated dispatch: `cargo test -p babel-desktop snapshot_ipc_tests --locked`;
-`BABEL_IPC_TEST_ROOT` selects the owned native fixture base. Injected UI/adapter:
-`pnpm exec vitest run tests/contract/snapshots.test.ts tests/ui/Snapshots.test.tsx`.
-Shared checks still apply; focused checks cannot replace them.
-
-The [snapshot diagnostic](../prototypes/snapshot-review/README.md) documents the
-feature-gated marked synthetic root, fixed proof-only copy destination and real
-WebKit keyboard/independent audit sequence. Production source/destination picker
-initialization and background cadence remain absent. Exact executed commands,
-outcomes and artifacts are in [M2 evidence](test-evidence/M2.md#m2-05c--rolling-snapshots-and-backup-copies).
-
-## M2-05D protected close checks
-
-Focused frontend checks: `pnpm exec vitest run tests/contract/protected-close.test.ts tests/ui/ProtectedClosePanel.test.tsx`.
-Native uncertainty/risk relinquishment: `CARGO_HOME=/tmp/babel-cargo cargo test -p screenwriter-core --lib post_replace_external_edit_reports_uncertainty_and_blocks_relinquishment --locked`
-and `CARGO_HOME=/tmp/babel-cargo cargo test -p babel-desktop --lib risk_release --locked`.
-Set `BABEL_SAVE_TEST_ROOT=/home/phagmaier/Code/babel` for an owned Btrfs
-source-fault fixture. Shared checks remain mandatory. The feature-only
-[composition diagnostic](../prototypes/editor-composition/README.md) now routes
-F3 and F9/window close through the protected close coordinator; F10 chooses
-only its fixed marked synthetic copy destination, and F11 requires its risk
-checkbox. Exact native WebKit drills and limits are recorded in
-[M2 evidence](test-evidence/M2.md#m2-05d--protected-close-and-failure-escalation).
-
-## M2-06 native history and headless gate
-
-Focused Linux history/choice/exit commands:
-`CARGO_HOME=/tmp/babel-cargo cargo test -p screenwriter-core --lib history_store --locked`,
-`CARGO_HOME=/tmp/babel-cargo cargo test -p screenwriter-core --test recovery_choices --test m2_exit --locked`.
-Use `BABEL_HISTORY_TEST_ROOT`, `BABEL_CHOICES_TEST_ROOT` and
-`BABEL_M2_EXIT_TEST_ROOT` with this repository path for owned Btrfs fixtures.
-The full shared `cargo test --workspace --locked` with all filesystem fixture
-roots set to the Btrfs workspace repeats native source/recovery/snapshot and
-history fault coverage. `pnpm check`, Rust format/Clippy and
-`pnpm tauri build --no-bundle` remain shared gates. Exact commands, host,
-outcomes and no-Git-PATH run are in [M2-06 evidence](test-evidence/M2.md#m2-06--small-history-primitives-and-safety-gate).
-
-The already locked `git2 0.21.0` (MIT OR Apache-2.0) with vendored libgit2
-1.9.7 (GPL v2 with linking exception) is now a core runtime dependency, using
-the M1-05 configuration without HTTPS/SSH/credential features. The M1 probe's
-license/source inspection remains applicable; installed/offline packaging and
-complete transitive/native notices remain M6. The history API adds no frontend
-filesystem/shell capability or runtime network dependency.
-
-## M3-01 independent conformance
-
-Focused contract: `pnpm exec vitest run tests/contract/fountain-conformance.test.ts`. Isolated comparison: `node prototypes/fountain-conformance/compare.ts /tmp/babel-m3-conformance-venv/bin/python /tmp/babel-m3-01-comparison`; first create the disposable venv with `python3 -m venv /tmp/babel-m3-conformance-venv` and install existing pins with `/tmp/babel-m3-conformance-venv/bin/pip install -r prototypes/pdf/requirements.txt`. See the [harness](../prototypes/fountain-conformance/README.md) and [M3 evidence](test-evidence/M3.md#m3-01--independent-conformance-corpus-and-oracle). No runtime dependency or native behavior changed; pure codec/state assertions do not need a second filesystem run. Shared frontend/build checks still apply; native editor/picker/save acceptance remains future M3 tasks.
-
-## M3-02 production codec
-
-Focused contract: `pnpm exec vitest run tests/contract/production-fountain.test.ts`. The production domain imports no framework, proof codec or filesystem service. Its tests use the unchanged independent M3-01 literals/hash/semantic expectations plus primary-context, recovery-intent, malformed/property and isolation cases. `pnpm check`, browser shell smoke, Rust format/Clippy/workspace regressions and the desktop no-bundle build remain shared checks. Pure codec changes need no second filesystem run; no new native/UI authoring acceptance is claimed. [M3-02 evidence](test-evidence/M3.md#m3-02--production-source-aware-codec-foundation) records exact commands, host and exclusions.
-
-## M3-03 complex codec
-
-Run `pnpm exec vitest run tests/contract/fountain-complex.test.ts tests/contract/production-fountain.test.ts` for complex structures/context edits and primary regressions. Run `node tests/tooling/fountain-complex-compare.ts /tmp/babel-m3-conformance-venv/bin/python /tmp/babel-m3-03-comparison` for the production codec against original and complex literal oracles plus actual pinned renderer AST/HTML. The disposable Python environment uses the existing [conformance setup](../prototypes/fountain-conformance/README.md); it is not a production dependency. Output includes all named gaps and actual HTML, never generated expected data. The shared gates above remain required. [M3-03 evidence](test-evidence/M3.md#m3-03--complex-fountain-regions-and-inline-semantics) records commands, host, results and native/UI exclusions.
-
-## M3-04 editor state/source captures
-
-Focused: `pnpm exec vitest run tests/contract/editor-bridge.test.ts tests/contract/fountain-complex.test.ts tests/contract/production-fountain.test.ts`. The production editor imports no proof/native/filesystem code. [Native harness instructions](../tests/native/editor-bridge/README.md) reuse the existing feature-only synthetic guard/logger; run `CARGO_HOME=/tmp/babel-cargo cargo test -p babel-desktop --features editor-composition-proof --locked` for guard/MockRuntime regressions separately from the real WebKit input driver. Keep all shared frontend/Rust/browser/default desktop build gates above. No filesystem publication contract changed, so no second filesystem matrix is required.
-
-Model 1.25.12, state 1.4.4, history 1.5.0 and view 1.42.6 are promoted from dev to runtime with unchanged lock resolutions; all are MIT. [Notices](third-party/editor-runtime.md) retain exact direct/transitive license texts. The default production route remains disabled; diagnostics do not grant installed/offline, cadence, IME or production-writing acceptance. [M3-04 evidence](test-evidence/M3.md#m3-04--sole-editor-authority-and-source-bridge) owns exact commands, host/results and exclusions.
+All focused commands use `CARGO_HOME=/tmp/babel-cargo` and `--locked` where applicable. Btrfs fixture roots are set via `BABEL_*_TEST_ROOT` environment variables as documented in each evidence file. Shared gates (`pnpm check`, `pnpm test:browser`, `cargo fmt --all -- --check`, `cargo clippy --workspace --all-targets -- -D warnings`, `cargo test --workspace`) remain mandatory for all tasks.

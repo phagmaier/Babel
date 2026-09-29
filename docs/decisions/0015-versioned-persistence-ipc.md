@@ -4,7 +4,7 @@ Status: Accepted direction. Date: 2026-09-28. Task: M2-04.
 Authority: [SPEC S04/S10](../../SPEC.md#s04), SAVE-02, INV-05/10;
 [architecture](../architecture.md), [persistence](../persistence-and-recovery.md),
 [ADR 0013](0013-recovery-checkpoint-journal.md), [ADR 0014](0014-serialized-source-replacement.md).
-Evidence: [M2 report](../test-evidence/M2.md#m2-04--versioned-acknowledgements-and-ipc).
+Evidence: [M2 report](../test-evidence/M2-04.md).
 
 ## Decision and context
 

@@ -8,7 +8,7 @@ Date: 2026-09-29 PDT. Application: **babel**. Authority: [SPEC](../SPEC.md), [TO
 
 Protected/unknown regions and invalid UTF-8 remain preserved; unsupported structural or serialization changes refuse without losing the current draft. Full source parsing/serialization/encoding/hashing is outside synchronous typing dispatch. Two-request/source/metadata bounds protect capture admission; sparse metadata restoration is M3-10. [ADR 0021](decisions/0021-production-editor-source-captures.md) records the ownership/capture contract.
 
-The default desktop still cannot create/open/edit/save a screenplay. Production activation, picker, cadence, Save As and Local v1 adoption remain open. The latest native persistence milestone remains the [M2 headless Linux exit](test-evidence/M2.md#m2-06--small-history-primitives-and-safety-gate).
+The default desktop still cannot create/open/edit/save a screenplay. Production activation, picker, cadence, Save As and Local v1 adoption remain open. The latest native persistence milestone remains the [M2 headless Linux exit](test-evidence/M2-06.md).
 
 ## Paths and checks
 
@@ -19,7 +19,7 @@ The default desktop still cannot create/open/edit/save a screenplay. Production 
 
 ## Limits and next action
 
-**Next ready task: M3-05 Smart keys, joins and structural undo.** Read its TODO entry, SPEC S07.2–S07.5/S07.7, docs/editor-behavior.md and ADR 0008. Implement structural transactions and composition sequence guards with independent source/caret/undo expectations and real native interaction. M3-09 is also dependency-ready; other tasks wait for predecessors.
+**Next ready task: M3-05 Smart keys, joins and structural undo.** Read [brief](../docs/tasks/M3-05.md), TODO entry, SPEC S07.2–S07.5/S07.7, docs/editor-behavior.md and ADR 0008. Implement structural transactions and composition sequence guards with independent source/caret/undo expectations and real native interaction. M3-09 is also dependency-ready; other tasks wait for predecessors.
 
 M3-08 owns full IME/composition-to-Enter, paste and formatting input. M3-10 integrates native recovery/source cadence and sparse metadata restoration. M3-11 owns Save As identity/publication; M3-12 activates default writing workflows; M3-13 requires their integrated native failure/safety gate. No paint/large-capture performance or durable latest-Fountain claim follows from the synthetic capture harness.
 

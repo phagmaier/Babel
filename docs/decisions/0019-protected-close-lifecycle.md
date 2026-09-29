@@ -3,7 +3,7 @@
 Status: Accepted direction. Date: 2026-09-28. Task: M2-05D.
 Authority: [SPEC S08.6/S10.2/S10.8](../../SPEC.md#s10), SAVE-05, INV-04/07/10;
 [persistence](../persistence-and-recovery.md), [architecture](../architecture.md).
-Evidence: [M2-05D report](../test-evidence/M2.md#m2-05d--protected-close-and-failure-escalation).
+Evidence: [M2-05D report](../test-evidence/M2-05D.md).
 
 ## Decision
 

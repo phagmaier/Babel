@@ -4,7 +4,7 @@ Status: Accepted direction. Date: 2026-09-28. Task: M2-05B.
 Authority: [SPEC S10.4/10.5/10.7](../../SPEC.md#s10), SAVE-03/05, INV-07;
 [persistence](../persistence-and-recovery.md), [architecture](../architecture.md),
 [UX](../ux.md), [ADRs 0012–0016](0016-read-only-startup-recovery-review.md).
-Evidence: [M2 report](../test-evidence/M2.md#m2-05b--explicit-recovery-choices-and-external-changes).
+Evidence: [M2 report](../test-evidence/M2-05B.md).
 
 ## Context and decision
 

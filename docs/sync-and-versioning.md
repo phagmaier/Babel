@@ -28,7 +28,7 @@ recovery remain available. `HistoryHealth` exposes attention after restart.
 The safety ref is a persistent operation record, but no Git object/ref power-loss
 durability or multi-ref atomicity is claimed. No pruning, automatic repair,
 production scheduler/UI or network transport exists. [ADR 0020](decisions/0020-native-curated-history.md)
-owns the storage and failure choices; the [M2-06 report](test-evidence/M2.md#m2-06--small-history-primitives-and-safety-gate)
+owns the storage and failure choices; the [M2-06 report](test-evidence/M2-06.md)
 records bounded native evidence. M6 owns the timeline, named UX, cadence and
 restore workflow; M7 owns manual remote transfer.
 [Gate review](m1-gate-review.md) records M1 exit and reviewed M2 contracts.
