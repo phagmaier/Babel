@@ -9,12 +9,14 @@ import type {
 } from './documents';
 import {
   acknowledged,
+  isSaveReceipt,
   begin,
   edited,
   initialPersistenceState,
   MAX_DRAFT_METADATA_BYTES,
   MAX_SOURCE_BYTES,
   rejected,
+  sameIdentity,
   validHash,
   type Operation,
   type PersistenceState,
@@ -102,6 +104,98 @@ export class PersistenceController {
   save(snapshot: CapturedSnapshot): Promise<SaveReceipt> {
     return this.submit('sourceFile', snapshot) as Promise<SaveReceipt>;
   }
+  /**
+   * Anchor an out-of-band native receipt (recovery adoption, snapshot
+   * restore, transaction resolution) to the live version. The snapshot must
+   * already be live via `changed`; the receipt must match it exactly, or
+   * nothing changes. Only this explicit validated adoption can re-anchor a
+   * blocked/diverged baseline; ordinary submission guards stay unchanged.
+   */
+  adoptReceipt(snapshot: CapturedSnapshot, receipt: SaveReceipt): void {
+    const before = this.current;
+    if (
+      snapshot.version !== before.liveVersion ||
+      snapshot.sourceSha256 !== before.liveSha256 ||
+      snapshot.source.length !== before.liveByteLength
+    )
+      throw new Error('Snapshot does not match current document version');
+    if (
+      !sameIdentity(receipt.identity, before.identity) ||
+      receipt.version !== before.liveVersion ||
+      receipt.sourceSha256 !== before.liveSha256
+    )
+      throw new Error('Receipt does not match the live version');
+    if (before.pending.length)
+      throw new Error('Persistence operations still pending');
+    const started = begin(
+      { ...before, fileBlocked: false, externalChange: false },
+      'sourceFile',
+    );
+    const updated = acknowledged(started.state, started.operation, receipt);
+    if (
+      updated.pending.includes(started.operation) ||
+      updated.failure?.id === started.operation.id
+    )
+      throw new Error('Invalid persistence receipt');
+    this.current = updated;
+  }
+  /** Explicit native resolution may confirm an older version while newer edits
+   * remain live. Re-anchor only the fingerprint; grant no credit to those edits. */
+  adoptResolvedBaseline(receipt: SaveReceipt): void {
+    const state = this.current;
+    if (
+      !isSaveReceipt(receipt) ||
+      !sameIdentity(receipt.identity, state.identity) ||
+      !state.writable ||
+      state.pending.length ||
+      receipt.version >= state.liveVersion ||
+      receipt.version < state.fileSavedVersion
+    )
+      throw new Error('Invalid resolved baseline receipt');
+    this.current = {
+      ...state,
+      fingerprint: { ...receipt.fingerprint },
+      fileBlocked: false,
+      externalChange: false,
+      failure: null,
+    };
+  }
+
+  async settle(): Promise<void> {
+    await this.tail;
+  }
+
+  /** Validate adoption against a proposed state before touching the editor. */
+  validateAdoption(snapshot: CapturedSnapshot, receipt: SaveReceipt): void {
+    const copied = copy(snapshot).snapshot;
+    const state =
+      copied.version > this.current.liveVersion
+        ? edited(
+            this.current,
+            copied.version,
+            copied.sourceSha256,
+            copied.source.length,
+          )
+        : this.current;
+    if (
+      state.pending.length ||
+      !sameIdentity(receipt.identity, state.identity) ||
+      receipt.version !== copied.version ||
+      receipt.sourceSha256 !== copied.sourceSha256
+    )
+      throw new Error('Receipt does not match the live version');
+    const started = begin(
+      { ...state, fileBlocked: false, externalChange: false },
+      'sourceFile',
+    );
+    const updated = acknowledged(started.state, started.operation, receipt);
+    if (
+      updated.pending.includes(started.operation) ||
+      updated.failure?.id === started.operation.id
+    )
+      throw new Error('Invalid persistence receipt');
+  }
+
   private submit(
     protection: Protection,
     value: CapturedSnapshot,

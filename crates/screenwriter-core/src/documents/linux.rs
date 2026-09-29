@@ -10,6 +10,9 @@ use std::io::{Read, Write};
 use std::path::{Component, Path, PathBuf};
 use uuid::Uuid;
 
+#[cfg(test)]
+#[path = "app_dir_tests.rs"]
+mod app_dir_tests;
 #[path = "choices_store.rs"]
 mod choices_store;
 #[path = "history_store.rs"]
@@ -265,6 +268,36 @@ struct ProjectIdentity {
 #[serde(rename_all = "camelCase")]
 struct ProjectSchema {
     schema_version: u32,
+}
+
+/// First-run setup only: restrict a uid-owned app-data root to owner-only
+/// access. Group/other bits are removed; no bit is ever added. Symlinks,
+/// non-directories, foreign owners and chmod failures refuse, leaving every
+/// host uninitialized. The stores keep their own strict refusal afterwards.
+pub fn ensure_private_app_dir(path: &Path) -> Result<(), DocumentError> {
+    if path
+        .components()
+        .any(|c| !matches!(c, Component::RootDir | Component::Normal(_)))
+    {
+        return Err(error(ErrorCode::UnsafePath));
+    }
+    let dir = directory(path)?;
+    let info = stat(&dir)?;
+    if FileType::from_raw_mode(info.st_mode) != FileType::Directory {
+        return Err(error(ErrorCode::UnsafePath));
+    }
+    if info.st_uid != geteuid().as_raw() {
+        return Err(error(ErrorCode::OwnershipLost));
+    }
+    let mode = info.st_mode & 0o7777;
+    if mode & 0o077 != 0 {
+        fs::fchmod(&dir, Mode::from_raw_mode(mode & 0o700)).map_err(syscall_error)?;
+        let narrowed = stat(&dir)?;
+        if (narrowed.st_mode & 0o7777) != (mode & 0o700) || narrowed.st_uid != geteuid().as_raw() {
+            return Err(error(ErrorCode::OwnershipLost));
+        }
+    }
+    Ok(())
 }
 
 /// All path-bearing methods are native-only. The frontend receives only OpenDocument.

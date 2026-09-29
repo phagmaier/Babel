@@ -310,10 +310,11 @@ describe('M3-06 local shortcut registry', () => {
       expect(
         shortcutCommands.find((c) => c.id === `element.${kind}`),
       ).toBeDefined();
+    // M3-12 activates the writing lifecycle: save, Save As and Open are
+    // available while later-milestone workflows stay disabled.
+    for (const id of ['save', 'saveAs', 'open'])
+      expect(shortcutCommands.find((c) => c.id === id)?.unavailable).toBeNull();
     for (const id of [
-      'save',
-      'saveAs',
-      'open',
       'find',
       'replace',
       'nextMatch',
@@ -457,8 +458,12 @@ describe('M3-06 view routing priorities and focus', () => {
     expect(selectionElement(view.state)).toBe('transition');
     expect(key(view, event('Tab', { shiftKey: true }))).toBe(true);
     expect(selectionElement(view.state)).toBe('sceneHeading');
-    expect(key(view, event('s', { ctrlKey: true }))).toBe(true);
-    expect(refused).toHaveBeenCalledWith(expect.stringContaining('M3-10'));
+    // M3-12: available application Save bubbles to the shell instead of refusing.
+    expect(key(view, event('s', { ctrlKey: true }))).toBe(false);
+    expect(refused).not.toHaveBeenCalledWith(expect.stringContaining('M3-10'));
+    // Later-milestone application commands still explain themselves in place.
+    expect(key(view, event('f', { ctrlKey: true }))).toBe(true);
+    expect(refused).toHaveBeenCalledWith(expect.stringContaining('M4'));
     view.focus();
     expect(key(view, event('F6'))).toBe(true);
     expect(document.activeElement).toBe(outside);

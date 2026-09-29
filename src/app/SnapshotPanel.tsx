@@ -8,6 +8,7 @@ import {
   type CopyDestination,
   type SnapshotCatalog,
   type SnapshotPort,
+  type SnapshotSelection,
 } from '../application/snapshots';
 /** Mounted by a future native open controller; no frontend path/picker authority. */
 export function SnapshotPanel({
@@ -15,18 +16,22 @@ export function SnapshotPanel({
   current,
   destination,
   onRestored,
+  nextVersion,
 }: {
   port: SnapshotPort;
   current: CheckpointRequest;
   destination?: CopyDestination;
-  onRestored: (receipt: SaveReceipt) => void;
+  onRestored: (receipt: SaveReceipt, selection: SnapshotSelection) => void;
+  nextVersion?: number;
 }) {
+  const targetVersion = nextVersion;
   const [catalog, setCatalog] = useState<SnapshotCatalog | null>(null);
   const [name, setName] = useState('');
   const [newVersion, setNewVersion] = useState('');
   const [message, setMessage] = useState('');
   const [busy, setBusy] = useState(false);
   const [refresh, setRefresh] = useState(0);
+  const restoreVersion = targetVersion ?? Number(newVersion);
   const sequence = useRef(0);
   useEffect(() => {
     const ticket = ++sequence.current;
@@ -45,7 +50,7 @@ export function SnapshotPanel({
     return () => {
       sequence.current++;
     };
-  }, [port, current, destination, refresh]);
+  }, [port, current.identity.handle, current.identity.sessionId, refresh]);
   async function run(operation: (isCurrent: () => boolean) => Promise<string>) {
     const ticket = ++sequence.current;
     setBusy(true);
@@ -144,14 +149,16 @@ export function SnapshotPanel({
       >
         Keep named snapshot
       </button>
-      <label>
-        New restore version
-        <input
-          value={newVersion}
-          inputMode="numeric"
-          onChange={(e) => setNewVersion(e.target.value)}
-        />
-      </label>
+      {nextVersion === undefined && (
+        <label>
+          New restore version
+          <input
+            value={newVersion}
+            inputMode="numeric"
+            onChange={(e) => setNewVersion(e.target.value)}
+          />
+        </label>
+      )}
       <ul>
         {catalog?.entries.map((entry) => (
           <li key={entry.record.snapshotId}>
@@ -166,8 +173,8 @@ export function SnapshotPanel({
                 busy ||
                 !current.expectedFingerprint ||
                 catalog.needsAttention ||
-                !Number.isSafeInteger(Number(newVersion)) ||
-                Number(newVersion) <= current.version
+                !Number.isSafeInteger(restoreVersion) ||
+                restoreVersion <= current.version
               }
               onClick={() =>
                 void run(async (isCurrent) => {
@@ -176,12 +183,14 @@ export function SnapshotPanel({
                   const receipt = await port.restore({
                     current,
                     selection: entry.selection,
-                    newVersion: Number(newVersion),
+                    newVersion: restoreVersion,
                     expectedFingerprint: current.expectedFingerprint,
                   });
                   if (
                     !sameIdentity(receipt.identity, current.identity) ||
-                    receipt.version !== Number(newVersion) ||
+                    (nextVersion === undefined
+                      ? receipt.version !== restoreVersion
+                      : receipt.version < restoreVersion) ||
                     receipt.sourceSha256 !== entry.record.sourceSha256 ||
                     receipt.protection !== 'sourceFile' ||
                     receipt.fingerprint.sha256 !== entry.record.sourceSha256 ||
@@ -196,7 +205,7 @@ export function SnapshotPanel({
                     receipt.recovery.protection !== 'recoveryCheckpoint'
                   )
                     throw new Error('Unconfirmed restore');
-                  if (isCurrent()) onRestored(receipt);
+                  if (isCurrent()) onRestored(receipt, entry.selection);
                   return `Restored as new version ${receipt.version}; previous versions remain protected.`;
                 })
               }
@@ -224,7 +233,7 @@ export function SnapshotPanel({
       ) : (
         <p>
           Select another folder or drive through the native controller to save a
-          copy. Destination selection is unavailable in this development shell.
+          copy. The writing view offers destination selection before copies.
         </p>
       )}
       <button

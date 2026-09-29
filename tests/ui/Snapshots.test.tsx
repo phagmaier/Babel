@@ -161,7 +161,11 @@ describe('snapshot review with injected ports', () => {
     });
     fireEvent.click(button);
     await screen.findByText(/Restored as new version 22/);
-    expect(restored).toHaveBeenCalledWith(receiptFor(22, true));
+    // M3-12 re-anchors adoption: the owner also receives the entry selection.
+    expect(restored).toHaveBeenCalledWith(
+      receiptFor(22, true),
+      entry.selection,
+    );
   });
   it('rejects mismatched copy and restore receipts with fixed text', async () => {
     const restored = vi.fn();

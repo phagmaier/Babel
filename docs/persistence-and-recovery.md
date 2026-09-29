@@ -1,6 +1,6 @@
 # Persistence and recovery
 
-Status: M1-04 Linux replacement proof and M2-01–06 bounded native safety foundation passed on Linux; M2-05D also has a native WebKit diagnostic. Production editor/picker/cadence and Save As remain open. [SPEC S10](../SPEC.md#s10); SAVE-01–05, INV-04–08/10/20.
+Status: M1-04 Linux replacement proof and M2-01–06 bounded native safety foundation passed on Linux; M2-05D also has a native WebKit diagnostic. M3-09–12 connect production native entry, cadence, Save As and the active editor; the integrated M3-13 exit remains open. [SPEC S10](../SPEC.md#s10); SAVE-01–05, INV-04–08/10/20.
 
 One native writer queue per document serializes immutable save requests. Requests bind opaque handle, project/session ID, monotonically increasing document version, source hash, and expected disk fingerprint. Track `liveVersion`, `journaledVersion`, and `fileSavedVersion` separately. An acknowledgement for v21 cannot make v22 "Saved locally"; a recovery checkpoint is not a file-save acknowledgement. Native code computes/verifies the saved hash and sends the exact result. Emergency raw protection does not depend on Script Check passing.
 
@@ -269,7 +269,7 @@ owns exact checks and limits.
 `src/application/saveCadence.ts` schedules coalesced recovery checkpoints and
 debounced source saves over the serial persistence controller without owning
 live editor content or timers itself (the clock is injectable). Targets follow
-[SPEC S10.3](../../SPEC.md#s10): ~500 ms recovery coalescing, acknowledged
+[SPEC S10.3](../SPEC.md#s10): ~500 ms recovery coalescing, acknowledged
 recovery within 1 s, ~750 ms source debounce and a 2 s maximum dirty delay so
 continuous typing cannot postpone protection indefinitely. Explicit save/close
 flushes bypass timers and verify a fresh native flush even when the source is
@@ -283,3 +283,32 @@ resulting live/recovery/file-saved versions and snapshot attention as literal
 text. Editor wiring, Save As identity switching and protected close
 integration remain M3-11/12. [M3 evidence](test-evidence/M3.md#m3-10--recoverysource-cadence-and-visible-protection-state)
 owns checks and measured native latency.
+
+## M3-12 production session integration
+
+The default native writing view binds the production editor to the passed
+persistence/cadence/close services. Open allocates its editor version above
+known recovery versions without automatic saving or reconciliation. Save As
+protects a frozen latest capture before exact publication and identity switching;
+cancellation/failure retains the active editor. Old registrations, captures and
+selected copy tokens are retired at the boundary. Read-only sessions reject
+editor transactions and close without a write request.
+
+Recovery and snapshot restore protect the current live editor in a verified
+pre-destructive snapshot before replacing disk. Native bytes/receipts are checked
+before one explicit source transaction. Restored bytes can advance to a later
+native version, and Undo produces a still-newer version against the adopted
+fingerprint. Normal saves cannot clear blocked/diverged state; only an exact,
+explicitly completed native adoption re-anchors that baseline after pending work
+has drained. Unknown/mismatched results retain existing material and show an error.
+
+Close freezes transaction dispatch, drains pending cadence and synchronizes the
+latest capture before retry/copy/risk. Risk acceptance is tied to the displayed
+version and reset by new edits/protection changes. A newer frozen capture refuses
+a stale risk choice. Window close happens only after exact native release.
+Deferred capture coalescing avoids overlapping hash queues, and background
+receipts refresh status. A failed history store does not block normal source or
+emergency-copy saving; destructive import/recovery still require their safety
+protection. [ADR 0026](decisions/0026-writing-lifecycle.md) owns coordination.
+[M3-12 evidence](test-evidence/M3.md#m3-12--production-writing-lifecycle-and-failure-ui)
+records the default-app filesystem/failure drill and remaining limits.

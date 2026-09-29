@@ -1,23 +1,21 @@
-# Current state — M3-08 real IME passed, M3-12 unblocked
+# Current state — M3-12 complete; M3-13 ready
 
-Date: 2026-09-29 PDT. Application: **babel**. Authority: [SPEC](../SPEC.md), [TODO](../TODO.md), [M3-08 evidence](test-evidence/M3.md#m3-08--paste-formatting-and-native-input).
+Date: 2026-09-29 PDT. Application: **babel**. Authority: [SPEC](../SPEC.md), [TODO](../TODO.md), [index](index.md).
 
 ## Task and work
 
-**M3-08** was completed on main from clean `6eb6125`, one editing agent, no prior dirty paths. The missing-prerequisite blocker is resolved: the owner installed host IME engines (fcitx5-chinese-addons, mozc, anthy) and the session group `Default` now holds keyboard-us/pinyin/mozc with keyboard-us default. The native driver switches explicitly and restores keyboard-us; no app dependency, manifest, lockfile or capability changed.
+**M3-12** bounded Linux acceptance passed. One editing agent on main from `bceaa9d`, preserving and completing the previous model’s uncommitted work. Inherited dirty paths: documents linux/mod + app_dir_tests, Tauri lib, App/WritingView/recovery/snapshot panels, application persistenceController/saveCadence/shortcuts/writingSession, editor shortcuts, editor-shortcuts/EditorControls/Snapshots/WritingView/writing-session tests and ADR 0026. Original `/tmp/babel-lifecycle-01` and `-02` synthetic drill artifacts remain intact.
 
-Real pinyin `nihao` + Space commits `你好`, pinyin `nihao` + physical Escape cancels byte-identical, mozc `ai` + physical Enter commits `あい` — each with trusted composition events, exact source bytes/hash and Ctrl+Z undo. GTK dead-key Escape still commits a spacing acute (retained observation, superseded by the real-IME cancel case). Driver exits 0. TODO is checked with bounded evidence.
+Default native New/Open now connects one editor to serial persistence, cadence, Save As/export, recovery/restore/snapshots and protected close. Fixed F6 escape, frozen/read-only transaction rejection, deferred capture races, strict Save As IPC, caret/fresh identity adoption, receipt validation before replacement, old-resolution baseline handling, staged import loss and stale close-risk acceptance. The app-data root is safely narrowed before strict native initialization. [ADR 0026](decisions/0026-writing-lifecycle.md) records ownership/ordering; owning architecture/editor/UX/persistence docs are updated.
 
-## Paths and checks
+Changed code is in `src/app`, `src/application`, `src/editor`, `src-tauri` and core documents; focused contracts/UI tests plus `tests/native/writing-lifecycle` own regression coverage. No fixture bytes, dependency/lock, capability or SPEC invariant changed.
 
-- `tests/native/editor-input/native-input.py` (shared `await_report`, three real-IME cases, exit 0); docs: M3 evidence, M3-08 brief, TODO, requirements, index, development, current-state.
-- [Evidence](test-evidence/M3.md#m3-08--paste-formatting-and-native-input) owns exact commands/host/logs. Focused 306, `pnpm check` (446 tests, 29 files), browser smoke, Rust fmt/clippy, workspace 188 (Btrfs `BABEL_SAVE_TEST_ROOT`), core editor_import tmpfs/Btrfs, feature-proof 32, selection-only, verify-protection (safety ref, live draft hash, sources unchanged), Chromium zero-request, release build passed.
-- Session IM verified back on keyboard-us; owned diagnostic stopped. Fixture bytes, default route, manifests/locks, capabilities unchanged. `git diff --check` clean.
+## Checks and evidence
 
-## Blockers and next action
+[M3-12 evidence](test-evidence/M3.md#m3-12--production-writing-lifecycle-and-failure-ui) owns exact commands, host, logs and limits: focused 75, shared 477 frontend tests; formatting/lint/typecheck/build/browser smoke; Rust fmt/clippy, 192 native workspace tests on each filesystem, 32 feature tests and default embedded release build. Initial sandbox ACL failure and corrected harness attempts are recorded honestly.
 
-M3-08's dependency is satisfied, so **M3-12 is unblocked and ready**: deps M3-08 (accepted), M3-10, M3-11, M2-05D. Read [brief](tasks/M3-12.md), TODO dependency/read/acceptance and lifecycle contracts.
+Production UI/IPC drills passed on tmpfs and Btrfs with real GTK pickers, independent bytes/hash/caret/frame audits, native restore/Undo, acknowledged-checkpoint restart, history failure, external divergence and protected emergency-copy close. Artifacts: `/tmp/babel-writing-hucrvgtn` and `target/babel-writing-l5sle2t4`. No personal manuscript was used. No push authorized.
 
-Full S13 paint/page-equivalent, candidate-window navigation beyond first-candidate commit, other platforms, screenreader/touch, installed/offline, remote transfer and M3-13 integrated safety remain later gates. Default desktop cannot create/open/edit/save a screenplay through UI yet. No Local v1 completion is claimed.
+## Next action and limits
 
-Stop this bounded task with honest open gates. Continue on main with task IDs in commits; never push without human review and explicit authorization.
+Select **M3-13** [brief](tasks/M3-13.md): full core/complex/unsupported source, keyboard/completion/paste/IME/undo in the default app, independent audits and separate data-loss/stale-result/privilege/egress review. Required unresolved cases keep the M3 exit open. Full compositor paint/page-equivalent performance, other platforms, installed/offline adoption and Local v1 remain open; full home/recents and revision navigation belong to later milestones.

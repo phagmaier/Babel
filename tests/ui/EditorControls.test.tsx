@@ -43,10 +43,12 @@ describe('M3-06 picker, menu/help and remap settings', () => {
       <EditorControls state={state} registry={registry} execute={execute} />,
     );
     expect(picker.value).toBe('mixed');
+    // Source saving shipped in M3-10, so Save is honestly enabled; only
+    // not-yet-implemented workflow actions stay disabled.
     expect(
       (screen.getByRole('button', { name: 'Save' }) as HTMLButtonElement)
         .disabled,
-    ).toBe(true);
+    ).toBe(false);
     expect(
       (screen.getByRole('button', { name: 'Export PDF' }) as HTMLButtonElement)
         .disabled,

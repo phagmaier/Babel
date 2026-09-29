@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { ProtectedClose } from '../application/protectedClose';
 import {
   destinationExplanation,
@@ -10,18 +10,26 @@ export function ProtectedClosePanel({
   close,
   destination,
   onClosed,
+  statusToken,
 }: {
   close: ProtectedClose;
   destination?: CopyDestination;
   onClosed: () => void;
+  statusToken?: string;
 }) {
+  const retryRef = useRef<HTMLButtonElement>(null);
   const [assessment, setAssessment] = useState(close.assessment);
   const [acceptRisk, setAcceptRisk] = useState(false);
   const [busy, setBusy] = useState(false);
   useEffect(() => {
     setAcceptRisk(false);
+    retryRef.current?.focus();
     return close.subscribe(setAssessment);
   }, [close]);
+  useEffect(() => {
+    setAcceptRisk(false);
+    setAssessment(close.assessment);
+  }, [close, statusToken]);
   const run = async (action: () => Promise<unknown>) => {
     if (busy) return;
     setBusy(true);
@@ -52,6 +60,7 @@ export function ProtectedClosePanel({
         </p>
       )}
       <button
+        ref={retryRef}
         type="button"
         disabled={busy || assessment.phase === 'closed'}
         onClick={() => void run(() => close.retry())}
@@ -85,7 +94,9 @@ export function ProtectedClosePanel({
       <button
         type="button"
         disabled={busy || !acceptRisk || assessment.phase === 'closed'}
-        onClick={() => void run(() => close.acceptRisk(acceptRisk))}
+        onClick={() =>
+          void run(() => close.acceptRisk(acceptRisk, assessment.liveVersion))
+        }
       >
         Close with this risk
       </button>

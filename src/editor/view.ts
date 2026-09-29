@@ -29,14 +29,24 @@ export function mountScreenplayEditor(
     completion?: LocalCompletion;
     completionKey?: (view: EditorView, event: KeyboardEvent) => boolean;
     escapeFocus?: () => void;
+    canEdit?: () => boolean;
   } = {},
 ): EditorView {
   let composing = false;
   let compositionEndedBeforeKeyup = false;
   const view = new EditorView(host, {
     state,
-    editable: (current) => !editorOrigin(current).document.readOnlyReason,
+    editable: (current) =>
+      !editorOrigin(current).document.readOnlyReason &&
+      (observers.canEdit?.() ?? true),
     dispatchTransaction(transaction) {
+      if (
+        (transaction.docChanged || transaction.selectionSet) &&
+        observers.canEdit?.() === false
+      ) {
+        observers.refused?.('The editor is read-only or protecting a version');
+        return;
+      }
       const started = observers.transactionMeasured ? performance.now() : 0;
       const result = applyEditorTransaction(view.state, transaction);
       view.updateState(result.state);

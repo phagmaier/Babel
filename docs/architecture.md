@@ -1,6 +1,6 @@
 # Architecture and ownership
 
-Status: M0 shell plus M2-01–04 headless native document/persistence boundary, receipt-driven frontend state, M2-05A read-only startup recovery boundary and M2-05B explicit recovery-choice boundary. [SPEC S03-S04](../SPEC.md#s03), [S17](../SPEC.md#s17); APP-01, DOC-01, SAVE-01, SEC-01, QA-01.
+Status: M3-12 activates the production writing lifecycle over the existing sole editor and native persistence/recovery boundaries; the integrated M3-13 exit remains open. [SPEC S03-S04](../SPEC.md#s03), [S17](../SPEC.md#s17); APP-01, DOC-01, SAVE-01, SEC-01, QA-01.
 
 Current paths: `src/app/App.tsx` owns the visible placeholder; `src/application/appInfo.ts` defines the typed boundary; `src/infrastructure/nativeAppInfo.ts` invokes the app-info Tauri command, while `browserAppInfo.ts` declares browser-only unavailability. `src-tauri/src/lib.rs` has thin command wiring. `crates/screenwriter-core/src/lib.rs` owns app-info and the headless document service. There is one frontend package and one Rust workspace; native registrations retain immutable initial source snapshots; M3-04 implements the sole editor state/capture modules without default-app activation; native recovery/source queues own persistence; typed IPC and a headless frontend controller connect captured snapshots to exact receipts.
 
@@ -18,11 +18,11 @@ repository are authoritative for paths and artifacts:
 
 Future flow is UI -> application commands -> domain contracts/platform ports, and Tauri commands -> headless native services -> tested adapters. The structured editor alone will own live edits; React will render surrounding UI and derived views. The TypeScript domain codec will own Fountain interpretation and source-aware serialization without filesystem access. Rust will accept immutable, versioned source snapshots and own disk durability, history, PDF orchestration, and eventually remote credentials. No arbitrary path or shell IPC is allowed. Current capability permissions remain empty. Custom document commands are path-free; no filesystem plugin or universal path endpoint is enabled.
 
-M2-04 save/checkpoint envelopes extend the implemented open identity: opaque document handle, project/session identity, monotonically increasing version, source hash, bounded payload, typed error/recovery action. Planned operations include open, checkpoint/save, close, history, render/cancel, and explicit remote transfer. M2-01 wired immutable initial-source read and registration relinquishment; M2-04 adds checkpoint and source commands, with all four dispatched on blocking workers. Native picker and visible editor integration remain open. Derived results carry a version/hash; stale work cannot mutate the editor. Expensive filesystem, PDF, and remote work stays off key handlers.
+M2-04 save/checkpoint envelopes extend the implemented open identity: opaque document handle, project/session identity, monotonically increasing version, source hash, bounded payload, typed error/recovery action. Planned operations include open, checkpoint/save, close, history, render/cancel, and explicit remote transfer. M2-01 wired immutable initial-source read and registration relinquishment; M2-04 adds checkpoint and source commands, with all four dispatched on blocking workers. M3-09 supplies native pickers; M3-12 connects the visible editor and lifecycle. Derived results carry a version/hash; stale work cannot mutate the editor. Expensive filesystem, PDF, and remote work stays off key handlers.
 
 See [ADR 0001](decisions/0001-local-first-stack.md), [0003](decisions/0003-editor-and-native-ownership.md), and [SPEC S04](../SPEC.md#s04) for authority and unresolved proofs.
 
-M3-04's [editor contract](editor-behavior.md#m3-04-sole-state-and-capture-boundary) and [ADR 0021](decisions/0021-production-editor-source-captures.md) add typed nodes and immutable source origin inside one EditorState, a view adapter and bounded deferred version/session-checked captures. No mutable source cache, proof import, native command or permission is added. React/native consumers receive derivatives; the default shell still disables writing. Production native picker/cadence/Save As/lifecycle integration remains M3-09–13.
+M3-04's [editor contract](editor-behavior.md#m3-04-sole-state-and-capture-boundary) and [ADR 0021](decisions/0021-production-editor-source-captures.md) add typed nodes and immutable source origin inside one EditorState, a view adapter and bounded deferred version/session-checked captures. No mutable source cache, proof import, native command or permission is added. React/native consumers receive derivatives. M3-09–12 connect native entry, cadence, Save As and the production writing lifecycle; M3-13 owns the integrated exit review.
 
 ## M2-01 native open boundary
 
@@ -31,7 +31,7 @@ Only a native controller may construct it with the OS app-data directory,
 call `open_selected(absolute_path)`, or allocate `register_unsaved()`. Paths
 are not IPC arguments. Production `DocumentHost` initializes from the OS app-data directory during
 setup (M3-09); entry stays path-free through picker/unsaved/destination
-commands, and the shell still disables New/Open until M3-12 activation.
+commands. M3-12 enables native New/Open and coordinates the active writing session.
 
 | IPC command             | Request                                      | Response                                                   |
 | ----------------------- | -------------------------------------------- | ---------------------------------------------------------- |
@@ -191,3 +191,7 @@ destructive choices while ordinary saves/checkpoints remain independent;
 history IPC command or frontend path/permission. [ADR 0020](decisions/0020-native-curated-history.md)
 records the native format and failure tradeoffs. M6 owns editor scheduling,
 timeline/restore UI and installed/offline adoption.
+
+## M3-12 production lifecycle
+
+[WritingSession](../src/application/writingSession.ts) binds the active editor to serial persistence, cadence and protected close. [ADR 0026](decisions/0026-writing-lifecycle.md) owns frozen lifecycle transitions, fresh Save As identity, exact native adoption and private app-data initialization. The view publishes derivatives and rejects editing while frozen/read-only; native services retain path/publication authority. [M3-12 evidence](test-evidence/M3.md#m3-12--production-writing-lifecycle-and-failure-ui) separates injected contracts from production UI/IPC filesystem drills.

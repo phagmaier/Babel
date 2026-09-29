@@ -209,3 +209,15 @@ it('requires explicit risk acceptance and preserves native failure', async () =>
   await f.close.acceptRisk(true);
   expect(f.close.assessment.phase).toBe('closed');
 });
+
+it('refuses risk acceptance for an older displayed draft version', async () => {
+  const f = fixture();
+  const displayedVersion = f.close.assessment.liveVersion;
+  f.edit();
+  await expect(f.close.acceptRisk(true, displayedVersion)).rejects.toThrow(
+    'draft changed',
+  );
+  expect(f.documents.releaseAtRisk).not.toHaveBeenCalled();
+  expect(f.close.assessment.phase).toBe('attention');
+  expect(f.isFrozen()).toBe(false);
+});

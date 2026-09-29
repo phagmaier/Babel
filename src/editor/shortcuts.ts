@@ -36,6 +36,11 @@ export function routeEditorShortcut(
 ): boolean {
   const command = registry.match(event);
   if (!command) return false;
+  if (command.scope === 'application' && !command.unavailable) {
+    // Available application commands (Save, Open) belong to the shell around
+    // the editor; returning false lets them bubble to the application handler.
+    return false;
+  }
   if (command.unavailable) {
     refused?.(command.unavailable);
     return true;

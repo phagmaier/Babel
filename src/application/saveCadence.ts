@@ -81,13 +81,28 @@ export class SaveCadence {
   private lastRollingVersion: number | null = null;
   private snapshotAttention = false;
   private disposed = false;
+  private paused = false;
+  private readonly jobs = new Set<Promise<void>>();
 
   constructor(
     private readonly controller: PersistenceController,
     private readonly snapshots: SnapshotPort,
     private readonly clock: CadenceClock = realClock,
     private readonly options: CadenceOptions = defaultCadenceOptions,
+    private readonly onChange: () => void = () => undefined,
   ) {}
+
+  /**
+   * Session adoption primes the opened version for explicit flushes without
+   * touching the controller or arming timers. The caller already recorded the
+   * snapshot via `changed`; priming only lets a later explicit Save verify a
+   * fresh native flush of the adopted bytes.
+   */
+  prime(snapshot: CapturedSnapshot): void {
+    this.assertLive();
+    this.latest = snapshot;
+    if (this.dirtySince === null) this.dirtySince = this.clock.now();
+  }
 
   /** An immutable producer supplies every new version, including undo steps. */
   noteEdit(snapshot: CapturedSnapshot): void {
@@ -96,6 +111,7 @@ export class SaveCadence {
     this.latest = snapshot;
     const now = this.clock.now();
     if (this.dirtySince === null) this.dirtySince = now;
+    if (this.paused) return;
     if (now - this.dirtySince >= this.options.maxDirtyMs) {
       this.clearTimers();
       void this.dispatch('recoveryCheckpoint');
@@ -114,6 +130,7 @@ export class SaveCadence {
   async flush(): Promise<FlushSummary> {
     this.assertLive();
     this.clearTimers();
+    await this.settle();
     const snapshot = this.latest;
     if (snapshot !== null && this.recoveryNeeded()) {
       await this.dispatch('recoveryCheckpoint');
@@ -131,6 +148,19 @@ export class SaveCadence {
           state.fileSavedSha256 === snapshot.sourceSha256),
       snapshotAttention: this.snapshotAttention,
     };
+  }
+
+  /** Stop timers while a frozen lifecycle operation owns the native baseline. */
+  pause(): () => void {
+    this.paused = true;
+    this.clearTimers();
+    return () => {
+      this.paused = false;
+    };
+  }
+
+  async settle(): Promise<void> {
+    await Promise.all([...this.jobs]);
   }
 
   describe(): CadenceStatus {
@@ -222,7 +252,17 @@ export class SaveCadence {
    * source is unchanged. Availability guards (writable, baseline, blocks)
    * still apply; only the already-saved skip is bypassed.
    */
-  private async dispatch(protection: Protection, fresh = false): Promise<void> {
+  private dispatch(protection: Protection, fresh = false): Promise<void> {
+    const job = this.performDispatch(protection, fresh);
+    this.jobs.add(job);
+    void job.finally(() => this.jobs.delete(job));
+    return job;
+  }
+
+  private async performDispatch(
+    protection: Protection,
+    fresh = false,
+  ): Promise<void> {
     const snapshot = this.latest;
     const needed =
       protection === 'recoveryCheckpoint'
@@ -248,6 +288,7 @@ export class SaveCadence {
     } finally {
       this.inFlight[protection] = false;
       this.refreshDirty();
+      this.onChange();
     }
   }
 

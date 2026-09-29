@@ -36,7 +36,8 @@ export class FountainImportBoundary {
   constructor(
     private readonly getView: () => EditorView,
     private readonly identity: DocumentIdentity,
-    private readonly fingerprint: DiskFingerprint | null,
+    private readonly fingerprint:
+      DiskFingerprint | null | (() => DiskFingerprint | null),
     private readonly port: FountainImportPort,
     private readonly capture = new EditorCaptureBoundary(() => getView().state),
   ) {}
@@ -79,7 +80,10 @@ export class FountainImportBoundary {
         source: snapshot.source,
         sourceSha256: snapshot.sourceSha256,
         draftMetadata: snapshot.draftMetadata,
-        expectedFingerprint: this.fingerprint,
+        expectedFingerprint:
+          typeof this.fingerprint === 'function'
+            ? this.fingerprint()
+            : this.fingerprint,
       });
       const { checkpoint: cp, revision: rev } = receipt;
       if (

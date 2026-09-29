@@ -28,6 +28,7 @@ interface SourceOrigin {
 const originKey = new PluginKey<SourceOrigin>('babel-source-origin');
 const sourceDocuments = new WeakMap<object, FountainDocument>();
 const importTransactions = new WeakSet<Transaction>();
+const adoptedVersions = new WeakMap<Transaction, number>();
 const structuralTransactions = new WeakMap<Transaction, number>();
 export function authorizeStructuralTransaction(
   transaction: Transaction,
@@ -171,7 +172,10 @@ function permitted(transaction: Transaction, state: EditorState): boolean {
 export function createEditorState(
   bytes: Uint8Array,
   recovery?: FountainRecovery,
+  initialVersion = 1,
 ): EditorState {
+  if (!Number.isSafeInteger(initialVersion) || initialVersion < 1)
+    throw new RangeError('Invalid initial editor version');
   const source = parseFountain(bytes, recovery);
   const safeNoteIndices = new Set<number>();
   for (const region of source.hiddenRegions) {
@@ -253,7 +257,7 @@ export function createEditorState(
         Object.freeze({
           document: source,
           session: Object.freeze({}),
-          version: 1,
+          version: initialVersion,
           nextId: nodes.reduce(
             (next, node) =>
               Math.max(next, Number(String(node.attrs.id).slice(1)) + 1),
@@ -267,7 +271,7 @@ export function createEditorState(
         return Object.freeze({
           ...previous,
           document: sourceDocuments.get(tr.doc.attrs.sourceOrigin as object)!,
-          version: previous.version + 1,
+          version: adoptedVersions.get(tr) ?? previous.version + 1,
           nextId: Math.max(
             previous.nextId,
             structuralTransactions.get(tr) ?? 0,
@@ -312,6 +316,7 @@ export function applyEditorTransaction(
 export function sourceImportTransaction(
   state: EditorState,
   bytes: Uint8Array,
+  adoptedVersion?: number,
 ): Transaction {
   const parsed = parseFountain(bytes);
   let nextId = editorOrigin(state).nextId;
@@ -330,6 +335,14 @@ export function sourceImportTransaction(
     .setDocAttribute('sourceOrigin', imported.doc.attrs.sourceOrigin);
   // Selection must refer to the transaction document, including its imported origin attribute.
   tr = tr.setSelection(TextSelection.create(tr.doc, imported.selection.from));
+  if (adoptedVersion !== undefined) {
+    if (
+      !Number.isSafeInteger(adoptedVersion) ||
+      adoptedVersion <= editorVersion(state)
+    )
+      throw new RangeError('Adopted version must advance the live sequence');
+    adoptedVersions.set(tr, adoptedVersion);
+  }
   importTransactions.add(tr);
   return authorizeStructuralTransaction(
     tr,

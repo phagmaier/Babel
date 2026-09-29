@@ -240,7 +240,7 @@ export function RecoveryReview({ port }: { port: RecoveryPort }) {
       <p>
         Recover as Current, Save Recovered Copy, and Keep Current File run
         through explicit native comparison once a source is natively selected.
-        This build keeps New/Open disabled, so no source is selected here.
+        Open a screenplay to compare its live source here.
       </p>
       <div className="actions">
         <button

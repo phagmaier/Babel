@@ -13,7 +13,10 @@ pub mod startup;
 #[cfg(target_os = "linux")]
 mod linux;
 #[cfg(target_os = "linux")]
-pub use linux::{DocumentService, LocalRecoveryReader, RecoveryInspection, SaveInspection};
+pub use linux::{
+    DocumentService, LocalRecoveryReader, RecoveryInspection, SaveInspection,
+    ensure_private_app_dir,
+};
 
 pub const MAX_SOURCE_BYTES: usize = 16 * 1024 * 1024;
 pub const MAX_OPEN_DOCUMENTS: usize = 32;

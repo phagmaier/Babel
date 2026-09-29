@@ -1,6 +1,6 @@
 # UX and accessibility
 
-Status: M0 shell plus M2-05A read-only local startup recovery review and M2-05B headless recovery-choice contracts. [SPEC S08/S14](../SPEC.md#s08); APP-02, NAV-01–03, UX-01–03, SEC-01, INV-10.
+Status: M3-12 production writing lifecycle plus local startup recovery review and explicit native recovery choices. [SPEC S08/S14](../SPEC.md#s08); APP-02, NAV-01–03, UX-01–03, SEC-01, INV-10.
 
 M0 presents an application heading, explicit development status, and disabled New/Open actions. It has no recent registry, recovery list, manuscript status, or editor. The future home screen must make New, Open Fountain, recent/missing files, and recovery distinct. Remove from Recents cannot delete source. Project creation asks for a destination or explicitly creates a recoverable unsaved draft.
 
@@ -55,4 +55,32 @@ M3-06 adds reusable semantic [writing controls](../src/app/EditorControls.tsx): 
 
 M3-07 adds an anchored local [completion listbox](../src/app/CompletionPopup.ts). Up/Down navigate, Enter/Tab accept, Escape dismisses and a left mouse click retains the writing caret. Prefix/location/time segments and cue extensions remain separate. Suggestions render literal text and cannot insert by timing. [M3-07 evidence](test-evidence/M3.md#m3-07--local-character-and-heading-completion) covers real WebKit keys, actual pointer acceptance and app-only visual inspection; composition checks remain synthetic and screenreader coverage remains open. Production writing activation is still M3-12.
 
-M3-08 adds a staged [Import Fountain panel](../src/app/FountainImportPanel.ts) with a labelled text area, explicit whole-screenplay replacement wording, native pre-import protection and Undo explanation. Staged text stays visible after success/failure. Status distinguishes import protection from source saving; arbitrary native transport details stay behind a fixed refusal. It is diagnostic-mounted until M3-12. Registry menu/help actions now include bold/italic/underline. [M3-08 evidence](test-evidence/M3.md#m3-08--paste-formatting-and-native-input) records passing real pinyin/mozc IME commit/cancel/Enter; full paint/performance/accessibility gates remain later.
+M3-08 adds a staged [Import Fountain panel](../src/app/FountainImportPanel.ts) with a labelled text area, explicit whole-screenplay replacement wording, native pre-import protection and Undo explanation. Staged text stays visible after success/failure. Status distinguishes import protection from source saving; arbitrary native transport details stay behind a fixed refusal. M3-12 mounts it in the production writing session. Registry menu/help actions now include bold/italic/underline. [M3-08 evidence](test-evidence/M3.md#m3-08--paste-formatting-and-native-input) records passing real pinyin/mozc IME commit/cancel/Enter; full paint/performance/accessibility gates remain later.
+
+## M3-12 production writing lifecycle
+
+The default native app now offers New recoverable draft and Open Fountain.
+One writing session connects editor, source Save, native Save As, Fountain copy,
+recovery choices, snapshots and protected close. The browser preview has no
+native services. Home/recents, navigation, title-page form and other M4 features
+remain open.
+
+F6 leaves the editor for enabled screenplay actions, and ordinary Tab navigates
+controls. The protected close panel focuses Retry. Read-only native ownership
+refuses editing commands as well as typed input. Save/Open commands and help use
+the same locally remappable registry. Open while writing first passes protected
+close; native window close follows the same policy.
+
+Recovery/source/snapshot/history facts remain distinct. Cadence receipts update
+status without another keystroke. Older-session recovery is discoverable after
+open/restart and requires an explicit content choice; the editor allocates a
+newer version without choosing content. Restore/recovery protect the current
+live draft first and create an Undo boundary. Native versions are coordinated
+automatically; production choices do not ask the writer to enter version numbers.
+Staged import text survives ordinary source saves.
+
+Source failure and divergence remain visible. Failed close preserves retry,
+native emergency-copy selection and explicit risk choices; changing the draft
+invalidates old risk acceptance. A verified copy never marks the source saved.
+Native default-build and injected UI evidence is linked from
+[M3-12](test-evidence/M3.md#m3-12--production-writing-lifecycle-and-failure-ui).

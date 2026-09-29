@@ -14,11 +14,13 @@ export function EditorControls({
   registry,
   execute,
   pickerId = 'screenplay-element',
+  focusTargetLabel = 'Element',
 }: {
   state: EditorState;
   registry: ShortcutRegistry;
   execute: (id: string) => void;
   pickerId?: string;
+  focusTargetLabel?: string;
 }) {
   useSyncExternalStore(registry.subscribe, registry.getSnapshot);
   const [commandId, setCommandId] = useState(shortcutCommands[0]!.id);
@@ -55,7 +57,7 @@ export function EditorControls({
         {contextualElements(state)
           .map((id) => elementChoices.find(([kind]) => kind === id)![1])
           .join(' → ')}
-        . Shift+Tab reverses. F6 moves to Element.
+        . Shift+Tab reverses. F6 moves to {focusTargetLabel}.
       </span>
       <details>
         <summary>Commands and shortcut help</summary>

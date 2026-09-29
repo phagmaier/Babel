@@ -20,6 +20,7 @@ function close(phase: 'editing' | 'attention' = 'attention') {
     get phase() {
       return currentPhase;
     },
+    liveVersion: 1,
     sourceProtected: false,
     recoveryProtected: false,
     onlyInMemory: true,
@@ -62,7 +63,10 @@ it('shows persistent in-memory risk and gates explicit risk close behind a check
   fireEvent.click(screen.getByRole('checkbox'));
   fireEvent.click(risk);
   await waitFor(() => expect(onClosed).toHaveBeenCalledOnce());
-  expect(policy.acceptRisk).toHaveBeenCalledWith(true);
+  expect(policy.acceptRisk).toHaveBeenCalledWith(
+    true,
+    policy.assessment.liveVersion,
+  );
 });
 
 it('uses only a native-selected destination token for an emergency copy', async () => {
@@ -97,6 +101,42 @@ it('requires a fresh risk choice for a new document session', () => {
   fireEvent.click(screen.getByRole('checkbox'));
   expect((screen.getByRole('checkbox') as HTMLInputElement).checked).toBe(true);
   view.rerender(<ProtectedClosePanel close={second} onClosed={vi.fn()} />);
+  expect((screen.getByRole('checkbox') as HTMLInputElement).checked).toBe(
+    false,
+  );
+  expect(
+    (
+      screen.getByRole('button', {
+        name: 'Close with this risk',
+      }) as HTMLButtonElement
+    ).disabled,
+  ).toBe(true);
+});
+
+it('invalidates a checked close risk when the live protection status changes', () => {
+  const policy = close();
+  const view = render(
+    <ProtectedClosePanel
+      close={policy}
+      statusToken="1:unsaved"
+      onClosed={vi.fn()}
+    />,
+  );
+  fireEvent.click(screen.getByRole('checkbox'));
+  expect(
+    (
+      screen.getByRole('button', {
+        name: 'Close with this risk',
+      }) as HTMLButtonElement
+    ).disabled,
+  ).toBe(false);
+  view.rerender(
+    <ProtectedClosePanel
+      close={policy}
+      statusToken="2:pending"
+      onClosed={vi.fn()}
+    />,
+  );
   expect((screen.getByRole('checkbox') as HTMLInputElement).checked).toBe(
     false,
   );

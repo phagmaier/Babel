@@ -22,12 +22,13 @@ static void settle(struct wl_display *display){struct timespec pause={0,80000000
 static uint32_t stamp(void){struct timespec ts;clock_gettime(CLOCK_MONOTONIC,&ts);return (uint32_t)(ts.tv_sec*1000+ts.tv_nsec/1000000);}
 int main(int argc,char **argv){
   if(argc!=2)return 2;
-  int control=!strcmp(argv[1],"v")||!strcmp(argv[1],"c")||!strcmp(argv[1],"x");
-  uint32_t code=!strcmp(argv[1],"v")?47:!strcmp(argv[1],"c")?46:!strcmp(argv[1],"x")?45:!strcmp(argv[1],"backspace")?14:!strcmp(argv[1],"escape")?1:!strcmp(argv[1],"return")?28:!strcmp(argv[1],"shift-home")?102:0;
+  int control=!strcmp(argv[1],"v")||!strcmp(argv[1],"c")||!strcmp(argv[1],"x")||!strcmp(argv[1],"l")||!strcmp(argv[1],"a");
+  uint32_t code=!strcmp(argv[1],"v")?47:!strcmp(argv[1],"c")?46:!strcmp(argv[1],"x")?45:!strcmp(argv[1],"l")?38:!strcmp(argv[1],"a")?30:!strcmp(argv[1],"alt-home")?102:!strcmp(argv[1],"f6")?64:!strcmp(argv[1],"backspace")?14:!strcmp(argv[1],"escape")?1:!strcmp(argv[1],"return")?28:!strcmp(argv[1],"shift-home")?102:0;
   if(!code)return 2;
   int shift=!strcmp(argv[1],"shift-home");
-  uint32_t modifier=control?4:shift?1:0;
-  uint32_t modifier_key=control?29:42;
+  int alt=!strcmp(argv[1],"alt-home");
+  uint32_t modifier=control?4:shift?1:alt?8:0;
+  uint32_t modifier_key=control?29:alt?56:42;
   int fd=open("/tmp/babel-m3-08-us.xkb",O_RDONLY);struct stat st;
   if(fd<0||fstat(fd,&st)<0||st.st_size<1)return 3;
   struct wl_display *display=wl_display_connect(NULL);if(!display)return 4;

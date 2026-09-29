@@ -50,9 +50,9 @@ export const shortcutCommands = [
     unavailable: null,
   })),
   ...[
-    ['save', 'Save', 'Mod+S', 'Source saving is awaiting M3-10.'],
-    ['saveAs', 'Save As', 'Mod+Shift+S', 'Save As is awaiting M3-11.'],
-    ['open', 'Open', 'Mod+O', 'Native Open is awaiting M3-09.'],
+    ['save', 'Save', 'Mod+S', null],
+    ['saveAs', 'Save As', 'Mod+Shift+S', null],
+    ['open', 'Open', 'Mod+O', null],
     ['find', 'Find', 'Mod+F', 'Find is awaiting M4.'],
     ['replace', 'Replace', null, 'Replace is awaiting M4.'],
     ['nextMatch', 'Next Match', 'Mod+G', 'Find is awaiting M4.'],

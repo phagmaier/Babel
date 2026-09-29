@@ -167,10 +167,21 @@ pub fn run() {
                 .map_err(|_| std::io::Error::other("recovery host unavailable"))? = root.clone();
             #[cfg(target_os = "linux")]
             {
+                // Tauri creates the app-data directory with default modes; the
+                // native stores require a private 0700 root. Restrict a
+                // uid-owned root (never loosen) before any host initializes.
+                // A refusal below leaves the hosts uninitialized; commands
+                // then report nativeUnavailable instead of inventing state.
+                if let Some(ref dir) = root
+                    && let Err(error) = screenwriter_core::documents::ensure_private_app_dir(dir)
+                {
+                    eprintln!("private app directory unavailable: {error:?}");
+                }
                 // Production writer store lives in private app data only. A
                 // failure leaves the host uninitialized; entry commands then
                 // report nativeUnavailable instead of inventing a manuscript.
                 if let Some(dir) = root
+                    && screenwriter_core::documents::ensure_private_app_dir(&dir).is_ok()
                     && let Ok(service) = DocumentService::new(&dir)
                     && let Ok(mut host) = app.state::<DocumentHost>().service.lock()
                 {

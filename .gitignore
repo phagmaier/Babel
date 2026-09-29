@@ -16,3 +16,6 @@ test-results/
 !prototypes/pdf/corpus/*.fountain
 prototypes/pdf/out/
 .screenwriter/
+
+# Python native test harness bytecode
+__pycache__/

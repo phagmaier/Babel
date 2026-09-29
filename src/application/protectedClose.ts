@@ -15,6 +15,7 @@ export interface CloseOwner {
 export type ClosePhase = 'editing' | 'working' | 'attention' | 'closed';
 export interface CloseAssessment {
   phase: ClosePhase;
+  liveVersion: number;
   sourceProtected: boolean;
   recoveryProtected: boolean;
   onlyInMemory: boolean;
@@ -52,6 +53,7 @@ export class ProtectedClose {
       state.journaledSha256 === state.liveSha256;
     return {
       phase: this.phase,
+      liveVersion: state.liveVersion,
       sourceProtected,
       recoveryProtected,
       onlyInMemory: !sourceProtected && !recoveryProtected,
@@ -77,7 +79,18 @@ export class ProtectedClose {
     if (this.phase === 'working' || this.phase === 'closed')
       throw new Error('Close operation unavailable');
     // freeze() must synchronously reject editor transactions and return a thaw callback.
-    const thaw = this.owner.freeze();
+    let thaw: () => void;
+    try {
+      thaw = this.owner.freeze();
+    } catch (error) {
+      this.publish(
+        'attention',
+        error instanceof Error
+          ? error.message
+          : 'Close waits until the current operation finishes.',
+      );
+      throw error;
+    }
     this.publish('working', 'Protecting the latest version before close…');
     try {
       const snapshot = await this.owner.capture();
@@ -106,6 +119,14 @@ export class ProtectedClose {
   async retry(): Promise<void> {
     await this.withFrozen(async (snapshot) => {
       const state = this.controller.state;
+      if (!state.writable) {
+        await this.documents.release(state.identity);
+        this.publish(
+          'closed',
+          'Read-only document closed. The source was unchanged.',
+        );
+        return;
+      }
       if (state.fingerprint && !state.fileBlocked && !state.externalChange) {
         try {
           await this.controller.save(snapshot);
@@ -188,9 +209,16 @@ export class ProtectedClose {
   }
 
   /** Caller must display the current assessment and obtain a fresh explicit choice. */
-  async acceptRisk(confirmed: boolean): Promise<void> {
+  async acceptRisk(
+    confirmed: boolean,
+    expectedVersion = this.controller.state.liveVersion,
+  ): Promise<void> {
     if (!confirmed) throw new Error('Explicit close risk acceptance required');
-    await this.withFrozen(async () => {
+    await this.withFrozen(async (snapshot) => {
+      if (snapshot.version !== expectedVersion)
+        throw new Error(
+          'The draft changed; review the current close risk again',
+        );
       await this.documents.releaseAtRisk(this.controller.state.identity);
       this.publish(
         'closed',

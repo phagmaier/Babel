@@ -59,11 +59,18 @@ export function RecoveryChoicePanel({
   identity,
   selection,
   expectedFingerprint,
+  onRecovered,
+  onResolved,
+  nextVersion,
 }: {
   port: RecoveryChoicesPort;
   identity: DocumentIdentity;
   selection: RecoverySelection;
   expectedFingerprint: DiskFingerprint;
+  /** Adopted bytes must reach the editor through these callbacks; the panel never writes them itself. */
+  onRecovered?: (receipt: SaveReceipt, selection: RecoverySelection) => void;
+  onResolved?: (resolution: TransactionResolution) => void;
+  nextVersion?: number;
 }) {
   const [comparison, setComparison] = useState<RecoveryComparison | null>(null);
   const [compareFailed, setCompareFailed] = useState(false);
@@ -181,10 +188,11 @@ export function RecoveryChoicePanel({
     !staleFingerprint &&
     (comparison.transaction === 'noTransaction' ||
       comparison.transaction === 'confirmedRecordMatchesSource');
+  const targetVersion = nextVersion ?? newVersion;
   const versionReady =
-    newVersion !== null &&
-    Number.isInteger(newVersion) &&
-    newVersion > comparison.recovery.version;
+    targetVersion !== null &&
+    Number.isSafeInteger(targetVersion) &&
+    targetVersion > comparison.recovery.version;
 
   return (
     <section className="card recovery" aria-labelledby="choice-heading">
@@ -236,19 +244,21 @@ export function RecoveryChoicePanel({
         </p>
       )}
       {actionFailed && <p role="alert">{actionFailed}</p>}
-      <label>
-        New source version
-        <input
-          type="number"
-          min={comparison.recovery.version + 1}
-          value={newVersion ?? ''}
-          onChange={(event) =>
-            setNewVersion(
-              event.target.value === '' ? null : Number(event.target.value),
-            )
-          }
-        />
-      </label>
+      {nextVersion === undefined && (
+        <label>
+          New source version
+          <input
+            type="number"
+            min={comparison.recovery.version + 1}
+            value={newVersion ?? ''}
+            onChange={(event) =>
+              setNewVersion(
+                event.target.value === '' ? null : Number(event.target.value),
+              )
+            }
+          />
+        </label>
+      )}
       <div className="actions">
         <button
           type="button"
@@ -261,10 +271,14 @@ export function RecoveryChoicePanel({
                 port.recover({
                   identity,
                   selection,
-                  newVersion: newVersion as number,
+                  newVersion: targetVersion as number,
                   expectedFingerprint,
                 }),
-              (value) => setRecovered(value as SaveReceipt),
+              (value) => {
+                const receipt = value as SaveReceipt;
+                setRecovered(receipt);
+                onRecovered?.(receipt, selection);
+              },
             )
           }
         >
@@ -308,7 +322,11 @@ export function RecoveryChoicePanel({
             void act(
               'Resolve',
               () => port.resolve(identity),
-              (value) => setResolved(value as TransactionResolution),
+              (value) => {
+                const resolution = value as TransactionResolution;
+                setResolved(resolution);
+                onResolved?.(resolution);
+              },
             )
           }
         >

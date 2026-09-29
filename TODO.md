@@ -51,7 +51,7 @@ M2 headless Linux exit passed. This is a bounded headless foundation; no Local-v
 - [x] **M3-09 Native source/destination picker and recoverable drafts** — Evidence: [M3 report](docs/test-evidence/M3.md#m3-09--native-sourcedestination-picker-and-recoverable-drafts). Deps: M3-00, M2-06.
 - [x] **M3-10 Recovery/source cadence and visible protection state** — Evidence: [M3 report](docs/test-evidence/M3.md#m3-10--recoverysource-cadence-and-visible-protection-state). Deps: M3-04, M3-09, M2-04, M2-05C.
 - [x] **M3-11 Native Save As identity and publication** — Evidence: [M3 report](docs/test-evidence/M3.md#m3-11--native-save-as-identity-and-publication). Deps: M3-09, M3-10.
-- [ ] **M3-12 Production writing lifecycle and failure UI** — [Brief](docs/tasks/M3-12.md). Deps: M3-08, M3-10, M3-11, M2-05D.
+- [x] **M3-12 Production writing lifecycle and failure UI** — [Brief](docs/tasks/M3-12.md). Deps: M3-08, M3-10, M3-11, M2-05D.
 - [ ] **M3-13 Core editor exit and separate safety review** — [Brief](docs/tasks/M3-13.md). Deps: M3-01–12.
 
 ### M3 verification and boundary
