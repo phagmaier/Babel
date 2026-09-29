@@ -1,6 +1,6 @@
 # Test strategy and coverage
 
-Status: M0/M1 proofs, M2-01–06 bounded Linux headless gates, and M3-04/05 editor foundation and structural keys recorded. M2 headless exit does not establish Local v1. [SPEC S15/S20](../SPEC.md#s15); QA-01–03, INV-18.
+Status: M0/M1 proofs, M2-01–06 bounded Linux headless gates, and M3-04–06 editor foundation, structural keys and picker/shortcuts recorded. M2 headless exit does not establish Local v1. [SPEC S15/S20](../SPEC.md#s15); QA-01–03, INV-18.
 
 ## Test layers
 
@@ -30,6 +30,6 @@ Detailed per-task coverage lives in [development](development.md) (commands) and
 
 - **M1 proofs**: Fountain round-trip, native editor input, PDF renderer, durable replacement, history store, bounded composition
 - **M2 headless**: Safe open, recovery checkpoints, serialized source replacement, versioned IPC, startup review, recovery choices, snapshots, protected close, curated history
-- **M3 codec/editor**: Independent conformance corpus, production primary codec, complex Fountain regions, editor state/source captures, structural keys and undo
+- **M3 codec/editor**: Independent conformance corpus, production primary codec, complex Fountain regions, editor state/source captures, structural keys, picker/shortcut routing/remapping and undo
 
 Each area's exact commands, host, outcomes, and limitations are recorded in the linked evidence files.

@@ -1,3 +1,4 @@
+import type { ElementChoice } from '../application/shortcuts';
 import { closeHistory } from 'prosemirror-history';
 import type { Node as EditorNode } from 'prosemirror-model';
 import {
@@ -31,7 +32,10 @@ const refused = (reason: string): EditorCommandResult => ({
 });
 const ordinary: EditorCommandResult = { handled: false };
 
-function rowStart(state: EditorState, index: number): number {
+function rowStart(
+  state: { readonly doc: EditorState['doc'] },
+  index: number,
+): number {
   let position = 0;
   for (let at = 0; at < index; at++) position += state.doc.child(at).nodeSize;
   return position;
@@ -50,7 +54,7 @@ function newNode(
   kind: string,
   source: EditorNode,
   id: string,
-  content?: EditorNode['content'],
+  content?: EditorNode['content'] | EditorNode,
 ) {
   const attrs = {
     ...source.attrs,
@@ -372,30 +376,86 @@ export function smartKeyTransaction(
   return join(state, key);
 }
 
-/** Explicit picker primitive; the picker and shortcut registry are M3-06. */
+/** Selected rows exclude a following row whose start is the exclusive selection end. */
+export function selectedEditorRows(state: EditorState) {
+  const start = location(state, state.selection.from);
+  const finish = location(state, state.selection.to);
+  if (
+    !state.selection.empty &&
+    finish.offset === 0 &&
+    finish.index > start.index
+  )
+    finish.index--;
+  return {
+    start,
+    finish,
+    rows: state.doc.content.content.slice(start.index, finish.index + 1),
+  };
+}
+export function selectionElement(state: EditorState): string {
+  const { rows } = selectedEditorRows(state);
+  const types = new Set(
+    rows.map((node) =>
+      node.type.name === 'action' && node.attrs.actionSubtype === 'shot'
+        ? 'shot'
+        : node.type.name,
+    ),
+  );
+  return types.size === 1 ? [...types][0]! : 'mixed';
+}
+export function contextualElements(
+  state: EditorState,
+): readonly ElementChoice[] {
+  const node = state.doc.child(location(state, state.selection.head).index);
+  const groupedCue =
+    node.type.name === 'character' &&
+    state.doc.content.content.some(
+      (other) => other.attrs.speechOf === node.attrs.id,
+    );
+  return ['dialogue', 'parenthetical'].includes(node.type.name) || groupedCue
+    ? ['dialogue', 'parenthetical', 'character']
+    : ['action', 'character', 'sceneHeading', 'transition'];
+}
+export function cycleEditorElement(
+  state: EditorState,
+  reverse: boolean,
+): EditorCommandResult {
+  const choices = contextualElements(state);
+  const current = selectionElement(state);
+  const index = choices.indexOf(current as ElementChoice);
+  const next =
+    index < 0
+      ? reverse
+        ? choices.length - 1
+        : 0
+      : (index + (reverse ? -1 : 1) + choices.length) % choices.length;
+  return convertEditorSelection(state, choices[next]!);
+}
+
+/** One explicit conversion, preserving row text, IDs, marks and the full selection. */
 export function convertEditorSelection(
   state: EditorState,
   kind: string,
 ): EditorCommandResult {
+  const requested = kind;
+  if (kind === 'shot') kind = 'action';
   if (
     !screenplaySchema.nodes[kind] ||
-    [
-      'doc',
-      'text',
-      'raw',
-      'title',
-      'titleContinuation',
-      'note',
-      'boneyard',
-      'pageBreak',
-    ].includes(kind)
+    ['doc', 'text', 'raw', 'title', 'titleContinuation'].includes(kind)
   )
     return refused('Unsupported element type');
-  const start = location(state, state.selection.from);
-  const finish = location(state, state.selection.to);
-  const rows = state.doc.content.content.slice(start.index, finish.index + 1);
+  const { start, rows } = selectedEditorRows(state);
   if (!rows.length || !editable(rows))
     return refused('Protected source cannot be converted');
+  if (
+    rows.every(
+      (node) =>
+        node.type.name === kind &&
+        (kind !== 'action' ||
+          (node.attrs.actionSubtype === 'shot') === (requested === 'shot')),
+    )
+  )
+    return { handled: true };
   if (rows.some((node) => node.type.name === 'note'))
     return refused('A note needs an explicit whole-region conversion');
   const selectedIds = new Set(rows.map((node) => node.attrs.id));
@@ -412,11 +472,38 @@ export function convertEditorSelection(
     )
   )
     return refused('Convert the speaker and its complete dialogue together');
+  const speakerFor = (node: EditorNode, index: number) => {
+    if (node.attrs.speechOf) return node.attrs.speechOf;
+    const previous =
+      start.index + index > 0
+        ? state.doc.child(start.index + index - 1)
+        : undefined;
+    return previous?.type.name === 'character'
+      ? previous.attrs.id
+      : previous?.attrs.speechOf;
+  };
   if (
     (kind === 'dialogue' || kind === 'parenthetical') &&
-    rows.some((node) => !node.attrs.speechOf)
+    rows.some((node, index) => !speakerFor(node, index))
   )
     return refused('Speech conversion needs an attached speaker');
+  if (
+    kind === 'character' &&
+    rows.some(
+      (node) =>
+        node.attrs.speechOf &&
+        state.doc.content.content.some(
+          (other) =>
+            !selectedIds.has(other.attrs.id) &&
+            other.attrs.speechOf === node.attrs.speechOf &&
+            state.doc.content.content.indexOf(other) >
+              state.doc.content.content.indexOf(node),
+        ),
+    )
+  )
+    return refused(
+      'Convert the speech continuation together before introducing a new speaker',
+    );
   if (
     kind === 'parenthetical' &&
     rows.some(
@@ -424,10 +511,64 @@ export function convertEditorSelection(
     )
   )
     return refused('Parenthetical text needs a safe wrapped form');
-  const converted = rows.map((node) =>
-    newNode(kind, node, String(node.attrs.id), node.content),
-  );
-  return replaceRows(
+  if (
+    kind === 'dialogue' &&
+    rows.some((node) => node.textContent.startsWith('('))
+  )
+    return refused(
+      'Wrapped parenthetical text cannot become portable Dialogue without changing text',
+    );
+  if (rows.some((node) => node.type.name === 'boneyard'))
+    return refused(
+      'Omitted source requires a reviewed whole-region conversion',
+    );
+  if (kind === 'pageBreak') {
+    if (
+      rows.some((node) => node.textContent && !/^={3,}$/.test(node.textContent))
+    )
+      return refused(
+        'Page Break requires an empty row; existing text is retained',
+      );
+  }
+  const hidden = kind === 'note' || kind === 'boneyard';
+  if (
+    hidden &&
+    rows.some(
+      (node) =>
+        /\[\[|\]\]|\/\*|\*\//.test(node.textContent) ||
+        node.content.content.some((child) => child.marks.length),
+    )
+  )
+    return refused(
+      'Hidden conversion needs delimiter-free literal text; styled content is retained',
+    );
+  const converted = rows.map((node, index) => {
+    const hiddenText = `${index === 0 ? (kind === 'note' ? '[[' : '/*') : ''}${node.textContent}${index === rows.length - 1 ? (kind === 'note' ? ']]' : '*/') : ''}`;
+    const content = hidden
+      ? hiddenText
+        ? screenplaySchema.text(hiddenText)
+        : undefined
+      : kind === 'pageBreak' && !node.textContent
+        ? screenplaySchema.text('===')
+        : node.content;
+    const next = newNode(kind, node, String(node.attrs.id), content);
+    return next.type.create(
+      {
+        ...next.attrs,
+        actionSubtype: requested === 'shot' ? 'shot' : null,
+        ...(['dialogue', 'parenthetical'].includes(kind)
+          ? { speechOf: speakerFor(node, index) }
+          : {}),
+        ...(hidden
+          ? { hiddenOf: `editor-hidden:${rows[0]!.attrs.id}`, literal: true }
+          : {}),
+      },
+      next.content,
+    );
+  });
+  if (converted.every((node, index) => node.eq(rows[index]!)))
+    return { handled: true };
+  const result = replaceRows(
     state,
     start.index,
     rows.length,
@@ -436,4 +577,28 @@ export function convertEditorSelection(
     start.offset,
     editorOrigin(state).nextId,
   );
+  if (result.transaction) {
+    const tr = result.transaction;
+    const from = state.selection.anchor;
+    const to = state.selection.head;
+    // Wrappers are added around existing text; retain selection over the authored text.
+    const adjust = (position: number) => {
+      // An exclusive endpoint at the following row must stay before a hidden closing wrapper.
+      const at = location(state, position);
+      if (hidden && at.index > start.index + rows.length - 1)
+        return (
+          rowStart(state, start.index) +
+          converted.reduce((size, row) => size + row.nodeSize, 0) -
+          3
+        );
+      return (
+        rowStart({ doc: tr.doc }, at.index) +
+        1 +
+        at.offset +
+        (hidden && at.index === start.index ? 2 : 0)
+      );
+    };
+    tr.setSelection(TextSelection.create(tr.doc, adjust(from), adjust(to)));
+  }
+  return result;
 }

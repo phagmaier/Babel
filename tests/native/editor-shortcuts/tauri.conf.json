@@ -1,0 +1,15 @@
+{
+  "build": {
+    "devUrl": "http://localhost:5173/tests/native/editor-shortcuts/index.html"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "babel M3-06 synthetic shortcuts",
+        "width": 1100,
+        "height": 900
+      }
+    ]
+  }
+}

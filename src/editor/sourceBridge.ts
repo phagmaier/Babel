@@ -91,8 +91,11 @@ function editForNode(node: EditorNode, prior?: FountainLine): LineEdit {
     ...(node.attrs.sectionLevel
       ? { sectionLevel: node.attrs.sectionLevel as number }
       : {}),
-    ...(node.attrs.actionSubtype === 'shot'
-      ? { actionSubtype: 'shot' as const }
+    ...(kind === 'action'
+      ? {
+          actionSubtype:
+            node.attrs.actionSubtype === 'shot' ? ('shot' as const) : null,
+        }
       : {}),
   };
 }
@@ -101,7 +104,10 @@ function matchingOrigin(node: EditorNode, line: FountainLine | undefined) {
   if (!line || node.attrs.id !== line.id) return false;
   const kind =
     line.intendedKind ?? (line.kind === 'blank' ? 'action' : line.kind);
-  return node.type.name === kind;
+  return (
+    node.type.name === kind &&
+    (node.attrs.actionSubtype ?? null) === (line.actionSubtype ?? null)
+  );
 }
 function sameSourceRow(node: EditorNode, line: FountainLine | undefined) {
   return (
@@ -160,6 +166,55 @@ export function captureEditor(state: EditorState): EditorCapture {
         text: node.textContent,
       })),
       noteRows.map((node) => String(node.attrs.id)),
+    );
+  }
+  // Newly authored hidden conversions own a complete, contiguous set of existing rows.
+  // Reuse the codec's checked concrete transaction; no unverified syntax enters a capture.
+  const hiddenGroups = new Map<string, EditorNode[]>();
+  for (const node of state.doc.content.content) {
+    if (
+      typeof node.attrs.hiddenOf === 'string' &&
+      node.attrs.hiddenOf.startsWith('editor-hidden:')
+    ) {
+      const group = hiddenGroups.get(node.attrs.hiddenOf) ?? [];
+      group.push(node);
+      hiddenGroups.set(node.attrs.hiddenOf, group);
+    }
+  }
+  for (const rows of [...hiddenGroups.values()].reverse()) {
+    const from =
+      document.lines.length === 0
+        ? 0
+        : document.lines.findIndex((line) => line.id === rows[0]!.attrs.id);
+    const priorIndices = rows
+      .map((node) =>
+        document.lines.findIndex((line) => line.id === node.attrs.id),
+      )
+      .filter((index) => index >= 0);
+    if (
+      from < 0 ||
+      priorIndices.some((index, offset) => index !== from + offset)
+    )
+      throw new FountainEditError(
+        'unrepresentable',
+        'Hidden conversion lost its contiguous source ownership',
+      );
+    if (
+      rows.every((node, offset) =>
+        sameSourceRow(node, document.lines[from + offset]),
+      )
+    )
+      continue;
+    document = replaceKnownSourceContext(
+      document,
+      from,
+      priorIndices.length,
+      rows.map((node) => ({
+        source: node.textContent,
+        text: node.textContent,
+        kind: node.type.name as 'note' | 'boneyard',
+      })),
+      rows.map((node) => String(node.attrs.id)),
     );
   }
   const base = document;
