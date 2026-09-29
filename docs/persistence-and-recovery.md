@@ -1,6 +1,6 @@
 # Persistence and recovery
 
-Status: M1-04 Linux replacement proof and M2-01 native identity/open boundary exist; M2-02 native recovery framing/publication exists; M2-03 native source replacement and M2-04 typed worker IPC/headless state exist; M2-05A read-only local startup review and M2-05B explicit recovery choices exist; visible editor integration and retention/close remain planned. [SPEC S10](../SPEC.md#s10); SAVE-01–05, INV-04–08/10/20.
+Status: M1-04 Linux replacement proof and M2-01 native identity/open boundary exist; M2-02 native recovery framing/publication exists; M2-03 native source replacement and M2-04 typed worker IPC/headless state exist; M2-05A read-only local startup review and M2-05B explicit recovery choices exist; M2-05C native snapshots/retention/external copies exist; visible editor integration and protected close remain planned. [SPEC S10](../SPEC.md#s10); SAVE-01–05, INV-04–08/10/20.
 
 One native writer queue per document serializes immutable save requests. Requests bind opaque handle, project/session ID, monotonically increasing document version, source hash, and expected disk fingerprint. Track `liveVersion`, `journaledVersion`, and `fileSavedVersion` separately. An acknowledgement for v21 cannot make v22 "Saved locally"; a recovery checkpoint is not a file-save acknowledgement. Native code computes/verifies the saved hash and sends the exact result. Emergency raw protection does not depend on Script Check passing.
 
@@ -185,3 +185,50 @@ corruption still blocks. Retention/pruning, Save As, external backup
 destinations and protected close remain M2-05C/D. [ADR 0017](decisions/0017-explicit-recovery-choices.md)
 and [M2 evidence](test-evidence/M2.md#m2-05b--explicit-recovery-choices-and-external-changes)
 record the contract and native/mocked verification boundary.
+
+## M2-05C snapshots, retention and external copies
+
+[ADR 0018](decisions/0018-portable-snapshot-retention.md) owns the schema,
+publication/deletion ordering, verified retention defaults and limits. Snapshots
+are independent source-readable SHA-256-named `.fountain` blobs and immutable
+checksummed records under private per-document `snapshots/` directories. They
+preserve exact raw bytes, including unsupported encoding; verified content is
+shared across records. Selected records bind their entire metadata hash. Named
+and pre-destructive records are protected from automatic pruning. Native disk
+safety copies carry no guessed editor version.
+
+Changed rolling requests are admitted at five-minute intervals; explicit
+maintenance keeps five-minute representatives for one hour, hourly for 48 hours,
+daily for 30 days, the newest and every protected/future-clock record. Admission
+caps each document at 256 records/256 MiB of distinct source bytes, without
+silently freeing protected material to make room. Publication commits the blob
+before its referring record; pruning commits expired-record deletion before
+removing an unreferenced blob. Pending, orphan, damaged or unknown material
+remains inspectable and blocks further maintenance. Retention refuses unresolved
+recovery/source operations, external divergence and low available space. It
+never deletes journals, previous source, history, identities or locks.
+
+Restore first independently checkpoints current live bytes, protects live and
+disk snapshots, then writes the selected supported source bytes through the
+existing serialized writer as a newer version. An exact source receipt is the
+only source-save credit. M2-05B adoption now protects a disk snapshot before its
+replacement too. A blocked snapshot prevents destructive adoption/restore;
+ordinary source saving and emergency copies do not depend on snapshots. Git
+safety revisions remain M2-06, not an invented history success.
+
+Explicit external copies accept immutable bytes and an opaque destination token
+from native selection, bound to the registration/session. Native directory
+revalidation, exclusive pending/final publication, file/directory sync and exact
+byte verification precede a copy receipt. No destination path crosses IPC, no
+existing file is overwritten and no copy receipt changes source/recovery status.
+Missing/removed/substituted/read-only destinations fail without silently choosing
+another location. Same-filesystem copies do not protect against losing their
+backing disk; a different filesystem does not prove a different physical disk.
+
+The injected `SnapshotPanel` displays retention/cap/attention facts, explicit
+named/restore/copy actions and these storage distinctions. The default shell
+still has no production source/destination picker, editor, cadence, Save As or
+configured recurring backup. The [synthetic diagnostic](../prototypes/snapshot-review/README.md)
+exercises real WebKit/native commands; [M2 evidence](test-evidence/M2.md#m2-05c--rolling-snapshots-and-backup-copies)
+separates native files/interruptions, mocked dispatch, UI injection and limits.
+M2-05D, M2-06 and full M2 exit remain open.

@@ -91,6 +91,30 @@ pub(super) async fn open_composition_fixture(
     .map_err(|_| DocumentError::new(ErrorCode::NativeUnavailable))?
 }
 
+/// M2-05C diagnostic only: the already marked private synthetic `data/` folder.
+#[tauri::command]
+pub(super) async fn select_snapshot_proof_destination(
+    request: DocumentRequest,
+    root: tauri::State<'_, ProofRoot>,
+    host: tauri::State<'_, DocumentHost>,
+) -> Result<screenwriter_core::documents::snapshots::CopyDestination, DocumentError> {
+    let root = root.0.clone();
+    let permit = host.reserve(0)?;
+    let host = host.inner().clone();
+    tauri::async_runtime::spawn_blocking(move || {
+        let _permit = permit;
+        validate_root(&root).map_err(|_| DocumentError::new(ErrorCode::UnsafePath))?;
+        host.service
+            .lock()
+            .map_err(|_| DocumentError::new(ErrorCode::NativeUnavailable))?
+            .as_mut()
+            .ok_or_else(|| DocumentError::new(ErrorCode::NativeUnavailable))?
+            .select_copy_destination(&request, &root.join("data"))
+    })
+    .await
+    .map_err(|_| DocumentError::new(ErrorCode::NativeUnavailable))?
+}
+
 #[tauri::command]
 pub(super) fn record_composition_proof(report: String) -> Result<(), &'static str> {
     if report.len() > 32_768 {

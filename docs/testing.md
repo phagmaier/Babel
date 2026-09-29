@@ -1,6 +1,6 @@
 # Test layers and gates
 
-Status: M0 unit/UI/browser scaffolding plus Rust tests; M1-01 source contract, M1-02 isolated native input, M1-03 isolated PDF renderer, M1-04 native replacement, and M1-05 native history proofs recorded, plus M2-01–04 headless, M2-05A startup-review and M2-05B choice suites. Later (M2-05C–D, M2-06+) suites are planned. [SPEC S15/S20](../SPEC.md#s15); QA-01–03, INV-18.
+Status: M0 unit/UI/browser scaffolding plus Rust tests; M1-01 source contract, M1-02 isolated native input, M1-03 isolated PDF renderer, M1-04 native replacement, and M1-05 native history proofs recorded, plus M2-01–04 headless, M2-05A startup-review and M2-05B choice suites. M2-05C snapshot/retention/copy suites exist; M2-05D and M2-06+ remain planned. [SPEC S15/S20](../SPEC.md#s15); QA-01–03, INV-18.
 
 `pnpm test` is Vitest/JSDOM with an injected typed app-info port; it verifies visible shell status and disabled future actions. `pnpm test:browser` starts Vite and uses system Chromium to verify the same in a real browser. Browser preview deliberately reports native IPC unavailable. `cargo test -p screenwriter-core` tests the headless value, and `cargo test --workspace` also tests host command wiring. A native smoke must actually start Tauri and observe the app-info response in WebKit; mocked/browser results cannot substitute. [M0 evidence](test-evidence/M0.md) records what ran.
 
@@ -117,3 +117,27 @@ The [M2-05B independent review](reviews/2026-09-28-m2-05b-review.md) found two c
 ## M1-06 composition coverage
 
 The [composition proof](../prototypes/editor-composition/README.md) has source/editor conformance tests and feature-only native guard/dispatch checks. Real WebKit runs exercise LF, BOM/CRLF and no-final-newline typing, selection replacement, undo/redo, save and reopen. Python audits compare literal oracles, source ranges/Unicode anchors, exact native receipts and disk bytes; external divergence retains independently checksum-verified recovery and external bytes on tmpfs/Btrfs. MockRuntime checks remain labeled separately. [M1 evidence](test-evidence/M1.md#m1-06--bounded-codeceditornative-composition-proof) records commands and limits; this closes the bounded investigation without asserting full editor/IME or Local v1 adoption.
+
+## M2-05C snapshot and copy coverage
+
+Native synthetic-file tests verify exact BOM/CRLF/raw bytes, restart, dedup,
+five-minute admission, hourly/daily retention, clock rollback, protected versions,
+record/byte caps, stale/future/damaged/unsafe inventories, managed/unsaved anchors,
+view-only/cross-session refusal, live/disk protection on restore, blocked restore
+with current recovery retained, native destination permissions/removal/substitution
+and backup failure isolation from ordinary saves. Seven injected snapshot stages,
+four prune stages and three copy stages retain valid protections and return no
+receipt on error. Seven actual SIGKILL publication/prune barriers preserve valid
+paths after restart. Injected ENOSPC is simulated, not a physically filled disk;
+SIGKILL is not power loss. The changed choice adoption is repeated on Btrfs.
+
+Generated MockRuntime dispatch exercises all six path-free commands over real
+files and malformed/uninitialized envelopes. Injected UI/adapter tests verify
+literal names, exact receipt checks, attention/cap actions, independent copy status
+and ignored old-session restore completions. Real WebKit uses the fixed synthetic
+destination diagnostic; a separate Python audit verifies literal source bytes,
+metadata/blob/recovery checksums, previous source and exact receipts on tmpfs and
+Btrfs. [M2 evidence](test-evidence/M2.md#m2-05c--rolling-snapshots-and-backup-copies)
+owns exact commands, host, logs and omissions. Default product picking/cadence,
+protected close, curated safety revisions, installed-package/other-platform and
+physical-disk/power-loss guarantees are not claimed.

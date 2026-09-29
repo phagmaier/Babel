@@ -365,6 +365,8 @@ impl DocumentService {
         {
             return Err(failure(error(ErrorCode::SaveNeedsAttention)));
         }
+        self.protect_disk_before_replacement(&request.identity)
+            .map_err(failure)?;
         // This explicit choice reconciles an older session for this registration.
         if let Some(record) = self.documents.get_mut(&request.identity.handle) {
             record.recovery_reconciled = true;

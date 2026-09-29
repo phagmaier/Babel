@@ -151,3 +151,19 @@ records exact commands and native-versus-mocked limits.
 ## M1-06 isolated composition proof
 
 The Linux `editor-composition-proof` feature and [proof config](../src-tauri/tauri.editor-composition-proof.conf.json) initialize only an explicitly seeded private synthetic root during native setup. The [proof README](../prototypes/editor-composition/README.md) owns launch/input instructions; [M1 evidence](test-evidence/M1.md#m1-06--bounded-codeceditornative-composition-proof) owns exact checks/results. Production initialization and capabilities remain unchanged. `prosemirror-model` 1.25.12 (MIT, inspected pinned package manifest) is exposed as a dev dependency for schema construction/types; it was already present transitively in the lockfile. No runtime dependency promotion or new Rust dependency occurs; release notices/packaging remain M6.
+
+## M2-05C snapshot checks
+
+No new dependency or production frontend filesystem capability. Focused native
+checks: `cargo test -p screenwriter-core --lib snapshot_store --locked`;
+prepend `BABEL_SNAPSHOT_TEST_ROOT=/home/phagmaier/Code/babel` for this host's Btrfs
+matrix. Generated dispatch: `cargo test -p babel-desktop snapshot_ipc_tests --locked`;
+`BABEL_IPC_TEST_ROOT` selects the owned native fixture base. Injected UI/adapter:
+`pnpm exec vitest run tests/contract/snapshots.test.ts tests/ui/Snapshots.test.tsx`.
+Shared checks still apply; focused checks cannot replace them.
+
+The [snapshot diagnostic](../prototypes/snapshot-review/README.md) documents the
+feature-gated marked synthetic root, fixed proof-only copy destination and real
+WebKit keyboard/independent audit sequence. Production source/destination picker
+initialization and background cadence remain absent. Exact executed commands,
+outcomes and artifacts are in [M2 evidence](test-evidence/M2.md#m2-05c--rolling-snapshots-and-backup-copies).

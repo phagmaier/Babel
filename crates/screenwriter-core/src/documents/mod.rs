@@ -5,6 +5,7 @@ pub mod choices;
 pub mod persistence;
 pub mod recovery;
 pub mod saving;
+pub mod snapshots;
 pub mod startup;
 
 #[cfg(target_os = "linux")]
@@ -115,6 +116,10 @@ pub enum ErrorCode {
     SaveConflict,
     SaveQueueFull,
     SaveNeedsAttention,
+    SnapshotNeedsAttention,
+    SnapshotLimit,
+    InvalidSnapshot,
+    InvalidDestination,
     Io,
 }
 

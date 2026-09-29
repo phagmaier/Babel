@@ -1,0 +1,10 @@
+.snapshot-proof {
+  max-width: 760px;
+  margin: 20px auto;
+}
+.snapshot-proof h1 {
+  font-family: system-ui, sans-serif;
+  font-size: 1.6rem;
+  font-weight: 600;
+  letter-spacing: normal;
+}

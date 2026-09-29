@@ -6,14 +6,21 @@ use std::sync::{Arc, Mutex};
 #[cfg(all(feature = "editor-composition-proof", target_os = "linux"))]
 mod editor_composition_proof;
 #[cfg(all(feature = "editor-composition-proof", target_os = "linux"))]
-use editor_composition_proof::{open_composition_fixture, record_composition_proof};
+use editor_composition_proof::{
+    open_composition_fixture, record_composition_proof, select_snapshot_proof_destination,
+};
 mod persistence_host;
 mod recovery_choices_host;
+mod snapshot_host;
 mod startup_host;
 use persistence_host::{Budget, checkpoint_document, save_document};
 use recovery_choices_host::{
     compare_recovery, keep_current_source, recover_checkpoint_as_current, resolve_save_transaction,
     save_recovered_copy,
+};
+use snapshot_host::{
+    create_snapshot, list_snapshots, prune_snapshots, read_snapshot, restore_snapshot,
+    save_external_copy,
 };
 use startup_host::{RecoveryHost, list_local_recovery, read_local_recovery};
 use tauri::Manager;
@@ -128,6 +135,12 @@ pub fn run() {
         recover_checkpoint_as_current,
         keep_current_source,
         save_recovered_copy,
+        list_snapshots,
+        read_snapshot,
+        create_snapshot,
+        prune_snapshots,
+        restore_snapshot,
+        save_external_copy,
         resolve_save_transaction,
         record_native_editor_proof
     ]);
@@ -147,6 +160,12 @@ pub fn run() {
         recover_checkpoint_as_current,
         keep_current_source,
         save_recovered_copy,
+        list_snapshots,
+        read_snapshot,
+        create_snapshot,
+        prune_snapshots,
+        restore_snapshot,
+        save_external_copy,
         resolve_save_transaction
     ]);
     #[cfg(all(feature = "editor-composition-proof", target_os = "linux"))]
@@ -162,8 +181,15 @@ pub fn run() {
         recover_checkpoint_as_current,
         keep_current_source,
         save_recovered_copy,
+        list_snapshots,
+        read_snapshot,
+        create_snapshot,
+        prune_snapshots,
+        restore_snapshot,
+        save_external_copy,
         resolve_save_transaction,
         open_composition_fixture,
+        select_snapshot_proof_destination,
         record_composition_proof,
         #[cfg(feature = "native-editor-proof")]
         record_native_editor_proof
@@ -200,3 +226,6 @@ mod recovery_choices_ipc_tests;
 
 #[cfg(all(test, target_os = "linux"))]
 mod startup_ipc_tests;
+
+#[cfg(all(test, target_os = "linux"))]
+mod snapshot_ipc_tests;

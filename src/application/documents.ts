@@ -66,6 +66,10 @@ export interface DocumentError {
     | 'saveConflict'
     | 'saveQueueFull'
     | 'saveNeedsAttention'
+    | 'snapshotNeedsAttention'
+    | 'snapshotLimit'
+    | 'invalidSnapshot'
+    | 'invalidDestination'
     | 'io';
   action: 'selectSourceAgain' | 'reopenOrSaveCopy' | 'retry';
 }

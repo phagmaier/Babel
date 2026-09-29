@@ -1,0 +1,38 @@
+.snapshot-panel {
+  margin-top: 24px;
+}
+.snapshot-panel label {
+  display: grid;
+  gap: 6px;
+  margin: 16px 0 8px;
+}
+.snapshot-panel input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid currentColor;
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
+.snapshot-panel input:focus-visible {
+  outline: 3px solid #64816c;
+  outline-offset: 3px;
+}
+.snapshot-panel button {
+  margin: 4px 0;
+}
+.snapshot-panel ul {
+  list-style: none;
+  padding: 0;
+}
+.snapshot-panel li {
+  display: grid;
+  gap: 8px;
+  padding: 16px 0;
+  border-bottom: 1px solid currentColor;
+  overflow-wrap: anywhere;
+}
+.snapshot-panel [role='status'] {
+  overflow-wrap: anywhere;
+}

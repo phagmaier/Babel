@@ -14,6 +14,8 @@ use uuid::Uuid;
 mod choices_store;
 #[path = "recovery_store.rs"]
 mod recovery_store;
+#[path = "snapshot_store.rs"]
+mod snapshot_store;
 #[path = "source_store.rs"]
 mod source_store;
 #[path = "startup_reader.rs"]
@@ -265,6 +267,7 @@ pub struct DocumentService {
     store: File,
     store_path: PathBuf,
     documents: HashMap<String, Registered>,
+    copy_destinations: HashMap<String, snapshot_store::Destination>,
 }
 
 impl DocumentService {
@@ -286,6 +289,7 @@ impl DocumentService {
             store,
             store_path: app_data.to_path_buf(),
             documents: HashMap::new(),
+            copy_destinations: HashMap::new(),
         })
     }
 
@@ -549,6 +553,7 @@ impl DocumentService {
         if !record.queue.is_empty() || record.save_uncertain {
             return Err(error(ErrorCode::SaveNeedsAttention));
         }
+        self.copy_destinations.retain(|_, d| &d.identity != request);
         self.documents.remove(&request.handle);
         Ok(())
     }

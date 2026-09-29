@@ -138,3 +138,22 @@ wiring remain uninitialized. See [ADR 0017](decisions/0017-explicit-recovery-cho
 ## M1-06 diagnostic composition boundary
 
 A feature-only Linux native module initializes the writer during setup only after validating an explicitly supplied private marked synthetic root. Its opening command maps fixed fixture IDs to native filenames; checkpoint/save use the existing DocumentHost worker/controller. The diagnostic page has one typed EditorState authority with immutable original source data and derived captures. The default production handler/route/capabilities and uninitialized writer boundary remain unchanged. See the [proof](../prototypes/editor-composition/README.md) and [bounded evidence](test-evidence/M1.md#m1-06--bounded-codeceditornative-composition-proof).
+
+## M2-05C snapshot and copy boundary
+
+The native `documents::snapshots` contracts and Linux snapshot store reuse the
+same serialized `DocumentService`/host mutex as saves and choices. Snapshot,
+preview, maintenance, restore and external-copy commands run on bounded blocking
+workers; they do not run on typing or mutate a live editor. The native controller
+alone selects an external destination and obtains a document/session-bound token;
+IPC contains no path. The default host remains uninitialized. The existing
+composition-proof feature additionally exposes only a fixed marked synthetic
+copy folder for the [M2-05C diagnostic](../prototypes/snapshot-review/README.md).
+
+Snapshot/copy results are independent of file/recovery acknowledgements. Restore
+uses the existing recovery-first writer after protecting current live/disk bytes;
+only its exact tagged source receipt may update the editor owner. No new history,
+filesystem engine, library, runtime network or frontend capability is added.
+[ADR 0018](decisions/0018-portable-snapshot-retention.md) owns durable format,
+retention/pruning and destination tradeoffs. Production picker/cadence/restore UI,
+M2-05D close and M2-06 curated safety revisions remain separate integration gates.

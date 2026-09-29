@@ -24,3 +24,21 @@ natively selected in this build, so New/Open remain disabled and the startup
 review says so explicitly. [ADR 0017](decisions/0017-explicit-recovery-choices.md).
 Production picker wiring and managed-project discovery remain later tasks.
 New/Open remain disabled. [ADR 0016](decisions/0016-read-only-startup-recovery-review.md).
+
+M2-05C provides a `SnapshotPanel` for a natively opened registration. It shows
+named versions, the retention/cap policy and interrupted-material notices.
+Actions require a name for an explicit snapshot and a strictly newer version for restore.
+Native restore protects current live/disk bytes before replacement. Snapshot,
+copy and source receipts have distinct wording; stale results cannot publish a
+restore after the document or destination changes. Failed transport text stays
+hidden behind fixed messages. Names render as literal text, with keyboard labels
+and visible focus on inputs. Low-space/cap/attention failures retain protected
+versions and ordinary source/recovery status.
+
+Copies require an explicit native-selected destination token. Same-filesystem
+wording states that losing the backing disk loses the copy; different-filesystem
+wording says the physical disk is unverified. No automatic backup success or
+alternate location is inferred. The native picker/controller is still absent in
+the production shell; this panel is mounted only by the marked synthetic native
+[diagnostic](../prototypes/snapshot-review/README.md) or injected tests. M2-05D owns
+protected close; M2-06 owns curated history protection.
