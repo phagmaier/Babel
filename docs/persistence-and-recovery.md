@@ -167,7 +167,7 @@ record the contract and native/mocked verification boundary.
 
 ## M2-05B explicit choices and external changes
 
-M2-05B-R1 corrects the two [independent review](reviews/2026-09-28-m2-05b-review.md) gaps: finalization now finishes source file/directory durability and revalidates before any receipt, and relink requires exclusive caller ownership with held-lease verification. M2-05B acceptance remains open pending review of those corrections; the contract below is implemented but not yet accepted as verified.
+M2-05B-R1 corrects the two [independent review](reviews/2026-09-28-m2-05b-review.md) gaps: finalization now finishes source file/directory durability and revalidates before any receipt, and relink requires exclusive caller ownership with held-lease verification. The owner [accepted R1](test-evidence/M2.md#r1-owner-acceptance-and-m1-06-claim) at `5e84879` on 2026-09-28, closing M2-05B acceptance within its recorded Linux/native and mocked coverage.
 
 Comparison, adoption, keep, sibling copy, transaction finalize and safe
 relinking operate on a natively opened (`open_selected`) registration anchor;
