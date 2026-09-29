@@ -1,27 +1,28 @@
-# Current state — M3-03 complex codec passed
+# Current state — M3-04 editor bridge complete
 
-Date: 2026-09-28 PDT. Application: **babel**. Authority: [SPEC](../SPEC.md), [TODO](../TODO.md), [M3 evidence](test-evidence/M3.md#m3-03--complex-fountain-regions-and-inline-semantics).
+Date: 2026-09-29 PDT. Application: **babel**. Authority: [SPEC](../SPEC.md), [TODO](../TODO.md), [M3 evidence](test-evidence/M3.md#m3-04--sole-editor-authority-and-source-bridge).
 
 ## Completed task and trust boundary
 
-**M3-03 Complex Fountain regions and inline semantics** passed bounded production-domain acceptance on main. Single editing agent; base `7ee05a5`, clean starting tree/no prior dirty paths. [Model contract](document-model.md#m3-03-complex-source-structures-and-editing) owns the immutable structures, context APIs, rich semantics, retained-original proposal lifecycle and refusal/copy routes.
+**M3-04 Sole editor authority and source bridge** passed its bounded acceptance on main, base `20ddf91`, clean starting tree. One production EditorState owns typed rows/text/marks, immutable original source and monotonically newer edit/selection/undo versions. Deferred captures preserve no-op bytes and expose source spans plus UTF-16/UTF-8/grapheme selection anchors. Version/session-bound hash results cannot mutate newer state or grant saved credit.
 
-Ordered unknown/duplicate title fields and continuations, hidden body/wrapper spans, complete dual groups, inline styles/literals and physical action/dialogue breaks extend the same codec. Edits own complete context, reparse requested semantics and protect undeclared neighbors. Proposals retain full original/candidate byte copies and require explicit acceptance against the original snapshot; stale/fabricated candidates refuse. Invalid UTF-8 remains read-only; ambiguous/unclosed/raw content remains protected until a safe explicit conversion. Mixed visible/hidden rows stay raw with targeted hidden-body editing. Recovery schema and native byte contracts are unchanged.
+Protected/unknown regions and invalid UTF-8 remain preserved; unsupported structural or serialization changes refuse without losing the current draft. Full source parsing/serialization/encoding/hashing is outside synchronous typing dispatch. Two-request/source/metadata bounds protect capture admission; sparse metadata restoration is M3-10. [ADR 0021](decisions/0021-production-editor-source-captures.md) records the ownership/capture contract.
 
-The latest implemented native milestone remains the [M2 headless Linux exit](test-evidence/M2.md#m2-06--small-history-primitives-and-safety-gate). The default desktop still cannot create/open/edit/save a screenplay. Production editor, picker, cadence, Save As and Local v1 adoption remain open.
+The default desktop still cannot create/open/edit/save a screenplay. Production activation, picker, cadence, Save As and Local v1 adoption remain open. The latest native persistence milestone remains the [M2 headless Linux exit](test-evidence/M2.md#m2-06--small-history-primitives-and-safety-gate).
 
 ## Paths and checks
 
-- Extended src/domain/{fountainModel.ts,fountainCodec.ts}; new fountainInline.ts, fountainStructure.ts and fountainSyntax.ts. Added tests/contract/fountain-complex.test.ts, tests/tooling/fountain-complex-compare.ts and fixtures/expected/m3-complex.json. Updated owning contracts, ADR 0007 evidence, TODO/affected DOC trace/index/state and M3 evidence.
-- [M3-03 evidence](test-evidence/M3.md#m3-03--complex-fountain-regions-and-inline-semantics) owns exact commands, host, counts/logs and limitations. Focused complex/primary tests, actual pinned renderer comparison, shared frontend checks, browser shell smoke, Rust regressions and release desktop no-bundle build passed. Final fixture/link/trace/format/diff checks are recorded there.
-- Eight independently authored complex cases retain complete original/edited literals. All 35 tracked Fountain files, original oracles/proofs/primary tests and native/config/SPEC paths remain unchanged. No dependency, runtime network/capability or native format change. Pure codec changes need no second filesystem run; new native/UI authoring was not verified.
+- New src/editor/{schema,state,sourceBridge,view}.ts and src/application/editorCapture.ts; tests/contract/editor-bridge.test.ts and tests/native/editor-bridge/. Four existing pinned ProseMirror packages promoted to runtime with exact direct/transitive MIT notices in docs/third-party/. Owning contracts, ADR evidence, task/trace/index/state and M3 evidence updated.
+- [M3-04 evidence](test-evidence/M3.md#m3-04--sole-editor-authority-and-source-bridge) owns exact commands, host/results/logs and omissions: 174 focused and 291 shared frontend tests, Rust checks, browser smoke and default release no-bundle build. Real native WebKit LF/BOM-CRLF/no-final-newline typing, selection replacement, undo/redo, protected raw refusal and stale-capture cases passed independent byte/hash assertions.
+- All 35 tracked Fountain files and existing oracles/proofs/domain/native/default UI/config/SPEC remain unchanged. Lock resolutions are unchanged. No filesystem publication contract changed; no second filesystem matrix is required.
+- An unrelated deletion of BOOTSTRAP_PROMPT.md appeared during this session. It is preserved outside this task's commit; no requested M3 file depends on it.
 
 ## Limits and next action
 
-**Next ready task: M3-04 Sole editor authority and source bridge.** Read its TODO entry and source/editor/persistence contracts, ADRs 0003/0007/0008/0015 and the bounded M1-06 proof. Build one live EditorState with versioned immutable captures, source/caret anchors, raw-region preservation, undo/version rules and stale-capture protection. Production imports must not use proof code. M3-09 is also dependency-ready; other tasks wait for predecessors.
+**Next ready task: M3-05 Smart keys, joins and structural undo.** Read its TODO entry, SPEC S07.2–S07.5/S07.7, docs/editor-behavior.md and ADR 0008. Implement structural transactions and composition sequence guards with independent source/caret/undo expectations and real native interaction. M3-09 is also dependency-ready; other tasks wait for predecessors.
 
-Renderer sharing is a declared subset: trimming, hidden presentation omission, special literal escapes, two-space speech shape and raw content retain source oracles/explicit gaps. Physical breaks do not certify editor Shift+Enter/caret behavior; unrepresentable style/break/grammar states retain exact-copy refusal. No production undo, native input or full PDF acceptance follows from codec tests.
+M3-08 owns full IME/composition-to-Enter, paste and formatting input. M3-10 integrates native recovery/source cadence and sparse metadata restoration. M3-11 owns Save As identity/publication; M3-12 activates default writing workflows; M3-13 requires their integrated native failure/safety gate. No paint/large-capture performance or durable latest-Fountain claim follows from the synthetic capture harness.
 
-M3-08 requires real IME/composition-to-Enter evidence; M3-11 owns Save As identity/publication choices; M3-13 requires default-app native writing/recovery/failure review. M4 daily workflows/title-page form, M5 PDF and M6 history UX/configured backup/installed-offline/migration/owner pilot remain separate gates. Declare Tier 1 targets before M6. Git power-loss durability, actual disk full, physical-disk independence and other OS adapters remain unverified.
+M4 workflows/title-page form, M5 PDF and M6 history UX/configured backup/installed-offline/migration/owner pilot remain separate gates. Declare Tier 1 targets before M6. Git power-loss durability, actual disk full, physical-disk independence and other OS adapters remain unverified.
 
-Stop after M3-03. Continue on main with task IDs in commits; never push without human review and explicit authorization.
+Stop after M3-04. Continue on main with task IDs in commits; never push without human review and explicit authorization.

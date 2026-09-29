@@ -11,6 +11,18 @@ importers:
       '@tauri-apps/api':
         specifier: 2.12.0
         version: 2.12.0
+      prosemirror-history:
+        specifier: 1.5.0
+        version: 1.5.0
+      prosemirror-model:
+        specifier: 1.25.12
+        version: 1.25.12
+      prosemirror-state:
+        specifier: 1.4.4
+        version: 1.4.4
+      prosemirror-view:
+        specifier: 1.42.6
+        version: 1.42.6
       react:
         specifier: 19.3.0
         version: 19.3.0
@@ -57,24 +69,12 @@ importers:
       prosemirror-commands:
         specifier: 1.7.2
         version: 1.7.2
-      prosemirror-history:
-        specifier: 1.5.0
-        version: 1.5.0
       prosemirror-keymap:
         specifier: 1.2.3
         version: 1.2.3
-      prosemirror-model:
-        specifier: 1.25.12
-        version: 1.25.12
       prosemirror-schema-basic:
         specifier: 1.2.5
         version: 1.2.5
-      prosemirror-state:
-        specifier: 1.4.4
-        version: 1.4.4
-      prosemirror-view:
-        specifier: 1.42.6
-        version: 1.42.6
       typescript:
         specifier: 6.0.2
         version: 6.0.2

@@ -14,4 +14,6 @@ The M3 editor can start with an ordinary unvirtualized ProseMirror DOM and a sin
 
 The reference Fcitx profile has only `keyboard-us`; a dead-key sequence proves WebKit composition events but not CJK/RTL IME correctness. If a target host fails the full M3 input matrix, provide an explicit source-preserving plain-text editing fallback or revisit the editor adapter while retaining one live authority. Do not silently corrupt or drop text, or promote a browser-only/mocked observation as native evidence. No second editor engine is added by this decision.
 
-Evidence still needed: M3 screenplay schema/codec integration, real IME/Unicode/paste/caret/structural undo tests on declared Tier 1 hosts, composition-Enter guard verification, longer-session memory and actual paint measurements, and production packaging/adoption checks.
+M3-04 promotes four pinned packages with [exact notices](../third-party/editor-runtime.md) and passes its bounded production schema/source/caret/history/native capture subset. [ADR 0021](0021-production-editor-source-captures.md) and [M3 evidence](../test-evidence/M3.md#m3-04--sole-editor-authority-and-source-bridge) define current scope; the default app remains inactive.
+
+Evidence still needed: real IME/paste/structural commands/undo on declared Tier 1 hosts, composition-Enter guard verification, longer-session memory and actual paint/capture measurements, production lifecycle/persistence and packaging/adoption checks.

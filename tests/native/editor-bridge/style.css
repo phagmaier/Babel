@@ -1,0 +1,31 @@
+body {
+  margin: 24px;
+  background: #f6f5f1;
+  color: #222;
+  font: 16px system-ui;
+}
+#editor {
+  margin: 24px auto;
+  max-width: 760px;
+  background: white;
+  padding: 36px;
+  font: 18px/1.5 monospace;
+}
+.ProseMirror {
+  outline: none;
+  white-space: pre-wrap;
+}
+p[data-kind] {
+  min-height: 1.5em;
+  margin: 4px 0;
+}
+p[data-kind='character'] {
+  margin-left: 34%;
+}
+p[data-kind='dialogue'] {
+  margin-left: 20%;
+  margin-right: 15%;
+}
+p[data-kind='raw'] {
+  background: #eee;
+}

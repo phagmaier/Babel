@@ -21,4 +21,6 @@ A generic Markdown AST would reinterpret Fountain markers and whitespace. A whol
 
 M3-02/03 implement the production immutable codec and bounded complex context edits under this direction. The [current model contract](../document-model.md#m3-03-complex-source-structures-and-editing) defines title/hidden/dual/inline/break structures and retained-original conversion proposals. [M3-03 evidence](../test-evidence/M3.md#m3-03--complex-fountain-regions-and-inline-semantics) records production byte/semantic/renderer checks with explicit gaps; the prototype exceptions above remain historical proof limits.
 
-Evidence still needed: M3 production transaction-level source/caret/undo and native input integration; complete interoperability beyond the declared renderer subset, including later PDF gaps. Existing M1 native input observations remain bounded and do not certify the production editor.
+M3-04 passes bounded production text/mark/source/caret/undo and native WebKit capture checks under [ADR 0021](0021-production-editor-source-captures.md). See [M3 evidence](../test-evidence/M3.md#m3-04--sole-editor-authority-and-source-bridge); structural commands and default-app activation remain open.
+
+Evidence still needed: M3 structural source/undo and full native input/persistence integration; complete interoperability beyond the declared renderer subset, including later PDF gaps. Existing native observations remain bounded and do not certify full production adoption.

@@ -2,7 +2,7 @@
 
 Status: M0 shell plus M2-01–04 headless native document/persistence boundary, receipt-driven frontend state, M2-05A read-only startup recovery boundary and M2-05B explicit recovery-choice boundary. [SPEC S03-S04](../SPEC.md#s03), [S17](../SPEC.md#s17); APP-01, DOC-01, SAVE-01, SEC-01, QA-01.
 
-Current paths: `src/app/App.tsx` owns the visible placeholder; `src/application/appInfo.ts` defines the typed boundary; `src/infrastructure/nativeAppInfo.ts` invokes the app-info Tauri command, while `browserAppInfo.ts` declares browser-only unavailability. `src-tauri/src/lib.rs` has thin command wiring. `crates/screenwriter-core/src/lib.rs` owns app-info and the headless document service. There is one frontend package and one Rust workspace; native registrations retain immutable initial source snapshots; no live editor exists; native recovery/source queues own persistence; typed IPC and a headless frontend controller connect captured snapshots to exact receipts.
+Current paths: `src/app/App.tsx` owns the visible placeholder; `src/application/appInfo.ts` defines the typed boundary; `src/infrastructure/nativeAppInfo.ts` invokes the app-info Tauri command, while `browserAppInfo.ts` declares browser-only unavailability. `src-tauri/src/lib.rs` has thin command wiring. `crates/screenwriter-core/src/lib.rs` owns app-info and the headless document service. There is one frontend package and one Rust workspace; native registrations retain immutable initial source snapshots; M3-04 implements the sole editor state/capture modules without default-app activation; native recovery/source queues own persistence; typed IPC and a headless frontend controller connect captured snapshots to exact receipts.
 
 ## Naming map
 
@@ -21,6 +21,8 @@ Future flow is UI -> application commands -> domain contracts/platform ports, an
 M2-04 save/checkpoint envelopes extend the implemented open identity: opaque document handle, project/session identity, monotonically increasing version, source hash, bounded payload, typed error/recovery action. Planned operations include open, checkpoint/save, close, history, render/cancel, and explicit remote transfer. M2-01 wired immutable initial-source read and registration relinquishment; M2-04 adds checkpoint and source commands, with all four dispatched on blocking workers. Native picker and visible editor integration remain open. Derived results carry a version/hash; stale work cannot mutate the editor. Expensive filesystem, PDF, and remote work stays off key handlers.
 
 See [ADR 0001](decisions/0001-local-first-stack.md), [0003](decisions/0003-editor-and-native-ownership.md), and [SPEC S04](../SPEC.md#s04) for authority and unresolved proofs.
+
+M3-04's [editor contract](editor-behavior.md#m3-04-sole-state-and-capture-boundary) and [ADR 0021](decisions/0021-production-editor-source-captures.md) add typed nodes and immutable source origin inside one EditorState, a view adapter and bounded deferred version/session-checked captures. No mutable source cache, proof import, native command or permission is added. React/native consumers receive derivatives; the default shell still disables writing. Production native picker/cadence/Save As/lifecycle integration remains M3-09–13.
 
 ## M2-01 native open boundary
 
