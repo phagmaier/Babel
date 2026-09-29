@@ -10,3 +10,7 @@ All content here was written for this repository. No private manuscript or third
 | `invalid-utf8.fountain` | Invalid byte sequence remains available as exact source copy and opens read-only. | DOC-03, INV-03 | Invalid UTF-8 |
 
 Expected kinds and edited outcomes are asserted independently in `tests/contract/fountain.test.ts`; the implementation does not generate expected files.
+
+## M3-01 corpus
+
+The new `m3-*.fountain` and `m3-*.edited.fountain` files are listed with source literals, hashes, semantics, encoding obligations and renderer boundaries in the [independent oracle guide](../expected/README.md) and [manifest](../expected/m3-conformance.json). The original four M1 fixtures above are unchanged. The conformance harness never regenerates these expected files from either implementation.

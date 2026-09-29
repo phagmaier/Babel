@@ -1,0 +1,1731 @@
+{
+  "schema": 1,
+  "provenance": "Original synthetic content and literal expected values authored for M3-01 without invoking either implementation. Text may be reused for project testing. SHA-256 computed from these literals, not implementation output.",
+  "reference": "https://fountain.io/syntax/",
+  "rendererPin": "0.12.0",
+  "cases": [
+    {
+      "id": "primary",
+      "file": "m3-primary.fountain",
+      "sourceLiteral": "INT. GLASS HOUSE - DAY #1A#\n\nThe latch clicks.\n\n!ALARM LIGHTS FLASH\nA wire hums.\n\n.FLOODED WALKWAY #A-2#\n\n!CUT TO:\n\nCUT TO:\n\n>FADE TO BLACK.\n\n>STILL WATER<\n\n===\n\nThe signal ends.\n",
+      "sha256": "90a246c53ce69855aa5a65faeafc72bd41b8f3a4135b7731fc66a9bb8469034f",
+      "topics": [
+        "normal-elements",
+        "forced-heading",
+        "scene-number",
+        "uppercase-action",
+        "transition-like-prose",
+        "centered",
+        "page-break",
+        "shot-as-action"
+      ],
+      "requirements": [
+        "DOC-01",
+        "DOC-02",
+        "DOC-03",
+        "DOC-04"
+      ],
+      "proofAtoms": [
+        {
+          "kind": "sceneHeading",
+          "text": "INT. GLASS HOUSE - DAY",
+          "sceneNumber": "1A"
+        },
+        {
+          "kind": "action",
+          "text": "The latch clicks."
+        },
+        {
+          "kind": "action",
+          "text": "ALARM LIGHTS FLASH"
+        },
+        {
+          "kind": "action",
+          "text": "A wire hums."
+        },
+        {
+          "kind": "sceneHeading",
+          "text": "FLOODED WALKWAY",
+          "sceneNumber": "A-2"
+        },
+        {
+          "kind": "action",
+          "text": "CUT TO:"
+        },
+        {
+          "kind": "transition",
+          "text": "CUT TO:"
+        },
+        {
+          "kind": "transition",
+          "text": "FADE TO BLACK."
+        },
+        {
+          "kind": "centered",
+          "text": "STILL WATER"
+        },
+        {
+          "kind": "pageBreak",
+          "text": "==="
+        },
+        {
+          "kind": "action",
+          "text": "The signal ends."
+        }
+      ],
+      "shared": true,
+      "renderer": {
+        "atoms": [
+          {
+            "kind": "sceneHeading",
+            "text": "INT. GLASS HOUSE - DAY",
+            "sceneNumber": "1A"
+          },
+          {
+            "kind": "action",
+            "text": "The latch clicks."
+          },
+          {
+            "kind": "action",
+            "text": "ALARM LIGHTS FLASH"
+          },
+          {
+            "kind": "action",
+            "text": "A wire hums."
+          },
+          {
+            "kind": "sceneHeading",
+            "text": "FLOODED WALKWAY",
+            "sceneNumber": "A-2"
+          },
+          {
+            "kind": "action",
+            "text": "CUT TO:"
+          },
+          {
+            "kind": "transition",
+            "text": "CUT TO:"
+          },
+          {
+            "kind": "transition",
+            "text": "FADE TO BLACK."
+          },
+          {
+            "kind": "centered",
+            "text": "STILL WATER"
+          },
+          {
+            "kind": "pageBreak",
+            "text": "==="
+          },
+          {
+            "kind": "action",
+            "text": "The signal ends."
+          }
+        ],
+        "htmlText": "1AINT. GLASS HOUSE - DAY1AThe latch clicks.ALARM LIGHTS FLASHA wire hums.A-2FLOODED WALKWAYA-2CUT TO:CUT TO:FADE TO BLACK.STILL WATERThe signal ends.",
+        "htmlCounts": {
+          "scnuml": 2,
+          "scnumr": 2,
+          "page-break": 1,
+          "br": 1
+        }
+      },
+      "gaps": [],
+      "required": [
+        "Shot remains portable action; UI subtype is not injected into Fountain."
+      ],
+      "edit": {
+        "line": 2,
+        "kind": "action",
+        "text": "The latch opens.",
+        "file": "m3-primary.edited.fountain",
+        "sourceLiteral": "INT. GLASS HOUSE - DAY #1A#\n\n!The latch opens.\n\n!ALARM LIGHTS FLASH\nA wire hums.\n\n.FLOODED WALKWAY #A-2#\n\n!CUT TO:\n\nCUT TO:\n\n>FADE TO BLACK.\n\n>STILL WATER<\n\n===\n\nThe signal ends.\n",
+        "sha256": "8b1222301d82eb6c285fd3718d0bbc4439cc61da0283124e889f34152cc93334",
+        "proofAtoms": [
+          {
+            "kind": "sceneHeading",
+            "text": "INT. GLASS HOUSE - DAY",
+            "sceneNumber": "1A"
+          },
+          {
+            "kind": "action",
+            "text": "The latch opens."
+          },
+          {
+            "kind": "action",
+            "text": "ALARM LIGHTS FLASH"
+          },
+          {
+            "kind": "action",
+            "text": "A wire hums."
+          },
+          {
+            "kind": "sceneHeading",
+            "text": "FLOODED WALKWAY",
+            "sceneNumber": "A-2"
+          },
+          {
+            "kind": "action",
+            "text": "CUT TO:"
+          },
+          {
+            "kind": "transition",
+            "text": "CUT TO:"
+          },
+          {
+            "kind": "transition",
+            "text": "FADE TO BLACK."
+          },
+          {
+            "kind": "centered",
+            "text": "STILL WATER"
+          },
+          {
+            "kind": "pageBreak",
+            "text": "==="
+          },
+          {
+            "kind": "action",
+            "text": "The signal ends."
+          }
+        ],
+        "renderer": {
+          "atoms": [
+            {
+              "kind": "sceneHeading",
+              "text": "INT. GLASS HOUSE - DAY",
+              "sceneNumber": "1A"
+            },
+            {
+              "kind": "action",
+              "text": "The latch opens."
+            },
+            {
+              "kind": "action",
+              "text": "ALARM LIGHTS FLASH"
+            },
+            {
+              "kind": "action",
+              "text": "A wire hums."
+            },
+            {
+              "kind": "sceneHeading",
+              "text": "FLOODED WALKWAY",
+              "sceneNumber": "A-2"
+            },
+            {
+              "kind": "action",
+              "text": "CUT TO:"
+            },
+            {
+              "kind": "transition",
+              "text": "CUT TO:"
+            },
+            {
+              "kind": "transition",
+              "text": "FADE TO BLACK."
+            },
+            {
+              "kind": "centered",
+              "text": "STILL WATER"
+            },
+            {
+              "kind": "pageBreak",
+              "text": "==="
+            },
+            {
+              "kind": "action",
+              "text": "The signal ends."
+            }
+          ],
+          "htmlText": "1AINT. GLASS HOUSE - DAY1AThe latch opens.ALARM LIGHTS FLASHA wire hums.A-2FLOODED WALKWAYA-2CUT TO:CUT TO:FADE TO BLACK.STILL WATERThe signal ends.",
+          "htmlCounts": {
+            "scnuml": 2,
+            "scnumr": 2,
+            "page-break": 1,
+            "br": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "dialogue",
+      "file": "m3-dialogue.fountain",
+      "sourceLiteral": "@MiXeD (V.O.)\n(softly)\nThe radio is quiet.\n(listening)\nI can hear the rain.\n\nThe lamp dims.\n",
+      "sha256": "14a16999aade9caa2317d05222981c0550e95c00e2b283091f69534d668a05d9",
+      "topics": [
+        "mixed-case-cue",
+        "cue-extension",
+        "parenthetical-before-speech",
+        "parenthetical-within-speech",
+        "dialogue-order"
+      ],
+      "requirements": [
+        "DOC-01",
+        "DOC-02",
+        "DOC-03",
+        "DOC-04"
+      ],
+      "proofAtoms": [
+        {
+          "kind": "character",
+          "text": "MiXeD (V.O.)"
+        },
+        {
+          "kind": "parenthetical",
+          "text": "(softly)"
+        },
+        {
+          "kind": "dialogue",
+          "text": "The radio is quiet."
+        },
+        {
+          "kind": "parenthetical",
+          "text": "(listening)"
+        },
+        {
+          "kind": "dialogue",
+          "text": "I can hear the rain."
+        },
+        {
+          "kind": "action",
+          "text": "The lamp dims."
+        }
+      ],
+      "shared": true,
+      "renderer": {
+        "atoms": [
+          {
+            "kind": "character",
+            "text": "MiXeD (V.O.)"
+          },
+          {
+            "kind": "parenthetical",
+            "text": "(softly)"
+          },
+          {
+            "kind": "dialogue",
+            "text": "The radio is quiet."
+          },
+          {
+            "kind": "parenthetical",
+            "text": "(listening)"
+          },
+          {
+            "kind": "dialogue",
+            "text": "I can hear the rain."
+          },
+          {
+            "kind": "action",
+            "text": "The lamp dims."
+          }
+        ],
+        "htmlText": "MiXeD (V.O.)(softly)The radio is quiet.(listening)I can hear the rain.The lamp dims."
+      },
+      "gaps": [],
+      "required": [],
+      "edit": {
+        "line": 2,
+        "kind": "dialogue",
+        "text": "The radio answers.",
+        "file": "m3-dialogue.edited.fountain",
+        "sourceLiteral": "@MiXeD (V.O.)\n(softly)\nThe radio answers.\n(listening)\nI can hear the rain.\n\nThe lamp dims.\n",
+        "sha256": "a45dec6224ddc63c90524452e0a3667622453ed67d61814e94cbf6db3d434d4c",
+        "proofAtoms": [
+          {
+            "kind": "character",
+            "text": "MiXeD (V.O.)"
+          },
+          {
+            "kind": "parenthetical",
+            "text": "(softly)"
+          },
+          {
+            "kind": "dialogue",
+            "text": "The radio answers."
+          },
+          {
+            "kind": "parenthetical",
+            "text": "(listening)"
+          },
+          {
+            "kind": "dialogue",
+            "text": "I can hear the rain."
+          },
+          {
+            "kind": "action",
+            "text": "The lamp dims."
+          }
+        ],
+        "renderer": {
+          "atoms": [
+            {
+              "kind": "character",
+              "text": "MiXeD (V.O.)"
+            },
+            {
+              "kind": "parenthetical",
+              "text": "(softly)"
+            },
+            {
+              "kind": "dialogue",
+              "text": "The radio answers."
+            },
+            {
+              "kind": "parenthetical",
+              "text": "(listening)"
+            },
+            {
+              "kind": "dialogue",
+              "text": "I can hear the rain."
+            },
+            {
+              "kind": "action",
+              "text": "The lamp dims."
+            }
+          ],
+          "htmlText": "MiXeD (V.O.)(softly)The radio answers.(listening)I can hear the rain.The lamp dims."
+        }
+      }
+    },
+    {
+      "id": "dual",
+      "file": "m3-dual.fountain",
+      "sourceLiteral": "MARA\nWe watch the shore.\n\nIVO ^\nWe watch the sky.\n",
+      "sha256": "0eeee71f49438192f4f8223e0094113141c858ed8fd139e1cf518ae440b6f7e5",
+      "topics": [
+        "dual-dialogue",
+        "dialogue-relationship"
+      ],
+      "requirements": [
+        "DOC-01",
+        "DOC-02",
+        "DOC-03",
+        "DOC-04"
+      ],
+      "proofAtoms": [
+        {
+          "kind": "character",
+          "text": "MARA"
+        },
+        {
+          "kind": "dialogue",
+          "text": "We watch the shore."
+        },
+        {
+          "kind": "character",
+          "text": "IVO",
+          "dualWith": 0
+        },
+        {
+          "kind": "dialogue",
+          "text": "We watch the sky."
+        }
+      ],
+      "shared": true,
+      "renderer": {
+        "atoms": [
+          {
+            "kind": "character",
+            "text": "MARA"
+          },
+          {
+            "kind": "dialogue",
+            "text": "We watch the shore."
+          },
+          {
+            "kind": "character",
+            "text": "IVO",
+            "dualWith": 0
+          },
+          {
+            "kind": "dialogue",
+            "text": "We watch the sky."
+          }
+        ],
+        "htmlText": "MARAWe watch the shore.IVOWe watch the sky.",
+        "htmlCounts": {
+          "dual": 1,
+          "left": 1,
+          "right": 1,
+          "character": 2
+        }
+      },
+      "gaps": [],
+      "required": [],
+      "edit": {
+        "line": 1,
+        "kind": "dialogue",
+        "text": "We watch the harbor.",
+        "file": "m3-dual.edited.fountain",
+        "sourceLiteral": "MARA\nWe watch the harbor.\n\nIVO ^\nWe watch the sky.\n",
+        "sha256": "20b09e146778f1b0548ea5990142ec910ceb3b0c0ad443c16b48740c05a60f92",
+        "proofAtoms": [
+          {
+            "kind": "character",
+            "text": "MARA"
+          },
+          {
+            "kind": "dialogue",
+            "text": "We watch the harbor."
+          },
+          {
+            "kind": "character",
+            "text": "IVO",
+            "dualWith": 0
+          },
+          {
+            "kind": "dialogue",
+            "text": "We watch the sky."
+          }
+        ],
+        "renderer": {
+          "atoms": [
+            {
+              "kind": "character",
+              "text": "MARA"
+            },
+            {
+              "kind": "dialogue",
+              "text": "We watch the harbor."
+            },
+            {
+              "kind": "character",
+              "text": "IVO",
+              "dualWith": 0
+            },
+            {
+              "kind": "dialogue",
+              "text": "We watch the sky."
+            }
+          ],
+          "htmlText": "MARAWe watch the harbor.IVOWe watch the sky.",
+          "htmlCounts": {
+            "dual": 1,
+            "left": 1,
+            "right": 1,
+            "character": 2
+          }
+        }
+      }
+    },
+    {
+      "id": "spacing",
+      "file": "m3-spacing.fountain",
+      "sourceLiteral": "@Zoë\nFirst paragraph.\n  \nSecond paragraph.\n(still waiting)\nLast line.\n\n\n!  Two spaces lead; two trail.  \n",
+      "sha256": "8b0b6206db76f5fd89b0002a08c51a8e737ac3692f2b7b9225620678e53367e6",
+      "topics": [
+        "two-space-dialogue-separator",
+        "multiple-dialogue-paragraphs",
+        "intentional-blank-lines",
+        "meaningful-whitespace"
+      ],
+      "requirements": [
+        "DOC-01",
+        "DOC-02",
+        "DOC-03",
+        "DOC-04"
+      ],
+      "proofAtoms": [
+        {
+          "kind": "character",
+          "text": "Zoë"
+        },
+        {
+          "kind": "dialogue",
+          "text": "First paragraph."
+        },
+        {
+          "kind": "dialogue",
+          "text": "  "
+        },
+        {
+          "kind": "dialogue",
+          "text": "Second paragraph."
+        },
+        {
+          "kind": "parenthetical",
+          "text": "(still waiting)"
+        },
+        {
+          "kind": "dialogue",
+          "text": "Last line."
+        },
+        {
+          "kind": "action",
+          "text": "  Two spaces lead; two trail.  "
+        }
+      ],
+      "shared": false,
+      "renderer": {
+        "atoms": [
+          {
+            "kind": "character",
+            "text": "Zoë"
+          },
+          {
+            "kind": "dialogue",
+            "text": "First paragraph."
+          },
+          {
+            "kind": "dialogue",
+            "text": ""
+          },
+          {
+            "kind": "dialogue",
+            "text": "Second paragraph."
+          },
+          {
+            "kind": "parenthetical",
+            "text": "(still waiting)"
+          },
+          {
+            "kind": "dialogue",
+            "text": "Last line."
+          },
+          {
+            "kind": "action",
+            "text": "  Two spaces lead; two trail."
+          }
+        ],
+        "htmlText": "ZoëFirst paragraph. Second paragraph.(still waiting)Last line.  Two spaces lead; two trail."
+      },
+      "gaps": [
+        "renderer-whitespace: dialogue separator trimmed and action trailing spaces removed; source bytes remain authoritative"
+      ],
+      "required": []
+    },
+    {
+      "id": "title",
+      "file": "m3-title.fountain",
+      "sourceLiteral": "Title:\n    Quiet Tide\n    Second Line\nAuthors: N. Example\nUnmapped field: retain this value\nContact:\n\tBox 9\n    Harbor Office\n\nINT. OFFICE - NIGHT\n\nThe desk waits.\n",
+      "sha256": "07af5094c18fe330836385258a1f883f4affd520747f76fa51175a578e50c4f2",
+      "topics": [
+        "title-continuation",
+        "unknown-title-field",
+        "tab-title-value",
+        "title-multivalue"
+      ],
+      "requirements": [
+        "DOC-01",
+        "DOC-02",
+        "DOC-03",
+        "DOC-04"
+      ],
+      "proofAtoms": [
+        {
+          "kind": "title",
+          "text": "",
+          "titleKey": "Title"
+        },
+        {
+          "kind": "titleContinuation",
+          "text": "Quiet Tide"
+        },
+        {
+          "kind": "titleContinuation",
+          "text": "Second Line"
+        },
+        {
+          "kind": "title",
+          "text": "N. Example",
+          "titleKey": "Authors"
+        },
+        {
+          "kind": "title",
+          "text": "retain this value",
+          "titleKey": "Unmapped field"
+        },
+        {
+          "kind": "title",
+          "text": "",
+          "titleKey": "Contact"
+        },
+        {
+          "kind": "titleContinuation",
+          "text": "Box 9"
+        },
+        {
+          "kind": "titleContinuation",
+          "text": "Harbor Office"
+        },
+        {
+          "kind": "sceneHeading",
+          "text": "INT. OFFICE - NIGHT"
+        },
+        {
+          "kind": "action",
+          "text": "The desk waits."
+        }
+      ],
+      "shared": false,
+      "renderer": {
+        "atoms": [
+          {
+            "kind": "sceneHeading",
+            "text": "INT. OFFICE - NIGHT"
+          },
+          {
+            "kind": "action",
+            "text": "The desk waits."
+          }
+        ],
+        "title": {
+          "Title": [
+            "Quiet Tide",
+            "Second Line"
+          ],
+          "Authors": [
+            "N. Example"
+          ],
+          "Unmapped field": [
+            "retain this value"
+          ],
+          "Contact": [
+            "Box 9",
+            "Harbor Office"
+          ]
+        },
+        "htmlText": "INT. OFFICE - NIGHTThe desk waits."
+      },
+      "gaps": [
+        "SC005: title fields retained by parser but omitted by bare HTML; PDF unknown-field omission remains the M5 gate"
+      ],
+      "required": [
+        "M3-03 must support title edits/unknown fields without dropping continuation values; current proof refuses title mutation."
+      ],
+      "edit": {
+        "line": 11,
+        "kind": "action",
+        "text": "The desk opens.",
+        "file": "m3-title.edited.fountain",
+        "sourceLiteral": "Title:\n    Quiet Tide\n    Second Line\nAuthors: N. Example\nUnmapped field: retain this value\nContact:\n\tBox 9\n    Harbor Office\n\nINT. OFFICE - NIGHT\n\n!The desk opens.\n",
+        "sha256": "72af52150e5cd156aa131e742f96b092e6ebff4e89589e9e382b5709d1bbfe2a",
+        "proofAtoms": [
+          {
+            "kind": "title",
+            "text": "",
+            "titleKey": "Title"
+          },
+          {
+            "kind": "titleContinuation",
+            "text": "Quiet Tide"
+          },
+          {
+            "kind": "titleContinuation",
+            "text": "Second Line"
+          },
+          {
+            "kind": "title",
+            "text": "N. Example",
+            "titleKey": "Authors"
+          },
+          {
+            "kind": "title",
+            "text": "retain this value",
+            "titleKey": "Unmapped field"
+          },
+          {
+            "kind": "title",
+            "text": "",
+            "titleKey": "Contact"
+          },
+          {
+            "kind": "titleContinuation",
+            "text": "Box 9"
+          },
+          {
+            "kind": "titleContinuation",
+            "text": "Harbor Office"
+          },
+          {
+            "kind": "sceneHeading",
+            "text": "INT. OFFICE - NIGHT"
+          },
+          {
+            "kind": "action",
+            "text": "The desk opens."
+          }
+        ],
+        "renderer": {
+          "atoms": [
+            {
+              "kind": "sceneHeading",
+              "text": "INT. OFFICE - NIGHT"
+            },
+            {
+              "kind": "action",
+              "text": "The desk opens."
+            }
+          ],
+          "title": {
+            "Title": [
+              "Quiet Tide",
+              "Second Line"
+            ],
+            "Authors": [
+              "N. Example"
+            ],
+            "Unmapped field": [
+              "retain this value"
+            ],
+            "Contact": [
+              "Box 9",
+              "Harbor Office"
+            ]
+          },
+          "htmlText": "INT. OFFICE - NIGHTThe desk opens."
+        }
+      }
+    },
+    {
+      "id": "hidden-outline",
+      "file": "m3-hidden-outline.fountain",
+      "sourceLiteral": "# Act One\n## Arrival\n### The Pier\n= They wait for a signal.\n\nINT. PIER SHED - DAWN\n\n[[A note for the next draft.\n  \nKeep the old route.]]\n\n/*\nEXT. UNUSED ROAD - NIGHT\nAn omitted journey remains authored.\n*/\n\n~The tide calls.\n\n{{future: preserve this region}}\n\nThe rope turns.\n",
+      "sha256": "d305d47b08fc04f552471251adc6ebc691b88fb78433be84a2c78d128a8e3490",
+      "topics": [
+        "nested-sections",
+        "synopsis",
+        "multiline-note",
+        "multiline-boneyard",
+        "lyrics",
+        "raw-extension"
+      ],
+      "requirements": [
+        "DOC-01",
+        "DOC-02",
+        "DOC-03",
+        "DOC-04"
+      ],
+      "proofAtoms": [
+        {
+          "kind": "section",
+          "text": "Act One",
+          "sectionLevel": 1
+        },
+        {
+          "kind": "section",
+          "text": "Arrival",
+          "sectionLevel": 2
+        },
+        {
+          "kind": "section",
+          "text": "The Pier",
+          "sectionLevel": 3
+        },
+        {
+          "kind": "synopsis",
+          "text": "They wait for a signal."
+        },
+        {
+          "kind": "sceneHeading",
+          "text": "INT. PIER SHED - DAWN"
+        },
+        {
+          "kind": "note",
+          "text": "[[A note for the next draft."
+        },
+        {
+          "kind": "note",
+          "text": "  "
+        },
+        {
+          "kind": "note",
+          "text": "Keep the old route.]]"
+        },
+        {
+          "kind": "boneyard",
+          "text": "/*"
+        },
+        {
+          "kind": "boneyard",
+          "text": "EXT. UNUSED ROAD - NIGHT"
+        },
+        {
+          "kind": "boneyard",
+          "text": "An omitted journey remains authored."
+        },
+        {
+          "kind": "boneyard",
+          "text": "*/"
+        },
+        {
+          "kind": "lyrics",
+          "text": "The tide calls."
+        },
+        {
+          "kind": "raw",
+          "text": "{{future: preserve this region}}"
+        },
+        {
+          "kind": "action",
+          "text": "The rope turns."
+        }
+      ],
+      "shared": false,
+      "renderer": {
+        "atoms": [
+          {
+            "kind": "section",
+            "text": "Act One",
+            "sectionLevel": 1
+          },
+          {
+            "kind": "section",
+            "text": "Arrival",
+            "sectionLevel": 2
+          },
+          {
+            "kind": "section",
+            "text": "The Pier",
+            "sectionLevel": 3
+          },
+          {
+            "kind": "synopsis",
+            "text": "They wait for a signal."
+          },
+          {
+            "kind": "sceneHeading",
+            "text": "INT. PIER SHED - DAWN"
+          },
+          {
+            "kind": "action",
+            "text": "~The tide calls."
+          },
+          {
+            "kind": "action",
+            "text": "{{future: preserve this region}}"
+          },
+          {
+            "kind": "action",
+            "text": "The rope turns."
+          }
+        ],
+        "htmlText": "Act OneArrivalThe PierThey wait for a signal.INT. PIER SHED - DAWN~The tide calls.{{future: preserve this region}}The rope turns."
+      },
+      "gaps": [
+        "SC005: notes/boneyard excluded from rendered presentation; exact bytes/author content must survive",
+        "SC008: lyrics rendered as action with literal tilde",
+        "raw-extension: renderer guesses action; application must retain raw/explicit conversion",
+        "PDF sections/synopses omission from M1-03 is distinct from HTML outline support"
+      ],
+      "required": [
+        "M3-03 must preserve hidden regions and relationships during context-spanning edits."
+      ]
+    },
+    {
+      "id": "emphasis",
+      "file": "m3-emphasis.fountain",
+      "sourceLiteral": "!A *small* bell.\n!A **bright** bell.\n!A _low_ bell.\n!A ***quiet*** bell.\n!A \\*literal\\* bell.\n",
+      "sha256": "26a73cce9e968d18e74917e10196a88e4f1e3e5b2599d1cc17b4fcbb702f29f4",
+      "topics": [
+        "italic",
+        "bold",
+        "underline",
+        "bold-italic",
+        "escaped-literal-markers",
+        "edited-emphasis"
+      ],
+      "requirements": [
+        "DOC-01",
+        "DOC-02",
+        "DOC-03",
+        "DOC-04"
+      ],
+      "proofAtoms": [
+        {
+          "kind": "action",
+          "text": "A *small* bell."
+        },
+        {
+          "kind": "action",
+          "text": "A **bright** bell."
+        },
+        {
+          "kind": "action",
+          "text": "A _low_ bell."
+        },
+        {
+          "kind": "action",
+          "text": "A ***quiet*** bell."
+        },
+        {
+          "kind": "action",
+          "text": "A \\*literal\\* bell."
+        }
+      ],
+      "shared": false,
+      "renderer": {
+        "atoms": [
+          {
+            "kind": "action",
+            "text": "A small bell."
+          },
+          {
+            "kind": "action",
+            "text": "A bright bell."
+          },
+          {
+            "kind": "action",
+            "text": "A low bell."
+          },
+          {
+            "kind": "action",
+            "text": "A quiet bell."
+          },
+          {
+            "kind": "action",
+            "text": "A *literal* bell."
+          }
+        ],
+        "runs": [
+          [
+            {
+              "text": "A ",
+              "styles": []
+            },
+            {
+              "text": "small",
+              "styles": [
+                "italic"
+              ]
+            },
+            {
+              "text": " bell.",
+              "styles": []
+            }
+          ],
+          [
+            {
+              "text": "A ",
+              "styles": []
+            },
+            {
+              "text": "bright",
+              "styles": [
+                "bold"
+              ]
+            },
+            {
+              "text": " bell.",
+              "styles": []
+            }
+          ],
+          [
+            {
+              "text": "A ",
+              "styles": []
+            },
+            {
+              "text": "low",
+              "styles": [
+                "underline"
+              ]
+            },
+            {
+              "text": " bell.",
+              "styles": []
+            }
+          ],
+          [
+            {
+              "text": "A ",
+              "styles": []
+            },
+            {
+              "text": "quiet",
+              "styles": [
+                "bold",
+                "italic"
+              ]
+            },
+            {
+              "text": " bell.",
+              "styles": []
+            }
+          ],
+          [
+            {
+              "text": "A *literal* bell.",
+              "styles": []
+            }
+          ]
+        ],
+        "htmlText": "A small bell.A bright bell.A low bell.A quiet bell.A *literal* bell.",
+        "htmlStyles": [
+          {
+            "text": "small",
+            "styles": [
+              "italic"
+            ]
+          },
+          {
+            "text": "bright",
+            "styles": [
+              "bold"
+            ]
+          },
+          {
+            "text": "low",
+            "styles": [
+              "underline"
+            ]
+          },
+          {
+            "text": "quiet",
+            "styles": [
+              "bold",
+              "italic"
+            ]
+          }
+        ]
+      },
+      "gaps": [
+        "M1 proof retains inline syntax as text, not editable mark nodes; M3-03/M3-08 must implement marks"
+      ],
+      "required": [],
+      "edit": {
+        "line": 0,
+        "kind": "action",
+        "text": "A *steady* bell.",
+        "file": "m3-emphasis.edited.fountain",
+        "sourceLiteral": "!A *steady* bell.\n!A **bright** bell.\n!A _low_ bell.\n!A ***quiet*** bell.\n!A \\*literal\\* bell.\n",
+        "sha256": "3a0e55ac89711a92945bf0546194a7b43fd3a1407ffe2425912aa79be86eb717",
+        "proofAtoms": [
+          {
+            "kind": "action",
+            "text": "A *steady* bell."
+          },
+          {
+            "kind": "action",
+            "text": "A **bright** bell."
+          },
+          {
+            "kind": "action",
+            "text": "A _low_ bell."
+          },
+          {
+            "kind": "action",
+            "text": "A ***quiet*** bell."
+          },
+          {
+            "kind": "action",
+            "text": "A \\*literal\\* bell."
+          }
+        ],
+        "renderer": {
+          "atoms": [
+            {
+              "kind": "action",
+              "text": "A steady bell."
+            },
+            {
+              "kind": "action",
+              "text": "A bright bell."
+            },
+            {
+              "kind": "action",
+              "text": "A low bell."
+            },
+            {
+              "kind": "action",
+              "text": "A quiet bell."
+            },
+            {
+              "kind": "action",
+              "text": "A *literal* bell."
+            }
+          ],
+          "runs": [
+            [
+              {
+                "text": "A ",
+                "styles": []
+              },
+              {
+                "text": "steady",
+                "styles": [
+                  "italic"
+                ]
+              },
+              {
+                "text": " bell.",
+                "styles": []
+              }
+            ],
+            [
+              {
+                "text": "A ",
+                "styles": []
+              },
+              {
+                "text": "bright",
+                "styles": [
+                  "bold"
+                ]
+              },
+              {
+                "text": " bell.",
+                "styles": []
+              }
+            ],
+            [
+              {
+                "text": "A ",
+                "styles": []
+              },
+              {
+                "text": "low",
+                "styles": [
+                  "underline"
+                ]
+              },
+              {
+                "text": " bell.",
+                "styles": []
+              }
+            ],
+            [
+              {
+                "text": "A ",
+                "styles": []
+              },
+              {
+                "text": "quiet",
+                "styles": [
+                  "bold",
+                  "italic"
+                ]
+              },
+              {
+                "text": " bell.",
+                "styles": []
+              }
+            ],
+            [
+              {
+                "text": "A *literal* bell.",
+                "styles": []
+              }
+            ]
+          ],
+          "htmlText": "A steady bell.A bright bell.A low bell.A quiet bell.A *literal* bell.",
+          "htmlStyles": [
+            {
+              "text": "steady",
+              "styles": [
+                "italic"
+              ]
+            },
+            {
+              "text": "bright",
+              "styles": [
+                "bold"
+              ]
+            },
+            {
+              "text": "low",
+              "styles": [
+                "underline"
+              ]
+            },
+            {
+              "text": "quiet",
+              "styles": [
+                "bold",
+                "italic"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "unfinished",
+      "file": "m3-unfinished.fountain",
+      "sourceLiteral": "\n{{unknown: **leave these bytes**}}\n\n@Drafting\n\n(unfinished parenthetical\n\n[[unfinished note\nretain its tail",
+      "sha256": "7dc421868dc2f4b1a546175d83fa56090f1a20b475324ef80d522e9a6eac90fe",
+      "topics": [
+        "unknown-region",
+        "incomplete-cue",
+        "malformed-parenthetical",
+        "unclosed-note",
+        "no-final-newline"
+      ],
+      "requirements": [
+        "DOC-01",
+        "DOC-02",
+        "DOC-03",
+        "DOC-04"
+      ],
+      "proofAtoms": [
+        {
+          "kind": "raw",
+          "text": "{{unknown: **leave these bytes**}}"
+        },
+        {
+          "kind": "character",
+          "text": "Drafting"
+        },
+        {
+          "kind": "action",
+          "text": "(unfinished parenthetical"
+        },
+        {
+          "kind": "note",
+          "text": "[[unfinished note"
+        },
+        {
+          "kind": "note",
+          "text": "retain its tail"
+        }
+      ],
+      "shared": false,
+      "renderer": null,
+      "gaps": [
+        "renderer comparison intentionally not used for malformed/ambiguous drafting; literal source and conservative refusal are the oracle"
+      ],
+      "required": [
+        "Empty intended types/selection need recovery metadata; portable text cannot uniquely encode them."
+      ]
+    },
+    {
+      "id": "unicode-lf",
+      "file": "m3-unicode-lf.fountain",
+      "sourceLiteral": "INT. OBSERVATORY - NIGHT\n\nThe lens glows.\n\n@Zoë\nCafé 漢字 🚀.\n",
+      "sha256": "2bc4e0b20f816df566d70568247e75e6347f8c7ca35e2abaf47cfac36efddcd0",
+      "topics": [
+        "unicode",
+        "lf",
+        "crlf",
+        "unicode-lf",
+        "encoding-fidelity"
+      ],
+      "requirements": [
+        "DOC-01",
+        "DOC-02",
+        "DOC-03",
+        "DOC-04"
+      ],
+      "proofAtoms": [
+        {
+          "kind": "sceneHeading",
+          "text": "INT. OBSERVATORY - NIGHT"
+        },
+        {
+          "kind": "action",
+          "text": "The lens glows."
+        },
+        {
+          "kind": "character",
+          "text": "Zoë"
+        },
+        {
+          "kind": "dialogue",
+          "text": "Café 漢字 🚀."
+        }
+      ],
+      "shared": true,
+      "renderer": {
+        "atoms": [
+          {
+            "kind": "sceneHeading",
+            "text": "INT. OBSERVATORY - NIGHT"
+          },
+          {
+            "kind": "action",
+            "text": "The lens glows."
+          },
+          {
+            "kind": "character",
+            "text": "Zoë"
+          },
+          {
+            "kind": "dialogue",
+            "text": "Café 漢字 🚀."
+          }
+        ],
+        "htmlText": "INT. OBSERVATORY - NIGHTThe lens glows.ZoëCafé 漢字 🚀."
+      },
+      "gaps": [],
+      "required": [],
+      "edit": {
+        "line": 2,
+        "kind": "action",
+        "text": "The lens glows for Zoë.",
+        "file": "m3-unicode-lf.edited.fountain",
+        "sourceLiteral": "INT. OBSERVATORY - NIGHT\n\n!The lens glows for Zoë.\n\n@Zoë\nCafé 漢字 🚀.\n",
+        "sha256": "4be0a0d172ccb9004f39d7517f0a8c73622dc62dc90599269e623d6faa2a4f14",
+        "proofAtoms": [
+          {
+            "kind": "sceneHeading",
+            "text": "INT. OBSERVATORY - NIGHT"
+          },
+          {
+            "kind": "action",
+            "text": "The lens glows for Zoë."
+          },
+          {
+            "kind": "character",
+            "text": "Zoë"
+          },
+          {
+            "kind": "dialogue",
+            "text": "Café 漢字 🚀."
+          }
+        ],
+        "renderer": {
+          "atoms": [
+            {
+              "kind": "sceneHeading",
+              "text": "INT. OBSERVATORY - NIGHT"
+            },
+            {
+              "kind": "action",
+              "text": "The lens glows for Zoë."
+            },
+            {
+              "kind": "character",
+              "text": "Zoë"
+            },
+            {
+              "kind": "dialogue",
+              "text": "Café 漢字 🚀."
+            }
+          ],
+          "htmlText": "INT. OBSERVATORY - NIGHTThe lens glows for Zoë.ZoëCafé 漢字 🚀."
+        }
+      }
+    },
+    {
+      "id": "bom-crlf",
+      "file": "m3-bom-crlf.fountain",
+      "sourceLiteral": "﻿INT. OBSERVATORY - NIGHT\r\n\r\nThe lens glows.\r\n\r\n@Zoë\r\nCafé 漢字 🚀.\r\n",
+      "sha256": "4c498015dc1f81a7d48a20bc2fcf746a7cda31da69bebeb2212df6fec0649a52",
+      "topics": [
+        "unicode",
+        "lf",
+        "crlf",
+        "bom",
+        "encoding-fidelity"
+      ],
+      "requirements": [
+        "DOC-01",
+        "DOC-02",
+        "DOC-03",
+        "DOC-04"
+      ],
+      "proofAtoms": [
+        {
+          "kind": "sceneHeading",
+          "text": "INT. OBSERVATORY - NIGHT"
+        },
+        {
+          "kind": "action",
+          "text": "The lens glows."
+        },
+        {
+          "kind": "character",
+          "text": "Zoë"
+        },
+        {
+          "kind": "dialogue",
+          "text": "Café 漢字 🚀."
+        }
+      ],
+      "shared": true,
+      "renderer": {
+        "atoms": [
+          {
+            "kind": "sceneHeading",
+            "text": "INT. OBSERVATORY - NIGHT"
+          },
+          {
+            "kind": "action",
+            "text": "The lens glows."
+          },
+          {
+            "kind": "character",
+            "text": "Zoë"
+          },
+          {
+            "kind": "dialogue",
+            "text": "Café 漢字 🚀."
+          }
+        ],
+        "htmlText": "INT. OBSERVATORY - NIGHTThe lens glows.ZoëCafé 漢字 🚀."
+      },
+      "gaps": [],
+      "required": [],
+      "edit": {
+        "line": 2,
+        "kind": "action",
+        "text": "The lens glows for Zoë.",
+        "file": "m3-bom-crlf.edited.fountain",
+        "sourceLiteral": "﻿INT. OBSERVATORY - NIGHT\r\n\r\n!The lens glows for Zoë.\r\n\r\n@Zoë\r\nCafé 漢字 🚀.\r\n",
+        "sha256": "6f81c0fb6c0d14ab2a79fbf5ecd9c6fc87b2049a67e6f9d382ff03f03ce0125c",
+        "proofAtoms": [
+          {
+            "kind": "sceneHeading",
+            "text": "INT. OBSERVATORY - NIGHT"
+          },
+          {
+            "kind": "action",
+            "text": "The lens glows for Zoë."
+          },
+          {
+            "kind": "character",
+            "text": "Zoë"
+          },
+          {
+            "kind": "dialogue",
+            "text": "Café 漢字 🚀."
+          }
+        ],
+        "renderer": {
+          "atoms": [
+            {
+              "kind": "sceneHeading",
+              "text": "INT. OBSERVATORY - NIGHT"
+            },
+            {
+              "kind": "action",
+              "text": "The lens glows for Zoë."
+            },
+            {
+              "kind": "character",
+              "text": "Zoë"
+            },
+            {
+              "kind": "dialogue",
+              "text": "Café 漢字 🚀."
+            }
+          ],
+          "htmlText": "INT. OBSERVATORY - NIGHTThe lens glows for Zoë.ZoëCafé 漢字 🚀."
+        }
+      }
+    },
+    {
+      "id": "no-final-newline",
+      "file": "m3-no-final-newline.fountain",
+      "sourceLiteral": "INT. OBSERVATORY - NIGHT\n\nThe lens glows.\n\n@Zoë\nCafé 漢字 🚀.",
+      "sha256": "051709e0dea265d10b0222be9de480e499e01fb1d254cd9f535e60f2d9dd0c14",
+      "topics": [
+        "unicode",
+        "lf",
+        "crlf",
+        "no-final-newline",
+        "encoding-fidelity"
+      ],
+      "requirements": [
+        "DOC-01",
+        "DOC-02",
+        "DOC-03",
+        "DOC-04"
+      ],
+      "proofAtoms": [
+        {
+          "kind": "sceneHeading",
+          "text": "INT. OBSERVATORY - NIGHT"
+        },
+        {
+          "kind": "action",
+          "text": "The lens glows."
+        },
+        {
+          "kind": "character",
+          "text": "Zoë"
+        },
+        {
+          "kind": "dialogue",
+          "text": "Café 漢字 🚀."
+        }
+      ],
+      "shared": true,
+      "renderer": {
+        "atoms": [
+          {
+            "kind": "sceneHeading",
+            "text": "INT. OBSERVATORY - NIGHT"
+          },
+          {
+            "kind": "action",
+            "text": "The lens glows."
+          },
+          {
+            "kind": "character",
+            "text": "Zoë"
+          },
+          {
+            "kind": "dialogue",
+            "text": "Café 漢字 🚀."
+          }
+        ],
+        "htmlText": "INT. OBSERVATORY - NIGHTThe lens glows.ZoëCafé 漢字 🚀."
+      },
+      "gaps": [],
+      "required": [],
+      "edit": {
+        "line": 2,
+        "kind": "action",
+        "text": "The lens glows for Zoë.",
+        "file": "m3-no-final-newline.edited.fountain",
+        "sourceLiteral": "INT. OBSERVATORY - NIGHT\n\n!The lens glows for Zoë.\n\n@Zoë\nCafé 漢字 🚀.",
+        "sha256": "4764e43e5db466f6632ec234107d9dd1d2797d36a0c06d7b87659fe12913ae79",
+        "proofAtoms": [
+          {
+            "kind": "sceneHeading",
+            "text": "INT. OBSERVATORY - NIGHT"
+          },
+          {
+            "kind": "action",
+            "text": "The lens glows for Zoë."
+          },
+          {
+            "kind": "character",
+            "text": "Zoë"
+          },
+          {
+            "kind": "dialogue",
+            "text": "Café 漢字 🚀."
+          }
+        ],
+        "renderer": {
+          "atoms": [
+            {
+              "kind": "sceneHeading",
+              "text": "INT. OBSERVATORY - NIGHT"
+            },
+            {
+              "kind": "action",
+              "text": "The lens glows for Zoë."
+            },
+            {
+              "kind": "character",
+              "text": "Zoë"
+            },
+            {
+              "kind": "dialogue",
+              "text": "Café 漢字 🚀."
+            }
+          ],
+          "htmlText": "INT. OBSERVATORY - NIGHTThe lens glows for Zoë.ZoëCafé 漢字 🚀."
+        }
+      }
+    },
+    {
+      "id": "mixed-newlines",
+      "file": "m3-mixed-newlines.fountain",
+      "sourceLiteral": "INT. OBSERVATORY - NIGHT\r\n\r\nThe lens glows.\n\n@Zoë\r\nCafé 漢字 🚀.\r",
+      "sha256": "60bcc40b8c381112583b0a6f56c392984118b96e2c3003fe48b6e46e86380f57",
+      "topics": [
+        "unicode",
+        "lf",
+        "crlf",
+        "mixed-newlines",
+        "encoding-fidelity"
+      ],
+      "requirements": [
+        "DOC-01",
+        "DOC-02",
+        "DOC-03",
+        "DOC-04"
+      ],
+      "proofAtoms": [
+        {
+          "kind": "sceneHeading",
+          "text": "INT. OBSERVATORY - NIGHT"
+        },
+        {
+          "kind": "action",
+          "text": "The lens glows."
+        },
+        {
+          "kind": "character",
+          "text": "Zoë"
+        },
+        {
+          "kind": "dialogue",
+          "text": "Café 漢字 🚀."
+        }
+      ],
+      "shared": true,
+      "renderer": {
+        "atoms": [
+          {
+            "kind": "sceneHeading",
+            "text": "INT. OBSERVATORY - NIGHT"
+          },
+          {
+            "kind": "action",
+            "text": "The lens glows."
+          },
+          {
+            "kind": "character",
+            "text": "Zoë"
+          },
+          {
+            "kind": "dialogue",
+            "text": "Café 漢字 🚀."
+          }
+        ],
+        "htmlText": "INT. OBSERVATORY - NIGHTThe lens glows.ZoëCafé 漢字 🚀."
+      },
+      "gaps": [],
+      "required": [],
+      "edit": {
+        "line": 2,
+        "kind": "action",
+        "text": "The lens glows for Zoë.",
+        "file": "m3-mixed-newlines.edited.fountain",
+        "sourceLiteral": "INT. OBSERVATORY - NIGHT\r\n\r\n!The lens glows for Zoë.\n\n@Zoë\r\nCafé 漢字 🚀.\r",
+        "sha256": "889130b35127c35b1be5090e74d2d3b946d457457f6b38e3dd9ede76568bef02",
+        "proofAtoms": [
+          {
+            "kind": "sceneHeading",
+            "text": "INT. OBSERVATORY - NIGHT"
+          },
+          {
+            "kind": "action",
+            "text": "The lens glows for Zoë."
+          },
+          {
+            "kind": "character",
+            "text": "Zoë"
+          },
+          {
+            "kind": "dialogue",
+            "text": "Café 漢字 🚀."
+          }
+        ],
+        "renderer": {
+          "atoms": [
+            {
+              "kind": "sceneHeading",
+              "text": "INT. OBSERVATORY - NIGHT"
+            },
+            {
+              "kind": "action",
+              "text": "The lens glows for Zoë."
+            },
+            {
+              "kind": "character",
+              "text": "Zoë"
+            },
+            {
+              "kind": "dialogue",
+              "text": "Café 漢字 🚀."
+            }
+          ],
+          "htmlText": "INT. OBSERVATORY - NIGHTThe lens glows for Zoë.ZoëCafé 漢字 🚀."
+        }
+      }
+    }
+  ],
+  "invalidUtf8": {
+    "file": "invalid-utf8.fountain",
+    "hex": "494e542e2048414c4c202d204441590a0a42726f6b656e3a20ff0a",
+    "sha256": "690b0fbde78d89895ddfc39c97a901038d98a258dbd85ea289f661df391ea338"
+  }
+}

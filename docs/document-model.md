@@ -33,3 +33,7 @@ not a second live manuscript. Editor/hash production and save cadence remain
 future integration. [ADR 0015](decisions/0015-versioned-persistence-ipc.md).
 
 M1-06 composes the existing codec with typed editor nodes while retaining the original source as immutable plugin data inside the sole EditorState. Captures derive current source ranges and UTF-16/UTF-8 selection anchors from those nodes. The bounded heading/action/cue/dialogue subset preserves blank/raw regions and passes literal LF/BOM-CRLF/no-final-newline oracles, native saves and reopen. Full grammar and context-spanning transformations remain M3 gates. See the [proof](../prototypes/editor-composition/README.md) and [M1 evidence](test-evidence/M1.md#m1-06--bounded-codeceditornative-composition-proof).
+
+## M3-01 independent conformance boundary
+
+The [corpus/oracle guide](../fixtures/expected/README.md) and [harness](../prototypes/fountain-conformance/README.md) exercise the unchanged M1 codec against independently authored exact-byte, full nonseparator-line and edited-context expectations. A pinned Screenplain AST/bare HTML comparison checks supported order/types, scene numbers, dual relationships, title values and rich emphasis/rendered marks. Explicit renderer/proof exclusions retain literal source oracles; gaps cannot redefine authored content. Full structured/title/note/raw edits, inline mark nodes, draft metadata and production source/editor integration remain M3-02–08. This is pure codec/interoperability proof evidence, not native saving, full PDF or Local v1 acceptance.

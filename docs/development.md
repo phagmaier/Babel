@@ -201,3 +201,7 @@ the M1-05 configuration without HTTPS/SSH/credential features. The M1 probe's
 license/source inspection remains applicable; installed/offline packaging and
 complete transitive/native notices remain M6. The history API adds no frontend
 filesystem/shell capability or runtime network dependency.
+
+## M3-01 independent conformance
+
+Focused contract: `pnpm exec vitest run tests/contract/fountain-conformance.test.ts`. Isolated comparison: `node prototypes/fountain-conformance/compare.ts /tmp/babel-m3-conformance-venv/bin/python /tmp/babel-m3-01-comparison`; first create the disposable venv with `python3 -m venv /tmp/babel-m3-conformance-venv` and install existing pins with `/tmp/babel-m3-conformance-venv/bin/pip install -r prototypes/pdf/requirements.txt`. See the [harness](../prototypes/fountain-conformance/README.md) and [M3 evidence](test-evidence/M3.md#m3-01--independent-conformance-corpus-and-oracle). No runtime dependency or native behavior changed; pure codec/state assertions do not need a second filesystem run. Shared frontend/build checks still apply; native editor/picker/save acceptance remains future M3 tasks.
