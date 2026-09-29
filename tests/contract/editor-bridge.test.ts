@@ -206,7 +206,9 @@ describe('production sole editor/source boundary (pure contract, no native I/O)'
     expect(
       protectedState.doc.content.content.filter((node) => node.attrs.protected)
         .length,
-    ).toBe(4);
+    ).toBe(3);
+    expect(protectedState.doc.child(3).type.name).toBe('note');
+    expect(protectedState.doc.child(3).attrs.protected).toBe(false);
   });
 
   it('owned editor DOM reparses marks, identity and meaningful whitespace; forged DOM/foreign marks cannot alter authority', () => {

@@ -43,8 +43,8 @@ M2 headless Linux exit passed. This is a bounded headless foundation; no Local-v
 - [x] **M3-02 Production source-aware codec foundation** — Evidence: [M3 report](docs/test-evidence/M3.md#m3-02--production-source-aware-codec-foundation)
 - [x] **M3-03 Complex Fountain regions and inline semantics** — Evidence: [M3 report](docs/test-evidence/M3.md#m3-03--complex-fountain-regions-and-inline-semantics)
 
-- [ ] **M3-04 Sole editor authority and source bridge** — Next: [brief](docs/tasks/M3-04.md). Deps: M3-03, M1-06.
-- [ ] **M3-05 Smart keys, joins and structural undo** — [Brief](docs/tasks/M3-05.md). Deps: M3-04.
+- [x] **M3-04 Sole editor authority and source bridge** — Evidence: [M3 report](docs/test-evidence/M3.md#m3-04--sole-editor-authority-and-source-bridge).
+- [x] **M3-05 Smart keys, joins and structural undo** — Evidence: [M3 report](docs/test-evidence/M3.md#m3-05--smart-keys-joins-and-structural-undo). Deps: M3-04.
 - [ ] **M3-06 Element picker and configurable shortcut registry** — [Brief](docs/tasks/M3-06.md). Deps: M3-05.
 - [ ] **M3-07 Local character and heading completion** — [Brief](docs/tasks/M3-07.md). Deps: M3-06.
 - [ ] **M3-08 Paste, inline formatting and native input matrix** — [Brief](docs/tasks/M3-08.md). Deps: M3-05, M3-06, M3-07.

@@ -1,5 +1,11 @@
 import type { EditorState } from 'prosemirror-state';
-import { replaceLines, serializeFountain } from '../domain/fountainCodec';
+import type { Node as EditorNode } from 'prosemirror-model';
+import {
+  FountainEditError,
+  replaceKnownSourceContext,
+  replaceLines,
+  serializeFountain,
+} from '../domain/fountainCodec';
 import { richView, sourceForInline } from '../domain/fountainInline';
 import type {
   EditableKind,
@@ -53,49 +59,226 @@ export interface EditorCapture {
 function sameRuns(a: readonly StyledText[], b: readonly StyledText[]) {
   return JSON.stringify(richView(a)) === JSON.stringify(richView(b));
 }
+function originRuns(
+  node: EditorNode,
+  line?: FountainLine,
+): readonly StyledText[] {
+  return !node.attrs.literal && line?.inline?.complete
+    ? line.inline.runs
+    : [{ text: line?.text ?? '', styles: [] }];
+}
+
+function editForNode(node: EditorNode, prior?: FountainLine): LineEdit {
+  const runs = nodeRuns(node);
+  const priorRuns = originRuns(node, prior);
+  const unchanged = prior && sameRuns(runs, priorRuns);
+  const kind =
+    node.type.name === 'action' &&
+    !node.textContent &&
+    (!prior || prior.kind === 'blank')
+      ? 'blank'
+      : node.type.name;
+  return {
+    kind: kind as EditableKind,
+    text: unchanged
+      ? prior.text
+      : node.attrs.literal
+        ? node.textContent
+        : sourceForInline(runs),
+    ...(node.attrs.sceneNumber
+      ? { sceneNumber: node.attrs.sceneNumber as string }
+      : {}),
+    ...(node.attrs.sectionLevel
+      ? { sectionLevel: node.attrs.sectionLevel as number }
+      : {}),
+    ...(node.attrs.actionSubtype === 'shot'
+      ? { actionSubtype: 'shot' as const }
+      : {}),
+  };
+}
+
+function matchingOrigin(node: EditorNode, line: FountainLine | undefined) {
+  if (!line || node.attrs.id !== line.id) return false;
+  const kind =
+    line.intendedKind ?? (line.kind === 'blank' ? 'action' : line.kind);
+  return node.type.name === kind;
+}
+function sameSourceRow(node: EditorNode, line: FountainLine | undefined) {
+  return (
+    matchingOrigin(node, line) &&
+    sameRuns(nodeRuns(node), originRuns(node, line))
+  );
+}
 
 /** Explicit deferred capture only. Live content comes from state.doc, never a source peer. */
 export function captureEditor(state: EditorState): EditorCapture {
   const original = editorOrigin(state).document;
   let document = original;
-  const edits: { index: number; edit: LineEdit }[] = [];
-  state.doc.forEach((node, _position, index) => {
-    const prior = original.lines[index];
-    if (!prior && !node.textContent) return; // Empty virtual placeholder has no portable row.
-    if (node.attrs.protected) return;
-    const runs = nodeRuns(node);
-    const previous = prior?.inline?.complete
-      ? prior.inline.runs
-      : [{ text: prior?.text ?? '', styles: [] }];
-    if (sameRuns(runs, previous)) return;
-    edits.push({
-      index,
-      edit: {
-        kind: node.type.name as EditableKind,
-        text: node.attrs.literal ? node.textContent : sourceForInline(runs),
-        ...(node.attrs.actionSubtype === 'shot'
-          ? { actionSubtype: 'shot' as const }
-          : {}),
-      },
-    });
-  });
-  // Adjacent changed rows own one grammar context. Separate ranges cannot silently own protected text.
-  for (let at = 0; at < edits.length;) {
-    const first = at;
-    while (
-      at + 1 < edits.length &&
-      edits[at + 1]!.index === edits[at]!.index + 1
+  // A closed note owns its full source region, including literal delimiters.
+  for (const originalRegion of [...original.hiddenRegions].reverse()) {
+    if (
+      originalRegion.kind !== 'note' ||
+      !originalRegion.closed ||
+      originalRegion.ambiguous ||
+      original.lines
+        .slice(originalRegion.from, originalRegion.from + originalRegion.count)
+        .some((line) => line.kind !== 'note')
     )
-      at++;
-    const from = edits[first]!.index;
-    const replacements = edits.slice(first, at + 1).map(({ edit }) => edit);
-    document = replaceLines(
-      document,
-      from,
-      original.lines.length ? replacements.length : 0,
-      replacements,
+      continue;
+    const noteRows = state.doc.content.content.filter(
+      (node) =>
+        node.type.name === 'note' && node.attrs.hiddenOf === originalRegion.id,
     );
-    at++;
+    const oldRows = original.lines.slice(
+      originalRegion.from,
+      originalRegion.from + originalRegion.count,
+    );
+    if (
+      noteRows.length === oldRows.length &&
+      noteRows.every(
+        (node, index) =>
+          node.attrs.id === oldRows[index]!.id &&
+          node.textContent === oldRows[index]!.text,
+      )
+    )
+      continue;
+    const region = document.hiddenRegions.find(
+      (candidate) => candidate.id === originalRegion.id,
+    );
+    if (!region || noteRows.length === 0)
+      throw new FountainEditError(
+        'unrepresentable',
+        'A note region lost its owned rows',
+      );
+    document = replaceKnownSourceContext(
+      document,
+      region.from,
+      region.count,
+      noteRows.map((node) => ({
+        source: node.textContent,
+        kind: 'note' as const,
+        text: node.textContent,
+      })),
+      noteRows.map((node) => String(node.attrs.id)),
+    );
+  }
+  const base = document;
+  const structural =
+    (state.doc.childCount !== base.lines.length && base.lines.length !== 0) ||
+    state.doc.content.content.some(
+      (node, index) =>
+        base.lines[index] && !matchingOrigin(node, base.lines[index]),
+    );
+  if (structural || (base.lines.length === 0 && state.doc.childCount > 1)) {
+    const rows = state.doc.content.content;
+    const byId = new Map(
+      rows.map((node, index) => [node.attrs.id as string, index]),
+    );
+    const anchors = [{ old: -1, next: -1 }];
+    for (const [index, line] of base.lines.entries()) {
+      const next = byId.get(line.id);
+      if (next === undefined || !rows[next]!.attrs.protected) continue;
+      if (!sameSourceRow(rows[next]!, line) || next <= anchors.at(-1)!.next)
+        throw new FountainEditError(
+          'protected-region',
+          'Protected row identity or order changed',
+        );
+      anchors.push({ old: index, next });
+    }
+    anchors.push({ old: base.lines.length, next: rows.length });
+    for (let segment = anchors.length - 2; segment >= 0; segment--) {
+      const lower = anchors[segment]!;
+      const upper = anchors[segment + 1]!;
+      let from = lower.old + 1;
+      let newFrom = lower.next + 1;
+      let oldEnd = upper.old;
+      let newEnd = upper.next;
+      while (
+        from < oldEnd &&
+        newFrom < newEnd &&
+        sameSourceRow(rows[newFrom]!, base.lines[from])
+      ) {
+        from++;
+        newFrom++;
+      }
+      while (
+        oldEnd > from &&
+        newEnd > newFrom &&
+        sameSourceRow(rows[newEnd - 1]!, base.lines[oldEnd - 1])
+      ) {
+        oldEnd--;
+        newEnd--;
+      }
+      if (from === oldEnd && newFrom === newEnd) continue;
+      if (
+        from === base.lines.length &&
+        from > lower.old + 1 &&
+        base.lines[from - 1]!.newline === ''
+      ) {
+        from--;
+        newFrom--;
+      }
+      for (;;) {
+        const changed = rows.slice(newFrom, newEnd);
+        const priorById = new Map(
+          document.lines.map((line) => [line.id, line]),
+        );
+        try {
+          document = replaceLines(
+            document,
+            from,
+            oldEnd - from,
+            changed.map((node) =>
+              editForNode(node, priorById.get(String(node.attrs.id))),
+            ),
+            changed.map((node) => String(node.attrs.id)),
+          );
+          break;
+        } catch (error) {
+          if (
+            !(error instanceof FountainEditError) ||
+            error.code !== 'neighbor-drift'
+          )
+            throw error;
+          if (oldEnd < upper.old && newEnd < upper.next) {
+            oldEnd++;
+            newEnd++;
+          } else if (from > lower.old + 1 && newFrom > lower.next + 1) {
+            from--;
+            newFrom--;
+          } else throw error;
+        }
+      }
+    }
+  } else {
+    const edits: { index: number; edit: LineEdit }[] = [];
+    state.doc.forEach((node, _position, index) => {
+      const prior = base.lines[index];
+      if (!prior && !node.textContent) return; // Empty virtual placeholder has no portable row.
+      if (node.attrs.protected) return;
+      const runs = nodeRuns(node);
+      const previous = originRuns(node, prior);
+      if (sameRuns(runs, previous)) return;
+      edits.push({ index, edit: editForNode(node, prior) });
+    });
+    // Adjacent changed rows own one grammar context. Separate ranges cannot silently own protected text.
+    for (let at = 0; at < edits.length;) {
+      const first = at;
+      while (
+        at + 1 < edits.length &&
+        edits[at + 1]!.index === edits[at]!.index + 1
+      )
+        at++;
+      const from = edits[first]!.index;
+      const replacements = edits.slice(first, at + 1).map(({ edit }) => edit);
+      document = replaceLines(
+        document,
+        from,
+        base.lines.length ? replacements.length : 0,
+        replacements,
+      );
+      at++;
+    }
   }
   const bytes = serializeFountain(document);
   const anchor = (position: number): EditorAnchor => {

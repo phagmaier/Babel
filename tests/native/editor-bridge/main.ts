@@ -11,7 +11,7 @@ import {
 import './style.css';
 
 const status = document.querySelector<HTMLElement>('#status')!;
-const fixtures = ['lf', 'crlf', 'no-final-newline'];
+const fixtures = ['lf', 'crlf', 'no-final-newline', 'structural', 'note'];
 let fixture = 0;
 let view: EditorView;
 let boundary: EditorCaptureBoundary;
@@ -27,6 +27,12 @@ function actionPosition(offset = view.state.doc.child(2).textContent.length) {
     offset
   );
 }
+function rowPosition(index: number, offset = 0) {
+  let result = 1 + offset;
+  for (let at = 0; at < index; at++)
+    result += view.state.doc.child(at).nodeSize;
+  return result;
+}
 function update() {
   status.textContent = `Native synthetic ${fixtures[fixture]} · live v${editorVersion(view.state)}`;
 }
@@ -35,7 +41,7 @@ async function report(event: string, result?: CaptureResult) {
   const snapshot = captured.snapshot;
   await invoke('record_composition_proof', {
     report: JSON.stringify({
-      task: 'M3-04',
+      task: fixture >= 3 ? 'M3-05' : 'M3-04',
       event,
       fixture: fixtures[fixture],
       nativeHost: '__TAURI_INTERNALS__' in window,
@@ -58,11 +64,18 @@ async function report(event: string, result?: CaptureResult) {
 async function open() {
   view?.destroy();
   // Local synthetic fixture bytes only; production editor modules import no proof code.
-  const response = await fetch(
-    `/prototypes/editor-composition/fixtures/${fixtures[fixture]}.fountain`,
-  );
-  if (!response.ok) throw new Error('Synthetic fixture unavailable');
-  const source = new Uint8Array(await response.arrayBuffer());
+  let source: Uint8Array;
+  if (fixture === 3)
+    source = new TextEncoder().encode('\n@MAYA\nSignal.\n\n!A bell.\n');
+  else if (fixture === 4)
+    source = new TextEncoder().encode('\ufeff\r\n[[A quiet note]]\r\n');
+  else {
+    const response = await fetch(
+      `/prototypes/editor-composition/fixtures/${fixtures[fixture]}.fountain`,
+    );
+    if (!response.ok) throw new Error('Synthetic fixture unavailable');
+    source = new Uint8Array(await response.arrayBuffer());
+  }
   view = mountScreenplayEditor(
     document.querySelector<HTMLElement>('#editor')!,
     createEditorState(source),
@@ -89,17 +102,31 @@ async function open() {
 document.addEventListener('beforeinput', (event) =>
   events.push(`beforeinput:${event.inputType}`),
 );
+document.addEventListener('compositionstart', () =>
+  events.push('compositionstart'),
+);
+document.addEventListener('compositionend', () =>
+  events.push('compositionend'),
+);
 document.addEventListener('keydown', (event) => {
   if (event.ctrlKey && event.key.toLowerCase() === 'z') {
     event.preventDefault();
     (event.shiftKey ? redo : undo)(view.state, (tr) => view.dispatch(tr));
     return;
   }
-  if (!/^F(?:1|4|5|6|7|8|9|10)$/.test(event.key)) return;
+  if (!/^F(?:1|2|3|4|5|6|7|8|9|10|11|12|14|15)$/.test(event.key)) return;
   event.preventDefault();
   void (async () => {
     if (event.key === 'F1') {
       fixture = 0;
+      await open();
+    }
+    if (event.key === 'F2') {
+      fixture = 3;
+      await open();
+    }
+    if (event.key === 'F14') {
+      fixture = 4;
       await open();
     }
     if (event.key === 'F4') {
@@ -129,6 +156,60 @@ document.addEventListener('keydown', (event) => {
       await report('selected');
     }
     if (event.key === 'F8') await report('observed');
+    if (event.key === 'F11') {
+      view.dispatch(
+        view.state.tr.setSelection(
+          TextSelection.create(
+            view.state.doc,
+            rowPosition(4, view.state.doc.child(4).textContent.length),
+          ),
+        ),
+      );
+      view.focus();
+      await report('action-end');
+    }
+    if (event.key === 'F12') {
+      view.dispatch(
+        view.state.tr.setSelection(
+          TextSelection.create(view.state.doc, rowPosition(4)),
+        ),
+      );
+      view.focus();
+      await report('action-start');
+    }
+    if (event.key === 'F15') {
+      view.dispatch(
+        view.state.tr.setSelection(
+          TextSelection.create(view.state.doc, rowPosition(1, 7)),
+        ),
+      );
+      view.focus();
+      await report('note-middle');
+    }
+    if (event.key === 'F3') {
+      view.dom.dispatchEvent(
+        new CompositionEvent('compositionstart', { bubbles: true }),
+      );
+      view.dom.dispatchEvent(
+        new KeyboardEvent('keydown', {
+          key: 'Enter',
+          isComposing: true,
+          bubbles: true,
+          cancelable: true,
+        }),
+      );
+      view.dom.dispatchEvent(
+        new CompositionEvent('compositionend', { bubbles: true }),
+      );
+      view.dom.dispatchEvent(
+        new KeyboardEvent('keydown', {
+          key: 'Enter',
+          bubbles: true,
+          cancelable: true,
+        }),
+      );
+      await report('composition-enter');
+    }
     if (event.key === 'F9') {
       let pos = 1;
       for (let index = 0; index < 7; index++)
@@ -164,7 +245,7 @@ document.addEventListener('keydown', (event) => {
     status.textContent = `Inspection failed: ${String(error)}`;
     void invoke('record_composition_proof', {
       report: JSON.stringify({
-        task: 'M3-04',
+        task: fixture >= 3 ? 'M3-05' : 'M3-04',
         event: 'error',
         error: String(error),
         liveVersion: editorVersion(view.state),

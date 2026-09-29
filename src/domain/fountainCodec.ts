@@ -724,6 +724,7 @@ export function replaceLines(
   from: number,
   count: number,
   edits: readonly LineEdit[],
+  retainedIds?: readonly string[],
 ): FountainDocument {
   const bytes = snapshots.get(document);
   if (!bytes) throw new TypeError('Expected a codec-owned immutable document');
@@ -744,8 +745,30 @@ export function replaceLines(
       'Structured editing of raw/title/hidden/malformed regions requires explicit safe conversion',
     );
   if (count === 0 && edits.length === 0) return document;
+  if (
+    retainedIds &&
+    (retainedIds.length !== edits.length ||
+      retainedIds.some(
+        (id) =>
+          !/^b(?:0|[1-9]\d*)$/.test(id) ||
+          !Number.isSafeInteger(Number(id.slice(1))) ||
+          Number(id.slice(1)) >= Number.MAX_SAFE_INTEGER - 1,
+      ) ||
+      new Set(retainedIds).size !== retainedIds.length ||
+      document.lines.some(
+        (line, index) =>
+          (index < from || index >= from + count) &&
+          retainedIds.includes(line.id),
+      ))
+  )
+    throw new FountainEditError('invalid-edit', 'Invalid retained line IDs');
+  const priorById = retainedIds
+    ? new Map(document.lines.map((line) => [line.id, line]))
+    : undefined;
   const sources = edits.map((edit, index) => {
-    const prior = owned[index];
+    const prior = retainedIds
+      ? priorById!.get(retainedIds[index]!)
+      : owned[index];
     const generated = sourceFor(edit, prior);
     if (
       prior &&
@@ -839,6 +862,7 @@ export function replaceLines(
       }
     },
     edits,
+    retainedIds,
   );
 }
 
@@ -849,6 +873,7 @@ function transactSource(
   sources: readonly string[],
   validate: (after: FountainDocument) => void,
   intents?: readonly LineEdit[],
+  retainedIds?: readonly string[],
 ): FountainDocument {
   const bytes = snapshots.get(document)!;
   const owned = document.lines.slice(from, from + count);
@@ -867,7 +892,9 @@ function transactSource(
       count > 0 &&
       from + count === document.lines.length
     )
-      return owned.at(-1)!.newline;
+      return sources[index] === '' && sources.length > count
+        ? defaultNewline
+        : owned.at(-1)!.newline;
     return owned[index]?.newline || defaultNewline;
   });
   if (
@@ -896,6 +923,9 @@ function transactSource(
     );
   const idUsed = new Set(document.lines.map((line) => line.id));
   let nextId = nextIds.get(document)!;
+  if (retainedIds)
+    for (const id of retainedIds)
+      nextId = Math.max(nextId, Number(id.slice(1)) + 1);
   const allocate = () => {
     while (idUsed.has(`b${nextId}`)) nextId++;
     const id = `b${nextId++}`;
@@ -918,7 +948,9 @@ function transactSource(
         : previous?.intendedKind;
     return {
       ...line,
-      id: previous?.id ?? allocate(),
+      id: inside
+        ? (retainedIds?.[index - from] ?? previous?.id ?? allocate())
+        : previous!.id,
       intendedKind,
       editable:
         intendedKind && compatibleDraft(line, intendedKind)
@@ -1006,7 +1038,8 @@ function transactSource(
         JSON.stringify(afterMeaning[index]) ===
           JSON.stringify(beforeMeaning[index]) &&
         line.intendedKind === prior.intendedKind &&
-        line.actionSubtype === prior.actionSubtype
+        line.actionSubtype === prior.actionSubtype &&
+        line.id === prior.id
       );
     });
   if (sameMeaning) return document;
@@ -1131,8 +1164,26 @@ function concreteTransaction(
   edits: readonly SourceLineEdit[],
   conversion = false,
   mixedHidden = false,
+  retainedIds?: readonly string[],
 ): FountainDocument {
   sourceContext(document, from, count, conversion, mixedHidden);
+  if (
+    retainedIds &&
+    (retainedIds.length !== edits.length ||
+      new Set(retainedIds).size !== retainedIds.length ||
+      retainedIds.some(
+        (id) =>
+          !/^b(?:0|[1-9]\d*)$/.test(id) ||
+          !Number.isSafeInteger(Number(id.slice(1))) ||
+          Number(id.slice(1)) >= Number.MAX_SAFE_INTEGER - 1,
+      ) ||
+      document.lines.some(
+        (line, index) =>
+          (index < from || index >= from + count) &&
+          retainedIds.includes(line.id),
+      ))
+  )
+    throw new FountainEditError('invalid-edit', 'Invalid retained line IDs');
   for (const edit of edits) {
     if (
       typeof edit.source !== 'string' ||
@@ -1213,6 +1264,8 @@ function concreteTransaction(
           );
       }
     },
+    undefined,
+    retainedIds,
   );
 }
 
@@ -1222,8 +1275,17 @@ export function replaceKnownSourceContext(
   from: number,
   count: number,
   edits: readonly SourceLineEdit[],
+  retainedIds?: readonly string[],
 ): FountainDocument {
-  return concreteTransaction(document, from, count, edits);
+  return concreteTransaction(
+    document,
+    from,
+    count,
+    edits,
+    false,
+    false,
+    retainedIds,
+  );
 }
 
 const proposals = new WeakMap<

@@ -1,5 +1,5 @@
 import { type Node as EditorNode } from 'prosemirror-model';
-import { history } from 'prosemirror-history';
+import { history, isHistoryTransaction } from 'prosemirror-history';
 import {
   EditorState,
   Plugin,
@@ -19,8 +19,17 @@ interface SourceOrigin {
   readonly document: FountainDocument;
   readonly session: object;
   readonly version: number;
+  readonly nextId: number;
 }
 const originKey = new PluginKey<SourceOrigin>('babel-source-origin');
+const structuralTransactions = new WeakMap<Transaction, number>();
+export function authorizeStructuralTransaction(
+  transaction: Transaction,
+  nextId: number,
+) {
+  structuralTransactions.set(transaction, nextId);
+  return transaction;
+}
 const invalidUnicode =
   /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/u;
 
@@ -50,11 +59,46 @@ export function nodeRuns(node: EditorNode): StyledText[] {
 function permitted(transaction: Transaction, state: EditorState): boolean {
   if (transaction.before !== state.doc) return false;
   if (!transaction.docChanged) return true;
+  if (editorOrigin(state).document.readOnlyReason) return false;
   if (
-    editorOrigin(state).document.readOnlyReason ||
-    transaction.doc.childCount !== state.doc.childCount
-  )
-    return false;
+    structuralTransactions.has(transaction) ||
+    isHistoryTransaction(transaction)
+  ) {
+    const oldProtected: [string, EditorNode][] = state.doc.content.content
+      .filter((node) => node.attrs.protected)
+      .map((node) => [node.attrs.id as string, node]);
+    const newProtected: [string, EditorNode][] = transaction.doc.content.content
+      .filter((node) => node.attrs.protected)
+      .map((node) => [node.attrs.id as string, node]);
+    if (
+      oldProtected.length !== newProtected.length ||
+      oldProtected.some(
+        ([id, node], index) =>
+          id !== newProtected[index]?.[0] || !node.eq(newProtected[index]![1]),
+      )
+    )
+      return false;
+    const ids = new Set<string>();
+    for (const node of transaction.doc.content.content) {
+      const id = node.attrs.id;
+      if (
+        typeof id !== 'string' ||
+        !/^b(?:0|[1-9]\d*)$/.test(id) ||
+        ids.has(id) ||
+        /[\r\n]/.test(node.textContent) ||
+        invalidUnicode.test(node.textContent) ||
+        node.content.content.some((child) =>
+          child.marks.some(
+            (mark) => mark.type !== screenplaySchema.marks[mark.type.name],
+          ),
+        )
+      )
+        return false;
+      ids.add(id);
+    }
+    return true;
+  }
+  if (transaction.doc.childCount !== state.doc.childCount) return false;
   const start = state.doc.content.findDiffStart(transaction.doc.content);
   const end = state.doc.content.findDiffEnd(transaction.doc.content);
   if (start === null || end === null) return true;
@@ -105,10 +149,30 @@ export function createEditorState(
   recovery?: FountainRecovery,
 ): EditorState {
   const source = parseFountain(bytes, recovery);
+  const safeNoteIndices = new Set<number>();
+  for (const region of source.hiddenRegions) {
+    if (
+      region.kind !== 'note' ||
+      !region.closed ||
+      region.ambiguous ||
+      source.lines
+        .slice(region.from, region.from + region.count)
+        .some((line) => line.kind !== 'note')
+    )
+      continue;
+    for (let index = region.from; index < region.from + region.count; index++)
+      safeNoteIndices.add(index);
+  }
   const nodes = source.lines.map((line, sourceIndex) => {
+    const safeNote = safeNoteIndices.has(sourceIndex);
     const kind =
       line.intendedKind ?? (line.kind === 'blank' ? 'action' : line.kind);
-    const literal = line.kind === 'blank' ? false : !line.inline?.complete;
+    const literal =
+      line.kind === 'note'
+        ? true
+        : line.kind === 'blank'
+          ? false
+          : !line.inline?.complete;
     const runs = literal
       ? [{ text: line.text, styles: [] }]
       : (line.inline?.runs ?? [{ text: line.text, styles: [] }]);
@@ -116,7 +180,7 @@ export function createEditorState(
       {
         id: line.id,
         sourceIndex,
-        protected: !line.editable,
+        protected: !line.editable && !safeNote,
         literal,
         sceneNumber: line.sceneNumber ?? null,
         sectionLevel: line.sectionLevel ?? null,
@@ -161,12 +225,20 @@ export function createEditorState(
           document: source,
           session: Object.freeze({}),
           version: 1,
+          nextId: Math.max(source.recovery.nextId, nodes.length ? 1 : 0),
         }),
       apply(tr, previous) {
         if (!tr.docChanged && !tr.selectionSet) return previous;
         if (previous.version >= Number.MAX_SAFE_INTEGER)
           throw new RangeError('Editor version exhausted');
-        return Object.freeze({ ...previous, version: previous.version + 1 });
+        return Object.freeze({
+          ...previous,
+          version: previous.version + 1,
+          nextId: Math.max(
+            previous.nextId,
+            structuralTransactions.get(tr) ?? 0,
+          ),
+        });
       },
     },
     filterTransaction: permitted,
@@ -182,6 +254,16 @@ export function createEditorState(
     selection: TextSelection.create(doc, first),
     plugins: [sourcePlugin, history()],
   });
+}
+
+/** Only editor commands may authorize row changes; the counter survives undo. */
+export function applyStructuralEditorTransaction(
+  state: EditorState,
+  transaction: Transaction,
+  nextId = editorOrigin(state).nextId,
+) {
+  structuralTransactions.set(transaction, nextId);
+  return applyEditorTransaction(state, transaction);
 }
 
 export function applyEditorTransaction(
