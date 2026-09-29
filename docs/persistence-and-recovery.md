@@ -263,3 +263,23 @@ close coordinator. The default shell has no editor/picker/cadence and no Local
 v1 adoption claim. [ADR 0019](decisions/0019-protected-close-lifecycle.md)
 records the lifecycle choice; [M2 evidence](test-evidence/M2-05D.md)
 owns exact checks and limits.
+
+## M3-10 editor save cadence
+
+`src/application/saveCadence.ts` schedules coalesced recovery checkpoints and
+debounced source saves over the serial persistence controller without owning
+live editor content or timers itself (the clock is injectable). Targets follow
+[SPEC S10.3](../../SPEC.md#s10): ~500 ms recovery coalescing, acknowledged
+recovery within 1 s, ~750 ms source debounce and a 2 s maximum dirty delay so
+continuous typing cannot postpone protection indefinitely. Explicit save/close
+flushes bypass timers and verify a fresh native flush even when the source is
+unchanged; timer saves skip already-saved versions. A failed dispatch never
+re-arms itself — the failure stays visible in persistence state and only a
+newer edit or an explicit flush retries. After each confirmed save, a rolling
+snapshot is requested when the existing five-minute retention interval has
+elapsed and content changed; snapshot/copy errors set a separate attention
+flag and never touch save state. `src/app/SaveStatus.tsx` renders the
+resulting live/recovery/file-saved versions and snapshot attention as literal
+text. Editor wiring, Save As identity switching and protected close
+integration remain M3-11/12. [M3 evidence](test-evidence/M3.md#m3-10--recoverysource-cadence-and-visible-protection-state)
+owns checks and measured native latency.

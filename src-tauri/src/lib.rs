@@ -297,6 +297,9 @@ mod tests {
 mod document_entry_ipc_tests;
 
 #[cfg(all(test, target_os = "linux"))]
+mod persistence_cadence_tests;
+
+#[cfg(all(test, target_os = "linux"))]
 mod document_ipc_tests;
 
 #[cfg(all(test, target_os = "linux"))]
