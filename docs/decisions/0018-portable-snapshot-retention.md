@@ -113,8 +113,9 @@ pinned local Rustix 1.1.4 signatures and behavior were checked. Context7 also
 supplied React's [effect cleanup](https://react.dev/reference/react/useEffect)
 for stale async UI results. No dependency/packaging policy changed.
 
-Evidence still needed: M2-05D protected close; M2-06 curated safety revisions and
-full M2 exit; production editor/picker/cadence and full restore/backup workflows;
+M2-05D protected close and M2-06 curated safety revisions/headless Linux exit
+now have bounded evidence. Evidence still needed: production editor/picker/cadence
+and full restore/backup workflows;
 explicit interrupted-artifact repair, configured backup/global quota/manual
 protected-version deletion if later required; other platforms/filesystems,
 power loss, physical-disk identification, installed/offline adoption and owner pilot.

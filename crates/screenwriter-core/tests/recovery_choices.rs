@@ -244,6 +244,25 @@ fn recover_as_current_preserves_previous_and_recovery_across_restart() {
     assert_eq!(receipt.version, 22);
     assert_eq!(receipt.source_sha256, source_hash(b"edited"));
     assert_eq!(fs::read(&path).unwrap(), b"edited");
+    let history = git2::Repository::open_bare(
+        fixture
+            .store()
+            .join("history")
+            .join(format!("{}.git", opened.identity.document_id)),
+    )
+    .unwrap();
+    let prior = history.refname_to_id("refs/heads/main").unwrap();
+    let safety = format!("refs/safety/{prior}");
+    assert_eq!(history.refname_to_id(&safety).unwrap(), prior);
+    let tree = history.find_commit(prior).unwrap().tree().unwrap();
+    assert_eq!(tree.len(), 2);
+    assert_eq!(
+        history
+            .find_blob(tree.get_name("screenplay.fountain").unwrap().id())
+            .unwrap()
+            .content(),
+        b"original"
+    );
     drop(service);
 
     // Restart sees the adopted generation with the old source retained. The new
@@ -311,6 +330,53 @@ fn recover_as_current_preserves_previous_and_recovery_across_restart() {
         .unwrap();
     restarted.save_next(&reopened.identity).unwrap().unwrap();
     assert_eq!(fs::read(&path).unwrap(), b"edited once more");
+}
+
+#[test]
+fn corrupt_history_blocks_destructive_adoption_but_keeps_recovery_and_normal_save() {
+    let fixture = Fixture::new();
+    let mut service = fixture.service();
+    let path = fixture.source("story.fountain", b"original");
+    let opened = service.open_selected(&path).unwrap();
+    let id = &opened.identity;
+    service
+        .record_revision(id, None, b"original", "source-only-v1", "First", false)
+        .unwrap();
+    let history_main = fixture
+        .store()
+        .join("history")
+        .join(format!("{}.git", id.document_id))
+        .join("refs/heads/main");
+    fs::write(&history_main, b"bad-ref\n").unwrap();
+    checkpoint(&mut service, &opened, 21, b"edited");
+    let selection = latest_selection(&service, &opened);
+    let failure = service
+        .recover_checkpoint_as_current(&RecoverRequest {
+            identity: id.clone(),
+            selection,
+            new_version: 22,
+            expected_fingerprint: opened.fingerprint.clone().unwrap(),
+        })
+        .unwrap_err();
+    assert_eq!(failure.error.code, ErrorCode::HistoryNeedsAttention);
+    assert_eq!(fs::read(&path).unwrap(), b"original");
+    assert_eq!(
+        service.inspect_recovery(id).unwrap().latest.unwrap().source,
+        b"edited"
+    );
+    assert_eq!(fs::read(&history_main).unwrap(), b"bad-ref\n");
+    let saved = service
+        .save_request(screenwriter_core::documents::saving::SaveRequest {
+            identity: id.clone(),
+            version: 22,
+            source: b"edited".to_vec(),
+            source_sha256: source_hash(b"edited"),
+            expected_fingerprint: opened.fingerprint.clone().unwrap(),
+            draft_metadata: json!({"draft": true}),
+        })
+        .unwrap();
+    assert_eq!(saved.version, 22);
+    assert_eq!(fs::read(&path).unwrap(), b"edited");
 }
 
 #[test]

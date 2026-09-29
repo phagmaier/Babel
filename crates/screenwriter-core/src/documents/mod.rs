@@ -2,6 +2,7 @@
 use serde::{Deserialize, Serialize};
 
 pub mod choices;
+pub mod history;
 pub mod persistence;
 pub mod recovery;
 pub mod saving;
@@ -117,6 +118,7 @@ pub enum ErrorCode {
     SaveQueueFull,
     SaveNeedsAttention,
     SnapshotNeedsAttention,
+    HistoryNeedsAttention,
     SnapshotLimit,
     InvalidSnapshot,
     InvalidDestination,

@@ -12,6 +12,8 @@ use uuid::Uuid;
 
 #[path = "choices_store.rs"]
 mod choices_store;
+#[path = "history_store.rs"]
+mod history_store;
 #[path = "recovery_store.rs"]
 mod recovery_store;
 #[path = "snapshot_store.rs"]
@@ -234,6 +236,7 @@ struct Registered {
     last_save: Option<(SaveReceipt, serde_json::Value)>,
     last_admitted: Option<(u64, String, serde_json::Value)>,
     save_uncertain: bool,
+    history_attention: bool,
     /// Set only by an explicit M2-05B recovery choice in this session. It relaxes
     /// the older-session journal gate for later checkpoints; a restart requires
     /// a fresh choice. Never persisted.
@@ -477,6 +480,7 @@ impl DocumentService {
                 last_save: None,
                 last_admitted: None,
                 save_uncertain: false,
+                history_attention: false,
                 recovery_reconciled: false,
                 initial: initial.clone(),
                 anchor: Some(anchor),
@@ -511,6 +515,7 @@ impl DocumentService {
                 last_save: None,
                 last_admitted: None,
                 save_uncertain: false,
+                history_attention: false,
                 recovery_reconciled: false,
                 initial: initial.clone(),
                 anchor: None,

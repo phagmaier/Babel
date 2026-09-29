@@ -398,6 +398,7 @@ const errorCodes: readonly DocumentError['code'][] = [
   'saveConflict',
   'saveQueueFull',
   'saveNeedsAttention',
+  'historyNeedsAttention',
   'io',
 ];
 /** A response/failure cannot act on a different operation, even when per-session ids repeat. */

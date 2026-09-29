@@ -367,6 +367,17 @@ impl DocumentService {
         }
         self.protect_disk_before_replacement(&request.identity)
             .map_err(failure)?;
+        let source_before = self
+            .registered(&request.identity)
+            .map_err(failure)?
+            .anchor
+            .as_ref()
+            .ok_or_else(|| failure(error(ErrorCode::MissingSource)))?
+            .snapshot()
+            .map_err(failure)?
+            .0;
+        self.protect_history_before_replacement(&request.identity, &source_before)
+            .map_err(failure)?;
         // This explicit choice reconciles an older session for this registration.
         if let Some(record) = self.documents.get_mut(&request.identity.handle) {
             record.recovery_reconciled = true;

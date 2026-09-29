@@ -1,6 +1,6 @@
 # Persistence and recovery
 
-Status: M1-04 Linux replacement proof and M2-01–04 native persistence boundaries exist; M2-05A–C recovery choices/snapshots/copies and M2-05D protected close have bounded Linux evidence. Production editor/picker/cadence integration remains open. [SPEC S10](../SPEC.md#s10); SAVE-01–05, INV-04–08/10/20.
+Status: M1-04 Linux replacement proof and M2-01–06 bounded native safety foundation passed on Linux; M2-05D also has a native WebKit diagnostic. Production editor/picker/cadence and Save As remain open. [SPEC S10](../SPEC.md#s10); SAVE-01–05, INV-04–08/10/20.
 
 One native writer queue per document serializes immutable save requests. Requests bind opaque handle, project/session ID, monotonically increasing document version, source hash, and expected disk fingerprint. Track `liveVersion`, `journaledVersion`, and `fileSavedVersion` separately. An acknowledgement for v21 cannot make v22 "Saved locally"; a recovery checkpoint is not a file-save acknowledgement. Native code computes/verifies the saved hash and sends the exact result. Emergency raw protection does not depend on Script Check passing.
 
@@ -214,7 +214,9 @@ existing serialized writer as a newer version. An exact source receipt is the
 only source-save credit. M2-05B adoption now protects a disk snapshot before its
 replacement too. A blocked snapshot prevents destructive adoption/restore;
 ordinary source saving and emergency copies do not depend on snapshots. Git
-safety revisions remain M2-06, not an invented history success.
+safety revisions are now created by the M2-06 native history store before
+recovery adoption and snapshot restore. Git failure blocks those destructive
+choices while ordinary source saving and raw recovery remain independent.
 
 Explicit external copies accept immutable bytes and an opaque destination token
 from native selection, bound to the registration/session. Native directory
@@ -231,7 +233,8 @@ still has no production source/destination picker, editor, cadence, Save As or
 configured recurring backup. The [synthetic diagnostic](../prototypes/snapshot-review/README.md)
 exercises real WebKit/native commands; [M2 evidence](test-evidence/M2.md#m2-05c--rolling-snapshots-and-backup-copies)
 separates native files/interruptions, mocked dispatch, UI injection and limits.
-M2-06 and full M2 exit remain open.
+The bounded M2 headless Linux exit passed; Local v1 remains open. See
+[M2-06 evidence](test-evidence/M2.md#m2-06--small-history-primitives-and-safety-gate).
 
 ## M2-05D protected close and failure escalation
 

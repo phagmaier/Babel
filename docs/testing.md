@@ -1,6 +1,6 @@
 # Test layers and gates
 
-Status: M0/M1 proofs and M2-01–04 headless gates recorded; M2-05A–C recovery/snapshot/copy and M2-05D close suites have bounded Linux evidence. M2-06+ remain planned. [SPEC S15/S20](../SPEC.md#s15); QA-01–03, INV-18.
+Status: M0/M1 proofs and M2-01–06 bounded Linux headless gates recorded; M2-05D additionally has native WebKit diagnostic evidence. M2 headless exit does not establish Local v1. [SPEC S15/S20](../SPEC.md#s15); QA-01–03, INV-18.
 
 `pnpm test` is Vitest/JSDOM with an injected typed app-info port; it verifies visible shell status and disabled future actions. `pnpm test:browser` starts Vite and uses system Chromium to verify the same in a real browser. Browser preview deliberately reports native IPC unavailable. `cargo test -p screenwriter-core` tests the headless value, and `cargo test --workspace` also tests host command wiring. A native smoke must actually start Tauri and observe the app-info response in WebKit; mocked/browser results cannot substitute. [M0 evidence](test-evidence/M0.md) records what ran.
 
@@ -141,3 +141,20 @@ Btrfs. [M2 evidence](test-evidence/M2.md#m2-05c--rolling-snapshots-and-backup-co
 owns exact commands, host, logs and omissions. Default product picking/cadence,
 protected close, curated safety revisions, installed-package/other-platform and
 physical-disk/power-loss guarantees are not claimed.
+
+## M2-06 history and headless exit coverage
+
+The native Linux history tests use private disposable bare repositories and
+exact synthetic Fountain bytes. They verify curated trees/manifest hashes,
+profile-change revisions, dedup, first-parent and safety refs, interrupted
+object/main/safety publication with retry, corrupt ref preservation, and
+restart attention. Recovery-choice tests prove a safety revision before source
+replacement and refusal on corrupt history while ordinary save/recovery remain
+available. The combined M2 exit test opens, saves, reopens, inspects an exact
+newer acknowledged checkpoint and adopts it with previous source/history
+preserved. All shared native tests and prior fault/SIGKILL matrices run on
+tmpfs and Btrfs; a no-Git-PATH test verifies no external Git executable is
+needed. [M2-06 evidence](test-evidence/M2.md#m2-06--small-history-primitives-and-safety-gate)
+owns the exact commands/results. Git ref/object power-loss durability,
+installed/offline package use, a production editor/picker/cadence, Save As and
+Local-v1 adoption remain open.

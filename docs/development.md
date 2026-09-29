@@ -1,6 +1,6 @@
 # Development and toolchain
 
-Status: M0 shell, isolated M1-01–05 proofs, M2-01–04 headless native document/persistence boundary and receipt-driven frontend state, plus M2-05A read-only startup review and M2-05B explicit recovery choices; no production editor. See [SPEC S13-S15](../SPEC.md#s13), [S17](../SPEC.md#s17), [APP-01, QA-01, QA-02](requirements.md), [M1 evidence](test-evidence/M1.md), [M2 evidence](test-evidence/M2.md).
+Status: M0 shell, isolated M1 proofs and M2-01–06 Linux headless safety foundation; no production editor/picker/cadence or Save As. See [SPEC S13-S15](../SPEC.md#s13), [S17](../SPEC.md#s17), [APP-01, QA-01, QA-02](requirements.md), [M1 evidence](test-evidence/M1.md), [M2 evidence](test-evidence/M2.md).
 
 ## Recorded host and pins
 
@@ -36,7 +36,7 @@ Do not interpret `pnpm test` or `pnpm test:browser` as native IPC verification. 
 
 ## Dependencies and licensing
 
-Direct runtime dependencies are React, React DOM, and Tauri API; build/test dependencies are Vite, TypeScript, Vitest, testing-library, JSDOM, ESLint, Prettier, Playwright core, Tauri CLI, six pinned ProseMirror packages used only by the isolated M1-02 proof, and `pdf-lib` 1.17.1 (MIT, pure JS) used only by the isolated M1-03 fallback probe. The M1-03 primary render ran in a disposable venv with pinned `screenplain==0.12.0` (MIT), `reportlab==4.4.7` (BSD), `pypdf==6.19.0`, `pillow==12.3.0`, `charset-normalizer==3.5.1`, and bundled Courier Prime (OFL 1.1); none is an app runtime dependency. Rust runtime is Tauri plus `screenwriter-core` with pinned serde/JSON/SHA-256/UUID and Linux rustix; its `native-editor-proof` feature is off by default. No PDF, Git, cloud, production editor, or database package is an application runtime dependency. `pnpm-lock.yaml`/`Cargo.lock` capture transitive packages. These dependencies use third-party licenses that must be collected and reviewed before distribution; application code remains unlicensed pending owner direction. Packaging must verify Linux system library expectations and bundled resources. No runtime account or network access is configured.
+Direct runtime dependencies are React, React DOM, and Tauri API; build/test dependencies are Vite, TypeScript, Vitest, testing-library, JSDOM, ESLint, Prettier, Playwright core, Tauri CLI, six pinned ProseMirror packages used only by the isolated M1-02 proof, and `pdf-lib` 1.17.1 (MIT, pure JS) used only by the isolated M1-03 fallback probe. The M1-03 primary render ran in a disposable venv with pinned `screenplain==0.12.0` (MIT), `reportlab==4.4.7` (BSD), `pypdf==6.19.0`, `pillow==12.3.0`, `charset-normalizer==3.5.1`, and bundled Courier Prime (OFL 1.1); none is an app runtime dependency. Rust runtime is Tauri plus `screenwriter-core` with pinned serde/JSON/SHA-256/UUID, Linux rustix and M2-06 `git2` with vendored libgit2; its `native-editor-proof` feature is off by default. No PDF, cloud, production editor, or database package is an application runtime dependency. `pnpm-lock.yaml`/`Cargo.lock` capture transitive packages. These dependencies use third-party licenses that must be collected and reviewed before distribution; application code remains unlicensed pending owner direction. Packaging must verify Linux system library expectations and bundled resources. No runtime account or network access is configured.
 
 Registry metadata checked during M0: React/React DOM and Vite use MIT; Tauri API/CLI and Rust Tauri use MIT OR Apache-2.0; TypeScript and Playwright core use Apache-2.0. This is a direct-package snapshot, not a complete transitive notice file. Before distributing a release, collect the exact locked transitive notices and inspect bundled GTK/WebKit and other native license obligations. The app source has no owner-selected open-source license.
 
@@ -57,8 +57,9 @@ then `env PATH=/nonexistent ./target/release/history-store-proof` and
 `ldd target/release/history-store-proof`. This separate workspace member adds
 proof-only git2 0.21.0 (MIT OR Apache-2.0) with vendored libgit2 1.9.7
 (GPL v2 with linking exception) and host zlib. It reuses pinned serde/JSON/
-SHA-256 dependencies, omits HTTPS/SSH/credential features and does not link
-into the desktop. [ADR 0011](decisions/0011-git2-history-store.md) records
+SHA-256 dependencies and omits HTTPS/SSH/credential features. At M1 it did not
+link into the desktop; M2-06 promoted the same pinned adapter into core.
+[ADR 0011](decisions/0011-git2-history-store.md) records
 exact native/transitive license and distribution-review limits.
 
 ## M2-01 native open
@@ -180,3 +181,23 @@ F3 and F9/window close through the protected close coordinator; F10 chooses
 only its fixed marked synthetic copy destination, and F11 requires its risk
 checkbox. Exact native WebKit drills and limits are recorded in
 [M2 evidence](test-evidence/M2.md#m2-05d--protected-close-and-failure-escalation).
+
+## M2-06 native history and headless gate
+
+Focused Linux history/choice/exit commands:
+`CARGO_HOME=/tmp/babel-cargo cargo test -p screenwriter-core --lib history_store --locked`,
+`CARGO_HOME=/tmp/babel-cargo cargo test -p screenwriter-core --test recovery_choices --test m2_exit --locked`.
+Use `BABEL_HISTORY_TEST_ROOT`, `BABEL_CHOICES_TEST_ROOT` and
+`BABEL_M2_EXIT_TEST_ROOT` with this repository path for owned Btrfs fixtures.
+The full shared `cargo test --workspace --locked` with all filesystem fixture
+roots set to the Btrfs workspace repeats native source/recovery/snapshot and
+history fault coverage. `pnpm check`, Rust format/Clippy and
+`pnpm tauri build --no-bundle` remain shared gates. Exact commands, host,
+outcomes and no-Git-PATH run are in [M2-06 evidence](test-evidence/M2.md#m2-06--small-history-primitives-and-safety-gate).
+
+The already locked `git2 0.21.0` (MIT OR Apache-2.0) with vendored libgit2
+1.9.7 (GPL v2 with linking exception) is now a core runtime dependency, using
+the M1-05 configuration without HTTPS/SSH/credential features. The M1 probe's
+license/source inspection remains applicable; installed/offline packaging and
+complete transitive/native notices remain M6. The history API adds no frontend
+filesystem/shell capability or runtime network dependency.

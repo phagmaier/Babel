@@ -681,6 +681,16 @@ impl DocumentService {
         .map_err(failure)?;
         self.protect_disk_before_replacement(identity)
             .map_err(failure)?;
+        let profile = self.native_history_profile(identity).map_err(failure)?;
+        self.record_revision(
+            identity,
+            Some(request.current.version),
+            &request.current.source,
+            &profile,
+            "Before snapshot restore",
+            true,
+        )
+        .map_err(failure)?;
         self.save_request(SaveRequest {
             identity: identity.clone(),
             version: request.new_version,

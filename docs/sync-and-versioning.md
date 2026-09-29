@@ -1,6 +1,6 @@
 # Local history and explicit remote transfer
 
-Status: M1-05 native history proof complete; production history and remote adapters remain planned. [SPEC S11](../SPEC.md#s11); HIST-01/02, SYNC-01–05, INV-07–09/15/20.
+Status: M2-06 Linux headless history primitives implemented after the M1-05 proof; production history UI/cadence and remote adapters remain planned. [SPEC S11](../SPEC.md#s11); HIST-01/02, SYNC-01–05, INV-07–09/15/20.
 
 Local history will store curated Fountain/profile revisions through a native `HistoryStore`, independent of editor undo, recovery, current file, and backups. M1 tests a Git implementation on disposable repositories, including library/license/bundling behavior; the leading choice is now vendored git2 per [ADR 0011](decisions/0011-git2-history-store.md). Revisions are made periodically and before risky operations, not per keystroke. Restore creates a new revision after protecting current content; it never resets away later history. History failure must not block emergency source saving. No system Git installation is assumed for end users.
 
@@ -14,7 +14,21 @@ and two-client local bare transport. Fetch uses isolated incoming refs; push
 uses an immutable capture and normal non-force refspec, checks per-ref status
 and verifies the remote head. Source/recovery copies stay untouched on Git
 failure. No authenticated provider or production durability is proved.
-M2-06 promotes only these small primitives behind the native coordinator and
-adds interrupted-object/ref tests, durable operation records and retention
-policy; it must never substitute Git for recovery or a source-save receipt.
+M2-06 promotes the pinned local `git2` adapter into `screenwriter-core`. It
+uses private bare native app-data history repositories keyed by document UUID,
+a project-bound marker, curated exact-byte source and portable profile/hash
+manifest, checked first-parent/CAS main updates and explicit safety refs.
+Native callers may record only the owned current disk generation or an exact
+latest current-session recovery checkpoint. Changed source/profile content
+creates a revision; unchanged content is deduplicated. Recovery adoption and
+snapshot restore protect current content in a safety ref after independent
+snapshot/checkpoint protection and before replacement. If history is corrupt
+or publication fails, those destructive operations stop; ordinary saving and
+recovery remain available. `HistoryHealth` exposes attention after restart.
+The safety ref is a persistent operation record, but no Git object/ref power-loss
+durability or multi-ref atomicity is claimed. No pruning, automatic repair,
+production scheduler/UI or network transport exists. [ADR 0020](decisions/0020-native-curated-history.md)
+owns the storage and failure choices; the [M2-06 report](test-evidence/M2.md#m2-06--small-history-primitives-and-safety-gate)
+records bounded native evidence. M6 owns the timeline, named UX, cadence and
+restore workflow; M7 owns manual remote transfer.
 [Gate review](m1-gate-review.md) records M1 exit and reviewed M2 contracts.

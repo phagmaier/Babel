@@ -67,6 +67,7 @@ export interface DocumentError {
     | 'saveQueueFull'
     | 'saveNeedsAttention'
     | 'snapshotNeedsAttention'
+    | 'historyNeedsAttention'
     | 'snapshotLimit'
     | 'invalidSnapshot'
     | 'invalidDestination'

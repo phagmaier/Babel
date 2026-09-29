@@ -156,7 +156,8 @@ only its exact tagged source receipt may update the editor owner. No new history
 filesystem engine, library, runtime network or frontend capability is added.
 [ADR 0018](decisions/0018-portable-snapshot-retention.md) owns durable format,
 retention/pruning and destination tradeoffs. Production picker/cadence/restore UI,
-M2-06 curated safety revisions remain a separate integration gate.
+M2-06 curated safety revisions remained a separate integration gate from this
+earlier snapshot task.
 
 ## M2-05D close and window lifecycle
 
@@ -172,3 +173,17 @@ The native window event cancels close while registrations exist and emits
 were added; no filesystem, shell or remote permission was added. The marked
 synthetic editor consumes this event and tests real WebKit close. See
 [ADR 0019](decisions/0019-protected-close-lifecycle.md).
+
+## M2-06 native history boundary
+
+The same serialized Linux `DocumentService` owns curated Git history under
+private app data, keyed by native document identity. Its `record_revision`
+method accepts only the owned disk generation or the latest exact current-session
+checkpoint. Source/profile commits, CAS main refs and safety refs carry no
+source/recovery receipt. Recovery adoption and snapshot restore call this native
+safety operation before source replacement. A history failure blocks those
+destructive choices while ordinary saves/checkpoints remain independent;
+`history_health` reports attention after restart. The default desktop has no
+history IPC command or frontend path/permission. [ADR 0020](decisions/0020-native-curated-history.md)
+records the native format and failure tradeoffs. M6 owns editor scheduling,
+timeline/restore UI and installed/offline adoption.
