@@ -39,6 +39,17 @@ export const shortcutCommands = [
     unavailable: null,
   },
   ...[
+    ['bold', 'Bold', 'Mod+B'],
+    ['italic', 'Italic', 'Mod+I'],
+    ['underline', 'Underline', 'Mod+U'],
+  ].map(([id, label, binding]) => ({
+    id: `format.${id}`,
+    label: label!,
+    binding: binding!,
+    scope: 'editor' as const,
+    unavailable: null,
+  })),
+  ...[
     ['save', 'Save', 'Mod+S', 'Source saving is awaiting M3-10.'],
     ['saveAs', 'Save As', 'Mod+Shift+S', 'Save As is awaiting M3-11.'],
     ['open', 'Open', 'Mod+O', 'Native Open is awaiting M3-09.'],

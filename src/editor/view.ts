@@ -1,4 +1,11 @@
 import { EditorView } from 'prosemirror-view';
+import {
+  clipboardHtmlText,
+  copyEditorSelection,
+  pasteEditorContent,
+  clipboardMime,
+} from './clipboard';
+import { dispatchIsolated } from './formatting';
 import type { EditorState } from 'prosemirror-state';
 import { applyEditorTransaction, editorOrigin } from './state';
 import { routeEditorShortcut } from './shortcuts';
@@ -16,6 +23,7 @@ export function mountScreenplayEditor(
   state: EditorState,
   observers: {
     changed?: (state: EditorState) => void;
+    transactionMeasured?: (durationMs: number, changed: boolean) => void;
     refused?: (reason?: string) => void;
     shortcuts?: ShortcutRegistry;
     completion?: LocalCompletion;
@@ -29,8 +37,13 @@ export function mountScreenplayEditor(
     state,
     editable: (current) => !editorOrigin(current).document.readOnlyReason,
     dispatchTransaction(transaction) {
+      const started = observers.transactionMeasured ? performance.now() : 0;
       const result = applyEditorTransaction(view.state, transaction);
       view.updateState(result.state);
+      observers.transactionMeasured?.(
+        performance.now() - started,
+        transaction.docChanged,
+      );
       if (!result.accepted) observers.refused?.();
       else if (transaction.docChanged || transaction.selectionSet) {
         observers.changed?.(result.state);
@@ -43,6 +56,53 @@ export function mountScreenplayEditor(
       }
     },
     handleDOMEvents: {
+      copy(current, event) {
+        if (!event.clipboardData || current.state.selection.empty) return false;
+        const content = copyEditorSelection(current.state);
+        event.clipboardData.setData('text/plain', content.text);
+        if (content.structured)
+          event.clipboardData.setData(clipboardMime, content.structured);
+        event.preventDefault();
+        return true;
+      },
+      cut(current, event) {
+        if (!event.clipboardData || current.state.selection.empty) return false;
+        const content = copyEditorSelection(current.state);
+        event.clipboardData.setData('text/plain', content.text);
+        if (content.structured)
+          event.clipboardData.setData(clipboardMime, content.structured);
+        event.preventDefault();
+        if (composing || current.composing) {
+          observers.refused?.('Cut waits until composition finishes');
+          return true;
+        }
+        const result = pasteEditorContent(current.state, { text: '' });
+        if (result.transaction) dispatchIsolated(current, result.transaction);
+        else observers.refused?.(result.reason);
+        return true;
+      },
+      paste(current, event) {
+        event.preventDefault();
+        observers.completion?.dismiss();
+        if (composing || current.composing) {
+          observers.refused?.('Paste waits until composition finishes');
+          return true;
+        }
+        if (!event.clipboardData) {
+          observers.refused?.(
+            'Clipboard data is unavailable; content retained',
+          );
+          return true;
+        }
+        const result = pasteEditorContent(current.state, {
+          text: event.clipboardData.getData('text/plain'),
+          html: event.clipboardData.getData('text/html'),
+          structured: event.clipboardData.getData(clipboardMime),
+        });
+        if (result.transaction) dispatchIsolated(current, result.transaction);
+        else observers.refused?.(result.reason);
+        return true;
+      },
       focus() {
         observers.completion?.changed(view);
         return false;
@@ -137,10 +197,26 @@ export function mountScreenplayEditor(
       else observers.refused?.(result.reason);
       return true;
     },
-    // Clipboard policies/structural commands have their own M3 gates.
-    handlePaste() {
+    // Programmatic ProseMirror paste is sanitized before its parser sees any HTML.
+    transformPastedHTML(html) {
+      const text = clipboardHtmlText(html);
+      return `<p>${text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>')}</p>`;
+    },
+    handlePaste(current, _event, slice) {
       observers.completion?.dismiss();
-      observers.refused?.();
+      if (composing || current.composing) {
+        observers.refused?.('Paste waits until composition finishes');
+        return true;
+      }
+      if (!slice) {
+        observers.refused?.('Paste has no readable content');
+        return true;
+      }
+      const result = pasteEditorContent(current.state, {
+        text: slice.content.textBetween(0, slice.content.size, '\n'),
+      });
+      if (result.transaction) dispatchIsolated(current, result.transaction);
+      else observers.refused?.(result.reason);
       return true;
     },
     handleDrop() {

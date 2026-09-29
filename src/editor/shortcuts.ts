@@ -1,6 +1,7 @@
 import { undo, redo } from 'prosemirror-history';
 import type { EditorView } from 'prosemirror-view';
 import type { ShortcutRegistry } from '../application/shortcuts';
+import { toggleEditorMark, dispatchIsolated } from './formatting';
 import { convertEditorSelection } from './commands';
 
 export function executeEditorCommand(
@@ -11,6 +12,12 @@ export function executeEditorCommand(
   if (view.composing) return false;
   if (id === 'undo' || id === 'redo') {
     return (id === 'undo' ? undo : redo)(view.state, (tr) => view.dispatch(tr));
+  }
+  if (id.startsWith('format.')) {
+    const result = toggleEditorMark(view.state, id.slice(7));
+    if (result.transaction) dispatchIsolated(view, result.transaction);
+    else if (result.reason) refused?.(result.reason);
+    return result.handled;
   }
   if (!id.startsWith('element.')) return false;
   const result = convertEditorSelection(

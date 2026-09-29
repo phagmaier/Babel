@@ -271,3 +271,122 @@ fn managed_safety_revision_uses_selected_project_profile() {
     assert_eq!(manifest.profile, "us-letter-v1");
     assert_eq!(manifest.profile_sha256, hash(b"us-letter-v1"));
 }
+
+fn import_request(
+    opened: &OpenDocument,
+    version: u64,
+    source: &[u8],
+) -> persistence::CheckpointRequest {
+    persistence::CheckpointRequest {
+        identity: opened.identity.clone(),
+        version,
+        source: source.to_vec(),
+        source_sha256: recovery::source_hash(source),
+        expected_fingerprint: opened.fingerprint.clone(),
+        draft_metadata: serde_json::json!({"schema":"synthetic-import-test"}),
+    }
+}
+
+#[test]
+fn editor_import_protects_exact_live_draft_with_safety_revision_without_replacing_source() {
+    let fixture = Fixture::new();
+    let (mut service, opened) = fixture.open();
+    let receipt = service
+        .protect_editor_import(import_request(&opened, 17, NEW))
+        .unwrap();
+    assert_eq!(receipt.checkpoint.version, 17);
+    assert_eq!(receipt.revision.version, Some(17));
+    assert_eq!(receipt.revision.source_sha256, hash(NEW));
+    assert_eq!(receipt.checkpoint.source_sha256, hash(NEW));
+    assert_eq!(
+        std::fs::read(fixture.0.join("script.fountain")).unwrap(),
+        OLD
+    );
+    let repo = service.history_repository(&opened.identity).unwrap();
+    let id = repo
+        .refname_to_id(receipt.revision.safety_ref.as_deref().unwrap())
+        .unwrap();
+    assert_eq!(id.to_string(), receipt.revision.commit_id);
+    let tree = repo.find_commit(id).unwrap().tree().unwrap();
+    assert_eq!(
+        repo.find_blob(tree.get_name("screenplay.fountain").unwrap().id())
+            .unwrap()
+            .content(),
+        NEW
+    );
+    let repeated = service
+        .protect_editor_import(import_request(&opened, 17, NEW))
+        .unwrap();
+    assert_eq!(repeated.revision.commit_id, receipt.revision.commit_id);
+    assert!(!repeated.revision.changed);
+}
+
+#[test]
+fn editor_import_rejects_stale_conflicting_or_forged_capture() {
+    let fixture = Fixture::new();
+    let (mut service, opened) = fixture.open();
+    service
+        .protect_editor_import(import_request(&opened, 17, NEW))
+        .unwrap();
+    let mut request = import_request(&opened, 18, NEW);
+    request.source_sha256 = hash(OLD);
+    assert_eq!(
+        service.protect_editor_import(request).unwrap_err().code,
+        ErrorCode::InvalidCheckpoint
+    );
+    assert_eq!(
+        service
+            .protect_editor_import(import_request(&opened, 16, NEW))
+            .unwrap_err()
+            .code,
+        ErrorCode::StaleRecoveryVersion
+    );
+    assert_eq!(
+        service
+            .protect_editor_import(import_request(&opened, 17, OLD))
+            .unwrap_err()
+            .code,
+        ErrorCode::CheckpointConflict
+    );
+    let mut request = import_request(&opened, 18, NEW);
+    request.identity.session_id = uuid();
+    assert_eq!(
+        service.protect_editor_import(request).unwrap_err().code,
+        ErrorCode::IdentityMismatch
+    );
+    assert_eq!(
+        std::fs::read(fixture.0.join("script.fountain")).unwrap(),
+        OLD
+    );
+}
+
+#[test]
+fn editor_import_history_failure_keeps_exact_checkpoint_and_source() {
+    let fixture = Fixture::new();
+    let (mut service, opened) = fixture.open();
+    service
+        .protect_editor_import(import_request(&opened, 17, OLD))
+        .unwrap();
+    // An unsafe permissions change to the disposable repository fails closed.
+    std::fs::set_permissions(
+        fixture.repo_path(&opened.identity),
+        std::fs::Permissions::from_mode(0o777),
+    )
+    .unwrap();
+    assert!(
+        service
+            .protect_editor_import(import_request(&opened, 18, NEW))
+            .is_err()
+    );
+    let latest = service
+        .inspect_recovery(&opened.identity)
+        .unwrap()
+        .latest
+        .unwrap();
+    assert_eq!(latest.source, NEW);
+    assert_eq!(latest.metadata.version, 18);
+    assert_eq!(
+        std::fs::read(fixture.0.join("script.fountain")).unwrap(),
+        OLD
+    );
+}

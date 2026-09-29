@@ -1,5 +1,9 @@
 import { type Node as EditorNode } from 'prosemirror-model';
-import { history, isHistoryTransaction } from 'prosemirror-history';
+import {
+  history,
+  isHistoryTransaction,
+  closeHistory,
+} from 'prosemirror-history';
 import {
   EditorState,
   Plugin,
@@ -22,6 +26,8 @@ interface SourceOrigin {
   readonly nextId: number;
 }
 const originKey = new PluginKey<SourceOrigin>('babel-source-origin');
+const sourceDocuments = new WeakMap<object, FountainDocument>();
+const importTransactions = new WeakSet<Transaction>();
 const structuralTransactions = new WeakMap<Transaction, number>();
 export function authorizeStructuralTransaction(
   transaction: Transaction,
@@ -59,7 +65,17 @@ export function nodeRuns(node: EditorNode): StyledText[] {
 function permitted(transaction: Transaction, state: EditorState): boolean {
   if (transaction.before !== state.doc) return false;
   if (!transaction.docChanged) return true;
-  if (editorOrigin(state).document.readOnlyReason) return false;
+  const sourceChanged =
+    transaction.doc.attrs.sourceOrigin !== state.doc.attrs.sourceOrigin;
+  if (
+    sourceChanged &&
+    (!sourceDocuments.has(transaction.doc.attrs.sourceOrigin as object) ||
+      (!importTransactions.has(transaction) &&
+        !isHistoryTransaction(transaction)))
+  )
+    return false;
+  if (!sourceChanged && editorOrigin(state).document.readOnlyReason)
+    return false;
   if (
     structuralTransactions.has(transaction) ||
     isHistoryTransaction(transaction)
@@ -71,11 +87,13 @@ function permitted(transaction: Transaction, state: EditorState): boolean {
       .filter((node) => node.attrs.protected)
       .map((node) => [node.attrs.id as string, node]);
     if (
-      oldProtected.length !== newProtected.length ||
-      oldProtected.some(
-        ([id, node], index) =>
-          id !== newProtected[index]?.[0] || !node.eq(newProtected[index]![1]),
-      )
+      !sourceChanged &&
+      (oldProtected.length !== newProtected.length ||
+        oldProtected.some(
+          ([id, node], index) =>
+            id !== newProtected[index]?.[0] ||
+            !node.eq(newProtected[index]![1]),
+        ))
     )
       return false;
     const ids = new Set<string>();
@@ -85,7 +103,13 @@ function permitted(transaction: Transaction, state: EditorState): boolean {
         typeof id !== 'string' ||
         !/^b(?:0|[1-9]\d*)$/.test(id) ||
         ids.has(id) ||
-        /[\r\n]/.test(node.textContent) ||
+        (/[\r\n]/.test(node.textContent) &&
+          !(
+            sourceChanged &&
+            node.attrs.protected &&
+            sourceDocuments.get(transaction.doc.attrs.sourceOrigin as object)
+              ?.readOnlyReason
+          )) ||
         invalidUnicode.test(node.textContent) ||
         node.content.content.some((child) =>
           child.marks.some(
@@ -204,7 +228,7 @@ export function createEditorState(
     nodes.push(
       screenplaySchema.nodes[source.readOnlyReason ? 'raw' : 'action']!.create(
         {
-          id: 'b0',
+          id: `b${source.recovery.nextId}`,
           sourceIndex: -1,
           protected: Boolean(source.readOnlyReason),
           literal: false,
@@ -216,7 +240,12 @@ export function createEditorState(
           : undefined,
       ),
     );
-  const doc = screenplaySchema.nodes.doc!.create(null, nodes);
+  const sourceToken = Object.freeze({});
+  sourceDocuments.set(sourceToken, source);
+  const doc = screenplaySchema.nodes.doc!.create(
+    { sourceOrigin: sourceToken },
+    nodes,
+  );
   const sourcePlugin = new Plugin<SourceOrigin>({
     key: originKey,
     state: {
@@ -225,7 +254,11 @@ export function createEditorState(
           document: source,
           session: Object.freeze({}),
           version: 1,
-          nextId: Math.max(source.recovery.nextId, nodes.length ? 1 : 0),
+          nextId: nodes.reduce(
+            (next, node) =>
+              Math.max(next, Number(String(node.attrs.id).slice(1)) + 1),
+            source.recovery.nextId,
+          ),
         }),
       apply(tr, previous) {
         if (!tr.docChanged && !tr.selectionSet) return previous;
@@ -233,6 +266,7 @@ export function createEditorState(
           throw new RangeError('Editor version exhausted');
         return Object.freeze({
           ...previous,
+          document: sourceDocuments.get(tr.doc.attrs.sourceOrigin as object)!,
           version: previous.version + 1,
           nextId: Math.max(
             previous.nextId,
@@ -272,4 +306,33 @@ export function applyEditorTransaction(
 ) {
   const result = state.applyTransaction(transaction);
   return { state: result.state, accepted: result.transactions.length > 0 };
+}
+
+/** Whole-source import only; the application must obtain exact native safety protection first. */
+export function sourceImportTransaction(
+  state: EditorState,
+  bytes: Uint8Array,
+): Transaction {
+  const parsed = parseFountain(bytes);
+  let nextId = editorOrigin(state).nextId;
+  const recovery: FountainRecovery = {
+    ...parsed.recovery,
+    lines: parsed.recovery.lines.map((line) => ({
+      ...line,
+      id: `b${nextId++}`,
+    })),
+    nextId: nextId,
+  };
+  // Avoid any accidental ID reuse even for an empty or invalid imported source.
+  const imported = createEditorState(bytes, { ...recovery, nextId });
+  let tr = closeHistory(state.tr)
+    .replaceWith(0, state.doc.content.size, imported.doc.content)
+    .setDocAttribute('sourceOrigin', imported.doc.attrs.sourceOrigin);
+  // Selection must refer to the transaction document, including its imported origin attribute.
+  tr = tr.setSelection(TextSelection.create(tr.doc, imported.selection.from));
+  importTransactions.add(tr);
+  return authorizeStructuralTransaction(
+    tr,
+    Math.max(nextId, editorOrigin(imported).nextId),
+  );
 }

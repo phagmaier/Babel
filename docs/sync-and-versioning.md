@@ -32,3 +32,5 @@ owns the storage and failure choices; the [M2-06 report](test-evidence/M2-06.md)
 records bounded native evidence. M6 owns the timeline, named UX, cadence and
 restore workflow; M7 owns manual remote transfer.
 [Gate review](m1-gate-review.md) records M1 exit and reviewed M2 contracts.
+
+M3-08 exposes the narrow `protect_fountain_import` native operation: checkpoint the exact owned live editor version, then record its safety revision with the native profile and fixed label before editor replacement. History failure refuses import while preserving a completed checkpoint and the source file. It adds no path/transport endpoint and does not weaken emergency-save behavior. [ADR 0023](decisions/0023-protected-fountain-import.md), [M3-08 evidence](test-evidence/M3.md#m3-08--paste-formatting-and-native-input).

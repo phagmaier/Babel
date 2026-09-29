@@ -25,3 +25,5 @@ Synchronous whole-source grammar filtering would put parsing/encoding on typing.
 Promote the already pinned model/state/history/view packages to runtime; keep proof-only commands/keymap/schema-basic in dev dependencies. [Exact editor notices](../third-party/editor-runtime.md) record direct/transitive licenses. Default app activation, native picker, smart keys, real IME, save cadence and installed packaging remain separate gates.
 
 Evidence still needed: M3-05–08 structural commands and full native input/undo matrix; M3-10 recovery projection restoration and measured capture/cadence integration; M3-12/13 production lifecycle and native writing; M6 complete distribution/offline/adoption review.
+
+M3-08 extends immutable source provenance for isolated whole-source import and undo; [ADR 0023](0023-protected-fountain-import.md) owns the native pre-import protection and history-token decision. The private source token is an editor document attribute, not a DOM attribute or clipboard field. Ordinary paste now uses the explicit safe clipboard policy; drop still refuses.

@@ -1,6 +1,7 @@
 //! Bounded blocking jobs. No guard crosses await; cancellation never interrupts a started write.
 use super::*;
 use screenwriter_core::documents::{
+    history::ImportProtectionReceipt,
     persistence::{CheckpointFailure, CheckpointRequest, payload_cost},
     recovery::CheckpointReceipt,
     saving::{
@@ -134,6 +135,40 @@ impl DocumentHost {
         .map_err(|_| join_failure)?
     }
 
+    async fn protect_import(
+        &self,
+        request: CheckpointRequest,
+    ) -> Result<ImportProtectionReceipt, DocumentError> {
+        let cost = payload_cost(
+            request.version,
+            &request.source,
+            &request.source_sha256,
+            &request.draft_metadata,
+        )?;
+        let permit = self.reserve(cost)?;
+        let worker = self.service.clone();
+        tauri::async_runtime::spawn_blocking(move || {
+            let _permit = permit;
+            let mut service = worker
+                .lock()
+                .map_err(|_| DocumentError::new(ErrorCode::NativeUnavailable))?;
+            #[cfg(target_os = "linux")]
+            {
+                service
+                    .as_mut()
+                    .ok_or_else(|| DocumentError::new(ErrorCode::NativeUnavailable))?
+                    .protect_editor_import(request)
+            }
+            #[cfg(not(target_os = "linux"))]
+            {
+                let _ = (&mut service, request);
+                Err(DocumentError::new(ErrorCode::NativeUnavailable))
+            }
+        })
+        .await
+        .map_err(|_| DocumentError::new(ErrorCode::NativeUnavailable))?
+    }
+
     async fn save(&self, request: SaveRequest) -> Result<SaveReceipt, Box<SaveFailure>> {
         let failure = |error| {
             Box::new(SaveFailure {
@@ -194,6 +229,14 @@ pub(super) async fn save_document(
     state: tauri::State<'_, DocumentHost>,
 ) -> Result<SaveReceipt, Box<SaveFailure>> {
     state.save(request).await
+}
+
+#[tauri::command]
+pub(super) async fn protect_fountain_import(
+    request: CheckpointRequest,
+    state: tauri::State<'_, DocumentHost>,
+) -> Result<ImportProtectionReceipt, DocumentError> {
+    state.protect_import(request).await
 }
 
 #[cfg(all(test, target_os = "linux"))]

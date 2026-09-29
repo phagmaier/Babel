@@ -220,7 +220,8 @@ describe('production sole editor/source boundary (pure contract, no native I/O)'
       ),
     );
     const parsed = DOMParser.fromSchema(screenplaySchema).parse(host);
-    expect(parsed.eq(state.doc)).toBe(true);
+    expect(parsed.content.eq(state.doc.content)).toBe(true);
+    expect(parsed.attrs.sourceOrigin).toBeNull(); // Immutable source provenance stays private, outside DOM.
     const foreign = new Schema({
       nodes: { doc: { content: 'text*' }, text: {} },
       marks: { bold: { toDOM: () => ['script', 0] } },

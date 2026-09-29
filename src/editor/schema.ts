@@ -26,7 +26,7 @@ export const screenplayKinds = [
 /** Physical source rows remain explicit; visual wrapping never creates a source row. */
 export const screenplaySchema = new Schema({
   nodes: {
-    doc: { content: 'line+' },
+    doc: { content: 'line+', attrs: { sourceOrigin: { default: null } } },
     ...Object.fromEntries(
       screenplayKinds.map((kind): [string, NodeSpec] => [
         kind,
