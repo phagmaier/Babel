@@ -24,6 +24,9 @@ import {
 import type { MoveRequest } from '../domain/sceneMoves';
 import { Outline } from './Outline';
 import { TitlePagePanel } from './TitlePagePanel';
+import { FindPanel } from './FindPanel';
+import { FindController, type FindState } from '../application/find';
+import { highlightFind, navigateFind } from '../editor/find';
 import { navigateOutline } from '../editor/outlineNavigation';
 import type { CapturedSnapshot } from '../application/persistenceController';
 import type { DocumentEntryPort } from '../application/documentEntry';
@@ -166,6 +169,15 @@ export function WritingView({
   const titleComposingRef = useRef(false);
   const titleApplyingRef = useRef(false);
   const [showTitle, setShowTitle] = useState(false);
+  const findRef = useRef<FindController | null>(null);
+  const findScrollRef = useRef<{
+    view: EditorView;
+    session: object;
+    version: number;
+    doc: import('prosemirror-model').Node;
+    selection: import('prosemirror-state').Selection;
+  } | null>(null);
+  const [findState, setFindState] = useState<FindState | null>(null);
   const titleButtonRef = useRef<HTMLButtonElement | null>(null);
   const titleReturnFocusRef = useRef(false);
   const importHost = useRef<HTMLDivElement | null>(null);
@@ -211,6 +223,40 @@ export function WritingView({
     }
   }, [showTitle]);
 
+  useEffect(() => {
+    const target = findScrollRef.current;
+    const find = findRef.current;
+    if (
+      !target ||
+      !find ||
+      !findState?.enabled ||
+      findState.phase !== 'current' ||
+      !find.isCurrent(findState.projection)
+    )
+      return;
+    findScrollRef.current = null;
+    // React has committed the result/reveal panel; scroll only the still-current selection.
+    requestAnimationFrame(() => {
+      const view = target.view;
+      if (
+        view.isDestroyed ||
+        view.composing ||
+        !find.state.enabled ||
+        operationRef.current ||
+        frozenRef.current ||
+        !view.hasFocus() ||
+        editorOrigin(view.state).session !== target.session ||
+        editorVersion(view.state) !== target.version ||
+        view.state.doc !== target.doc ||
+        !view.state.selection.eq(target.selection)
+      )
+        return;
+      view.dispatch(
+        view.state.tr.setMeta('addToHistory', false).scrollIntoView(),
+      );
+    });
+  }, [findState]);
+
   const refresh = () => {
     const session = sessionRef.current;
     if (!session) return;
@@ -248,10 +294,66 @@ export function WritingView({
           }
         : null;
     };
+    const find = new FindController(stamp, (state) => {
+      if (!alive) return;
+      setFindState(state);
+      const view = viewRef.current;
+      if (
+        view &&
+        !operationRef.current &&
+        !frozenRef.current &&
+        !titleDraftRef.current &&
+        !titleComposingRef.current
+      )
+        highlightFind(
+          view,
+          state.phase === 'current' ? state.projection : null,
+          state.matches,
+          state.active,
+        );
+    });
+    findRef.current = find;
     const projection = new ManuscriptProjectionController(stamp, (state) => {
       if (alive) setOutline(state);
+      find.setProjection(
+        state,
+        viewRef.current?.state.selection.$head.index(0) ?? -1,
+      );
     });
-    const changed = () => {
+    let navigationCapture = false;
+    const changed = (
+      _state?: import('prosemirror-state').EditorState,
+      transaction?: import('prosemirror-state').Transaction,
+    ) => {
+      if (transaction?.getMeta('findNavigation')) {
+        // Unchanged content needs no stale-outline repaint; every old anchor still checks its stamp.
+        find.setProjection(
+          {
+            phase: 'pending',
+            projection: projection.state.projection,
+            message: 'Updating selection…',
+          },
+          viewRef.current?.state.selection.$head.index(0) ?? -1,
+        );
+        // Rebind branded immutable source off the key path; never schedule native protection.
+        const previous = projection.state.projection;
+        const boundary = boundaryRef.current;
+        if (!navigationCapture && alive && previous && boundary) {
+          navigationCapture = true;
+          setTimeout(() => {
+            navigationCapture = false;
+            if (!alive || boundaryRef.current !== boundary) return;
+            try {
+              const snapshot = boundary.rebindSelection(previous.snapshot);
+              const current = stamp();
+              if (snapshot && current) projection.accept(snapshot, current);
+            } catch {
+              projection.unavailable();
+            }
+          }, 0);
+        }
+        return;
+      }
       projection.changedDraft();
       if (adoptingRef.current || !alive) return;
       captureAgain = true;
@@ -648,6 +750,8 @@ export function WritingView({
         alive = false;
         moveAbortRef.current?.abort();
         projection.dispose();
+        find.dispose();
+        findRef.current = null;
         stop?.();
         popupRef.current?.destroy();
         viewRef.current?.destroy();
@@ -658,6 +762,8 @@ export function WritingView({
       alive = false;
       moveAbortRef.current?.abort();
       projection.dispose();
+      find.dispose();
+      findRef.current = null;
       popupRef.current?.destroy();
       viewRef.current?.destroy();
       session.dispose();
@@ -687,6 +793,20 @@ export function WritingView({
         command.unavailable
       )
         return;
+      if (['find', 'nextMatch', 'previousMatch'].includes(command.id)) {
+        event.preventDefault();
+        if (
+          operationRef.current ||
+          showClose ||
+          titleDraftRef.current ||
+          viewRef.current?.composing
+        )
+          return;
+        if (command.id === 'find') openFind();
+        else navigateSearch(command.id === 'nextMatch' ? 1 : -1);
+        return;
+      }
+      // Search input owns ordinary typing/Undo, while application commands remain available.
       if (!['save', 'saveAs', 'open'].includes(command.id)) return;
       event.preventDefault();
       if (operationRef.current || showClose || titleDraftRef.current) {
@@ -984,11 +1104,78 @@ export function WritingView({
     }
   };
 
+  const openFind = () => {
+    if (
+      !findRef.current ||
+      viewRef.current?.composing ||
+      titleDraftRef.current ||
+      titleComposingRef.current
+    )
+      return;
+    popupRef.current?.controller.dismiss();
+    findRef.current.configure(findRef.current.state.options, true);
+    // Repeated Find focuses the existing query without replacing editor state.
+    document
+      .querySelector<HTMLInputElement>('.find-panel input[type="search"]')
+      ?.focus();
+  };
+  const navigateSearch = (direction: 1 | -1, index?: number) => {
+    const view = viewRef.current;
+    if (
+      !view ||
+      operationRef.current ||
+      frozenRef.current ||
+      !readyRef.current ||
+      showClose ||
+      titleDraftRef.current ||
+      titleComposingRef.current
+    )
+      return;
+    popupRef.current?.controller.dismiss();
+    if (
+      findRef.current?.navigate(
+        direction,
+        (projection, match) => navigateFind(view, projection, match, false),
+        index,
+      )
+    ) {
+      findScrollRef.current = {
+        view,
+        session: editorOrigin(view.state).session,
+        version: editorVersion(view.state),
+        doc: view.state.doc,
+        selection: view.state.selection,
+      };
+    } else {
+      setError(
+        'Find navigation is unavailable for this version. Text and selection are retained.',
+      );
+    }
+  };
+  const closeFind = () => {
+    findScrollRef.current = null;
+    findRef.current?.configure(findRef.current.state.options, false);
+    const view = viewRef.current;
+    if (view && !view.isDestroyed && !view.composing) {
+      view.dom.focus({ preventScroll: true });
+      view.focus();
+    }
+  };
+
   // The editor and import hosts are keyed so React preserves their DOM across
   // phase changes. Unkeyed conditional trees unmounted ProseMirror's DOM out
   // from under the live view, silently detaching the editor.
   const hosts = (
     <div key="writing-hosts">
+      {phase === 'active' && findState?.enabled && findRef.current && (
+        <FindPanel
+          controller={findRef.current}
+          state={findState}
+          disabled={busy || showClose}
+          onNavigate={navigateSearch}
+          onClose={closeFind}
+        />
+      )}
       {phase === 'active' && showTitle && viewRef.current && (
         <TitlePagePanel
           document={
@@ -1168,6 +1355,15 @@ export function WritingView({
           Select copy destination
         </button>
         <button
+          type="button"
+          id="writing-find"
+          aria-expanded={Boolean(findState?.enabled)}
+          disabled={busy || !active || showClose}
+          onClick={openFind}
+        >
+          Find
+        </button>
+        <button
           id="writing-title"
           ref={titleButtonRef}
           aria-expanded={showTitle}
@@ -1208,6 +1404,14 @@ export function WritingView({
           focusTargetLabel="screenplay actions"
           execute={(id) => {
             const current = viewRef.current;
+            if (id === 'find') {
+              openFind();
+              return;
+            }
+            if (id === 'nextMatch' || id === 'previousMatch') {
+              navigateSearch(id === 'nextMatch' ? 1 : -1);
+              return;
+            }
             if (id === 'save') {
               if (session) void run(() => session.save());
               return;

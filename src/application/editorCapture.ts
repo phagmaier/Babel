@@ -34,6 +34,10 @@ async function sha256(source: Uint8Array): Promise<string> {
 export class EditorCaptureBoundary {
   private active = 0;
   private previousCapture: EditorCapture | undefined;
+  private readonly selectionSources = new WeakMap<
+    CapturedEditorSnapshot,
+    CapturedEditorSnapshot
+  >();
   private readonly origins = new WeakMap<CapturedEditorSnapshot, EditorState>();
   private readonly getState: () => EditorState;
   private readonly hash: Hasher;
@@ -91,6 +95,49 @@ export class EditorCaptureBoundary {
       editorOrigin(source).session === editorOrigin(current).session &&
       editorVersion(source) === editorVersion(current),
     );
+  }
+  /** Rebind only branded, identical immutable content; no hashing/parse/source copy. */
+  rebindSelection(
+    snapshot: CapturedEditorSnapshot,
+  ): CapturedEditorSnapshot | null {
+    const prior = this.origins.get(snapshot);
+    const state = this.getState();
+    if (
+      !prior ||
+      prior.doc !== state.doc ||
+      editorOrigin(prior).session !== editorOrigin(state).session
+    )
+      return null;
+    const capture = captureEditor(state, snapshot.capture);
+    const base = this.selectionSources.get(snapshot) ?? snapshot;
+    const metadata = snapshot.draftMetadata;
+    if (!metadata || typeof metadata !== 'object' || Array.isArray(metadata))
+      return null;
+    const selection = capture.selection
+      ? Object.freeze({
+          anchor: Object.freeze({ ...capture.selection.anchor }),
+          head: Object.freeze({ ...capture.selection.head }),
+        })
+      : null;
+    const draftMetadata = Object.freeze({ ...metadata, selection });
+    if (
+      new TextEncoder().encode(JSON.stringify(draftMetadata)).length >
+      MAX_DRAFT_METADATA_BYTES
+    )
+      throw new RangeError('Editor capture exceeds native metadata bound');
+    const next: CapturedEditorSnapshot = Object.freeze({
+      version: capture.version,
+      get source() {
+        return base.source;
+      },
+      sourceSha256: snapshot.sourceSha256,
+      draftMetadata,
+      capture,
+    });
+    this.origins.set(next, state);
+    this.selectionSources.set(next, base);
+    this.previousCapture = capture;
+    return next;
   }
   async capture(
     options: { latest?: boolean; afterPaint?: boolean } = {},

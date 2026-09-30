@@ -88,7 +88,7 @@ M3-08's whole-source import retains an immutable branded codec origin with the e
 
 ## M4-03 manuscript index
 
-[ADR 0029](decisions/0029-versioned-manuscript-index.md) owns half-open scene/section ranges, literal synopsis/note/blank ownership and explicit boundary ambiguity. `manuscriptIndex.ts` derives a frozen advisory hierarchy and logical body/title/note/omitted/raw locations from a captured codec document. It retains intact title/hidden/raw/dual spans, newline facts and exact Unicode/source-byte runs; it never rewrites source or grants permission to move ambiguous material. Scene ordinals and authored numbers are separate. Bounds fail the entire projection; view limits are explicitly disclosed. M4-05 moves use the complete indexed locations and intact ranges together; future find/count consumers retain the same contract.
+[ADR 0029](decisions/0029-versioned-manuscript-index.md) owns half-open scene/section ranges, literal synopsis/note/blank ownership and explicit boundary ambiguity. `manuscriptIndex.ts` derives a frozen advisory hierarchy and logical body/title/note/omitted/raw locations from a captured codec document. It retains intact title/hidden/raw/dual spans, newline facts and exact Unicode/source-byte runs; it never rewrites source or grants permission to move ambiguous material. Scene ordinals and authored numbers are separate. Bounds fail the entire projection; view limits are explicitly disclosed. M4-05 moves use the complete indexed locations and intact ranges together; [M4-07 find](editor-behavior.md#logical-find-m4-07) consumes the same logical locations/runs without crossing row/region boundaries; future counts retain the same contract.
 
 ## M4-05 exact-source outline moves
 

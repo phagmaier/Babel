@@ -1101,3 +1101,74 @@ it('title input blocks Save, Home and application shortcuts until explicit Apply
     literal.replace('**Old**\r\n', '*New*\r\n    More\r\n'),
   );
 });
+
+it('M4-07 registry find/hidden selection/close preserve one editor and trigger no native writes', async () => {
+  // JSDOM has no Range layout; actual selection visibility is a native gate.
+  Object.defineProperty(Range.prototype, 'getClientRects', {
+    configurable: true,
+    value: () => [],
+  });
+  Object.defineProperty(Range.prototype, 'getBoundingClientRect', {
+    configurable: true,
+    value: () => new DOMRect(),
+  });
+  const source =
+    'Title: moon\n\n.INT. LAB - DAY\n!moon **light**.\n[[moon]]\n/*moon*/\n!moon [[tail]]';
+  const fixture = fixturePorts({
+    picked: {
+      ...opened(),
+      source: Array.from(new TextEncoder().encode(source)),
+      fingerprint: {
+        ...opened().fingerprint!,
+        sha256: createHash('sha256').update(source).digest('hex'),
+      },
+    },
+  });
+  render(
+    <WritingView
+      ports={fixture.ports}
+      open={{ kind: 'picked' }}
+      onSessionClosed={vi.fn()}
+    />,
+  );
+  await screen.findByLabelText('Screenplay actions');
+  await waitFor(() =>
+    expect(
+      document.querySelector('.outline-target:not(:disabled)'),
+    ).toBeTruthy(),
+  );
+  const editor = document.querySelector('.ProseMirror')!;
+  const checkpoints = fixture.calls.checkpoint;
+  const saves = fixture.calls.saved.length;
+  fireEvent.keyDown(editor, { key: 'f', ctrlKey: true });
+  const input = await screen.findByLabelText('Find text');
+  fireEvent.change(input, { target: { value: 'moon' } });
+  await screen.findByText('5 matches.');
+  fireEvent.click(screen.getByRole('button', { name: /Note · row 5/ }));
+
+  await waitFor(() =>
+    expect(document.querySelector('.find-reveal')?.textContent).toContain(
+      'source row 5',
+    ),
+  );
+  await waitFor(() =>
+    expect(
+      (screen.getByRole('button', { name: 'Next match' }) as HTMLButtonElement)
+        .disabled,
+    ).toBe(false),
+  );
+  expect(document.activeElement).toBe(editor);
+  fireEvent.keyDown(editor, { key: 'g', ctrlKey: true });
+  await waitFor(() =>
+    expect(document.querySelector('.find-reveal')?.textContent).toContain(
+      'source row 6',
+    ),
+  );
+  fireEvent.click(screen.getByText('Close find'));
+  expect(document.activeElement).toBe(editor);
+  expect(document.querySelector('.ProseMirror')).toBe(editor);
+  expect(fixture.calls.checkpoint).toBe(checkpoints);
+  expect(fixture.calls.saved.length).toBe(saves);
+  Reflect.deleteProperty(Range.prototype, 'getClientRects');
+  Reflect.deleteProperty(Range.prototype, 'getBoundingClientRect');
+});

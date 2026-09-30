@@ -227,6 +227,10 @@ try:
         from home_workflows import run as run_home
         run_home(sys.modules[__name__])
         sys.exit(0)
+    if '--find' in sys.argv:
+        from find_workflows import run as run_find
+        run_find(sys.modules[__name__])
+        sys.exit(0)
     if '--title-page' in sys.argv:
         from title_page import run as run_title
         run_title(sys.modules[__name__])

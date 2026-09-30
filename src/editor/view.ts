@@ -6,7 +6,7 @@ import {
   clipboardMime,
 } from './clipboard';
 import { dispatchIsolated } from './formatting';
-import type { EditorState } from 'prosemirror-state';
+import type { EditorState, Transaction } from 'prosemirror-state';
 import { applyEditorTransaction, editorOrigin } from './state';
 import { routeEditorShortcut } from './shortcuts';
 import type { LocalCompletion } from './completion';
@@ -22,7 +22,7 @@ export function mountScreenplayEditor(
   host: HTMLElement,
   state: EditorState,
   observers: {
-    changed?: (state: EditorState) => void;
+    changed?: (state: EditorState, transaction: Transaction) => void;
     transactionMeasured?: (durationMs: number, changed: boolean) => void;
     refused?: (reason?: string) => void;
     shortcuts?: ShortcutRegistry;
@@ -68,7 +68,7 @@ export function mountScreenplayEditor(
       );
       if (!result.accepted) observers.refused?.();
       else if (transaction.docChanged || transaction.selectionSet) {
-        observers.changed?.(result.state);
+        observers.changed?.(result.state, transaction);
         observers.completion?.changed(view);
         if (
           transaction.getMeta('paste') ||

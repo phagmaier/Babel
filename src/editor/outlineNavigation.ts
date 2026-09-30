@@ -60,6 +60,34 @@ export function navigateOutline(
   return true;
 }
 
+/** Scalar-safe logical offset in the retained editor row, or typed refusal. */
+export function logicalEditorOffset(
+  projection: ManuscriptProjection,
+  location: LogicalText,
+  offset: number,
+): number {
+  if (!projection.index.texts.includes(location))
+    throw new RangeError('Foreign logical location');
+  // Validate offsets even for rich rows.
+  const byte = logicalByteAt(location, offset);
+  const node = projection.doc.child(location.row);
+  const line = projection.snapshot.capture.document.lines[location.row]!;
+  if (
+    !node.attrs.literal &&
+    line.inline?.complete &&
+    !['note', 'omitted', 'raw'].includes(location.scope)
+  )
+    return offset;
+  let sourceOffset = 0,
+    atByte = line.sourceStart;
+  while (sourceOffset < line.sourceText.length && atByte < byte) {
+    const code = line.sourceText.codePointAt(sourceOffset)!;
+    sourceOffset += code > 0xffff ? 2 : 1;
+    atByte += code < 0x80 ? 1 : code < 0x800 ? 2 : code < 0x10000 ? 3 : 4;
+  }
+  if (atByte !== byte) throw new RangeError('Unmapped logical boundary');
+  return sourceOffset - extractedContentStart(line);
+}
 /** Source-to-editor adapter for title/hidden/raw and rich Unicode text locations. */
 export function navigateLogicalText(
   view: EditorView,
@@ -67,30 +95,12 @@ export function navigateLogicalText(
   location: LogicalText,
   offset: number,
 ): boolean {
-  if (!projection.index.texts.includes(location)) return false;
   try {
-    const node = projection.doc.child(location.row);
-    const line = projection.snapshot.capture.document.lines[location.row]!;
-    if (
-      !node.attrs.literal &&
-      line.inline?.complete &&
-      !['note', 'omitted', 'raw'].includes(location.scope)
-    )
-      return navigateOutline(view, projection, location.row, offset);
-    const byte = logicalByteAt(location, offset);
-    let sourceOffset = 0,
-      atByte = line.sourceStart;
-    while (sourceOffset < line.sourceText.length && atByte < byte) {
-      const code = line.sourceText.codePointAt(sourceOffset)!;
-      sourceOffset += code > 0xffff ? 2 : 1;
-      atByte += code < 0x80 ? 1 : code < 0x800 ? 2 : code < 0x10000 ? 3 : 4;
-    }
-    if (atByte !== byte) return false;
     return navigateOutline(
       view,
       projection,
       location.row,
-      sourceOffset - extractedContentStart(line),
+      logicalEditorOffset(projection, location, offset),
     );
   } catch {
     return false;

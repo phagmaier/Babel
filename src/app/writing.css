@@ -62,3 +62,37 @@
 .title-page-panel button {
   margin: 0.25rem;
 }
+
+.find-panel {
+  border: 1px solid #82998a;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-block: 1rem;
+}
+.find-panel label {
+  display: inline-block;
+  margin: 0.4rem;
+}
+.find-panel input[type='search'] {
+  min-width: 14rem;
+}
+.find-panel ol {
+  max-height: 16rem;
+  overflow: auto;
+}
+.find-panel li {
+  margin-block: 0.25rem;
+}
+.find-panel button {
+  margin: 0.25rem;
+}
+.find-reveal {
+  overflow-wrap: anywhere;
+}
+.find-highlight {
+  background: #e6d681;
+  color: #17271b;
+}
+.find-active {
+  outline: 2px solid #365f3e;
+}
