@@ -13,7 +13,9 @@ static void global(void *data, struct wl_registry *registry, uint32_t name, cons
 static void removed(void *data, struct wl_registry *registry, uint32_t name) { (void)data; (void)registry; (void)name; }
 static const struct wl_registry_listener listener = {global, removed};
 int main(int argc, char **argv) {
-  if (argc != 5 && argc != 7) return 2;
+  if (argc != 5 && argc != 6 && argc != 7) return 2;
+  if (argc == 6 && strcmp(argv[5], "right")) return 2;
+  uint32_t button = argc == 6 ? 0x111 : 0x110;
   struct wl_display *display = wl_display_connect(NULL);
   if (!display) return 3;
   struct wl_registry *registry = wl_display_get_registry(display);
@@ -30,7 +32,7 @@ int main(int argc, char **argv) {
   zwlr_virtual_pointer_v1_frame(pointer);
   wl_display_roundtrip(display);
   struct timespec delay = {0, 100000000}; nanosleep(&delay, NULL);
-  zwlr_virtual_pointer_v1_button(pointer, time + 100, 0x110, WL_POINTER_BUTTON_STATE_PRESSED);
+  zwlr_virtual_pointer_v1_button(pointer, time + 100, button, WL_POINTER_BUTTON_STATE_PRESSED);
   zwlr_virtual_pointer_v1_frame(pointer);
   wl_display_roundtrip(display);
   nanosleep(&delay, NULL);
@@ -47,7 +49,7 @@ int main(int argc, char **argv) {
       nanosleep(&delay, NULL);
     }
   }
-  zwlr_virtual_pointer_v1_button(pointer, time + (argc == 7 ? 1800 : 200), 0x110, WL_POINTER_BUTTON_STATE_RELEASED);
+  zwlr_virtual_pointer_v1_button(pointer, time + (argc == 7 ? 1800 : 200), button, WL_POINTER_BUTTON_STATE_RELEASED);
   zwlr_virtual_pointer_v1_frame(pointer);
   wl_display_roundtrip(display);
   if (argc == 7) {
