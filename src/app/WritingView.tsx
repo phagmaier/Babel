@@ -27,6 +27,7 @@ import { TitlePagePanel } from './TitlePagePanel';
 import { FindPanel } from './FindPanel';
 import { FindController, type FindState } from '../application/find';
 import { highlightFind, navigateFind } from '../editor/find';
+import { prepareEditorReplace, type ReplacePlan } from '../editor/replace';
 import { navigateOutline } from '../editor/outlineNavigation';
 import type { CapturedSnapshot } from '../application/persistenceController';
 import type { DocumentEntryPort } from '../application/documentEntry';
@@ -178,6 +179,12 @@ export function WritingView({
     selection: import('prosemirror-state').Selection;
   } | null>(null);
   const [findState, setFindState] = useState<FindState | null>(null);
+  const [replaceMessage, setReplaceMessage] = useState('');
+  const replaceAdvanceRef = useRef<{
+    query: string;
+    options: string;
+    index: number;
+  } | null>(null);
   const titleButtonRef = useRef<HTMLButtonElement | null>(null);
   const titleReturnFocusRef = useRef(false);
   const importHost = useRef<HTMLDivElement | null>(null);
@@ -255,6 +262,47 @@ export function WritingView({
         view.state.tr.setMeta('addToHistory', false).scrollIntoView(),
       );
     });
+  }, [findState]);
+
+  useEffect(() => {
+    // Replace-one advances to the match that followed the replaced one once
+    // refreshed results are current. The caret resting at the replacement is
+    // the honest fallback when nothing follows.
+    const pending = replaceAdvanceRef.current;
+    const find = findRef.current;
+    const view = viewRef.current;
+    if (!pending || !find || !view || view.isDestroyed) return;
+    if (
+      !findState?.enabled ||
+      findState.phase !== 'current' ||
+      !find.isCurrent(findState.projection)
+    )
+      return;
+    if (
+      findState.options.query !== pending.query ||
+      JSON.stringify(findState.options) !== pending.options
+    ) {
+      replaceAdvanceRef.current = null;
+      return;
+    }
+    replaceAdvanceRef.current = null;
+    if (!findState.matches.length) return;
+    const index = Math.min(pending.index, findState.matches.length - 1);
+    if (
+      find.navigate(
+        1,
+        (projection, match) => navigateFind(view, projection, match, false),
+        index,
+      )
+    ) {
+      findScrollRef.current = {
+        view,
+        session: editorOrigin(view.state).session,
+        version: editorVersion(view.state),
+        doc: view.state.doc,
+        selection: view.state.selection,
+      };
+    }
   }, [findState]);
 
   const refresh = () => {
@@ -1154,12 +1202,100 @@ export function WritingView({
   };
   const closeFind = () => {
     findScrollRef.current = null;
+    replaceAdvanceRef.current = null;
+    setReplaceMessage('');
     findRef.current?.configure(findRef.current.state.options, false);
     const view = viewRef.current;
     if (view && !view.isDestroyed && !view.composing) {
       view.dom.focus({ preventScroll: true });
       view.focus();
     }
+  };
+  const replacePlanCurrent = (plan: ReplacePlan): boolean => {
+    const find = findRef.current;
+    return (
+      !!find &&
+      find.state.phase === 'current' &&
+      find.isCurrent(find.state.projection) &&
+      plan.query === find.state.options.query &&
+      JSON.stringify(plan.options) === JSON.stringify(find.state.options)
+    );
+  };
+  const dispatchReplacement = (
+    plan: ReplacePlan,
+    scope: { one: number } | { all: true },
+  ): boolean => {
+    const view = viewRef.current;
+    const projection = findRef.current?.state.projection;
+    setReplaceMessage('');
+    if (
+      !view ||
+      view.isDestroyed ||
+      view.composing ||
+      !projection ||
+      operationRef.current ||
+      frozenRef.current ||
+      !readyRef.current ||
+      showClose ||
+      busy ||
+      !writableRef.current ||
+      titleDraftRef.current ||
+      titleComposingRef.current ||
+      active?.readOnly ||
+      !replacePlanCurrent(plan)
+    ) {
+      setReplaceMessage(
+        'Replacement is unavailable for this version. Text and selection are retained.',
+      );
+      return false;
+    }
+    popupRef.current?.controller.dismiss();
+    try {
+      const transaction = prepareEditorReplace(
+        view.state,
+        projection,
+        plan,
+        scope,
+      );
+      dispatchIsolated(view, transaction);
+    } catch (failure) {
+      setReplaceMessage(
+        failure instanceof Error
+          ? failure.message
+          : 'Replacement failed; source retained.',
+      );
+      return false;
+    }
+    view.dom.focus({ preventScroll: true });
+    view.focus();
+    return true;
+  };
+  const replaceOne = (plan: ReplacePlan, editIndex: number) => {
+    // Advance by position in the full match list, not the edits list: refused
+    // matches keep their slots, so the match after the replaced one slides
+    // into the replaced match's own index once results refresh.
+    const matchIndex =
+      plan.edits[editIndex] &&
+      findRef.current?.state.matches.indexOf(plan.edits[editIndex]!.match);
+    if (
+      dispatchReplacement(plan, { one: editIndex }) &&
+      typeof matchIndex === 'number' &&
+      matchIndex >= 0
+    )
+      replaceAdvanceRef.current = {
+        query: plan.query,
+        options: JSON.stringify(plan.options),
+        index: matchIndex,
+      };
+  };
+  const replaceAll = (plan: ReplacePlan) => {
+    replaceAdvanceRef.current = null;
+    if (dispatchReplacement(plan, { all: true }))
+      setReplaceMessage(
+        plan.edits.length === 1
+          ? 'Replaced 1 match in one step. Undo restores the complete source and previous selection.'
+          : `Replaced ${plan.edits.length} matches in one step. Undo restores the complete source and previous selection.`,
+      );
   };
 
   // The editor and import hosts are keyed so React preserves their DOM across
@@ -1174,6 +1310,18 @@ export function WritingView({
           disabled={busy || showClose}
           onNavigate={navigateSearch}
           onClose={closeFind}
+          onReplaceOne={replaceOne}
+          onReplaceAll={replaceAll}
+          replaceDisabled={
+            busy ||
+            showClose ||
+            operationRef.current ||
+            frozenRef.current ||
+            !readyRef.current ||
+            !writableRef.current ||
+            Boolean(active?.readOnly)
+          }
+          replaceMessage={replaceMessage}
         />
       )}
       {phase === 'active' && showTitle && viewRef.current && (

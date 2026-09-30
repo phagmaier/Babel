@@ -231,6 +231,14 @@ try:
         from find_workflows import run as run_find
         run_find(sys.modules[__name__])
         sys.exit(0)
+    if '--replace' in sys.argv:
+        from replace_workflows import run as run_replace
+        run_replace(sys.modules[__name__])
+        sys.exit(0)
+    if '--replace-smoke' in sys.argv:
+        from replace_workflows import run_smoke as run_replace_smoke
+        run_replace_smoke(sys.modules[__name__])
+        sys.exit(0)
     if '--title-page' in sys.argv:
         from title_page import run as run_title
         run_title(sys.modules[__name__])

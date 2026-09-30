@@ -164,6 +164,172 @@ it('labels scopes/counts and keyboard navigation, leaves composition local and c
   ).toBe(true);
   f.controller.dispose();
 });
+async function replaceFixture(source: string, query: string) {
+  const f = await fixture(source);
+  f.controller.configure({ ...defaultFindOptions, query }, true);
+  await waitFor(() => expect(f.controller.state.phase).toBe('current'));
+  return f;
+}
+
+function replacePanel(f: Awaited<ReturnType<typeof fixture>>) {
+  const onReplaceOne = vi.fn();
+  const onReplaceAll = vi.fn();
+  const ui = render(
+    <FindPanel
+      controller={f.controller}
+      state={f.controller.state}
+      disabled={false}
+      onNavigate={vi.fn()}
+      onClose={vi.fn()}
+      onReplaceOne={onReplaceOne}
+      onReplaceAll={onReplaceAll}
+    />,
+  );
+  return { ui, onReplaceOne, onReplaceAll };
+}
+
+it('previews replaceable/excluded counts and applies replace-all through the plan', async () => {
+  const f = await replaceFixture(
+    'Title: moon\n\n!moon shines.\n[[moon]]\n/*moon*/\n',
+    'moon',
+  );
+  const { onReplaceAll } = replacePanel(f);
+  fireEvent.change(screen.getByLabelText('Replace with'), {
+    target: { value: 'sun' },
+  });
+  expect(screen.getByText(/2 replaceable · 2 excluded/)).toBeTruthy();
+  expect(screen.getByText(/Title page form/)).toBeTruthy();
+  expect(screen.getByText(/protected omission/)).toBeTruthy();
+  const replaceAll = screen.getByRole('button', { name: 'Replace all' });
+  expect((replaceAll as HTMLButtonElement).disabled).toBe(false);
+  fireEvent.click(replaceAll);
+  expect(onReplaceAll).toHaveBeenCalledTimes(1);
+  const plan = onReplaceAll.mock.calls[0]![0];
+  expect(plan.replacement).toBe('sun');
+  expect(plan.edits).toHaveLength(2);
+  expect(plan.refused).toHaveLength(2);
+  expect(plan.large).toBe(false);
+  f.controller.dispose();
+});
+
+it('replaces only the active match and refuses invalid or composing replacements', async () => {
+  const f = await replaceFixture('!moon and moon\n', 'moon');
+  expect(
+    f.controller.navigate(1, (projection, match) =>
+      navigateFind(f.view, projection, match),
+    ),
+  ).toBe(true);
+  const onReplaceOne = vi.fn();
+  const onReplaceAll = vi.fn();
+  const ui = render(
+    <FindPanel
+      controller={f.controller}
+      state={f.controller.state}
+      disabled={false}
+      onNavigate={vi.fn()}
+      onClose={vi.fn()}
+      onReplaceOne={onReplaceOne}
+      onReplaceAll={onReplaceAll}
+    />,
+  );
+  fireEvent.change(screen.getByLabelText('Replace with'), {
+    target: { value: 'sun' },
+  });
+  const replaceMatch = screen.getByRole('button', { name: 'Replace match' });
+  expect((replaceMatch as HTMLButtonElement).disabled).toBe(false);
+  fireEvent.click(replaceMatch);
+  expect(onReplaceOne).toHaveBeenCalledTimes(1);
+  expect(onReplaceOne.mock.calls[0]![1]).toBe(0);
+  fireEvent.change(screen.getByLabelText('Replace with'), {
+    target: { value: 'a[[b' },
+  });
+  expect(screen.getByText(/valid replacement/)).toBeTruthy();
+  ui.rerender(
+    <FindPanel
+      controller={f.controller}
+      state={f.controller.state}
+      disabled={false}
+      onNavigate={vi.fn()}
+      onClose={vi.fn()}
+      onReplaceOne={onReplaceOne}
+      onReplaceAll={onReplaceAll}
+    />,
+  );
+  expect(
+    (screen.getByRole('button', { name: 'Replace match' }) as HTMLButtonElement)
+      .disabled,
+  ).toBe(true);
+  expect(
+    (screen.getByRole('button', { name: 'Replace all' }) as HTMLButtonElement)
+      .disabled,
+  ).toBe(true);
+  fireEvent.change(screen.getByLabelText('Replace with'), {
+    target: { value: 'sun' },
+  });
+  fireEvent.compositionStart(screen.getByLabelText('Replace with'));
+  fireEvent.keyDown(screen.getByLabelText('Replace with'), { key: 'Enter' });
+  expect(onReplaceOne).toHaveBeenCalledTimes(1);
+  fireEvent.compositionEnd(screen.getByLabelText('Replace with'));
+  fireEvent.keyUp(screen.getByLabelText('Replace with'), { key: 'Enter' });
+  fireEvent.keyDown(screen.getByLabelText('Replace with'), { key: 'Enter' });
+  expect(onReplaceOne).toHaveBeenCalledTimes(2);
+  f.controller.dispose();
+});
+
+it('requires explicit confirmation for large replace-all and honors disabled state', async () => {
+  const f = await replaceFixture('!moon\n'.repeat(150), 'moon');
+  expect(f.controller.state.matches).toHaveLength(150);
+  const onReplaceAll = vi.fn();
+  render(
+    <FindPanel
+      controller={f.controller}
+      state={f.controller.state}
+      disabled={false}
+      onNavigate={vi.fn()}
+      onClose={vi.fn()}
+      onReplaceOne={vi.fn()}
+      onReplaceAll={onReplaceAll}
+    />,
+  );
+  fireEvent.change(screen.getByLabelText('Replace with'), {
+    target: { value: 'sun' },
+  });
+  expect(screen.getByText(/needs confirmation/)).toBeTruthy();
+  const confirm = screen.getByRole('button', {
+    name: 'Confirm replace all 150 matches',
+  });
+  fireEvent.click(confirm);
+  expect(onReplaceAll).not.toHaveBeenCalled();
+  fireEvent.click(screen.getByRole('button', { name: 'Replace all' }));
+  expect(onReplaceAll).toHaveBeenCalledTimes(1);
+  cleanup();
+  render(
+    <FindPanel
+      controller={f.controller}
+      state={f.controller.state}
+      disabled={false}
+      onNavigate={vi.fn()}
+      onClose={vi.fn()}
+      onReplaceOne={vi.fn()}
+      onReplaceAll={vi.fn()}
+      replaceDisabled
+      replaceMessage="Replacement is unavailable for this version."
+    />,
+  );
+  fireEvent.change(screen.getByLabelText('Replace with'), {
+    target: { value: 'sun' },
+  });
+  expect(
+    (
+      screen.getByRole('button', {
+        name: 'Confirm replace all 150 matches',
+      }) as HTMLButtonElement
+    ).disabled,
+  ).toBe(true);
+  expect(screen.getByRole('alert').textContent).toContain('unavailable');
+  f.controller.dispose();
+});
+
 it('search navigation leaves an authored edit undoable in one step', async () => {
   const f = await fixture('!moon');
   f.view.setProps({
