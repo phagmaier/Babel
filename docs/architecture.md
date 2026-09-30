@@ -1,6 +1,6 @@
 # Architecture and ownership
 
-Status: M3-12 activates the production writing lifecycle over the existing sole editor and native persistence/recovery boundaries; the integrated M3-13 exit remains open. [SPEC S03-S04](../SPEC.md#s03), [S17](../SPEC.md#s17); APP-01, DOC-01, SAVE-01, SEC-01, QA-01.
+Status: M3-12 activates the production writing lifecycle over the existing sole editor and native persistence/recovery boundaries; the bounded Linux M3-13 integrated exit and corrected separate re-review passed. [SPEC S03-S04](../SPEC.md#s03), [S17](../SPEC.md#s17); APP-01, DOC-01, SAVE-01, SEC-01, QA-01.
 
 Current paths: `src/app/App.tsx` owns startup and explicit recovery navigation; `WritingView.tsx` mounts the sole ProseMirror editor and surrounding controls. `src/application/writingSession.ts` coordinates capture, cadence, identity changes and protected close through typed ports. `src/infrastructure/` supplies path-free native adapters and truthful browser unavailability. `src-tauri/src/lib.rs` wires native commands; `crates/screenwriter-core/src/documents/` owns registrations, leases, publication, recovery and snapshots. There is one frontend package and one Rust workspace. Native registrations retain immutable initial source snapshots; live author content belongs to EditorState and only immutable derivatives cross IPC.
 

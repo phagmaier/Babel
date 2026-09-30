@@ -1,6 +1,6 @@
 # Test strategy and coverage
 
-Status: M0/M1 proofs, M2-01–06 bounded Linux headless gates, and M3-04–07 editor foundation, structural keys, picker/shortcuts and local completion recorded. M2 headless exit does not establish Local v1. [SPEC S15/S20](../SPEC.md#s15); QA-01–03, INV-18.
+Status: M0/M1 proofs, M2-01–06 bounded Linux headless gates, and the corrected M3-01–13 bounded Linux core-editor exit recorded. The [fresh M3-13 gate](test-evidence/M3.md#m3-13--corrected-integrated-exit-re-review) includes full default-app input/IME and a separate source re-review. Local v1 and full performance/platform/adoption gates remain open. [SPEC S15/S20](../SPEC.md#s15); QA-01–03, INV-18.
 
 ## Test layers
 
@@ -30,6 +30,6 @@ Detailed per-task coverage lives in [development](development.md) (commands) and
 
 - **M1 proofs**: Fountain round-trip, native editor input, PDF renderer, durable replacement, history store, bounded composition
 - **M2 headless**: Safe open, recovery checkpoints, serialized source replacement, versioned IPC, startup review, recovery choices, snapshots, protected close, curated history
-- **M3 codec/editor**: Independent conformance corpus, production primary codec, complex Fountain regions, editor state/source captures, structural keys, picker/shortcut routing/remapping, local completion source/caret/ranking/key/pointer acceptance and undo; M3-08 clipboard/emphasis/protected import and real IME commit/cancel/Enter; M3-13 default-app corpus/input/lifecycle matrix and separate safety review, with required corrections keeping the exit open
+- **M3 codec/editor**: Independent conformance corpus, production primary codec, complex Fountain regions, editor state/source captures, structural keys, picker/shortcut routing/remapping, local completion source/caret/ranking/key/pointer acceptance and undo; M3-08 clipboard/emphasis/protected import and real IME commit/cancel/Enter; corrected M3-13 default-app corpus/input/lifecycle matrix and separate safety re-review passed on tmpfs/Btrfs
 
 Each area's exact commands, host, outcomes, and limitations are recorded in the linked evidence files.

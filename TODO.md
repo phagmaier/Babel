@@ -36,7 +36,7 @@ Open tasks have detailed briefs in `docs/tasks/`. Completed tasks link to eviden
 
 M2 headless Linux exit passed. This is a bounded headless foundation; no Local-v1/editor/installed-app claim.
 
-## M3 — core Fountain editor (in progress)
+## M3 — core Fountain editor (bounded Linux exit passed)
 
 - [x] **M3-00 Decompose M3-G** — Evidence: [M3 report](docs/test-evidence/M3.md#m3-00--decomposition)
 - [x] **M3-01 Independent conformance corpus and oracle** — Evidence: [M3 report](docs/test-evidence/M3.md#m3-01--independent-conformance-corpus-and-oracle)
@@ -52,7 +52,7 @@ M2 headless Linux exit passed. This is a bounded headless foundation; no Local-v
 - [x] **M3-10 Recovery/source cadence and visible protection state** — Evidence: [M3 report](docs/test-evidence/M3.md#m3-10--recoverysource-cadence-and-visible-protection-state). Deps: M3-04, M3-09, M2-04, M2-05C.
 - [x] **M3-11 Native Save As identity and publication** — Evidence: [M3 report](docs/test-evidence/M3.md#m3-11--native-save-as-identity-and-publication). Deps: M3-09, M3-10.
 - [x] **M3-12 Production writing lifecycle and failure UI** — [Brief](docs/tasks/M3-12.md). Deps: M3-08, M3-10, M3-11, M2-05D.
-- [ ] **M3-13 Core editor exit and separate safety review** — [Brief](docs/tasks/M3-13.md), [review](docs/reviews/2026-09-29-m3-13-review.md). Corrections pass bounded gates; independent exit re-review remains open. Next ready task. Deps: M3-01–12 and corrections below.
+- [x] **M3-13 Core editor exit and separate safety review** — [Brief](docs/tasks/M3-13.md), [corrected re-review](docs/reviews/2026-09-29-m3-13-rereview.md), [evidence](docs/test-evidence/M3.md#m3-13--corrected-integrated-exit-re-review). Fresh full default-app input/IME/lifecycle and native tmpfs/Btrfs safety gates pass. Deps: M3-01–12 and corrections below.
 - [x] **M3-12-R1 Uncapturable draft protection and truthful status** — [Brief](docs/tasks/M3-12-R1.md). Deps: M3-12; review R03. Evidence: [audit corrections](docs/test-evidence/M3.md#repository-audit-corrections).
 - [x] **M3-09-R1 Resume/export unsaved checkpoints after restart** — [Brief](docs/tasks/M3-09-R1.md). Deps: M3-09, M3-12; review R02. Evidence: [audit corrections](docs/test-evidence/M3.md#repository-audit-corrections).
 - [x] **M3-11-R1 Read-only source Save As** — [Brief](docs/tasks/M3-11-R1.md). Deps: M3-11, M3-12; review R01. Evidence: [audit corrections](docs/test-evidence/M3.md#repository-audit-corrections).
@@ -63,11 +63,15 @@ M2 headless Linux exit passed. This is a bounded headless foundation; no Local-v
 
 ### M3 verification and boundary
 
+The bounded Linux M3 exit passed. Next planning task: create **M4-00** with bounded tasks and a refined trace before implementing M4. Full S13, native-stack hardening and Local v1 adoption remain open; see the corrected re-review above.
+
 Planned commands: per-task focused `pnpm exec vitest run <owned-test-paths>` and relevant `cargo test -p screenwriter-core <owned-test-filter>`/host command tests, then `pnpm check`, `pnpm test:browser`, `cargo fmt --all -- --check`, `cargo clippy --workspace --all-targets -- -D warnings`, `cargo test --workspace`, and relevant `pnpm tauri build`/`pnpm tauri dev` native interaction. Implementing tasks must establish exact focused commands in docs/development.md and record them once in [M3 evidence](docs/test-evidence/M3.md), with native/mocked labels and skipped/blocked gates. Filesystem publication/recovery/identity/lease/metadata changes require the tmpfs/Btrfs matrix; pure codec/envelope/state tests do not. Shared/milestone gates cannot be replaced by focused tests. Finish with `git diff --check`.
 
 ## M4–M7 — gated task groups (decompose before starting)
 
 Each `M*-G` group requires a prior `M*-00` decomposition with refined requirement trace before implementation. Create M4-00–M7-00 when dependencies near completion. Owner decision required before M6 implementation: declare Tier 1 OS/arch targets and record them in docs/development.md; M1-02 remains the performance hardware baseline.
+
+Carry [M3 re-review C1](docs/reviews/2026-09-29-m3-13-rereview.md#c1--recurring-webkit-child-heap-abort-at-forced-shutdown) into native hardening before adoption: recurring owned WebKit heap abort during deliberate parent SIGKILL, exact cause and ordinary-close impact unresolved. Transitive advisory warnings and full performance/platform gaps remain in that review.
 
 - [ ] **M4-G Daily workflows** — Deps: M3 gate. Reqs: APP-02, NAV-01–03, CHECK-01/02, UX-01–03. Read: SPEC S08/S09/S14; docs/ux.md/screenplay-validation.md.
 - [ ] **M5-G Publication** — Deps: M1 PDF proof, M3 source gate, M4 UX gate. Reqs: PDF-01–04. Read: SPEC S12; docs/pdf-and-formatting.md.

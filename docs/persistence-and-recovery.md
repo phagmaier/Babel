@@ -1,6 +1,6 @@
 # Persistence and recovery
 
-Status: M1-04 Linux replacement proof and M2-01–06 bounded native safety foundation passed on Linux; M2-05D also has a native WebKit diagnostic. M3-09–12 connect production native entry, cadence, Save As and the active editor; the integrated M3-13 exit remains open. [SPEC S10](../SPEC.md#s10); SAVE-01–05, INV-04–08/10/20.
+Status: M1-04 Linux replacement proof and M2-01–06 bounded native safety foundation passed on Linux; M2-05D also has a native WebKit diagnostic. M3-09–12 connect production native entry, cadence, Save As and the active editor; the corrected bounded Linux M3-13 integrated exit passed. [SPEC S10](../SPEC.md#s10); SAVE-01–05, INV-04–08/10/20.
 
 One native writer queue per document serializes immutable save requests. Requests bind opaque handle, project/session ID, monotonically increasing document version, source hash, and expected disk fingerprint. Track `liveVersion`, `journaledVersion`, and `fileSavedVersion` separately. An acknowledgement for v21 cannot make v22 "Saved locally"; a recovery checkpoint is not a file-save acknowledgement. Native code computes/verifies the saved hash and sends the exact result. Emergency raw protection does not depend on Script Check passing.
 
@@ -107,7 +107,7 @@ and source observations after restart, never a delivered receipt or automatic
 adoption. Partial, corrupt, newer-schema, unsafe or unresolved artifacts block
 source replacement and remain protected. See [ADR 0014](decisions/0014-serialized-source-replacement.md)
 for layout/bounds, FIFO semantics and success/failure boundaries. M2-04 adds
-worker/IPC and headless state; editor save scheduling/coalescing remains open.
+worker/IPC and headless state; M3-10 supplies editor save scheduling/coalescing.
 M2-05 owns startup choices, missing-source relinking,
 transaction resolution/cleanup, retention, Save As and protected close. Linux
 support remains bounded to this tested adapter; no power-loss/platform exit claim.
@@ -160,8 +160,8 @@ disk with the source and are not a separate backup.
 This task covers loose/unsaved private-store recovery only; the source has not
 been selected or compared. Headless managed/loose/unsaved comparison and
 protected recovery/copy/keep/finalize/relink choices are M2-05B;
-snapshots/retention/backup remain M2-05C; protected close remains M2-05D.
-Parent M2-05 stays open. [ADR 0016](decisions/0016-read-only-startup-recovery-review.md)
+snapshots/retention/copies are owned by M2-05C; protected close by M2-05D.
+Those subsequent bounded gates and the M2-06 headless exit passed. [ADR 0016](decisions/0016-read-only-startup-recovery-review.md)
 and [M2 evidence](test-evidence/M2-05A.md)
 record the contract and native/mocked verification boundary.
 
@@ -228,9 +228,8 @@ another location. Same-filesystem copies do not protect against losing their
 backing disk; a different filesystem does not prove a different physical disk.
 
 The injected `SnapshotPanel` displays retention/cap/attention facts, explicit
-named/restore/copy actions and these storage distinctions. The default shell
-still has no production source/destination picker, editor, cadence, Save As or
-configured recurring backup. The [synthetic diagnostic](../prototypes/snapshot-review/README.md)
+named/restore/copy actions and these storage distinctions. M3-09–12 now connect production source/destination pickers, editor, cadence,
+Save As and the same snapshot services. Configured recurring backup remains M6. The [synthetic diagnostic](../prototypes/snapshot-review/README.md)
 exercises real WebKit/native commands; [M2 evidence](test-evidence/M2-05C.md)
 separates native files/interruptions, mocked dispatch, UI injection and limits.
 The bounded M2 headless Linux exit passed; Local v1 remains open. See
@@ -259,8 +258,8 @@ emits a close request to the editor. The marked synthetic WebKit editor routes
 this through the same policy, including a held-open source-divergence drill,
 emergency copy and memory-only explicit risk drill. `release_open_document`
 remains a low-level registration operation; a production editor must use the
-close coordinator. The default shell has no editor/picker/cadence and no Local
-v1 adoption claim. [ADR 0019](decisions/0019-protected-close-lifecycle.md)
+close coordinator. M3-12 wires the production editor/pickers/cadence through
+this policy; Local v1 adoption remains open. [ADR 0019](decisions/0019-protected-close-lifecycle.md)
 records the lifecycle choice; [M2 evidence](test-evidence/M2-05D.md)
 owns exact checks and limits.
 
@@ -280,8 +279,8 @@ snapshot is requested when the existing five-minute retention interval has
 elapsed and content changed; snapshot/copy errors set a separate attention
 flag and never touch save state. `src/app/SaveStatus.tsx` renders the
 resulting live/recovery/file-saved versions and snapshot attention as literal
-text. Editor wiring, Save As identity switching and protected close
-integration remain M3-11/12. [M3 evidence](test-evidence/M3.md#m3-10--recoverysource-cadence-and-visible-protection-state)
+text. M3-11/12 connect editor wiring, Save As identity switching and protected
+close integration. [M3 evidence](test-evidence/M3.md#m3-10--recoverysource-cadence-and-visible-protection-state)
 owns checks and measured native latency.
 
 ## M3-12 production session integration

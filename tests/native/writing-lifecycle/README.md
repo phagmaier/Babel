@@ -110,3 +110,8 @@ concurrent builds/tests. See the
 for the original gate decision, and the
 [audit correction evidence](../../../docs/test-evidence/M3.md#repository-audit-corrections)
 for later results and remaining limits.
+
+The [corrected M3-13 re-review](../../../docs/reviews/2026-09-29-m3-13-rereview.md)
+and [fresh exit evidence](../../../docs/test-evidence/M3.md#m3-13--corrected-integrated-exit-re-review)
+record passing full default-app input/IME/lifecycle runs on tmpfs/Btrfs after
+the corrections. This is a bounded Linux editor gate; release limits remain.
