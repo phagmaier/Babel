@@ -1,21 +1,25 @@
-# Current state — M4-09 complete
+# Current state — M4-10 complete
 
 Date: 2026-09-30 PDT. Application: **babel**. Authority: [SPEC](../SPEC.md), [TODO](../TODO.md).
 
 ## Task and work
 
-**M4-09 complete — non-destructive Script Check.** One editing agent on main from clean `082e994`; dependencies M4-03/06/07 satisfied. No push authorized.
+**M4-10 complete — bounded Linux functional presentation gate.** One editing agent on main from clean `1aa223d`; M4-02/03 and completed M3 input dependencies satisfied. No push authorized.
 
-Delivered the pure rule evaluator ([scriptCheck](../src/domain/scriptCheck.ts): SC001–004 warnings, SC006/007 dismissible advisories, typed SC005/SC008 unavailable assessment), versioned on-demand [controller](../src/application/scriptCheck.ts) with stale/rebase currency, grouped [panel](../src/app/ScriptCheckPanel.tsx) with counts/filters/dismissal/restore and export notice, and view-only [decorations/navigation](../src/editor/scriptCheck.ts) selecting affected blocks through stable ids with deferred post-paint scroll. Toolbar button is the surface; registry Script Check stays disabled for M4-14; find/check panels are mutually exclusive. No fixes offered.
+Delivered strict versioned UI-only [preferences](../src/application/viewPreferences.ts), shared Home/writing System/Light/Dark themes, 75–200% writing zoom, focus and [deferred typewriter follow](../src/editor/presentation.ts). Presentation preserves the same EditorState, exact authored source, version, selection and Undo. Sticky protection/preference failures stay visible; measured header clearance protects control/caret navigation. Completion observes editor resize and owns first Escape; a subsequent Escape exits focus through the production view. Unchanged outlines reuse rendering with current projection/busy callbacks. No native service/capability, dependency, fixture, export pipeline or content persistence change.
 
-Changed paths: `src/domain/scriptCheck.ts`, `src/application/scriptCheck.ts`, `src/editor/scriptCheck.ts`, `src/app/ScriptCheckPanel.tsx`, `src/app/WritingView.tsx`, `src/app/writing.css`; `tests/contract/script-check.test.ts`, `tests/ui/ScriptCheckPanel.test.tsx`, native `scriptcheck_workflows.py` + `--script-check` drill flag/README; owning validation/editor/UX/requirements docs, task/TODO/trace/evidence.
+Changed paths: application preferences; presentation controls/App/WritingView/Outline/CompletionPopup; scoped/global styles; editor view/presentation; Focus Mode registry availability; preference/writing/shortcut tests; native `presentation_workflows.py` + drill/README; ADR 0022/UX/editor/development/task/TODO/affected requirements/evidence.
 
 ## Verification
 
-[M4-09 evidence](test-evidence/M4.md#m4-09--non-destructive-script-check-and-issue-navigation) owns exact commands/results, failed attempts, synthetic fixtures/host/artifacts and limits. Focused checks passed **11 script-check tests**; shared formatting/lint/typecheck/build and **629 frontend tests / 47 files**, browser smoke, Rust format/clippy and **226 workspace tests** on tmpfs passed. Default embedded release built; real WebKit/GTK panel/filters/dismiss/navigation/Refresh/restore/Escape/save-with-warning/close with exact per-stage byte audits passed (`/tmp/babel-writing-i09selxu`, open-to-count 37 ms). Native debugging fixed three real product bugs (row-index navigation, stale-flash on transient captures, sync-scroll misplacement) and added the missing dismiss-restore path. Final documentation/link/syntax/diff checks are linked there.
+[M4-10 evidence](test-evidence/M4.md#m4-10--presentation-modes) owns exact commands, failures/corrections, fixture hashes/host/screenshots/raw timing and limits. Focused **77 tests**, shared format/lint/typecheck/build and **643 frontend tests / 48 files**, browser smoke, Rust fmt/clippy and **226 host Rust tests** passed. Sandbox ACL setup failed `EINVAL`; the unchanged host suite passed. Pure UI behavior needs no second filesystem run.
+
+Final default embedded release passed real WebKit/GTK at **device scale 2**, typical/stress **150/1,500 scenes**: theme/75–200% zoom/focus/typewriter, selection/no remount, manual-scroll pause, exact Find/outline navigation, completion alignment/Escape ownership, real pinyin commit/cancel, one-step Undo, visible source failure/F6 Save, native Save As retaining both versions, safe close/Home/restart. Final artifacts `/tmp/babel-writing-0vfplkbf`; no mocks/native invoke/editor-state hooks in that drill. Native findings fixed header-scroll occlusion and Escape routing; outline reuse removes redundant presentation rendering. Screenshots inspected; final syntax/local-link/format/diff checks linked in evidence.
 
 ## Remaining concerns and next action
 
-**Next: [M4-10 presentation modes](tasks/M4-10.md).** M4-10/11 are dependency-ready; proceed sequentially. M4-10–15 remain open; M4-15 requires all implementation tasks and a separate safety review. No full M4 or Local v1 claim.
+**Next: [M4-11 offline spellcheck proof](tasks/M4-11.md), dependency-ready.** M4-12 waits for successful proof; M4-11–15 remain open. M4-15 requires all implementation tasks plus a separate safety review. No full M4/Local v1 claim or milestone tag.
 
-Open concerns carry over: stress/long-session/compositor performance, broader accessibility/assistive technology, other platforms/filesystems, C1 WebKit/dependency hardening, installed/offline packaging, actual disk-full/hardware power loss, backups/migration, owner adoption. M5 owns SC005/SC008 verification and PDF; M6 history/scheduling/hardening; M7 explicit remote transfer. No push/publication/milestone tag.
+Performance remains bounded: theme/zoom handler max **4/20 ms** typical/stress, zoom-to-two-rAF max **95/987 ms**, mixed input-to-rAF max **42/634 ms**, keydown/Undo max **18/121 ms**. Small DOM/rAF observations do not certify transaction/plugin/compositor or full S13 budgets. Stress layout/Undo/long-session performance remains open.
+
+Other carried concerns: broader accessibility/assistive technology, other platforms/scales/filesystems, C1 WebKit/dependency hardening, installed/offline preferences/packaging, real disk-full/hardware power loss, backups/migration and owner adoption. M5 owns SC005/SC008 verification and PDF; M6 history/hardening; M7 explicit remote transfer. Nothing pushed/published.

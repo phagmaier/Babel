@@ -1,7 +1,7 @@
 .manuscript-outline {
   padding: 16px;
   margin-bottom: 20px;
-  border: 1px solid #82998a;
+  border: 1px solid var(--border);
   border-radius: 8px;
 }
 .manuscript-outline h2 {
@@ -46,7 +46,7 @@
   font-size: 0.9rem;
 }
 .move-preview {
-  border: 1px solid #82998a;
+  border: 1px solid var(--border);
   padding: 16px;
   margin-bottom: 20px;
 }

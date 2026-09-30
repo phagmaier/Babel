@@ -10,6 +10,10 @@ import {
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createHash } from 'node:crypto';
 import { WritingView, type WritingPorts } from '../../src/app/WritingView';
+import * as editorMount from '../../src/editor/view';
+import { captureEditor } from '../../src/editor/sourceBridge';
+import { editorVersion } from '../../src/editor/state';
+import { undoDepth } from 'prosemirror-history';
 import type { OpenDocument } from '../../src/application/documents';
 import {
   A,
@@ -1171,4 +1175,87 @@ it('M4-07 registry find/hidden selection/close preserve one editor and trigger n
   expect(fixture.calls.saved.length).toBe(saves);
   Reflect.deleteProperty(Range.prototype, 'getClientRects');
   Reflect.deleteProperty(Range.prototype, 'getBoundingClientRect');
+});
+
+it('M4-10 toggles presentation without remounting or saving; failure retains settings and persistent protection messages', async () => {
+  const { ViewPreferences } =
+    await import('../../src/application/viewPreferences');
+  let fail = false;
+  const values = new Map<string, string>();
+  const storage = {
+    getItem: (key: string) => values.get(key) ?? null,
+    setItem: vi.fn((key: string, value: string) => {
+      if (fail) throw new Error('quota');
+      values.set(key, value);
+    }),
+  };
+  const preferences = new ViewPreferences(storage);
+  const fixture = fixturePorts({ picked: opened() });
+  const mounted = vi.spyOn(editorMount, 'mountScreenplayEditor');
+  render(
+    <WritingView
+      ports={fixture.ports}
+      open={{ kind: 'picked' }}
+      onSessionClosed={vi.fn()}
+      preferences={preferences}
+    />,
+  );
+  await screen.findByLabelText('Screenplay actions');
+  const editor = document.querySelector<HTMLElement>('.ProseMirror')!;
+  const original = editor.textContent;
+  const view = mounted.mock.results.at(-1)!.value as ReturnType<
+    typeof editorMount.mountScreenplayEditor
+  >;
+  const initial = view.state;
+  const source = Array.from(captureEditor(initial).source);
+  const saves = fixture.calls.saved.length,
+    checkpoints = fixture.calls.checkpoint;
+  fireEvent.change(screen.getByLabelText('Theme'), {
+    target: { value: 'dark' },
+  });
+  expect(document.documentElement.dataset.theme).toBe('dark');
+  fireEvent.change(screen.getByLabelText('Writing zoom'), {
+    target: { value: '150' },
+  });
+  expect(screen.getByLabelText('Screenplay editor').style.fontSize).toBe(
+    '1.5rem',
+  );
+  fireEvent.click(screen.getByRole('button', { name: 'Focus mode' }));
+  expect(document.querySelector('.writing-focus')).toBeTruthy();
+  expect(screen.getByRole('button', { name: 'Exit focus mode' })).toBeTruthy();
+  expect(screen.getByLabelText('Protection status')).toBeTruthy();
+  fireEvent.click(screen.getByLabelText('Typewriter scroll'));
+  expect(document.querySelector('.writing-typewriter')).toBeTruthy();
+  fail = true;
+  fireEvent.change(screen.getByLabelText('Theme'), {
+    target: { value: 'light' },
+  });
+  expect(document.documentElement.dataset.theme).toBe('dark');
+  expect(screen.getByRole('alert').textContent).toContain(
+    'could not be stored',
+  );
+  fireEvent.click(screen.getByRole('button', { name: 'Exit focus mode' }));
+  expect(document.querySelector('.writing-focus')).toBeTruthy();
+  fail = false;
+  const ownedEscape = new KeyboardEvent('keydown', {
+    key: 'Escape',
+    bubbles: true,
+    cancelable: true,
+  });
+  ownedEscape.preventDefault();
+  editor.dispatchEvent(ownedEscape);
+  expect(document.querySelector('.writing-focus')).toBeTruthy();
+  fireEvent.keyDown(editor, { key: 'Escape' });
+  expect(document.querySelector('.writing-focus')).toBeNull();
+  expect(document.querySelector('.ProseMirror')).toBe(editor);
+  expect(editor.textContent).toBe(original);
+  expect(view.state).toBe(initial);
+  expect(editorVersion(view.state)).toBe(editorVersion(initial));
+  expect(view.state.selection).toBe(initial.selection);
+  expect(undoDepth(view.state)).toBe(0);
+  expect(Array.from(captureEditor(view.state).source)).toEqual(source);
+  mounted.mockRestore();
+  expect(fixture.calls.saved.length).toBe(saves);
+  expect(fixture.calls.checkpoint).toBe(checkpoints);
+  expect(new ViewPreferences(storage).getSnapshot().settings.zoom).toBe(150);
 });

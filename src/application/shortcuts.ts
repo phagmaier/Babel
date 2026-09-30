@@ -59,7 +59,7 @@ export const shortcutCommands = [
     ['previousMatch', 'Previous Match', 'Mod+Shift+G', null],
     ['exportPdf', 'Export PDF', null, 'PDF export is awaiting M5.'],
     ['scriptCheck', 'Script Check', null, 'Script Check is awaiting M4.'],
-    ['focusMode', 'Focus Mode', null, 'Focus mode is awaiting M4.'],
+    ['focusMode', 'Focus Mode', null, null],
     [
       'commandPalette',
       'Command Palette',

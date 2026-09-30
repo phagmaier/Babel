@@ -16,7 +16,7 @@
   font: inherit;
 }
 .snapshot-panel input:focus-visible {
-  outline: 3px solid #64816c;
+  outline: 3px solid var(--focus);
   outline-offset: 3px;
 }
 .snapshot-panel button {

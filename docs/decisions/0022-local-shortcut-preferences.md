@@ -18,3 +18,9 @@ Contextual Tab is enabled only with a focus-escape callback. F6 leaves the edito
 Embedding preferences in Fountain would pollute portable author content. A native filesystem settings endpoint would add capabilities for noncritical UI configuration. A hardcoded shortcut table in each menu/help/editor would drift. Those alternatives are rejected. Versioned storage allows a later native settings migration without silently claiming manuscript protection. Cross-window live preference synchronization, richer profiles and non-ASCII remap keys are deferred; reload reads the latest local profile. Corrupt stored profiles remain available until an explicit successful remap/reset replaces them.
 
 Evidence still needed: M3-12 production/native-menu integration; actual macOS/Windows, alternate full layouts, assistive-technology shortcuts and screenreader tests when Tier 1 targets are declared; M6 installed/offline preference retention.
+
+## M4-10 presentation preferences
+
+Extend the same UI-only storage boundary with `babel.view.v1`: a strict version-1 envelope with exactly `theme` (system/light/dark), `zoom` (75/90/100/110/125/150/175/200), `focus` and `typewriter`. No manuscript, identity, paths or native endpoint. Schema/size/read errors retain stored bytes and use disclosed defaults; writes must succeed before new settings activate, and failure retains working settings with a visible retry notice. Preferences survive writing/Home transitions through one application-owned controller; installed/offline retention and cross-window synchronization remain deferred. CSS writing zoom never changes export typography or EditorState. The local UI preference policy remains distinct from author-content durability.
+
+[M4-10 evidence](../test-evidence/M4.md#m4-10--presentation-modes) records default-release/native retention, caret/IME/scroll and failure checks; full platform/accessibility/performance claims remain open.

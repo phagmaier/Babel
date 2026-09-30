@@ -22,6 +22,8 @@ export function mountScreenplayEditor(
   host: HTMLElement,
   state: EditorState,
   observers: {
+    scrollToSelection?: (view: EditorView) => boolean;
+    presentationChanged?: (view: EditorView, transaction: Transaction) => void;
     changed?: (state: EditorState, transaction: Transaction) => void;
     transactionMeasured?: (durationMs: number, changed: boolean) => void;
     refused?: (reason?: string) => void;
@@ -29,6 +31,7 @@ export function mountScreenplayEditor(
     completion?: LocalCompletion;
     completionKey?: (view: EditorView, event: KeyboardEvent) => boolean;
     escapeFocus?: () => void;
+    escapePresentation?: () => boolean;
     canEdit?: () => boolean;
     canNavigate?: () => boolean;
   } = {},
@@ -38,6 +41,7 @@ export function mountScreenplayEditor(
   const view = new EditorView(host, {
     state,
     attributes: { tabindex: '0' },
+    handleScrollToSelection: observers.scrollToSelection,
     editable: (current) =>
       !editorOrigin(current).document.readOnlyReason &&
       (observers.canEdit?.() ?? true),
@@ -62,6 +66,7 @@ export function mountScreenplayEditor(
       const started = observers.transactionMeasured ? performance.now() : 0;
       const result = applyEditorTransaction(view.state, transaction);
       view.updateState(result.state);
+      if (result.accepted) observers.presentationChanged?.(view, transaction);
       observers.transactionMeasured?.(
         performance.now() - started,
         transaction.docChanged,
@@ -178,6 +183,15 @@ export function mountScreenplayEditor(
           observers.shortcuts,
           observers.refused,
         )
+      )
+        return true;
+      if (
+        event.key === 'Escape' &&
+        !event.ctrlKey &&
+        !event.metaKey &&
+        !event.altKey &&
+        !event.shiftKey &&
+        observers.escapePresentation?.()
       )
         return true;
       if (

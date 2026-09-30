@@ -1,4 +1,6 @@
-import { useEffect, useState } from 'react';
+import { localViewPreferences } from '../application/viewPreferences';
+import { PresentationControls } from './PresentationControls';
+import { useEffect, useMemo, useState } from 'react';
 import type { AppInfoPort, AppInfoResult } from '../application/appInfo';
 import { Home } from './Home';
 import { nativeRecentProjects } from '../infrastructure/nativeRecentProjects';
@@ -51,6 +53,7 @@ export function App({
   ports?: WritingPorts;
   recents?: RecentProjectsPort;
 }) {
+  const preferences = useMemo(() => localViewPreferences(), []);
   const [result, setResult] = useState<AppInfoResult | null>(null);
   const [homeMessage, setHomeMessage] = useState('');
   const [open, setOpen] = useState<OpenRequest | null>(null);
@@ -79,6 +82,7 @@ export function App({
   if (open && native)
     return (
       <WritingView
+        preferences={preferences}
         ports={ports}
         recents={recents}
         open={open}
@@ -98,16 +102,21 @@ export function App({
     );
 
   return (
-    <Home
-      native={native}
-      result={result}
-      recents={recents}
-      recovery={recovery}
-      message={homeMessage}
-      onOpen={(request) => {
-        setHomeMessage('');
-        setOpen(request);
-      }}
-    />
+    <>
+      <div className="home-presentation">
+        <PresentationControls preferences={preferences} />
+      </div>
+      <Home
+        native={native}
+        result={result}
+        recents={recents}
+        recovery={recovery}
+        message={homeMessage}
+        onOpen={(request) => {
+          setHomeMessage('');
+          setOpen(request);
+        }}
+      />
+    </>
   );
 }

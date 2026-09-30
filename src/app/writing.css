@@ -12,7 +12,7 @@
 .writing .ProseMirror {
   min-height: 280px;
   padding: 28px;
-  border: 1px solid #82998a;
+  border: 1px solid var(--border);
   border-radius: 8px;
   font-family: ui-monospace, monospace;
   line-height: 1.5;
@@ -24,7 +24,7 @@
   min-height: 1.5em;
 }
 .writing .ProseMirror:focus {
-  outline: 2px solid #64816c;
+  outline: 2px solid var(--focus);
   outline-offset: 2px;
 }
 
@@ -34,7 +34,7 @@
 }
 
 .title-page-panel {
-  border: 1px solid #82998a;
+  border: 1px solid var(--border);
   border-radius: 8px;
   padding: 1rem;
   margin-block: 1rem;
@@ -64,7 +64,7 @@
 }
 
 .find-panel {
-  border: 1px solid #82998a;
+  border: 1px solid var(--border);
   border-radius: 8px;
   padding: 1rem;
   margin-block: 1rem;
@@ -90,19 +90,41 @@
   overflow-wrap: anywhere;
 }
 .find-highlight {
-  background: #e6d681;
-  color: #17271b;
+  background: var(--highlight);
+  color: var(--highlight-ink);
 }
 .check-highlight {
-  border-bottom: 2px dotted #8a6d1a;
+  border-bottom: 2px dotted var(--focus);
 }
 .check-warning {
-  background: #f2e7c4;
-  color: #17271b;
+  background: var(--highlight);
+  color: var(--highlight-ink);
 }
 .check-advisory {
   background: transparent;
 }
 .find-active {
-  outline: 2px solid #365f3e;
+  outline: 2px solid var(--focus);
+}
+
+.writing-presentation {
+  position: sticky;
+  top: 0;
+  z-index: 15;
+  padding-block: 8px;
+  background: var(--paper);
+  border-bottom: 1px solid var(--border);
+}
+.writing-presentation p {
+  margin-block: 6px;
+}
+.writing-focus > h1,
+.writing-focus > .focus-help,
+.writing-focus > .editor-controls,
+.writing-focus .manuscript-outline,
+.writing-focus > .actions button:not(#writing-save) {
+  display: none;
+}
+.writing-typewriter .ProseMirror {
+  padding-bottom: 50vh;
 }

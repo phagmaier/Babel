@@ -4,10 +4,16 @@
  * snapshots/emergency copies and protected close all act on the current
  * editor through the session — never around it.
  */
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { listen } from '@tauri-apps/api/event';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import './writing.css';
+import {
+  localViewPreferences,
+  type ViewPreferences,
+} from '../application/viewPreferences';
+import { PresentationControls, usePresentation } from './PresentationControls';
+import { TypewriterScroll } from '../editor/presentation';
 import type { EditorView } from 'prosemirror-view';
 import { TextSelection } from 'prosemirror-state';
 import { EditorCaptureBoundary } from '../application/editorCapture';
@@ -23,6 +29,7 @@ import {
 } from '../editor/sceneMoves';
 import type { MoveRequest } from '../domain/sceneMoves';
 import { Outline } from './Outline';
+import type { OutlineItem } from '../domain/manuscriptIndex';
 import { TitlePagePanel } from './TitlePagePanel';
 import { FindPanel } from './FindPanel';
 import { FindController, type FindState } from '../application/find';
@@ -163,13 +170,30 @@ export function WritingView({
   onSessionClosed,
   onOpenRequested,
   recents,
+  preferences: providedPreferences,
 }: {
   ports: WritingPorts;
+  preferences?: ViewPreferences;
   recents?: RecentProjectsPort;
   open: OpenRequest;
   onSessionClosed: (message?: string) => void;
   onOpenRequested?: () => void;
 }) {
+  const preferences = useMemo(
+    () => providedPreferences ?? localViewPreferences(),
+    [providedPreferences],
+  );
+  const presentation = usePresentation(preferences);
+  const presentationBlocked = useRef(false);
+  const typewriter = useMemo(
+    () =>
+      new TypewriterScroll(
+        () => preferences.getSnapshot().settings.typewriter,
+        () => presentationBlocked.current,
+      ),
+    [preferences],
+  );
+  useEffect(() => () => typewriter.destroy(), [typewriter]);
   const registry = useMemo(
     () =>
       localShortcutRegistry(/Mac/.test(navigator.platform) ? 'mac' : 'other'),
@@ -326,6 +350,28 @@ export function WritingView({
     }
   }, [findState]);
 
+  useEffect(() => {
+    const header = editorHost.current
+      ?.closest('main')
+      ?.querySelector('.writing-presentation');
+    if (!header) return;
+    const root = document.documentElement;
+    const previous = root.style.scrollPaddingTop;
+    const measure = () => {
+      root.style.scrollPaddingTop = `${header.getBoundingClientRect().height + 8}px`;
+    };
+    measure();
+    const observer =
+      typeof ResizeObserver === 'undefined'
+        ? null
+        : new ResizeObserver(measure);
+    observer?.observe(header);
+    return () => {
+      observer?.disconnect();
+      root.style.scrollPaddingTop = previous;
+    };
+  }, [phase]);
+
   const refresh = () => {
     const session = sessionRef.current;
     if (!session) return;
@@ -475,6 +521,7 @@ export function WritingView({
     ) => {
       projection.changedDraft();
       writableRef.current = writable;
+      typewriter.destroy();
       viewRef.current?.destroy();
       popupRef.current?.destroy();
       const host = editorHost.current;
@@ -507,8 +554,30 @@ export function WritingView({
             ?.querySelector<HTMLElement>('.actions button:not(:disabled)')
             ?.focus();
         },
+        escapePresentation: () => {
+          if (
+            !preferences.getSnapshot().settings.focus ||
+            presentationBlocked.current
+          )
+            return false;
+          if (preferences.update({ focus: false })) viewRef.current?.focus();
+          return true;
+        },
         changed,
+        presentationChanged: (current, tr) => typewriter.changed(current, tr),
+        scrollToSelection: (current) => {
+          const header = host
+            .closest('main')
+            ?.querySelector('.writing-presentation');
+          if (!header || current.composing) return false;
+          const edge = header.getBoundingClientRect().bottom + 8;
+          const caret = current.coordsAtPos(current.state.selection.head);
+          if (caret.top >= edge) return false;
+          window.scrollBy({ top: caret.top - edge, behavior: 'instant' });
+          return true;
+        },
       });
+      typewriter.attach(view);
       popup.bind(view);
       viewRef.current = view;
       view.focus();
@@ -843,6 +912,7 @@ export function WritingView({
         checkRef.current?.dispose();
         checkRef.current = null;
         stop?.();
+        typewriter.destroy();
         popupRef.current?.destroy();
         viewRef.current?.destroy();
         session.dispose();
@@ -856,6 +926,7 @@ export function WritingView({
       findRef.current = null;
       checkRef.current?.dispose();
       checkRef.current = null;
+      typewriter.destroy();
       popupRef.current?.destroy();
       viewRef.current?.destroy();
       session.dispose();
@@ -877,6 +948,24 @@ export function WritingView({
         target.closest('.title-page-panel input, .title-page-panel textarea')
       )
         return;
+      if (
+        event.key === 'Escape' &&
+        !event.defaultPrevented &&
+        !viewRef.current?.composing &&
+        preferences.getSnapshot().settings.focus &&
+        !showClose &&
+        !showTitle &&
+        !findState?.enabled &&
+        !showCheck &&
+        !(
+          target instanceof HTMLElement &&
+          target.closest('input, select, textarea')
+        )
+      ) {
+        event.preventDefault();
+        if (preferences.update({ focus: false })) viewRef.current?.focus();
+        return;
+      }
       const command = registry.match(event);
       const session = sessionRef.current;
       if (
@@ -885,6 +974,14 @@ export function WritingView({
         command.unavailable
       )
         return;
+      if (command.id === 'focusMode') {
+        event.preventDefault();
+        if (!operationRef.current && !showClose && !viewRef.current?.composing)
+          preferences.update({
+            focus: !preferences.getSnapshot().settings.focus,
+          });
+        return;
+      }
       if (['find', 'nextMatch', 'previousMatch'].includes(command.id)) {
         event.preventDefault();
         if (
@@ -917,7 +1014,15 @@ export function WritingView({
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [busy, showClose, registry]);
+  }, [
+    busy,
+    showClose,
+    showTitle,
+    showCheck,
+    findState?.enabled,
+    registry,
+    preferences,
+  ]);
 
   useEffect(() => {
     if (!importHost.current || !active || active.readOnly || phase !== 'active')
@@ -1105,35 +1210,55 @@ export function WritingView({
     };
   }, [ports]);
 
-  const previewMove = (request: MoveRequest) => {
-    const view = viewRef.current;
-    const projection = outline.projection;
-    if (
-      !view ||
-      !projection ||
-      busy ||
-      operationRef.current ||
-      frozenRef.current ||
-      !readyRef.current ||
-      !writableRef.current ||
-      view.composing
-    ) {
-      setError(
-        'Move is unavailable while read-only, composing or protecting a draft. Source retained.',
-      );
-      return;
-    }
-    try {
-      setMove(prepareEditorMove(view.state, projection, request));
-      setMoveMessage('');
-    } catch (failure) {
-      setError(
-        failure instanceof Error
-          ? failure.message
-          : 'Move preview failed; source retained.',
-      );
-    }
-  };
+  const previewMove = useCallback(
+    (request: MoveRequest) => {
+      const view = viewRef.current;
+      const projection = outline.projection;
+      if (
+        !view ||
+        !projection ||
+        busy ||
+        operationRef.current ||
+        frozenRef.current ||
+        !readyRef.current ||
+        !writableRef.current ||
+        view.composing
+      ) {
+        setError(
+          'Move is unavailable while read-only, composing or protecting a draft. Source retained.',
+        );
+        return;
+      }
+      try {
+        setMove(prepareEditorMove(view.state, projection, request));
+        setMoveMessage('');
+      } catch (failure) {
+        setError(
+          failure instanceof Error
+            ? failure.message
+            : 'Move preview failed; source retained.',
+        );
+      }
+    },
+    [outline.projection, busy],
+  );
+  const onOutlineNavigate = useCallback(
+    (item: OutlineItem) => {
+      const current = viewRef.current;
+      const captured = outline.projection;
+      if (
+        !current ||
+        !captured ||
+        !readyRef.current ||
+        frozenRef.current ||
+        !navigateOutline(current, captured, item.row)
+      )
+        setError(
+          'Outline navigation is unavailable for this version. Your selection and text are retained.',
+        );
+    },
+    [outline.projection],
+  );
   const applyMove = async () => {
     const view = viewRef.current;
     const session = sessionRef.current;
@@ -1502,20 +1627,7 @@ export function WritingView({
           disabled={busy || showClose}
           moveDisabled={Boolean(active?.readOnly) || Boolean(move)}
           onMove={previewMove}
-          onNavigate={(item) => {
-            const current = viewRef.current;
-            const captured = outline.projection;
-            if (
-              !current ||
-              !captured ||
-              !readyRef.current ||
-              frozenRef.current ||
-              !navigateOutline(current, captured, item.row)
-            )
-              setError(
-                'Outline navigation is unavailable for this version. Your selection and text are retained.',
-              );
-          }}
+          onNavigate={onOutlineNavigate}
         />
       )}
       {move && (
@@ -1538,7 +1650,11 @@ export function WritingView({
           }}
         />
       )}
-      <div ref={editorHost} aria-label="Screenplay editor" />
+      <div
+        ref={editorHost}
+        aria-label="Screenplay editor"
+        style={{ fontSize: `${presentation.settings.zoom / 100}rem` }}
+      />
       <div ref={importHost} />
     </div>
   );
@@ -1574,8 +1690,35 @@ export function WritingView({
       : null;
   const view = viewRef.current;
 
+  presentationBlocked.current =
+    busy ||
+    showClose ||
+    showTitle ||
+    Boolean(move) ||
+    Boolean(findState?.enabled) ||
+    showCheck;
+  const modeDisabled =
+    busy || showClose || Boolean(view?.composing) || titleComposingRef.current;
   return (
-    <main className="shell writing">
+    <main
+      className={`shell writing${presentation.settings.focus ? ' writing-focus' : ''}${presentation.settings.typewriter ? ' writing-typewriter' : ''}`}
+    >
+      <div className="writing-presentation">
+        <PresentationControls
+          preferences={preferences}
+          writing
+          disabled={modeDisabled}
+          canChange={() =>
+            !operationRef.current &&
+            !viewRef.current?.composing &&
+            !titleComposingRef.current
+          }
+        />
+        <section aria-label="Protection status">
+          <p role="status">{status || 'Protection status unavailable.'}</p>
+          {error && <p role="alert">{error}</p>}
+        </section>
+      </div>
       <h1>Writing</h1>
       <p className="focus-help">
         F6 moves focus from the editor to screenplay actions. Tab then moves
@@ -1693,6 +1836,13 @@ export function WritingView({
           focusTargetLabel="screenplay actions"
           execute={(id) => {
             const current = viewRef.current;
+            if (id === 'focusMode') {
+              if (!modeDisabled)
+                preferences.update({
+                  focus: !preferences.getSnapshot().settings.focus,
+                });
+              return;
+            }
             if (id === 'find') {
               openFind();
               return;
@@ -1728,10 +1878,7 @@ export function WritingView({
         />
       )}
       {hosts}
-      <section aria-label="Protection status">
-        <p role="status">{status || 'Protection status unavailable.'}</p>
-        {error && <p role="alert">{error}</p>}
-      </section>
+
       {session && session.active && showClose && (
         <ProtectedClosePanel
           close={session.close}

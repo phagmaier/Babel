@@ -1,6 +1,6 @@
 .editor-controls {
-  color: #222;
-  background: #f6f5f1;
+  color: var(--ink);
+  background: var(--paper);
   font: 1rem/1.5 system-ui;
   padding: 1rem;
 }
@@ -11,7 +11,7 @@
   margin: 0.25rem;
 }
 .editor-controls :focus-visible {
-  outline: 3px solid #2458b5;
+  outline: 3px solid var(--focus);
   outline-offset: 3px;
 }
 .editor-controls span {
@@ -24,7 +24,7 @@
   margin-inline: 0.75rem;
 }
 .editor-controls button:disabled {
-  color: #555;
+  color: var(--muted);
 }
 .editor-controls summary {
   cursor: pointer;

@@ -51,15 +51,21 @@ export function createCompletionPopup(host: HTMLElement) {
       popup.style.top = `${Math.max(8, coords.top - popup.offsetHeight - 4)}px`;
   }
   const reposition = () => render(controller);
+  const resize =
+    typeof ResizeObserver === 'undefined'
+      ? null
+      : new ResizeObserver(reposition);
   window.addEventListener('resize', reposition);
   window.addEventListener('scroll', reposition, true);
   return {
     controller,
     bind(editor: EditorView) {
       view = editor;
+      resize?.observe(editor.dom);
       controller.changed(editor);
     },
     destroy() {
+      resize?.disconnect();
       controller.destroy();
       window.removeEventListener('resize', reposition);
       window.removeEventListener('scroll', reposition, true);

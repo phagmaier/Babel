@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import type { ProjectionState } from '../application/manuscriptProjection';
 import type { OutlineItem } from '../domain/manuscriptIndex';
 import './outline.css';
@@ -11,7 +11,7 @@ const excerpt = (text: string) => {
   return `${text.slice(0, end)}… (abbreviated)`;
 };
 
-export function Outline({
+export const Outline = memo(function Outline({
   state,
   disabled = false,
   onNavigate,
@@ -397,4 +397,4 @@ export function Outline({
       </div>
     </nav>
   );
-}
+});

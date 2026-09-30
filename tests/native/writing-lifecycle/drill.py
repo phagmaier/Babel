@@ -239,6 +239,10 @@ try:
         from replace_workflows import run_smoke as run_replace_smoke
         run_replace_smoke(sys.modules[__name__])
         sys.exit(0)
+    if '--presentation' in sys.argv:
+        from presentation_workflows import run as run_presentation
+        run_presentation(sys.modules[__name__])
+        sys.exit(0)
     if '--script-check' in sys.argv:
         from scriptcheck_workflows import run as run_check
         run_check(sys.modules[__name__])
