@@ -27,6 +27,46 @@ const decode = (source: Uint8Array) =>
 const digest = async (source: Uint8Array) =>
   createHash('sha256').update(source).digest('hex');
 
+it('reuses branded immutable content for selection-only frames, with current anchors and private owned bytes; edits/foreign documents never reuse it', () => {
+  const original = bytes('.INT. LAB - DAY\r\n!é🚀 **A**.\r\n[[private]]\r\n');
+  let state = createEditorState(original);
+  const first = captureEditor(state);
+  const row = state.doc.child(0).nodeSize + 1;
+  state = applyEditorTransaction(
+    state,
+    state.tr.setSelection(TextSelection.create(state.doc, row + 3)),
+  ).state;
+  first.source.fill(0);
+  const selected = captureEditor(state, first);
+  expect(selected.document).toBe(first.document);
+  expect(selected.ranges).toBe(first.ranges);
+  expect(Array.from(selected.source)).toEqual(Array.from(original));
+  expect(selected.version).toBeGreaterThan(first.version);
+  expect(selected.selection!.head).toMatchObject({
+    sourceIndex: 1,
+    utf16Offset: 3,
+    byteOffset: bytes('.INT. LAB - DAY\r\n!é🚀').length,
+  });
+  state = applyEditorTransaction(
+    state,
+    state.tr.insertText('X', row + 3),
+  ).state;
+  const edited = captureEditor(state, selected);
+  expect(edited.ranges).not.toBe(selected.ranges);
+  expect(decode(edited.source)).toBe(
+    '.INT. LAB - DAY\r\n!é🚀X **A**.\r\n[[private]]\r\n',
+  );
+  const foreign = captureEditor(
+    createEditorState(bytes('!Foreign.\n')),
+    edited,
+  );
+  expect(decode(foreign.source)).toBe('!Foreign.\n');
+  const fabricated = { ...selected, document: edited.document };
+  const fresh = captureEditor(state, fabricated);
+  expect(fresh.ranges).not.toBe(selected.ranges);
+  expect(fresh.source).toEqual(edited.source);
+});
+
 it('preserves an uncapturable accepted draft as explicit JSON with exact original bytes, live rows/styles and selection', async () => {
   const original = bytes('@MAYA\r\n(softly)\r\nHello.\r\n');
   let state = createEditorState(original);

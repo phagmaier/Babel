@@ -8,6 +8,7 @@ import {
   within,
 } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { createHash } from 'node:crypto';
 import { WritingView, type WritingPorts } from '../../src/app/WritingView';
 import type { OpenDocument } from '../../src/application/documents';
 import {
@@ -17,6 +18,7 @@ import {
   identity,
   opened,
   receiptFor,
+  receipt,
 } from '../contract/persistence-fixtures';
 
 afterEach(cleanup);
@@ -415,6 +417,104 @@ describe('M3-12 writing surface', () => {
       expect(screen.getByLabelText('Screenplay editor').textContent).toBe('b'),
     );
     expect(closed).not.toHaveBeenCalled();
+  });
+
+  it('replaces the outline with the exact recovered capture rather than retaining source headings', async () => {
+    const source = new TextEncoder().encode('.INT. OLD - DAY\n!A.\n');
+    const recovered = new TextEncoder().encode(
+      '# Recovered\n.EXT. NEW é🚀 - NIGHT\n!B.\n',
+    );
+    const hash = (bytes: Uint8Array) =>
+      createHash('sha256').update(bytes).digest('hex');
+    const picked = {
+      ...opened(),
+      source: Array.from(source),
+      fingerprint: {
+        ...fingerprint(0, hash(source)),
+        byteLength: source.length,
+      },
+    };
+    const f = fixturePorts({ picked, candidates: true });
+    const compare = f.ports.choices.compare;
+    f.ports.choices.compare = async (request) => {
+      const result = await compare(request);
+      return {
+        ...result,
+        source: {
+          ...result.source,
+          fingerprint: picked.fingerprint,
+          sourceSha256: hash(source),
+          byteLength: source.length,
+        },
+        recovery: {
+          ...result.recovery,
+          sourceSha256: hash(recovered),
+          byteLength: recovered.length,
+        },
+      };
+    };
+    const preview = f.ports.recovery.preview;
+    f.ports.recovery.preview = async (selection) => {
+      const result = await preview(selection);
+      return {
+        ...result,
+        source: Array.from(recovered),
+        candidate: {
+          ...result.candidate,
+          sourceSha256: hash(recovered),
+          byteLength: recovered.length,
+        },
+        metadata: { ...result.metadata, sourceSha256: hash(recovered) },
+      };
+    };
+    f.ports.choices.recover = async (request) => {
+      const result = receipt({
+        id: 1,
+        protection: 'sourceFile',
+        version: request.newVersion,
+        sha256: hash(recovered),
+        byteLength: recovered.length,
+      });
+      return {
+        ...result,
+        fingerprint: { ...result.fingerprint, byteLength: recovered.length },
+      };
+    };
+    render(
+      <WritingView
+        ports={f.ports}
+        open={{ kind: 'picked' }}
+        onSessionClosed={vi.fn()}
+      />,
+    );
+    await waitFor(() =>
+      expect(
+        (
+          screen.getByRole('button', {
+            name: 'Go to Scene 1: INT. OLD - DAY',
+          }) as HTMLButtonElement
+        ).disabled,
+      ).toBe(false),
+    );
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Recover as Current' }),
+    );
+    await screen.findByText(/Recovered as current/);
+    await waitFor(() =>
+      expect(
+        (
+          screen.getByRole('button', {
+            name: 'Go to Scene 1: EXT. NEW é🚀 - NIGHT',
+          }) as HTMLButtonElement
+        ).disabled,
+      ).toBe(false),
+    );
+    expect(
+      screen.queryByRole('button', { name: 'Go to Scene 1: INT. OLD - DAY' }),
+    ).toBeNull();
+    expect(screen.getByLabelText('Screenplay editor').textContent).toBe(
+      'RecoveredEXT. NEW é🚀 - NIGHTB.',
+    );
   });
   it('F6 reaches actions and close moves focus to the protected retry button', async () => {
     const { ports } = fixturePorts({});

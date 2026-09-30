@@ -11,6 +11,12 @@ import './writing.css';
 import type { EditorView } from 'prosemirror-view';
 import { TextSelection } from 'prosemirror-state';
 import { EditorCaptureBoundary } from '../application/editorCapture';
+import {
+  ManuscriptProjectionController,
+  type ProjectionState,
+} from '../application/manuscriptProjection';
+import { Outline } from './Outline';
+import { navigateOutline } from '../editor/outlineNavigation';
 import type { CapturedSnapshot } from '../application/persistenceController';
 import type { DocumentEntryPort } from '../application/documentEntry';
 import type { DocumentPort } from '../application/documents';
@@ -34,6 +40,7 @@ import {
   applyEditorTransaction,
   createEditorState,
   editorVersion,
+  editorOrigin,
 } from '../editor/state';
 import {
   editorRecovery,
@@ -172,6 +179,11 @@ export function WritingView({
     useState<CopyDestination | null>(null);
   const [candidates, setCandidates] = useState<RecoveryCandidate[]>([]);
   const [busy, setBusy] = useState(false);
+  const [outline, setOutline] = useState<ProjectionState>({
+    phase: 'pending',
+    projection: null,
+    message: 'Preparing outline…',
+  });
 
   const refresh = () => {
     const session = sessionRef.current;
@@ -200,7 +212,21 @@ export function WritingView({
     let alive = true;
     let capturing = false;
     let captureAgain = false;
+    const stamp = () => {
+      const view = viewRef.current;
+      return view && !view.isDestroyed
+        ? {
+            session: editorOrigin(view.state).session,
+            version: editorVersion(view.state),
+            doc: view.state.doc,
+          }
+        : null;
+    };
+    const projection = new ManuscriptProjectionController(stamp, (state) => {
+      if (alive) setOutline(state);
+    });
     const changed = () => {
+      projection.changedDraft();
       if (adoptingRef.current || !alive) return;
       captureAgain = true;
       refresh();
@@ -231,6 +257,7 @@ export function WritingView({
       state: import('prosemirror-state').EditorState,
       writable: boolean,
     ) => {
+      projection.changedDraft();
       writableRef.current = writable;
       viewRef.current?.destroy();
       popupRef.current?.destroy();
@@ -253,6 +280,7 @@ export function WritingView({
         canEdit: () =>
           adoptingRef.current ||
           (writableRef.current && readyRef.current && !frozenRef.current),
+        canNavigate: () => readyRef.current && !frozenRef.current,
         escapeFocus: () => {
           host
             .closest('main')
@@ -353,11 +381,44 @@ export function WritingView({
       async capture() {
         const boundary = boundaryRef.current;
         if (!boundary) throw new Error('Editor unavailable');
-        const result = await boundary.capture({ latest: true });
-        if (result.status !== 'current')
-          throw new Error('Editor changed during capture');
-        if (alive) setLive(result.snapshot);
-        return result.snapshot;
+        const started = stamp();
+        try {
+          const previous = projection.state.projection;
+          const result = await boundary.capture({
+            latest: true,
+            afterPaint: Boolean(
+              started &&
+              previous &&
+              started.session === previous.session &&
+              started.doc === previous.doc,
+            ),
+          });
+          if (
+            result.status !== 'current' ||
+            boundaryRef.current !== boundary ||
+            !boundary.isCurrent(result.snapshot)
+          )
+            throw new Error('Editor changed during capture');
+          const capturedStamp = stamp();
+          if (alive && capturedStamp) {
+            setLive(result.snapshot);
+            projection.accept(result.snapshot, capturedStamp);
+          }
+          return result.snapshot;
+        } catch (failure) {
+          const current = stamp();
+          if (
+            alive &&
+            boundaryRef.current === boundary &&
+            current &&
+            started &&
+            current.session === started.session &&
+            current.version === started.version &&
+            current.doc === started.doc
+          )
+            projection.unavailable();
+          throw failure;
+        }
       },
       freeze() {
         if (frozenRef.current) throw new Error('Editor is already frozen');
@@ -525,6 +586,7 @@ export function WritingView({
       );
       return () => {
         alive = false;
+        projection.dispose();
         stop?.();
         popupRef.current?.destroy();
         viewRef.current?.destroy();
@@ -533,6 +595,7 @@ export function WritingView({
     }
     return () => {
       alive = false;
+      projection.dispose();
       popupRef.current?.destroy();
       viewRef.current?.destroy();
       session.dispose();
@@ -728,6 +791,26 @@ export function WritingView({
   // from under the live view, silently detaching the editor.
   const hosts = (
     <div key="writing-hosts">
+      {phase === 'active' && (
+        <Outline
+          state={outline}
+          disabled={busy || showClose}
+          onNavigate={(item) => {
+            const current = viewRef.current;
+            const captured = outline.projection;
+            if (
+              !current ||
+              !captured ||
+              !readyRef.current ||
+              frozenRef.current ||
+              !navigateOutline(current, captured, item.row)
+            )
+              setError(
+                'Outline navigation is unavailable for this version. Your selection and text are retained.',
+              );
+          }}
+        />
+      )}
       <div ref={editorHost} aria-label="Screenplay editor" />
       <div ref={importHost} />
     </div>

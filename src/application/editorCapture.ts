@@ -30,22 +30,26 @@ async function sha256(source: Uint8Array): Promise<string> {
     .join('');
 }
 
-/** Derived results only: never sets EditorState or clears dirty state. No scheduler/timers policy. */
+/** Derived results only: never sets EditorState or clears dirty state. No save cadence policy. */
 export class EditorCaptureBoundary {
   private active = 0;
+  private previousCapture: EditorCapture | undefined;
   private readonly origins = new WeakMap<CapturedEditorSnapshot, EditorState>();
   private readonly getState: () => EditorState;
   private readonly hash: Hasher;
-  private readonly defer: () => Promise<void>;
+  private readonly defer: (afterPaint?: boolean) => Promise<void>;
   constructor(
     getState: () => EditorState,
-    options: { hash?: Hasher; defer?: () => Promise<void> } = {},
+    options: {
+      hash?: Hasher;
+      defer?: (afterPaint?: boolean) => Promise<void>;
+    } = {},
   ) {
     this.getState = getState;
     this.hash = options.hash ?? sha256;
     this.defer =
       options.defer ??
-      (() =>
+      ((afterPaint = false) =>
         new Promise((resolve) => {
           if (typeof requestAnimationFrame !== 'function') {
             setTimeout(resolve, 0);
@@ -53,14 +57,30 @@ export class EditorCaptureBoundary {
           }
           // Let pending input/render callbacks run before whole-source work. The
           // timer keeps hidden windows and close operations independent of rAF.
-          const fallback = setTimeout(() => {
-            cancelAnimationFrame(frame);
-            resolve();
-          }, 32);
-          const frame = requestAnimationFrame(() => {
-            clearTimeout(fallback);
-            setTimeout(resolve, 0);
-          });
+          const start = () => {
+            let frame = 0;
+            const fallback = setTimeout(
+              () => {
+                cancelAnimationFrame(frame);
+                resolve();
+              },
+              afterPaint ? 64 : 32,
+            );
+            const next = (remaining: number) => {
+              frame = requestAnimationFrame(() => {
+                if (remaining > 1) next(remaining - 1);
+                else {
+                  clearTimeout(fallback);
+                  setTimeout(resolve, 0);
+                }
+              });
+            };
+            next(afterPaint ? 2 : 1);
+          };
+          // Navigation first finishes its selection/scroll handler and gets
+          // a rendered frame. Hidden/frozen callers retain a bounded fallback.
+          if (afterPaint) setTimeout(start, 0);
+          else start();
         }));
   }
   isCurrent(snapshot: CapturedEditorSnapshot): boolean {
@@ -72,11 +92,16 @@ export class EditorCaptureBoundary {
       editorVersion(source) === editorVersion(current),
     );
   }
-  async capture(options: { latest?: boolean } = {}): Promise<CaptureResult> {
+  async capture(
+    options: { latest?: boolean; afterPaint?: boolean } = {},
+  ): Promise<CaptureResult> {
     if (this.active >= 2) throw new RangeError('Editor capture queue full');
     this.active++;
     try {
-      return await this.captureState(options.latest ?? false);
+      return await this.captureState(
+        options.latest ?? false,
+        options.afterPaint ?? false,
+      );
     } finally {
       this.active--;
     }
@@ -121,11 +146,15 @@ export class EditorCaptureBoundary {
       draftMetadata: null,
     });
   }
-  private async captureState(latest: boolean): Promise<CaptureResult> {
+  private async captureState(
+    latest: boolean,
+    afterPaint: boolean,
+  ): Promise<CaptureResult> {
     let state = this.getState();
-    await this.defer();
+    await this.defer(afterPaint);
     if (latest) state = this.getState();
-    const capture = captureEditor(state);
+    const capture = captureEditor(state, this.previousCapture);
+    this.previousCapture = capture;
     const bytes = capture.source;
     if (bytes.length > MAX_SOURCE_BYTES)
       throw new RangeError('Editor capture exceeds native source bound');

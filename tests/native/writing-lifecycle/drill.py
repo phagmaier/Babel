@@ -227,6 +227,10 @@ try:
         from home_workflows import run as run_home
         run_home(sys.modules[__name__])
         sys.exit(0)
+    if '--outline' in sys.argv:
+        from outline_workflows import run as run_outline
+        run_outline(sys.modules[__name__])
+        sys.exit(0)
     if '--recents' in sys.argv:
         from recent_projects import run as run_recents
         run_recents(sys.modules[__name__])

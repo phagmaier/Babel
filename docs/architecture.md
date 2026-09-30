@@ -218,3 +218,7 @@ release registrations. Protected close/release gates Home return. New with a
 destination uses the existing recovery-first Save As identity/publication path,
 while cancellation retains the unsaved draft. No new native endpoint, dependency
 or content authority is introduced.
+
+## M4-03 advisory manuscript projection
+
+`ManuscriptProjectionController` consumes the existing WritingView capture boundary after origin revalidation. Its single pending deferred build produces the pure `manuscriptIndex.ts` derivative; no parallel parser/editor or native privilege is introduced. Session reference, monotonic version, immutable document and exact source hash bind each result. Navigation rechecks that frame in the sole live EditorView. One previous branded content capture per boundary reuses only an identical immutable document; current anchors/version/hash are still derived. Selection-only capture yields a rendered navigation turn with a bounded hidden-window fallback. Whole-index failure is advisory and cannot mark source/recovery saved. [ADR 0029](decisions/0029-versioned-manuscript-index.md) owns hierarchy/attachments, mapping/bounds and view-only navigation; later moves/find/counts are separate consumers.

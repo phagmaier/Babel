@@ -1,6 +1,6 @@
 # UX and accessibility
 
-Status: M4-02 Home workflows over the M3 protected writing lifecycle and M4-01 native recents. [SPEC S08/S14](../SPEC.md#s08); APP-02, NAV-01–03, UX-01–03, SEC-01, INV-10.
+Status: M4-03 versioned outline over M4-02 Home workflows, the M3 protected writing lifecycle and M4-01 native recents. [SPEC S08/S14](../SPEC.md#s08); APP-02, NAV-01–03, UX-01–03, SEC-01, INV-10.
 
 The default native home offers New, Open Fountain and local recovery review, including explicit Resume as new draft. The browser preview reports native unavailability. Home presents M4-01 native recents, metadata-only Remove, Refresh and explicit Locate/link/different choices. New/Open and recovery remain distinct. Remove from Recents cannot delete source. Project creation asks for a destination or explicitly creates a recoverable unsaved draft.
 
@@ -129,3 +129,9 @@ Recover as Current, Keep Current File and Save Recovered Copy; matching bytes do
 not silently reconcile older-session recovery. Native tmpfs/Btrfs and injected
 UI coverage, actual warm Home observations and accessibility limits live in
 [M4-02 evidence](test-evidence/M4.md#m4-02--home-and-recovery-workflows).
+
+## M4-03 outline
+
+Writing exposes a nested collapsible Outline with heading/synopsis/authored-number filtering. Scenes display their sequential ordinal separately from authored numbers, including duplicates; sections keep authored nesting and synopsis. A matching descendant includes its ancestors and temporarily expands that path. Buttons support Tab/Enter and pointer activation, return focus to the exact editor row and do not add an authored Undo step. Read-only manuscripts allow safe selection navigation; composition and frozen protection refuse navigation.
+
+Pending or unavailable captures leave earlier headings visibly stale and disabled. Empty/no-scene drafts remain usable. The complete index is bounded; oversize/unsupported content gets no partial current projection. Rendering the first 1,000 expanded matches explicitly states the count and invites collapse/filtering; long heading/synopsis excerpts and synopsis-line remainders are disclosed. Navigate to the retained editor content to read the full text. [ADR 0029](decisions/0029-versioned-manuscript-index.md) defines these view limits; moves, full source find and position persistence remain separate tasks.

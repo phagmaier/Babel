@@ -306,7 +306,9 @@ def audit_fixes(d):
     except RuntimeError: pass
     d.SESSION = None; d.new_session()
     d.wait(lambda: record['documentId'] in d.body(), 'Unsaved recovery discovered after restart')
-    resume = d.find(f"//li[./h3[normalize-space(.)='Draft {record['documentId']}']]//button[normalize-space(.)='Resume as new draft']")
+    # M4 New protects its initial empty generation too. Choose the independently
+    # inspected content generation, never whichever Resume happens to be first.
+    resume = d.find(f"//li[./h3[normalize-space(.)='Draft {record['documentId']}']]/ul/li[p[contains(.,'generation {record['generation']} ·')]]//button[normalize-space(.)='Resume as new draft']")
     d.command('POST', f'/element/{resume}/click', {})
     d.wait(lambda: d.editor_text() == 'Unsaved checkpoint survives.', 'Full selected checkpoint resumed')
     d.wait(lambda: 'Recovery: journaled version 0.' not in d.body() and 'Protect draft' in d.body(), 'Fresh resumed draft protection acknowledged')

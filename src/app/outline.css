@@ -1,0 +1,47 @@
+.manuscript-outline {
+  padding: 16px;
+  margin-bottom: 20px;
+  border: 1px solid #82998a;
+  border-radius: 8px;
+}
+.manuscript-outline h2 {
+  margin-top: 0;
+}
+.manuscript-outline label {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.outline-headings {
+  max-height: 320px;
+  overflow: auto;
+}
+.outline-headings ol {
+  list-style: none;
+  padding-left: 20px;
+  margin: 0;
+}
+.outline-headings > ol {
+  padding-left: 0;
+}
+.outline-row {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-top: 6px;
+}
+.outline-target {
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+.outline-target small {
+  font-weight: normal;
+}
+.outline-toggle {
+  min-width: 32px;
+}
+.outline-synopsis {
+  margin: 4px 0 8px 12px;
+  font-size: 0.9rem;
+}

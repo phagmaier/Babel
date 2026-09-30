@@ -30,19 +30,31 @@ export function mountScreenplayEditor(
     completionKey?: (view: EditorView, event: KeyboardEvent) => boolean;
     escapeFocus?: () => void;
     canEdit?: () => boolean;
+    canNavigate?: () => boolean;
   } = {},
 ): EditorView {
   let composing = false;
   let compositionEndedBeforeKeyup = false;
   const view = new EditorView(host, {
     state,
+    attributes: { tabindex: '0' },
     editable: (current) =>
       !editorOrigin(current).document.readOnlyReason &&
       (observers.canEdit?.() ?? true),
     dispatchTransaction(transaction) {
       if (
-        (transaction.docChanged || transaction.selectionSet) &&
-        observers.canEdit?.() === false
+        transaction.getMeta('outlineNavigation') &&
+        (composing || view.composing)
+      ) {
+        observers.refused?.(
+          'Outline navigation waits until composition finishes',
+        );
+        return;
+      }
+      if (
+        observers.canEdit?.() === false &&
+        (transaction.docChanged ||
+          (transaction.selectionSet && !observers.canNavigate?.()))
       ) {
         observers.refused?.('The editor is read-only or protecting a version');
         return;

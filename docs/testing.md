@@ -33,3 +33,5 @@ Detailed per-task coverage lives in [development](development.md) (commands) and
 - **M3 codec/editor**: Independent conformance corpus, production primary codec, complex Fountain regions, editor state/source captures, structural keys, picker/shortcut routing/remapping, local completion source/caret/ranking/key/pointer acceptance and undo; M3-08 clipboard/emphasis/protected import and real IME commit/cancel/Enter; corrected M3-13 default-app corpus/input/lifecycle matrix and separate safety re-review passed on tmpfs/Btrfs
 
 Each area's exact commands, host, outcomes, and limitations are recorded in the linked evidence files.
+
+- **M4-03 advisory navigation**: independent boundary/attachment/Unicode/newline/protected text tests, capture coalescing/session/version/hash/Undo/import/restore rejection, read-only/frozen/composition selection guards and visible display bounds. Default-app outline/IME/scaling and isolated index measurements are task-scoped; second-filesystem projection tests are unnecessary. Full paint/page/long-session/accessibility remain open; [M4 evidence](test-evidence/M4.md) owns results and limits.

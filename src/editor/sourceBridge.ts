@@ -133,8 +133,21 @@ function sameSourceRow(node: EditorNode, line: FountainLine | undefined) {
   return matchingOrigin(node, line) && sameNodeContent(node, line);
 }
 
+interface CapturedContent {
+  readonly doc: EditorNode;
+  readonly document: FountainDocument;
+  readonly bytes: Uint8Array;
+  readonly ranges: EditorCapture['ranges'];
+}
+const capturedContents = new WeakMap<EditorCapture, CapturedContent>();
+
 /** Explicit deferred capture only. Live content comes from state.doc, never a source peer. */
-export function captureEditor(state: EditorState): EditorCapture {
+export function captureEditor(
+  state: EditorState,
+  previous?: EditorCapture,
+): EditorCapture {
+  const cached = previous && capturedContents.get(previous);
+  if (cached?.doc === state.doc) return captureEnvelope(state, cached);
   const original = editorOrigin(state).document;
   let document = original;
   // A closed note owns its full source region, including literal delimiters.
@@ -351,6 +364,28 @@ export function captureEditor(state: EditorState): EditorCapture {
     }
   }
   const bytes = serializeFountain(document);
+  return captureEnvelope(state, {
+    doc: state.doc,
+    document,
+    bytes,
+    ranges: Object.freeze(
+      document.lines.map((line, index) =>
+        Object.freeze({
+          id: String(state.doc.child(index).attrs.id),
+          from: line.sourceStart,
+          to: line.sourceEnd,
+        }),
+      ),
+    ),
+  });
+}
+
+/** Reuse only branded immutable content; current version/selection are always derived anew. */
+function captureEnvelope(
+  state: EditorState,
+  content: CapturedContent,
+): EditorCapture {
+  const { document, bytes, ranges } = content;
   const anchor = (position: number): EditorAnchor => {
     const resolved = state.doc.resolve(position);
     const index = Math.min(resolved.index(0), state.doc.childCount - 1);
@@ -420,28 +455,22 @@ export function captureEditor(state: EditorState): EditorCapture {
       graphemeUtf16Offset: offset - graphemes[graphemeIndex]!,
     });
   };
-  return Object.freeze({
+  const result = Object.freeze({
     version: editorVersion(state),
     get source() {
       return bytes.slice();
     },
     document,
-    ranges: Object.freeze(
-      document.lines.map((line, index) =>
-        Object.freeze({
-          id: String(state.doc.child(index).attrs.id),
-          from: line.sourceStart,
-          to: line.sourceEnd,
-        }),
-      ),
-    ),
-    selection: original.readOnlyReason
+    ranges,
+    selection: editorOrigin(state).document.readOnlyReason
       ? null
       : Object.freeze({
           anchor: anchor(state.selection.anchor),
           head: anchor(state.selection.head),
         }),
   });
+  capturedContents.set(result, content);
+  return result;
 }
 
 /** A refusal still has reviewable current text/styles plus an exact original byte copy. */
