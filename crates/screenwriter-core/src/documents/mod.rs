@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 pub mod choices;
 pub mod history;
 pub mod persistence;
+pub mod recents;
 pub mod recovery;
 pub mod save_as;
 pub mod saving;
@@ -126,6 +127,8 @@ pub enum ErrorCode {
     SnapshotLimit,
     InvalidSnapshot,
     InvalidDestination,
+    RecentNeedsAttention,
+    InvalidRecentSelection,
     Io,
 }
 

@@ -105,3 +105,16 @@ M3-13 integrated native editor and separate capture/performance review: [runner 
 The [corrected M3-13 exit](test-evidence/M3.md#m3-13--corrected-integrated-exit-re-review) passed fresh full default-app corpus/input/IME/lifecycle runs, shared checks and native safety matrix on both filesystems. Its [separate re-review](reviews/2026-09-29-m3-13-rereview.md) closes the bounded Linux M3 gate and retains specialized/release limits.
 
 Repository audit correction checks: `pnpm exec vitest run tests/contract/editor-metadata.test.ts tests/contract/editor-bridge.test.ts tests/contract/fountain-complex.test.ts tests/contract/save-cadence.test.ts tests/contract/writing-session.test.ts tests/ui/WritingView.test.tsx tests/ui/RecoveryChoices.test.tsx`. Run the default release `--audit-fixes`, `--capture-review` and `--latency-review` modes sequentially on both filesystems; use `BABEL_NATIVE_BINARY` only to select the explicitly built default binary. Keep other builds/tests idle during timing. The [correction evidence](test-evidence/M3.md#repository-audit-corrections) owns exact results, dependency warnings, failure attempts and limits. Shared gates remain required.
+
+M4-01 focused checks: `pnpm exec vitest run tests/contract/recent-projects.test.ts`,
+`CARGO_HOME=/tmp/babel-cargo cargo test -p screenwriter-core recent_store --locked`
+and `CARGO_HOME=/tmp/babel-cargo cargo test -p babel-desktop recent_projects --locked`.
+Repeat filesystem tests with `BABEL_RECENT_TEST_ROOT` / `BABEL_IPC_TEST_ROOT`
+on the actual Btrfs synthetic root. Include `BABEL_RECENT_TEST_ROOT` in the shared
+workspace matrix. [Recent native drill](../tests/native/writing-lifecycle/README.md#m4-01-native-recents)
+uses `python3 tests/native/writing-lifecycle/drill.py /tmp --recents` and the
+Btrfs target root. Build the default production binary with
+`CARGO_HOME=/tmp/babel-cargo pnpm tauri build --no-bundle`; a plain Cargo release
+build on this host loaded the development URL and is not native production
+verification. [M4 evidence](test-evidence/M4.md#m4-01--native-recents-and-missing-file-selection)
+owns exact commands/results and failure attempts. Shared checks remain mandatory.

@@ -17,6 +17,8 @@ mod app_dir_tests;
 mod choices_store;
 #[path = "history_store.rs"]
 mod history_store;
+#[path = "recent_store.rs"]
+mod recent_store;
 #[path = "recovery_store.rs"]
 mod recovery_store;
 #[path = "save_as_store.rs"]
@@ -307,6 +309,8 @@ pub struct DocumentService {
     documents: HashMap<String, Registered>,
     copy_destinations: HashMap<String, snapshot_store::Destination>,
     save_destinations: HashMap<String, save_as_store::SaveDestination>,
+    locate_selections: HashMap<String, recent_store::PendingLocate>,
+    recent_attention: bool,
 }
 
 impl DocumentService {
@@ -334,6 +338,8 @@ impl DocumentService {
             documents: HashMap::new(),
             copy_destinations: HashMap::new(),
             save_destinations: HashMap::new(),
+            locate_selections: HashMap::new(),
+            recent_attention: false,
         })
     }
 
@@ -435,6 +441,12 @@ impl DocumentService {
     }
 
     pub fn open_selected(&mut self, path: &Path) -> Result<OpenDocument, DocumentError> {
+        let opened = self.open_selected_unlisted(path)?;
+        self.note_recent(&opened.identity, None);
+        Ok(opened)
+    }
+
+    fn open_selected_unlisted(&mut self, path: &Path) -> Result<OpenDocument, DocumentError> {
         self.check_capacity()?;
         let anchor = Anchor::selected(path)?;
         let (source, fingerprint) = anchor.snapshot()?;

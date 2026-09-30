@@ -463,6 +463,7 @@ impl DocumentService {
             record.leases.remove(0);
             record.leases.rotate_right(1); // restore [source, document] ordering
             record.last_save = Some((saved.clone(), request.draft_metadata.clone()));
+            self.note_recent(identity, None);
             Ok(saved)
         })();
         result.map(Some).map_err(|e| {

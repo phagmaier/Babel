@@ -121,13 +121,13 @@ impl DocumentHost {
 
 /// Headless tests never display an OS dialog; cancellation preserves state.
 #[cfg(test)]
-fn pick_source_file() -> Option<PathBuf> {
+pub(super) fn pick_source_file() -> Option<PathBuf> {
     None
 }
 
 /// Native file picker runs on the calling blocking worker, never the UI thread.
 #[cfg(not(test))]
-fn pick_source_file() -> Option<PathBuf> {
+pub(super) fn pick_source_file() -> Option<PathBuf> {
     rfd::FileDialog::new()
         .add_filter("Fountain screenplay", &["fountain"])
         .set_title("Open Fountain screenplay")

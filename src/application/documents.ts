@@ -71,6 +71,8 @@ export interface DocumentError {
     | 'snapshotLimit'
     | 'invalidSnapshot'
     | 'invalidDestination'
+    | 'recentNeedsAttention'
+    | 'invalidRecentSelection'
     | 'io';
   action: 'selectSourceAgain' | 'reopenOrSaveCopy' | 'retry';
 }

@@ -1,0 +1,30 @@
+# ADR 0028 — Native recent metadata and explicit locate
+
+Status: Accepted direction. Date: 2026-09-29. Task: M4-01.
+Authority: [SPEC S05.2–3/S08.1/S10.7/S14](../../SPEC.md#s05); APP-02, SAVE-05, SEC-01/02, QA-01.
+Related: [0012](0012-native-document-identity.md), [0017](0017-explicit-recovery-choices.md), [0024](0024-native-document-entry.md), [0025](0025-save-as-identity.md).
+Evidence: [M4-01](../test-evidence/M4.md#m4-01--native-recents-and-missing-file-selection).
+
+## Decision
+
+The Linux DocumentService owns a private, rebuildable app-data registry. Successful native opens, confirmed source saves, successful native relinks and the final validated Save As registration update auxiliary recent metadata. Unsaved drafts and ephemeral identities do not register. Save As gets its fresh identity/location only after exact publication succeeds; the previous recent remains independently selectable. Intermediate destination opens, cancellations and rollback do not register.
+
+Deduplicate normalized native paths. A known path retains its recent-entry UUID when reopened; its document identity comes from the existing managed UUID or loose path mapping. Duplicate managed UUIDs at different paths remain separate observable entries with conservative writer leases. A moved entry retains its recent UUID only after explicit link confirmation. Equal titles, timestamps and bytes do not establish identity.
+
+Schema 1 uses two alternating checksummed generation files (`recents-0.json`, `recents-1.json`) and one exclusive `recents.pending` file, under a stable cooperating app-data lease. Sync the candidate, verify exact bytes, revalidate the held store/lease, atomically replace the older slot, then sync the directory. Retain the other valid generation. Reads select the highest valid generation, reporting attention on corruption, unsafe records or pending material; mutations refuse attention rather than deleting/repairing it. Partial artifacts remain for inspection. Runtime auxiliary publication failures also set attention and never turn a valid source/recovery operation into a failure or revoke its exact receipt.
+
+Bounds: 64 entries, 2 MiB per generation, 4096 native bytes per path, 120 characters per filename label, 32 staged locate selections. Native paths are private byte arrays supporting non-UTF8 filenames; they never cross IPC. Records contain identities and native fingerprint derivatives, including the last confirmed local modification. Warm listing stats only bounded known paths, without reading Fountain, scanning directories, parsing titles or calculating pages. Availability is available/missing/unknown; available does not promise exclusive ownership or a current content hash. Display labels are sanitized filename derivatives, not authored title content.
+
+Five strict path-free commands list/remove/open/locate/confirm native UUID selections. Locate uses the existing GTK picker and stages only an anchored path/fingerprint and comparison facts. It neither opens the file nor mints an identity. Confirmation explicitly chooses `linkMoved` or `openDifferent`, revalidates the entry, source fingerprint, ownership and native anchors, and refuses stale tokens. Invalid/cancelled selection preserves a previous candidate; a valid replacement retires it. Tokens are memory-only, bounded and expire on restart/remove/consumption. Open revalidates the stored native identity and refuses changed mapping; it never silently substitutes another identity.
+
+Link requires the old path to be missing and no live document/source owner. Loose linking refuses an existing conflicting identity mapping and publishes a new mapping via synced exclusive temporary file plus no-replace rename. Managed linking requires the same project UUID. An explicit managed filename rename preserves unknown project JSON, syncs `project.locate.previous`, replaces only the source filename mapping, then syncs/revalidates it. Sources, recovery, snapshots and history are untouched. Failure retains the previous mapping and author bytes; interrupted mapping publication requires explicit locate/review again. This implements the explicit rename-resolution workflow deferred by ADR 0012 without changing its conservative ordinary-open policy.
+
+All blocking work uses the existing bounded native job/payload budget and service mutex. The picker does not hold that mutex while a person chooses. No filesystem plugin, frontend path opener, shell endpoint, parser, runtime network, dependency or native permission is added. The [Tauri command documentation](https://github.com/tauri-apps/tauri-docs/blob/v2/src/content/docs/develop/calling-rust.mdx) informed strict generated command wiring; tests use the pinned local APIs.
+
+## Alternatives and consequences
+
+Frontend paths would widen native authority. Content-derived identity and timestamp-based relinking would conflate unrelated documents. A database or directory scan adds an unnecessary engine and warm-launch work. Single-file metadata replacement lacks a separate previous valid generation. Auxiliary failure must stay isolated from the author-content protection channels.
+
+Registry corruption can show an older list with attention, including a removed entry; no silent repair or destructive cleanup is provided. Remove affects metadata only, and a later successful open/publication may register the source again. Managed rename backup is same-disk protection, not an independent backup. Advisory locks require cooperating instances sharing app data; arbitrary external writers can still race native validation. A competitor winning the lock reacquisition interval gets the existing conservative view-only outcome rather than a second writer. There is no cross-platform support claim.
+
+Evidence still needed: M4-02 Home presentation and protected switching; M4-13 identity/hash-safe caret restoration; M4-15 integrated exit and separate safety review; M6 other platforms/filesystems, actual disk-full/power-loss, installed/offline packaging and adoption. M4-01's bounded Linux checks do not certify Local v1.

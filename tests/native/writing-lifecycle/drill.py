@@ -221,6 +221,10 @@ try:
       fetch('http://localhost:5173/__babel_audit_probe').catch(()=>{});""")
     wait(lambda:script("return window.auditBlocked.some(e=>e.uri.startsWith('http://localhost:5173') && e.directive==='connect-src');"),'Release CSP blocks development-server connections')
     print('PASS native release CSP excludes the development server',flush=True)
+    if '--recents' in sys.argv:
+        from recent_projects import run as run_recents
+        run_recents(sys.modules[__name__])
+        sys.exit(0)
     if '--audit-fixes' in sys.argv:
         from editor_exit import audit_fixes
         audit_fixes(sys.modules[__name__])

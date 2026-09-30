@@ -231,13 +231,14 @@ impl DocumentService {
             .to_str()
             .ok_or_else(|| error(ErrorCode::InvalidDestination))?
             .to_string();
-        match self.open_selected(&file_path) {
+        match self.open_selected_unlisted(&file_path) {
             Ok(opened)
                 if opened.kind == DocumentKind::Loose
                     && opened.identity.document_id == fresh_id
                     && opened.persistent_identity =>
             {
                 self.save_destinations.remove(&request.destination_token);
+                self.note_recent(&opened.identity, None);
                 Ok(SaveAsReceipt {
                     document: opened,
                     version: c.version,

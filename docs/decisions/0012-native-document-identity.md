@@ -74,10 +74,16 @@ memory-safe syscall adapter, not another persistence engine. Context7's
 and [Tauri state documentation](https://v2.tauri.app/develop/state-management/)
 informed the APIs; behavior is tested against pinned local libraries.
 Exact locked license metadata and packaging limits are in
-[development](../development.md#m2-01-native-open).
+[development](../development.md#dependencies-and-licensing).
 
 Evidence still needed: M2-02 recovery framing/restart and unsaved protection;
 M2-03 serialized replacement and lease transition; M2-04 versioned receipts;
 M2-05 startup/close/Save As/ownership resolution; native picker/WebView open
 integration and Tier 1 filesystem/platform/package evidence. No Local v1
 requirement or full M2 safety exit is complete.
+
+M4-01 follow-up: [ADR 0028](0028-native-recent-projects.md) implements explicit
+closed-document native locate/identity linking and managed rename confirmation.
+Ordinary open retains this ADR's conservative no-guessed-rename policy.
+[M4 evidence](../test-evidence/M4.md#m4-01--native-recents-and-missing-file-selection)
+records the bounded Linux gate; other platform/adoption limits remain open.

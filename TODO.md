@@ -69,10 +69,10 @@ Planned commands: per-task focused `pnpm exec vitest run <owned-test-paths>` and
 
 ## M4 — professional daily workflows
 
-Prerequisite: [corrected M3-13 bounded Linux exit](docs/test-evidence/M3.md#m3-13--corrected-integrated-exit-re-review), locally tagged `m3-core-editor-linux-verified` at `97e1798`. [M4-00 brief](docs/tasks/M4-00.md) owns implementation verification policy; [M4 trace](docs/requirements.md#m4-decomposition-coverage-planned) maps requirement owners. All implementation tasks remain open. Read each linked brief for owned paths, requirements/invariants, acceptance, focused/shared/native checks and exclusions.
+Prerequisite: [corrected M3-13 bounded Linux exit](docs/test-evidence/M3.md#m3-13--corrected-integrated-exit-re-review), locally tagged `m3-core-editor-linux-verified` at `97e1798`. [M4-00 brief](docs/tasks/M4-00.md) owns implementation verification policy; [M4 trace](docs/requirements.md#m4-decomposition-coverage-planned) maps requirement owners. M4-01 passed its bounded Linux service gate; M4-02–15 remain open. Read each linked brief for owned paths, requirements/invariants, acceptance, focused/shared/native checks and exclusions.
 
 - [x] **M4-00 Decomposition** — Deps: corrected M3-13. Bounded task/trace and docs/link/dependency/coverage checks passed. [Brief](docs/tasks/M4-00.md); [evidence](docs/test-evidence/M4.md#m4-00--decomposition).
-- [ ] **M4-01 Native recents and missing-file selection** — Deps: M4-00, completed M3 entry/identity gates. Gate: bounded registry, safe locate/remove/Save As/restart and metadata failures on tmpfs/Btrfs. [Brief](docs/tasks/M4-01.md).
+- [x] **M4-01 Native recents and missing-file selection** — Bounded Linux registry, explicit locate/remove/Save As/restart and metadata failures passed on tmpfs/Btrfs. [Brief](docs/tasks/M4-01.md); [evidence](docs/test-evidence/M4.md#m4-01--native-recents-and-missing-file-selection).
 - [ ] **M4-02 Home and recovery workflows** — Deps: M4-01, completed M3 lifecycle. Gate: native New/Open/Recent/Locate/Remove/recovery and protected switching without developer tools. [Brief](docs/tasks/M4-02.md).
 - [ ] **M4-03 Manuscript index and outline navigation** — Deps: M4-00, completed M3 model/capture gates. Gate: versioned hierarchy/attachments/logical text, exact non-editing navigation and bounded latency. [Brief](docs/tasks/M4-03.md).
 - [ ] **M4-04 Destructive-workflow protection** — Deps: M4-00, completed M2-06/M3 protection gates. Gate: narrow exact-version recovery/safety-ref receipt and history/stale/failure isolation on tmpfs/Btrfs. [Brief](docs/tasks/M4-04.md).
@@ -88,7 +88,7 @@ Prerequisite: [corrected M3-13 bounded Linux exit](docs/test-evidence/M3.md#m3-1
 - [ ] **M4-14 Palette/menus/accessibility** — Deps: M4-02/05/06/08/09/10/12/13. Gate: shared remappable command availability, native keyboard/menu/palette/focus/scaling and honest assistive-technology coverage. [Brief](docs/tasks/M4-14.md).
 - [ ] **M4-15 Integrated exit and separate safety review** — Deps: accepted M4-01–14. Gate: realistic default native drafting/editing/failure/restart session on tmpfs/Btrfs, full shared checks, exact source/Undo audits and separate post-integration review. [Brief](docs/tasks/M4-15.md).
 
-Recommended next: **M4-01**. M4-03/04/06/11 are also dependency-ready after decomposition; one editing agent proceeds sequentially, preserving shared editor/lifecycle ownership. An unsuccessful spellcheck proof blocks M4-12/15. M4 does not require the M5 production renderer and does not claim full S13 or Local v1 adoption.
+Recommended next: **M4-02**. M4-03/04/06/11 are also dependency-ready after decomposition; one editing agent proceeds sequentially, preserving shared editor/lifecycle ownership. An unsuccessful spellcheck proof blocks M4-12/15. M4 does not require the M5 production renderer and does not claim full S13 or Local v1 adoption.
 
 ## M5–M7 — gated task groups (decompose before starting)
 

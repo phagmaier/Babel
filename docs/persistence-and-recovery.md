@@ -322,3 +322,31 @@ a bounded full-source buffer; concurrent mounting of several candidates must not
 exhaust that budget and leave valid choices unavailable. This changes frontend
 read scheduling, not native queue limits or write authority. Exact selections
 and fingerprints are still revalidated before any content choice.
+
+## M4-01 recent metadata and locate
+
+[ADR 0028](decisions/0028-native-recent-projects.md) owns the native schema,
+bounds, deduplication and explicit missing-file policy. `recents.rs` defines
+strict opaque-entry/selection requests; `recent_store.rs` implements the Linux
+store in the same serialized DocumentService. Opens and confirmed publications
+update recents best-effort; unsaved recovery remains separate. Save As calls an
+unlisted internal open and registers only its final validated success.
+
+Two checksummed generations and an exclusive pending file retain prior valid
+metadata under a stable lease. Corrupt/oversized/newer/unsafe metadata or an
+interrupted write reports attention and prevents mutation; it never invalidates
+ordinary source/recovery receipts. Warm listing stats only known native paths.
+No title/content scan, page count, credentials or full path crosses the recent
+IPC response. Remove deletes only the selected auxiliary entry.
+
+Locate stages a native picker selection, exposing safe filename and identity/
+last-known-content comparison facts. Explicit Link Moved revalidates missing
+old source, identity, leases and the selected fingerprint; an active owner,
+conflicting target identity or managed UUID mismatch refuses. Open Different
+preserves the old entry/recovery and opens the chosen source conservatively.
+Managed rename confirmation preserves unknown JSON and a synced previous
+mapping before updating `sourceFilename`; ordinary open still never guesses a
+rename. Fresh sessions reuse the document identity while recovery/history stay
+independent. [M4-01 evidence](test-evidence/M4.md#m4-01--native-recents-and-missing-file-selection)
+separates native filesystem/default WebKit drills from mocked dispatch/contracts.
+Home presentation and protected switching remain M4-02.

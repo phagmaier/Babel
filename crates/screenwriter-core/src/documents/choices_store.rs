@@ -195,14 +195,14 @@ fn comparison(
     })
 }
 
-fn link_loose_identity(
+pub(super) fn link_loose_identity(
     service: &DocumentService,
     anchor: &Anchor,
     document_id: &str,
 ) -> Result<(), DocumentError> {
     use std::os::unix::ffi::OsStrExt;
     let key = hash(anchor.path.as_os_str().as_bytes());
-    let _registration_lease = service.lease(&format!("registry:{key}"))?;
+    let registration_lease = service.lease(&format!("registry:{key}"))?;
     let name = format!("{key}.identity.json");
     match read_file(&service.store, OsStr::new(&name)) {
         Ok(file) => {
@@ -226,10 +226,11 @@ fn link_loose_identity(
                 document_id: document_id.to_owned(),
             })
             .map_err(|_| error(ErrorCode::IdentityStoreUnavailable))?;
+            let pending = format!("{key}.locate-{}.pending", uuid());
             let mut file = File::from(
                 fs::openat(
                     &service.store,
-                    name.as_str(),
+                    pending.as_str(),
                     OFlags::WRONLY
                         | OFlags::CREATE
                         | OFlags::EXCL
@@ -241,6 +242,23 @@ fn link_loose_identity(
             );
             file.write_all(&bytes).map_err(io_error)?;
             file.sync_all().map_err(io_error)?;
+            if snapshot(
+                read_file(&service.store, OsStr::new(&pending))?,
+                MAX_METADATA_BYTES,
+            )?
+            .0 != bytes
+            {
+                return Err(error(ErrorCode::IdentityStoreUnavailable));
+            }
+            service.verify_lease(&registration_lease)?;
+            fs::renameat_with(
+                &service.store,
+                pending.as_str(),
+                &service.store,
+                name.as_str(),
+                fs::RenameFlags::NOREPLACE,
+            )
+            .map_err(syscall_error)?;
             service.store.sync_all().map_err(io_error)?;
             service.verify_store()?;
             Ok(())
@@ -744,6 +762,12 @@ impl DocumentService {
             return Err(error(ErrorCode::SaveNeedsAttention));
         }
         let old_kind = record.initial.kind.clone();
+        let old_path = record
+            .anchor
+            .as_ref()
+            .ok_or_else(|| error(ErrorCode::InvalidSave))?
+            .path
+            .clone();
         let anchor = Anchor::selected(path)?;
         let (bytes, fingerprint) = anchor.snapshot()?;
         let encoding = if std::str::from_utf8(&bytes).is_ok() {
@@ -816,7 +840,9 @@ impl DocumentService {
         record.initial.encoding = encoding;
         record.initial.kind = kind;
         record.initial.persistent_identity = true;
-        Ok(record.initial.clone())
+        let opened = record.initial.clone();
+        self.note_recent_relink(identity, &old_path);
+        Ok(opened)
     }
 }
 

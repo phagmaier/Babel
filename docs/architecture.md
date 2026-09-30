@@ -195,3 +195,18 @@ timeline/restore UI and installed/offline adoption.
 ## M3-12 production lifecycle
 
 [WritingSession](../src/application/writingSession.ts) binds the active editor to serial persistence, cadence and protected close. [ADR 0026](decisions/0026-writing-lifecycle.md) owns frozen lifecycle transitions, fresh Save As identity, exact native adoption and private app-data initialization. The view publishes derivatives and rejects editing while frozen/read-only; native services retain path/publication authority. [M3-12 evidence](test-evidence/M3.md#m3-12--production-writing-lifecycle-and-failure-ui) separates injected contracts from production UI/IPC filesystem drills.
+
+## M4-01 native recent boundary
+
+`documents/recents.rs` and `recent_store.rs` own bounded auxiliary metadata and
+explicit native locate. `recent_projects_host.rs` wires five strict path-free
+commands: `list_recent_projects`, `remove_recent_project`,
+`open_recent_project`, `locate_recent_project`, `confirm_recent_location`.
+`src/application/recentProjects.ts` and the native adapter expose typed UUID
+selection, safe summaries, attention and explicit comparison/confirmation.
+The existing job/payload budget and service mutex serialize blocking work;
+no frontend path/capability, network or live-editor owner is added.
+[ADR 0028](decisions/0028-native-recent-projects.md) owns the disk format and
+identity policy. [M4-01 evidence](test-evidence/M4.md#m4-01--native-recents-and-missing-file-selection)
+records bounded native verification. The adapter is available for M4-02 Home
+integration; M4-01 does not add Home controls.

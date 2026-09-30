@@ -272,7 +272,12 @@ fn corrupt_or_future_identity_registry_is_preserved_and_falls_back_to_view_only(
         let registry = fs::read_dir(f.0.join("app-data"))
             .unwrap()
             .map(|e| e.unwrap().path())
-            .find(|p| p.extension().is_some_and(|ext| ext == "json"))
+            .find(|p| {
+                p.file_name()
+                    .unwrap()
+                    .to_string_lossy()
+                    .ends_with(".identity.json")
+            })
             .unwrap();
         fs::write(&registry, bytes).unwrap();
         let opened = f.service().open_selected(&path).unwrap();
@@ -297,11 +302,10 @@ fn managed_identity_unknown_fields_and_profile_survive_no_op_open() {
         fs::read(f.0.join(".screenwriter/project.json")).unwrap(),
         metadata
     );
-    assert!(
-        fs::read_dir(f.0.join("app-data"))
-            .unwrap()
-            .all(|e| e.unwrap().path().extension().unwrap() == "lock")
-    );
+    assert!(fs::read_dir(f.0.join("app-data")).unwrap().all(|e| {
+        let path = e.unwrap().path();
+        path.extension().unwrap() == "lock" || path.file_name().unwrap() == "recents-1.json"
+    }));
 }
 
 #[test]

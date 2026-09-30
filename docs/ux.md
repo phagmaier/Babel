@@ -2,7 +2,7 @@
 
 Status: M3-12 production writing lifecycle plus local startup recovery review and explicit native recovery choices. [SPEC S08/S14](../SPEC.md#s08); APP-02, NAV-01–03, UX-01–03, SEC-01, INV-10.
 
-The default native home offers New, Open Fountain and local recovery review, including explicit Resume as new draft. The browser preview reports native unavailability. A full recent/missing-file registry remains M4 work. New/Open and recovery remain distinct. Remove from Recents cannot delete source. Project creation asks for a destination or explicitly creates a recoverable unsaved draft.
+The default native home offers New, Open Fountain and local recovery review, including explicit Resume as new draft. The browser preview reports native unavailability. M4-01 supplies the native recent/missing-file service; its Home presentation remains M4-02. New/Open and recovery remain distinct. Remove from Recents cannot delete source. Project creation asks for a destination or explicitly creates a recoverable unsaved draft.
 
 The future writing view is continuous, with title, optional scene/section outline, element picker, writing area, and status. Status must distinguish live dirty version, recovery protection, source-file saved version, page-count freshness, and remote last-check state. Never infer "saved" or "up to date" from a queued job or old check. Search includes hidden author text with explicit filters; replace-all and scene moves are reversible, have keyboard equivalents, and preserve structure. Script Check is a separate, non-destructive panel. Read-only PDF preview is the printed-page authority.
 

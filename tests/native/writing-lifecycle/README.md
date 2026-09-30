@@ -115,3 +115,23 @@ The [corrected M3-13 re-review](../../../docs/reviews/2026-09-29-m3-13-rereview.
 and [fresh exit evidence](../../../docs/test-evidence/M3.md#m3-13--corrected-integrated-exit-re-review)
 record passing full default-app input/IME/lifecycle runs on tmpfs/Btrfs after
 the corrections. This is a bounded Linux editor gate; release limits remain.
+
+## M4-01 native recents
+
+Build the default production release as above, then run sequentially:
+
+```sh
+python3 tests/native/writing-lifecycle/drill.py /tmp --recents
+python3 tests/native/writing-lifecycle/drill.py /home/phagmaier/Code/babel/target --recents
+```
+
+This mode drives the five production recent commands through real WebKit IPC
+and actual owned GTK pickers. It verifies New recovery stays separate, Open
+and Locate cancellation, exact-byte recent reopen, metadata/identity restart,
+missing/moved loose-file confirmation, explicit different/read-only selection,
+Save As cancellation/rollback/publication, metadata-only removal and corrupt
+registry isolation with native checkpoint/restart. It adds no production hook,
+proof feature or app capability. Home presentation remains M4-02. Native core
+filesystem tests additionally cover managed rename/unknown JSON, leases, safe
+anchors, bounds and real process interruption during registry publication.
+Do not call generated MockRuntime IPC dispatch or Vitest contracts WebView E2E.

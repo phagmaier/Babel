@@ -11,6 +11,13 @@ use editor_composition_proof::{
 };
 mod document_entry_host;
 use document_entry_host::{create_unsaved_draft, open_source_via_picker, select_destination};
+#[cfg(target_os = "linux")]
+mod recent_projects_host;
+#[cfg(target_os = "linux")]
+use recent_projects_host::{
+    confirm_recent_location, list_recent_projects, locate_recent_project, open_recent_project,
+    remove_recent_project,
+};
 mod save_as_host;
 use save_as_host::{save_as_copy, select_save_destination};
 mod persistence_host;
@@ -204,6 +211,16 @@ pub fn run() {
         read_open_document,
         create_unsaved_draft,
         open_source_via_picker,
+        #[cfg(target_os = "linux")]
+        list_recent_projects,
+        #[cfg(target_os = "linux")]
+        remove_recent_project,
+        #[cfg(target_os = "linux")]
+        open_recent_project,
+        #[cfg(target_os = "linux")]
+        locate_recent_project,
+        #[cfg(target_os = "linux")]
+        confirm_recent_location,
         select_destination,
         select_save_destination,
         save_as_copy,
@@ -239,6 +256,16 @@ pub fn run() {
         read_open_document,
         create_unsaved_draft,
         open_source_via_picker,
+        #[cfg(target_os = "linux")]
+        list_recent_projects,
+        #[cfg(target_os = "linux")]
+        remove_recent_project,
+        #[cfg(target_os = "linux")]
+        open_recent_project,
+        #[cfg(target_os = "linux")]
+        locate_recent_project,
+        #[cfg(target_os = "linux")]
+        confirm_recent_location,
         select_destination,
         select_save_destination,
         save_as_copy,
@@ -270,6 +297,16 @@ pub fn run() {
         read_open_document,
         create_unsaved_draft,
         open_source_via_picker,
+        #[cfg(target_os = "linux")]
+        list_recent_projects,
+        #[cfg(target_os = "linux")]
+        remove_recent_project,
+        #[cfg(target_os = "linux")]
+        open_recent_project,
+        #[cfg(target_os = "linux")]
+        locate_recent_project,
+        #[cfg(target_os = "linux")]
+        confirm_recent_location,
         select_destination,
         select_save_destination,
         save_as_copy,
@@ -344,3 +381,6 @@ mod startup_ipc_tests;
 
 #[cfg(all(test, target_os = "linux"))]
 mod snapshot_ipc_tests;
+
+#[cfg(all(test, target_os = "linux"))]
+mod recent_projects_ipc_tests;
