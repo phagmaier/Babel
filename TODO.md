@@ -38,28 +38,27 @@ M2 headless Linux exit passed. This is a bounded headless foundation; no Local-v
 
 ## M3 — core Fountain editor (bounded Linux exit passed)
 
-- [x] **M3-00 Decompose M3-G** — Evidence: [M3 report](docs/test-evidence/M3.md#m3-00--decomposition)
-- [x] **M3-01 Independent conformance corpus and oracle** — Evidence: [M3 report](docs/test-evidence/M3.md#m3-01--independent-conformance-corpus-and-oracle)
-- [x] **M3-02 Production source-aware codec foundation** — Evidence: [M3 report](docs/test-evidence/M3.md#m3-02--production-source-aware-codec-foundation)
-- [x] **M3-03 Complex Fountain regions and inline semantics** — Evidence: [M3 report](docs/test-evidence/M3.md#m3-03--complex-fountain-regions-and-inline-semantics)
-
-- [x] **M3-04 Sole editor authority and source bridge** — Evidence: [M3 report](docs/test-evidence/M3.md#m3-04--sole-editor-authority-and-source-bridge).
-- [x] **M3-05 Smart keys, joins and structural undo** — Evidence: [M3 report](docs/test-evidence/M3.md#m3-05--smart-keys-joins-and-structural-undo). Deps: M3-04.
-- [x] **M3-06 Element picker and configurable shortcut registry** — [Evidence](docs/test-evidence/M3.md#m3-06--element-picker-and-configurable-shortcut-registry). Deps: M3-05.
-- [x] **M3-07 Local character and heading completion** — [Evidence](docs/test-evidence/M3.md#m3-07--local-character-and-heading-completion). Deps: M3-06.
-- [x] **M3-08 Paste, inline formatting and native input matrix** — Evidence: [M3 report](docs/test-evidence/M3.md#m3-08--paste-formatting-and-native-input). Deps: M3-05, M3-06, M3-07. Real IME commit/cancel/Enter passed; S13 proxy measurements retain later full-performance gates.
-- [x] **M3-09 Native source/destination picker and recoverable drafts** — Evidence: [M3 report](docs/test-evidence/M3.md#m3-09--native-sourcedestination-picker-and-recoverable-drafts). Deps: M3-00, M2-06.
-- [x] **M3-10 Recovery/source cadence and visible protection state** — Evidence: [M3 report](docs/test-evidence/M3.md#m3-10--recoverysource-cadence-and-visible-protection-state). Deps: M3-04, M3-09, M2-04, M2-05C.
-- [x] **M3-11 Native Save As identity and publication** — Evidence: [M3 report](docs/test-evidence/M3.md#m3-11--native-save-as-identity-and-publication). Deps: M3-09, M3-10.
-- [x] **M3-12 Production writing lifecycle and failure UI** — [Brief](docs/tasks/M3-12.md). Deps: M3-08, M3-10, M3-11, M2-05D.
-- [x] **M3-13 Core editor exit and separate safety review** — [Brief](docs/tasks/M3-13.md), [corrected re-review](docs/reviews/2026-09-29-m3-13-rereview.md), [evidence](docs/test-evidence/M3.md#m3-13--corrected-integrated-exit-re-review). Fresh full default-app input/IME/lifecycle and native tmpfs/Btrfs safety gates pass. Deps: M3-01–12 and corrections below.
-- [x] **M3-12-R1 Uncapturable draft protection and truthful status** — [Brief](docs/tasks/M3-12-R1.md). Deps: M3-12; review R03. Evidence: [audit corrections](docs/test-evidence/M3.md#repository-audit-corrections).
-- [x] **M3-09-R1 Resume/export unsaved checkpoints after restart** — [Brief](docs/tasks/M3-09-R1.md). Deps: M3-09, M3-12; review R02. Evidence: [audit corrections](docs/test-evidence/M3.md#repository-audit-corrections).
-- [x] **M3-11-R1 Read-only source Save As** — [Brief](docs/tasks/M3-11-R1.md). Deps: M3-11, M3-12; review R01. Evidence: [audit corrections](docs/test-evidence/M3.md#repository-audit-corrections).
-- [x] **M3-04-R1 Integrated capture/cadence typing responsiveness** — [Brief](docs/tasks/M3-04-R1.md). Deps: M3-04, M3-10, M3-12; review R04. Complete trusted-input/latency audit required. Evidence: [audit corrections](docs/test-evidence/M3.md#repository-audit-corrections).
-- [x] **M3-10-R1 Coalesced cadence liveness** — [Brief](docs/tasks/M3-10-R1.md). Deps: M3-10, M3-12; repository audit A2. Evidence: [audit corrections](docs/test-evidence/M3.md#repository-audit-corrections).
-- [x] **M3-12-R2 Recovery and identity lifecycle boundaries** — [Brief](docs/tasks/M3-12-R2.md). Deps: M3-09–12; repository audit A3/A7/A9/A10/A11. Evidence: [audit corrections](docs/test-evidence/M3.md#repository-audit-corrections).
-- [x] **M3-03-R1 Inline/capture complexity** — [Brief](docs/tasks/M3-03-R1.md). Deps: M3-03; repository audit A6 and M3-04-R1 measurements. Evidence: [audit corrections](docs/test-evidence/M3.md#repository-audit-corrections).
+- [x] **M3-00 Decompose** — [Evidence](docs/test-evidence/M3.md#m3-00--decomposition)
+- [x] **M3-01 Conformance corpus** — [Evidence](docs/test-evidence/M3.md#m3-01--independent-conformance-corpus-and-oracle)
+- [x] **M3-02 Codec foundation** — [Evidence](docs/test-evidence/M3.md#m3-02--production-source-aware-codec-foundation)
+- [x] **M3-03 Complex regions** — [Evidence](docs/test-evidence/M3.md#m3-03--complex-fountain-regions-and-inline-semantics)
+- [x] **M3-04 Editor bridge** — [Evidence](docs/test-evidence/M3.md#m3-04--sole-editor-authority-and-source-bridge)
+- [x] **M3-05 Smart keys/undo** — [Evidence](docs/test-evidence/M3.md#m3-05--smart-keys-joins-and-structural-undo)
+- [x] **M3-06 Picker/shortcuts** — [Evidence](docs/test-evidence/M3.md#m3-06--element-picker-and-configurable-shortcut-registry)
+- [x] **M3-07 Completion** — [Evidence](docs/test-evidence/M3.md#m3-07--local-character-and-heading-completion)
+- [x] **M3-08 Clipboard/IME** — [Evidence](docs/test-evidence/M3.md#m3-08--paste-formatting-and-native-input)
+- [x] **M3-09 Native entry** — [Evidence](docs/test-evidence/M3.md#m3-09--native-sourcedestination-picker-and-recoverable-drafts)
+- [x] **M3-10 Cadence/status** — [Evidence](docs/test-evidence/M3.md#m3-10--recoverysource-cadence-and-visible-protection-state)
+- [x] **M3-11 Save As** — [Evidence](docs/test-evidence/M3.md#m3-11--native-save-as-identity-and-publication)
+- [x] **M3-12 Writing lifecycle** — [Evidence](docs/test-evidence/M3.md#m3-12--production-writing-lifecycle-and-failure-ui)
+- [x] **M3-13 Exit + review** — [Evidence](docs/test-evidence/M3.md#m3-13--corrected-integrated-exit-re-review), [re-review](docs/reviews/2026-09-29-m3-13-rereview.md)
+- [x] **M3-12-R1 Draft protection** — [Evidence](docs/test-evidence/M3.md#repository-audit-corrections)
+- [x] **M3-09-R1 Checkpoint resume** — [Evidence](docs/test-evidence/M3.md#repository-audit-corrections)
+- [x] **M3-11-R1 Read-only Save As** — [Evidence](docs/test-evidence/M3.md#repository-audit-corrections)
+- [x] **M3-04-R1 Typing responsiveness** — [Evidence](docs/test-evidence/M3.md#repository-audit-corrections)
+- [x] **M3-10-R1 Cadence liveness** — [Evidence](docs/test-evidence/M3.md#repository-audit-corrections)
+- [x] **M3-12-R2 Lifecycle boundaries** — [Evidence](docs/test-evidence/M3.md#repository-audit-corrections)
+- [x] **M3-03-R1 Inline complexity** — [Evidence](docs/test-evidence/M3.md#repository-audit-corrections)
 
 ### M3 verification and boundary
 
