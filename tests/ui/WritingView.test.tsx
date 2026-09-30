@@ -791,3 +791,231 @@ describe('M4-04 coordinated import', () => {
     await waitFor(() => expect(editor.textContent).toBe(original));
   });
 });
+
+describe('M4-05 coordinated moves', () => {
+  const oldRects = Object.getOwnPropertyDescriptor(
+    Range.prototype,
+    'getClientRects',
+  );
+  const oldBounds = Object.getOwnPropertyDescriptor(
+    Range.prototype,
+    'getBoundingClientRect',
+  );
+  afterEach(() => {
+    vi.restoreAllMocks();
+    for (const [name, descriptor] of [
+      ['getClientRects', oldRects],
+      ['getBoundingClientRect', oldBounds],
+    ] as const) {
+      if (descriptor) Object.defineProperty(Range.prototype, name, descriptor);
+      else Reflect.deleteProperty(Range.prototype, name);
+    }
+  });
+  async function moveFixture(
+    source: string,
+    workflows?: WritingPorts['workflows'],
+  ) {
+    Object.defineProperty(Range.prototype, 'getClientRects', {
+      configurable: true,
+      value: () => [],
+    });
+    Object.defineProperty(Range.prototype, 'getBoundingClientRect', {
+      configurable: true,
+      value: () => new DOMRect(),
+    });
+    const raw = [...new TextEncoder().encode(source)];
+    const picked = {
+      ...opened(),
+      fingerprint: {
+        ...fingerprint(),
+        byteLength: raw.length,
+        sha256: createHash('sha256').update(Uint8Array.from(raw)).digest('hex'),
+      },
+      source: raw,
+      sourceSha256: createHash('sha256')
+        .update(Uint8Array.from(raw))
+        .digest('hex'),
+    };
+    const { ports, calls } = fixturePorts({ picked });
+    ports.workflows = workflows;
+    const saved: (readonly number[])[] = [];
+    ports.documents.save = async (request) => {
+      saved.push(request.source);
+      const result = receipt({
+        id: 1,
+        protection: 'sourceFile',
+        version: request.version,
+        sha256: request.sourceSha256,
+        byteLength: request.source.length,
+      });
+      return {
+        ...result,
+        fingerprint: {
+          ...result.fingerprint,
+          byteLength: request.source.length,
+        },
+      };
+    };
+    render(
+      <WritingView
+        ports={ports}
+        open={{ kind: 'picked' }}
+        onSessionClosed={vi.fn()}
+      />,
+    );
+    await screen.findByLabelText('Screenplay actions');
+    const editor = screen
+      .getByLabelText('Screenplay editor')
+      .querySelector<HTMLElement>('.ProseMirror')!;
+    await waitFor(() =>
+      expect(
+        (
+          screen.getByRole('button', {
+            name: 'Move Scene 1: INT. A down',
+          }) as HTMLButtonElement
+        ).disabled,
+      ).toBe(false),
+    );
+    return { ports, calls, editor, saved };
+  }
+  it('previews exact attachments, applies a small move without history protection, saves exact bytes and undoes once', async () => {
+    const original =
+      '.INT. A\n= Synopsis\n!**Alpha**.\n[[Note]]\n\n.INT. B\n!Beta.\n\n';
+    const protect = vi.fn();
+    const f = await moveFixture(original, { protect });
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Move Scene 1: INT. A down' }),
+    );
+    expect(
+      (screen.getByLabelText('Exact moved source') as HTMLTextAreaElement)
+        .value,
+    ).toBe('.INT. A\n= Synopsis\n!**Alpha**.\n[[Note]]\n\n');
+    fireEvent.click(screen.getByText('Apply move'));
+    await waitFor(() =>
+      expect(screen.queryByLabelText('Move preview')).toBeNull(),
+    );
+    expect(protect).not.toHaveBeenCalled();
+    expect(f.editor.querySelector('p')!.textContent).toBe('INT. B');
+    fireEvent.click(
+      within(screen.getByLabelText('Screenplay actions')).getByRole('button', {
+        name: 'Save',
+      }),
+    );
+    await waitFor(() => expect(f.saved.length).toBeGreaterThan(0));
+    expect(new TextDecoder().decode(Uint8Array.from(f.saved.at(-1)!))).toBe(
+      '.INT. B\n!Beta.\n\n.INT. A\n= Synopsis\n!**Alpha**.\n[[Note]]\n\n',
+    );
+    await waitFor(() =>
+      expect(
+        (
+          within(screen.getByLabelText('Screenplay actions')).getByRole(
+            'button',
+            { name: 'Save' },
+          ) as HTMLButtonElement
+        ).disabled,
+      ).toBe(false),
+    );
+    fireEvent.keyDown(f.editor, { key: 'z', ctrlKey: true });
+    await waitFor(() =>
+      expect(f.editor.querySelector('p')!.textContent).toBe('INT. A'),
+    );
+    fireEvent.click(
+      within(screen.getByLabelText('Screenplay actions')).getByRole('button', {
+        name: 'Save',
+      }),
+    );
+    await waitFor(() =>
+      expect(new TextDecoder().decode(Uint8Array.from(f.saved.at(-1)!))).toBe(
+        original,
+      ),
+    );
+  });
+  it('cancels frozen large-move protection, retains preview, refuses history failure and keeps ordinary Save independent', async () => {
+    const original = '.INT. A\n' + '!A.\n'.repeat(48) + '\n.INT. B\n!B.\n\n';
+    let finish: (() => void) | undefined;
+    let failHistory = false;
+    const protect = vi.fn(
+      async (
+        request: import('../../src/application/workflowProtection').WorkflowProtectionRequest,
+      ) => {
+        expect(request.checkpoint.source.length).toBe(
+          new TextEncoder().encode(original).length,
+        );
+        await new Promise<void>((resolve) => {
+          finish = resolve;
+        });
+        if (failHistory)
+          throw new Error('History unavailable; history needs attention');
+        const cp = request.checkpoint;
+        return {
+          operation: request.operation,
+          byteLength: cp.source.length,
+          checkpoint: {
+            identity: cp.identity,
+            version: cp.version,
+            sourceSha256: cp.sourceSha256,
+            generation: 1,
+            protection: 'recoveryCheckpoint' as const,
+          },
+          revision: {
+            documentId: cp.identity.documentId,
+            version: cp.version,
+            sourceSha256: cp.sourceSha256,
+            profileSha256: A,
+            commitId: 'a'.repeat(40),
+            changed: true,
+            safetyRef: 'refs/safety/' + 'a'.repeat(40),
+          },
+        };
+      },
+    );
+    const f = await moveFixture(original, { protect });
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Move Scene 1: INT. A down' }),
+    );
+    fireEvent.click(screen.getByText('Apply move'));
+    await waitFor(() => expect(finish).toBeDefined());
+    expect(protect.mock.calls[0]![0].operation).toBe('sceneMove');
+    expect(f.editor.getAttribute('contenteditable')).toBe('false');
+    fireEvent.click(screen.getByText('Cancel move protection'));
+    finish!();
+    await screen.findByText(/Operation cancelled/);
+    expect(f.editor.getAttribute('contenteditable')).toBe('true');
+    expect(f.editor.querySelector('p')!.textContent).toBe('INT. A');
+    failHistory = true;
+    finish = undefined;
+    fireEvent.click(screen.getByText('Apply move'));
+    await waitFor(() => expect(finish).toBeDefined());
+    finish!();
+    await screen.findByText('History unavailable; history needs attention');
+    expect(f.editor.querySelector('p')!.textContent).toBe('INT. A');
+    expect(f.editor.getAttribute('contenteditable')).toBe('true');
+    expect(screen.getByLabelText('Exact moved source')).toBeTruthy();
+    fireEvent.click(screen.getByText('Cancel move preview'));
+    fireEvent.click(
+      within(screen.getByLabelText('Screenplay actions')).getByRole('button', {
+        name: 'Save',
+      }),
+    );
+    await waitFor(() => expect(f.saved.length).toBeGreaterThan(0));
+    expect(new TextDecoder().decode(Uint8Array.from(f.saved.at(-1)!))).toBe(
+      original,
+    );
+  });
+  it('makes a preview stale after an accepted edit and retains both review copies for an EOF refusal', async () => {
+    const f = await moveFixture('.INT. A\n!A.\n\n.INT. B\n!B.');
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Move Scene 1: INT. A down' }),
+    );
+    expect(screen.getByLabelText('Original source review copy')).toBeTruthy();
+    expect(screen.getByLabelText('Candidate source review copy')).toBeTruthy();
+    expect((screen.getByText('Apply move') as HTMLButtonElement).disabled).toBe(
+      true,
+    );
+    fireEvent.keyDown(f.editor, { key: 'Enter' });
+    await screen.findByText(/Move preview is stale/);
+    expect((screen.getByText('Apply move') as HTMLButtonElement).disabled).toBe(
+      true,
+    );
+  });
+});

@@ -13,7 +13,7 @@ static void global(void *data, struct wl_registry *registry, uint32_t name, cons
 static void removed(void *data, struct wl_registry *registry, uint32_t name) { (void)data; (void)registry; (void)name; }
 static const struct wl_registry_listener listener = {global, removed};
 int main(int argc, char **argv) {
-  if (argc != 5) return 2;
+  if (argc != 5 && argc != 7) return 2;
   struct wl_display *display = wl_display_connect(NULL);
   if (!display) return 3;
   struct wl_registry *registry = wl_display_get_registry(display);
@@ -34,9 +34,26 @@ int main(int argc, char **argv) {
   zwlr_virtual_pointer_v1_frame(pointer);
   wl_display_roundtrip(display);
   nanosleep(&delay, NULL);
-  zwlr_virtual_pointer_v1_button(pointer, time + 200, 0x110, WL_POINTER_BUTTON_STATE_RELEASED);
+  if (argc == 7) {
+    /* Physical compositor drag, needed for GTK's native drag loop. */
+    int x = atoi(argv[1]), y = atoi(argv[2]);
+    int end_x = atoi(argv[5]), end_y = atoi(argv[6]);
+    for (int step = 1; step <= 15; step++) {
+      int at_x = x + (end_x - x) * step / 15;
+      int at_y = y + (end_y - y) * step / 15;
+      zwlr_virtual_pointer_v1_motion_absolute(pointer, time + 100 + step * 100, at_x, at_y, atoi(argv[3]), atoi(argv[4]));
+      zwlr_virtual_pointer_v1_frame(pointer);
+      wl_display_roundtrip(display);
+      nanosleep(&delay, NULL);
+    }
+  }
+  zwlr_virtual_pointer_v1_button(pointer, time + (argc == 7 ? 1800 : 200), 0x110, WL_POINTER_BUTTON_STATE_RELEASED);
   zwlr_virtual_pointer_v1_frame(pointer);
   wl_display_roundtrip(display);
+  if (argc == 7) {
+    nanosleep(&delay, NULL); nanosleep(&delay, NULL); nanosleep(&delay, NULL);
+    wl_display_roundtrip(display);
+  }
   zwlr_virtual_pointer_v1_destroy(pointer);
   zwlr_virtual_pointer_manager_v1_destroy(manager);
   wl_registry_destroy(registry);

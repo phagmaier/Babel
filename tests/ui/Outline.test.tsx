@@ -319,3 +319,168 @@ it('allows explicit read-only selection navigation but refuses mutations, frozen
   expect(captureEditor(f.view.state).source).toEqual(bytes);
   expect(undoDepth(f.view.state)).toBe(0);
 });
+
+it('uses the identical request for keyboard up and owned pointer drag; foreign/stale drops cannot plan', async () => {
+  const f = await fixture('.INT. A\n!A.\n\n.INT. B\n!B.\n\n');
+  const onMove = vi.fn();
+  const rendered = render(
+    <Outline state={f.state} onNavigate={vi.fn()} onMove={onMove} />,
+  );
+  const up = await screen.findByRole('button', {
+    name: 'Move Scene 2: INT. B up',
+  });
+  await waitFor(() => expect((up as HTMLButtonElement).disabled).toBe(false));
+  fireEvent.click(up);
+  const expected = {
+    itemId: f.projection.index.items[1]!.id,
+    targetId: f.projection.index.items[0]!.id,
+    placement: 'before',
+  };
+  expect(onMove).toHaveBeenLastCalledWith(expected);
+  const first = screen.getByRole('button', { name: 'Go to Scene 1: INT. A' });
+  const handle = screen.getByRole('button', {
+    name: 'Drag Scene 2: INT. B to preview move',
+  });
+  Object.assign(handle, {
+    setPointerCapture: vi.fn(),
+    hasPointerCapture: () => true,
+    releasePointerCapture: vi.fn(),
+  });
+  const old = Object.getOwnPropertyDescriptor(document, 'elementFromPoint');
+  const hit = vi.fn(() => first);
+  Object.defineProperty(document, 'elementFromPoint', {
+    configurable: true,
+    value: hit,
+  });
+  const pointer = (type: string, x: number) => {
+    const event = new MouseEvent(type, {
+      bubbles: true,
+      button: 0,
+      clientX: x,
+      clientY: 10,
+    });
+    Object.defineProperty(event, 'pointerId', { value: 1 });
+    fireEvent(handle, event);
+  };
+  try {
+    fireEvent.drop(first.closest('.outline-row')!);
+    expect(onMove).toHaveBeenCalledTimes(1);
+    pointer('pointerdown', 10);
+    pointer('pointermove', 30);
+    pointer('pointerup', 30);
+    expect(onMove).toHaveBeenCalledTimes(2);
+    expect(onMove).toHaveBeenLastCalledWith(expected);
+    pointer('pointerdown', 10);
+    pointer('pointermove', 30);
+    rendered.rerender(
+      <Outline
+        state={{ ...f.state, projection: { ...f.projection } }}
+        onNavigate={vi.fn()}
+        onMove={onMove}
+      />,
+    );
+    pointer('pointerup', 30);
+    expect(onMove).toHaveBeenCalledTimes(3);
+    pointer('pointerdown', 10);
+    pointer('pointermove', 30);
+    rendered.rerender(
+      <Outline
+        state={{ ...f.state, phase: 'pending' }}
+        onNavigate={vi.fn()}
+        onMove={onMove}
+      />,
+    );
+    pointer('pointerup', 30);
+    expect(onMove).toHaveBeenCalledTimes(3);
+    rendered.rerender(
+      <Outline state={f.state} onNavigate={vi.fn()} onMove={onMove} />,
+    );
+    pointer('pointerdown', 10);
+    pointer('pointermove', 30);
+    pointer('pointercancel', 30);
+    pointer('pointerup', 30);
+    expect(onMove).toHaveBeenCalledTimes(3);
+    hit.mockReturnValue(document.createElement('button'));
+    pointer('pointerdown', 10);
+    pointer('pointermove', 30);
+    pointer('pointerup', 30);
+    expect(onMove).toHaveBeenCalledTimes(3);
+  } finally {
+    if (old) Object.defineProperty(document, 'elementFromPoint', old);
+    else Reflect.deleteProperty(document, 'elementFromPoint');
+  }
+});
+it('offers keyboard before/after destinations and disables read-only move controls independently of navigation', async () => {
+  const f = await fixture('# A\n.INT. A\n!A.\n\n# B\n.INT. B\n!B.\n\n');
+  const onMove = vi.fn();
+  const rendered = render(
+    <Outline state={f.state} onNavigate={vi.fn()} onMove={onMove} />,
+  );
+  await waitFor(() =>
+    expect(
+      (screen.getByLabelText('Heading to move') as HTMLSelectElement).disabled,
+    ).toBe(false),
+  );
+  fireEvent.change(screen.getByLabelText('Heading to move'), {
+    target: { value: f.projection.index.items[1]!.id },
+  });
+  fireEvent.change(screen.getByLabelText('Destination heading'), {
+    target: { value: f.projection.index.items[3]!.id },
+  });
+  fireEvent.change(screen.getByLabelText('Move placement'), {
+    target: { value: 'after' },
+  });
+  fireEvent.click(screen.getByText('Preview move'));
+  expect(onMove).toHaveBeenCalledWith({
+    itemId: f.projection.index.items[1]!.id,
+    targetId: f.projection.index.items[3]!.id,
+    placement: 'after',
+  });
+  rendered.rerender(
+    <Outline
+      state={f.state}
+      onNavigate={vi.fn()}
+      onMove={onMove}
+      moveDisabled
+    />,
+  );
+  expect((screen.getByText('Preview move') as HTMLButtonElement).disabled).toBe(
+    true,
+  );
+  expect(
+    (
+      screen.getByRole('button', {
+        name: 'Go to Scene 1: INT. A',
+      }) as HTMLButtonElement
+    ).disabled,
+  ).toBe(false);
+});
+
+it('refuses move dispatch in read-only, composition and stale editor frames', async () => {
+  const { prepareEditorMove, applyPreparedMove } =
+    await import('../../src/editor/sceneMoves');
+  let writable = true;
+  const f = await fixture('.INT. A\n!A.\n\n.INT. B\n!B.\n\n', {
+    canEdit: () => writable,
+  });
+  const move = prepareEditorMove(f.view.state, f.projection, {
+    itemId: f.projection.index.items[1]!.id,
+    targetId: f.projection.index.items[0]!.id,
+    placement: 'before',
+  });
+  const original = captureEditor(f.view.state).source;
+  writable = false;
+  expect(applyPreparedMove(f.view, move)).toBe(false);
+  expect(captureEditor(f.view.state).source).toEqual(original);
+  writable = true;
+  f.view.dom.dispatchEvent(
+    new CompositionEvent('compositionstart', { bubbles: true }),
+  );
+  expect(applyPreparedMove(f.view, move)).toBe(false);
+  f.view.dom.dispatchEvent(
+    new CompositionEvent('compositionend', { bubbles: true }),
+  );
+  f.view.dispatch(f.view.state.tr.insertText('X', 2));
+  expect(applyPreparedMove(f.view, move)).toBe(false);
+  expect(captureEditor(f.view.state).source).not.toEqual(original);
+});

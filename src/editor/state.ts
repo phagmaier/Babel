@@ -18,6 +18,7 @@ import type {
   StyledText,
 } from '../domain/fountainModel';
 import { screenplaySchema } from './schema';
+import { readyMove, type MoveReview } from '../domain/sceneMoves';
 
 interface SourceOrigin {
   readonly document: FountainDocument;
@@ -28,6 +29,7 @@ interface SourceOrigin {
 const originKey = new PluginKey<SourceOrigin>('babel-source-origin');
 const sourceDocuments = new WeakMap<object, FountainDocument>();
 const importTransactions = new WeakSet<Transaction>();
+const moveTransactions = new WeakSet<Transaction>();
 const adoptedVersions = new WeakMap<Transaction, number>();
 const structuralTransactions = new WeakMap<Transaction, number>();
 export function authorizeStructuralTransaction(
@@ -72,6 +74,7 @@ function permitted(transaction: Transaction, state: EditorState): boolean {
     sourceChanged &&
     (!sourceDocuments.has(transaction.doc.attrs.sourceOrigin as object) ||
       (!importTransactions.has(transaction) &&
+        !moveTransactions.has(transaction) &&
         !isHistoryTransaction(transaction)))
   )
     return false;
@@ -349,4 +352,51 @@ export function sourceImportTransaction(
     tr,
     Math.max(nextId, editorOrigin(imported).nextId),
   );
+}
+
+/** Branded exact-source permutation; retains live IDs, marks and protected rows. */
+export function sourceMoveTransaction(
+  state: EditorState,
+  review: MoveReview,
+): Transaction {
+  const { document, order } = readyMove(review);
+  if (state.doc.childCount !== order.length)
+    throw new Error('Move row inventory changed');
+  const projected = createEditorState(document.bytes, document.recovery);
+  const nodes = order.map((row, at) => {
+    const node = state.doc.child(row);
+    if (node.attrs.id !== document.lines[at]!.id)
+      throw new Error('Move identity changed');
+    const expected = projected.doc.child(at);
+    if (node.type !== expected.type || !node.content.eq(expected.content))
+      throw new Error('Move content differs from its verified source');
+    return node.type.create(expected.attrs, node.content, node.marks);
+  });
+  const token = Object.freeze({});
+  sourceDocuments.set(token, document);
+  let tr = closeHistory(state.tr)
+    .replaceWith(0, state.doc.content.size, nodes)
+    .setDocAttribute('sourceOrigin', token);
+  const anchor = state.doc.resolve(state.selection.anchor);
+  const head = state.doc.resolve(state.selection.head);
+  const inMoved = (row: number) => row >= review.from && row < review.to;
+  const followSelection = inMoved(anchor.index(0)) && inMoved(head.index(0));
+  const position = (row: number, offset: number) => {
+    const at = order.indexOf(row);
+    return (
+      nodes.slice(0, at).reduce((sum, node) => sum + node.nodeSize, 1) + offset
+    );
+  };
+  tr = tr.setSelection(
+    followSelection
+      ? TextSelection.create(
+          tr.doc,
+          position(anchor.index(0), anchor.parentOffset),
+          position(head.index(0), head.parentOffset),
+        )
+      : TextSelection.create(tr.doc, position(review.from, 0)),
+  );
+  tr.setMeta('outlineMove', true);
+  moveTransactions.add(tr);
+  return authorizeStructuralTransaction(tr, editorOrigin(state).nextId);
 }

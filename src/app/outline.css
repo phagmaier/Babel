@@ -45,3 +45,25 @@
   margin: 4px 0 8px 12px;
   font-size: 0.9rem;
 }
+.move-preview {
+  border: 1px solid #82998a;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+.move-preview textarea {
+  display: block;
+  width: 100%;
+  font-family: monospace;
+  white-space: pre;
+}
+.move-preview button {
+  margin: 8px 8px 0 0;
+}
+.outline-drag {
+  touch-action: none;
+  cursor: grab;
+  user-select: none;
+}
+.outline-drag:active {
+  cursor: grabbing;
+}

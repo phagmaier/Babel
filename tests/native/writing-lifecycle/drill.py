@@ -227,6 +227,10 @@ try:
         from home_workflows import run as run_home
         run_home(sys.modules[__name__])
         sys.exit(0)
+    if '--scene-moves' in sys.argv:
+        from scene_moves import run as run_moves
+        run_moves(sys.modules[__name__])
+        sys.exit(0)
     if '--workflow-protection' in sys.argv:
         from workflow_protection import run as run_workflow
         run_workflow(sys.modules[__name__])

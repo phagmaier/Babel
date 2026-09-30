@@ -43,12 +43,11 @@ export function mountScreenplayEditor(
       (observers.canEdit?.() ?? true),
     dispatchTransaction(transaction) {
       if (
-        transaction.getMeta('outlineNavigation') &&
+        (transaction.getMeta('outlineNavigation') ||
+          transaction.getMeta('outlineMove')) &&
         (composing || view.composing)
       ) {
-        observers.refused?.(
-          'Outline navigation waits until composition finishes',
-        );
+        observers.refused?.('Outline actions wait until composition finishes');
         return;
       }
       if (

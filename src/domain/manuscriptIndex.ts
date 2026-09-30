@@ -68,6 +68,14 @@ export interface ManuscriptIndex {
   readonly byteLength: number;
 }
 
+const indexedDocuments = new WeakMap<ManuscriptIndex, FountainDocument>();
+export function indexDescribesDocument(
+  index: ManuscriptIndex,
+  document: FountainDocument,
+): boolean {
+  return indexedDocuments.get(index) === document;
+}
+
 /** Marker-aware content start in the retained physical source line. */
 export function extractedContentStart(
   line: import('./fountainModel').FountainLine,
@@ -462,7 +470,7 @@ export function buildManuscriptIndex(
       }),
     );
   }
-  return Object.freeze({
+  const result = Object.freeze({
     items: Object.freeze(
       items.map((item) =>
         Object.freeze({
@@ -479,4 +487,6 @@ export function buildManuscriptIndex(
     lineCount: lines.length,
     byteLength: bytes,
   });
+  indexedDocuments.set(result, document);
+  return result;
 }

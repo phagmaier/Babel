@@ -15,6 +15,13 @@ import {
   ManuscriptProjectionController,
   type ProjectionState,
 } from '../application/manuscriptProjection';
+import { MovePreview } from './MovePreview';
+import {
+  prepareEditorMove,
+  applyPreparedMove,
+  type PreparedMove,
+} from '../editor/sceneMoves';
+import type { MoveRequest } from '../domain/sceneMoves';
 import { Outline } from './Outline';
 import { navigateOutline } from '../editor/outlineNavigation';
 import type { CapturedSnapshot } from '../application/persistenceController';
@@ -180,6 +187,10 @@ export function WritingView({
     useState<CopyDestination | null>(null);
   const [candidates, setCandidates] = useState<RecoveryCandidate[]>([]);
   const [busy, setBusy] = useState(false);
+  const [move, setMove] = useState<PreparedMove | null>(null);
+  const [moveMessage, setMoveMessage] = useState('');
+  const [moveBusy, setMoveBusy] = useState(false);
+  const moveAbortRef = useRef<AbortController | null>(null);
   const [outline, setOutline] = useState<ProjectionState>({
     phase: 'pending',
     projection: null,
@@ -603,6 +614,7 @@ export function WritingView({
       );
       return () => {
         alive = false;
+        moveAbortRef.current?.abort();
         projection.dispose();
         stop?.();
         popupRef.current?.destroy();
@@ -612,6 +624,7 @@ export function WritingView({
     }
     return () => {
       alive = false;
+      moveAbortRef.current?.abort();
       projection.dispose();
       popupRef.current?.destroy();
       viewRef.current?.destroy();
@@ -813,6 +826,97 @@ export function WritingView({
     };
   }, [ports]);
 
+  const previewMove = (request: MoveRequest) => {
+    const view = viewRef.current;
+    const projection = outline.projection;
+    if (
+      !view ||
+      !projection ||
+      busy ||
+      operationRef.current ||
+      frozenRef.current ||
+      !readyRef.current ||
+      !writableRef.current ||
+      view.composing
+    ) {
+      setError(
+        'Move is unavailable while read-only, composing or protecting a draft. Source retained.',
+      );
+      return;
+    }
+    try {
+      setMove(prepareEditorMove(view.state, projection, request));
+      setMoveMessage('');
+    } catch (failure) {
+      setError(
+        failure instanceof Error
+          ? failure.message
+          : 'Move preview failed; source retained.',
+      );
+    }
+  };
+  const applyMove = async () => {
+    const view = viewRef.current;
+    const session = sessionRef.current;
+    if (
+      !move ||
+      !view ||
+      !session ||
+      view.state !== move.state ||
+      view.composing ||
+      busy ||
+      operationRef.current ||
+      frozenRef.current ||
+      !writableRef.current ||
+      !readyRef.current
+    ) {
+      setMoveMessage(
+        'Move refused for this version. Source and review copies retained.',
+      );
+      return;
+    }
+    operationRef.current = true;
+    setBusy(true);
+    setMoveBusy(true);
+    const abort = new AbortController();
+    moveAbortRef.current = abort;
+    try {
+      if (move.large) {
+        setMoveMessage('Protecting the exact current draft before moving…');
+        const result = await session.runProtectedWorkflow(
+          move.review.kind === 'scene' ? 'sceneMove' : 'sectionMove',
+          () => applyPreparedMove(view, move),
+          abort.signal,
+        );
+        if (result.status === 'refused') {
+          setMoveMessage(result.reason);
+          return;
+        }
+      } else if (!applyPreparedMove(view, move)) {
+        setMoveMessage(
+          'Editor refused the move. Source and review copies retained.',
+        );
+        return;
+      }
+      setMove(null);
+      setError(
+        'Move applied. Undo restores the complete source and previous selection.',
+      );
+    } catch (failure) {
+      setMoveMessage(
+        failure instanceof Error
+          ? failure.message
+          : 'Move failed; source and review copies retained.',
+      );
+    } finally {
+      moveAbortRef.current = null;
+      operationRef.current = false;
+      setBusy(false);
+      setMoveBusy(false);
+      refresh();
+    }
+  };
+
   // The editor and import hosts are keyed so React preserves their DOM across
   // phase changes. Unkeyed conditional trees unmounted ProseMirror's DOM out
   // from under the live view, silently detaching the editor.
@@ -822,6 +926,8 @@ export function WritingView({
         <Outline
           state={outline}
           disabled={busy || showClose}
+          moveDisabled={Boolean(active?.readOnly) || Boolean(move)}
+          onMove={previewMove}
           onNavigate={(item) => {
             const current = viewRef.current;
             const captured = outline.projection;
@@ -835,6 +941,26 @@ export function WritingView({
               setError(
                 'Outline navigation is unavailable for this version. Your selection and text are retained.',
               );
+          }}
+        />
+      )}
+      {move && (
+        <MovePreview
+          move={move}
+          stale={viewRef.current?.state !== move.state}
+          busy={moveBusy}
+          message={moveMessage}
+          onApply={() => void applyMove()}
+          onCancel={() => {
+            if (moveBusy) {
+              moveAbortRef.current?.abort();
+              setMoveMessage(
+                'Cancellation requested; waiting for native protection to settle.',
+              );
+            } else {
+              setMove(null);
+              setMoveMessage('');
+            }
           }}
         />
       )}
