@@ -77,6 +77,11 @@ export function ProtectedClosePanel({
       >
         Save Emergency Copy and close
       </button>
+      <p>
+        If Fountain capture is unavailable, this saves a draft recovery bundle
+        (.draft.json) with the live rows, styles, selection and exact original
+        source. It is not a Fountain save.
+      </p>
       {!destination && (
         <p>Select a destination natively to enable an emergency copy.</p>
       )}

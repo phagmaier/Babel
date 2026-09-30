@@ -160,7 +160,7 @@ export class SaveCadence {
   }
 
   async settle(): Promise<void> {
-    await Promise.all([...this.jobs]);
+    while (this.jobs.size) await Promise.all([...this.jobs]);
   }
 
   describe(): CadenceStatus {
@@ -289,6 +289,18 @@ export class SaveCadence {
       this.inFlight[protection] = false;
       this.refreshDirty();
       this.onChange();
+      // A newer edit may have spent both timers while this older job ran.
+      // Drain that edit once; never automatically retry the same failed version.
+      if (
+        !this.disposed &&
+        !this.paused &&
+        this.latest &&
+        this.latest.version > snapshot.version &&
+        (protection === 'recoveryCheckpoint'
+          ? this.recoveryNeeded()
+          : this.sourceNeeded())
+      )
+        void this.dispatch(protection);
     }
   }
 

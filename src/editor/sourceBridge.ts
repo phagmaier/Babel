@@ -56,8 +56,29 @@ export interface EditorCapture {
   } | null;
 }
 
-function sameRuns(a: readonly StyledText[], b: readonly StyledText[]) {
-  return JSON.stringify(richView(a)) === JSON.stringify(richView(b));
+// ProseMirror nodes and Fountain lines are immutable. Weak keys retain only
+// derived comparisons while those immutable rows are still reachable.
+const nodeSignatures = new WeakMap<EditorNode, string>();
+const lineSignatures = new WeakMap<FountainLine, Map<boolean, string>>();
+function sameNodeContent(node: EditorNode, line?: FountainLine): boolean {
+  let current = nodeSignatures.get(node);
+  if (current === undefined) {
+    current = JSON.stringify(richView(nodeRuns(node)));
+    nodeSignatures.set(node, current);
+  }
+  if (!line) return current === '[]';
+  let variants = lineSignatures.get(line);
+  if (!variants) {
+    variants = new Map();
+    lineSignatures.set(line, variants);
+  }
+  const literal = Boolean(node.attrs.literal);
+  let prior = variants.get(literal);
+  if (prior === undefined) {
+    prior = JSON.stringify(richView(originRuns(node, line)));
+    variants.set(literal, prior);
+  }
+  return current === prior;
 }
 function originRuns(
   node: EditorNode,
@@ -70,8 +91,7 @@ function originRuns(
 
 function editForNode(node: EditorNode, prior?: FountainLine): LineEdit {
   const runs = nodeRuns(node);
-  const priorRuns = originRuns(node, prior);
-  const unchanged = prior && sameRuns(runs, priorRuns);
+  const unchanged = prior && sameNodeContent(node, prior);
   const kind =
     node.type.name === 'action' &&
     !node.textContent &&
@@ -110,10 +130,7 @@ function matchingOrigin(node: EditorNode, line: FountainLine | undefined) {
   );
 }
 function sameSourceRow(node: EditorNode, line: FountainLine | undefined) {
-  return (
-    matchingOrigin(node, line) &&
-    sameRuns(nodeRuns(node), originRuns(node, line))
-  );
+  return matchingOrigin(node, line) && sameNodeContent(node, line);
 }
 
 /** Explicit deferred capture only. Live content comes from state.doc, never a source peer. */
@@ -311,9 +328,7 @@ export function captureEditor(state: EditorState): EditorCapture {
       const prior = base.lines[index];
       if (!prior && !node.textContent) return; // Empty virtual placeholder has no portable row.
       if (node.attrs.protected) return;
-      const runs = nodeRuns(node);
-      const previous = originRuns(node, prior);
-      if (sameRuns(runs, previous)) return;
+      if (sameNodeContent(node, prior)) return;
       edits.push({ index, edit: editForNode(node, prior) });
     });
     // Adjacent changed rows own one grammar context. Separate ranges cannot silently own protected text.
@@ -432,12 +447,18 @@ export function captureEditor(state: EditorState): EditorCapture {
 /** A refusal still has reviewable current text/styles plus an exact original byte copy. */
 export function copyEditorDraft(state: EditorState) {
   const original = serializeFountain(editorOrigin(state).document);
-  const rows: { id: string; kind: string; runs: readonly StyledText[] }[] = [];
+  const rows: {
+    id: string;
+    kind: string;
+    attributes: Record<string, unknown>;
+    runs: readonly StyledText[];
+  }[] = [];
   state.doc.forEach((node) =>
     rows.push(
       Object.freeze({
         id: String(node.attrs.id),
         kind: node.type.name,
+        attributes: Object.freeze({ ...node.attrs }),
         runs: Object.freeze(
           nodeRuns(node).map((run) =>
             Object.freeze({

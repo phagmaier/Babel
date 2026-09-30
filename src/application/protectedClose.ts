@@ -10,7 +10,12 @@ import type { ExternalCopyReceipt, SnapshotPort } from './snapshots';
 
 export interface CloseOwner {
   freeze(): () => void;
+  getVersion(): number;
   capture(): Promise<CapturedSnapshot>;
+  captureCopy(): Promise<{
+    snapshot: CapturedSnapshot;
+    format?: 'draftBundle';
+  }>;
 }
 export type ClosePhase = 'editing' | 'working' | 'attention' | 'closed';
 export interface CloseAssessment {
@@ -42,18 +47,21 @@ export class ProtectedClose {
 
   get assessment(): CloseAssessment {
     const state = this.controller.state;
+    const liveVersion = this.owner.getVersion();
     const sourceProtected =
+      liveVersion === state.liveVersion &&
       state.fingerprint !== null &&
       state.fileSavedVersion === state.liveVersion &&
       state.fileSavedSha256 === state.liveSha256 &&
       !state.fileBlocked;
     const recoveryProtected =
+      liveVersion === state.liveVersion &&
       state.liveVersion > 0 &&
       state.journaledVersion === state.liveVersion &&
       state.journaledSha256 === state.liveSha256;
     return {
       phase: this.phase,
-      liveVersion: state.liveVersion,
+      liveVersion,
       sourceProtected,
       recoveryProtected,
       onlyInMemory: !sourceProtected && !recoveryProtected,
@@ -73,9 +81,7 @@ export class ProtectedClose {
     }
   }
 
-  private async withFrozen(
-    action: (snapshot: CapturedSnapshot) => Promise<void>,
-  ): Promise<void> {
+  private async withFrozen(action: () => Promise<void>): Promise<void> {
     if (this.phase === 'working' || this.phase === 'closed')
       throw new Error('Close operation unavailable');
     // freeze() must synchronously reject editor transactions and return a thaw callback.
@@ -93,15 +99,7 @@ export class ProtectedClose {
     }
     this.publish('working', 'Protecting the latest version before close…');
     try {
-      const snapshot = await this.owner.capture();
-      const state = this.controller.state;
-      if (
-        snapshot.version !== state.liveVersion ||
-        snapshot.sourceSha256 !== state.liveSha256 ||
-        snapshot.source.length !== state.liveByteLength
-      )
-        throw new Error('Latest editor version changed during close');
-      await action(snapshot);
+      await action();
     } catch (error) {
       this.publish(
         'attention',
@@ -115,9 +113,26 @@ export class ProtectedClose {
     }
   }
 
+  private async withCapture(
+    action: (snapshot: CapturedSnapshot) => Promise<void>,
+  ): Promise<void> {
+    await this.withFrozen(async () => {
+      const snapshot = await this.owner.capture();
+      const state = this.controller.state;
+      if (
+        snapshot.version !== this.owner.getVersion() ||
+        snapshot.version !== state.liveVersion ||
+        snapshot.sourceSha256 !== state.liveSha256 ||
+        snapshot.source.length !== state.liveByteLength
+      )
+        throw new Error('Latest editor version changed during close');
+      await action(snapshot);
+    });
+  }
+
   /** Explicit Save bypasses any ordinary cadence; an unsaved draft needs a checkpoint. */
   async retry(): Promise<void> {
-    await this.withFrozen(async (snapshot) => {
+    await this.withCapture(async (snapshot) => {
       const state = this.controller.state;
       if (!state.writable) {
         await this.documents.release(state.identity);
@@ -171,8 +186,18 @@ export class ProtectedClose {
     destinationToken: string,
   ): Promise<ExternalCopyReceipt> {
     let confirmed: ExternalCopyReceipt | undefined;
-    await this.withFrozen(async (snapshot) => {
+    await this.withFrozen(async () => {
+      const { snapshot, format } = await this.owner.captureCopy();
+      if (snapshot.version !== this.owner.getVersion())
+        throw new Error('Draft changed during emergency copy');
       const state = this.controller.state;
+      if (
+        !format &&
+        (snapshot.version !== state.liveVersion ||
+          snapshot.sourceSha256 !== state.liveSha256 ||
+          snapshot.source.length !== state.liveByteLength)
+      )
+        throw new Error('Latest editor capture does not match emergency copy');
       const receipt = await this.copies.copy({
         checkpoint: {
           identity: state.identity,
@@ -183,6 +208,7 @@ export class ProtectedClose {
           draftMetadata: snapshot.draftMetadata,
         },
         destinationToken,
+        ...(format ? { format } : {}),
       });
       if (
         !sameIdentity(receipt.identity, state.identity) ||
@@ -191,6 +217,8 @@ export class ProtectedClose {
         receipt.byteLength !== snapshot.source.length ||
         typeof receipt.fileName !== 'string' ||
         receipt.fileName.length === 0 ||
+        (format === 'draftBundle' &&
+          !receipt.fileName.endsWith('.draft.json')) ||
         !['sameFilesystem', 'unknownPhysicalDisk'].includes(
           receipt.storageRelation,
         )
@@ -202,7 +230,9 @@ export class ProtectedClose {
       await this.documents.releaseAtRisk(state.identity);
       this.publish(
         'closed',
-        'Exact emergency copy verified and document closed. The source file was not marked saved.',
+        format
+          ? 'Draft recovery bundle verified and document closed. The Fountain source was not marked saved.'
+          : 'Exact emergency copy verified and document closed. The source file was not marked saved.',
       );
     });
     return confirmed!;
@@ -211,11 +241,11 @@ export class ProtectedClose {
   /** Caller must display the current assessment and obtain a fresh explicit choice. */
   async acceptRisk(
     confirmed: boolean,
-    expectedVersion = this.controller.state.liveVersion,
+    expectedVersion = this.owner.getVersion(),
   ): Promise<void> {
     if (!confirmed) throw new Error('Explicit close risk acceptance required');
-    await this.withFrozen(async (snapshot) => {
-      if (snapshot.version !== expectedVersion)
+    await this.withFrozen(async () => {
+      if (this.owner.getVersion() !== expectedVersion)
         throw new Error(
           'The draft changed; review the current close risk again',
         );

@@ -46,6 +46,29 @@ function fakeClock() {
 }
 
 class FakeEditor implements SessionEditor {
+  retain() {
+    const current = this.current,
+      selection = this.selection,
+      writable = this.writable;
+    return () => {
+      this.current = current;
+      this.selection = selection;
+      this.writable = writable;
+    };
+  }
+  async prepareSource(source: readonly number[], version: number) {
+    const before = this.current;
+    this.sourceWas(source, version);
+    const snapshot = this.current;
+    this.current = before;
+    return { snapshot, apply: () => this.applySource(source, version) };
+  }
+  getVersion() {
+    return this.current.version;
+  }
+  async captureDraft() {
+    return this.current;
+  }
   current: CapturedSnapshot = {
     version: 1,
     source: [97],
@@ -253,6 +276,126 @@ function ports(overrides: Partial<SessionPorts> = {}): {
 }
 
 describe('M3-12 writing session lifecycle', () => {
+  it.each(['load', 'release'] as const)(
+    'retains the original editor and identity after Save As %s failure',
+    async (failure) => {
+      const fakes = ports();
+      const editor = new FakeEditor();
+      const session = new WritingSession(fakes.ports, editor, fakeClock());
+      fakes.entry.picked = opened();
+      await session.openPicked();
+      const identity = session.active!.identity;
+      const snapshot = editor.current;
+      editor.selection = { anchor: 1, head: 2 };
+      fakes.saveAs.target = {
+        token: 'target',
+        fileName: 'Copy.fountain',
+        storageRelation: 'sameFilesystem',
+      };
+      if (failure === 'load')
+        vi.spyOn(editor, 'loadInitial').mockImplementationOnce(() => {
+          editor.sourceWas([98], 55);
+          throw new Error('adoption failed');
+        });
+      else
+        vi.mocked(fakes.ports.documents.release).mockRejectedValueOnce(
+          new Error('release failed'),
+        );
+      await expect(session.saveAs()).rejects.toThrow(
+        'original session remains open',
+      );
+      expect(session.active!.identity).toEqual(identity);
+      expect(editor.current).toBe(snapshot);
+      expect(editor.selection).toEqual({ anchor: 1, head: 2 });
+      expect(editor.frozen).toBe(false);
+      expect(fakes.saveAs.published).toBe(true);
+      await session.save();
+      session.dispose();
+    },
+  );
+  it.each(['load', 'capture'])(
+    'releases a registration after initial %s failure',
+    async (stage) => {
+      const fakes = ports();
+      const editor = new FakeEditor();
+      if (stage === 'load')
+        editor.loadInitial = () => {
+          throw new Error('initial failure');
+        };
+      else
+        editor.capture = async () => {
+          throw new Error('initial failure');
+        };
+      const session = new WritingSession(fakes.ports, editor, fakeClock());
+      await expect(session.openNew()).rejects.toThrow('initial failure');
+      session.dispose();
+      expect(fakes.ports.documents.release).toHaveBeenCalledOnce();
+      expect(session.active).toBeNull();
+    },
+  );
+  it('reports a newer editor version while capture fails and closes only after an exact draft bundle copy', async () => {
+    const fakes = ports();
+    const editor = new FakeEditor();
+    const session = new WritingSession(fakes.ports, editor, fakeClock());
+    fakes.entry.picked = opened();
+    await session.openPicked();
+    await session.save();
+    editor.current = { ...editor.current, version: 2 };
+    editor.capture = async () => {
+      throw new Error('unrepresentable');
+    };
+    expect(session.cadenceStatus.status).toBe('Changes pending');
+    expect(session.close.assessment).toMatchObject({
+      liveVersion: 2,
+      sourceProtected: false,
+      recoveryProtected: false,
+      onlyInMemory: true,
+    });
+    await expect(session.noteEdit()).rejects.toThrow('unrepresentable');
+    await expect(session.close.retry()).rejects.toThrow('unrepresentable');
+    fakes.ports.snapshots.copy = vi
+      .fn()
+      .mockRejectedValueOnce(new Error('copy failed'))
+      .mockImplementation(async ({ checkpoint }) => ({
+        identity: checkpoint.identity,
+        version: checkpoint.version,
+        sourceSha256: checkpoint.sourceSha256,
+        byteLength: checkpoint.source.length,
+        fileName: 'preserved.draft.json',
+        storageRelation: 'sameFilesystem',
+      }));
+    await expect(session.close.saveEmergencyCopy('token')).rejects.toThrow(
+      'copy failed',
+    );
+    expect(session.close.assessment.phase).toBe('attention');
+    await session.close.saveEmergencyCopy('token');
+    expect(fakes.ports.snapshots.copy).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        format: 'draftBundle',
+        checkpoint: expect.objectContaining({ version: 2 }),
+      }),
+    );
+    expect(session.close.assessment.sourceProtected).toBe(false);
+    expect(session.close.assessment.phase).toBe('closed');
+    session.finishClose();
+  });
+
+  it('allows explicit version-bound risk close without requiring a failed capture', async () => {
+    const fakes = ports();
+    const editor = new FakeEditor();
+    const session = new WritingSession(fakes.ports, editor, fakeClock());
+    await session.openNew();
+    editor.current = { ...editor.current, version: 2 };
+    editor.capture = async () => {
+      throw new Error('hash unavailable');
+    };
+    await expect(session.close.acceptRisk(true, 1)).rejects.toThrow(
+      'draft changed',
+    );
+    await session.close.acceptRisk(true, 2);
+    expect(session.close.assessment.phase).toBe('closed');
+    session.finishClose();
+  });
   it('opens an unsaved draft and protects it through explicit save', async () => {
     const fakes = ports();
     const editor = new FakeEditor();
@@ -345,6 +488,34 @@ describe('M3-12 writing session lifecycle', () => {
     expect(editor.selection).toEqual(selection);
     // New registration earned fresh receipts through the duplicate-safe flush.
     expect(fakes.documents.saved).toContain(1);
+    session.dispose();
+  });
+
+  it('compares Save As bytes without copying the capture for every byte', async () => {
+    const fakes = ports();
+    const editor = new FakeEditor();
+    const session = new WritingSession(fakes.ports, editor, fakeClock());
+    fakes.entry.picked = opened();
+    await session.openPicked();
+    const source = Array.from({ length: 4096 }, () => 97);
+    editor.sourceWas(source, 2);
+    let copies = 0;
+    editor.current = {
+      ...editor.current,
+      get source() {
+        copies++;
+        return [...source];
+      },
+    };
+    fakes.saveAs.target = {
+      token: 't',
+      fileName: 'copy.fountain',
+      storageRelation: 'sameFilesystem',
+    };
+    await session.saveAs();
+    expect(editor.loaded.at(-1)!.source).toEqual(source);
+    // Fixed overhead at the capture/IPC boundaries, independent of byte count.
+    expect(copies).toBeLessThan(30);
     session.dispose();
   });
 
@@ -481,7 +652,16 @@ describe('M3-12 writing session lifecycle', () => {
     expect(session.active?.readOnly).toBe(true);
     expect(session.active?.readOnlyReason).toContain('read-only');
     await expect(session.save()).rejects.toThrow('Read-only');
-    await expect(session.saveAs()).rejects.toThrow('Read-only');
+    fakes.saveAs.target = {
+      token: 'target',
+      fileName: 'Copy.fountain',
+      storageRelation: 'sameFilesystem',
+    };
+    expect((await session.saveAs()).status).toBe('published');
+    expect(session.active?.readOnly).toBe(false);
+    expect(fakes.ports.documents.checkpoint).not.toHaveBeenCalledWith(
+      expect.objectContaining({ identity: fakes.entry.picked.identity }),
+    );
     session.dispose();
   });
 

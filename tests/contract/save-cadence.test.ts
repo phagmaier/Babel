@@ -143,6 +143,34 @@ it('coalesces rapid edits into one recovery checkpoint and one source save', asy
   expect(scheduler.describe().status).toBe('Saved locally');
 });
 
+it('drains the final newer edit when its timers expired during an older checkpoint and queued save', async () => {
+  const { t, p, scheduler } = cadence();
+  let release!: () => void;
+  const gate = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  const checkpoint = p.native.checkpoint;
+  p.native.checkpoint = async (request) => {
+    if (request.version === 1) await gate;
+    return checkpoint(request);
+  };
+  scheduler.noteEdit(snapshot(1));
+  await t.advance(750);
+  scheduler.noteEdit(snapshot(2, true));
+  await t.advance(750);
+  release();
+  await scheduler.settle();
+  await t.advance(60_000);
+  expect(scheduler.describe()).toMatchObject({
+    liveVersion: 2,
+    journaledVersion: 2,
+    fileSavedVersion: 2,
+    status: 'Saved locally',
+  });
+  expect(p.checkpoints.map((c) => c.version)).toEqual([1, 2]);
+  expect(p.saves.map((c) => c.version)).toEqual([1, 2]);
+});
+
 it('forces protection at the maximum dirty delay during continuous typing', async () => {
   const { t, p, scheduler } = cadence({
     recoveryDelayMs: 5000,

@@ -19,6 +19,7 @@ REPO = Path(__file__).resolve().parents[3]
 BASE = Path(sys.argv[1] if len(sys.argv) > 1 else '/tmp').resolve()
 ROOT = Path(tempfile.mkdtemp(prefix='babel-writing-', dir=BASE))
 (ROOT / 'files').mkdir(mode=0o700)
+(ROOT / 'copies').mkdir(mode=0o700)
 PORT = 4447
 ELEMENT = 'element-6066-11e4-a52e-4f735466cecf'
 ENV = os.environ.copy()
@@ -202,7 +203,7 @@ def journal_records():
 def new_session():
     global SESSION
     created = request('POST', '/session', {'capabilities': {'alwaysMatch': {
-        'webkitgtk:browserOptions': {'binary': str(REPO / 'target/release/babel-desktop'), 'args': []}}}})
+        'webkitgtk:browserOptions': {'binary': os.environ.get('BABEL_NATIVE_BINARY', str(REPO / 'target/release/babel-desktop')), 'args': []}}}})
     SESSION = created['sessionId']
     (ROOT / 'session.json').write_text(json.dumps(created))
     print('SESSION', SESSION, 'ROOT', ROOT, flush=True)
@@ -216,6 +217,13 @@ def new_session():
 try:
     wait(lambda: request('GET', '/status'), 'WebDriver starts')
     new_session()
+    script("""window.auditBlocked=[];document.addEventListener('securitypolicyviolation',e=>window.auditBlocked.push({uri:e.blockedURI,directive:e.effectiveDirective}));
+      fetch('http://localhost:5173/__babel_audit_probe').catch(()=>{});""")
+    wait(lambda:script("return window.auditBlocked.some(e=>e.uri.startsWith('http://localhost:5173') && e.directive==='connect-src');"),'Release CSP blocks development-server connections')
+    print('PASS native release CSP excludes the development server',flush=True)
+    if '--audit-fixes' in sys.argv:
+        from editor_exit import audit_fixes
+        audit_fixes(sys.modules[__name__])
     if '--latency-review' in sys.argv:
         from editor_exit import review_latency
         review_latency(sys.modules[__name__])
@@ -274,6 +282,9 @@ try:
     command('POST', f'/element/{button}/click', {})
     audit(target, b'!Mist curls. More.\n')
     wait(lambda: editor_text() == 'Mist curls. More.', 'Restored editor matches source')
+    click('Save', actions=True)
+    wait(lambda: 'Saved locally' in body(), 'Immediate Save after restore accepts the exact replacement metadata')
+    audit(target, b'!Mist curls. More.\n')
     type_text('\ue009z\ue000')
     audit(target, newer)
     wait(lambda: editor_text() == ' Later.Mist curls. More.', 'Undo restores the newer live draft')
@@ -321,6 +332,12 @@ try:
     history = ROOT / 'data' / 'app.babel.screenwriter' / 'history'
     assert history.is_dir(), 'Recovery established native safety history'
     history.chmod(0o500)
+    # Recovery now restores its source-bound caret metadata. Establish the
+    # independent prefix oracle explicitly before the next trusted input.
+    script("document.querySelector('.ProseMirror').focus();")
+    command('POST','/actions',{'actions':[{'type':'key','id':'history-home','actions':[
+        {'type':'keyDown','value':'\ue009'},{'type':'keyDown','value':'\ue011'},
+        {'type':'keyUp','value':'\ue011'},{'type':'keyUp','value':'\ue009'}]}]})
     type_text('Despite history ')
     history_saved = b'!Despite history Recovered  Later.Mist curls. More.\n'
     audit(target, history_saved)
@@ -340,11 +357,11 @@ try:
     wait(lambda: 'Close stopped.' in body(), 'Failed close remains visible')
     assert editor_text() == 'Despite history Local Recovered  Later.Mist curls. More.'
     click('Select copy destination', actions=True)
-    picker(ROOT / 'files')
+    picker(ROOT / 'copies')
     wait(lambda: script("return [...document.querySelectorAll('button')].find(b=>b.textContent.trim()==='Save Emergency Copy and close')?.disabled === false;"), 'Native emergency destination selected')
     click('Save Emergency Copy and close')
     wait(lambda: 'Start writing' in body(), 'Exact emergency copy allows close')
-    copies = [path for path in (ROOT / 'files').iterdir() if path != target and path.read_bytes() == diverged]
+    copies = [path for path in (ROOT / 'copies').iterdir() if path.is_file() and path.read_bytes() == diverged]
     assert len(copies) == 1, copies
     audit(copies[0], diverged)
     assert target.read_bytes() == outside

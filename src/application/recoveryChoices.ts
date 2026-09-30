@@ -43,6 +43,7 @@ export interface RecoverRequest {
   identity: DocumentIdentity;
   selection: RecoverySelection;
   newVersion: number;
+  replacementMetadata?: import('./documents').JsonValue;
   expectedFingerprint: DiskFingerprint;
 }
 

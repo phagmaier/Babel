@@ -94,6 +94,7 @@ fn m2_native_open_save_reopen_and_acknowledged_checkpoint_recovery() {
     };
     let adopted = restarted
         .recover_checkpoint_as_current(&RecoverRequest {
+            replacement_metadata: None,
             identity: reopened.identity.clone(),
             selection,
             new_version: 3,

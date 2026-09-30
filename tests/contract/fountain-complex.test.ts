@@ -33,6 +33,17 @@ import {
 
 const encode = (text: string) => new Uint8Array(new TextEncoder().encode(text));
 const parse = (text: string) => parseFountain(encode(text));
+
+it('preserves a large unmatched-marker draft literally with a bounded capture cost', () => {
+  const source = '*a '.repeat(8000);
+  const started = performance.now();
+  const inline = parseInline(source);
+  expect(inline.complete).toBe(false);
+  expect(inline.delimiters).toEqual([]);
+  expect(inline.runs.map((run) => run.text).join('')).toBe(source);
+  expect(performance.now() - started).toBeLessThan(1500);
+  expect(serializeFountain(parse(source))).toEqual(encode(source));
+});
 const source = (document: FountainDocument) =>
   new TextDecoder('utf-8', { ignoreBOM: true }).decode(document.bytes);
 const corpus = loadCorpus();

@@ -268,17 +268,30 @@ def run(d):
     d.close_session()
     print('PASS default-app middle Enter / boundary Backspace+Delete / Tab / Undo', flush=True)
 
-    # Negative review evidence is retained as a finding, never a passed exit.
+    audit_fixes(d)
+    (d.ROOT / 'editor-exit.json').write_text(json.dumps(report, indent=2) + '\n')
+    print('PASS default-app completion / source+caret Undo / consumed Enter / smart speech / F6 escape', flush=True)
+
+
+def audit_fixes(d):
+    """Default-app audit corrections without changing clipboard or input methods."""
     target = d.ROOT / 'files/read-only.fountain'
-    target.write_bytes(b'!Read-only source.\n'); target.chmod(0o444)
+    original = b'!Read-only source.\r\n'
+    target.write_bytes(original); target.chmod(0o444)
     d.click('Open Fountain', actions=True); d.picker(target)
     d.wait(lambda: 'The source is open read-only.' in d.body(), 'Native permission read-only ownership')
-    disabled = d.script("return [...document.querySelectorAll('button')].find(b=>b.textContent.trim()==='Save As')?.disabled;")
-    assert disabled is True, 'Update review if read-only Save As is repaired'
-    report.append({'finding':'M3-13-R01', 'readOnlySaveAsDisabled':disabled})
-    d.screenshot('read-only-save-as-gap'); d.close_session()
-    assert target.read_bytes() == b'!Read-only source.\n'
-    print('FINDING M3-13-R01: default-app permission-read-only Save As disabled (SPEC S05.2)', flush=True)
+    assert d.script("return [...document.querySelectorAll('button')].find(b=>b.textContent.trim()==='Save As')?.disabled;") is False
+    d.click('Save As', actions=True); d.picker()
+    d.wait(lambda: 'The native dialog was cancelled.' in d.body(), 'Read-only Save As cancellation retains view')
+    assert d.editor_text() == 'Read-only source.' and target.read_bytes() == original
+    copied = d.ROOT / 'files/read-only-copy.fountain'
+    d.click('Save As', actions=True); d.picker(copied)
+    d.audit(copied,original);d.wait(lambda: 'Saved locally' in d.body(), 'Independent copied source adopted')
+    d.close_session()
+    assert target.read_bytes() == original and target.stat().st_mode & 0o777 == 0o444
+    d.click('Open Fountain', actions=True);d.picker(copied)
+    d.wait(lambda:d.editor_text() == 'Read-only source.','Copied source reopens');d.wait(lambda:'Keep Current File' in d.body(),'Copied source recovery comparison');d.click('Keep Current File');d.close_session()
+    print('PASS native read-only Save As / cancel / fresh identity / exact CRLF source / reopen',flush=True)
 
     d.click('New screenplay', actions=True)
     d.wait(lambda: 'Protect draft' in d.body(), 'Recoverable unsaved draft')
@@ -287,26 +300,37 @@ def run(d):
     expected = b'!Unsaved checkpoint survives.\n'
     record = d.wait(lambda: next((m for m,s in d.journal_records() if s == expected), None), 'Exact unsaved checkpoint')
     app = [c for c in d.owned_clients() if c.get('class') == 'babel-desktop'][0]
-    import os
-    import signal
+    import os, signal
     os.kill(app['pid'], signal.SIGKILL); time.sleep(.4)
-    try:
-        d.command('DELETE', '')
-    except RuntimeError:
-        pass
+    try: d.command('DELETE', '')
+    except RuntimeError: pass
     d.SESSION = None; d.new_session()
     d.wait(lambda: record['documentId'] in d.body(), 'Unsaved recovery discovered after restart')
-    inspect = d.find(f"//li[./h3[normalize-space(.)='Draft {record['documentId']}']]//button[contains(.,'Inspect published journal')]")
-    d.command('POST', f'/element/{inspect}/click', {})
-    d.wait(lambda: d.script("return document.querySelector('.recovery-preview pre')?.textContent;") == expected.decode(), 'Exact unsaved preview')
-    buttons = d.script("return [...document.querySelectorAll('button')].map(b=>b.textContent.trim());")
-    assert not any(label in ['Recover as Current','Save Recovered Copy','Resume draft'] for label in buttons), buttons
+    resume = d.find(f"//li[./h3[normalize-space(.)='Draft {record['documentId']}']]//button[normalize-space(.)='Resume as new draft']")
+    d.command('POST', f'/element/{resume}/click', {})
+    d.wait(lambda: d.editor_text() == 'Unsaved checkpoint survives.', 'Full selected checkpoint resumed')
+    d.wait(lambda: 'Recovery: journaled version 0.' not in d.body() and 'Protect draft' in d.body(), 'Fresh resumed draft protection acknowledged')
+    saved = d.ROOT / 'files/resumed.fountain'
+    d.click('Save As',actions=True);d.picker(saved);d.audit(saved,expected)
+    d.close_session();d.click('Open Fountain',actions=True);d.picker(saved)
+    d.wait(lambda:d.editor_text() == 'Unsaved checkpoint survives.','Resumed copy reopens');d.wait(lambda:'Keep Current File' in d.body(),'Resumed source recovery comparison');d.click('Keep Current File');d.close_session()
     assert any(m['documentId'] == record['documentId'] and s == expected for m,s in d.journal_records())
-    report.append({'finding':'M3-13-R02', 'unsavedDocumentId':record['documentId'], 'sha256':hashlib.sha256(expected).hexdigest(), 'homeButtons':buttons})
-    d.screenshot('unsaved-recovery-gap')
-    print('FINDING M3-13-R02: unsaved checkpoint is preserved/inspectable but has no resume/export action after restart', flush=True)
-    (d.ROOT / 'editor-exit.json').write_text(json.dumps(report, indent=2) + '\n')
-    print('PASS default-app completion / source+caret Undo / consumed Enter / smart speech / F6 escape', flush=True)
+    print('PASS native New / protected checkpoint / owned SIGKILL / restart / explicit resume / Save As / close / reopen; original checkpoint retained',flush=True)
+
+    import uuid
+    project=d.ROOT / 'files/managed';project.mkdir(mode=0o700)
+    aux=project / '.screenwriter';aux.mkdir(mode=0o700)
+    (aux / 'project.json').write_text(json.dumps({'schemaVersion':1,'projectId':str(uuid.uuid4()),'sourceFilename':'script.fountain','pdfProfile':'default'}))
+    source=project / 'script.fountain';source.write_bytes(b'!Managed original.\n')
+    d.click('Open Fountain',actions=True);d.picker(source)
+    d.wait(lambda:d.editor_text() == 'Managed original.','Managed source opens')
+    d.type_text('New.');d.click('Save',actions=True)
+    d.audit(source,b'!New.Managed original.\n');d.close_session()
+    d.click('Open Fountain',actions=True);d.picker(source)
+    d.wait(lambda:'Recovery compares candidates' in d.body() or 'Keep Current File' in d.body(),'Selected managed recovery shown independently of private catalog')
+    d.click('Keep Current File');d.type_text('Again.');d.click('Save',actions=True)
+    d.audit(source,b'!Again.New.Managed original.\n');d.close_session()
+    print('PASS native selected managed recovery / restart version allocation / explicit keep / subsequent save',flush=True)
 
 
 def review_capture(d):
@@ -327,25 +351,28 @@ def review_capture(d):
     facts = d.script("""return {rows:[...document.querySelectorAll('.ProseMirror > p')].map(p=>({kind:p.dataset.kind,text:p.textContent})),
       protection:document.querySelector('[aria-label="Protection status"]').innerText};""")
     assert facts['rows'][1]['text'] == '(sof' and facts['rows'][2]['text'] == 'tly)', facts
-    assert 'Saved locally' in facts['protection'], 'Update review if stale status is repaired'
+    assert 'Changes pending' in facts['protection'] and 'only in memory' in facts['protection'], facts
     assert target.read_bytes() == original
     d.click('Close session', actions=True); d.click('Retry save and close')
     d.wait(lambda: 'Close stopped.' in d.body(), 'Uncapturable draft prevents close')
-    d.click('Select copy destination', actions=True); d.picker(d.ROOT / 'files')
+    d.click('Select copy destination', actions=True); d.picker(d.ROOT / 'copies')
     d.wait(lambda: d.script("return [...document.querySelectorAll('button')].find(b=>b.textContent.trim()==='Save Emergency Copy and close')?.disabled === false;"), 'Copy destination selected')
     d.click('Save Emergency Copy and close')
-    d.wait(lambda: 'Close stopped.' in d.body(), 'Uncapturable draft also prevents emergency copy')
-    # No live-draft recovery frame or emergency file was produced; all author
-    # fragments remain solely in EditorState. Audit exact old frames as well.
-    records = d.journal_records()
-    assert records and all(source == original for _,source in records)
-    assert list((d.ROOT / 'files').iterdir()) == [target]
-    facts['closeUI'] = d.body()
-    facts['sourceSha256'] = hashlib.sha256(original).hexdigest()
-    (d.ROOT / 'capture-review.json').write_text(json.dumps(facts, indent=2) + '\n')
-    d.screenshot('uncapturable-draft-status')
-    print('FINDING M3-13-R03: an accepted unrepresentable split retains only live rows, shows stale Saved locally and cannot produce emergency copy', flush=True)
-    print('ARTIFACTS', d.ROOT, flush=True)
+    d.wait(lambda:'Start writing' in d.body(),'Verified draft bundle permits close')
+    import base64
+    copies=list((d.ROOT / 'copies').glob('*.draft.json'));assert len(copies) == 1,copies
+    artifact=json.loads(copies[0].read_bytes())
+    assert artifact['schema'] == 'babel-draft-copy-v1'
+    assert base64.b64decode(artifact['originalSourceBase64']) == original
+    assert [(row['kind'],''.join(run['text'] for run in row['runs'])) for row in artifact['rows']] == [(row['kind'],row['text']) for row in facts['rows']]
+    assert artifact['version'] >= 2 and artifact['selection']['anchor'] == artifact['selection']['head']
+    assert target.read_bytes() == original
+    records=d.journal_records();assert records and all(source == original for _,source in records)
+    facts['artifact']=artifact;facts['sourceSha256']=hashlib.sha256(original).hexdigest()
+    (d.ROOT / 'capture-review.json').write_text(json.dumps(facts,indent=2)+'\n')
+    print('PASS native unrepresentable draft / truthful version status / failed Fountain close / exact labeled bundle / protected original',flush=True)
+    print('ARTIFACTS',d.ROOT,flush=True)
+
 
 
 def review_latency(d):
@@ -374,7 +401,9 @@ def review_latency(d):
     d.script("""window.exitKeys=[];window.exitRaf=[];document.querySelector('.ProseMirror').addEventListener('keydown',e=>{
       if(e.key==='x'){window.exitKeys.push({trusted:e.isTrusted,at:performance.now()});const start=performance.now();
         requestAnimationFrame(()=>window.exitRaf.push(performance.now()-start));}});""")
+    input_start=time.monotonic()
     subprocess.run(['wtype','-d','30','x'*120], check=True)
+    input_dispatch_ms=(time.monotonic()-input_start)*1000
     # An overloaded WebKit can still be draining compositor input after the
     # helper exits. Retain the complete trace before deciding delivery failed.
     delivered = True
@@ -396,13 +425,14 @@ def review_latency(d):
     metrics = {'rows':2400,'openReadyMs':open_ready_ms,'originalBytes':len(source),'originalSha256':hashlib.sha256(source).hexdigest(),
       'expectedBytes':len(expected),'expectedSha256':hashlib.sha256(expected).hexdigest(),
       'actualBytes':len(actual),'actualSha256':hashlib.sha256(actual).hexdigest(),
-      'exactBytes':actual == expected,'acknowledged':acknowledged,'delivered':delivered,'keys':keys,'keyToRafSamplesMs':values,
+      'exactBytes':actual == expected,'acknowledged':acknowledged,'delivered':delivered,'inputDispatchMs':input_dispatch_ms,'observedKeySpanMs':keys[-1]['at']-keys[0]['at'] if keys else None,'keys':keys,'keyToRafSamplesMs':values,
       'protection':d.script("return document.querySelector('[aria-label=\"Protection status\"]').innerText;"),
+      'derivedMeasures':d.script("return performance.getEntriesByType('measure').filter(e=>e.name.startsWith('audit.')).map(e=>({name:e.name,ms:e.duration,start:e.startTime}));"),
       'keyToRafProxyMs':{'n':len(values),'p95':values[int(.95*(len(values)-1))] if values else None,
                        'max':values[-1] if values else None,'above100Ms':sum(x>100 for x in values)}}
     (d.ROOT / 'expected-latency.fountain').write_bytes(expected)
     (d.ROOT / 'integrated-latency.json').write_text(json.dumps(metrics, indent=2) + '\n')
-    summary = {k:v for k,v in metrics.items() if k not in ['keys','keyToRafSamplesMs']}
+    summary = {k:v for k,v in metrics.items() if k not in ['keys','keyToRafSamplesMs','derivedMeasures']}
     print('METRICS', json.dumps(summary), flush=True)
     d.screenshot('integrated-latency')
     assert len(keys) == 120 and all(k['trusted'] for k in keys), 'Trusted key delivery must precede any result claim'

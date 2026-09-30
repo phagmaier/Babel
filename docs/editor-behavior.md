@@ -91,10 +91,6 @@ The shared registry adds Mod+B/I/U. Nonempty selections preserve their anchors, 
 
 The editor transaction observer rejects document and selection changes while the session is frozen or native ownership is read-only, including command and paste transactions. F6 focuses an enabled screenplay action outside the editor; protected close focuses Retry. One shortcut registry serves editor, controls and shell. Save As rebuilds state at a fresh identity with the actual numeric caret selection and a new undo history. Validated recovery/restore bytes advance the native version through one isolated undoable source transaction; future Undo keeps versions monotonic. Initial open allocates above discovered recovery versions without choosing content. See [ADR 0026](decisions/0026-writing-lifecycle.md) for coordination and [M3-12 evidence](test-evidence/M3.md#m3-12--production-writing-lifecycle-and-failure-ui) for scope.
 
-[M3-13 review R03](reviews/2026-09-29-m3-13-review.md) identifies an integration
-gap in the documented middle-Parenthetical split refusal: the live rows are
-retained, but failed capture leaves protection status on the earlier version,
-and the default emergency-copy path repeats the same capture failure. The
-existing `copyEditorDraft` derivative has no production preservation action.
-[M3-12-R1](tasks/M3-12-R1.md) owns correction; this draft cannot currently be
-claimed saved/recovered by the default app.
+[M3-13 review R03](reviews/2026-09-29-m3-13-review.md) records the original capture-refusal integration failure. [M3-12-R1](tasks/M3-12-R1.md) now publishes immediate live-version facts, keeps the refusal visible and offers a native-verified `.draft.json` preservation bundle when Fountain capture is impossible. Old receipts grant newer work no protection. Explicit copy/risk decisions bind the frozen live version; retry retains Fountain's representability checks.
+
+[M3-04-R1](tasks/M3-04-R1.md) and [M3-03-R1](tasks/M3-03-R1.md) remove repeated failed delimiter scans and per-scalar UTF-8 encoding allocations. Capture caches only derived styled-text signatures, with weak immutable-node/line keys; there is no mutable manuscript cache. Corpus, source/caret/Undo tests and integrated default-app timing evidence bound these changes. rAF remains an event-loop proxy, not compositor paint or page calibration.

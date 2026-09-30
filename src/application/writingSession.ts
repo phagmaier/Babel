@@ -20,6 +20,7 @@ import type {
   DocumentIdentity,
   DocumentPort,
   OpenDocument,
+  JsonValue,
   SaveReceipt,
 } from './documents';
 import { ProtectedClose } from './protectedClose';
@@ -27,6 +28,7 @@ import type { CadenceClock, FlushSummary } from './saveCadence';
 import { realClock, SaveCadence } from './saveCadence';
 import type { SaveAsPort, SaveStorageRelation } from './saveAs';
 import { sameIdentity, type SnapshotPort } from './snapshots';
+import { verifiedEditorMetadata } from './editorMetadata';
 
 export interface SessionSelection {
   readonly anchor: number;
@@ -40,6 +42,7 @@ export interface SessionEditor {
     selection: SessionSelection | null,
     writable: boolean,
     initialVersion: number,
+    draftMetadata?: JsonValue,
   ): void;
   applySource(
     source: readonly number[],
@@ -47,6 +50,14 @@ export interface SessionEditor {
     selection: SessionSelection | null,
   ): void;
   capture(): Promise<CapturedSnapshot>;
+  captureDraft(): Promise<CapturedSnapshot>;
+  prepareSource(
+    source: readonly number[],
+    version: number,
+    draftMetadata?: JsonValue,
+  ): Promise<{ snapshot: CapturedSnapshot; apply(): void }>;
+  retain(): () => void;
+  getVersion(): number;
   freeze(): () => void;
   getSelection(): SessionSelection | null;
   setSelection(selection: SessionSelection | null): void;
@@ -128,7 +139,7 @@ export class WritingSession {
       kind: this.opened.kind,
       readOnly: !exclusive || !utf8,
       readOnlyReason: reason,
-      liveVersion: state.liveVersion,
+      liveVersion: Math.max(state.liveVersion, this.editor.getVersion()),
       fingerprint: state.fingerprint ? { ...state.fingerprint } : null,
     };
   }
@@ -140,7 +151,11 @@ export class WritingSession {
 
   get cadenceStatus() {
     if (!this.cadence) throw new Error('No active writing session');
-    return this.cadence.describe();
+    const described = this.cadence.describe();
+    const liveVersion = this.editor.getVersion();
+    return liveVersion > described.liveVersion
+      ? { ...described, liveVersion, status: 'Changes pending' as const }
+      : described;
   }
 
   /** Latest capture becomes the live version. The view calls this after every edit. */
@@ -159,6 +174,29 @@ export class WritingSession {
   async openNew(): Promise<void> {
     this.requireEmpty();
     await this.adoptFresh(await this.ports.entry.createUnsaved());
+  }
+
+  async openRecovery(
+    selection: import('./startupRecovery').RecoverySelection,
+  ): Promise<void> {
+    this.requireEmpty();
+    if (!this.ports.recovery) throw new Error('Recovery unavailable');
+    const resumed = await this.ports.recovery.resume(selection);
+    try {
+      await this.adoptFresh(
+        resumed.document,
+        undefined,
+        null,
+        resumed.draftMetadata,
+      );
+      if (!this.active?.readOnly && !(await this.cadence!.flush()).recovered)
+        throw new Error(
+          'Resumed draft protection could not be confirmed; the original checkpoint remains preserved',
+        );
+    } catch (error) {
+      if (this.opened) await this.abandon();
+      throw error;
+    }
   }
 
   /** False means the picker was cancelled; nothing changed. */
@@ -186,7 +224,6 @@ export class WritingSession {
    */
   async saveAs(): Promise<SaveAsOutcome> {
     const active = this.requireActive();
-    if (active.readOnly) throw new Error('Read-only sessions cannot Save As');
     const controller = this.controller!;
     const identity = controller.state.identity;
     const target = await this.ports.saveAs.selectDestination(identity);
@@ -194,37 +231,57 @@ export class WritingSession {
     return this.withFrozen(async (snapshot) => {
       const state = controller.state;
       // Protect the frozen live draft before publishing or retiring its identity.
-      await controller.checkpoint(snapshot);
+      if (!active.readOnly) await controller.checkpoint(snapshot);
       const published = await this.ports.saveAs.saveAs({
         checkpoint: this.checkpoint(snapshot),
         destinationToken: target.token,
       });
+      // Captures expose owned byte copies. Read once before the comparison so
+      // each indexed access does not allocate another manuscript-sized array.
+      const source = snapshot.source;
       if (
         published.version !== snapshot.version ||
         published.sourceSha256 !== snapshot.sourceSha256 ||
         sameIdentity(published.document.identity, state.identity) ||
-        published.document.source.length !== snapshot.source.length ||
+        published.document.source.length !== source.length ||
         published.document.source.some(
-          (byte, index) => byte !== snapshot.source[index],
+          (byte, index) => byte !== source[index],
         ) ||
         published.document.fingerprint?.sha256 !== snapshot.sourceSha256
       )
         throw new Error('Save As registration does not match published bytes');
       const selection = this.editor.getSelection();
+      const rollbackEditor = this.editor.retain();
+      const previous = {
+        opened: this.opened,
+        controller: this.controller,
+        cadence: this.cadence,
+        closer: this.closer,
+      };
       try {
+        await this.adoptFresh(
+          published.document,
+          source,
+          selection,
+          snapshot.draftMetadata,
+        );
         await this.ports.documents.release(state.identity);
       } catch (error) {
-        // The publication stands alone, but its unused registration must not leak.
+        this.retire();
         await this.ports.documents
           .release(published.document.identity)
           .catch(() => undefined);
+        this.opened = previous.opened;
+        this.controller = previous.controller;
+        this.cadence = previous.cadence;
+        this.closer = previous.closer;
+        rollbackEditor();
         throw new Error(
-          `Previous session could not be released; the new file ${published.fileName} stands alone`,
+          `Save As adoption failed; the original session remains open and the new file ${published.fileName} stands alone`,
           { cause: error },
         );
       }
-      this.retire();
-      await this.adoptFresh(published.document, snapshot.source, selection);
+      previous.cadence?.dispose();
       await this.cadence!.flush();
       return {
         status: 'published',
@@ -286,6 +343,7 @@ export class WritingSession {
   async adoptExternalBytes(
     source: readonly number[],
     receipt: SaveReceipt,
+    prepared?: { snapshot: CapturedSnapshot; apply(): void },
   ): Promise<void> {
     const active = this.requireActive();
     if (active.readOnly)
@@ -312,7 +370,14 @@ export class WritingSession {
       receipt,
     );
     const selection = this.editor.getSelection();
-    this.editor.applySource(source, receipt.version, selection);
+    if (prepared) {
+      if (
+        prepared.snapshot.version !== receipt.version ||
+        prepared.snapshot.sourceSha256 !== sourceSha256
+      )
+        throw new Error('Prepared replacement does not match the receipt');
+      prepared.apply();
+    } else this.editor.applySource(source, receipt.version, selection);
     const next = await this.editor.capture();
     if (
       next.version !== receipt.version ||
@@ -330,6 +395,11 @@ export class WritingSession {
   async replaceFromNative(
     operation: (
       current: import('./documents').CheckpointRequest,
+      prepare: (
+        source: readonly number[],
+        version: number,
+        metadata?: JsonValue,
+      ) => Promise<CapturedSnapshot>,
     ) => Promise<{ source: readonly number[]; receipt: SaveReceipt }>,
   ): Promise<SaveReceipt> {
     if (this.requireActive().readOnly)
@@ -353,8 +423,19 @@ export class WritingSession {
         throw new Error(
           'Latest editor draft was not protected; replacement stopped',
         );
-      const result = await operation(current);
-      await this.adoptExternalBytes(result.source, result.receipt);
+      let prepared: { snapshot: CapturedSnapshot; apply(): void } | undefined;
+      const result = await operation(
+        current,
+        async (source, version, metadata) => {
+          prepared = await this.editor.prepareSource(
+            source,
+            version,
+            await verifiedEditorMetadata(source, metadata),
+          );
+          return prepared.snapshot;
+        },
+      );
+      await this.adoptExternalBytes(result.source, result.receipt, prepared);
       return result.receipt;
     });
   }
@@ -466,6 +547,7 @@ export class WritingSession {
     opened: OpenDocument,
     source?: readonly number[],
     selection: SessionSelection | null = null,
+    draftMetadata?: JsonValue,
   ): Promise<void> {
     if (this.disposed) {
       await this.ports.documents.release(opened.identity);
@@ -484,6 +566,7 @@ export class WritingSession {
       this.ports.documents,
       this.ports.snapshots,
       {
+        getVersion: () => this.editor.getVersion(),
         freeze: () => {
           const thaw = this.editor.freeze();
           const resume = cadence.pause();
@@ -497,6 +580,18 @@ export class WritingSession {
           await controller.settle();
           return this.synchronize();
         },
+        captureCopy: async () => {
+          await cadence.settle();
+          await controller.settle();
+          try {
+            return { snapshot: await this.synchronize() };
+          } catch {
+            return {
+              snapshot: await this.editor.captureDraft(),
+              format: 'draftBundle' as const,
+            };
+          }
+        },
       },
     );
     this.opened = opened;
@@ -505,17 +600,28 @@ export class WritingSession {
     this.closer = closer;
     let initialVersion = 1;
     if (this.ports.recovery) {
-      let catalog: import('./startupRecovery').RecoveryCatalog;
+      let entry: import('./startupRecovery').RecoveryEntry;
       try {
-        catalog = await this.ports.recovery.list();
+        entry = await this.ports.recovery.inspect(opened.identity);
       } catch (error) {
-        await this.ports.documents.release(opened.identity);
-        this.retire();
+        try {
+          await this.ports.documents.release(opened.identity);
+        } finally {
+          this.retire();
+        }
         throw error;
       }
-      const candidates = catalog.entries
-        .filter((entry) => entry.documentId === opened.identity.documentId)
-        .flatMap((entry) => [...entry.candidates]);
+      if (entry.documentId !== opened.identity.documentId) {
+        try {
+          await this.ports.documents.release(opened.identity);
+        } finally {
+          this.retire();
+        }
+        throw new Error(
+          'Recovery identity does not match the selected document',
+        );
+      }
+      const candidates = entry.candidates;
       initialVersion = Math.max(
         initialVersion,
         ...candidates.map((candidate) => candidate.version + 1),
@@ -525,19 +631,35 @@ export class WritingSession {
       await this.ports.documents.release(opened.identity);
       return;
     }
-    this.editor.loadInitial(
-      source ?? opened.source,
-      selection,
-      !this.active!.readOnly,
-      initialVersion,
-    );
-    const initial = await this.editor.capture();
-    if (this.disposed) {
-      await this.ports.documents.release(opened.identity);
-      return;
+    try {
+      this.editor.loadInitial(
+        source ?? opened.source,
+        selection,
+        opened.ownership.status === 'exclusive' && opened.encoding === 'utf8',
+        initialVersion,
+        await verifiedEditorMetadata(source ?? opened.source, draftMetadata),
+      );
+      const initial = await this.editor.capture();
+      if (this.disposed) {
+        await this.ports.documents.release(opened.identity);
+        return;
+      }
+      controller.changed(initial);
+      cadence.prime(initial);
+    } catch (error) {
+      try {
+        await this.ports.documents.release(opened.identity);
+      } catch (cleanup) {
+        throw new AggregateError(
+          [error, cleanup],
+          'Opening failed and native release could not be confirmed',
+          { cause: cleanup },
+        );
+      } finally {
+        this.retire();
+      }
+      throw error;
     }
-    controller.changed(initial);
-    cadence.prime(initial);
   }
 
   private retire(): void {

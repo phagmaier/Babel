@@ -52,11 +52,14 @@ M2 headless Linux exit passed. This is a bounded headless foundation; no Local-v
 - [x] **M3-10 Recovery/source cadence and visible protection state** — Evidence: [M3 report](docs/test-evidence/M3.md#m3-10--recoverysource-cadence-and-visible-protection-state). Deps: M3-04, M3-09, M2-04, M2-05C.
 - [x] **M3-11 Native Save As identity and publication** — Evidence: [M3 report](docs/test-evidence/M3.md#m3-11--native-save-as-identity-and-publication). Deps: M3-09, M3-10.
 - [x] **M3-12 Production writing lifecycle and failure UI** — [Brief](docs/tasks/M3-12.md). Deps: M3-08, M3-10, M3-11, M2-05D.
-- [ ] **M3-13 Core editor exit and separate safety review** — [Brief](docs/tasks/M3-13.md), [review](docs/reviews/2026-09-29-m3-13-review.md). Integrated checks recorded; required corrections keep the exit open. Deps: M3-01–12 and corrections below.
-- [ ] **M3-12-R1 Uncapturable draft protection and truthful status** — [Brief](docs/tasks/M3-12-R1.md). Deps: M3-12; review R03. Next ready task.
-- [ ] **M3-09-R1 Resume/export unsaved checkpoints after restart** — [Brief](docs/tasks/M3-09-R1.md). Deps: M3-09, M3-12; review R02.
-- [ ] **M3-11-R1 Read-only source Save As** — [Brief](docs/tasks/M3-11-R1.md). Deps: M3-11, M3-12; review R01.
-- [ ] **M3-04-R1 Integrated capture/cadence typing responsiveness** — [Brief](docs/tasks/M3-04-R1.md). Deps: M3-04, M3-10, M3-12; review R04. Complete trusted-input/latency audit required.
+- [ ] **M3-13 Core editor exit and separate safety review** — [Brief](docs/tasks/M3-13.md), [review](docs/reviews/2026-09-29-m3-13-review.md). Corrections pass bounded gates; independent exit re-review remains open. Next ready task. Deps: M3-01–12 and corrections below.
+- [x] **M3-12-R1 Uncapturable draft protection and truthful status** — [Brief](docs/tasks/M3-12-R1.md). Deps: M3-12; review R03. Evidence: [audit corrections](docs/test-evidence/M3.md#repository-audit-corrections).
+- [x] **M3-09-R1 Resume/export unsaved checkpoints after restart** — [Brief](docs/tasks/M3-09-R1.md). Deps: M3-09, M3-12; review R02. Evidence: [audit corrections](docs/test-evidence/M3.md#repository-audit-corrections).
+- [x] **M3-11-R1 Read-only source Save As** — [Brief](docs/tasks/M3-11-R1.md). Deps: M3-11, M3-12; review R01. Evidence: [audit corrections](docs/test-evidence/M3.md#repository-audit-corrections).
+- [x] **M3-04-R1 Integrated capture/cadence typing responsiveness** — [Brief](docs/tasks/M3-04-R1.md). Deps: M3-04, M3-10, M3-12; review R04. Complete trusted-input/latency audit required. Evidence: [audit corrections](docs/test-evidence/M3.md#repository-audit-corrections).
+- [x] **M3-10-R1 Coalesced cadence liveness** — [Brief](docs/tasks/M3-10-R1.md). Deps: M3-10, M3-12; repository audit A2. Evidence: [audit corrections](docs/test-evidence/M3.md#repository-audit-corrections).
+- [x] **M3-12-R2 Recovery and identity lifecycle boundaries** — [Brief](docs/tasks/M3-12-R2.md). Deps: M3-09–12; repository audit A3/A7/A9/A10/A11. Evidence: [audit corrections](docs/test-evidence/M3.md#repository-audit-corrections).
+- [x] **M3-03-R1 Inline/capture complexity** — [Brief](docs/tasks/M3-03-R1.md). Deps: M3-03; repository audit A6 and M3-04-R1 measurements. Evidence: [audit corrections](docs/test-evidence/M3.md#repository-audit-corrections).
 
 ### M3 verification and boundary
 

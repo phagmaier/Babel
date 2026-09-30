@@ -2,11 +2,16 @@
 
 Status: M3-12 production writing lifecycle plus local startup recovery review and explicit native recovery choices. [SPEC S08/S14](../SPEC.md#s08); APP-02, NAV-01–03, UX-01–03, SEC-01, INV-10.
 
-M0 presents an application heading, explicit development status, and disabled New/Open actions. It has no recent registry, recovery list, manuscript status, or editor. The future home screen must make New, Open Fountain, recent/missing files, and recovery distinct. Remove from Recents cannot delete source. Project creation asks for a destination or explicitly creates a recoverable unsaved draft.
+The default native home offers New, Open Fountain and local recovery review, including explicit Resume as new draft. The browser preview reports native unavailability. A full recent/missing-file registry remains M4 work. New/Open and recovery remain distinct. Remove from Recents cannot delete source. Project creation asks for a destination or explicitly creates a recoverable unsaved draft.
 
 The future writing view is continuous, with title, optional scene/section outline, element picker, writing area, and status. Status must distinguish live dirty version, recovery protection, source-file saved version, page-count freshness, and remote last-check state. Never infer "saved" or "up to date" from a queued job or old check. Search includes hidden author text with explicit filters; replace-all and scene moves are reversible, have keyboard equivalents, and preserve structure. Script Check is a separate, non-destructive panel. Read-only PDF preview is the printed-page authority.
 
 Local v1 includes light/dark, focus, zoom, typewriter scroll, offline spellcheck, character focus/list, title-page UI, counts with inclusion rules, recent position, and a command palette. Use semantic controls, focus visibility, sufficient contrast, reduced-motion behavior, keyboard reachability, and native tests for IME, dead keys, scaling, clipboard, and close flows. M0 visual inspection is recorded in [evidence](test-evidence/M0.md); it cannot establish the future UX contract.
+
+## Historical subsystem increments
+
+The following notes describe the bounded state when each subsystem landed.
+Current production wiring and its remaining limits are described below.
 
 M2-05A adds startup checkpoint summaries, damaged/pending/conflicting material
 notices, text/hex previews, Refresh and Inspect Later. Content is rendered as
@@ -85,4 +90,4 @@ invalidates old risk acceptance. A verified copy never marks the source saved.
 Native default-build and injected UI evidence is linked from
 [M3-12](test-evidence/M3.md#m3-12--production-writing-lifecycle-and-failure-ui).
 
-The [M3-13 review](reviews/2026-09-29-m3-13-review.md) records required production gaps: an uncapturable newer draft can still show saved/protected facts for the earlier controller version and cannot use the emergency-copy action; unsaved recovery is inspectable after restart but cannot be resumed/exported; read-only Save As is disabled. M3-12-R1, M3-09-R1 and M3-11-R1 own corrections. These cases keep the integrated M3 gate open.
+The [M3-13 review](reviews/2026-09-29-m3-13-review.md) identified stale protection facts, uncapturable-draft copy refusal, unsaved restart recovery without a resume route, and read-only Save As refusal. The [audit corrections](test-evidence/M3.md#repository-audit-corrections) add immediate live-version status, an explicitly labeled draft bundle when Fountain capture fails, Resume as new draft with original checkpoints retained, and native Save As from read-only views. Their bounded validation is recorded separately from the original review. An independent integrated exit review remains required.

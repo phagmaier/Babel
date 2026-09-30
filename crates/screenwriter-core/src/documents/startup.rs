@@ -1,5 +1,7 @@
 //! Read-only startup recovery contracts. No path, writer lease, adoption or saved receipt.
-use super::{DocumentError, SourceEncoding, recovery::CheckpointMetadata};
+use super::{
+    DocumentError, DocumentRequest, OpenDocument, SourceEncoding, recovery::CheckpointMetadata,
+};
 use serde::{Deserialize, Serialize};
 
 pub const MAX_REVIEW_DOCUMENTS: usize = 64;
@@ -8,6 +10,21 @@ pub const MAX_DIRECTORY_ENTRIES: usize = 4096;
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct CatalogRequest {}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct SelectedRecoveryRequest {
+    #[serde(deserialize_with = "super::persistence::native_identity")]
+    pub identity: DocumentRequest,
+    pub selection: RecoverySelection,
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ResumedDraft {
+    pub document: OpenDocument,
+    pub draft_metadata: serde_json::Value,
+}
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]

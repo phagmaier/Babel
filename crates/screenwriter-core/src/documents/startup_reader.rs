@@ -101,6 +101,10 @@ impl LocalRecoveryReader {
     }
 
     fn entry(&self, id: &str) -> RecoveryEntry {
+        Self::entry_at(&self.recovery, id)
+    }
+
+    pub(super) fn entry_at(dir: &File, id: &str) -> RecoveryEntry {
         let mut entry = RecoveryEntry {
             document_id: id.to_owned(),
             candidates: Vec::new(),
@@ -114,7 +118,7 @@ impl LocalRecoveryReader {
             RecoveryOrigin::Pending,
             RecoveryOrigin::PreviousPending,
         ] {
-            match recovery_store::read(&self.recovery, id, origin.suffix()) {
+            match recovery_store::read(dir, id, origin.suffix()) {
                 Ok(Some(journal)) => {
                     let notice = match journal.tail {
                         TailStatus::Clean => None,
@@ -158,7 +162,7 @@ impl LocalRecoveryReader {
                 }
             }
         }
-        match recovery_store::read_bytes(&self.recovery, &format!("{id}.quarantine")) {
+        match recovery_store::read_bytes(dir, &format!("{id}.quarantine")) {
             Ok(Some(_)) => entry.notices.push(RecoveryNotice::Quarantined),
             Ok(None) => (),
             Err(err) => {
@@ -174,6 +178,16 @@ impl LocalRecoveryReader {
     /// Re-read the selected artifact and require the whole checkpoint identity/hash to match.
     /// Returns raw bytes only, never a persistence receipt or permission to adopt a source.
     pub fn preview(&self, selection: &RecoverySelection) -> Result<RecoveryPreview, DocumentError> {
+        self.verify()?;
+        let result = Self::preview_at(&self.recovery, selection)?;
+        self.verify()?;
+        Ok(result)
+    }
+
+    pub(super) fn preview_at(
+        dir: &File,
+        selection: &RecoverySelection,
+    ) -> Result<RecoveryPreview, DocumentError> {
         if !valid_uuid(&selection.document_id)
             || selection.record_sha256.len() != 64
             || !selection
@@ -183,17 +197,11 @@ impl LocalRecoveryReader {
         {
             return Err(error(ErrorCode::InvalidCheckpoint));
         }
-        self.verify()?;
-        let journal = recovery_store::read(
-            &self.recovery,
-            &selection.document_id,
-            selection.origin.suffix(),
-        )?
-        .ok_or_else(|| error(ErrorCode::RecoveryNeedsAttention))?;
+        let journal = recovery_store::read(dir, &selection.document_id, selection.origin.suffix())?
+            .ok_or_else(|| error(ErrorCode::RecoveryNeedsAttention))?;
         for checkpoint in journal.checkpoints {
             let candidate = candidate(&checkpoint, selection.origin.clone())?;
             if candidate.selection == *selection {
-                self.verify()?;
                 return Ok(RecoveryPreview {
                     candidate,
                     metadata: checkpoint.metadata,
@@ -202,6 +210,81 @@ impl LocalRecoveryReader {
             }
         }
         Err(error(ErrorCode::RecoveryNeedsAttention))
+    }
+}
+
+impl DocumentService {
+    pub fn list_document_recovery(
+        &self,
+        identity: &DocumentRequest,
+    ) -> Result<RecoveryEntry, DocumentError> {
+        self.registered(identity)?;
+        let dir = match self.recovery_directory(Some(identity), false) {
+            Ok(dir) => dir,
+            Err(err) if err.code == ErrorCode::MissingSource => {
+                return Ok(RecoveryEntry {
+                    document_id: identity.document_id.clone(),
+                    candidates: Vec::new(),
+                    notices: Vec::new(),
+                    error: None,
+                });
+            }
+            Err(err) => return Err(err),
+        };
+        let result = LocalRecoveryReader::entry_at(&dir, &identity.document_id);
+        self.recovery_directory(Some(identity), false)?;
+        Ok(result)
+    }
+
+    pub fn read_document_recovery(
+        &self,
+        request: &SelectedRecoveryRequest,
+    ) -> Result<RecoveryPreview, DocumentError> {
+        self.registered(&request.identity)?;
+        if request.selection.document_id != request.identity.document_id {
+            return Err(error(ErrorCode::IdentityMismatch));
+        }
+        let dir = self.recovery_directory(Some(&request.identity), false)?;
+        let result = LocalRecoveryReader::preview_at(&dir, &request.selection)?;
+        self.recovery_directory(Some(&request.identity), false)?;
+        Ok(result)
+    }
+
+    /// Explicitly resume full revalidated bytes under a fresh unsaved identity.
+    /// The selected original is never modified or removed.
+    pub fn resume_local_recovery(
+        &mut self,
+        selection: &RecoverySelection,
+    ) -> Result<ResumedDraft, DocumentError> {
+        let preview = LocalRecoveryReader::open(&self.store_path)?
+            .ok_or_else(|| error(ErrorCode::RecoveryNeedsAttention))?
+            .preview(selection)?;
+        let mut document = self.register_unsaved()?;
+        if let Err(err) = self.checkpoint(
+            &document.identity,
+            1,
+            &preview.source,
+            &preview.metadata.source_sha256,
+            preview.metadata.draft_metadata.clone(),
+        ) {
+            self.release_at_risk(&document.identity)?;
+            return Err(err);
+        }
+        document.source = preview.source;
+        if std::str::from_utf8(&document.source).is_err() {
+            document.encoding = SourceEncoding::Unsupported;
+            document.ownership = Ownership::ViewOnly {
+                reasons: vec![ViewReason::UnsupportedEncoding],
+            };
+        }
+        self.documents
+            .get_mut(&document.identity.handle)
+            .ok_or_else(|| error(ErrorCode::InvalidHandle))?
+            .initial = document.clone();
+        Ok(ResumedDraft {
+            document,
+            draft_metadata: preview.metadata.draft_metadata,
+        })
     }
 }
 

@@ -23,6 +23,8 @@ pub struct RecoverRequest {
     pub identity: DocumentRequest,
     pub selection: RecoverySelection,
     pub new_version: u64,
+    #[serde(default)]
+    pub replacement_metadata: Option<serde_json::Value>,
     pub expected_fingerprint: DiskFingerprint,
 }
 

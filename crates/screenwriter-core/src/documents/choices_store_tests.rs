@@ -241,6 +241,7 @@ fn finalize_leaves_prepared_and_diverged_states_untouched() {
         .unwrap();
     let failure = service
         .recover_checkpoint_as_current(&RecoverRequest {
+            replacement_metadata: None,
             identity: opened.identity.clone(),
             selection,
             new_version: 22,

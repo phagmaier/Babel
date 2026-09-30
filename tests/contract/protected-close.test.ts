@@ -51,6 +51,8 @@ function fixture(unsaved = false) {
   controller.changed(current);
   let frozen = false;
   const owner: CloseOwner = {
+    getVersion: () => current.version,
+    captureCopy: async () => ({ snapshot: current }),
     freeze() {
       expect(frozen).toBe(false);
       frozen = true;

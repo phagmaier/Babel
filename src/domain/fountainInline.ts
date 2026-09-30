@@ -19,9 +19,28 @@ const ordered = (styles: readonly InlineStyle[]) =>
 
 /** No normalization. Unpaired markers stay literal with an incomplete flag. */
 export function parseInline(source: string): InlineContent {
+  if (!/[\\*_]/.test(source))
+    return Object.freeze({
+      text: source,
+      complete: true,
+      runs: Object.freeze(
+        source
+          ? [
+              Object.freeze({
+                text: source,
+                start: 0,
+                end: source.length,
+                styles: Object.freeze([]),
+              }),
+            ]
+          : [],
+      ),
+      delimiters: Object.freeze([]),
+    });
   const runs: InlineRun[] = [];
   const delimiters: InlineDelimiter[] = [];
   let complete = true;
+  const failedOpeners = new Map<number, Set<number>>();
   const markerAt = (at: number, end: number) => {
     if (source[at] !== '*' && source[at] !== '_') return '';
     let next = at + 1;
@@ -69,8 +88,13 @@ export function parseInline(source: string): InlineContent {
       if (marker) {
         const inside = at + marker.length;
         let close = -1;
-        if (markers[marker] && inside < end && !/\s/.test(source[inside]!)) {
-          const stack = [marker];
+        if (
+          markers[marker] &&
+          inside < end &&
+          !/\s/.test(source[inside]!) &&
+          !failedOpeners.get(end)?.has(at)
+        ) {
+          const stack = [{ marker, at }];
           search: for (let search = inside; search < end;) {
             if (
               source[search] === '\\' &&
@@ -91,7 +115,7 @@ export function parseInline(source: string): InlineContent {
             let consumed = 0;
             if (canClose) {
               while (stack.length) {
-                const top = stack.at(-1)!;
+                const top = stack.at(-1)!.marker;
                 if (
                   top[0] !== candidate[0] ||
                   candidate.length - consumed < top.length
@@ -107,8 +131,13 @@ export function parseInline(source: string): InlineContent {
             }
             const remaining = candidate.slice(consumed);
             if (remaining && markers[remaining] && canOpen)
-              stack.push(remaining);
+              stack.push({ marker: remaining, at: search + consumed });
             search += candidate.length;
+          }
+          if (close < 0) {
+            const failed = failedOpeners.get(end) ?? new Set<number>();
+            for (const opener of stack) failed.add(opener.at);
+            failedOpeners.set(end, failed);
           }
         }
         if (close >= 0) {

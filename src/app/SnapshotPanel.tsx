@@ -10,7 +10,7 @@ import {
   type SnapshotPort,
   type SnapshotSelection,
 } from '../application/snapshots';
-/** Mounted by a future native open controller; no frontend path/picker authority. */
+/** Current-session snapshot controls; all paths and publication remain native. */
 export function SnapshotPanel({
   port,
   current,

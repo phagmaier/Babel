@@ -1,26 +1,21 @@
-# Current state — M3-13 reviewed; integrated exit open
+# Current state — bounded audit corrections verified; M3 exit open
 
 Date: 2026-09-29 PDT. Application: **babel**. Authority: [SPEC](../SPEC.md), [TODO](../TODO.md), [index](index.md).
 
 ## Task and work
 
-**M3-13** integration and separate safety review performed by one editing agent on main from `7a2642a`, clean initial tree. No application implementation, dependencies, capabilities, SPEC or fixture bytes changed. Previous M3-12 work and synthetic recovery artifacts remain intact. No push authorized.
+Owner authorized fixes for the repository audit. One editing agent on main from `0a68130`, initially clean; no push authorized. Completed bounded corrections: **M3-12-R1, M3-09-R1, M3-11-R1, M3-04-R1, M3-10-R1, M3-12-R2, M3-03-R1**.
 
-Added `tests/native/writing-lifecycle/editor_exit.py` and three optional runner modes: independent default-app corpus/input audits, a separate uncapturable-draft safety reproduction, and integrated row-workload timing. Updated runner instructions, [review](reviews/2026-09-29-m3-13-review.md), evidence, affected contracts/trace/task/index/state docs, and four bounded correction briefs.
+Implemented immediate live-version protection facts and native-verified labeled draft bundles for uncapturable work; coalesced cadence drain; selected managed/loose recovery and restart version allocation; explicit full-byte resume as a fresh draft; verified sparse intent/caret restoration; replacement metadata prepared before restore/recovery; read-only Save As and adoption rollback; failed-open release and per-registration destination retirement; bounded parser/capture performance corrections; release CSP without development localhost; current contract documentation. Recovery comparisons now serialize their full-buffer reads instead of exhausting the native queue on mount.
 
-## Checks and evidence
+## Checks and remaining verification
 
-[M3-13 evidence](test-evidence/M3.md#m3-13--integrated-editor-gate-and-separate-safety-review) owns exact commands, host, roots, logs and failed attempts. Shared checks passed: 477 frontend tests, formatting/lint/typecheck/build/browser smoke, Rust fmt/clippy, 192 native workspace tests on each of tmpfs/Btrfs, default embedded release build, Python compilation and hostile-HTML browser request interception.
+[Audit correction evidence](test-evidence/M3.md#repository-audit-corrections) owns exact commands, host, outcomes, logs, failed attempts and limits. Latest shared frontend check passes 494 tests plus formatting/lint/typecheck/build; browser smoke, Rust fmt/clippy and default embedded release build pass. Native workspace matrix passes 200 tests per filesystem, including real filesystem tests and explicitly labeled MockRuntime IPC. Final default-app lifecycle and draft-bundle preservation pass on both tmpfs/Btrfs. Isolated 2,400-row typing verifies all 120 trusted keys and exact saved bytes; rAF proxy p95 is 49/43 ms, max 74/47 ms, with zero samples above 100 ms. The owner can use the desktop normally; native drills are finished.
 
-Both filesystems completed the default native editor/lifecycle drill: 21 no-op sources, eight edited-source/Undo oracles, semantic/group/scene fields, trusted clipboard/Unicode/IME, completion/caret/keys, Save As/cancel, real save/close/reopen, restore/Undo, acknowledged-checkpoint SIGKILL/restart, ordinary permission failure, history isolation, external divergence and exact emergency copy. Positive roots: `/tmp/babel-writing-kyq8e7ai`, `target/babel-writing-1w2c4ij0`. Browser/mocked checks are labeled separately from native evidence.
+The owner interrupted an earlier native run while working in another window, then explicitly requested resumption. Only synthetic owned test documents/processes are involved. A tool-build tmpfs quota failure was corrected by moving only this task's generated Cargo cache/security tooling to ignored Btrfs target directories; failed attempts remain evidence, never passes. A folder-picker harness error and a real concurrent recovery-comparison budget failure were investigated separately and corrected.
 
-## Required corrections and next action
+The RustSec scan has zero vulnerability entries but flags `glib 0.18.5` unsound `VariantStrIter` and unmaintained `proc-macro-error 1.0.4`, both transitive through the current GTK/Tauri stack. No affected iterator call was found in application or downloaded dependency runtime source outside GLib itself; this is a reachability assessment, not proof of immunity. Frontend production audit has zero advisories. No dependency/lockfile changes or blanket overrides were made.
 
-M3-13 remains **unchecked**. The [separate review](reviews/2026-09-29-m3-13-review.md) requires:
+## Next action and boundaries
 
-- **R03 / [M3-12-R1](tasks/M3-12-R1.md), next ready task:** accepted middle-Parenthetical split cannot capture; newer text is only in memory, but source/close status claims the earlier version saved. Emergency copy repeats capture failure. Native reproduction on tmpfs/Btrfs retains live rows, exact original source/journals and screenshots.
-- **R02 / [M3-09-R1](tasks/M3-09-R1.md):** acknowledged unsaved checkpoint survives restart and is inspectable, but no default-app resume/export action exists.
-- **R01 / [M3-11-R1](tasks/M3-11-R1.md):** actual permission-read-only source disables Save As, contrary to SPEC S05.2; an existing test mandates this refusal.
-- **R04 / [M3-04-R1](tasks/M3-04-R1.md):** integrated 2,400-row typing has sustained event-loop stalls. Earlier probes stopped before input drained; the complete tmpfs run verifies all 120 trusted inputs/exact source but records rAF proxy p95 436 ms, max 592 ms, 119/120 above 100 ms; complete Btrfs also verifies 120 exact inputs, with p95 451 ms/max 612 ms and 116/120 above 100 ms. Detailed filesystem results are in evidence; this is not compositor paint or page calibration.
-
-Complete the corrections and rerun affected/shared/native gates before accepting M3 or decomposing M4. Do not normalize away unrepresentable drafts or weaken native ownership to obtain a pass. Full compositor paint/page-equivalent performance, other platforms, installed/offline adoption, PDF, M4 workflows and Local v1 remain open.
+Next ready task: **M3-13 independent integrated exit re-review**, using the correction evidence and final implementation. Local correction commit contains the seven task IDs; no milestone tag or push. Do not claim full M3-13 acceptance: independent exit re-review remains required. Full compositor paint/page calibration, long-session heap, native dependency/license/reachability and intermittent graphics-exit review, other platforms, installed/offline adoption, M4 workflows/PDF and Local v1 remain open. Investigate lower-confidence concerns before making speculative changes.

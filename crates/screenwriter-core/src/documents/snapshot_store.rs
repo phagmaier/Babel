@@ -654,6 +654,16 @@ impl DocumentService {
         {
             return Err(failure(error(ErrorCode::InvalidSave)));
         }
+        payload_cost(
+            request.new_version,
+            &preview.source,
+            &hash(&preview.source),
+            request
+                .replacement_metadata
+                .as_ref()
+                .unwrap_or(&serde_json::Value::Null),
+        )
+        .map_err(failure)?;
         self.maintenance_guard(identity).map_err(failure)?;
         if self
             .registered(identity)
@@ -697,7 +707,10 @@ impl DocumentService {
             source_sha256: hash(&preview.source),
             source: preview.source,
             expected_fingerprint: request.expected_fingerprint.clone(),
-            draft_metadata: request.current.draft_metadata.clone(),
+            draft_metadata: request
+                .replacement_metadata
+                .clone()
+                .unwrap_or(serde_json::Value::Null),
         })
     }
     /// Called only after explicit native folder selection. No IPC accepts a path.
@@ -707,7 +720,12 @@ impl DocumentService {
         path: &Path,
     ) -> Result<CopyDestination, DocumentError> {
         self.registered(identity)?;
-        if self.copy_destinations.len() >= MAX_OPEN_DOCUMENTS {
+        if self.copy_destinations.len() >= MAX_OPEN_DOCUMENTS
+            && !self
+                .copy_destinations
+                .values()
+                .any(|d| &d.identity == identity)
+        {
             return Err(error(ErrorCode::InvalidDestination));
         }
         let dir = directory(path)?;
@@ -734,6 +752,10 @@ impl DocumentService {
             token: uuid(),
             storage_relation: relation,
         };
+        // Selection replaces this registration's prior capability. The service
+        // mutex serializes selection with native copies already in progress.
+        self.copy_destinations
+            .retain(|_, d| &d.identity != identity);
         self.copy_destinations.insert(
             result.token.clone(),
             Destination {
@@ -762,6 +784,15 @@ impl DocumentService {
         if hash(&c.source) != c.source_sha256 {
             return Err(error(ErrorCode::InvalidCheckpoint));
         }
+        if request.format == CopyFormat::DraftBundle {
+            let value: serde_json::Value = serde_json::from_slice(&c.source)
+                .map_err(|_| error(ErrorCode::InvalidCheckpoint))?;
+            if value["schema"] != "babel-draft-copy-v1"
+                || value["version"].as_u64() != Some(c.version)
+            {
+                return Err(error(ErrorCode::InvalidCheckpoint));
+            }
+        }
         let d = self
             .copy_destinations
             .get(&request.destination_token)
@@ -783,7 +814,10 @@ impl DocumentService {
         verify()?;
         let id = uuid();
         let pending = format!(".babel-copy-{id}.pending");
-        let final_name = format!("babel-copy-{id}.fountain");
+        let final_name = match request.format {
+            CopyFormat::Fountain => format!("babel-copy-{id}.fountain"),
+            CopyFormat::DraftBundle => format!("babel-copy-{id}.draft.json"),
+        };
         write_new(
             &d.dir,
             &pending,

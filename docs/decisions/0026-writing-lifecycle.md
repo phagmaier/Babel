@@ -11,13 +11,14 @@ objects. Coalesced deferred captures drain before frozen lifecycle operations;
 completed cadence operations refresh the visible version facts.
 
 Open does not auto-save. Its initial editor version is above all discovered
-recovery versions for that identity; this is sequence allocation, not a content
+recovery versions for the selected native registration, including managed
+project journals outside the private startup catalog; this is sequence allocation, not a content
 winner. Older-session recovery still requires explicit Keep Current File or
 Recover as Current. Explicit Save performs a fresh native flush.
 
 Save As selects a destination before freezing input, then captures/protects the
-latest draft, publishes exact bytes, drains native work, releases the old
-registration and adopts the fresh identity. Selection uses actual editor
+latest draft, publishes exact bytes, drains native work, prepares fresh adoption
+and then releases the old registration. Selection uses actual editor
 positions and the rebuilt editor establishes a new undo boundary. Cancellation
 or publication failure retains the active editor. An unused new registration is
 released if retiring the old one fails; its standalone file remains preserved.
@@ -28,6 +29,10 @@ a verified pre-destructive snapshot before changing disk. Previewed bytes and
 exact native receipts return through the coordinator. Identity, hash, length,
 version and receipt shape are checked before editor mutation. The imported
 transaction may advance to a later native version and remains one Undo step.
+The frozen editor prepares the exact replacement capture before native
+publication. Replacement metadata belongs to those new bytes, never the former
+source. Source-hash-verified sparse drafting intent and caret metadata are
+restored conservatively; stale or malformed metadata is ignored.
 Only validated adopted receipts can re-anchor a blocked native baseline; normal
 saving retains all existing availability guards. An older confirmed native resolution updates only the fingerprint baseline;
 newer live edits receive no saved/recovery credit. Same-version mismatches fail
@@ -67,5 +72,7 @@ milestones.
 ## Evidence still needed
 
 [M3-12 evidence](../test-evidence/M3.md#m3-12--production-writing-lifecycle-and-failure-ui)
-records passed bounded Linux task gates and omissions. Integrated M3-13 input/safety review, full home/recents workflows (M4), production
+records original bounded Linux task gates and omissions; the
+[audit correction evidence](../test-evidence/M3.md#repository-audit-corrections)
+records the later lifecycle corrections. Independent M3-13 exit re-review, full home/recents workflows (M4), production
 revision timeline (M6) and remote transfer (M7) remain open.

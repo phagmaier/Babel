@@ -121,6 +121,150 @@ fn missing_startup_store_is_empty_without_creating_directories_or_locks() {
 }
 
 #[test]
+fn selected_managed_recovery_is_visible_without_the_private_catalog() {
+    use screenwriter_core::documents::startup::SelectedRecoveryRequest;
+    let f = Fixture::new();
+    let source = f.0.join("source.fountain");
+    fs::write(&source, b"old\n").unwrap();
+    fs::set_permissions(&source, fs::Permissions::from_mode(0o600)).unwrap();
+    let aux = f.0.join(".screenwriter");
+    fs::create_dir(&aux).unwrap();
+    fs::set_permissions(&aux, fs::Permissions::from_mode(0o700)).unwrap();
+    fs::write(aux.join("project.json"),serde_json::to_vec(&json!({"schemaVersion":1,"projectId":uuid::Uuid::new_v4().to_string(),"sourceFilename":"source.fountain","pdfProfile":"default"})).unwrap()).unwrap();
+    let mut service = DocumentService::new(&f.store()).unwrap();
+    let opened = service.open_selected(&source).unwrap();
+    service
+        .checkpoint(
+            &opened.identity,
+            50,
+            b"new\r\n",
+            &source_hash(b"new\r\n"),
+            json!({"unknown":true}),
+        )
+        .unwrap();
+    drop(service);
+    let mut service = DocumentService::new(&f.store()).unwrap();
+    let next = service.open_selected(&source).unwrap();
+    let entry = service.list_document_recovery(&next.identity).unwrap();
+    assert!(entry.candidates.iter().any(|c| c.version == 50));
+    let selection = entry
+        .candidates
+        .iter()
+        .find(|c| c.version == 50)
+        .unwrap()
+        .selection
+        .clone();
+    let preview = service
+        .read_document_recovery(&SelectedRecoveryRequest {
+            identity: next.identity,
+            selection,
+        })
+        .unwrap();
+    assert_eq!(preview.source, b"new\r\n");
+    assert_eq!(preview.metadata.draft_metadata, json!({"unknown":true}));
+    assert_eq!(fs::read(source).unwrap(), b"old\n");
+}
+
+#[test]
+fn resume_uses_full_revalidated_checkpoint_and_preserves_original_generations() {
+    let f = Fixture::new();
+    let identity = f.seed();
+    let before = disk_state(&f.store().join("recovery"));
+    let entry = f.reader().catalog().unwrap().entries.remove(0);
+    let selection = entry
+        .candidates
+        .iter()
+        .find(|c| c.version == 22)
+        .unwrap()
+        .selection
+        .clone();
+    let mut service = DocumentService::new(&f.store()).unwrap();
+    let resumed = service.resume_local_recovery(&selection).unwrap();
+    assert_ne!(resumed.document.identity.document_id, identity.document_id);
+    assert_eq!(
+        resumed.document.source,
+        b"<script>not executable</script>\r\n  "
+    );
+    assert_eq!(resumed.draft_metadata, json!({"unknown":{"preserve":true}}));
+    let checkpoint = service
+        .inspect_recovery(&resumed.document.identity)
+        .unwrap()
+        .latest
+        .unwrap();
+    assert_eq!(checkpoint.source, resumed.document.source);
+    assert_eq!(checkpoint.metadata.version, 1);
+    for (path, value) in before {
+        assert_eq!(
+            disk_state(&f.store().join("recovery")).get(&path),
+            Some(&value)
+        );
+    }
+    let mut stale = selection;
+    stale.record_sha256 = "0".repeat(64);
+    assert_eq!(
+        service.resume_local_recovery(&stale).unwrap_err().code,
+        ErrorCode::RecoveryNeedsAttention
+    );
+}
+
+#[test]
+fn resume_never_truncates_large_checkpoints_or_decodes_invalid_source() {
+    let f = Fixture::new();
+    let mut service = DocumentService::new(&f.store()).unwrap();
+    let original = service.register_unsaved().unwrap();
+    let large = b"!Full recovery content.\r\n".repeat(6000);
+    service
+        .checkpoint(
+            &original.identity,
+            21,
+            &large,
+            &source_hash(&large),
+            json!({"opaque":true}),
+        )
+        .unwrap();
+    let selection = service
+        .list_document_recovery(&original.identity)
+        .unwrap()
+        .candidates
+        .into_iter()
+        .find(|c| c.version == 21)
+        .unwrap()
+        .selection;
+    let resumed = service.resume_local_recovery(&selection).unwrap();
+    assert!(resumed.document.source.len() > 128 * 1024);
+    assert_eq!(resumed.document.source, large);
+    let raw = service.register_unsaved().unwrap();
+    let invalid = b"\xff\0\r\n";
+    service
+        .checkpoint(
+            &raw.identity,
+            22,
+            invalid,
+            &source_hash(invalid),
+            serde_json::Value::Null,
+        )
+        .unwrap();
+    let selected = service
+        .list_document_recovery(&raw.identity)
+        .unwrap()
+        .candidates
+        .into_iter()
+        .find(|c| c.version == 22)
+        .unwrap()
+        .selection;
+    let view = service.resume_local_recovery(&selected).unwrap();
+    assert_eq!(view.document.source, invalid);
+    assert_eq!(
+        view.document.encoding,
+        screenwriter_core::documents::SourceEncoding::Unsupported
+    );
+    assert!(matches!(
+        view.document.ownership,
+        screenwriter_core::documents::Ownership::ViewOnly { .. }
+    ));
+}
+
+#[test]
 fn restart_review_is_read_only_and_preserves_every_raw_generation_and_metadata() {
     let fixture = Fixture::new();
     let identity = fixture.seed();

@@ -81,6 +81,44 @@ fn identity_records(fixture: &Fixture) -> Vec<serde_json::Value> {
 }
 
 #[test]
+fn repeated_save_as_selection_retires_old_tokens_and_keeps_the_last_valid_selection() {
+    let f = Fixture::new();
+    let (mut service, open) = f.service();
+    let first = service
+        .select_save_destination(&open.identity, &f.0.join("First.fountain"))
+        .unwrap();
+    let mut latest = first.clone();
+    for i in 0..(MAX_OPEN_DOCUMENTS + 5) {
+        latest = service
+            .select_save_destination(&open.identity, &f.0.join(format!("Copy-{i}.fountain")))
+            .unwrap();
+    }
+    assert_eq!(
+        service
+            .save_as_copy(&SaveAsRequest {
+                checkpoint: f.checkpoint(&open, 21, b"exact"),
+                destination_token: first.token
+            })
+            .unwrap_err()
+            .code,
+        ErrorCode::InvalidDestination
+    );
+    assert!(
+        service
+            .select_save_destination(&open.identity, &f.0.join("missing/Copy.fountain"))
+            .is_err()
+    );
+    let receipt = service
+        .save_as_copy(&SaveAsRequest {
+            checkpoint: f.checkpoint(&open, 21, b"exact"),
+            destination_token: latest.token,
+        })
+        .unwrap();
+    assert_eq!(fs::read(f.0.join(receipt.file_name)).unwrap(), b"exact");
+    assert!(!f.0.join("First.fountain").exists());
+}
+
+#[test]
 fn publishes_exact_bytes_with_a_fresh_identity_and_keeps_the_source() {
     let f = Fixture::new();
     let (mut service, opened) = f.service();

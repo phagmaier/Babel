@@ -7,6 +7,7 @@ import {
   type RecoveryNotice,
   type RecoveryPort,
   type RecoveryPreview,
+  type RecoverySelection,
 } from '../application/startupRecovery';
 
 const notices: Record<RecoveryNotice, string> = {
@@ -31,7 +32,13 @@ const originNames = {
   pending: 'Pending write',
   previousPending: 'Pending previous journal',
 };
-export function RecoveryReview({ port }: { port: RecoveryPort }) {
+export function RecoveryReview({
+  port,
+  onResume,
+}: {
+  port: Pick<RecoveryPort, 'list' | 'preview'>;
+  onResume?: (selection: RecoverySelection) => void;
+}) {
   const [catalog, setCatalog] = useState<RecoveryCatalog | null>(null);
   const [failure, setFailure] = useState(false);
   const [refresh, setRefresh] = useState(0);
@@ -139,7 +146,8 @@ export function RecoveryReview({ port }: { port: RecoveryPort }) {
       <h2 id="recovery-heading">Local recovery review</h2>
       <p>
         This review covers private local checkpoints for loose files and unsaved
-        drafts. Project-folder recovery and source comparison will follow.
+        drafts. Open a Fountain file to inspect its selected project or
+        loose-file recovery and compare it with the current source.
       </p>
       <p>
         Inspection does not restore or save a screenplay. Local checkpoints may
@@ -196,6 +204,14 @@ export function RecoveryReview({ port }: { port: RecoveryPort }) {
                     {originNames[candidate.selection.origin].toLowerCase()}{' '}
                     generation {candidate.generation}
                   </button>
+                  {onResume && (
+                    <button
+                      type="button"
+                      onClick={() => onResume({ ...candidate.selection })}
+                    >
+                      Resume as new draft
+                    </button>
+                  )}
                 </li>
               ))}
             </ul>

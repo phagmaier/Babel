@@ -1,5 +1,9 @@
 import type { EditorState } from 'prosemirror-state';
-import { captureEditor, type EditorCapture } from '../editor/sourceBridge';
+import {
+  captureEditor,
+  copyEditorDraft,
+  type EditorCapture,
+} from '../editor/sourceBridge';
 import { editorOrigin, editorVersion } from '../editor/state';
 import type { CapturedSnapshot } from './persistenceController';
 import {
@@ -40,7 +44,24 @@ export class EditorCaptureBoundary {
     this.getState = getState;
     this.hash = options.hash ?? sha256;
     this.defer =
-      options.defer ?? (() => new Promise((resolve) => setTimeout(resolve, 0)));
+      options.defer ??
+      (() =>
+        new Promise((resolve) => {
+          if (typeof requestAnimationFrame !== 'function') {
+            setTimeout(resolve, 0);
+            return;
+          }
+          // Let pending input/render callbacks run before whole-source work. The
+          // timer keeps hidden windows and close operations independent of rAF.
+          const fallback = setTimeout(() => {
+            cancelAnimationFrame(frame);
+            resolve();
+          }, 32);
+          const frame = requestAnimationFrame(() => {
+            clearTimeout(fallback);
+            setTimeout(resolve, 0);
+          });
+        }));
   }
   isCurrent(snapshot: CapturedEditorSnapshot): boolean {
     const source = this.origins.get(snapshot);
@@ -51,18 +72,59 @@ export class EditorCaptureBoundary {
       editorVersion(source) === editorVersion(current),
     );
   }
-  async capture(): Promise<CaptureResult> {
+  async capture(options: { latest?: boolean } = {}): Promise<CaptureResult> {
     if (this.active >= 2) throw new RangeError('Editor capture queue full');
     this.active++;
     try {
-      return await this.captureState();
+      return await this.captureState(options.latest ?? false);
     } finally {
       this.active--;
     }
   }
-  private async captureState(): Promise<CaptureResult> {
+  /** Explicit emergency preservation, independent of Fountain representability. */
+  async captureDraft(): Promise<CapturedSnapshot> {
     const state = this.getState();
     await this.defer();
+    const draft = copyEditorDraft(state);
+    let originalSourceBase64 = '';
+    const source = draft.originalSource;
+    for (let at = 0; at < source.length; at += 24 * 1024)
+      originalSourceBase64 += btoa(
+        String.fromCharCode(...source.subarray(at, at + 24 * 1024)),
+      );
+    const artifact = new TextEncoder().encode(
+      JSON.stringify({
+        schema: 'babel-draft-copy-v1',
+        version: draft.version,
+        originalSourceBase64,
+        rows: draft.rows,
+        selection: {
+          anchor: state.selection.anchor,
+          head: state.selection.head,
+        },
+      }),
+    );
+    if (artifact.length > MAX_SOURCE_BYTES)
+      throw new RangeError(
+        'Draft recovery bundle exceeds the 16 MiB copy limit',
+      );
+    const sourceSha256 = await this.hash(artifact);
+    if (!validHash(sourceSha256)) throw new Error('Invalid draft bundle hash');
+    if (this.getState() !== state)
+      throw new Error('Editor changed during draft preservation');
+    return Object.freeze({
+      version: draft.version,
+      get source() {
+        return Array.from(artifact);
+      },
+      sourceSha256,
+      draftMetadata: null,
+    });
+  }
+  private async captureState(latest: boolean): Promise<CaptureResult> {
+    let state = this.getState();
+    await this.defer();
+    if (latest) state = this.getState();
     const capture = captureEditor(state);
     const bytes = capture.source;
     if (bytes.length > MAX_SOURCE_BYTES)
@@ -102,7 +164,11 @@ export class EditorCaptureBoundary {
       throw new RangeError('Editor capture exceeds native metadata bound');
     const snapshot: CapturedEditorSnapshot = Object.freeze({
       version: capture.version,
-      source: Object.freeze(Array.from(bytes)),
+      // Do not freeze a manuscript-sized indexed array: WebKit visits every
+      // property. Private bytes plus owned copies preserve the same isolation.
+      get source() {
+        return Array.from(bytes);
+      },
       sourceSha256,
       draftMetadata,
       capture,

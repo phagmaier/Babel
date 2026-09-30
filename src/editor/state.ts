@@ -317,8 +317,9 @@ export function sourceImportTransaction(
   state: EditorState,
   bytes: Uint8Array,
   adoptedVersion?: number,
+  draftRecovery?: FountainRecovery,
 ): Transaction {
-  const parsed = parseFountain(bytes);
+  const parsed = parseFountain(bytes, draftRecovery);
   let nextId = editorOrigin(state).nextId;
   const recovery: FountainRecovery = {
     ...parsed.recovery,

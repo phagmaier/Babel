@@ -26,12 +26,15 @@ use snapshot_host::{
     create_snapshot, list_snapshots, prune_snapshots, read_snapshot, restore_snapshot,
     save_external_copy,
 };
-use startup_host::{RecoveryHost, list_local_recovery, read_local_recovery};
+use startup_host::{
+    RecoveryHost, list_document_recovery, list_local_recovery, read_document_recovery,
+    read_local_recovery, resume_local_recovery,
+};
 use tauri::{Emitter, Manager};
 
 #[derive(Clone, Default)]
 struct DocumentHost {
-    // Production initialization belongs to a future native picker/controller, never an IPC path.
+    // Production setup uses OS app data; native pickers supply source anchors, never IPC paths.
     // Proof builds initialize only their marked synthetic store during setup.
     #[cfg(target_os = "linux")]
     service: Arc<Mutex<Option<DocumentService>>>,
@@ -208,6 +211,9 @@ pub fn run() {
         release_open_document_at_risk,
         list_local_recovery,
         read_local_recovery,
+        list_document_recovery,
+        read_document_recovery,
+        resume_local_recovery,
         checkpoint_document,
         protect_fountain_import,
         save_document,
@@ -240,6 +246,9 @@ pub fn run() {
         release_open_document_at_risk,
         list_local_recovery,
         read_local_recovery,
+        list_document_recovery,
+        read_document_recovery,
+        resume_local_recovery,
         checkpoint_document,
         protect_fountain_import,
         save_document,
@@ -268,6 +277,9 @@ pub fn run() {
         release_open_document_at_risk,
         list_local_recovery,
         read_local_recovery,
+        list_document_recovery,
+        read_document_recovery,
+        resume_local_recovery,
         checkpoint_document,
         protect_fountain_import,
         save_document,

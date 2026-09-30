@@ -9,7 +9,6 @@ import type {
 import { parseInline } from './fountainInline.ts';
 import { isEscaped } from './fountainSyntax.ts';
 
-const encoder = new TextEncoder();
 const decoder = new TextDecoder('utf-8', { fatal: true, ignoreBOM: true });
 const visible = new Set([
   'title',
@@ -84,17 +83,20 @@ export function structureFountain(
   }
 
   const hiddenRegions: HiddenRegion[] = [];
-  if (lines.length) {
+  if (lines.length && (bytes.includes(91) || bytes.includes(47))) {
     const text = decoder.decode(bytes.subarray(bom ? 3 : 0));
-    const byteOffsets = new Map<number, number>();
+    // Only hidden syntax needs offsets. Avoid a Map entry and TextEncoder
+    // allocation for every scalar on every ordinary screenplay capture.
+    const byteOffsets = new Uint32Array(text.length + 1);
     let position = bom ? 3 : 0;
     for (let at = 0; at < text.length;) {
-      byteOffsets.set(at, position);
-      const char = String.fromCodePoint(text.codePointAt(at)!);
-      at += char.length;
-      position += encoder.encode(char).length;
+      byteOffsets[at] = position;
+      const scalar = text.codePointAt(at)!;
+      at += scalar > 0xffff ? 2 : 1;
+      position +=
+        scalar <= 0x7f ? 1 : scalar <= 0x7ff ? 2 : scalar <= 0xffff ? 3 : 4;
     }
-    byteOffsets.set(text.length, position);
+    byteOffsets[text.length] = position;
     let firstLine = 0;
     for (let at = 0; at < text.length;) {
       const open = text.slice(at, at + 2);
@@ -102,7 +104,7 @@ export function structureFountain(
         at++;
         continue;
       }
-      const start = byteOffsets.get(at)!;
+      const start = byteOffsets[at]!;
       while (
         lines[firstLine]!.sourceEnd <= start &&
         firstLine + 1 < lines.length
@@ -127,7 +129,7 @@ export function structureFountain(
           ambiguous = true;
       }
       const end = closing < 0 ? text.length : closing + 2;
-      const endByte = byteOffsets.get(end)!;
+      const endByte = byteOffsets[end]!;
       let lastLine = firstLine;
       while (
         lines[lastLine]!.sourceEnd < endByte &&
@@ -152,8 +154,8 @@ export function structureFountain(
           count: lastLine - firstLine + 1,
           sourceStart: start,
           sourceEnd: endByte,
-          contentStart: byteOffsets.get(at + 2)!,
-          contentEnd: byteOffsets.get(closing < 0 ? text.length : closing)!,
+          contentStart: byteOffsets[at + 2]!,
+          contentEnd: byteOffsets[closing < 0 ? text.length : closing]!,
           content,
           closed: closing >= 0,
           ambiguous,

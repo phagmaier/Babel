@@ -124,6 +124,7 @@ fn commands_snapshot_preview_copy_restore_and_prune_without_paths() {
             &view,
             "save_external_copy",
             serde_json::to_value(ExternalCopyRequest {
+                format: CopyFormat::Fountain,
                 checkpoint: c.clone(),
                 destination_token: destination.token,
             })
@@ -141,6 +142,7 @@ fn commands_snapshot_preview_copy_restore_and_prune_without_paths() {
         &view,
         "restore_snapshot",
         serde_json::to_value(RestoreSnapshotRequest {
+            replacement_metadata: None,
             current,
             selection: entry.selection,
             new_version: 23,

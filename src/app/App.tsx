@@ -42,7 +42,7 @@ export function App({
   ports = writingPorts,
 }: {
   appInfo?: AppInfoPort;
-  recovery?: RecoveryPort;
+  recovery?: Pick<RecoveryPort, 'list' | 'preview'>;
   ports?: WritingPorts;
 }) {
   const [result, setResult] = useState<AppInfoResult | null>(null);
@@ -139,7 +139,14 @@ export function App({
           Open Fountain{native ? '' : ' · coming later'}
         </button>
       </div>
-      <RecoveryReview port={recovery} />
+      <RecoveryReview
+        port={recovery}
+        onResume={
+          native
+            ? (selection) => setOpen({ kind: 'recovered', selection })
+            : undefined
+        }
+      />
       <p className="footer">
         Recovery and source saving report their confirmed versions in the
         writing view.

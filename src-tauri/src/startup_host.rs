@@ -6,7 +6,59 @@ use screenwriter_core::documents::{
     DocumentError, ErrorCode,
     startup::{CatalogRequest, RecoveryCatalog, RecoveryPreview, RecoverySelection},
 };
+use screenwriter_core::documents::{
+    DocumentRequest,
+    startup::{RecoveryEntry, ResumedDraft, SelectedRecoveryRequest},
+};
 use std::path::PathBuf;
+
+#[tauri::command]
+pub(super) async fn list_document_recovery(
+    request: DocumentRequest,
+    documents: tauri::State<'_, DocumentHost>,
+) -> Result<RecoveryEntry, DocumentError> {
+    #[cfg(target_os = "linux")]
+    return documents
+        .snapshot_worker(move |service| service.list_document_recovery(&request))
+        .await;
+    #[cfg(not(target_os = "linux"))]
+    {
+        let _ = (request, documents);
+        Err(DocumentError::new(ErrorCode::NativeUnavailable))
+    }
+}
+
+#[tauri::command]
+pub(super) async fn read_document_recovery(
+    request: SelectedRecoveryRequest,
+    documents: tauri::State<'_, DocumentHost>,
+) -> Result<RecoveryPreview, DocumentError> {
+    #[cfg(target_os = "linux")]
+    return documents
+        .snapshot_worker(move |service| service.read_document_recovery(&request))
+        .await;
+    #[cfg(not(target_os = "linux"))]
+    {
+        let _ = (request, documents);
+        Err(DocumentError::new(ErrorCode::NativeUnavailable))
+    }
+}
+
+#[tauri::command]
+pub(super) async fn resume_local_recovery(
+    request: RecoverySelection,
+    documents: tauri::State<'_, DocumentHost>,
+) -> Result<ResumedDraft, DocumentError> {
+    #[cfg(target_os = "linux")]
+    return documents
+        .snapshot_worker(move |service| service.resume_local_recovery(&request))
+        .await;
+    #[cfg(not(target_os = "linux"))]
+    {
+        let _ = (request, documents);
+        Err(DocumentError::new(ErrorCode::NativeUnavailable))
+    }
+}
 
 #[derive(Clone, Default)]
 pub(super) struct RecoveryHost {

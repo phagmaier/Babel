@@ -333,6 +333,16 @@ impl DocumentService {
         {
             return Err(failure(error(ErrorCode::StaleRecoveryVersion)));
         }
+        super::persistence::payload_cost(
+            request.new_version,
+            &checkpoint.source,
+            &checkpoint.metadata.source_sha256,
+            request
+                .replacement_metadata
+                .as_ref()
+                .unwrap_or(&serde_json::Value::Null),
+        )
+        .map_err(failure)?;
         let baseline = self
             .registered(&request.identity)
             .map_err(failure)?
@@ -388,7 +398,10 @@ impl DocumentService {
             source: checkpoint.source.clone(),
             source_sha256: checkpoint.metadata.source_sha256.clone(),
             expected_fingerprint: baseline,
-            draft_metadata: checkpoint.metadata.draft_metadata.clone(),
+            draft_metadata: request
+                .replacement_metadata
+                .clone()
+                .unwrap_or(serde_json::Value::Null),
         })
     }
 

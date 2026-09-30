@@ -1,5 +1,11 @@
 /** Read-only discovery/inspection. These values confer no source-save or adoption authority. */
-import type { DocumentError, DiskFingerprint, JsonValue } from './documents';
+import type {
+  DocumentError,
+  DocumentIdentity,
+  OpenDocument,
+  DiskFingerprint,
+  JsonValue,
+} from './documents';
 
 export type RecoveryOrigin =
   'current' | 'previous' | 'pending' | 'previousPending';
@@ -53,8 +59,25 @@ export interface RecoveryPreview {
 export interface RecoveryPort {
   list(): Promise<RecoveryCatalog>;
   preview(selection: RecoverySelection): Promise<RecoveryPreview>;
+  inspect(identity: DocumentIdentity): Promise<RecoveryEntry>;
+  previewSelected(request: {
+    identity: DocumentIdentity;
+    selection: RecoverySelection;
+  }): Promise<RecoveryPreview>;
+  resume(
+    selection: RecoverySelection,
+  ): Promise<{ document: OpenDocument; draftMetadata: JsonValue }>;
 }
 export const unavailableRecovery: RecoveryPort = {
+  inspect: async () => {
+    throw { code: 'nativeUnavailable', action: 'retry' };
+  },
+  previewSelected: async () => {
+    throw { code: 'nativeUnavailable', action: 'retry' };
+  },
+  resume: async () => {
+    throw { code: 'nativeUnavailable', action: 'retry' };
+  },
   list: async () => {
     throw { code: 'nativeUnavailable', action: 'retry' };
   },

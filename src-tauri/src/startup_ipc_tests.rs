@@ -27,6 +27,105 @@ fn invoke(
 }
 
 #[test]
+fn selected_recovery_and_resume_commands_are_path_free_exact_and_registration_bound() {
+    let base = std::env::var_os("BABEL_STARTUP_TEST_ROOT")
+        .map(std::path::PathBuf::from)
+        .unwrap_or_else(std::env::temp_dir);
+    let root = base.join(format!(
+        "babel-resume-ipc-{}-{}",
+        std::process::id(),
+        std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_nanos()
+    ));
+    fs::create_dir(&root).unwrap();
+    fs::set_permissions(&root, fs::Permissions::from_mode(0o700)).unwrap();
+    let mut service = DocumentService::new(&root.join("store")).unwrap();
+    let document = service.register_unsaved().unwrap();
+    let source = b"!Full selected recovery.\r\n".repeat(6000);
+    service
+        .checkpoint(
+            &document.identity,
+            21,
+            &source,
+            &source_hash(&source),
+            json!({"unknown":true}),
+        )
+        .unwrap();
+    let host = DocumentHost {
+        service: Arc::new(Mutex::new(Some(service))),
+        ..Default::default()
+    };
+    let app = mock_builder()
+        .manage(host)
+        .invoke_handler(tauri::generate_handler![
+            list_document_recovery,
+            read_document_recovery,
+            resume_local_recovery
+        ])
+        .build(mock_context(noop_assets()))
+        .unwrap();
+    let view = tauri::WebviewWindowBuilder::new(&app, "main", Default::default())
+        .build()
+        .unwrap();
+    let entry = invoke(
+        &view,
+        "list_document_recovery",
+        json!({"request":document.identity}),
+    )
+    .unwrap()
+    .deserialize::<Value>()
+    .unwrap();
+    let selection = &entry["candidates"][0]["selection"];
+    let preview = invoke(
+        &view,
+        "read_document_recovery",
+        json!({"request":{"identity":document.identity,"selection":selection}}),
+    )
+    .unwrap()
+    .deserialize::<Value>()
+    .unwrap();
+    assert_eq!(preview["source"], json!(source));
+    assert!(preview.get("protection").is_none());
+    let resumed = invoke(&view, "resume_local_recovery", json!({"request":selection}))
+        .unwrap()
+        .deserialize::<Value>()
+        .unwrap();
+    assert_eq!(resumed["document"]["source"], json!(source));
+    assert_ne!(
+        resumed["document"]["identity"]["documentId"],
+        document.identity.document_id
+    );
+    let mut wrong = serde_json::to_value(&document.identity).unwrap();
+    wrong["path"] = json!("/private/manuscript");
+    assert!(invoke(&view, "list_document_recovery", json!({"request":wrong})).is_err());
+    assert!(
+        invoke(
+            &view,
+            "read_document_recovery",
+            json!({"request":{"identity":wrong,"selection":selection}})
+        )
+        .is_err()
+    );
+    let mut extra = selection.clone();
+    extra["path"] = json!("/private/manuscript");
+    assert!(invoke(&view, "resume_local_recovery", json!({"request":extra})).is_err());
+    let mut foreign = selection.clone();
+    foreign["documentId"] = json!("11111111-1111-4111-8111-111111111111");
+    assert!(
+        invoke(
+            &view,
+            "read_document_recovery",
+            json!({"request":{"identity":document.identity,"selection":foreign}})
+        )
+        .is_err()
+    );
+    drop(app);
+    fs::remove_dir_all(root).unwrap();
+}
+
+#[test]
 fn startup_commands_review_exact_raw_generation_reject_stale_and_path_requests_without_writer() {
     let base = std::env::var_os("BABEL_STARTUP_TEST_ROOT")
         .map(std::path::PathBuf::from)

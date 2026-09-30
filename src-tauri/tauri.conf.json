@@ -10,9 +10,16 @@
     "frontendDist": "../dist"
   },
   "app": {
-    "windows": [{ "title": "babel", "width": 900, "height": 680 }],
+    "windows": [
+      {
+        "title": "babel",
+        "width": 900,
+        "height": 680
+      }
+    ],
     "security": {
-      "csp": "default-src 'self'; img-src 'self' asset: http://asset.localhost; style-src 'self' 'unsafe-inline'; connect-src ipc: http://ipc.localhost http://localhost:5173 ws://localhost:5173"
+      "csp": "default-src 'self'; img-src 'self' asset: http://asset.localhost; style-src 'self' 'unsafe-inline'; connect-src ipc: http://ipc.localhost",
+      "devCsp": "default-src 'self'; img-src 'self' asset: http://asset.localhost; style-src 'self' 'unsafe-inline'; connect-src ipc: http://ipc.localhost http://localhost:5173 ws://localhost:5173"
     }
   },
   "bundle": {

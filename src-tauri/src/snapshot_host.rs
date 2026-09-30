@@ -8,7 +8,7 @@ use screenwriter_core::documents::{
 };
 
 impl DocumentHost {
-    async fn snapshot_worker<T: Send + 'static>(
+    pub(super) async fn snapshot_worker<T: Send + 'static>(
         &self,
         #[cfg(target_os = "linux")] operation: impl FnOnce(
             &mut DocumentService,

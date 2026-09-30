@@ -7,6 +7,123 @@ use std::process::{Command, Stdio};
 
 const ORIGINAL: &[u8] = b"\xef\xbb\xbfINT. OLD - DAY\r\n\r\nKeep  spaces.\r\n";
 const NEW: &[u8] = b"INT. NEW - NIGHT\n\nExact  text without final newline";
+
+#[test]
+fn draft_bundle_copy_is_exact_labeled_version_bound_and_independent_of_source_save() {
+    let f = Fixture::new();
+    let (mut service, open) = f.open();
+    let destination = service
+        .select_copy_destination(&open.identity, &f.0)
+        .unwrap();
+    let bytes = br#"{"schema":"babel-draft-copy-v1","version":21,"originalSourceBase64":"/wA=","rows":[{"kind":"parenthetical","runs":[{"text":"(sof","styles":["bold"]}]}],"selection":{"anchor":4,"head":4}}"#;
+    let mut request = ExternalCopyRequest {
+        checkpoint: checkpoint(&open, 21, bytes),
+        destination_token: destination.token,
+        format: CopyFormat::DraftBundle,
+    };
+    let receipt = service.save_external_copy(&request).unwrap();
+    assert!(receipt.file_name.ends_with(".draft.json"));
+    assert_eq!(std::fs::read(f.0.join(receipt.file_name)).unwrap(), bytes);
+    assert_eq!(
+        std::fs::read(f.0.join("source.fountain")).unwrap(),
+        ORIGINAL
+    );
+    request.checkpoint.version = 22;
+    assert_eq!(
+        service.save_external_copy(&request).unwrap_err().code,
+        ErrorCode::InvalidCheckpoint
+    );
+}
+
+#[test]
+fn repeated_copy_selection_retires_old_tokens_without_exhausting_a_session() {
+    let f = Fixture::new();
+    let (mut service, open) = f.open();
+    let first = service
+        .select_copy_destination(&open.identity, &f.0)
+        .unwrap();
+    let mut latest = first.clone();
+    for _ in 0..(MAX_OPEN_DOCUMENTS + 5) {
+        latest = service
+            .select_copy_destination(&open.identity, &f.0)
+            .unwrap();
+    }
+    assert_eq!(
+        service
+            .save_external_copy(&ExternalCopyRequest {
+                checkpoint: checkpoint(&open, 21, NEW),
+                destination_token: first.token,
+                format: CopyFormat::Fountain
+            })
+            .unwrap_err()
+            .code,
+        ErrorCode::InvalidDestination
+    );
+    assert!(
+        service
+            .select_copy_destination(&open.identity, &f.0.join("missing"))
+            .is_err()
+    );
+    let receipt = service
+        .save_external_copy(&ExternalCopyRequest {
+            checkpoint: checkpoint(&open, 21, NEW),
+            destination_token: latest.token,
+            format: CopyFormat::Fountain,
+        })
+        .unwrap();
+    assert_eq!(std::fs::read(f.0.join(receipt.file_name)).unwrap(), NEW);
+}
+
+#[test]
+fn restore_uses_replacement_metadata_and_accepts_an_immediate_same_version_save() {
+    let f = Fixture::new();
+    let (mut service, open) = f.open();
+    let entry = service
+        .create_snapshot(&SnapshotRequest {
+            checkpoint: checkpoint(&open, 1, NEW),
+            kind: SnapshotKind::Named,
+            name: Some("Earlier".into()),
+        })
+        .unwrap()
+        .unwrap();
+    let metadata = serde_json::json!({"schema":"babel-editor-capture-v1","sourceSha256":hash(NEW),"selection":null,"drafts":[]});
+    let mut current = checkpoint(&open, 2, ORIGINAL);
+    current.draft_metadata = serde_json::json!({"sourceSha256":hash(ORIGINAL)});
+    let restored = service
+        .restore_snapshot(&RestoreSnapshotRequest {
+            current,
+            selection: entry.selection,
+            new_version: 3,
+            replacement_metadata: Some(metadata.clone()),
+            expected_fingerprint: open.fingerprint.clone().unwrap(),
+        })
+        .unwrap();
+    assert_eq!(
+        service
+            .inspect_recovery(&open.identity)
+            .unwrap()
+            .latest
+            .unwrap()
+            .metadata
+            .draft_metadata,
+        metadata
+    );
+    service
+        .checkpoint(&open.identity, 3, NEW, &hash(NEW), metadata.clone())
+        .unwrap();
+    let saved = service
+        .save_request(SaveRequest {
+            identity: open.identity,
+            version: 3,
+            source: NEW.to_vec(),
+            source_sha256: hash(NEW),
+            expected_fingerprint: restored.fingerprint,
+            draft_metadata: metadata,
+        })
+        .unwrap();
+    assert_eq!(saved.version, 3);
+    assert_eq!(std::fs::read(f.0.join("source.fountain")).unwrap(), NEW);
+}
 struct Fixture(PathBuf);
 impl Fixture {
     fn new() -> Self {
@@ -497,6 +614,7 @@ fn restore_protects_live_and_disk_as_new_version_and_rejects_stale_or_raw() {
         .unwrap()
         .unwrap();
     let mut request = RestoreSnapshotRequest {
+        replacement_metadata: None,
         current: checkpoint(&open, 21, b"unsaved live"),
         selection: raw.selection,
         new_version: 22,
@@ -563,6 +681,7 @@ fn external_copy_exact_raw_native_scope_removed_destination_and_failure_isolatio
     let request = ExternalCopyRequest {
         checkpoint: checkpoint(&open, 21, b"\xff\0exact raw\r\n"),
         destination_token: destination.token.clone(),
+        format: CopyFormat::Fountain,
     };
     let receipt = service.save_external_copy(&request).unwrap();
     assert_eq!(receipt.version, 21);
@@ -802,6 +921,7 @@ fn restore_snapshot_failure_before_source_write_keeps_live_recovery_and_disk() {
     .unwrap();
     let failure = service
         .restore_snapshot(&RestoreSnapshotRequest {
+            replacement_metadata: None,
             current: checkpoint(&open, 21, b"live newest"),
             selection: saved.selection,
             new_version: 22,
@@ -860,7 +980,8 @@ fn snapshot_and_destination_permissions_anchors_and_cross_session_are_revalidate
         service
             .save_external_copy(&ExternalCopyRequest {
                 checkpoint: checkpoint(&open, 2, NEW),
-                destination_token: d.token
+                destination_token: d.token,
+                format: CopyFormat::Fountain,
             })
             .unwrap_err()
             .code,

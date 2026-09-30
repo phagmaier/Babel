@@ -165,6 +165,11 @@ async function openFixture(reopening: boolean) {
   });
   controller = new PersistenceController(opened, nativeDocuments);
   close = new ProtectedClose(controller, nativeDocuments, nativeSnapshots, {
+    getVersion: () => (view ? currentVersion(view.state) : 0),
+    async captureCopy() {
+      if (!view) throw new Error('Editor unavailable');
+      return { snapshot: await capture(view.state) };
+    },
     freeze() {
       opening = true;
       view?.setProps({ editable: () => false });

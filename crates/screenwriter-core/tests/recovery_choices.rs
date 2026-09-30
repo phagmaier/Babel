@@ -235,6 +235,7 @@ fn recover_as_current_preserves_previous_and_recovery_across_restart() {
 
     let receipt = service
         .recover_checkpoint_as_current(&RecoverRequest {
+            replacement_metadata: None,
             identity: opened.identity.clone(),
             selection: selection.clone(),
             new_version: 22,
@@ -352,6 +353,7 @@ fn corrupt_history_blocks_destructive_adoption_but_keeps_recovery_and_normal_sav
     let selection = latest_selection(&service, &opened);
     let failure = service
         .recover_checkpoint_as_current(&RecoverRequest {
+            replacement_metadata: None,
             identity: id.clone(),
             selection,
             new_version: 22,
@@ -445,6 +447,7 @@ fn older_session_blocks_checkpoints_until_explicit_recover_or_keep() {
     );
     let receipt = third
         .recover_checkpoint_as_current(&RecoverRequest {
+            replacement_metadata: None,
             identity: rethird.identity.clone(),
             selection: latest_selection(&third, &rethird),
             new_version: 24,
@@ -468,6 +471,7 @@ fn recover_rejects_stale_diverged_unsupported_and_view_only() {
     assert_eq!(
         service
             .recover_checkpoint_as_current(&RecoverRequest {
+                replacement_metadata: None,
                 identity: opened.identity.clone(),
                 selection: selection.clone(),
                 new_version: 21,
@@ -483,6 +487,7 @@ fn recover_rejects_stale_diverged_unsupported_and_view_only() {
     assert_eq!(
         service
             .recover_checkpoint_as_current(&RecoverRequest {
+                replacement_metadata: None,
                 identity: opened.identity.clone(),
                 selection: selection.clone(),
                 new_version: 22,
@@ -500,6 +505,7 @@ fn recover_rejects_stale_diverged_unsupported_and_view_only() {
     assert_eq!(
         service
             .recover_checkpoint_as_current(&RecoverRequest {
+                replacement_metadata: None,
                 identity: opened.identity.clone(),
                 selection: malformed,
                 new_version: 23,
@@ -516,6 +522,7 @@ fn recover_rejects_stale_diverged_unsupported_and_view_only() {
     assert_eq!(
         service
             .recover_checkpoint_as_current(&RecoverRequest {
+                replacement_metadata: None,
                 identity: opened.identity.clone(),
                 selection: selection.clone(),
                 new_version: 24,
@@ -540,6 +547,7 @@ fn recover_rejects_stale_diverged_unsupported_and_view_only() {
     assert_eq!(
         service
             .recover_checkpoint_as_current(&RecoverRequest {
+                replacement_metadata: None,
                 identity: viewed.identity.clone(),
                 selection: current,
                 new_version: 25,
@@ -726,6 +734,7 @@ fn second_instance_may_compare_but_never_adopt() {
     assert_eq!(
         second
             .recover_checkpoint_as_current(&RecoverRequest {
+                replacement_metadata: None,
                 identity: viewed.identity.clone(),
                 selection,
                 new_version: 22,
@@ -758,6 +767,7 @@ fn relink_follows_loose_moves_and_managed_renames_safely() {
     let selection = latest_selection(&service, &opened);
     let receipt = service
         .recover_checkpoint_as_current(&RecoverRequest {
+            replacement_metadata: None,
             identity: opened.identity.clone(),
             selection,
             new_version: 22,

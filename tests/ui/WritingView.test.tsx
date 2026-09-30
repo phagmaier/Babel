@@ -160,6 +160,33 @@ function fixturePorts(options: {
       },
     },
     recovery: {
+      inspect: async () => ({
+        documentId: identity.documentId,
+        candidates: options.candidates
+          ? [
+              {
+                selection: {
+                  documentId: identity.documentId,
+                  origin: 'current' as const,
+                  recordSha256: A,
+                },
+                sessionId: 'other-session',
+                version: 1,
+                generation: 1,
+                sourceSha256: B,
+                byteLength: 1,
+                encoding: 'utf8' as const,
+              },
+            ]
+          : [],
+        notices: [],
+        error: null,
+      }),
+      previewSelected: async ({ selection }) =>
+        ports.recovery.preview(selection),
+      resume: async () => {
+        throw new Error('unreachable');
+      },
       list: async () => ({
         entries: options.candidates
           ? [
@@ -221,6 +248,54 @@ function fixturePorts(options: {
 }
 
 describe('M3-12 writing surface', () => {
+  it.each([false, true])(
+    'drains recovery comparisons without concurrent native reservations (first fails: %s)',
+    async (failFirst) => {
+      const { ports } = fixturePorts({ picked: opened(), candidates: true });
+      const entry = await ports.recovery.inspect(identity);
+      ports.recovery.inspect = async () => ({
+        ...entry,
+        candidates: Array.from({ length: 3 }, (_, index) => ({
+          ...entry.candidates[0]!,
+          selection: {
+            ...entry.candidates[0]!.selection,
+            recordSha256: String(index + 1).repeat(64),
+          },
+        })),
+      });
+      const compare = ports.choices.compare;
+      let inFlight = false;
+      let requests = 0;
+      ports.choices.compare = async (request) => {
+        if (inFlight) throw { code: 'saveQueueFull' };
+        inFlight = true;
+        const first = requests++ === 0;
+        await new Promise((resolve) => setTimeout(resolve, 10));
+        try {
+          if (first && failFirst) throw { code: 'recoveryNeedsAttention' };
+          return await compare(request);
+        } finally {
+          inFlight = false;
+        }
+      };
+      render(
+        <WritingView
+          ports={ports}
+          open={{ kind: 'picked' }}
+          onSessionClosed={vi.fn()}
+        />,
+      );
+      await waitFor(() =>
+        expect(
+          screen.getAllByRole('heading', { name: 'Recovery choice' }),
+        ).toHaveLength(failFirst ? 2 : 3),
+      );
+      expect(Boolean(screen.queryByText('Source comparison unavailable'))).toBe(
+        failFirst,
+      );
+    },
+  );
+
   it('opens a draft, protects it explicitly, and reports four distinct protection facts', async () => {
     const { ports, calls } = fixturePorts({});
     const closed = vi.fn();

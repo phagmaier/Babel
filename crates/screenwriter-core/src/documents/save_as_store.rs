@@ -92,7 +92,12 @@ impl DocumentService {
     ) -> Result<SaveTarget, DocumentError> {
         self.registered(identity)?;
         self.check_capacity()?;
-        if self.save_destinations.len() >= MAX_OPEN_DOCUMENTS {
+        if self.save_destinations.len() >= MAX_OPEN_DOCUMENTS
+            && !self
+                .save_destinations
+                .values()
+                .any(|d| &d.identity == identity)
+        {
             return Err(error(ErrorCode::InvalidDestination));
         }
         let name = path
@@ -126,6 +131,8 @@ impl DocumentService {
             StorageRelation::UnknownPhysicalDisk
         };
         let token = uuid();
+        self.save_destinations
+            .retain(|_, d| &d.identity != identity);
         self.save_destinations.insert(
             token.clone(),
             SaveDestination {

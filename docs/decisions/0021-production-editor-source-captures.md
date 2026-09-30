@@ -4,6 +4,13 @@ Status: Accepted direction. Date: 2026-09-29. Task: M3-04. Authority: [SPEC S04/
 
 ## Decision
 
+Capture envelopes and sparse metadata remain frozen. Manuscript bytes are
+private and source access returns an owned number-array copy, matching the
+codec's owned-byte access contract. Freezing an entire indexed array is avoided:
+native WebKit measurements show 150–220 ms for 157 KB. Mutating a returned copy
+cannot change the envelope's source, hash, originating EditorState or protection
+version. The persistence controller separately owns queued payloads.
+
 Use one ProseMirror EditorState with typed physical source-row nodes, inline marks and a private source-origin plugin. The plugin retains the immutable original codec document, a session reference and monotonically increasing version. Current text/styles come only from the editor document. Source derivation occurs at explicit deferred capture, never inside synchronous transaction filtering. There is no independently mutable Fountain peer or source result that writes back into the editor. Physical rows preserve source blanks and break relationships; visual wrapping does not add rows.
 
 Ordinary text/mark changes retain node IDs/type/origin fields. The initial bridge refuses structural/type/identity/protected-region transformations until their explicit owned-context commands are implemented. DOM reparsing retains owned origin attributes and whitespace; transaction guards validate them against the existing state and reject foreign mark types. Paste/drop remain refused until M3-08's input policies. Undo restores source spelling and selection while advancing versions; history does not roll back the version counter.

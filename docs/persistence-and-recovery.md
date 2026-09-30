@@ -288,22 +288,21 @@ owns checks and measured native latency.
 
 The default native writing view binds the production editor to the passed
 persistence/cadence/close services. Open allocates its editor version above
-known recovery versions without automatic saving or reconciliation. Save As
+known recovery versions from the selected native registration, including managed project journals, without automatic saving or reconciliation. Save As
 protects a frozen latest capture before exact publication and identity switching;
 cancellation/failure retains the active editor. Old registrations, captures and
-selected copy tokens are retired at the boundary. Read-only sessions reject
-editor transactions and close without a write request.
+selected copy tokens are retired at the boundary. Read-only sessions reject editor transactions and ordinary Save; Save As can publish exact bytes without checkpointing or writing the original registration. Fresh adoption precedes release of the old registration; failure restores its immutable editor state, selection and undo history while preserving any published copy.
 
 Recovery and snapshot restore protect the current live editor in a verified
 pre-destructive snapshot before replacing disk. Native bytes/receipts are checked
-before one explicit source transaction. Restored bytes can advance to a later
+before one explicit source transaction. A frozen replacement projection supplies the new version’s source-bound sparse intent and selection metadata before native publication; the same transaction lands in the editor. An immediate same-version Save therefore uses the metadata that was published with that source. Restored bytes can advance to a later
 native version, and Undo produces a still-newer version against the adopted
 fingerprint. Normal saves cannot clear blocked/diverged state; only an exact,
 explicitly completed native adoption re-anchors that baseline after pending work
 has drained. Unknown/mismatched results retain existing material and show an error.
 
 Close freezes transaction dispatch, drains pending cadence and synchronizes the
-latest capture before retry/copy/risk. Risk acceptance is tied to the displayed
+latest capture before retry. Every accepted editor/selection version updates protection facts before capture completes; earlier receipts cannot protect newer uncaptured work. Emergency copy can preserve an unrepresentable draft as an explicitly labeled, version/hash-bound `.draft.json` bundle with original bytes, live rows/styles/attributes and selection ([ADR 0027](decisions/0027-uncapturable-draft-preservation.md)); this grants neither source-save nor journal credit. Risk acceptance is tied to the displayed
 version and reset by new edits/protection changes. A newer frozen capture refuses
 a stale risk choice. Window close happens only after exact native release.
 Deferred capture coalescing avoids overlapping hash queues, and background
@@ -315,6 +314,12 @@ records the default-app filesystem/failure drill and remaining limits.
 
 ## M3-13 review corrections
 
-The [separate review](reviews/2026-09-29-m3-13-review.md) identifies a live/controller version gap after capture refusal: the newer Parenthetical split stays only in EditorState, old source/checkpoints remain intact, status still says saved, and emergency copying cannot capture the draft. [M3-12-R1](tasks/M3-12-R1.md) owns truthful immediate status and a preservation route for the latest uncapturable draft.
+The [separate review](reviews/2026-09-29-m3-13-review.md) records the original failures. [M3-12-R1](tasks/M3-12-R1.md) corrects live-version status and emergency preservation. [M3-09-R1](tasks/M3-09-R1.md) adds explicit “Resume as new draft”: native code revalidates and checkpoints the full selected bytes under a fresh identity before returning them; the original checkpoint stays intact. The frontend restores verified producer metadata, allocates above the new journal and confirms fresh protection. Invalid encoding stays view-only and copyable. A display preview never reconstructs author content.
 
-Unsaved checkpoints survive acknowledged restart and can be inspected, but the default home has no resume/export action ([M3-09-R1](tasks/M3-09-R1.md)). Read-only sources currently disable Save As, contrary to S05.2 ([M3-11-R1](tasks/M3-11-R1.md)). M3-13 cannot certify these cases until corrections pass; prior named-source recovery/publication evidence stays bounded.
+[M3-11-R1](tasks/M3-11-R1.md) enables read-only Save As. [M3-10-R1](tasks/M3-10-R1.md) drains newer edits after an older in-flight operation even when their timers expired, without retrying the same failed version. [M3-12-R2](tasks/M3-12-R2.md) covers selected recovery, replacement metadata, failed-open release and destination retirement. Only one selected destination per registration remains valid for each copy/Save As operation; invalid selection retains the last valid capability. Acceptance requires linked shared/native tmpfs/Btrfs evidence; historical gates remain bounded.
+
+Recovery panels serialize their advisory comparisons. Each native read reserves
+a bounded full-source buffer; concurrent mounting of several candidates must not
+exhaust that budget and leave valid choices unavailable. This changes frontend
+read scheduling, not native queue limits or write authority. Exact selections
+and fingerprints are still revalidated before any content choice.

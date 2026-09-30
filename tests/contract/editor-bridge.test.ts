@@ -19,12 +19,50 @@ import { captureEditor, copyEditorDraft } from '../../src/editor/sourceBridge';
 import { screenplaySchema } from '../../src/editor/schema';
 import { mountScreenplayEditor } from '../../src/editor/view';
 import { EditorCaptureBoundary } from '../../src/application/editorCapture';
+import { smartKeyTransaction } from '../../src/editor/commands';
 
 const bytes = (text: string) => new Uint8Array(new TextEncoder().encode(text));
 const decode = (source: Uint8Array) =>
   new TextDecoder('utf-8', { ignoreBOM: true }).decode(source);
 const digest = async (source: Uint8Array) =>
   createHash('sha256').update(source).digest('hex');
+
+it('preserves an uncapturable accepted draft as explicit JSON with exact original bytes, live rows/styles and selection', async () => {
+  const original = bytes('@MAYA\r\n(softly)\r\nHello.\r\n');
+  let state = createEditorState(original);
+  state = state.apply(
+    state.tr.setSelection(
+      TextSelection.create(state.doc, state.doc.child(0).nodeSize + 5),
+    ),
+  );
+  const split = smartKeyTransaction(state, 'Enter').transaction!;
+  state = applyEditorTransaction(state, split).state;
+  const boundary = new EditorCaptureBoundary(() => state, {
+    defer: async () => {},
+    hash: digest,
+  });
+  await expect(boundary.capture()).rejects.toThrow();
+  const result = await boundary.captureDraft();
+  const artifact = JSON.parse(decode(Uint8Array.from(result.source)));
+  expect(artifact.schema).toBe('babel-draft-copy-v1');
+  expect(artifact.version).toBe(editorVersion(state));
+  expect(
+    [...atob(artifact.originalSourceBase64)].map((c) => c.charCodeAt(0)),
+  ).toEqual(Array.from(original));
+  expect(
+    artifact.rows.map((row: { runs: { text: string }[] }) =>
+      row.runs.map((run) => run.text).join(''),
+    ),
+  ).toEqual(['MAYA', '(sof', 'tly)', 'Hello.']);
+  expect(artifact.rows[1].kind).toBe('parenthetical');
+  expect(artifact.selection).toEqual({
+    anchor: state.selection.anchor,
+    head: state.selection.head,
+  });
+  expect(result.sourceSha256).toBe(
+    await digest(Uint8Array.from(result.source)),
+  );
+});
 function position(state: EditorState, index: number, offset = 0) {
   let start = 1;
   for (let at = 0; at < index; at++) start += state.doc.child(at).nodeSize;
@@ -487,6 +525,53 @@ describe('production sole editor/source boundary (pure contract, no native I/O)'
 });
 
 describe('asynchronous version/session-bound captures', () => {
+  it('still captures when a hidden window never delivers an animation frame', async () => {
+    vi.useFakeTimers();
+    const cancel = vi.fn();
+    vi.stubGlobal('requestAnimationFrame', () => 123);
+    vi.stubGlobal('cancelAnimationFrame', cancel);
+    try {
+      const state = createEditorState(bytes('!A bell.\n'));
+      const boundary = new EditorCaptureBoundary(() => state, {
+        hash: async () => 'a'.repeat(64),
+      });
+      const pending = boundary.capture({ latest: true });
+      await vi.advanceTimersByTimeAsync(32);
+      expect((await pending).status).toBe('current');
+      expect(cancel).toHaveBeenCalledWith(123);
+    } finally {
+      vi.unstubAllGlobals();
+      vi.useRealTimers();
+    }
+  });
+  it('coalesces pending production input before serialization and still binds the resulting immutable version', async () => {
+    let current = createEditorState(bytes('!A bell.\n'));
+    let release!: () => void;
+    const hash = vi.fn(digest);
+    const boundary = new EditorCaptureBoundary(() => current, {
+      hash,
+      defer: () =>
+        new Promise<void>((resolve) => {
+          release = resolve;
+        }),
+    });
+    const pending = boundary.capture({ latest: true });
+    current = applyEditorTransaction(
+      current,
+      current.tr.insertText('X', 1),
+    ).state;
+    current = applyEditorTransaction(
+      current,
+      current.tr.insertText('Y', 2),
+    ).state;
+    expect(hash).not.toHaveBeenCalled();
+    release();
+    const result = await pending;
+    expect(result.status).toBe('current');
+    expect(result.snapshot.version).toBe(editorVersion(current));
+    expect(decode(result.snapshot.capture.source)).toBe('!XYA bell.\n');
+    expect(hash).toHaveBeenCalledOnce();
+  });
   it('defers all source/hash work and labels an old capture stale without altering newer state', async () => {
     let current = createEditorState(bytes('\n!A bell.\n'));
     let release!: () => void;
@@ -558,7 +643,13 @@ describe('asynchronous version/session-bound captures', () => {
     expect(result.snapshot.sourceSha256).toBe(
       await digest(bytes('\n!A bell.\n')),
     );
-    expect(Object.isFrozen(result.snapshot.source)).toBe(true);
+    expect(Object.isFrozen(result.snapshot)).toBe(true);
+    const sourceCopy = result.snapshot.source as number[];
+    sourceCopy.fill(0);
+    expect(result.snapshot.source).toEqual(Array.from(bytes('\n!A bell.\n')));
+    expect(result.snapshot.sourceSha256).toBe(
+      await digest(bytes('\n!A bell.\n')),
+    );
     expect(Object.isFrozen(result.snapshot.draftMetadata)).toBe(true);
     expect(JSON.stringify(result.snapshot.draftMetadata)).not.toContain(
       'A bell.',

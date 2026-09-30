@@ -58,6 +58,7 @@ export interface RestoreSnapshotRequest {
   current: CheckpointRequest;
   selection: SnapshotSelection;
   newVersion: number;
+  replacementMetadata?: import('./documents').JsonValue;
   expectedFingerprint: DiskFingerprint;
 }
 export interface SnapshotPort {
@@ -71,6 +72,7 @@ export interface SnapshotPort {
   copy(request: {
     checkpoint: CheckpointRequest;
     destinationToken: string;
+    format?: 'draftBundle';
   }): Promise<ExternalCopyReceipt>;
 }
 export function sameIdentity(

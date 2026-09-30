@@ -30,7 +30,15 @@ import {
   type SessionSelection,
 } from '../application/writingSession';
 import { localShortcutRegistry } from '../application/shortcuts';
-import { createEditorState } from '../editor/state';
+import {
+  applyEditorTransaction,
+  createEditorState,
+  editorVersion,
+} from '../editor/state';
+import {
+  editorRecovery,
+  metadataSelection,
+} from '../application/editorMetadata';
 import { mountScreenplayEditor } from '../editor/view';
 import { executeEditorCommand } from '../editor/shortcuts';
 import { sourceImportTransaction } from '../editor/state';
@@ -53,7 +61,13 @@ export interface WritingPorts {
   fountainImport: FountainImportPort;
 }
 
-export type OpenRequest = { kind: 'new' } | { kind: 'picked' };
+export type OpenRequest =
+  | { kind: 'new' }
+  | { kind: 'picked' }
+  | {
+      kind: 'recovered';
+      selection: import('../application/startupRecovery').RecoverySelection;
+    };
 
 function toSessionSelection(view: EditorView): SessionSelection | null {
   return {
@@ -156,13 +170,16 @@ export function WritingView({
       setActive(session.active);
       const described = session.cadenceStatus;
       setStatus(
-        `Recovery: journaled version ${described.journaledVersion}. ` +
+        `Live version ${described.liveVersion}. Recovery: journaled version ${described.journaledVersion}. ` +
           `Source file: ${described.status} (saved version ${described.fileSavedVersion}). ` +
           `Snapshots: ${described.snapshotAttention ? 'need attention' : 'healthy'}` +
           (described.lastRollingVersion !== null
             ? `, last rolling version ${described.lastRollingVersion}`
             : ', no rolling snapshot yet') +
-          '. History: local revisions are not available yet.',
+          '. History: local revisions are not available yet.' +
+          (session.close.assessment.onlyInMemory
+            ? ' Newer changes exist only in memory until protection is confirmed.'
+            : ''),
       );
     } catch {
       // Session retired; the closing path owns the UI from here.
@@ -176,6 +193,7 @@ export function WritingView({
     const changed = () => {
       if (adoptingRef.current || !alive) return;
       captureAgain = true;
+      refresh();
       if (capturing) return;
       capturing = true;
       void (async () => {
@@ -199,51 +217,109 @@ export function WritingView({
         }
       })();
     };
+    const installState = (
+      state: import('prosemirror-state').EditorState,
+      writable: boolean,
+    ) => {
+      writableRef.current = writable;
+      viewRef.current?.destroy();
+      popupRef.current?.destroy();
+      const host = editorHost.current;
+      if (!host) throw new Error('Editor host unavailable');
+      const popup = createCompletionPopup(host);
+      popupRef.current = popup;
+      const boundary = new EditorCaptureBoundary(() => {
+        const view = viewRef.current;
+        if (!view || view.isDestroyed) throw new Error('Editor unavailable');
+        return view.state;
+      });
+      boundaryRef.current = boundary;
+      const view = mountScreenplayEditor(host, state, {
+        shortcuts: registry,
+        completion: popup.controller,
+        refused: (reason) => {
+          if (alive) setError(reason ?? 'Edit refused');
+        },
+        canEdit: () =>
+          adoptingRef.current ||
+          (writableRef.current && readyRef.current && !frozenRef.current),
+        escapeFocus: () => {
+          host
+            .closest('main')
+            ?.querySelector<HTMLElement>('.actions button:not(:disabled)')
+            ?.focus();
+        },
+        changed,
+      });
+      popup.bind(view);
+      viewRef.current = view;
+      view.focus();
+    };
     const editor: SessionEditor = {
-      loadInitial(source, selection, writable, initialVersion) {
-        writableRef.current = writable;
-        viewRef.current?.destroy();
-        popupRef.current?.destroy();
-        const host = editorHost.current;
-        if (!host) throw new Error('Editor host unavailable');
+      getVersion: () =>
+        viewRef.current ? editorVersion(viewRef.current.state) : 0,
+      captureDraft: async () => {
+        if (!boundaryRef.current) throw new Error('Editor unavailable');
+        return boundaryRef.current.captureDraft();
+      },
+      loadInitial(source, selection, writable, initialVersion, metadata) {
+        const bytes = Uint8Array.from(source);
         let state = createEditorState(
-          Uint8Array.from(source),
-          undefined,
+          bytes,
+          editorRecovery(bytes, metadata),
           initialVersion,
         );
         if (selection)
           state = state.apply(
             state.tr.setSelection(clampedSelection(state.doc, selection)),
           );
-        const popup = createCompletionPopup(host);
-        popupRef.current = popup;
-        const boundary = new EditorCaptureBoundary(() => {
-          const view = viewRef.current;
-          if (!view) throw new Error('Editor unavailable');
-          return view.state;
-        });
-        boundaryRef.current = boundary;
-        const view = mountScreenplayEditor(host, state, {
-          shortcuts: registry,
-          completion: popup.controller,
-          refused: (reason) => {
-            if (alive) setError(reason ?? 'Edit refused');
+        else {
+          const restored = metadataSelection(state, metadata);
+          if (restored) state = state.apply(state.tr.setSelection(restored));
+        }
+        installState(state, writable);
+      },
+      retain() {
+        const state = viewRef.current?.state;
+        const writable = writableRef.current;
+        if (!state) throw new Error('Editor unavailable');
+        return () => installState(state, writable);
+      },
+      async prepareSource(source, version, metadata) {
+        const view = viewRef.current;
+        if (!view || view.isDestroyed) throw new Error('Editor unavailable');
+        const previous = view.state;
+        const bytes = Uint8Array.from(source);
+        let transaction = sourceImportTransaction(
+          previous,
+          bytes,
+          version,
+          editorRecovery(bytes, metadata),
+        );
+        let next = applyEditorTransaction(previous, transaction);
+        if (!next.accepted)
+          throw new Error('Replacement projection was refused');
+        const selection =
+          metadataSelection(next.state, metadata) ??
+          clampedSelection(next.state.doc, toSessionSelection(view)!);
+        transaction = transaction.setSelection(selection);
+        next = applyEditorTransaction(previous, transaction);
+        const snapshot = (
+          await new EditorCaptureBoundary(() => next.state).capture()
+        ).snapshot;
+        return {
+          snapshot,
+          apply() {
+            if (viewRef.current !== view || view.state !== previous)
+              throw new Error('Editor changed during replacement');
+            adoptingRef.current = true;
+            try {
+              dispatchIsolated(view, transaction);
+            } finally {
+              adoptingRef.current = false;
+            }
           },
-          canEdit: () =>
-            adoptingRef.current ||
-            (writableRef.current && readyRef.current && !frozenRef.current),
-          escapeFocus: () => {
-            const root = host.closest('main');
-            const target = root?.querySelector<HTMLElement>(
-              '.actions button:not(:disabled)',
-            );
-            target?.focus();
-          },
-          changed,
-        });
-        popup.bind(view);
-        viewRef.current = view;
-        view.focus();
+        };
       },
       applySource(source, version, selection) {
         const view = viewRef.current;
@@ -267,7 +343,7 @@ export function WritingView({
       async capture() {
         const boundary = boundaryRef.current;
         if (!boundary) throw new Error('Editor unavailable');
-        const result = await boundary.capture();
+        const result = await boundary.capture({ latest: true });
         if (result.status !== 'current')
           throw new Error('Editor changed during capture');
         if (alive) setLive(result.snapshot);
@@ -329,6 +405,8 @@ export function WritingView({
     void (async () => {
       try {
         if (open.kind === 'new') await session.openNew();
+        else if (open.kind === 'recovered')
+          await session.openRecovery(open.selection);
         else if (!(await session.openPicked())) {
           if (alive) onSessionClosed();
           return;
@@ -344,15 +422,11 @@ export function WritingView({
         viewRef.current?.setProps({});
         setPhase('active');
         void ports.recovery
-          .list()
-          .then((catalog) => {
+          .inspect(session.active!.identity)
+          .then((entry) => {
             if (!alive) return;
             const id = session.active?.identity.documentId;
-            setCandidates(
-              catalog.entries
-                .filter((entry) => entry.documentId === id)
-                .flatMap((entry) => [...entry.candidates]),
-            );
+            setCandidates(entry.documentId === id ? [...entry.candidates] : []);
           })
           .catch(() => {
             // Recovery discovery is advisory; the session stays usable.
@@ -490,16 +564,22 @@ export function WritingView({
         operationRef.current = true;
         try {
           return await sessionRef.current!.replaceFromNative(
-            async (current) => {
+            async (current, prepare) => {
               const read = await ports.snapshots.read({
                 identity: current.identity,
                 selection: request.selection,
               });
+              const newVersion = Math.max(
+                request.newVersion,
+                current.version + 1,
+              );
+              const replacement = await prepare(read.source, newVersion);
               const receipt = await ports.snapshots.restore({
                 ...request,
                 current,
                 expectedFingerprint: current.expectedFingerprint!,
-                newVersion: Math.max(request.newVersion, current.version + 1),
+                newVersion,
+                replacementMetadata: replacement.draftMetadata,
               });
               return { source: read.source, receipt };
             },
@@ -512,26 +592,45 @@ export function WritingView({
     }),
     [ports],
   );
-  const choicePort = useMemo<RecoveryChoicesPort>(
-    () => ({
+  const choicePort = useMemo<RecoveryChoicesPort>(() => {
+    // Each native comparison reserves a full bounded source buffer. Mounting
+    // several journal candidates at once must not exhaust the native budget
+    // and leave otherwise valid choices permanently unavailable.
+    let comparisons: Promise<unknown> = Promise.resolve();
+    return {
       ...ports.choices,
+      compare: (request) => {
+        const result = comparisons.then(() => ports.choices.compare(request));
+        comparisons = result.catch(() => undefined);
+        return result;
+      },
       recover: async (request) => {
         if (operationRef.current)
           throw new Error('Another writing action is pending');
         operationRef.current = true;
         try {
           return await sessionRef.current!.replaceFromNative(
-            async (current) => {
-              const preview = await ports.recovery.preview(request.selection);
+            async (current, prepare) => {
+              const preview = await ports.recovery.previewSelected({
+                identity: current.identity,
+                selection: request.selection,
+              });
+              const newVersion = Math.max(
+                request.newVersion,
+                current.version + 1,
+                preview.candidate.version + 1,
+              );
+              const replacement = await prepare(
+                preview.source,
+                newVersion,
+                preview.metadata.draftMetadata,
+              );
               const receipt = await ports.choices.recover({
                 ...request,
                 identity: current.identity,
                 expectedFingerprint: current.expectedFingerprint!,
-                newVersion: Math.max(
-                  request.newVersion,
-                  current.version + 1,
-                  preview.candidate.version + 1,
-                ),
+                newVersion,
+                replacementMetadata: replacement.draftMetadata,
               });
               return { source: preview.source, receipt };
             },
@@ -554,9 +653,8 @@ export function WritingView({
           refresh();
         }
       },
-    }),
-    [ports],
-  );
+    };
+  }, [ports]);
 
   // The editor and import hosts are keyed so React preserves their DOM across
   // phase changes. Unkeyed conditional trees unmounted ProseMirror's DOM out
@@ -620,7 +718,7 @@ export function WritingView({
         </button>
         <button
           type="button"
-          disabled={busy || !active || active.readOnly}
+          disabled={busy || !active}
           onClick={() =>
             session && void run(() => session.saveAs().then(reportOutcome))
           }

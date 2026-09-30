@@ -83,6 +83,8 @@ pub struct RestoreSnapshotRequest {
     pub current: CheckpointRequest,
     pub selection: SnapshotSelection,
     pub new_version: u64,
+    #[serde(default)]
+    pub replacement_metadata: Option<serde_json::Value>,
     pub expected_fingerprint: DiskFingerprint,
 }
 
@@ -106,6 +108,16 @@ pub enum StorageRelation {
 pub struct ExternalCopyRequest {
     pub checkpoint: CheckpointRequest,
     pub destination_token: String,
+    #[serde(default)]
+    pub format: CopyFormat,
+}
+
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub enum CopyFormat {
+    #[default]
+    Fountain,
+    DraftBundle,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
