@@ -27,6 +27,17 @@ import { TitlePagePanel } from './TitlePagePanel';
 import { FindPanel } from './FindPanel';
 import { FindController, type FindState } from '../application/find';
 import { highlightFind, navigateFind } from '../editor/find';
+import { ScriptCheckPanel } from './ScriptCheckPanel';
+import {
+  ScriptCheckController,
+  visibleIssues,
+  type CheckState,
+} from '../application/scriptCheck';
+import {
+  highlightCheckIssues,
+  navigateCheckIssue,
+} from '../editor/scriptCheck';
+import type { CheckIssue } from '../domain/scriptCheck';
 import { prepareEditorReplace, type ReplacePlan } from '../editor/replace';
 import { navigateOutline } from '../editor/outlineNavigation';
 import type { CapturedSnapshot } from '../application/persistenceController';
@@ -179,6 +190,16 @@ export function WritingView({
     selection: import('prosemirror-state').Selection;
   } | null>(null);
   const [findState, setFindState] = useState<FindState | null>(null);
+  const checkScrollRef = useRef<{
+    view: EditorView;
+    session: object;
+    version: number;
+    doc: import('prosemirror-model').Node;
+    selection: import('prosemirror-state').Selection;
+  } | null>(null);
+  const [checkState, setCheckState] = useState<CheckState | null>(null);
+  const [showCheck, setShowCheck] = useState(false);
+  const checkRef = useRef<ScriptCheckController | null>(null);
   const [replaceMessage, setReplaceMessage] = useState('');
   const replaceAdvanceRef = useRef<{
     query: string;
@@ -361,12 +382,31 @@ export function WritingView({
         );
     });
     findRef.current = find;
+    const check = new ScriptCheckController(stamp, (state) => {
+      if (!alive) return;
+      setCheckState(state);
+      const view = viewRef.current;
+      if (
+        view &&
+        !operationRef.current &&
+        !frozenRef.current &&
+        !titleDraftRef.current &&
+        !titleComposingRef.current
+      )
+        highlightCheckIssues(
+          view,
+          state.phase === 'current' ? state.projection : null,
+          visibleIssues(state),
+        );
+    });
+    checkRef.current = check;
     const projection = new ManuscriptProjectionController(stamp, (state) => {
       if (alive) setOutline(state);
       find.setProjection(
         state,
         viewRef.current?.state.selection.$head.index(0) ?? -1,
       );
+      check.setProjection(state);
     });
     let navigationCapture = false;
     const changed = (
@@ -800,6 +840,8 @@ export function WritingView({
         projection.dispose();
         find.dispose();
         findRef.current = null;
+        checkRef.current?.dispose();
+        checkRef.current = null;
         stop?.();
         popupRef.current?.destroy();
         viewRef.current?.destroy();
@@ -812,6 +854,8 @@ export function WritingView({
       projection.dispose();
       find.dispose();
       findRef.current = null;
+      checkRef.current?.dispose();
+      checkRef.current = null;
       popupRef.current?.destroy();
       viewRef.current?.destroy();
       session.dispose();
@@ -1152,6 +1196,84 @@ export function WritingView({
     }
   };
 
+  const closeCheck = () => {
+    setShowCheck(false);
+    const view = viewRef.current;
+    if (view && !view.isDestroyed) highlightCheckIssues(view, null, []);
+    if (view && !view.isDestroyed && !view.composing) {
+      view.dom.focus({ preventScroll: true });
+      view.focus();
+    }
+  };
+  const openCheck = () => {
+    if (
+      !checkRef.current ||
+      viewRef.current?.composing ||
+      titleDraftRef.current ||
+      titleComposingRef.current
+    )
+      return;
+    popupRef.current?.controller.dismiss();
+    // One panel owns the shared view-only decoration channel at a time;
+    // closing find clears its highlights before check paints its own.
+    findRef.current?.configure(findRef.current.state.options, false);
+    setShowCheck(true);
+  };
+  const navigateIssue = (issue: CheckIssue) => {
+    const view = viewRef.current;
+    const projection = checkRef.current?.state.projection;
+    if (
+      !view ||
+      !projection ||
+      view.composing ||
+      operationRef.current ||
+      frozenRef.current ||
+      !readyRef.current ||
+      showClose ||
+      titleDraftRef.current ||
+      titleComposingRef.current
+    )
+      return;
+    popupRef.current?.controller.dismiss();
+    if (!navigateCheckIssue(view, projection, issue)) {
+      setError(
+        'Issue navigation is unavailable for this version. Text and selection are retained.',
+      );
+      return;
+    }
+    checkScrollRef.current = {
+      view,
+      session: editorOrigin(view.state).session,
+      version: editorVersion(view.state),
+      doc: view.state.doc,
+      selection: view.state.selection,
+    };
+  };
+  useEffect(() => {
+    // Scroll once after the issue panel commits, mirroring find navigation.
+    const target = checkScrollRef.current;
+    const view = viewRef.current;
+    if (!target || !view || view.isDestroyed || target.view !== view) return;
+    checkScrollRef.current = null;
+    requestAnimationFrame(() => {
+      const current = target.view;
+      if (
+        current.isDestroyed ||
+        current.composing ||
+        operationRef.current ||
+        frozenRef.current ||
+        !current.hasFocus() ||
+        editorOrigin(current.state).session !== target.session ||
+        editorVersion(current.state) !== target.version ||
+        current.state.doc !== target.doc ||
+        !current.state.selection.eq(target.selection)
+      )
+        return;
+      current.dispatch(
+        current.state.tr.setMeta('addToHistory', false).scrollIntoView(),
+      );
+    });
+  }, [checkState]);
   const openFind = () => {
     if (
       !findRef.current ||
@@ -1161,6 +1283,7 @@ export function WritingView({
     )
       return;
     popupRef.current?.controller.dismiss();
+    closeCheck();
     findRef.current.configure(findRef.current.state.options, true);
     // Repeated Find focuses the existing query without replacing editor state.
     document
@@ -1303,6 +1426,15 @@ export function WritingView({
   // from under the live view, silently detaching the editor.
   const hosts = (
     <div key="writing-hosts">
+      {phase === 'active' && showCheck && checkRef.current && checkState && (
+        <ScriptCheckPanel
+          controller={checkRef.current}
+          state={checkState}
+          disabled={busy || showClose}
+          onNavigate={navigateIssue}
+          onClose={closeCheck}
+        />
+      )}
       {phase === 'active' && findState?.enabled && findRef.current && (
         <FindPanel
           controller={findRef.current}
@@ -1510,6 +1642,15 @@ export function WritingView({
           onClick={openFind}
         >
           Find
+        </button>
+        <button
+          type="button"
+          id="writing-check"
+          aria-expanded={showCheck}
+          disabled={busy || !active || showClose}
+          onClick={openCheck}
+        >
+          Script Check
         </button>
         <button
           id="writing-title"

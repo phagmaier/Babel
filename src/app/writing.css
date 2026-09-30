@@ -93,6 +93,16 @@
   background: #e6d681;
   color: #17271b;
 }
+.check-highlight {
+  border-bottom: 2px dotted #8a6d1a;
+}
+.check-warning {
+  background: #f2e7c4;
+  color: #17271b;
+}
+.check-advisory {
+  background: transparent;
+}
 .find-active {
   outline: 2px solid #365f3e;
 }

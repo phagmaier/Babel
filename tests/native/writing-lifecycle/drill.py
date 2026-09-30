@@ -239,6 +239,10 @@ try:
         from replace_workflows import run_smoke as run_replace_smoke
         run_replace_smoke(sys.modules[__name__])
         sys.exit(0)
+    if '--script-check' in sys.argv:
+        from scriptcheck_workflows import run as run_check
+        run_check(sys.modules[__name__])
+        sys.exit(0)
     if '--title-page' in sys.argv:
         from title_page import run as run_title
         run_title(sys.modules[__name__])
