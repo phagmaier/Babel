@@ -1,20 +1,22 @@
-# Current state — bounded Linux M3 core-editor exit passed
+# Current state — M4-00 decomposed; implementation remains open
 
 Date: 2026-09-29 PDT. Application: **babel**. Authority: [SPEC](../SPEC.md), [TODO](../TODO.md), [index](index.md).
 
 ## Task and work
 
-**M3-13 complete.** The owner authorized audit corrections and continued native verification. One editing agent on main from `3194795`, initially clean; no push authorized. Fresh full default-app integration and a separate source re-review close the bounded Linux M3 gate. This is a separate pass by the same agent, not a second-reviewer claim. This task changes documentation only; the seven bounded correction tasks remain in `3194795`.
+**M4-00 complete — documentation acceptance only.** One editing agent on main from `97e1798`, initially clean; no push authorized. The owner requested decomposition only. M3-13 is complete with the bounded Linux gate tagged `m3-core-editor-linux-verified`.
 
-[Corrected re-review](reviews/2026-09-29-m3-13-rereview.md) verifies sole editor authority, immediate version-bound protection facts, source preservation, cadence drain, full/selected recovery, replacement metadata, Save As rollback, destination retirement and native privilege/egress/resource boundaries. No additional confirmed M3 blocking issue was found. Historical defects and failed attempts remain recorded.
+[M4-01–15 briefs](../TODO.md#m4--professional-daily-workflows) and [refined trace](requirements.md#m4-decomposition-coverage-planned) cover native recents/home/recovery, versioned outline and protected moves, title form, logical find/replace, checks, themes/zoom/focus/typewriter, offline spellcheck proof/activation, characters/counts/position, palette/native menus/accessibility and integrated native exit. All implementation tasks remain open. Large moves require exact-version safety protection; production SC005/SC008 assessment remains M5, avoiding a circular dependency. Failed spellcheck proof blocks M4-12/15.
+
+Changed paths: `TODO.md`, `docs/tasks/M4-00–15.md`, `docs/requirements.md`, `docs/index.md`, this state and `docs/test-evidence/M4.md`. No production code, fixture, dependency, configuration or SPEC change. Shared editor/lifecycle paths remain sequentially owned by one editing agent.
 
 ## Verification
 
-[Fresh M3-13 evidence](test-evidence/M3.md#m3-13--corrected-integrated-exit-re-review) owns exact commands, host, artifacts and limits. Shared checks pass 494 frontend tests, formatting/lint/typecheck/build, browser smoke, Rust fmt/clippy and default release rebuild. Native workspace safety matrix passes 200 tests per filesystem, with MockRuntime distinguished from actual native UI. The rebuilt default binary is byte-identical to the one used for the full native runs.
+[M4 evidence](test-evidence/M4.md#m4-00--decomposition) owns exact documentation commands/host/results: repository formatting, local links/anchors, all task fields, 25 trace mappings, acyclic dependencies/readiness, unchanged unrelated trace rows, docs-only scope and final whitespace checks passed. No executable/native tests run for decomposition; future commands in briefs are planned, not passed checks.
 
-Actual default WebKit/GTK tmpfs and Btrfs runs pass 21 source cases, eight edit/Undo audits, 85 trusted clipboard/key/composition events each, real pinyin/mozc, completion/caret, read-only Save As, unsaved acknowledged-checkpoint restart/resume, managed recovery/Keep/Save, snapshot restore/immediate Save/Undo, source/history failures and external divergence with exact emergency copy. Both runners exited 0; native drills are finished and the desktop is available normally. Independent retained-file/bundle inspection also passes.
+[Prior M3-13 evidence](test-evidence/M3.md#m3-13--corrected-integrated-exit-re-review) and [re-review](reviews/2026-09-29-m3-13-rereview.md) retain passed 494 frontend tests, 200 Rust tests per filesystem, default WebKit/GTK input/IME/source/Undo/Save As/recovery/failure drills on tmpfs/Btrfs and shared build checks. These are prerequisite results, not new M4 verification.
 
-[Correction evidence](test-evidence/M3.md#repository-audit-corrections) retains the unchanged-implementation bundle and complete 120-key timing gates: exact saved bytes, rAF proxy p95 49/43 ms and max 74/47 ms. These are earlier correction runs, not fresh timing claims or full S13 paint/page acceptance.
+[Correction evidence](test-evidence/M3.md#repository-audit-corrections) retains exact bytes and earlier 120-key rAF proxy timings. Actual compositor/page/full S13 acceptance remains open.
 
 ## Remaining concerns and next action
 
@@ -22,4 +24,4 @@ RustSec flags transitive GLib unsound-iterator and unmaintained macro warnings; 
 
 Full compositor paint/page calibration, long-session heap/DOM/catalog scaling, actual disk-full/power loss, other platforms/filesystems, installed/offline package, backup/migration and owner pilot remain open. M4 workflows, M5 PDF, production history and remote transfer remain future work; Local v1 is unverified.
 
-**Stop at the M3 boundary. Next: create a bounded M4-00 decomposition and refine the trace before implementing M4.** Completion uses a local main commit and a tag for the verified bounded Linux M3 gate; no push or publication. No implementation/dependency/lockfile/fixture change was needed in this re-review.
+**Stop after M4-00. Next: [M4-01 native recents/missing-file selection](tasks/M4-01.md)**; read its contracts and [M4 verification policy](tasks/M4-00.md#verification-policy-for-m4-implementation-tasks). M4-03/04/06/11 are also dependency-ready after decomposition; proceed sequentially unless concurrency is explicitly requested. M4-15 requires every M4 task plus separate safety review. Completion uses a local main commit; no new milestone tag, push or publication.

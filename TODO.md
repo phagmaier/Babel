@@ -1,6 +1,6 @@
 # Dependency-ordered tasks
 
-Authority: [SPEC S02/S03/S16/S18](SPEC.md#s16). `[x]` requires evidence; `[ ]` is open even when files exist. Each task names its gate and planned verification. M1–M3 are decomposed; M4–M7 groups must be decomposed into bounded tasks before implementation. No M1 investigation begins during M0. Evidence lands in `docs/test-evidence/M*.md`, one file per milestone.
+Authority: [SPEC S02/S03/S16/S18](SPEC.md#s16). `[x]` requires evidence; `[ ]` is open even when files exist. Each task names its gate and planned verification. M1–M4 are decomposed; M5–M7 groups must be decomposed into bounded tasks before implementation. No M1 investigation begins during M0. Evidence lands in `docs/test-evidence/M*.md`, one file per milestone.
 
 Open tasks have detailed briefs in `docs/tasks/`. Completed tasks link to evidence.
 
@@ -63,18 +63,40 @@ M2 headless Linux exit passed. This is a bounded headless foundation; no Local-v
 
 ### M3 verification and boundary
 
-The bounded Linux M3 exit passed. Next planning task: create **M4-00** with bounded tasks and a refined trace before implementing M4. Full S13, native-stack hardening and Local v1 adoption remain open; see the corrected re-review above.
+The bounded Linux M3 exit passed. **M4-00** decomposes the next milestone below. Full S13, native-stack hardening and Local v1 adoption remain open; see the corrected re-review above.
 
 Planned commands: per-task focused `pnpm exec vitest run <owned-test-paths>` and relevant `cargo test -p screenwriter-core <owned-test-filter>`/host command tests, then `pnpm check`, `pnpm test:browser`, `cargo fmt --all -- --check`, `cargo clippy --workspace --all-targets -- -D warnings`, `cargo test --workspace`, and relevant `pnpm tauri build`/`pnpm tauri dev` native interaction. Implementing tasks must establish exact focused commands in docs/development.md and record them once in [M3 evidence](docs/test-evidence/M3.md), with native/mocked labels and skipped/blocked gates. Filesystem publication/recovery/identity/lease/metadata changes require the tmpfs/Btrfs matrix; pure codec/envelope/state tests do not. Shared/milestone gates cannot be replaced by focused tests. Finish with `git diff --check`.
 
-## M4–M7 — gated task groups (decompose before starting)
+## M4 — professional daily workflows
 
-Each `M*-G` group requires a prior `M*-00` decomposition with refined requirement trace before implementation. Create M4-00–M7-00 when dependencies near completion. Owner decision required before M6 implementation: declare Tier 1 OS/arch targets and record them in docs/development.md; M1-02 remains the performance hardware baseline.
+Prerequisite: [corrected M3-13 bounded Linux exit](docs/test-evidence/M3.md#m3-13--corrected-integrated-exit-re-review), locally tagged `m3-core-editor-linux-verified` at `97e1798`. [M4-00 brief](docs/tasks/M4-00.md) owns implementation verification policy; [M4 trace](docs/requirements.md#m4-decomposition-coverage-planned) maps requirement owners. All implementation tasks remain open. Read each linked brief for owned paths, requirements/invariants, acceptance, focused/shared/native checks and exclusions.
+
+- [x] **M4-00 Decomposition** — Deps: corrected M3-13. Bounded task/trace and docs/link/dependency/coverage checks passed. [Brief](docs/tasks/M4-00.md); [evidence](docs/test-evidence/M4.md#m4-00--decomposition).
+- [ ] **M4-01 Native recents and missing-file selection** — Deps: M4-00, completed M3 entry/identity gates. Gate: bounded registry, safe locate/remove/Save As/restart and metadata failures on tmpfs/Btrfs. [Brief](docs/tasks/M4-01.md).
+- [ ] **M4-02 Home and recovery workflows** — Deps: M4-01, completed M3 lifecycle. Gate: native New/Open/Recent/Locate/Remove/recovery and protected switching without developer tools. [Brief](docs/tasks/M4-02.md).
+- [ ] **M4-03 Manuscript index and outline navigation** — Deps: M4-00, completed M3 model/capture gates. Gate: versioned hierarchy/attachments/logical text, exact non-editing navigation and bounded latency. [Brief](docs/tasks/M4-03.md).
+- [ ] **M4-04 Destructive-workflow protection** — Deps: M4-00, completed M2-06/M3 protection gates. Gate: narrow exact-version recovery/safety-ref receipt and history/stale/failure isolation on tmpfs/Btrfs. [Brief](docs/tasks/M4-04.md).
+- [ ] **M4-05 Scene/section moves** — Deps: M4-03/04. Gate: attachment preview, drag/keyboard parity, large-move protection, exact source/selection and one-step Undo. [Brief](docs/tasks/M4-05.md).
+- [ ] **M4-06 Title-page form** — Deps: M4-00, completed M3 source/Undo/lifecycle gates. Gate: standard/unknown/duplicate/multiline fields, staged-input protection and exact no-op/edit/Undo/save. [Brief](docs/tasks/M4-06.md).
+- [ ] **M4-07 Find and hidden navigation** — Deps: M4-03/06. Gate: logical text, full/scene scope, case/whole-word, hidden filters/reveal, bounded current results. [Brief](docs/tasks/M4-07.md).
+- [ ] **M4-08 Replace one/all** — Deps: M4-07, completed M3 protection. Gate: current-version preview/count, atomic source/mark-preserving replacement and one-step Undo. [Brief](docs/tasks/M4-08.md).
+- [ ] **M4-09 Script Check** — Deps: M4-03/06/07. Gate: stable non-destructive rules/severities, false-positive/stale/navigation checks; production SC005/SC008 assessment remains M5. [Brief](docs/tasks/M4-09.md).
+- [ ] **M4-10 Presentation modes** — Deps: M4-02/03, completed M3 input. Gate: light/dark/zoom/focus/typewriter preferences, persistent errors and native caret/IME/scroll fidelity. [Brief](docs/tasks/M4-10.md).
+- [ ] **M4-11 Offline spellcheck proof** — Deps: M4-00, completed M3 native input. Gate: tested native languages/suggestions/ignore/add/Undo, resource/license evidence and bounded ADR decision. [Brief](docs/tasks/M4-11.md).
+- [ ] **M4-12 Production spellcheck** — Deps: successful M4-11, M4-03/10. Gate: offline language/name/ignore/add/correction with exact Undo, failure isolation and default-release resources. [Brief](docs/tasks/M4-12.md).
+- [ ] **M4-13 Characters/counts/recent position** — Deps: M4-01/03/06/10. Gate: documented inclusion rules, non-editing focus and hash/identity-safe caret/scroll restart. [Brief](docs/tasks/M4-13.md).
+- [ ] **M4-14 Palette/menus/accessibility** — Deps: M4-02/05/06/08/09/10/12/13. Gate: shared remappable command availability, native keyboard/menu/palette/focus/scaling and honest assistive-technology coverage. [Brief](docs/tasks/M4-14.md).
+- [ ] **M4-15 Integrated exit and separate safety review** — Deps: accepted M4-01–14. Gate: realistic default native drafting/editing/failure/restart session on tmpfs/Btrfs, full shared checks, exact source/Undo audits and separate post-integration review. [Brief](docs/tasks/M4-15.md).
+
+Recommended next: **M4-01**. M4-03/04/06/11 are also dependency-ready after decomposition; one editing agent proceeds sequentially, preserving shared editor/lifecycle ownership. An unsuccessful spellcheck proof blocks M4-12/15. M4 does not require the M5 production renderer and does not claim full S13 or Local v1 adoption.
+
+## M5–M7 — gated task groups (decompose before starting)
+
+Each `M*-G` group requires a prior `M*-00` decomposition with refined requirement trace before implementation. Create M5-00–M7-00 when dependencies near completion. Owner decision required before M6 implementation: declare Tier 1 OS/arch targets and record them in docs/development.md; M1-02 remains the performance hardware baseline.
 
 Carry [M3 re-review C1](docs/reviews/2026-09-29-m3-13-rereview.md#c1--recurring-webkit-child-heap-abort-at-forced-shutdown) into native hardening before adoption: recurring owned WebKit heap abort during deliberate parent SIGKILL, exact cause and ordinary-close impact unresolved. Transitive advisory warnings and full performance/platform gaps remain in that review.
 
-- [ ] **M4-G Daily workflows** — Deps: M3 gate. Reqs: APP-02, NAV-01–03, CHECK-01/02, UX-01–03. Read: SPEC S08/S09/S14; docs/ux.md/screenplay-validation.md.
-- [ ] **M5-G Publication** — Deps: M1 PDF proof, M3 source gate, M4 UX gate. Reqs: PDF-01–04. Read: SPEC S12; docs/pdf-and-formatting.md.
+- [ ] **M5-G Publication** — Deps: M1 PDF proof, M3 source gate, M4-15 UX gate. Reqs: PDF-01–04, CHECK-02 production SC005/SC008 assessment. Read: SPEC S09/S12; docs/pdf-and-formatting.md and M4-09. Gate includes verified renderer/profile/font diagnostics connected to Script Check before any successful export claim.
 - [ ] **M6-G Local history, hardening, adoption** — Deps: M2 history gate, M4/M5 gates. Reqs: HIST-01/02, SAVE-04/05, QA-01–03, SEC-01/02, APP-01. Read: SPEC S11/S14/S15; docs/testing.md.
 - [ ] **M7-G Explicit remote extension** — Deps: M6 local adoption gate and owner privacy/destination decision. Reqs: SYNC-01–05, INV-07/09/15. Read: SPEC S11; docs/sync-and-versioning.md.
 
