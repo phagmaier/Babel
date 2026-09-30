@@ -210,3 +210,11 @@ no frontend path/capability, network or live-editor owner is added.
 identity policy. [M4-01 evidence](test-evidence/M4.md#m4-01--native-recents-and-missing-file-selection)
 records bounded native verification. The adapter is available for M4-02 Home
 integration; M4-01 does not add Home controls.
+
+M4-02's `Home` and `RecentController` present the native registry without reading
+manuscript contents. Locate is advisory until explicit native confirmation.
+Entry loaders are adopted by the existing `WritingSession`; abandoned responses
+release registrations. Protected close/release gates Home return. New with a
+destination uses the existing recovery-first Save As identity/publication path,
+while cancellation retains the unsaved draft. No new native endpoint, dependency
+or content authority is introduced.

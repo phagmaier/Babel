@@ -519,3 +519,109 @@ describe('M3-12 writing surface', () => {
     expect(staged.value).toBe('INT. RETAINED IMPORT - DAY');
   });
 });
+
+describe('M4-02 Home entry and switching', () => {
+  it('protects an unsaved New immediately and retains it after destination cancel', async () => {
+    const f = fixturePorts({});
+    const destination = vi.spyOn(f.ports.saveAs, 'selectDestination');
+    render(
+      <WritingView
+        ports={f.ports}
+        open={{ kind: 'new', destination: true }}
+        onSessionClosed={vi.fn()}
+      />,
+    );
+    await screen.findByText(/Destination cancelled/);
+    expect(destination).toHaveBeenCalledTimes(1);
+    expect(f.calls.checkpoint).toBeGreaterThan(0);
+    expect(screen.getByRole('button', { name: 'Protect draft' })).toBeTruthy();
+    expect(f.calls.released).toBe(0);
+  });
+  it('retains an active new draft when destination publication fails', async () => {
+    const f = fixturePorts({});
+    f.ports.saveAs.selectDestination = async () => {
+      throw { code: 'permissionDenied' };
+    };
+    render(
+      <WritingView
+        ports={f.ports}
+        open={{ kind: 'new', destination: true }}
+        onSessionClosed={vi.fn()}
+      />,
+    );
+    await screen.findByText(/The new draft stays open/);
+    expect(
+      within(screen.getByLabelText('Screenplay actions')).getByRole('button', {
+        name: 'Save As',
+      }),
+    ).toBeTruthy();
+    expect(f.calls.released).toBe(0);
+  });
+  it('returns Home only after native protection and release; failure retains editor', async () => {
+    const f = fixturePorts({});
+    const closed = vi.fn();
+    render(
+      <WritingView
+        ports={f.ports}
+        open={{ kind: 'new' }}
+        onSessionClosed={closed}
+      />,
+    );
+    await screen.findByText(/Unsaved draft protected/);
+    f.ports.documents.checkpoint = async () => {
+      throw { code: 'io' };
+    };
+    const editor = document.querySelector('.ProseMirror')!;
+    // Native release failure independently blocks a seemingly protected switch.
+    f.ports.documents.release = async () => {
+      throw { code: 'io' };
+    };
+    fireEvent.click(screen.getByRole('button', { name: 'Home' }));
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Retry save and close' }),
+    );
+    await screen.findByText(/Close stopped\./);
+    expect(closed).not.toHaveBeenCalled();
+    expect(document.querySelector('.ProseMirror')).toBe(editor);
+  });
+  it('opens recents through the session and shows registry attention without losing read-only access', async () => {
+    const f = fixturePorts({});
+    const recents = {
+      list: vi.fn(),
+      locate: vi.fn(),
+      remove: vi.fn(),
+      confirmLocation: vi.fn(),
+      open: vi.fn(async () => ({
+        document: {
+          ...opened(),
+          ownership: {
+            status: 'viewOnly' as const,
+            reasons: ['alreadyOwned' as const],
+          },
+        },
+        registryHealth: 'needsAttention' as const,
+      })),
+    };
+    render(
+      <WritingView
+        ports={f.ports}
+        recents={recents}
+        open={{ kind: 'recent', entryId: 'entry' }}
+        onSessionClosed={vi.fn()}
+      />,
+    );
+    await screen.findByText(/Recent metadata needs attention/);
+    expect(recents.open).toHaveBeenCalledWith('entry');
+    expect(
+      screen.getByText(/Save As can preserve a separate copy/),
+    ).toBeTruthy();
+    expect(
+      (
+        within(screen.getByLabelText('Screenplay actions')).getByRole(
+          'button',
+          { name: 'Save' },
+        ) as HTMLButtonElement
+      ).disabled,
+    ).toBe(true);
+  });
+});

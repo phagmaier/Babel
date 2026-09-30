@@ -349,4 +349,23 @@ mapping before updating `sourceFilename`; ordinary open still never guesses a
 rename. Fresh sessions reuse the document identity while recovery/history stay
 independent. [M4-01 evidence](test-evidence/M4.md#m4-01--native-recents-and-missing-file-selection)
 separates native filesystem/default WebKit drills from mocked dispatch/contracts.
-Home presentation and protected switching remain M4-02.
+M4-02 presents these controls through the protected writing lifecycle.
+
+## M4-02 Home entry protection
+
+The Home controller only lists/removes recent metadata and stages native Locate
+selections. Confirm/open run through WritingSession adoption, retaining its
+full-byte source, ownership, recovery inspection and abandoned-open release
+checks. No frontend path or alternate persistence authority is introduced.
+Home entry is unmounted during opening/writing; returning Home requires the
+existing protected close and exact native release. A failed switch preserves
+the active editor and every disk generation.
+
+Both New routes attempt an initial checkpoint before the writing actions become
+available. Destination-backed New publishes through existing Save As; its
+cancel/failure leaves an unsaved draft, never a guessed source-save receipt.
+Resume and selected-source Recover/Keep/Copy retain the existing explicit native
+revalidation contract, including bytes beyond truncated previews. Original
+checkpoints remain discoverable after resume and recent removal. Local recovery
+is not independent backup. [M4-02 evidence](test-evidence/M4.md#m4-02--home-and-recovery-workflows)
+owns native exact-byte and failed-switch validation.

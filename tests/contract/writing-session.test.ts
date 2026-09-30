@@ -847,3 +847,41 @@ describe('M3-12 writing session lifecycle', () => {
     session.dispose();
   });
 });
+
+describe('M4-02 selected native entry', () => {
+  it('releases a delayed registration after its session was disposed', async () => {
+    const f = ports();
+    const editor = new FakeEditor();
+    const session = new WritingSession(f.ports, editor, fakeClock());
+    let finish!: (value: OpenDocument) => void;
+    const pending = session.openSelected(
+      () =>
+        new Promise((resolve) => {
+          finish = resolve;
+        }),
+    );
+    session.dispose();
+    finish(opened());
+    await pending;
+    expect(f.documents.released).toEqual([opened().identity]);
+    expect(editor.loaded).toEqual([]);
+    expect(session.active).toBeNull();
+  });
+  it('retains read-only ownership and refuses selection over a live session', async () => {
+    const f = ports();
+    const editor = new FakeEditor();
+    const session = new WritingSession(f.ports, editor, fakeClock());
+    await session.openSelected(async () => ({
+      ...opened(),
+      ownership: { status: 'viewOnly', reasons: ['alreadyOwned'] },
+    }));
+    expect(session.active?.readOnly).toBe(true);
+    expect(editor.writable).toBe(false);
+    const load = vi.fn(async () => opened());
+    await expect(session.openSelected(load)).rejects.toThrow(
+      'Close the current session first',
+    );
+    expect(load).not.toHaveBeenCalled();
+    session.dispose();
+  });
+});

@@ -51,6 +51,12 @@ import { SnapshotPanel } from './SnapshotPanel';
 import { createFountainImportPanel } from './FountainImportPanel';
 import type { CheckpointRequest } from '../application/documents';
 
+import type {
+  RecentProjectsPort,
+  LocateSelection,
+  LocateChoice,
+} from '../application/recentProjects';
+
 export interface WritingPorts {
   entry: DocumentEntryPort;
   documents: DocumentPort;
@@ -62,7 +68,9 @@ export interface WritingPorts {
 }
 
 export type OpenRequest =
-  | { kind: 'new' }
+  | { kind: 'new'; destination?: boolean }
+  | { kind: 'recent'; entryId: string }
+  | { kind: 'located'; selection: LocateSelection; choice: LocateChoice }
   | { kind: 'picked' }
   | {
       kind: 'recovered';
@@ -123,10 +131,12 @@ export function WritingView({
   open,
   onSessionClosed,
   onOpenRequested,
+  recents,
 }: {
   ports: WritingPorts;
+  recents?: RecentProjectsPort;
   open: OpenRequest;
-  onSessionClosed: () => void;
+  onSessionClosed: (message?: string) => void;
   onOpenRequested?: () => void;
 }) {
   const registry = useMemo(
@@ -407,8 +417,27 @@ export function WritingView({
         if (open.kind === 'new') await session.openNew();
         else if (open.kind === 'recovered')
           await session.openRecovery(open.selection);
-        else if (!(await session.openPicked())) {
-          if (alive) onSessionClosed();
+        else if (open.kind === 'recent' || open.kind === 'located') {
+          if (!recents)
+            throw new Error(
+              'Recent screenplays are unavailable. Use Open Fountain.',
+            );
+          await session.openSelected(async () => {
+            const result =
+              open.kind === 'recent'
+                ? await recents.open(open.entryId)
+                : await recents.confirmLocation(open.selection, open.choice);
+            if (alive && result.registryHealth === 'needsAttention')
+              setError(
+                'Recent metadata needs attention. The screenplay is open; source saving and recovery remain separate.',
+              );
+            return result.document;
+          });
+        } else if (!(await session.openPicked())) {
+          if (alive)
+            onSessionClosed(
+              'Open cancelled. No screenplay was opened; source and recovery files are unchanged.',
+            );
           return;
         }
         if (!alive) {
@@ -417,12 +446,50 @@ export function WritingView({
           await session.abandon();
           return;
         }
+        if (open.kind === 'new') {
+          operationRef.current = true;
+          setBusy(true);
+          try {
+            const protection = await session.save();
+            if (alive)
+              setError(
+                protection.recovered
+                  ? `Unsaved draft protected by local recovery at initial version ${session.active!.liveVersion}. Newer edits need their own confirmation. No source file has been created.`
+                  : 'Unsaved draft protection is unconfirmed. Keep this session open and retry Protect draft.',
+              );
+            if (alive && open.destination) {
+              const outcome = await session.saveAs();
+              if (alive) {
+                setError(
+                  outcome.status === 'cancelled'
+                    ? 'Destination cancelled. Your draft remains open; local recovery and source saving are separate. No source file was created.'
+                    : 'New screenplay published to the chosen destination.',
+                );
+                setCopyDestination(null);
+              }
+            }
+          } catch (failure) {
+            if (alive)
+              setError(
+                'The new draft stays open. Destination or protection could not be confirmed. Retry Protect draft or Save As. ' +
+                  writingFailureMessage(failure),
+              );
+          } finally {
+            operationRef.current = false;
+            if (alive) {
+              setBusy(false);
+              refresh();
+            }
+          }
+        }
+        if (!alive || !session.active) return;
         refresh();
         readyRef.current = true;
         viewRef.current?.setProps({});
         setPhase('active');
+
         void ports.recovery
-          .inspect(session.active!.identity)
+          .inspect(session.active.identity)
           .then((entry) => {
             if (!alive) return;
             const id = session.active?.identity.documentId;
@@ -436,7 +503,7 @@ export function WritingView({
           setError(
             failure instanceof Error
               ? failure.message
-              : 'Could not open the screenplay',
+              : 'Could not open the screenplay. The selected file may be missing, changed or unavailable. Return Home and use Locate or Open Fountain.',
           );
           setPhase('failed');
         }
@@ -676,7 +743,7 @@ export function WritingView({
     return (
       <main className="shell writing">
         <p role="alert">{error || 'Could not open the screenplay.'}</p>
-        <button type="button" onClick={onSessionClosed}>
+        <button type="button" onClick={() => onSessionClosed()}>
           Back
         </button>
         {hosts}
@@ -704,7 +771,12 @@ export function WritingView({
         F6 moves focus from the editor to screenplay actions. Tab then moves
         between controls.
       </p>
-      {active?.readOnly && <p role="alert">{active.readOnlyReason}</p>}
+      {active?.readOnly && (
+        <p role="alert">
+          {active.readOnlyReason} Save As can preserve a separate copy without
+          changing this source.
+        </p>
+      )}
       <div className="actions" aria-label="Screenplay actions">
         <button
           id="writing-save"
@@ -758,6 +830,16 @@ export function WritingView({
           onClick={() => setShowClose(true)}
         >
           Close session
+        </button>
+        <button
+          type="button"
+          disabled={busy || !active}
+          onClick={() => {
+            pendingSwitchRef.current = false;
+            setShowClose(true);
+          }}
+        >
+          Home
         </button>
       </div>
       {view && (

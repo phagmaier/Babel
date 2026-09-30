@@ -118,3 +118,14 @@ Btrfs target root. Build the default production binary with
 build on this host loaded the development URL and is not native production
 verification. [M4 evidence](test-evidence/M4.md#m4-01--native-recents-and-missing-file-selection)
 owns exact commands/results and failure attempts. Shared checks remain mandatory.
+
+M4-02 focused checks: `pnpm exec vitest run tests/ui/Home.test.tsx tests/ui/App.test.tsx tests/ui/WritingView.test.tsx tests/contract/document-entry.test.ts tests/contract/writing-session.test.ts`.
+Build the default release with `CARGO_HOME=/tmp/babel-cargo pnpm tauri build --no-bundle`;
+run `python3 tests/native/writing-lifecycle/drill.py /tmp --home` and
+`python3 tests/native/writing-lifecycle/drill.py /home/phagmaier/Code/babel/target --home`
+sequentially, without concurrent builds/tests when measuring Home. This
+[Home drill](../tests/native/writing-lifecycle/README.md#m4-02-native-home-workflows)
+uses visible production controls and actual GTK pickers, with independent literal
+source/checkpoint/copy byte oracles. Shared checks and the existing filesystem
+workspace matrix remain required. [M4 evidence](test-evidence/M4.md#m4-02--home-and-recovery-workflows)
+records outcomes and warm-measurement limits.

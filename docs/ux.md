@@ -1,8 +1,8 @@
 # UX and accessibility
 
-Status: M3-12 production writing lifecycle plus local startup recovery review and explicit native recovery choices. [SPEC S08/S14](../SPEC.md#s08); APP-02, NAV-01–03, UX-01–03, SEC-01, INV-10.
+Status: M4-02 Home workflows over the M3 protected writing lifecycle and M4-01 native recents. [SPEC S08/S14](../SPEC.md#s08); APP-02, NAV-01–03, UX-01–03, SEC-01, INV-10.
 
-The default native home offers New, Open Fountain and local recovery review, including explicit Resume as new draft. The browser preview reports native unavailability. M4-01 supplies the native recent/missing-file service; its Home presentation remains M4-02. New/Open and recovery remain distinct. Remove from Recents cannot delete source. Project creation asks for a destination or explicitly creates a recoverable unsaved draft.
+The default native home offers New, Open Fountain and local recovery review, including explicit Resume as new draft. The browser preview reports native unavailability. Home presents M4-01 native recents, metadata-only Remove, Refresh and explicit Locate/link/different choices. New/Open and recovery remain distinct. Remove from Recents cannot delete source. Project creation asks for a destination or explicitly creates a recoverable unsaved draft.
 
 The future writing view is continuous, with title, optional scene/section outline, element picker, writing area, and status. Status must distinguish live dirty version, recovery protection, source-file saved version, page-count freshness, and remote last-check state. Never infer "saved" or "up to date" from a queued job or old check. Search includes hidden author text with explicit filters; replace-all and scene moves are reversible, have keyboard equivalents, and preserve structure. Script Check is a separate, non-destructive panel. Read-only PDF preview is the printed-page authority.
 
@@ -67,7 +67,7 @@ M3-08 adds a staged [Import Fountain panel](../src/app/FountainImportPanel.ts) w
 The default native app now offers New recoverable draft and Open Fountain.
 One writing session connects editor, source Save, native Save As, Fountain copy,
 recovery choices, snapshots and protected close. The browser preview has no
-native services. Home/recents, navigation, title-page form and other M4 features
+native services. Home/recents now land in M4-02; navigation, title-page form and other M4 features
 remain open.
 
 F6 leaves the editor for enabled screenplay actions, and ordinary Tab navigates
@@ -91,3 +91,41 @@ Native default-build and injected UI evidence is linked from
 [M3-12](test-evidence/M3.md#m3-12--production-writing-lifecycle-and-failure-ui).
 
 The [M3-13 review](reviews/2026-09-29-m3-13-review.md) identified stale protection facts, uncapturable-draft copy refusal, unsaved restart recovery without a resume route, and read-only Save As refusal. The [audit corrections](test-evidence/M3.md#repository-audit-corrections) add immediate live-version status, an explicitly labeled draft bundle when Fountain capture fails, Resume as new draft with original checkpoints retained, and native Save As from read-only views. Their bounded validation is recorded separately from the original review. An independent integrated exit review remains required.
+
+## M4-02 Home, entry and recovery
+
+Home reads recent metadata and local recovery asynchronously; pending/failed
+recents never prevent New/Open. It does not scan manuscripts for titles, page
+counts or remote state. Filename fallback titles are literal and native-bounded; last known local modification is shown from native metadata. Missing
+entries disable Open and expose Locate; unknown availability allows native
+revalidation. Refresh retires prior comparisons. Locate opens a native picker,
+then shows identity and last-known-byte comparison separately. Link moved is
+explicit and unavailable when native checks refuse it; Open as different retains
+the prior entry/recovery and can open read-only. Cancel changes no mapping.
+Remove deletes auxiliary metadata only, with retained-source/recovery wording.
+Failures show fixed messages, never arbitrary native transport text.
+
+New screenplay explicitly creates an unsaved draft and immediately attempts a
+confirmed local checkpoint, including for an empty draft. New with destination
+uses the same draft protection and native Save As publication. Cancellation or
+failure leaves that draft open with truthful recovery/source wording and retry
+controls; a checkpoint is never labeled a source save or separate backup.
+Opening controls wait for initial capture/protection to settle. Source-ownership
+refusal opens read-only and points to Save As for a writable copy.
+
+Home in the writing actions invokes existing protected close and lease release.
+Only completed release returns to Home; source/recovery/lease failure preserves
+the editor and retry/copy/risk controls. Open while writing keeps the same close
+gate. Home entry choices are serialized by the mounted route; stale native opens
+release their returned registration instead of switching a newer session. Late
+catalog, locate and recovery inspection responses cannot update a retired Home.
+New/Open/Recent/Locate/Remove/confirmation use semantic buttons and visible focus;
+Home starts focus at New, and F6 still reaches the existing writing save action.
+
+Recovery remains an explicit full-byte native choice. The displayed preview is
+bounded, while Resume revalidates and checkpoints the complete selected bytes
+under a fresh identity, retaining the original. Selected source recovery keeps
+Recover as Current, Keep Current File and Save Recovered Copy; matching bytes do
+not silently reconcile older-session recovery. Native tmpfs/Btrfs and injected
+UI coverage, actual warm Home observations and accessibility limits live in
+[M4-02 evidence](test-evidence/M4.md#m4-02--home-and-recovery-workflows).

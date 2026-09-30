@@ -207,6 +207,7 @@ export function RecoveryReview({
                   {onResume && (
                     <button
                       type="button"
+                      aria-label={`Resume as new draft · ${originNames[candidate.selection.origin]} generation ${candidate.generation}, version ${candidate.version}`}
                       onClick={() => onResume({ ...candidate.selection })}
                     >
                       Resume as new draft

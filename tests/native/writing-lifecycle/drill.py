@@ -30,6 +30,7 @@ DRIVER_LOG = (ROOT / 'webdriver.log').open('w')
 DRIVER = subprocess.Popen(['WebKitWebDriver', f'--port={PORT}'], env=ENV,
                           stdout=DRIVER_LOG, stderr=DRIVER_LOG)
 SESSION = None
+SESSION_STARTED = None
 
 
 def request(method, path, payload=None):
@@ -201,7 +202,8 @@ def journal_records():
 
 
 def new_session():
-    global SESSION
+    global SESSION, SESSION_STARTED
+    SESSION_STARTED = time.monotonic()
     created = request('POST', '/session', {'capabilities': {'alwaysMatch': {
         'webkitgtk:browserOptions': {'binary': os.environ.get('BABEL_NATIVE_BINARY', str(REPO / 'target/release/babel-desktop')), 'args': []}}}})
     SESSION = created['sessionId']
@@ -221,6 +223,10 @@ try:
       fetch('http://localhost:5173/__babel_audit_probe').catch(()=>{});""")
     wait(lambda:script("return window.auditBlocked.some(e=>e.uri.startsWith('http://localhost:5173') && e.directive==='connect-src');"),'Release CSP blocks development-server connections')
     print('PASS native release CSP excludes the development server',flush=True)
+    if '--home' in sys.argv:
+        from home_workflows import run as run_home
+        run_home(sys.modules[__name__])
+        sys.exit(0)
     if '--recents' in sys.argv:
         from recent_projects import run as run_recents
         run_recents(sys.modules[__name__])

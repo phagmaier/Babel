@@ -208,6 +208,12 @@ export class WritingSession {
     return true;
   }
 
+  /** Entry loaders own native selection; stale mounts release returned registrations. */
+  async openSelected(load: () => Promise<OpenDocument>): Promise<void> {
+    this.requireEmpty();
+    await this.adoptFresh(await load());
+  }
+
   async save(): Promise<FlushSummary> {
     const active = this.requireActive();
     if (active.readOnly) throw new Error('Read-only sessions cannot save');

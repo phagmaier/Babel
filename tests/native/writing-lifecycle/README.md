@@ -135,3 +135,37 @@ proof feature or app capability. Home presentation remains M4-02. Native core
 filesystem tests additionally cover managed rename/unknown JSON, leases, safe
 anchors, bounds and real process interruption during registry publication.
 Do not call generated MockRuntime IPC dispatch or Vitest contracts WebView E2E.
+
+## M4-02 native Home workflows
+
+Build the default production release, then run sequentially with other builds
+and checks idle for the timing observations:
+
+```sh
+python3 tests/native/writing-lifecycle/drill.py /tmp --home
+python3 tests/native/writing-lifecycle/drill.py /home/phagmaier/Code/babel/target --home
+```
+
+`home_workflows.py` drives actual visible Home/writing controls and real GTK
+pickers. It does not call native commands through driver JavaScript. It checks
+Home keyboard focus/Tab/Enter, Open/New-destination cancellation, initial empty
+checkpoint, New with native destination publication, recent reopen, missing
+source refusal, Locate cancellation/comparison/explicit moved link, metadata-only
+Remove, mismatch/different/read-only Save As, restart recovery/resume, >64 KiB
+preview truncation with full-byte resume, explicit Keep, failed Home switching
+under divergence, emergency copy and corrupt-registry isolation. Independent
+literal byte/hash oracles retain original checkpoints and external source.
+
+The runner selects the intended checkpoint by its explicit document/generation
+facts; it never assumes the first Resume button selects the newest content.
+Previously opened source journals require the visible explicit Keep choice when
+identical; the driver does not bypass that protection. Actions wait until initial
+capture has completed, including on the 70,016-byte synthetic fixture.
+`home-measurements.json` records warm launch from WebDriver session creation
+to usable Home (including bounded reads, CSP probe and polling), observed WebKit
+`performance.now` after reads, and elapsed protected return (including close/checkpoint/release
+and polling). These are warm observations on the reference host, not compositor
+paint, installed/cold-start, long-session or assistive-technology certification.
+App-only screenshots accompany failure/recovery/registry states. All app/profile,
+source and copy files are disposable under the requested filesystem root; owned
+process and picker safeguards in `drill.py` remain in force.
