@@ -18,6 +18,8 @@ import type {
   StyledText,
 } from '../domain/fountainModel';
 import { screenplaySchema } from './schema';
+import { changeTitlePage, type TitleAction } from '../domain/titlePage';
+import { captureEditor } from './sourceBridge';
 import { readyMove, type MoveReview } from '../domain/sceneMoves';
 
 interface SourceOrigin {
@@ -30,6 +32,7 @@ const originKey = new PluginKey<SourceOrigin>('babel-source-origin');
 const sourceDocuments = new WeakMap<object, FountainDocument>();
 const importTransactions = new WeakSet<Transaction>();
 const moveTransactions = new WeakSet<Transaction>();
+const titleTransactions = new WeakSet<Transaction>();
 const adoptedVersions = new WeakMap<Transaction, number>();
 const structuralTransactions = new WeakMap<Transaction, number>();
 export function authorizeStructuralTransaction(
@@ -75,6 +78,7 @@ function permitted(transaction: Transaction, state: EditorState): boolean {
     (!sourceDocuments.has(transaction.doc.attrs.sourceOrigin as object) ||
       (!importTransactions.has(transaction) &&
         !moveTransactions.has(transaction) &&
+        !titleTransactions.has(transaction) &&
         !isHistoryTransaction(transaction)))
   )
     return false;
@@ -399,4 +403,61 @@ export function sourceMoveTransaction(
   tr.setMeta('outlineMove', true);
   moveTransactions.add(tr);
   return authorizeStructuralTransaction(tr, editorOrigin(state).nextId);
+}
+
+/** Checked title command only; immutable provenance travels through Undo/Redo. */
+export function sourceTitleTransaction(
+  state: EditorState,
+  action: TitleAction,
+): Transaction | null {
+  const original = captureEditor(state).document;
+  const nextId = Math.max(original.recovery.nextId, editorOrigin(state).nextId);
+  const base =
+    nextId === original.recovery.nextId
+      ? original
+      : parseFountain(original.bytes, { ...original.recovery, nextId });
+  const document = changeTitlePage(base, action);
+  if (document === base) return null;
+  const projected = createEditorState(document.bytes, document.recovery);
+  const byId = new Map(
+    state.doc.content.content.map((node) => [String(node.attrs.id), node]),
+  );
+  const nodes = projected.doc.content.content.map((node) => {
+    const prior = byId.get(String(node.attrs.id));
+    return prior && prior.type === node.type && prior.content.eq(node.content)
+      ? node.type.create(node.attrs, prior.content, prior.marks)
+      : node;
+  });
+  let tr = closeHistory(state.tr)
+    .replaceWith(0, state.doc.content.size, nodes)
+    .setDocAttribute('sourceOrigin', projected.doc.attrs.sourceOrigin);
+  const position = (old: number) => {
+    const resolved = state.doc.resolve(old);
+    const id = resolved.parent.attrs.id;
+    let offset = 1;
+    for (const node of nodes) {
+      if (node.attrs.id === id) {
+        let at = Math.min(resolved.parentOffset, node.content.size);
+        if (
+          at > 0 &&
+          /[\uDC00-\uDFFF]/.test(node.textContent[at] ?? '') &&
+          /[\uD800-\uDBFF]/.test(node.textContent[at - 1]!)
+        )
+          at--;
+        return offset + at;
+      }
+      offset += node.nodeSize;
+    }
+    return projected.selection.from;
+  };
+  tr = tr.setSelection(
+    TextSelection.create(
+      tr.doc,
+      position(state.selection.anchor),
+      position(state.selection.head),
+    ),
+  );
+  tr.setMeta('titlePage', true);
+  titleTransactions.add(tr);
+  return authorizeStructuralTransaction(tr, editorOrigin(projected).nextId);
 }

@@ -23,6 +23,7 @@ import {
 } from '../editor/sceneMoves';
 import type { MoveRequest } from '../domain/sceneMoves';
 import { Outline } from './Outline';
+import { TitlePagePanel } from './TitlePagePanel';
 import { navigateOutline } from '../editor/outlineNavigation';
 import type { CapturedSnapshot } from '../application/persistenceController';
 import type { DocumentEntryPort } from '../application/documentEntry';
@@ -161,6 +162,12 @@ export function WritingView({
   );
   const editorHost = useRef<HTMLDivElement | null>(null);
   const stagedImportRef = useRef('');
+  const titleDraftRef = useRef(false);
+  const titleComposingRef = useRef(false);
+  const titleApplyingRef = useRef(false);
+  const [showTitle, setShowTitle] = useState(false);
+  const titleButtonRef = useRef<HTMLButtonElement | null>(null);
+  const titleReturnFocusRef = useRef(false);
   const importHost = useRef<HTMLDivElement | null>(null);
   const viewRef = useRef<EditorView | null>(null);
   const popupRef = useRef<ReturnType<typeof createCompletionPopup> | null>(
@@ -196,6 +203,13 @@ export function WritingView({
     projection: null,
     message: 'Preparing outline…',
   });
+
+  useEffect(() => {
+    if (!showTitle && titleReturnFocusRef.current) {
+      titleReturnFocusRef.current = false;
+      titleButtonRef.current?.focus();
+    }
+  }, [showTitle]);
 
   const refresh = () => {
     const session = sessionRef.current;
@@ -291,7 +305,11 @@ export function WritingView({
         },
         canEdit: () =>
           adoptingRef.current ||
-          (writableRef.current && readyRef.current && !frozenRef.current),
+          (writableRef.current &&
+            readyRef.current &&
+            !frozenRef.current &&
+            ((!titleDraftRef.current && !titleComposingRef.current) ||
+              titleApplyingRef.current)),
         canNavigate: () => readyRef.current && !frozenRef.current,
         escapeFocus: () => {
           host
@@ -336,6 +354,10 @@ export function WritingView({
         return () => installState(state, writable);
       },
       async prepareSource(source, version, metadata) {
+        if (titleDraftRef.current || titleComposingRef.current)
+          throw new Error(
+            'Apply or Discard the uncommitted title input before replacing the screenplay.',
+          );
         const view = viewRef.current;
         if (!view || view.isDestroyed) throw new Error('Editor unavailable');
         const previous = view.state;
@@ -433,6 +455,10 @@ export function WritingView({
         }
       },
       freeze() {
+        if (titleDraftRef.current || titleComposingRef.current)
+          throw new Error(
+            'Apply or Discard the uncommitted title input before protecting or switching the session.',
+          );
         if (frozenRef.current) throw new Error('Editor is already frozen');
         frozenRef.current = true;
         if (viewRef.current?.composing) {
@@ -602,6 +628,12 @@ export function WritingView({
       let stop: (() => void) | undefined;
       void listen('protected-close-requested', () => {
         if (alive) {
+          if (titleDraftRef.current || titleComposingRef.current) {
+            setError(
+              'Apply or Discard the uncommitted title input before closing the window.',
+            );
+            return;
+          }
           windowCloseRef.current = true;
           setShowClose(true);
         }
@@ -635,6 +667,18 @@ export function WritingView({
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
+      if (
+        event.isComposing ||
+        event.keyCode === 229 ||
+        titleComposingRef.current
+      )
+        return;
+      const target = event.target;
+      if (
+        target instanceof HTMLElement &&
+        target.closest('.title-page-panel input, .title-page-panel textarea')
+      )
+        return;
       const command = registry.match(event);
       const session = sessionRef.current;
       if (
@@ -645,7 +689,13 @@ export function WritingView({
         return;
       if (!['save', 'saveAs', 'open'].includes(command.id)) return;
       event.preventDefault();
-      if (operationRef.current || showClose) return;
+      if (operationRef.current || showClose || titleDraftRef.current) {
+        if (titleDraftRef.current)
+          setError(
+            'Apply or Discard the uncommitted title input before saving or switching.',
+          );
+        return;
+      }
       if (command.id === 'open') {
         pendingSwitchRef.current = true;
         setShowClose(true);
@@ -692,6 +742,12 @@ export function WritingView({
   ]);
 
   const run = async (action: () => Promise<unknown>) => {
+    if (titleDraftRef.current || titleComposingRef.current) {
+      setError(
+        'Apply or Discard the uncommitted title input before saving or leaving.',
+      );
+      return;
+    }
     if (operationRef.current) {
       setError(
         'Another writing action is pending. Try again when it finishes.',
@@ -710,6 +766,17 @@ export function WritingView({
       setBusy(false);
       refresh();
     }
+  };
+
+  const requestClose = (switching = false) => {
+    if (titleDraftRef.current || titleComposingRef.current) {
+      setError(
+        'Apply or Discard the uncommitted title input before leaving the screenplay.',
+      );
+      return;
+    }
+    pendingSwitchRef.current = switching;
+    setShowClose(true);
   };
 
   const reportOutcome = (outcome: { status: string; fileName?: string }) => {
@@ -922,6 +989,46 @@ export function WritingView({
   // from under the live view, silently detaching the editor.
   const hosts = (
     <div key="writing-hosts">
+      {phase === 'active' && showTitle && viewRef.current && (
+        <TitlePagePanel
+          document={
+            outline.phase === 'current' &&
+            outline.projection?.doc === viewRef.current.state.doc
+              ? outline.projection.snapshot.capture.document
+              : null
+          }
+          state={viewRef.current.state}
+          getView={() => viewRef.current}
+          disabled={busy || showClose || !readyRef.current || frozenRef.current}
+          readOnly={Boolean(active?.readOnly)}
+          onDraft={(dirty, composing) => {
+            titleDraftRef.current = dirty;
+            titleComposingRef.current = composing;
+            if (!viewRef.current?.isDestroyed) viewRef.current?.setProps({});
+          }}
+          onApply={(apply) => {
+            if (
+              operationRef.current ||
+              frozenRef.current ||
+              !readyRef.current ||
+              !writableRef.current ||
+              titleComposingRef.current
+            )
+              return false;
+            titleApplyingRef.current = true;
+            try {
+              return apply();
+            } finally {
+              titleApplyingRef.current = false;
+              refresh();
+            }
+          }}
+          onClose={() => {
+            titleReturnFocusRef.current = true;
+            setShowTitle(false);
+          }}
+        />
+      )}
       {phase === 'active' && (
         <Outline
           state={outline}
@@ -1061,9 +1168,26 @@ export function WritingView({
           Select copy destination
         </button>
         <button
+          id="writing-title"
+          ref={titleButtonRef}
+          aria-expanded={showTitle}
+          type="button"
+          disabled={busy || !active || showTitle || showClose}
+          onClick={() => {
+            if (viewRef.current?.composing) {
+              setError('Finish composing before opening the title page.');
+              return;
+            }
+            popupRef.current?.controller.dismiss();
+            setShowTitle(true);
+          }}
+        >
+          Title page
+        </button>
+        <button
           type="button"
           disabled={busy || !active}
-          onClick={() => setShowClose(true)}
+          onClick={() => requestClose()}
         >
           Close session
         </button>
@@ -1071,8 +1195,7 @@ export function WritingView({
           type="button"
           disabled={busy || !active}
           onClick={() => {
-            pendingSwitchRef.current = false;
-            setShowClose(true);
+            requestClose();
           }}
         >
           Home
@@ -1094,8 +1217,13 @@ export function WritingView({
               return;
             }
             if (id === 'open') {
-              pendingSwitchRef.current = true;
-              setShowClose(true);
+              requestClose(true);
+              return;
+            }
+            if (titleDraftRef.current || titleComposingRef.current) {
+              setError(
+                'Apply or Discard the uncommitted title input before editor commands.',
+              );
               return;
             }
             if (current)

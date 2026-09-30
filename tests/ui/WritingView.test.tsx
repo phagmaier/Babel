@@ -1019,3 +1019,85 @@ describe('M4-05 coordinated moves', () => {
     );
   });
 });
+
+it('title input blocks Save, Home and application shortcuts until explicit Apply/Discard; Save captures applied exact bytes', async () => {
+  const literal =
+    '\ufeffTitle:\t**Old**\r\nAuthor: A\r\nAuthor: B\r\nX-Custom: retain  \r\n\r\n!Body.  ';
+  const { ports, calls } = fixturePorts({
+    picked: { ...opened(), source: [...new TextEncoder().encode(literal)] },
+  });
+  ports.documents.readInitial = async (id) => ({
+    ...opened(),
+    identity: id,
+    source: [...new TextEncoder().encode(literal)],
+  });
+  const saved: string[] = [];
+  ports.documents.save = async (request) => {
+    saved.push(
+      new TextDecoder('utf-8', { ignoreBOM: true }).decode(
+        Uint8Array.from(request.source),
+      ),
+    );
+    return {
+      ...receiptFor(request.version),
+      sourceSha256: request.sourceSha256,
+    };
+  };
+  render(
+    <WritingView
+      ports={ports}
+      open={{ kind: 'picked' }}
+      onSessionClosed={vi.fn()}
+    />,
+  );
+  await waitFor(() =>
+    expect(screen.getByRole('button', { name: 'Title page' })).toBeTruthy(),
+  );
+  fireEvent.click(screen.getByRole('button', { name: 'Title page' }));
+  await waitFor(() =>
+    expect(
+      (
+        screen.getByRole('button', {
+          name: 'Edit field 1: Title',
+        }) as HTMLButtonElement
+      ).disabled,
+    ).toBe(false),
+  );
+  fireEvent.click(screen.getByRole('button', { name: 'Edit field 1: Title' }));
+  const input = screen.getByLabelText('Field value');
+  fireEvent.change(input, { target: { value: '*New*\nMore' } });
+  fireEvent.click(
+    within(screen.getByLabelText('Screenplay actions')).getByRole('button', {
+      name: 'Save',
+    }),
+  );
+  fireEvent.click(screen.getByRole('button', { name: 'Home' }));
+  fireEvent.keyDown(window, { key: 'o', ctrlKey: true });
+  expect(saved).toEqual([]);
+  expect(calls.released).toBe(0);
+  expect(
+    screen.queryByRole('button', { name: 'Retry protection and close' }),
+  ).toBeNull();
+  expect((input as HTMLTextAreaElement).value).toBe('*New*\nMore');
+  const shortcut = new KeyboardEvent('keydown', {
+    key: 's',
+    ctrlKey: true,
+    bubbles: true,
+    cancelable: true,
+  });
+  input.dispatchEvent(shortcut);
+  expect(shortcut.defaultPrevented).toBe(false);
+  fireEvent.click(screen.getByRole('button', { name: 'Apply title input' }));
+  await waitFor(() =>
+    expect(screen.queryByLabelText('Field value')).toBeNull(),
+  );
+  fireEvent.click(
+    within(screen.getByLabelText('Screenplay actions')).getByRole('button', {
+      name: 'Save',
+    }),
+  );
+  await waitFor(() => expect(saved).toHaveLength(1));
+  expect(saved[0]).toBe(
+    literal.replace('**Old**\r\n', '*New*\r\n    More\r\n'),
+  );
+});

@@ -44,7 +44,8 @@ export function mountScreenplayEditor(
     dispatchTransaction(transaction) {
       if (
         (transaction.getMeta('outlineNavigation') ||
-          transaction.getMeta('outlineMove')) &&
+          transaction.getMeta('outlineMove') ||
+          transaction.getMeta('titlePage')) &&
         (composing || view.composing)
       ) {
         observers.refused?.('Outline actions wait until composition finishes');
