@@ -289,7 +289,7 @@ describe('M3-12 writing surface', () => {
       );
       await waitFor(() =>
         expect(
-          screen.getAllByRole('heading', { name: 'Recovery choice' }),
+          screen.getAllByText('Recovery choice', { selector: 'h2' }),
         ).toHaveLength(failFirst ? 2 : 3),
       );
       expect(Boolean(screen.queryByText('Source comparison unavailable'))).toBe(
@@ -723,5 +723,71 @@ describe('M4-02 Home entry and switching', () => {
         ) as HTMLButtonElement
       ).disabled,
     ).toBe(true);
+  });
+});
+
+describe('M4-04 coordinated import', () => {
+  it('cancels pending protection without replacing text; retries through a frozen native receipt and preserves one-step Undo', async () => {
+    const { ports } = fixturePorts({ picked: opened() });
+    let finish: (() => void) | undefined;
+    let cancelPending = true;
+    ports.workflows = {
+      protect: async (request) => {
+        if (cancelPending)
+          await new Promise<void>((resolve) => {
+            finish = resolve;
+          });
+        const cp = request.checkpoint;
+        return {
+          operation: request.operation,
+          byteLength: cp.source.length,
+          checkpoint: {
+            identity: { ...cp.identity },
+            version: cp.version,
+            sourceSha256: cp.sourceSha256,
+            generation: 1,
+            protection: 'recoveryCheckpoint',
+          },
+          revision: {
+            documentId: cp.identity.documentId,
+            version: cp.version,
+            sourceSha256: cp.sourceSha256,
+            profileSha256: A,
+            commitId: 'a'.repeat(40),
+            changed: true,
+            safetyRef: 'refs/safety/' + 'a'.repeat(40),
+          },
+        };
+      },
+    };
+    render(
+      <WritingView
+        ports={ports}
+        open={{ kind: 'picked' }}
+        onSessionClosed={vi.fn()}
+      />,
+    );
+    await screen.findByLabelText('Screenplay actions');
+    const editor = screen
+      .getByLabelText('Screenplay editor')
+      .querySelector<HTMLElement>('.ProseMirror')!;
+    const original = editor.textContent;
+    fireEvent.change(screen.getByLabelText('Fountain screenplay to import'), {
+      target: { value: '!Replacement.' },
+    });
+    fireEvent.click(screen.getByText('Import Fountain as screenplay'));
+    await waitFor(() => expect(finish).toBeDefined());
+    expect(editor.getAttribute('contenteditable')).toBe('false');
+    fireEvent.click(screen.getByText('Cancel import protection'));
+    finish!();
+    await screen.findByText(/Operation cancelled/);
+    expect(editor.textContent).toBe(original);
+    expect(editor.getAttribute('contenteditable')).toBe('true');
+    cancelPending = false;
+    fireEvent.click(screen.getByText('Import Fountain as screenplay'));
+    await screen.findByText(/Imported. Previous draft protected/);
+    expect(editor.textContent).toBe('Replacement.');
+    fireEvent.keyDown(editor, { key: 'z', ctrlKey: true });
+    await waitFor(() => expect(editor.textContent).toBe(original));
   });
 });

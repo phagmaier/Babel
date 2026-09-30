@@ -27,3 +27,38 @@ pub struct ImportProtectionReceipt {
     pub checkpoint: super::recovery::CheckpointReceipt,
     pub revision: RevisionReceipt,
 }
+
+/// Closed set of app-owned workflows: no caller-supplied history labels or paths.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub enum WorkflowOperation {
+    FountainImport,
+    SceneMove,
+    SectionMove,
+}
+
+impl WorkflowOperation {
+    pub(super) fn label(self) -> &'static str {
+        match self {
+            Self::FountainImport => "Before Fountain import",
+            Self::SceneMove => "Before large scene move",
+            Self::SectionMove => "Before large section move",
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct WorkflowProtectionRequest {
+    pub operation: WorkflowOperation,
+    pub checkpoint: super::persistence::CheckpointRequest,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct WorkflowProtectionReceipt {
+    pub operation: WorkflowOperation,
+    pub byte_length: u64,
+    pub checkpoint: super::recovery::CheckpointReceipt,
+    pub revision: RevisionReceipt,
+}

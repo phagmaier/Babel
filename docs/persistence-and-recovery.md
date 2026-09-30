@@ -369,3 +369,9 @@ revalidation contract, including bytes beyond truncated previews. Original
 checkpoints remain discoverable after resume and recent removal. Local recovery
 is not independent backup. [M4-02 evidence](test-evidence/M4.md#m4-02--home-and-recovery-workflows)
 owns native exact-byte and failed-switch validation.
+
+## M4-04 exact workflow protection
+
+The strict path-free `protect_workflow` request selects a fixed native operation and includes the current checkpoint envelope. An admitted blocking job holds existing native document ownership, checkpoints exact bytes, then publishes/readbacks a curated safety revision. The operation/length/checkpoint/revision receipt is independent of source-save credit. History failure refuses editor application while retaining completed checkpoints, existing refs and ordinary Save/copy functionality. No source interpretation or editor transaction runs in Rust.
+
+The writing session freezes user input/selection and pauses cadence, settles earlier jobs, captures, validates all receipt bindings and rechecks its immutable editor frame, active session, version, selection, composition and cancellation before synchronous owned dispatch. Pending cancellation stops application, allowing a started worker to finish; thaw restores timers without resetting dirty age. Production import reuses this path with a visible cancel control. Missing guards or uncapturable source fail closed. [ADR 0030](decisions/0030-version-bound-workflow-protection.md) owns thresholds and policy; [M4 evidence](test-evidence/M4.md) owns checks. Moves remain M4-05; automatic/named history remains M6.

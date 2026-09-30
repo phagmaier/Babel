@@ -1,7 +1,10 @@
 //! Bounded blocking jobs. No guard crosses await; cancellation never interrupts a started write.
 use super::*;
 use screenwriter_core::documents::{
-    history::ImportProtectionReceipt,
+    history::{
+        ImportProtectionReceipt, WorkflowOperation, WorkflowProtectionReceipt,
+        WorkflowProtectionRequest,
+    },
     persistence::{CheckpointFailure, CheckpointRequest, payload_cost},
     recovery::CheckpointReceipt,
     saving::{
@@ -139,11 +142,27 @@ impl DocumentHost {
         &self,
         request: CheckpointRequest,
     ) -> Result<ImportProtectionReceipt, DocumentError> {
+        let receipt = self
+            .protect_workflow(WorkflowProtectionRequest {
+                operation: WorkflowOperation::FountainImport,
+                checkpoint: request,
+            })
+            .await?;
+        Ok(ImportProtectionReceipt {
+            checkpoint: receipt.checkpoint,
+            revision: receipt.revision,
+        })
+    }
+
+    async fn protect_workflow(
+        &self,
+        request: WorkflowProtectionRequest,
+    ) -> Result<WorkflowProtectionReceipt, DocumentError> {
         let cost = payload_cost(
-            request.version,
-            &request.source,
-            &request.source_sha256,
-            &request.draft_metadata,
+            request.checkpoint.version,
+            &request.checkpoint.source,
+            &request.checkpoint.source_sha256,
+            &request.checkpoint.draft_metadata,
         )?;
         let permit = self.reserve(cost)?;
         let worker = self.service.clone();
@@ -157,7 +176,7 @@ impl DocumentHost {
                 service
                     .as_mut()
                     .ok_or_else(|| DocumentError::new(ErrorCode::NativeUnavailable))?
-                    .protect_editor_import(request)
+                    .protect_editor_workflow(request)
             }
             #[cfg(not(target_os = "linux"))]
             {
@@ -237,6 +256,14 @@ pub(super) async fn protect_fountain_import(
     state: tauri::State<'_, DocumentHost>,
 ) -> Result<ImportProtectionReceipt, DocumentError> {
     state.protect_import(request).await
+}
+
+#[tauri::command]
+pub(super) async fn protect_workflow(
+    request: WorkflowProtectionRequest,
+    state: tauri::State<'_, DocumentHost>,
+) -> Result<WorkflowProtectionReceipt, DocumentError> {
+    state.protect_workflow(request).await
 }
 
 #[cfg(all(test, target_os = "linux"))]

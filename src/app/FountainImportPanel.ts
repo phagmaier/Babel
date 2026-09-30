@@ -20,11 +20,25 @@ export function createFountainImportPanel(
   const status = document.createElement('p');
   status.setAttribute('role', 'status');
   let alive = true;
+  let pending: AbortController | null = null;
+  const cancel = document.createElement('button');
+  cancel.type = 'button';
+  cancel.textContent = 'Cancel import protection';
+  cancel.hidden = true;
+  cancel.onclick = () => {
+    pending?.abort();
+    cancel.disabled = true;
+    status.textContent =
+      'Import cancelled. Finishing protection; current and staged content retained.';
+  };
   button.onclick = () => {
+    pending = new AbortController();
+    cancel.hidden = false;
+    cancel.disabled = false;
     button.disabled = true;
     status.textContent = 'Protecting current draft…';
     void boundary
-      .import(new TextEncoder().encode(input.value))
+      .import(new TextEncoder().encode(input.value), pending.signal)
       .then((result) => {
         if (!alive) return;
         status.textContent =
@@ -32,9 +46,11 @@ export function createFountainImportPanel(
             ? 'Imported. Previous draft protected; Undo restores it. Source file has not been saved.'
             : result.reason;
         button.disabled = false;
+        cancel.hidden = true;
+        pending = null;
       });
   };
-  section.append(label, help, button, status);
+  section.append(label, help, button, cancel, status);
   parent.append(section);
   return {
     input,
@@ -42,6 +58,7 @@ export function createFountainImportPanel(
     status,
     destroy() {
       alive = false;
+      pending?.abort();
       button.onclick = null;
       section.remove();
     },

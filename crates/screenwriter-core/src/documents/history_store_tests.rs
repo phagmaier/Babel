@@ -390,3 +390,273 @@ fn editor_import_history_failure_keeps_exact_checkpoint_and_source() {
         OLD
     );
 }
+
+#[test]
+fn workflow_protection_binds_operation_length_session_bytes_and_native_labels() {
+    for operation in [WorkflowOperation::SceneMove, WorkflowOperation::SectionMove] {
+        let fixture = Fixture::new();
+        let (mut service, opened) = fixture.open();
+        let request = WorkflowProtectionRequest {
+            operation,
+            checkpoint: import_request(&opened, 17, NEW),
+        };
+        let receipt = service.protect_editor_workflow(request.clone()).unwrap();
+        assert_eq!(receipt.operation, operation);
+        assert_eq!(receipt.byte_length, NEW.len() as u64);
+        assert_eq!(receipt.checkpoint.identity, opened.identity);
+        assert_eq!(receipt.checkpoint.version, 17);
+        assert_eq!(receipt.revision.version, Some(17));
+        assert_eq!(receipt.revision.source_sha256, hash(NEW));
+        let repo = service.history_repository(&opened.identity).unwrap();
+        let commit = repo
+            .find_commit(Oid::from_str(&receipt.revision.commit_id).unwrap())
+            .unwrap();
+        assert_eq!(
+            commit.message().unwrap(),
+            format!("babel safety revision\n\n{}", operation.label())
+        );
+        assert_eq!(
+            repo.refname_to_id(receipt.revision.safety_ref.as_deref().unwrap())
+                .unwrap(),
+            commit.id()
+        );
+        assert_eq!(
+            repo.find_blob(
+                commit
+                    .tree()
+                    .unwrap()
+                    .get_name("screenplay.fountain")
+                    .unwrap()
+                    .id()
+            )
+            .unwrap()
+            .content(),
+            NEW
+        );
+        assert_eq!(
+            std::fs::read(fixture.0.join("script.fountain")).unwrap(),
+            OLD
+        );
+        let mut wrong = request.clone();
+        wrong.checkpoint.identity.session_id = uuid();
+        assert_eq!(
+            service.protect_editor_workflow(wrong).unwrap_err().code,
+            ErrorCode::IdentityMismatch
+        );
+        let mut stale = request.clone();
+        stale.checkpoint.version = 16;
+        assert_eq!(
+            service.protect_editor_workflow(stale).unwrap_err().code,
+            ErrorCode::StaleRecoveryVersion
+        );
+        let mut forged = request.clone();
+        forged.checkpoint.source_sha256 = hash(OLD);
+        assert_eq!(
+            service.protect_editor_workflow(forged).unwrap_err().code,
+            ErrorCode::InvalidCheckpoint
+        );
+        let mut conflict = request.clone();
+        conflict.checkpoint.source = OLD.to_vec();
+        conflict.checkpoint.source_sha256 = hash(OLD);
+        assert_eq!(
+            service.protect_editor_workflow(conflict).unwrap_err().code,
+            ErrorCode::CheckpointConflict
+        );
+        let repeat = service.protect_editor_workflow(request.clone()).unwrap();
+        assert_eq!(repeat.revision.commit_id, receipt.revision.commit_id);
+        assert!(!repeat.revision.changed);
+        std::fs::set_permissions(
+            fixture.repo_path(&opened.identity),
+            std::fs::Permissions::from_mode(0o777),
+        )
+        .unwrap();
+        let mut next = request;
+        next.checkpoint.version = 18;
+        next.checkpoint.source = OLD.to_vec();
+        next.checkpoint.source_sha256 = hash(OLD);
+        assert_eq!(
+            service.protect_editor_workflow(next).unwrap_err().code,
+            ErrorCode::HistoryNeedsAttention
+        );
+        let latest = service
+            .inspect_recovery(&opened.identity)
+            .unwrap()
+            .latest
+            .unwrap();
+        assert_eq!(latest.source, OLD);
+        assert_eq!(latest.metadata.version, 18);
+        assert_eq!(
+            std::fs::read(fixture.0.join("script.fountain")).unwrap(),
+            OLD
+        );
+        assert_eq!(
+            repo.refname_to_id(receipt.revision.safety_ref.as_deref().unwrap())
+                .unwrap(),
+            commit.id()
+        );
+        let saved = service
+            .save_request(SaveRequest {
+                identity: opened.identity,
+                version: 19,
+                source: NEW.to_vec(),
+                source_sha256: hash(NEW),
+                expected_fingerprint: opened.fingerprint.unwrap(),
+                draft_metadata: serde_json::json!({}),
+            })
+            .unwrap();
+        assert_eq!(saved.protection, SaveProtection::SourceFile);
+        assert_eq!(
+            std::fs::read(fixture.0.join("script.fountain")).unwrap(),
+            NEW
+        );
+    }
+}
+
+#[test]
+fn workflow_interrupted_safety_publication_keeps_old_ref_and_exact_checkpoint_across_restart() {
+    for failure_stage in [
+        Stage::ObjectsWritten,
+        Stage::MainAdvanced,
+        Stage::SafetyPublished,
+    ] {
+        let fixture = Fixture::new();
+        let (mut service, opened) = fixture.open();
+        let first = service
+            .protect_editor_workflow(WorkflowProtectionRequest {
+                operation: WorkflowOperation::SceneMove,
+                checkpoint: import_request(&opened, 1, OLD),
+            })
+            .unwrap();
+        service
+            .checkpoint_request(import_request(&opened, 2, NEW))
+            .unwrap();
+        let profile = service.native_history_profile(&opened.identity).unwrap();
+        let repo = service.history_repository(&opened.identity).unwrap();
+        let attempt = record_with(
+            &repo,
+            Capture {
+                project: &opened.identity.document_id,
+                version: Some(2),
+                source: NEW,
+                profile: &profile,
+                label: WorkflowOperation::SceneMove.label(),
+                safety: true,
+            },
+            |stage| {
+                if stage == failure_stage {
+                    Err(history_error())
+                } else {
+                    Ok(())
+                }
+            },
+        );
+        assert_eq!(attempt.unwrap_err().code, ErrorCode::HistoryNeedsAttention);
+        assert_eq!(
+            repo.refname_to_id(first.revision.safety_ref.as_deref().unwrap())
+                .unwrap()
+                .to_string(),
+            first.revision.commit_id
+        );
+        assert_eq!(
+            std::fs::read(fixture.0.join("script.fountain")).unwrap(),
+            OLD
+        );
+        assert_eq!(
+            service
+                .inspect_recovery(&opened.identity)
+                .unwrap()
+                .latest
+                .unwrap()
+                .source,
+            NEW
+        );
+        let retry = service
+            .protect_editor_workflow(WorkflowProtectionRequest {
+                operation: WorkflowOperation::SceneMove,
+                checkpoint: import_request(&opened, 3, NEW),
+            })
+            .unwrap();
+        let repo = service.history_repository(&opened.identity).unwrap();
+        let id = repo
+            .refname_to_id(retry.revision.safety_ref.as_deref().unwrap())
+            .unwrap();
+        assert_eq!(
+            repo.find_commit(id)
+                .unwrap()
+                .parent_id(0)
+                .unwrap()
+                .to_string(),
+            first.revision.commit_id
+        );
+        assert_eq!(
+            repo.refname_to_id(first.revision.safety_ref.as_deref().unwrap())
+                .unwrap()
+                .to_string(),
+            first.revision.commit_id
+        );
+        assert_eq!(
+            repo.find_blob(
+                repo.find_commit(id)
+                    .unwrap()
+                    .tree()
+                    .unwrap()
+                    .get_name("screenplay.fountain")
+                    .unwrap()
+                    .id()
+            )
+            .unwrap()
+            .content(),
+            NEW
+        );
+        assert_eq!(
+            std::fs::read(fixture.0.join("script.fountain")).unwrap(),
+            OLD
+        );
+        drop(repo);
+        drop(service);
+        let (mut service, reopened) = fixture.open();
+        assert_eq!(reopened.identity.document_id, opened.identity.document_id);
+        assert_ne!(reopened.identity.session_id, opened.identity.session_id);
+        let latest = service
+            .inspect_recovery(&reopened.identity)
+            .unwrap()
+            .latest
+            .unwrap();
+        assert_eq!(latest.source, NEW);
+        assert_eq!(latest.metadata.version, 3);
+        // Restart retains an explicit recovery choice barrier. A safety receipt
+        // from an earlier session cannot silently clear it or authorize edits.
+        assert_eq!(
+            service
+                .protect_editor_workflow(WorkflowProtectionRequest {
+                    operation: WorkflowOperation::SceneMove,
+                    checkpoint: import_request(&reopened, 4, NEW),
+                })
+                .unwrap_err()
+                .code,
+            ErrorCode::RecoveryNeedsAttention
+        );
+        let repo = service.history_repository(&reopened.identity).unwrap();
+        assert_eq!(
+            repo.refname_to_id(first.revision.safety_ref.as_deref().unwrap())
+                .unwrap()
+                .to_string(),
+            first.revision.commit_id
+        );
+        assert_eq!(
+            repo.refname_to_id(retry.revision.safety_ref.as_deref().unwrap())
+                .unwrap()
+                .to_string(),
+            retry.revision.commit_id
+        );
+        assert_eq!(
+            service
+                .inspect_recovery(&reopened.identity)
+                .unwrap()
+                .latest
+                .unwrap()
+                .source,
+            NEW
+        );
+    }
+}

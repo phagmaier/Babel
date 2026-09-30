@@ -40,8 +40,12 @@ export class FountainImportBoundary {
       DiskFingerprint | null | (() => DiskFingerprint | null),
     private readonly port: FountainImportPort,
     private readonly capture = new EditorCaptureBoundary(() => getView().state),
+    private readonly coordinated?: (
+      apply: () => boolean,
+      signal?: AbortSignal,
+    ) => Promise<import('./workflowProtection').WorkflowResult>,
   ) {}
-  async import(bytes: Uint8Array): Promise<ImportResult> {
+  async import(bytes: Uint8Array, signal?: AbortSignal): Promise<ImportResult> {
     if (this.busy)
       return {
         status: 'refused',
@@ -62,6 +66,27 @@ export class FountainImportBoundary {
       };
     this.busy = true;
     try {
+      if (this.coordinated) {
+        const result = await this.coordinated(() => {
+          if (
+            this.getView() !== view ||
+            view.state !== state ||
+            view.isDestroyed ||
+            view.composing
+          )
+            return false;
+          const transaction = sourceImportTransaction(state, immutable);
+          dispatchIsolated(view, transaction);
+          return view.state.doc === transaction.doc;
+        }, signal);
+        return result.status === 'applied'
+          ? { status: 'imported', protection: result.protection }
+          : result;
+      }
+      if (signal?.aborted)
+        throw new ImportRefusal(
+          'Operation cancelled; current and staged content retained',
+        );
       const result = await this.capture.capture();
       if (
         result.status !== 'current' ||
@@ -106,6 +131,7 @@ export class FountainImportBoundary {
           'Native import protection did not acknowledge the exact draft',
         );
       if (
+        signal?.aborted ||
         !this.capture.isCurrent(snapshot) ||
         this.getView() !== view ||
         view.state !== state ||

@@ -14,6 +14,7 @@ import { nativeSaveAs } from '../infrastructure/nativeSaveAs';
 import { nativeSnapshots } from '../infrastructure/nativeSnapshots';
 import { nativeRecoveryChoices } from '../infrastructure/nativeRecoveryChoices';
 import { nativeFountainImport } from '../infrastructure/nativeFountainImport';
+import { nativeWorkflowProtection } from '../infrastructure/nativeWorkflowProtection';
 import { browserAppInfo } from '../infrastructure/browserAppInfo';
 import { nativeAppInfo } from '../infrastructure/nativeAppInfo';
 import {
@@ -36,6 +37,7 @@ const writingPorts = {
   choices: nativeRecoveryChoices,
   recovery: nativeRecovery,
   fountainImport: nativeFountainImport,
+  workflows: nativeWorkflowProtection,
 };
 
 export function App({

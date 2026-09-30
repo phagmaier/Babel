@@ -6,8 +6,8 @@
  *
  * Recovery/restore/import never delete material: both generations survive and
  * only exact receipts advance protection state. There is no history
- * dependency in this coordinator — history IPC does not exist in the default
- * desktop, so a history failure cannot block saving by construction.
+ * dependency for ordinary saving. Destructive workflows require a separate
+ * checkpoint/safety receipt and exact frozen editor guard.
  */
 import type { DocumentEntryPort } from './documentEntry';
 import type {
@@ -29,6 +29,12 @@ import { realClock, SaveCadence } from './saveCadence';
 import type { SaveAsPort, SaveStorageRelation } from './saveAs';
 import { sameIdentity, type SnapshotPort } from './snapshots';
 import { verifiedEditorMetadata } from './editorMetadata';
+import {
+  validateWorkflowReceipt,
+  type WorkflowOperation,
+  type WorkflowResult,
+  type WorkflowProtectionPort,
+} from './workflowProtection';
 
 export interface SessionSelection {
   readonly anchor: number;
@@ -37,6 +43,10 @@ export interface SessionSelection {
 
 /** ProseMirror view side. Selections round-trip opaquely; out-of-range values are clamped by the view. */
 export interface SessionEditor {
+  /** Opaque immutable EditorState token includes document and selection. Missing means unavailable. */
+  workflowState?(): { token: object; composing: boolean } | null;
+  /** Allow one synchronous owned transaction while all user input remains frozen. */
+  applyWorkflow?(apply: () => boolean): boolean;
   loadInitial(
     source: readonly number[],
     selection: SessionSelection | null,
@@ -69,6 +79,7 @@ export interface SessionPorts {
   saveAs: SaveAsPort;
   snapshots: SnapshotPort;
   recovery?: import('./startupRecovery').RecoveryPort;
+  workflows?: WorkflowProtectionPort;
 }
 
 export interface ActiveInfo {
@@ -114,6 +125,7 @@ export class WritingSession {
   private controller: PersistenceController | null = null;
   private cadence: SaveCadence | null = null;
   private closer: ProtectedClose | null = null;
+  private workflowBusy = false;
 
   constructor(
     private readonly ports: SessionPorts,
@@ -219,6 +231,86 @@ export class WritingSession {
     if (active.readOnly) throw new Error('Read-only sessions cannot save');
     await this.synchronize();
     return this.cadence!.flush();
+  }
+
+  /** Only the caller's separately owned synchronous transaction may edit after protection. */
+  async runProtectedWorkflow(
+    operation: WorkflowOperation,
+    apply: () => boolean,
+    signal?: AbortSignal,
+  ): Promise<WorkflowResult> {
+    if (this.workflowBusy)
+      return {
+        status: 'refused',
+        reason: 'Another protected workflow is pending; retry when it finishes',
+      };
+    this.workflowBusy = true;
+    try {
+      const active = this.requireActive();
+      if (active.readOnly)
+        throw new Error(
+          'Read-only drafts cannot run this workflow; use Save As',
+        );
+      const port = this.ports.workflows;
+      if (!port)
+        throw new Error(
+          'Workflow protection unavailable; keep this draft open and retry',
+        );
+      const controller = this.controller!;
+      const cadence = this.cadence!;
+      const initial = this.editor.workflowState?.();
+      const version = this.editor.getVersion();
+      const selection = this.editor.getSelection();
+      const assertCurrent = () => {
+        if (signal?.aborted)
+          throw new Error(
+            'Operation cancelled; current and staged content retained',
+          );
+        const current = this.editor.workflowState?.();
+        const selected = this.editor.getSelection();
+        if (
+          this.disposed ||
+          this.controller !== controller ||
+          this.cadence !== cadence ||
+          !initial ||
+          !current ||
+          current.composing ||
+          initial.composing ||
+          current.token !== initial.token ||
+          this.editor.getVersion() !== version ||
+          selected?.anchor !== selection?.anchor ||
+          selected?.head !== selection?.head
+        )
+          throw new Error(
+            'Draft or selection changed while protecting; finish composition and retry',
+          );
+      };
+      assertCurrent();
+      return await this.withFrozen(async (snapshot) => {
+        assertCurrent();
+        matchLive(controller.state, snapshot, 'workflow protection');
+        const request = { operation, checkpoint: this.checkpoint(snapshot) };
+        const receipt = await port.protect(request);
+        validateWorkflowReceipt(request, receipt);
+        assertCurrent();
+        // No await separates this final check from the owned editor dispatch.
+        if (!this.editor.applyWorkflow || !this.editor.applyWorkflow(apply))
+          throw new Error(
+            'Editor refused the protected operation; draft retained',
+          );
+        return { status: 'applied', protection: receipt };
+      });
+    } catch (error) {
+      return {
+        status: 'refused',
+        reason:
+          error instanceof Error
+            ? error.message
+            : 'Protection failed; draft retained. Retry, Save, or make an emergency copy; history needs attention',
+      };
+    } finally {
+      this.workflowBusy = false;
+    }
   }
 
   /**

@@ -1,6 +1,9 @@
 //! Linux native local history. No checkout, shell Git, transport or frontend path.
 use super::*;
-use crate::documents::history::{HistoryHealth, ImportProtectionReceipt, RevisionReceipt};
+use crate::documents::history::{
+    HistoryHealth, ImportProtectionReceipt, RevisionReceipt, WorkflowOperation,
+    WorkflowProtectionReceipt, WorkflowProtectionRequest,
+};
 use git2::{
     Config, ErrorCode as GitErrorCode, Oid, Repository, RepositoryInitOptions, Signature, Time,
 };
@@ -455,6 +458,24 @@ impl DocumentService {
         &mut self,
         request: persistence::CheckpointRequest,
     ) -> Result<ImportProtectionReceipt, DocumentError> {
+        let receipt = self.protect_editor_workflow(WorkflowProtectionRequest {
+            operation: WorkflowOperation::FountainImport,
+            checkpoint: request,
+        })?;
+        Ok(ImportProtectionReceipt {
+            checkpoint: receipt.checkpoint,
+            revision: receipt.revision,
+        })
+    }
+
+    /// Serialize with native document ownership. Checkpoint survives a history failure;
+    /// source/Undo are never changed here, and labels/profile remain native-owned.
+    pub fn protect_editor_workflow(
+        &mut self,
+        request: WorkflowProtectionRequest,
+    ) -> Result<WorkflowProtectionReceipt, DocumentError> {
+        let operation = request.operation;
+        let request = request.checkpoint;
         let checkpoint = self.checkpoint_request(request.clone())?;
         let profile = self.native_history_profile(&request.identity)?;
         let revision = self.record_revision(
@@ -462,10 +483,12 @@ impl DocumentService {
             Some(request.version),
             &request.source,
             &profile,
-            "Before Fountain import",
+            operation.label(),
             true,
         )?;
-        Ok(ImportProtectionReceipt {
+        Ok(WorkflowProtectionReceipt {
+            operation,
+            byte_length: request.source.len() as u64,
             checkpoint,
             revision,
         })

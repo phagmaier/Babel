@@ -353,3 +353,21 @@ it('refuses work after dispose without losing confirmed state', async () => {
 });
 
 /* End of cadence contract. */
+
+it('resumes recovery/source cadence after cancelled protection without resetting dirty age', async () => {
+  const p = ports();
+  const timer = clock();
+  const controller = new PersistenceController(opened(), p.native);
+  const cadence = new SaveCadence(controller, p.snapshots, timer);
+  cadence.noteEdit(snapshot(2, true));
+  await timer.advance(300);
+  const resume = cadence.pause();
+  await timer.advance(1800);
+  expect(p.checkpoints).toHaveLength(0);
+  expect(p.saves).toHaveLength(0);
+  resume();
+  await timer.advance(0);
+  expect(p.checkpoints.map((r) => r.version)).toContain(2);
+  expect(p.saves.map((r) => r.version)).toContain(2);
+  cadence.dispose();
+});

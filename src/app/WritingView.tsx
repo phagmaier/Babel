@@ -72,6 +72,7 @@ export interface WritingPorts {
   choices: RecoveryChoicesPort;
   recovery: RecoveryPort;
   fountainImport: FountainImportPort;
+  workflows?: import('../application/workflowProtection').WorkflowProtectionPort;
 }
 
 export type OpenRequest =
@@ -198,7 +199,7 @@ export function WritingView({
           (described.lastRollingVersion !== null
             ? `, last rolling version ${described.lastRollingVersion}`
             : ', no rolling snapshot yet') +
-          '. History: local revisions are not available yet.' +
+          '. History: timeline is not available yet.' +
           (session.close.assessment.onlyInMemory
             ? ' Newer changes exist only in memory until protection is confirmed.'
             : ''),
@@ -436,6 +437,21 @@ export function WritingView({
           if (!viewRef.current?.isDestroyed) viewRef.current?.setProps({});
         };
       },
+      workflowState() {
+        const view = viewRef.current;
+        return view && !view.isDestroyed
+          ? { token: view.state, composing: view.composing }
+          : null;
+      },
+      applyWorkflow(apply) {
+        adoptingRef.current = true;
+        try {
+          return apply();
+        } finally {
+          adoptingRef.current = false;
+          changed();
+        }
+      },
       getSelection() {
         const view = viewRef.current;
         if (!view || view.isDestroyed) return null;
@@ -465,6 +481,7 @@ export function WritingView({
         saveAs: ports.saveAs,
         snapshots: ports.snapshots,
         recovery: ports.recovery,
+        workflows: ports.workflows,
       },
       editor,
       undefined,
@@ -637,6 +654,15 @@ export function WritingView({
       active.identity,
       () => sessionRef.current?.active?.fingerprint ?? null,
       ports.fountainImport,
+      undefined,
+      ports.workflows
+        ? (apply, signal) =>
+            sessionRef.current!.runProtectedWorkflow(
+              'fountainImport',
+              apply,
+              signal,
+            )
+        : undefined,
     );
     const panel = createFountainImportPanel(importHost.current, boundary);
     panel.input.value = stagedImportRef.current;
@@ -646,6 +672,7 @@ export function WritingView({
     };
   }, [
     ports.fountainImport,
+    ports.workflows,
     active?.identity.documentId,
     active?.identity.handle,
     phase,

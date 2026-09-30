@@ -24,7 +24,9 @@ mod persistence_host;
 mod recovery_choices_host;
 mod snapshot_host;
 mod startup_host;
-use persistence_host::{Budget, checkpoint_document, protect_fountain_import, save_document};
+use persistence_host::{
+    Budget, checkpoint_document, protect_fountain_import, protect_workflow, save_document,
+};
 use recovery_choices_host::{
     compare_recovery, keep_current_source, recover_checkpoint_as_current, resolve_save_transaction,
     save_recovered_copy,
@@ -233,6 +235,7 @@ pub fn run() {
         resume_local_recovery,
         checkpoint_document,
         protect_fountain_import,
+        protect_workflow,
         save_document,
         compare_recovery,
         recover_checkpoint_as_current,
@@ -278,6 +281,7 @@ pub fn run() {
         resume_local_recovery,
         checkpoint_document,
         protect_fountain_import,
+        protect_workflow,
         save_document,
         compare_recovery,
         recover_checkpoint_as_current,
@@ -319,6 +323,7 @@ pub fn run() {
         resume_local_recovery,
         checkpoint_document,
         protect_fountain_import,
+        protect_workflow,
         save_document,
         compare_recovery,
         recover_checkpoint_as_current,
@@ -384,3 +389,6 @@ mod snapshot_ipc_tests;
 
 #[cfg(all(test, target_os = "linux"))]
 mod recent_projects_ipc_tests;
+
+#[cfg(all(test, target_os = "linux"))]
+mod workflow_protection_ipc_tests;

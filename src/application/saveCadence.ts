@@ -156,6 +156,21 @@ export class SaveCadence {
     this.clearTimers();
     return () => {
       this.paused = false;
+      // A cancelled/refused protected operation must not strand dirty work
+      // whose timers were cleared by pause. Preserve its original dirty age.
+      if (!this.disposed) {
+        const overdue =
+          this.dirtySince !== null &&
+          this.clock.now() - this.dirtySince >= this.options.maxDirtyMs;
+        if (this.recoveryNeeded()) {
+          if (overdue) void this.dispatch('recoveryCheckpoint');
+          else this.arm('recoveryCheckpoint');
+        }
+        if (this.sourceNeeded()) {
+          if (overdue) void this.dispatch('sourceFile');
+          else this.arm('sourceFile');
+        }
+      }
     };
   }
 
