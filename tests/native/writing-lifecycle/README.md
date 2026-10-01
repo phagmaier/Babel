@@ -207,3 +207,30 @@ After the default embedded release build, run `python3 tests/native/writing-life
 After building the default embedded release, run `python3 tests/native/writing-lifecycle/drill.py /tmp --presentation` with GUI/compositor access and builds/tests idle. The private-profile drill uses visible theme/zoom/focus/typewriter controls, trusted WebKit keys/wheel, owned real pinyin commit/cancel, selection/geometry/event probes and independent BOM/CRLF/whitespace byte oracles. It checks bounded zoom, final-line centering, manual-scroll pause, Escape, outline jumps, one-step Undo, persistent save failure in focus, Home and profile restart. Explicit DOM viewport positioning precedes trusted clicks when WebKit's nested-scroller automation cannot reach an outline row; no native invoke or EditorState hook is used.
 
 `presentation-measurements.json` records fixture bytes/rows/hash, actual device scale, synchronous event capture-to-document-bubble spans, input-to-rAF and toggle-to-two-rAF observations on 150/1,500-scene workloads. Handler spans include event routing and any synchronous work inside that event; asynchronous input/capture work and compositor paint are excluded. They do not certify the complete transaction/plugin frame budget, full S13, all DPI/platforms or long sessions. App-only screenshots, trusted composition events and all synthetic source/profile artifacts stay under the disposable root. Filesystem/native services are unchanged, so one filesystem is sufficient here.
+
+## M4-12 production spellcheck
+
+Build the default release/package and the owned pointer helper with
+`python3 tests/native/editor-completion/build-pointer.py`, then build the physical
+keyboard helper with `python3 tests/native/editor-input/build-keyboard.py`. Its additional test-only
+`unicode-start` and `hex-4/f/6/0` actions exercise GTK's built-in simple Unicode
+IME; no system IME/compositor setting is changed. If `wtype` is absent, build the
+same existing helper's pinned MIT source in `/tmp` (no application dependency):
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/atx/wtype/d71be3a7b3f93b534a2823fd68cabd7ac2a02359/main.c -o /tmp/babel-m4-12-wtype.c
+wayland-scanner client-header /tmp/babel-m3-08-virtual-keyboard.xml /tmp/virtual-keyboard-unstable-v1-client-protocol.h
+cc -O2 -DVERSION='"0.4 pinned d71be3a"' -I/tmp /tmp/babel-m4-12-wtype.c /tmp/babel-m3-08-virtual-keyboard.c $(pkg-config --cflags --libs wayland-client wayland-cursor xkbcommon) -lrt -o /tmp/wtype
+PATH=/tmp:$PATH unshare --user --map-root-user --net /bin/sh -c 'ip link set lo up && exec python3 tests/native/writing-lifecycle/drill.py /tmp --spellcheck'
+```
+
+Repeat the final command with `/home/phagmaier/Code/Babel/target` instead of
+`/tmp`. The runner requires only loopback in its private network namespace and
+checks compiled local resource URLs. It uses real default-release controls and
+trusted keyboard activation, with exact independent BOM/CRLF/marks/Unicode
+source/selection/Undo oracles. It audits language/resources, established names,
+Ignore/Add/Off, dictionary generations, owned process restart and a retained
+synthetic dictionary-only failure while source Save continues. GTK simple IME
+coverage is distinct from the earlier M4-11 pinyin proof; it does not claim East
+Asian production IME or other-language/resource coverage. No editor-state/native
+invoke hooks, mock ports, personal manuscript/dictionary or app runtime network.

@@ -27,6 +27,8 @@ mod save_as_store;
 mod snapshot_store;
 #[path = "source_store.rs"]
 mod source_store;
+#[path = "spellcheck_store.rs"]
+mod spellcheck_store;
 #[path = "startup_reader.rs"]
 mod startup_reader;
 use super::recovery::{CheckpointReceipt, source_hash};

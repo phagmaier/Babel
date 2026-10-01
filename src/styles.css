@@ -214,3 +214,22 @@ textarea {
     border: 3px double ButtonText;
   }
 }
+
+.spellcheck-panel {
+  padding: 1rem;
+  border: 1px solid var(--muted);
+  background: var(--paper);
+  color: var(--ink);
+}
+.spellcheck-panel button,
+.spellcheck-panel label {
+  margin: 0.25rem;
+}
+.spellcheck-panel [aria-label='Spelling issues'] {
+  max-height: 16rem;
+  overflow: auto;
+}
+.spelling-issue {
+  text-decoration: underline wavy var(--danger, #b73535);
+  text-underline-offset: 0.2em;
+}

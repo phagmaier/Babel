@@ -171,3 +171,28 @@ Settings contain only versioned UI configuration. Corrupt/unavailable reads disc
 ## Offline spellcheck proof (M4-11)
 
 [ADR 0032](decisions/0032-linux-native-spellcheck.md) selects the tested native Linux WebKitGTK/Enchant/Hunspell path for M4-12. The isolated proof verified explicit correction/Undo, language/resource failure, names, selected-word Ignore/Learn, Unicode and real IME. Ignore is session-only; Learn survives restart in an application-scoped disposable dictionary. Language choice is application-wide, and continuous-check Off alone does not suppress native menu suggestions. View-only name suppression passed without editing source. Production controls, resource discovery, persistent preferences, dictionary-write failures and native keyboard menu accessibility remain M4-12; no default-app spellcheck activation is claimed here. Other platforms and installed packaging remain open. [Evidence](test-evidence/M4.md#m4-11--offline-spellcheck-proof).
+
+## Production offline spellcheck (M4-12)
+
+The default Linux writing screen offers **Spellcheck → Check spelling** and an
+application-wide installed-language selector/Enable control. Checking is explicit;
+edits or caret changes clear old results. The panel underlines possible issues,
+then **Review** offers bounded local suggestions, **Ignore this session**, or
+**Add to local dictionary**. Corrections are explicit editor transactions; one
+Undo restores text, emphasis and the previous selection. Mixed-emphasis words
+require direct editing. Composition, read-only manuscripts and protected workflows
+cannot accept corrections. Failure messages remain in the panel; writing/saving
+stay independent.
+
+Ignore lasts for the application process and language. Add is confirmed only after
+application-owned local storage is synced; it survives restart for that language.
+Names derived from editable Character cues (excluding extensions) are skipped
+case-insensitively as individual name tokens in this manuscript without dictionary
+pollution. Title, notes, omitted/raw/protected regions are excluded. The panel
+states its 32768-word/200-visible-issue limits and unsupported/oversized skips.
+Off suppresses checking and native spelling menus. The platform personal dictionary
+is neither learned into nor used; no text is uploaded. Missing dictionaries have
+a usable unavailable state. [ADR 0033](decisions/0033-production-spellcheck-boundary.md)
+owns boundaries/resources and [M4-12 evidence](test-evidence/M4.md#m4-12--production-offline-spellcheck)
+owns measured coverage. Other languages/platforms, installed packages, broader
+accessibility and large-script/long-session costs remain open.

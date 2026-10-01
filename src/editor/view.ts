@@ -40,7 +40,7 @@ export function mountScreenplayEditor(
   let compositionEndedBeforeKeyup = false;
   const view = new EditorView(host, {
     state,
-    attributes: { tabindex: '0' },
+    attributes: { tabindex: '0', spellcheck: 'false' },
     handleScrollToSelection: observers.scrollToSelection,
     editable: (current) =>
       !editorOrigin(current).document.readOnlyReason &&
@@ -49,7 +49,8 @@ export function mountScreenplayEditor(
       if (
         (transaction.getMeta('outlineNavigation') ||
           transaction.getMeta('outlineMove') ||
-          transaction.getMeta('titlePage')) &&
+          transaction.getMeta('titlePage') ||
+          transaction.getMeta('spellcheck')) &&
         (composing || view.composing)
       ) {
         observers.refused?.('Outline actions wait until composition finishes');

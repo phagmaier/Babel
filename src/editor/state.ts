@@ -11,6 +11,7 @@ import {
   TextSelection,
   type Transaction,
 } from 'prosemirror-state';
+import { spellcheckPlugin } from './spellcheck';
 import { parseFountain } from '../domain/fountainCodec';
 import type {
   FountainDocument,
@@ -297,7 +298,7 @@ export function createEditorState(
   return EditorState.create({
     doc,
     selection: TextSelection.create(doc, first),
-    plugins: [sourcePlugin, history()],
+    plugins: [sourcePlugin, history(), spellcheckPlugin],
   });
 }
 

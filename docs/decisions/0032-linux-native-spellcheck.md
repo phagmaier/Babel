@@ -85,7 +85,9 @@ requires a range for Ignore/Learn. Installed Enchant 2.8.21 documentation
 scope. Installed package metadata and full dictionary copyright were inspected;
 this is not a completed transitive release license audit.
 
-Evidence still needed: M4-12 production activation, application-owned language/
+Production refinement: [ADR 0033](0033-production-spellcheck-boundary.md) owns the typed Enchant ABI, explicit empty personal wordlist, application dictionary publication and guarded editor corrections chosen in M4-12. The proof's native Learn/menu approach remains historical evidence.
+
+Evidence still needed at the proof boundary: M4-12 production activation, application-owned language/
 vocabulary preference and resource discovery, explicit dictionary write-failure
 handling (native Learn has no public persistence receipt), composing/protection/
 stale correction guards, native keyboard menu accessibility, default-release

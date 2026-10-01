@@ -26,6 +26,8 @@ ENV = os.environ.copy()
 ENV.update(TAURI_WEBVIEW_AUTOMATION='true', XDG_DATA_HOME=str(ROOT / 'data'),
            XDG_CONFIG_HOME=str(ROOT / 'config'), XDG_CACHE_HOME=str(ROOT / 'cache'),
            GSETTINGS_BACKEND='memory')
+if '--spellcheck' in sys.argv:
+    ENV['GTK_IM_MODULE'] = 'simple'
 DRIVER_LOG = (ROOT / 'webdriver.log').open('w')
 DRIVER = subprocess.Popen(['WebKitWebDriver', f'--port={PORT}'], env=ENV,
                           stdout=DRIVER_LOG, stderr=DRIVER_LOG)
@@ -223,6 +225,10 @@ try:
       fetch('http://localhost:5173/__babel_audit_probe').catch(()=>{});""")
     wait(lambda:script("return window.auditBlocked.some(e=>e.uri.startsWith('http://localhost:5173') && e.directive==='connect-src');"),'Release CSP blocks development-server connections')
     print('PASS native release CSP excludes the development server',flush=True)
+    if '--spellcheck' in sys.argv:
+        from spellcheck_workflows import run as run_spellcheck
+        run_spellcheck(sys.modules[__name__])
+        sys.exit(0)
     if '--home' in sys.argv:
         from home_workflows import run as run_home
         run_home(sys.modules[__name__])

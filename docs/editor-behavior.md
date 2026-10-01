@@ -138,3 +138,24 @@ Replace-one commits one planned range and collapses the caret at the replacement
 [UI preferences](../src/application/viewPreferences.ts) control app theme and the writing host's font size plus focus/typewriter CSS classes. They do not recreate the sole EditorView/EditorState, serialize a manuscript or alter source version, selection, marks, Undo, export fonts or layout. The sticky header measures its own height for document scroll padding; explicit selection scrolling respects its lower edge. Completion positioning observes editor resize as well as viewport scroll/resize, so zoom remains a view concern. Unchanged outlines reuse their rendered tree during presentation changes; callbacks refresh with projection/busy changes so navigation guards remain current. A completion-consumed Escape dismisses that offer before a subsequent Escape can exit focus.
 
 [Typewriter follow](../src/editor/presentation.ts) observes input intent and accepted transaction facts without dispatching a transaction. It coalesces one post-paint caret-coordinate read and instant viewport scroll; no document scan runs on this path. A current doc/selection/focus check prevents a queued follow after navigation. Manual gestures cancel queued work; new typing/arrows can resume it. Composition, modified/dead/process/page/home/end keys, ranges, programmatic navigation/import/undo, dialogs and inactive editor focus suppress follow. Listeners/queued frames are removed on editor replacement or session disposal. [M4-10 evidence](test-evidence/M4.md#m4-10--presentation-modes) distinguishes JSDOM no-op contracts from real WebKit input and timing observations.
+
+## Explicit spelling corrections (M4-12)
+
+[Spellcheck](../src/application/spellcheck.ts) scans immutable current editor
+rows only after explicit Check spelling, outside the typing transaction path.
+Names come from editable Character cues with extensions stripped; title, notes,
+boneyards, raw and protected rows do not contribute spelling issues. Results and
+[view-only highlights](../src/editor/spellcheck.ts) bind session/document/version;
+any selection/content change clears them. The existing editor remains the only
+content authority. Native WebKit spellcheck is disabled to route all corrections
+through the application guards.
+
+Review never moves the caret. An explicit suggestion replaces only its exact
+current word, keeps uniform emphasis, places the caret after the correction and
+isolates one Undo event. Trial apply plus capture rejects unrepresentable edits
+before dispatch. Mixed emphasis is refused with a direct-edit explanation;
+composition/read-only/frozen/title-staging guards still apply. Ignore, Add,
+language/Off preferences and highlights never change source, versions, selection
+or Undo. [ADR 0033](decisions/0033-production-spellcheck-boundary.md) and
+[M4 evidence](test-evidence/M4.md#m4-12--production-offline-spellcheck) detail bounds
+and native scope.

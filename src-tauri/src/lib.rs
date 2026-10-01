@@ -9,6 +9,12 @@ mod editor_composition_proof;
 use editor_composition_proof::{
     open_composition_fixture, record_composition_proof, select_snapshot_proof_destination,
 };
+#[cfg(target_os = "linux")]
+mod enchant;
+#[cfg(target_os = "linux")]
+mod spellcheck_host;
+#[cfg(target_os = "linux")]
+use spellcheck_host::{SpellcheckHost, spellcheck};
 mod document_entry_host;
 use document_entry_host::{create_unsaved_draft, open_source_via_picker, select_destination};
 #[cfg(target_os = "linux")]
@@ -198,18 +204,27 @@ pub fn run() {
                     && let Ok(mut host) = app.state::<DocumentHost>().service.lock()
                 {
                     *host = Some(service);
+                    if let Ok(service) = DocumentService::new(&dir)
+                        && let Ok(mut spelling) = app.state::<SpellcheckHost>().service.lock()
+                    {
+                        *spelling = Some(service);
+                    }
                 }
             }
             #[cfg(all(feature = "editor-composition-proof", target_os = "linux"))]
             editor_composition_proof::initialize(app)?;
             Ok(())
         });
+    #[cfg(target_os = "linux")]
+    let builder = builder.manage(SpellcheckHost::default());
     #[cfg(all(
         feature = "native-editor-proof",
         not(all(feature = "editor-composition-proof", target_os = "linux"))
     ))]
     let builder = builder.invoke_handler(tauri::generate_handler![
         app_info,
+        #[cfg(target_os = "linux")]
+        spellcheck,
         read_open_document,
         create_unsaved_draft,
         open_source_via_picker,
@@ -256,6 +271,8 @@ pub fn run() {
     )))]
     let builder = builder.invoke_handler(tauri::generate_handler![
         app_info,
+        #[cfg(target_os = "linux")]
+        spellcheck,
         read_open_document,
         create_unsaved_draft,
         open_source_via_picker,
@@ -298,6 +315,8 @@ pub fn run() {
     #[cfg(all(feature = "editor-composition-proof", target_os = "linux"))]
     let builder = builder.invoke_handler(tauri::generate_handler![
         app_info,
+        #[cfg(target_os = "linux")]
+        spellcheck,
         read_open_document,
         create_unsaved_draft,
         open_source_via_picker,

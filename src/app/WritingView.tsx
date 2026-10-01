@@ -1,3 +1,10 @@
+import { SpellcheckPanel } from './SpellcheckPanel';
+import {
+  type SpellcheckController,
+  type SpellcheckPort,
+  unavailableSpellcheck,
+} from '../application/spellcheck';
+import { nativeSpellcheck } from '../infrastructure/nativeSpellcheck';
 /**
  * M3-12 production writing surface. One WritingSession binds the mounted
  * editor to native persistence; startup recovery, explicit choices,
@@ -171,9 +178,13 @@ export function WritingView({
   onOpenRequested,
   recents,
   preferences: providedPreferences,
+  spelling = '__TAURI_INTERNALS__' in window
+    ? nativeSpellcheck
+    : unavailableSpellcheck,
 }: {
   ports: WritingPorts;
   preferences?: ViewPreferences;
+  spelling?: SpellcheckPort;
   recents?: RecentProjectsPort;
   open: OpenRequest;
   onSessionClosed: (message?: string) => void;
@@ -224,6 +235,8 @@ export function WritingView({
   const [checkState, setCheckState] = useState<CheckState | null>(null);
   const [showCheck, setShowCheck] = useState(false);
   const checkRef = useRef<ScriptCheckController | null>(null);
+  const spellingRef = useRef<SpellcheckController | null>(null);
+  const [showSpelling, setShowSpelling] = useState(false);
   const [replaceMessage, setReplaceMessage] = useState('');
   const replaceAdvanceRef = useRef<{
     query: string;
@@ -459,6 +472,7 @@ export function WritingView({
       _state?: import('prosemirror-state').EditorState,
       transaction?: import('prosemirror-state').Transaction,
     ) => {
+      spellingRef.current?.invalidate();
       if (transaction?.getMeta('findNavigation')) {
         // Unchanged content needs no stale-outline repaint; every old anchor still checks its stamp.
         find.setProjection(
@@ -520,6 +534,7 @@ export function WritingView({
       writable: boolean,
     ) => {
       projection.changedDraft();
+      spellingRef.current?.invalidate();
       writableRef.current = writable;
       typewriter.destroy();
       viewRef.current?.destroy();
@@ -1551,6 +1566,28 @@ export function WritingView({
   // from under the live view, silently detaching the editor.
   const hosts = (
     <div key="writing-hosts">
+      {phase === 'active' && showSpelling && (
+        <SpellcheckPanel
+          port={spelling}
+          getView={() => viewRef.current}
+          blocked={() =>
+            operationRef.current ||
+            frozenRef.current ||
+            !readyRef.current ||
+            titleDraftRef.current ||
+            titleComposingRef.current ||
+            Boolean(showClose)
+          }
+          readOnly={() => !writableRef.current}
+          onController={(controller) => {
+            spellingRef.current = controller;
+          }}
+          onClose={() => {
+            setShowSpelling(false);
+            viewRef.current?.focus();
+          }}
+        />
+      )}
       {phase === 'active' && showCheck && checkRef.current && checkState && (
         <ScriptCheckPanel
           controller={checkRef.current}
@@ -1785,6 +1822,22 @@ export function WritingView({
           onClick={openFind}
         >
           Find
+        </button>
+        <button
+          type="button"
+          id="writing-spellcheck"
+          aria-expanded={showSpelling}
+          disabled={busy || !active || showClose}
+          onClick={() => {
+            if (
+              !viewRef.current?.composing &&
+              !operationRef.current &&
+              !titleComposingRef.current
+            )
+              setShowSpelling(true);
+          }}
+        >
+          Spellcheck
         </button>
         <button
           type="button"

@@ -9,6 +9,7 @@ pub mod recovery;
 pub mod save_as;
 pub mod saving;
 pub mod snapshots;
+pub mod spellcheck;
 pub mod startup;
 
 #[cfg(target_os = "linux")]
