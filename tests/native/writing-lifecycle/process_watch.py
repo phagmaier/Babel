@@ -43,8 +43,11 @@ class ProcessWatch:
             if token not in self.records:
                 parent = current.get(p['parent'])
                 self.records[token] = {**p, 'firstSeen': now, 'lastSeen': now,
+                                       'firstName': p['name'],
                                        'parentStart': parent['start'] if parent else None}
-            self.records[token].update(lastSeen=now, state=p['state'])
+            # exec preserves PID/start identity but changes comm. Survivor
+            # classification must use the current name, not a pre-exec parent.
+            self.records[token].update(lastSeen=now, state=p['state'], name=p['name'])
             self.records[token].pop('firstMissing', None)
         self.samples += 1
         if monotonic - self.last_saved >= 1:

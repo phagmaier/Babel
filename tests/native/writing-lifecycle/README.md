@@ -338,6 +338,36 @@ acceptance. Preserve failed-root evidence separately.
 
 ### Isolated Fcitx prerequisite for M4-15
 
+For a private corrected WebKit trial, use `stack_probe.py` **inside** the IME
+wrapper, after building/installing the candidate into a private prefix:
+
+```sh
+python3 tests/native/writing-lifecycle/isolated_ime.py \
+  /tmp/babel-m4-15-fcitx/prefix -- \
+  python3 tests/native/writing-lifecycle/stack_probe.py \
+  --prefix /home/phagmaier/Code/Babel/target/m4-15-webkit-candidate-1/prefix \
+  --output /tmp/babel-m4-15-candidate-stack-1 -- \
+  python3 tests/native/writing-lifecycle/shutdown_isolation.py \
+  /tmp /home/phagmaier/Code/Babel/target --repeats 2 \
+  --output /tmp/babel-m4-15-candidate-paired-1
+```
+
+Use fresh output directories. The observer preserves the IME library path while
+prepending candidate libraries/driver, checks mapped paths/device/inodes and
+executable identities in owned descendants, and rechecks expected file hashes
+and Python tooling after the command. It observes expected mapping devices
+through private read-only mmaps; Btrfs stat and mapping devices can differ,
+and both are retained. Missing Babel/driver/web-process observations, a missing or
+unexpected native mapping/executable, changed files or command failure refuse
+success. Driver processes need their candidate executable; other native roles
+also need both candidate WebKit/JSC mappings. `stack.json` is checkpointed during
+execution and finalized separately from the native matrix. Polling can miss
+short-lived processes/mapping changes and adds overhead; do not call observed
+maps lossless tracing or compare these timings as if the observer were absent.
+This proof supplements exact byte/checkpoint and strict crash/journal audits.
+It neither supplies a supported package nor establishes crash correction.
+Synthetic tooling checks: `python3 tests/native/writing-lifecycle/test_stack_probe.py`.
+
 `isolated_ime.py <verified-prefix> -- <drill-command...>` runs real Fcitx GTK3,
 pinyin and Mozc from signed, unpacked host packages. It refuses an existing
 Fcitx service or personal legacy `~/.mozc` profile. It uses a private XDG profile,

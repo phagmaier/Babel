@@ -1,9 +1,14 @@
-# Current state — M4-15 tracked ordinary exit abort; gate open
+# Current state — M4-15 private corrected WebKit build; gate open
 
-Date: 2026-10-01 PDT. Application: **babel**. Base `98f17a1` on main;
+Date: 2026-10-01 PDT. Application: **babel**. Base `14bed14` on main;
 one editing agent, no push or M4 verified tag.
 
 ## Task and work
+
+**Claimed M4-15 continuation:** supported-release/backport availability refreshed;
+signed 2.54.0 source staged with official stable EGL and reviewed upstream DRM
+patches. Private build configuration passes; compilation is in progress.
+No candidate installed or tested natively yet; acceptance remains open.
 
 **M4-15 diagnostic continuation:** presentation without preference restart,
 continuous descendant attribution and bounded crash journal scans; reviewed
@@ -32,7 +37,7 @@ Original manifests/scans are preserved; corrected results are separate.
 
 ## Paths and checks
 
-- Harness: `tests/native/writing-lifecycle/{presentation_workflows,drill,shutdown_isolation,integrated_exit,process_watch,audit_process_watch,audit_shutdown,audit_retained,test_process_watch}.py`; commands/limits in native guide and development docs.
+- Harness: `tests/native/writing-lifecycle/{presentation_workflows,drill,shutdown_isolation,integrated_exit,process_watch,audit_process_watch,audit_shutdown,audit_retained,test_process_watch,stack_probe,test_stack_probe}.py`; commands/limits in native guide and development docs.
 - [Diagnostic evidence](test-evidence/M4.md#continuation-from-98f17a1--no-restart-probe-and-continuous-attribution) owns exact commands, time, manifests, audits, host metadata, failures and upstream snapshots.
 - No-restart: 8/8 strict (~11m13s); independent 8 roots/8 exits and retained 8/96/32/0/32 roots/frames/snapshots/refs/previous sources. Bounded post-run journal scan zero events.
 - Tracked restart: 7/8 (~11m56s); byte/phase audit 8 roots/16 exits including failed root; successful-only retained audit 7/84/28/0/28. Journal replay 7/8 with one owned event. All 16 observed web-process tokens retained; max sampling gaps 84–88ms.
@@ -46,20 +51,41 @@ Original manifests/scans are preserved; corrected results are separate.
 
 ## Blocker and next action
 
-Two reviewed upstream WebKit fixes landed September 24: EGL/Skia exit ordering
-and synchronization (`e0b1fdd…`, bug305909), DRM singleton exit destruction
-(`bd89b1e…`, bug315577). Their mechanisms fit the observed paths; this is an
-inference. Both 2.52.6 and released 2.54.0 retain the old paths; upgrading to
-2.54.0 alone would not test these fixes. No corrected supported build tested. EGL patch needs backport adaptation on
-2.52.6 (five files) and 2.54.0 (one file); DRM patch dry-run applies to 2.52.6.
-No patch applied or library built.
-Snapshots/patches/host metadata: `/tmp/babel-m4-15-upstream-exit/`.
+The official `webkitglib/2.54` branch contains EGL backport `b33979e…`
+(September 30), eliminating the need for a local C++ adaptation. Its pinned
+head still has the old DRM singleton; checked 2.52 branch retains both old
+paths. Published stable release is 2.54.0; Arch offers 2.52.6-1. Neither
+published candidate checked here contains both fixes.
 
-Next: validate a supported stack containing the reviewed fixes with exact
-provenance, then rerun affected paired/integrated/native/shared gates. Preserve
-byte oracles and crashes; never tag M4 on clean repeats. Historical home
-PID578310 remains unattributed. Cold Home controls do not prove automation is
-necessary for arbitrary presentation content. No guessed product workaround.
+Private diagnostic candidate: signed 2.54.0 + `b33979e…` + `bd89b1e…`,
+14 source files changed by upstream patches, no local C++ edits. Source signature
+and SHA256, 43 signed build-only packages, exact commands and source hashes
+retained. System WebKit and Babel binary unchanged. Configuration passes with
+GTK3/libsoup3/Wayland/GBM/spellcheck/WebDriver; two-job compilation is running.
+This is not a distribution-supported corrected package or a verified fix.
+
+New optional stack observer verifies live library mappings and executable
+identities in owned descendants, checkpoints evidence and rejects changed
+tooling/files. Btrfs mapping-device identity is observed through a private
+read-only mmap, separately from stat device identity. Eight observer checks
+pass on tmpfs/Btrfs; six process-watch regressions pass, including current-name
+updates after exec while preserving the first name. Corrected system-stack
+tooling smoke passes 4/4 Home cases on both filesystems and 28 native tokens;
+retained audits and exact-window journal replay pass with zero events. These are not corrected-stack
+or performance acceptance results; compilation overlaps the tooling smoke.
+
+Paths: `target/m4-15-webkit-candidate-1/{webkitgtk-2.54.0,build,provenance}`;
+`/tmp/babel-m4-15-supported-stack-1/{build-1.log,build_private.py}`.
+[Preparation evidence](test-evidence/M4.md#continuation-from-14bed14--official-stable-backport-and-private-build)
+owns commands, provenance, failures and status. Prior investigation snapshots
+remain at `/tmp/babel-m4-15-upstream-exit/`.
+
+Next: inspect compilation result, install only into the candidate's private
+prefix, and prove Babel/owned WebKit processes load the candidate libraries and
+executables before running paired/integrated/native/shared gates. The IME wrapper
+replaces LD_LIBRARY_PATH; any candidate paths must be set in its child command.
+Preserve byte oracles and crashes; never tag M4 on clean repeats. Historical home
+PID578310 remains unattributed; cold Home controls do not establish a fix.
 
 M4-15-R1 genuine Linux preedit and M4-08-R1 emphasis correction remain complete;
 M4-01–14 bounded Linux dependencies accepted. Stop at M4; no M5 implementation.

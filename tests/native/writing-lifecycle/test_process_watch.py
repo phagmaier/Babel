@@ -14,6 +14,22 @@ def proc(pid, parent, start='1', name='helper'):
 
 
 class WatchTests(unittest.TestCase):
+    def test_exec_rename_updates_current_name_without_changing_identity(self):
+        with tempfile.TemporaryDirectory() as folder:
+            output = Path(folder) / 'ledger.json'
+            with patch('process_watch.processes', return_value={10: proc(10, 1)}):
+                watch = ProcessWatch(10, output)
+            with patch('process_watch.processes', return_value={
+                10: proc(10, 1), 11: proc(11, 10, name='helper')}):
+                watch.sample()
+            with patch('process_watch.processes', return_value={
+                10: proc(10, 1), 11: proc(11, 10, name='WebKitWebProces')}):
+                watch.sample()
+            child = watch.records[(11, '1')]
+            self.assertEqual(child['firstName'], 'helper')
+            self.assertEqual(child['name'], 'WebKitWebProces')
+            self.assertEqual((child['parent'], child['parentStart']), (10, '1'))
+
     def test_siblings_orphans_and_reused_parent(self):
         with tempfile.TemporaryDirectory() as folder:
             output = Path(folder) / 'ledger.json'
