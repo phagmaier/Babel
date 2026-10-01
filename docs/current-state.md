@@ -22,6 +22,11 @@ M4-15-R1 genuine Linux preedit and M4-08-R1 replaced-emphasis correction remain
 complete. M4-01–14 bounded Linux dependencies remain accepted. Stop at M4;
 no M5 implementation or accepted M4 gate.
 
+Process update (this session): added Tier 1/2/3 check policy to
+`docs/development.md`, tier pointer in `docs/testing.md`, and Tier wording in
+`AGENTS.md`. No product code, SPEC, or milestone gate changed; M4-15 blocker
+unchanged.
+
 ## Paths and checks
 
 - Native harness: `tests/native/writing-lifecycle/{shutdown_isolation,shutdown_lifecycle,plain_quit,audit_shutdown,drill,presentation_workflows}.py` and guide; command additions in development docs.
@@ -31,6 +36,7 @@ no M5 implementation or accepted M4 gate.
 - Non-automation cold Home control: **8/8 passed**, four per filesystem; no stderr heap error or core for its eight owned WebKit PIDs. Different workload/profile lifecycle, so this does not establish automation as the cause or a fix.
 - Shared **694/56** frontend tests plus formatting/lint/typecheck/build and browser smoke passed; Rust fmt/clippy and **237 tests each on tmpfs/Btrfs** passed. Python syntax/CLI entry points and changed local links passed; final whitespace check recorded in evidence.
 - Separate same-agent diagnostic source/core review recorded; no second-reviewer/human sign-off claim.
+- Check-tier docs change: `prettier --check` passed on touched files; changed-file link target check passed; `git diff --check` passed. No executable suite (docs-only, no commands/config changed).
 
 ## Blocker and next action
 

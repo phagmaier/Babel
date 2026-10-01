@@ -14,6 +14,10 @@ Status: M0/M1 proofs, M2-01–06 bounded Linux headless gates, and the corrected
 
 Browser preview deliberately reports native IPC unavailable. A native smoke must actually start Tauri and observe the app-info response in WebKit.
 
+## Check tiers (efficiency without weakening gates)
+
+Use the lowest tier in [development](development.md#check-tiers-use-the-lowest-tier-that-covers-the-change) that covers the change. Tier 1 is docs/text-only; Tier 2 is frontend/Rust logic with full shared gates; Tier 3 adds browser smoke, native drills, and the tmpfs/Btrfs matrix. Focused tests never replace required shared/milestone gates for behavior changes. Skipped Tier 3 items need a one-line rationale in evidence (for example, "no filesystem paths touched, single-filesystem shared run only"). Record elapsed time beside `pnpm check`, `cargo test --workspace`, and any native/matrix run.
+
 ## Mandatory save faults (SPEC S15.2)
 
 Crash before/after temporary write and replacement, partial write, sync failure, disk full, corrupt journal tail, out-of-order acknowledgements, external edit, second instance, history failure, and interrupted restore/remote adoption. Every failure must preserve known good generations and report truthful status. Real filesystem process-termination tests complement, but do not universally prove, mock fault tests.

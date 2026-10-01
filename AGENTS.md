@@ -54,9 +54,9 @@ Keep changes task-scoped and preserve module boundaries. Prefer verified librari
 
 Implement behavior tests including failures/undo where relevant. Use synthetic fixtures, temporary directories and disposable remotes. Never test on the owner's only manuscript or auto-discover/use personal credentials.
 
-Use `docs/development.md` commands for changed behavior/acceptance gates. Docs-only: formatting, changed local-link checks, `git diff --check`; executable checks if commands/config change. Code: required focused/shared tests, formatting, lint/typecheck, relevant builds and native/UI checks. Focused tests cannot replace required shared/milestone gates.
+Use `docs/development.md` commands and check tiers for changed behavior/acceptance gates. Docs-only: formatting, changed local-link checks, `git diff --check`; executable checks if commands/config change. Code: required focused/shared tests, formatting, lint/typecheck, relevant builds and native/UI checks. Focused tests cannot replace required shared/milestone gates for behavior changes; Tier 1 fast-path skips need a one-line rationale in evidence.
 
-Filesystem matrix: replacement/recovery/journal/history publication, sync/interruption, identity publication, leases and native metadata/path behavior. Pure codec/envelope/state tests need no second filesystem run. Record coverage/omissions; never disable a check or broaden permissions just to get green output.
+Filesystem matrix (Tier 3): replacement/recovery/journal/history publication, sync/interruption, identity publication, leases and native metadata/path behavior; triggers are listed in `docs/development.md`. Pure codec/envelope/state tests need no second filesystem run. Record coverage/omissions; never disable a check or broaden permissions just to get green output.
 
 Record command, result (pass/fail), and any failures in `docs/test-evidence/M<milestone>.md`; label native vs mocked/browser and skipped/blocked gates. One line per check suffices — do not write paragraphs. Task/trace/handoff docs link results instead of duplicating tables. Bootstrap establishes actual commands; finish with `git diff --check`.
 
