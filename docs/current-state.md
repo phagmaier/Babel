@@ -1,24 +1,22 @@
-# Current state — M4-15 auditor fixed; block stands (5/8 paired, 8/8 control)
+# Current state — M4-15 isolated to presentation workload; block stands
 
-Date: 2026-10-01 PDT. Application: **babel**. Main at `6be6dc1`; one editing
+Date: 2026-10-01 PDT. Application: **babel**. Main at `dd1186b`; one editing
 agent, no push or M4 verified tag.
 
 ## Task and work
 
-**M4-15 matched reproducer rerun is complete; M4-15 remains blocked.** Same
-default binary `6fbb10a5…` (no rebuild; post-`7cade34` delta is docs-only),
-same verified Fcitx prefix, fresh profiles, arm order alternated. Paired
-presentation probe under automation: **5/8 strict** (~12 min wall) — one
-functional drill failure (no crash), two heap aborts (ordinary tmpfs
-`corrupted double-linked list`, forced Btrfs `free(): corrupted unsorted
-chunks`). Non-automation cold-Home control: **8/8** (<1 min), no crash lines.
-Two new owned WebKitWebProcess SIGABRT cores (PIDs 520856, 526885). No
-product/native dependency changes.
+**M4-15 abort isolated: automation necessary, not sufficient.** All five owned
+WebKit heap aborts (both paired runs) fire during teardown of presentation
+workload windows — ordinary pre-DELETE, forced post-DELETE; session and
+filesystem vary. Home workload under identical automation: **8/8 strict**
+(~5 min), zero crash lines. Pristine control: 16/16 clean. One unattributed
+WebKit SEGV during home-2 case 07 (parentage unproven, no case impact).
+M4-15 remains blocked; no product/native dependency changes.
 
-Follow-up done: `audit_shutdown.py` now reports drill-failed roots (zero
-exits, no byte claim, failed verdict asserted) instead of crashing; verified
-on repro (8/14/2/1), prior (8/15/3/0, unchanged), and a doctored manifest
-(rejected). Test-tooling only.
+Harness (test-tooling only): `shutdown_isolation.py --modes` passthrough,
+phase gate ≥1 complete exit (presentation verdicts verified unchanged 5/8),
+crash regex widened (`segfault`/`corrupt`, zero false positives on clean
+logs). `audit_shutdown.py` drill-failed reporting verified earlier.
 
 The paired runner uses the same default release SHA256 `6fbb10a5…`, fresh
 profiles, typical/stress presentation workflows, genuine pinyin/Undo/divergence/
@@ -49,7 +47,7 @@ unchanged.
 - Shared **694/56** frontend tests plus formatting/lint/typecheck/build and browser smoke passed; Rust fmt/clippy and **237 tests each on tmpfs/Btrfs** passed. Python syntax/CLI entry points and changed local links passed; final whitespace check recorded in evidence.
 - Separate same-agent diagnostic source/core review recorded; no second-reviewer/human sign-off claim.
 - Check-tier docs change: `prettier --check` passed on touched files; changed-file link target check passed; `git diff --check` passed. No executable suite (docs-only, no commands/config changed).
-- Reproducer rerun: harness syntax passed; paired `5/8` strict with 2 heap-abort crash lines (ordinary + forced) + 1 functional drill failure; `audit_retained` 5/60/20/0/20 passed; plain control `8/8` passed; 2 new owned SIGABRT cores. Shared gates not repeated (same binary, no source change). Auditor fix: syntax + repro/prior/doctored manifests verified. Full detail in [M4 evidence](test-evidence/M4.md#continuation-from-5f3021f--matched-reproducer-rerun-same-binary).
+- Isolation probe: home-mode paired `8/8` strict, `audit_retained` 8/168/24/0/24, presentation oracles N/A (recorded); widened crash regex clean on all 16 non-presentation windows; 1 unattributed SEGV caveat. Shared gates not repeated (same binary, test-tooling only). Full detail in [M4 evidence](test-evidence/M4.md#isolation--abort-follows-presentation-workload-not-automation-alone).
 
 ## Blocker and next action
 
@@ -59,11 +57,12 @@ Gallium and `exit`; corruption origin is unproved. Current host is kernel
 7.2.7-arch1-1 and Mesa 26.2.3 (historical host notes were older); no stack upgrade
 was performed by this task. Non-automation control did not reproduce the abort.
 
-Next **M4-15** action: narrow the corrupting workload under automation and
-investigate a supported WebKit/Mesa exit fix. Preserve crash/core evidence and
-exact byte/checkpoint oracles; rerun affected integrated/native gates after a
-real correction. Do not filter crashes, ship a guessed workaround or tag M4 on
-clean repeats.
+Next **M4-15** action: probe presentation without the restart cycle and track
+all descendant PIDs (not snapshot inventory) so sibling crashes cannot escape
+attribution; then investigate a supported WebKit/Mesa exit fix. Preserve
+crash/core evidence and exact byte/checkpoint oracles; rerun affected
+integrated/native gates after a real correction. Do not filter crashes, ship
+a guessed workaround or tag M4 on clean repeats.
 
 SC005/SC008 assessment remains unavailable until M5. C1/native dependency
 hardening, screenreader/other platforms, installed/offline packaging, full

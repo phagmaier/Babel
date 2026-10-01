@@ -48,7 +48,7 @@ def main():
             crash_lines = []
             if native_log and native_log.exists():
                 crash_lines = [line for line in native_log.read_text(errors='replace').splitlines()
-                               if re.search(r'corrupted|double free|SIGABRT|segmentation fault|core dumped', line, re.I)]
+                               if re.search(r'corrupt|double free|segfault|segmentation fault|SIGABRT|core dumped', line, re.I)]
             report = {'mode': mode, 'root': str(root), 'filesystem': filesystem,
                       'command': cmd, 'exitCode': result.returncode,
                       'seconds': round(time.monotonic() - started, 2), 'log': str(log),

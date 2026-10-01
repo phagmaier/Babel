@@ -1,4 +1,8 @@
-"""Paired default-binary presentation exits; retain failures and exact provenance."""
+"""Paired default-binary workload exits; retain failures and exact provenance.
+
+--modes selects the integrated_exit scenario (default presentation). Home mode
+isolates automation presence from presentation workload content; presentation
+byte oracles do not apply to other modes."""
 import argparse
 import hashlib
 import json
@@ -13,6 +17,8 @@ def main():
     parser.add_argument('roots', nargs='+', type=Path)
     parser.add_argument('--output', required=True, type=Path)
     parser.add_argument('--repeats', type=int, default=2)
+    parser.add_argument('--modes', nargs='+', default=['presentation'],
+                        help='integrated_exit scenario names (default: presentation)')
     args = parser.parse_args()
     if args.repeats < 1:
         parser.error('--repeats must be positive')
@@ -23,6 +29,7 @@ def main():
     (args.output / 'binary.json').write_text(json.dumps({
         'path': str(binary), 'sha256': digest, 'repeats': args.repeats,
         'automation': True, 'ordinaryEntry': 'Hyprland graceful window close from Home',
+        'scenarioModes': args.modes,
     }, indent=2) + '\n')
     reports = []
     matrix = Path(__file__).with_name('integrated_exit.py')
@@ -34,7 +41,7 @@ def main():
                 output = args.output / f'{len(reports):02d}-{mode}'
                 env = os.environ.copy()
                 env.update(BABEL_SHUTDOWN_MODE=mode, BABEL_NATIVE_BINARY=str(binary))
-                cmd = [sys.executable, str(matrix), str(root), '--modes', 'presentation', '--output', str(output)]
+                cmd = [sys.executable, str(matrix), str(root), '--modes', *args.modes, '--output', str(output)]
                 with (args.output / (output.name + '.log')).open('w') as log:
                     result = subprocess.run(cmd, env=env, stdout=log, stderr=subprocess.STDOUT)
                 entries = json.loads((output / 'results.json').read_text())
@@ -45,7 +52,10 @@ def main():
                 artifact = Path(entry['artifacts']) if entry['artifacts'] else None
                 phases = artifact / 'shutdown-phases.json' if artifact else None
                 entry['shutdownPhases'] = json.loads(phases.read_text()) if phases and phases.exists() else []
-                entry['phaseAuditPassed'] = (len(entry['shutdownPhases']) == 2 and
+                # Drill exit code already gates functionality; the phase audit
+                # verifies every recorded exit completed. Single-exit scenarios
+                # (for example home) record one sequence, presentation two.
+                entry['phaseAuditPassed'] = (len(entry['shutdownPhases']) >= 1 and
                     all(p['mode'] == mode and p['phases'][-1]['name'] == 'complete'
                         for p in entry['shutdownPhases']))
                 reports.append(entry)
