@@ -36,6 +36,17 @@ import {
 } from '../editor/sceneMoves';
 import type { MoveRequest } from '../domain/sceneMoves';
 import { Outline } from './Outline';
+import { CharacterPanel } from './CharacterPanel';
+import { highlightCharacter } from '../editor/characterFocus';
+import {
+  localRecentPositions,
+  type RecentPosition,
+} from '../application/recentPosition';
+import {
+  captureRecentPosition,
+  recentSelection,
+  restoreRecentViewport,
+} from '../editor/recentPosition';
 import type { OutlineItem } from '../domain/manuscriptIndex';
 import { TitlePagePanel } from './TitlePagePanel';
 import { FindPanel } from './FindPanel';
@@ -280,6 +291,76 @@ export function WritingView({
     projection: null,
     message: 'Preparing outline…',
   });
+  const [character, setCharacter] = useState<string | null>(null);
+  const [characterHighlight, setCharacterHighlight] = useState(false);
+  const positions = useMemo(() => localRecentPositions(), []);
+  const [positionError, setPositionError] = useState('');
+  const positionRemember = useRef<(closing?: boolean) => void>(() => {});
+  const positionClosing = useRef(false);
+  const positionCloseHint = useRef<RecentPosition | null>(null);
+  const retainClosingPosition = () => {
+    positionRemember.current();
+    positionClosing.current = true;
+  };
+  const positionRestore = useRef<{
+    hint: RecentPosition;
+    state: import('prosemirror-state').EditorState;
+  } | null>(null);
+
+  useEffect(() => {
+    // Moving the retained editor host from Opening to Writing can clear WebKit's
+    // DOM selection/focus while EditorState still holds the exact restored caret.
+    const view = viewRef.current;
+    if (
+      phase === 'active' &&
+      view &&
+      !view.isDestroyed &&
+      !view.composing &&
+      document.activeElement === document.body
+    ) {
+      view.dom.focus({ preventScroll: true });
+      view.focus();
+    }
+  }, [phase]);
+
+  useEffect(() => {
+    const view = viewRef.current;
+    if (view)
+      highlightCharacter(
+        view,
+        outline.phase === 'current' ? outline.projection : null,
+        characterHighlight
+          ? (outline.projection?.facts.characters.find(
+              (entry) => entry.name === character,
+            ) ?? null)
+          : null,
+      );
+  }, [outline, character, characterHighlight]);
+
+  useEffect(() => {
+    const pending = positionRestore.current,
+      view = viewRef.current;
+    if (phase !== 'active' || outline.phase !== 'current' || !pending || !view)
+      return;
+    let second = 0;
+    const first = requestAnimationFrame(() => {
+      second = requestAnimationFrame(() => {
+        if (
+          positionRestore.current !== pending ||
+          view.isDestroyed ||
+          view.state.doc !== pending.state.doc ||
+          !view.state.selection.eq(pending.state.selection)
+        )
+          return;
+        positionRestore.current = null;
+        restoreRecentViewport(view, pending.hint);
+      });
+    });
+    return () => {
+      cancelAnimationFrame(first);
+      cancelAnimationFrame(second);
+    };
+  }, [phase, outline]);
 
   useEffect(() => {
     if (!showTitle && titleReturnFocusRef.current) {
@@ -412,6 +493,83 @@ export function WritingView({
     let alive = true;
     let capturing = false;
     let captureAgain = false;
+    let initialPositionEligible = true;
+    let positionCapture:
+      | (import('../application/manuscriptProjection').ManuscriptStamp & {
+          readonly sourceSha256: string;
+        })
+      | null = null;
+    let positionTimer: ReturnType<typeof setTimeout> | null = null;
+    const rememberPosition = (closing = false) => {
+      positionTimer = null;
+      const active = sessionRef.current?.active,
+        view = viewRef.current;
+      const current = positionCapture;
+      if (
+        !alive ||
+        !readyRef.current ||
+        positionRestore.current ||
+        (positionClosing.current && !closing) ||
+        !active?.persistentIdentity ||
+        active.kind === 'unsaved' ||
+        !view ||
+        !current ||
+        current.doc !== view.state.doc ||
+        current.session !== editorOrigin(view.state).session
+      )
+        return;
+      // Identical immutable content retains its branded hash across selection-only
+      // changes, even when a new advisory projection is still queued.
+      const hint = captureRecentPosition(
+        view,
+        { ...current, version: editorVersion(view.state) },
+        active.identity.documentId,
+      );
+      if (hint) {
+        const prior = positionCloseHint.current;
+        const stored = closing
+          ? {
+              ...hint,
+              viewport:
+                prior?.documentId === hint.documentId &&
+                prior.sourceSha256 === hint.sourceSha256
+                  ? prior.viewport
+                  : null,
+            }
+          : hint;
+        if (!closing) positionCloseHint.current = hint;
+        positions.remember(stored);
+        setPositionError(positions.error);
+      }
+    };
+    positionRemember.current = rememberPosition;
+    const schedulePosition = () => {
+      if (positionTimer !== null) return;
+      positionTimer = setTimeout(rememberPosition, 250);
+    };
+    const cancelPositionRestore = () => {
+      positionRestore.current = null;
+    };
+    const disposePosition = () => {
+      if (positionTimer !== null) clearTimeout(positionTimer);
+      rememberPosition();
+      window.removeEventListener('scroll', schedulePosition);
+      window.removeEventListener('pointerdown', cancelPositionRestore, true);
+      window.removeEventListener('keydown', cancelPositionRestore, true);
+      window.removeEventListener('wheel', cancelPositionRestore, true);
+      window.removeEventListener('touchstart', cancelPositionRestore, true);
+    };
+    window.addEventListener('scroll', schedulePosition, { passive: true });
+    window.addEventListener('pointerdown', cancelPositionRestore, true);
+    window.addEventListener('keydown', cancelPositionRestore, true);
+    window.addEventListener('wheel', cancelPositionRestore, {
+      capture: true,
+      passive: true,
+    });
+    window.addEventListener('touchstart', cancelPositionRestore, {
+      capture: true,
+      passive: true,
+    });
     const stamp = () => {
       const view = viewRef.current;
       return view && !view.isDestroyed
@@ -461,6 +619,7 @@ export function WritingView({
     checkRef.current = check;
     const projection = new ManuscriptProjectionController(stamp, (state) => {
       if (alive) setOutline(state);
+      if (state.phase === 'current') schedulePosition();
       find.setProjection(
         state,
         viewRef.current?.state.selection.$head.index(0) ?? -1,
@@ -605,6 +764,9 @@ export function WritingView({
         return boundaryRef.current.captureDraft();
       },
       loadInitial(source, selection, writable, initialVersion, metadata) {
+        const restoreHint = initialPositionEligible;
+        initialPositionEligible = false;
+        positionRestore.current = null;
         const bytes = Uint8Array.from(source);
         let state = createEditorState(
           bytes,
@@ -618,6 +780,36 @@ export function WritingView({
         else {
           const restored = metadataSelection(state, metadata);
           if (restored) state = state.apply(state.tr.setSelection(restored));
+          else {
+            const active = sessionRef.current?.active;
+            if (
+              restoreHint &&
+              !metadata &&
+              open.kind !== 'recovered' &&
+              open.kind !== 'located' &&
+              active?.persistentIdentity &&
+              active.fingerprint &&
+              active.kind !== 'unsaved'
+            ) {
+              const hint = positions.find(
+                active.identity.documentId,
+                active.fingerprint.sha256,
+              );
+              if (alive) setPositionError(positions.error);
+              const selection =
+                hint &&
+                recentSelection(
+                  state,
+                  hint,
+                  active.identity.documentId,
+                  active.fingerprint.sha256,
+                );
+              if (hint && selection) {
+                state = state.apply(state.tr.setSelection(selection));
+                positionRestore.current = { hint, state };
+              }
+            }
+          }
         }
         installState(state, writable);
       },
@@ -709,6 +901,10 @@ export function WritingView({
             throw new Error('Editor changed during capture');
           const capturedStamp = stamp();
           if (alive && capturedStamp) {
+            positionCapture = {
+              ...capturedStamp,
+              sourceSha256: result.snapshot.sourceSha256,
+            };
             setLive(result.snapshot);
             projection.accept(result.snapshot, capturedStamp);
           }
@@ -742,10 +938,20 @@ export function WritingView({
           );
         }
         popupRef.current?.controller.dismiss();
+        const frozenView = viewRef.current;
         viewRef.current?.setProps({});
         return () => {
           frozenRef.current = false;
-          if (!viewRef.current?.isDestroyed) viewRef.current?.setProps({});
+          const current = viewRef.current;
+          if (current && !current.isDestroyed) {
+            current.setProps({});
+            // Save As/rollback can install a new view while it is noneditable.
+            // Sync its retained selection after thaw, when WebKit can own it.
+            if (current !== frozenView && !current.composing) {
+              current.dom.focus({ preventScroll: true });
+              current.focus();
+            }
+          }
         };
       },
       workflowState() {
@@ -909,6 +1115,7 @@ export function WritingView({
             return;
           }
           windowCloseRef.current = true;
+          retainClosingPosition();
           setShowClose(true);
         }
       }).then(
@@ -919,6 +1126,7 @@ export function WritingView({
         () => undefined,
       );
       return () => {
+        disposePosition();
         alive = false;
         moveAbortRef.current?.abort();
         projection.dispose();
@@ -934,6 +1142,7 @@ export function WritingView({
       };
     }
     return () => {
+      disposePosition();
       alive = false;
       moveAbortRef.current?.abort();
       projection.dispose();
@@ -1022,6 +1231,7 @@ export function WritingView({
       }
       if (command.id === 'open') {
         pendingSwitchRef.current = true;
+        retainClosingPosition();
         setShowClose(true);
       } else if (command.id === 'saveAs')
         void run(() => session.saveAs().then(reportOutcome));
@@ -1108,6 +1318,7 @@ export function WritingView({
       return;
     }
     pendingSwitchRef.current = switching;
+    retainClosingPosition();
     setShowClose(true);
   };
 
@@ -1659,6 +1870,44 @@ export function WritingView({
         />
       )}
       {phase === 'active' && (
+        <CharacterPanel
+          state={outline}
+          selected={character}
+          highlight={characterHighlight}
+          disabled={
+            busy ||
+            showClose ||
+            frozenRef.current ||
+            titleDraftRef.current ||
+            titleComposingRef.current
+          }
+          onSelect={setCharacter}
+          onHighlight={setCharacterHighlight}
+          onNavigate={(entry) => {
+            const view = viewRef.current,
+              captured = outline.projection;
+            const row = view?.state.selection.$head.index(0) ?? -1;
+            const next = entry.cues.find((cue) => cue > row) ?? entry.cues[0];
+            if (
+              !view ||
+              !captured ||
+              !captured.facts.characters.includes(entry) ||
+              next === undefined ||
+              !readyRef.current ||
+              frozenRef.current ||
+              operationRef.current ||
+              titleDraftRef.current ||
+              titleComposingRef.current ||
+              !navigateOutline(view, captured, next)
+            )
+              setError(
+                'Character navigation is unavailable for this version. Text and selection are retained.',
+              );
+          }}
+        />
+      )}
+      {positionError && <p role="status">{positionError}</p>}
+      {phase === 'active' && (
         <Outline
           state={outline}
           disabled={busy || showClose}
@@ -1939,6 +2188,7 @@ export function WritingView({
           destination={copyDestination ?? undefined}
           onClosed={() => {
             setShowClose(false);
+            positionRemember.current(true);
             session.finishClose();
             if (windowCloseRef.current) {
               void getCurrentWindow()

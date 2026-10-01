@@ -1,3 +1,4 @@
+import { buildCharacterCounts } from '../../src/domain/characterCounts';
 import { expect, it } from 'vitest';
 import { TextSelection, type EditorState } from 'prosemirror-state';
 import { undo, redo, undoDepth } from 'prosemirror-history';
@@ -43,13 +44,15 @@ async function projection(state: EditorState): Promise<ManuscriptProjection> {
   state.doc.forEach((node, at) =>
     rows.push({ id: node.attrs.id as string, from: at + 1 }),
   );
+  const index = buildManuscriptIndex(snapshot.capture.document);
   return {
+    facts: buildCharacterCounts(snapshot.capture.document, index),
     session: editorOrigin(state).session,
     version: editorVersion(state),
     doc: state.doc,
     snapshot,
     sourceSha256: snapshot.sourceSha256,
-    index: buildManuscriptIndex(snapshot.capture.document),
+    index,
     rows,
   };
 }

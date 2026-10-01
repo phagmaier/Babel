@@ -149,3 +149,16 @@ M4-11 focused contracts: `pnpm exec vitest run tests/contract/spellcheck-probe.t
 M4-12 focused checks: `pnpm exec vitest run tests/contract/spellcheck.test.ts tests/ui/Spellcheck.test.tsx`, `CARGO_HOME=/tmp/babel-cargo cargo test -p screenwriter-core spellcheck --locked` and `CARGO_HOME=/tmp/babel-cargo cargo test -p babel-desktop spellcheck --locked`; repeat native checks with `BABEL_SPELLCHECK_TEST_ROOT=/home/phagmaier/Code/Babel/target`. Full workspace filesystem matrix remains required. The direct Enchant 2 ABI uses existing system library/linker files; resource/license ownership is [ADR 0033](decisions/0033-production-spellcheck-boundary.md).
 
 Build default production resources/packages with `CARGO_HOME=/tmp/babel-cargo XDG_CACHE_HOME=/tmp/babel-cache pnpm tauri build`. With the existing native helper prerequisites, run `PATH=/tmp:$PATH unshare --user --map-root-user --net /bin/sh -c 'ip link set lo up && exec python3 tests/native/writing-lifecycle/drill.py /tmp --spellcheck'` and repeat on `/home/phagmaier/Code/Babel/target`. The test uses a disposable pinned `wtype` helper if not installed, no global installation; [native guide](../tests/native/writing-lifecycle/README.md#m4-12-production-spellcheck) records exact build/coverage. `python3 -m py_compile tests/native/writing-lifecycle/drill.py tests/native/writing-lifecycle/spellcheck_workflows.py` checks harness syntax. [Evidence](test-evidence/M4.md#m4-12--production-offline-spellcheck) retains failures and coverage. Use the checked-in Node 26.7.0/Rust 1.97.1 toolchains; prepend their actual binary directories if inherited PATH bypasses toolchain selectors.
+
+M4-13 focused checks: `pnpm exec vitest run tests/contract/character-counts.test.ts tests/contract/recent-position.test.ts tests/ui/CharacterPanel.test.tsx tests/ui/WritingView.test.tsx tests/contract/manuscript-projection.test.ts`.
+After the default embedded release/package build, run
+`PATH=/tmp:$PATH python3 tests/native/writing-lifecycle/drill.py /tmp --characters`;
+repeat on `/home/phagmaier/Code/Babel/target` for the inherited native Save As/
+recovery inspection. Harness syntax:
+`python3 -m py_compile tests/native/writing-lifecycle/drill.py tests/native/writing-lifecycle/character_workflows.py`.
+The drill uses the existing `/tmp/wtype` picker and owned keyboard helper
+(`/tmp/babel-m3-08-keyboard`) with GTK simple IME; no new dependency or native
+filesystem publication. Shared frontend/Rust/browser gates remain required;
+[M4-13 evidence](test-evidence/M4.md#m4-13--characters-counts-and-recent-position)
+labels synthetic DOM selection/close activation separately from native controls,
+trusted typing/IME, real filesystem IPC and process restart.

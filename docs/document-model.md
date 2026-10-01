@@ -101,3 +101,26 @@ The planner permutes existing physical row bytes, keeps the BOM at the file pref
 [Title commands](../src/domain/titlePage.ts) retain ordered field IDs, duplicate and unknown keys and literal Fountain emphasis. Replacement uses the checked complete-field codec, preserving unchanged key prefixes and existing continuation indentation/endings. Explicit Add appends a field, or prepends a new page with a separator before existing body content. Remove owns only the selected complete field. Move up/down permutes complete physical fields with their original endings. BOM, untouched rows and body bytes remain exact; EOF joins, empty continuations and neighboring interpretation changes refuse without normalization. New rows use the editor's monotonic ID counter, including after Undo.
 
 The editor rebases immutable source provenance only through the checked title action. Committed content remains solely in EditorState; captures use the same source bridge and native persistence path. Each action isolates history and retains surviving row identities/marks and selection direction, clamping changed title offsets at Unicode scalar boundaries. Undo/Redo restore source spelling and selection while versions advance. [Evidence](test-evidence/M4.md#m4-06--source-preserving-title-page-form) owns acceptance and limitations.
+
+## Character and count projection (M4-13)
+
+The complete versioned manuscript index supplies logical text for
+[character/count facts](../src/domain/characterCounts.ts). Script words include
+recognized body headings/cues/dialogue/parentheticals/action/transitions/lyrics/
+centered text. Title, notes, omitted text, uncertain literal raw text and outline
+sections/synopses have separate disclosed word totals. Count Unicode word-like
+segments (`Intl.Segmenter`, locale `und`) within each logical location; punctuation
+and emoji alone, Fountain markers/emphasis, source blanks and page breaks do not
+count. Scene totals include recognized headings, independently of authored scene
+numbers. This is no printed-page estimate; locale/runtime segmentation can vary
+for scripts that need dictionary word segmentation.
+
+Character identity follows local vocabulary's exact trimmed visible cue spelling
+with parenthesized extensions removed. Case variants and canonically equivalent
+Unicode spellings remain distinct; no fuzzy or normalization merge. Hidden/raw/
+protected cues are excluded. Associated dialogue and parenthetical rows follow
+codec `speechOf` ownership, including separate speakers of dual dialogue. Neither
+counts nor highlighting edits authored cue spelling. Facts share index bounds,
+coalescing, immutable-content reuse and stale/unavailable status. Character view
+shows at most 500 spellings and highlights at most 1,000 associated speech rows,
+with visible cap notices; cue navigation retains every bounded cue occurrence.

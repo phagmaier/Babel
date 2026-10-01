@@ -1,3 +1,4 @@
+import { buildCharacterCounts } from '../../src/domain/characterCounts';
 import { createHash } from 'node:crypto';
 import { expect, it } from 'vitest';
 import { undo, undoDepth } from 'prosemirror-history';
@@ -53,6 +54,7 @@ async function project(source: string): Promise<{
     rows.push({ id: String(node.attrs.id), from: position + 1 }),
   );
   const projection = {
+    facts: buildCharacterCounts(snapshot.capture.document, index),
     session: editorOrigin(state).session,
     version: editorVersion(state),
     doc: state.doc,

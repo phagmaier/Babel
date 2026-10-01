@@ -5,6 +5,10 @@ import {
   type ManuscriptIndex,
 } from '../domain/manuscriptIndex';
 import type { CapturedEditorSnapshot } from './editorCapture';
+import {
+  buildCharacterCounts,
+  type CharacterCounts,
+} from '../domain/characterCounts';
 export interface ManuscriptStamp {
   readonly session: object;
   readonly version: number;
@@ -13,6 +17,7 @@ export interface ManuscriptStamp {
 export interface ManuscriptProjection extends ManuscriptStamp {
   readonly sourceSha256: string;
   readonly index: ManuscriptIndex;
+  readonly facts: CharacterCounts;
   readonly snapshot: CapturedEditorSnapshot;
   readonly rows: readonly { readonly id: string; readonly from: number }[];
 }
@@ -121,6 +126,9 @@ export class ManuscriptProjectionController {
           previous.doc === stamp.doc &&
           previous.sourceSha256 === snapshot.sourceSha256;
         const index = reuse ? previous.index : this.build(snapshot);
+        const facts = reuse
+          ? previous.facts
+          : buildCharacterCounts(snapshot.capture.document, index);
         const rows: { id: string; from: number }[] = [];
         if (!reuse)
           stamp.doc.forEach((node, position) =>
@@ -132,6 +140,7 @@ export class ManuscriptProjectionController {
           ...stamp,
           sourceSha256: snapshot.sourceSha256,
           index,
+          facts,
           snapshot,
           rows: reuse ? previous.rows : Object.freeze(rows),
         });

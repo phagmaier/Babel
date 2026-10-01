@@ -234,3 +234,23 @@ synthetic dictionary-only failure while source Save continues. GTK simple IME
 coverage is distinct from the earlier M4-11 pinyin proof; it does not claim East
 Asian production IME or other-language/resource coverage. No editor-state/native
 invoke hooks, mock ports, personal manuscript/dictionary or app runtime network.
+
+## M4-13 characters/counts/recent position
+
+Build the default release with the pinned Node/Rust PATH prefixes, `CARGO_HOME=/tmp/babel-cargo XDG_CACHE_HOME=/tmp/babel-cache pnpm tauri build`.
+Run `PATH=/tmp:$PATH python3 tests/native/writing-lifecycle/drill.py /tmp --characters`
+and repeat on `/home/phagmaier/Code/Babel/target`. Existing picker/keyboard/compositor
+prerequisites apply. `python3 -m py_compile tests/native/writing-lifecycle/drill.py tests/native/writing-lifecycle/character_workflows.py` checks syntax.
+
+Synthetic BOM/CRLF/Unicode/emphasis/title/note/omission source exercises actual
+Character select/checkbox/navigation, editor focus, trusted typing/Undo and GTK
+simple IME commit/cancel, zoom/theme/typewriter/manual scroll, protected close/
+restart, external hash mismatch, Save As identity isolation, corrupt auxiliary
+storage with real source Save/close and retained checkpoint selection on Resume.
+DOM selection/viewport observations do not access EditorState or invoke native
+commands. The restart scroll check uses a programmatic production Close control
+activation to preserve the manual viewport before the close panel; typing, IME,
+pickers, source save/recovery and process restart are native. Artifacts include
+`characters-result.json` and app-only screenshots; no personal manuscript/profile.
+No new native publication adapter is introduced. Installed-profile retention,
+other platforms/screenreaders and long-session certification remain open.

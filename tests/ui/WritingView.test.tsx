@@ -7,7 +7,7 @@ import {
   waitFor,
   within,
 } from '@testing-library/react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createHash } from 'node:crypto';
 import { WritingView, type WritingPorts } from '../../src/app/WritingView';
 import * as editorMount from '../../src/editor/view';
@@ -25,7 +25,32 @@ import {
   receipt,
 } from '../contract/persistence-fixtures';
 
-afterEach(cleanup);
+const originalRangeLayout = ['getClientRects', 'getBoundingClientRect'].map(
+  (name) =>
+    [name, Object.getOwnPropertyDescriptor(Range.prototype, name)] as const,
+);
+beforeEach(() => {
+  // JSDOM supplies no Range layout. These stubs admit focus/scroll routing only;
+  // real caret visibility and sticky geometry remain default-WebKit native gates.
+  Object.defineProperty(Range.prototype, 'getClientRects', {
+    configurable: true,
+    value: () => [],
+  });
+  Object.defineProperty(Range.prototype, 'getBoundingClientRect', {
+    configurable: true,
+    value: () => new DOMRect(),
+  });
+  vi.spyOn(window, 'scrollBy').mockImplementation(() => {});
+});
+afterEach(() => {
+  cleanup();
+  window.localStorage.removeItem('babel.positions.v1');
+  vi.restoreAllMocks();
+  for (const [name, descriptor] of originalRangeLayout) {
+    if (descriptor) Object.defineProperty(Range.prototype, name, descriptor);
+    else Reflect.deleteProperty(Range.prototype, name);
+  }
+});
 
 function unsaved(): OpenDocument {
   return {
@@ -1258,4 +1283,166 @@ it('M4-10 toggles presentation without remounting or saving; failure retains set
   expect(fixture.calls.saved.length).toBe(saves);
   expect(fixture.calls.checkpoint).toBe(checkpoints);
   expect(new ViewPreferences(storage).getSnapshot().settings.zoom).toBe(150);
+});
+
+it('restores a hash/identity-bound UI selection, clears unrelated hints after external edits and isolates corrupt hint storage from Save/close', async () => {
+  const { RecentPositions, positionStorageKey } =
+    await import('../../src/application/recentPosition');
+  const positions = new RecentPositions(window.localStorage);
+  positions.remember({
+    documentId: identity.documentId,
+    sourceSha256: A,
+    anchor: { row: 0, offset: 1 },
+    head: { row: 0, offset: 1 },
+    viewport: null,
+  });
+  const f = fixturePorts({ picked: opened() });
+  let current: ReturnType<typeof editorMount.mountScreenplayEditor> | null =
+    null;
+  const mount = editorMount.mountScreenplayEditor;
+  vi.spyOn(editorMount, 'mountScreenplayEditor').mockImplementation(
+    (...args) => {
+      current = mount(...args);
+      return current;
+    },
+  );
+  const ui = render(
+    <WritingView
+      ports={f.ports}
+      open={{ kind: 'picked' }}
+      onSessionClosed={vi.fn()}
+    />,
+  );
+  await screen.findByLabelText('Screenplay actions');
+  await waitFor(() => expect(current!.state.selection.head).toBe(2));
+  expect(current!.hasFocus()).toBe(true);
+  expect(undoDepth(current!.state)).toBe(0);
+  ui.unmount();
+  // Native fingerprint mismatch deliberately retains source-derived default caret.
+  window.localStorage.setItem(
+    positionStorageKey,
+    JSON.stringify({
+      version: 1,
+      positions: [
+        {
+          documentId: identity.documentId,
+          sourceSha256: B,
+          anchor: { row: 0, offset: 1 },
+          head: { row: 0, offset: 1 },
+          viewport: null,
+        },
+      ],
+    }),
+  );
+  const changed = render(
+    <WritingView
+      ports={f.ports}
+      open={{ kind: 'picked' }}
+      onSessionClosed={vi.fn()}
+    />,
+  );
+  await screen.findByLabelText('Screenplay actions');
+  await waitFor(() => expect(current!.state.selection.head).toBe(1));
+  changed.unmount();
+  window.localStorage.setItem(positionStorageKey, 'corrupt retained hints');
+  const closed = vi.fn();
+  render(
+    <WritingView
+      ports={f.ports}
+      open={{ kind: 'picked' }}
+      onSessionClosed={closed}
+    />,
+  );
+  await screen.findByText(/Recent positions could not be read/);
+  await screen.findByLabelText('Screenplay actions');
+  fireEvent.click(
+    within(screen.getByLabelText('Screenplay actions')).getByRole('button', {
+      name: 'Save',
+    }),
+  );
+  await waitFor(() => expect(f.calls.saved.length).toBeGreaterThan(0));
+  fireEvent.click(screen.getByRole('button', { name: 'Close session' }));
+  await screen.findByRole('button', { name: 'Retry save and close' });
+  fireEvent.click(screen.getByRole('button', { name: 'Retry save and close' }));
+  await waitFor(() => expect(closed).toHaveBeenCalled());
+  expect(window.localStorage.getItem(positionStorageKey)).toBe(
+    'corrupt retained hints',
+  );
+});
+
+it('Save As thaws a fresh identity/view with the owned caret focused and never applies a foreign equal-source hint', async () => {
+  const { RecentPositions } =
+    await import('../../src/application/recentPosition');
+  const copiedIdentity = {
+    handle: '22222222-2222-4222-8222-222222222222',
+    documentId: '33333333-3333-4333-8333-333333333333',
+    sessionId: '44444444-4444-4444-8444-444444444444',
+  };
+  new RecentPositions(window.localStorage).remember({
+    documentId: copiedIdentity.documentId,
+    sourceSha256: A,
+    anchor: { row: 0, offset: 0 },
+    head: { row: 0, offset: 0 },
+    viewport: null,
+  });
+  const f = fixturePorts({ picked: opened() });
+  f.ports.saveAs.selectDestination = async () => ({
+    token: 'destination',
+    fileName: 'copy.fountain',
+    storageRelation: 'sameFilesystem',
+  });
+  f.ports.saveAs.saveAs = async ({ checkpoint }) => ({
+    document: {
+      ...opened(),
+      identity: copiedIdentity,
+      source: checkpoint.source,
+    },
+    version: checkpoint.version,
+    sourceSha256: checkpoint.sourceSha256,
+    fileName: 'copy.fountain',
+    storageRelation: 'sameFilesystem',
+  });
+  f.ports.recovery.inspect = async (id) => ({
+    documentId: id.documentId,
+    candidates: [],
+    notices: [],
+    error: null,
+  });
+  const views: ReturnType<typeof editorMount.mountScreenplayEditor>[] = [];
+  const mount = editorMount.mountScreenplayEditor;
+  vi.spyOn(editorMount, 'mountScreenplayEditor').mockImplementation(
+    (...args) => {
+      const view = mount(...args);
+      views.push(view);
+      return view;
+    },
+  );
+  render(
+    <WritingView
+      ports={f.ports}
+      open={{ kind: 'picked' }}
+      onSessionClosed={vi.fn()}
+    />,
+  );
+  await screen.findByLabelText('Screenplay actions');
+  const { TextSelection } = await import('prosemirror-state');
+  views[0]!.dispatch(
+    views[0]!.state.tr.setSelection(
+      TextSelection.create(views[0]!.state.doc, 2),
+    ),
+  );
+  fireEvent.click(
+    within(screen.getByLabelText('Screenplay actions')).getByRole('button', {
+      name: 'Save As',
+    }),
+  );
+  await waitFor(() => expect(views).toHaveLength(2));
+  await waitFor(() =>
+    expect(views[1]!.dom.getAttribute('contenteditable')).toBe('true'),
+  );
+  expect(views[0]!.isDestroyed).toBe(true);
+  expect(views[1]!.state.selection.head).toBe(2);
+  expect(views[1]!.hasFocus()).toBe(true);
+  expect(undoDepth(views[1]!.state)).toBe(0);
+  expect(f.calls.released).toBe(1);
 });

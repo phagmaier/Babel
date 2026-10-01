@@ -84,6 +84,7 @@ export interface SessionPorts {
 
 export interface ActiveInfo {
   identity: DocumentIdentity;
+  persistentIdentity: boolean;
   kind: OpenDocument['kind'];
   readOnly: boolean;
   readOnlyReason: string | null;
@@ -148,6 +149,7 @@ export class WritingSession {
           : null;
     return {
       identity: { ...this.opened.identity },
+      persistentIdentity: this.opened.persistentIdentity,
       kind: this.opened.kind,
       readOnly: !exclusive || !utf8,
       readOnlyReason: reason,

@@ -122,9 +122,36 @@
 .writing-focus > .focus-help,
 .writing-focus > .editor-controls,
 .writing-focus .manuscript-outline,
+.writing-focus .character-panel,
 .writing-focus > .actions button:not(#writing-save) {
   display: none;
 }
 .writing-typewriter .ProseMirror {
   padding-bottom: 50vh;
+}
+
+.character-panel {
+  margin-block: 1rem;
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+}
+.character-panel h2 {
+  font-size: 1rem;
+  margin-top: 0;
+}
+.character-panel label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-right: 1rem;
+}
+.character-highlight {
+  background: var(--highlight, #e9c45140);
+  border-inline-start: 3px solid currentColor;
+}
+@media (forced-colors: active) {
+  .character-highlight {
+    outline: 1px solid Highlight;
+  }
 }

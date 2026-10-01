@@ -375,3 +375,15 @@ owns native exact-byte and failed-switch validation.
 The strict path-free `protect_workflow` request selects a fixed native operation and includes the current checkpoint envelope. An admitted blocking job holds existing native document ownership, checkpoints exact bytes, then publishes/readbacks a curated safety revision. The operation/length/checkpoint/revision receipt is independent of source-save credit. History failure refuses editor application while retaining completed checkpoints, existing refs and ordinary Save/copy functionality. No source interpretation or editor transaction runs in Rust.
 
 The writing session freezes user input/selection and pauses cadence, settles earlier jobs, captures, validates all receipt bindings and rechecks its immutable editor frame, active session, version, selection, composition and cancellation before synchronous owned dispatch. Pending cancellation stops application, allowing a started worker to finish; thaw restores timers without resetting dirty age. Production import reuses this path with a visible cancel control. Missing guards or uncapturable source fail closed. [ADR 0030](decisions/0030-version-bound-workflow-protection.md) owns thresholds and policy; [M4 evidence](test-evidence/M4.md) owns checks. M4-05 scene/section moves consume this same guard; automatic/named history remains M6.
+
+## Recent UI positions (M4-13)
+
+Recent caret/scroll hints use the separate WebView UI preference boundary in
+[ADR 0022](decisions/0022-local-shortcut-preferences.md#m4-13-recent-position-hints).
+They contain no manuscript copy and cannot advance a source/recovery/history
+receipt, dirty version or protected-close assessment. Native recents and recovery
+schemas/publication remain unchanged. Durable native UUID plus exact source hash
+must match before a bounded selection/viewport hint is applied; checkpoints win.
+Failure/corruption retains the old UI bytes, reports auxiliary attention and leaves
+native saving/close available. Source replacement, Locate and Save As never reuse
+an old hint by session ID or equal-content comparison alone.

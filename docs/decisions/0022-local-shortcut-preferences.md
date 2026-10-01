@@ -24,3 +24,40 @@ Evidence still needed: M3-12 production/native-menu integration; actual macOS/Wi
 Extend the same UI-only storage boundary with `babel.view.v1`: a strict version-1 envelope with exactly `theme` (system/light/dark), `zoom` (75/90/100/110/125/150/175/200), `focus` and `typewriter`. No manuscript, identity, paths or native endpoint. Schema/size/read errors retain stored bytes and use disclosed defaults; writes must succeed before new settings activate, and failure retains working settings with a visible retry notice. Preferences survive writing/Home transitions through one application-owned controller; installed/offline retention and cross-window synchronization remain deferred. CSS writing zoom never changes export typography or EditorState. The local UI preference policy remains distinct from author-content durability.
 
 [M4-10 evidence](../test-evidence/M4.md#m4-10--presentation-modes) records default-release/native retention, caret/IME/scroll and failure checks; full platform/accessibility/performance claims remain open.
+
+## M4-13 recent position hints
+
+Extend the WebView UI-only boundary with `babel.positions.v1`, a strict
+version-1 envelope of at most 64 hints / 48,000 ASCII bytes. Each hint stores only
+the durable native document UUID, exact captured source SHA-256, two physical
+row/UTF-16 anchors, and an optional viewport row/intra-row fraction. It excludes
+source text, paths, live native handles/session IDs, timestamps and logs. Unlike
+presentation settings, the hint necessarily identifies its local document.
+It receives no recovery/history/save receipt or protection credit.
+
+Use the native service's already-published persistent identity and current initial
+fingerprint; do not derive identity from content or transfer a hint during Save As.
+Restore only at initial ordinary Open/Recent entry when both UUID and source hash
+match and every selection offset is scalar-safe/in bounds. Explicit recovery
+selection/metadata wins; Locate, Save As adoption and source replacement use their
+owned selection or the source-derived default. Unknown/missing identity, changed
+source, corrupt/oversize/unknown schemas and invalid anchors fall back safely.
+Corrupt hints remain stored until the owner explicitly repairs the UI profile;
+ordinary hint writes refuse to overwrite them. Quota/read/write failure is a
+visible auxiliary notice and cannot block manuscript save, recovery or close.
+
+Viewport restoration is deferred until the current outline/panel layout commits,
+checks the same immutable document/selection, and yields to pointer/key/wheel/touch
+input. Two bounded geometry passes account for the toolbar entering its sticky
+position; there is no continuing scroll-follow loop. The viewport anchor is independent of the caret, preserving manual scroll
+across theme/zoom/typewriter. Position writes are coalesced at 250 ms with a maximum
+wait; source hashes come from existing branded captures, not a second source
+engine. Close captures the viewport before the protection panel can scroll it and
+refreshes the final caret/hash before retiring the identity. If content changed
+after that viewport capture, omit its viewport rather than apply an old anchor.
+No native registry schema, endpoint, lease or publication policy changes.
+
+Evidence still needed: [M4-13 evidence](../test-evidence/M4.md#m4-13--characters-counts-and-recent-position)
+records bounded Linux production restart/failure/selection scope. Installed/offline
+WebView-profile retention, other platforms, cross-window hints and long-session
+performance remain M6; this auxiliary store makes no durability guarantee.

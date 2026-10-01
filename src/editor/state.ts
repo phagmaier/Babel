@@ -12,6 +12,7 @@ import {
   type Transaction,
 } from 'prosemirror-state';
 import { spellcheckPlugin } from './spellcheck';
+import { characterFocusPlugin } from './characterFocus';
 import { parseFountain } from '../domain/fountainCodec';
 import type {
   FountainDocument,
@@ -298,7 +299,7 @@ export function createEditorState(
   return EditorState.create({
     doc,
     selection: TextSelection.create(doc, first),
-    plugins: [sourcePlugin, history(), spellcheckPlugin],
+    plugins: [sourcePlugin, history(), spellcheckPlugin, characterFocusPlugin],
   });
 }
 

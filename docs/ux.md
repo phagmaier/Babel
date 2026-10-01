@@ -196,3 +196,26 @@ a usable unavailable state. [ADR 0033](decisions/0033-production-spellcheck-boun
 owns boundaries/resources and [M4-12 evidence](test-evidence/M4.md#m4-12--production-offline-spellcheck)
 owns measured coverage. Other languages/platforms, installed packages, broader
 accessibility and large-script/long-session costs remain open.
+
+## Characters, counts and recent position (M4-13)
+
+Writing exposes exact-spelling Character focus, optional Highlight dialogue and
+Next character cue with wrap to the first cue. Native select/checkbox/button
+controls are keyboard reachable; successful navigation returns the editor caret
+without authored Undo. Focus mode hides the secondary panel. Counts show their
+version and separate title/note/omitted/raw/outline totals, with expandable
+[inclusion rules](document-model.md#character-and-count-projection-m4-13).
+Earlier facts are explicitly stale and cannot navigate. Character highlights use
+an independent view-only decoration source alongside Find/Check/spelling.
+
+Ordinary Open/Recent may restore a matching local caret and independently scrolled
+viewport. New/Locate/recovery/replacement/Save As use their existing selection
+contracts; a copy does not inherit another document's position hint. Source hash,
+persistent native identity, row bounds and Unicode scalar boundaries are required.
+Exact recovery selection takes priority. Opening and thawing a replaced Save As
+view synchronize the DOM caret with the owned editor selection without an
+authored transaction. Input cancels deferred viewport restoration;
+manual scrolling stays independent of typewriter follow. An auxiliary failure notice
+never blocks Save or Close. [ADR 0022](decisions/0022-local-shortcut-preferences.md#m4-13-recent-position-hints)
+owns the minimal UI-only storage and fallback policy. Installed-package retention,
+other platforms and assistive-technology acceptance remain open.
