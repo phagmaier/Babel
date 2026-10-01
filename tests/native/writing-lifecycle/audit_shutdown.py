@@ -1,4 +1,8 @@
-"""Read-only phase and frozen-byte audit, including strict crash-failed roots."""
+"""Read-only phase and frozen-byte audit, including strict crash-failed roots.
+
+Roots whose drill died before any shutdown phase (no shutdown-phases.json) are
+reported as drill-failed with zero audited exits and no byte-oracle claim;
+they are never relabelled successful."""
 import argparse
 import hashlib
 import json
@@ -25,7 +29,20 @@ def main():
     for run in json.loads(args.manifest.read_text()):
         root = Path(run['artifacts']).resolve(strict=True)
         assert root.name.startswith('babel-writing-'), root
-        phases = json.loads((root / 'shutdown-phases.json').read_text())
+        phases_path = root / 'shutdown-phases.json'
+        if not phases_path.exists():
+            # Drill died before shutdown (no phases recorded, no byte claim).
+            # The strict verdict already failed; report it, don't crash on it.
+            assert run['shutdownPhases'] == [], root
+            assert not run['phaseAuditPassed'], root
+            assert run['matrixExitCode'] != 0, root
+            reports.append({'root': str(root), 'mode': run['shutdownMode'],
+                            'filesystem': run['filesystem'], 'exitCode': run['exitCode'],
+                            'runtimeCrashLines': run['runtimeCrashLines'], 'auditedExits': 0,
+                            'completeExitSequences': False, 'shutdownReached': False,
+                            'note': 'drill failed before shutdown; bytes not audited'})
+            continue
+        phases = json.loads(phases_path.read_text())
         assert phases == run['shutdownPhases'] and 0 < len(phases) <= 2, root
         expected = ['request', 'owned-processes-exited']
         if run['shutdownMode'] == 'ordinary':
@@ -56,10 +73,11 @@ def main():
         reports.append({'root': str(root), 'mode': run['shutdownMode'],
                         'filesystem': run['filesystem'], 'exitCode': run['exitCode'],
                         'runtimeCrashLines': run['runtimeCrashLines'], 'auditedExits': len(phases),
-                        'completeExitSequences': complete})
+                        'completeExitSequences': complete, 'shutdownReached': True})
     args.output.write_text(json.dumps(reports, indent=2) + '\n')
     print(json.dumps({'auditedRoots': len(reports), 'auditedExits': sum(r['auditedExits'] for r in reports),
-                      'crashRoots': sum(bool(r['runtimeCrashLines']) for r in reports)}))
+                      'crashRoots': sum(bool(r['runtimeCrashLines']) for r in reports),
+                      'drillFailedRoots': sum(not r['shutdownReached'] for r in reports)}))
 
 
 if __name__ == '__main__':

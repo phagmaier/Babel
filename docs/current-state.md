@@ -1,6 +1,6 @@
-# Current state — M4-15 reproducer rerun confirms block (5/8 paired, 8/8 control)
+# Current state — M4-15 auditor fixed; block stands (5/8 paired, 8/8 control)
 
-Date: 2026-10-01 PDT. Application: **babel**. Main at `5f3021f`; one editing
+Date: 2026-10-01 PDT. Application: **babel**. Main at `6be6dc1`; one editing
 agent, no push or M4 verified tag.
 
 ## Task and work
@@ -14,6 +14,11 @@ functional drill failure (no crash), two heap aborts (ordinary tmpfs
 chunks`). Non-automation cold-Home control: **8/8** (<1 min), no crash lines.
 Two new owned WebKitWebProcess SIGABRT cores (PIDs 520856, 526885). No
 product/native dependency changes.
+
+Follow-up done: `audit_shutdown.py` now reports drill-failed roots (zero
+exits, no byte claim, failed verdict asserted) instead of crashing; verified
+on repro (8/14/2/1), prior (8/15/3/0, unchanged), and a doctored manifest
+(rejected). Test-tooling only.
 
 The paired runner uses the same default release SHA256 `6fbb10a5…`, fresh
 profiles, typical/stress presentation workflows, genuine pinyin/Undo/divergence/
@@ -44,7 +49,7 @@ unchanged.
 - Shared **694/56** frontend tests plus formatting/lint/typecheck/build and browser smoke passed; Rust fmt/clippy and **237 tests each on tmpfs/Btrfs** passed. Python syntax/CLI entry points and changed local links passed; final whitespace check recorded in evidence.
 - Separate same-agent diagnostic source/core review recorded; no second-reviewer/human sign-off claim.
 - Check-tier docs change: `prettier --check` passed on touched files; changed-file link target check passed; `git diff --check` passed. No executable suite (docs-only, no commands/config changed).
-- Reproducer rerun: harness syntax passed; paired `5/8` strict with 2 heap-abort crash lines (ordinary + forced) + 1 functional drill failure; `audit_retained` 5/60/20/0/20 passed; `audit_shutdown` blocked on drill-failed root (tooling limitation, recorded); plain control `8/8` passed; 2 new owned SIGABRT cores. Shared gates not repeated (same binary, no source change). Full detail in [M4 evidence](test-evidence/M4.md#continuation-from-5f3021f--matched-reproducer-rerun-same-binary).
+- Reproducer rerun: harness syntax passed; paired `5/8` strict with 2 heap-abort crash lines (ordinary + forced) + 1 functional drill failure; `audit_retained` 5/60/20/0/20 passed; plain control `8/8` passed; 2 new owned SIGABRT cores. Shared gates not repeated (same binary, no source change). Auditor fix: syntax + repro/prior/doctored manifests verified. Full detail in [M4 evidence](test-evidence/M4.md#continuation-from-5f3021f--matched-reproducer-rerun-same-binary).
 
 ## Blocker and next action
 
@@ -55,11 +60,10 @@ Gallium and `exit`; corruption origin is unproved. Current host is kernel
 was performed by this task. Non-automation control did not reproduce the abort.
 
 Next **M4-15** action: narrow the corrupting workload under automation and
-investigate a supported WebKit/Mesa exit fix; fix `audit_shutdown.py` to report
-(not crash on) drill-failed roots. Preserve crash/core evidence and exact
-byte/checkpoint oracles; rerun affected integrated/native gates after a real
-correction. Do not filter crashes, ship a guessed workaround or tag M4 on clean
-repeats.
+investigate a supported WebKit/Mesa exit fix. Preserve crash/core evidence and
+exact byte/checkpoint oracles; rerun affected integrated/native gates after a
+real correction. Do not filter crashes, ship a guessed workaround or tag M4 on
+clean repeats.
 
 SC005/SC008 assessment remains unavailable until M5. C1/native dependency
 hardening, screenreader/other platforms, installed/offline packaging, full
