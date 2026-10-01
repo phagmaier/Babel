@@ -1,3 +1,13 @@
+import { CommandSurface } from './CommandSurface';
+import {
+  localShortcutRegistry,
+  type ShortcutRegistry,
+} from '../application/shortcuts';
+import {
+  dispatchCommand,
+  type CommandContext,
+} from '../application/commandDispatch';
+import { useMemo } from 'react';
 import { useEffect, useRef, useState } from 'react';
 import type { AppInfoResult } from '../application/appInfo';
 import {
@@ -25,8 +35,10 @@ export function Home({
   recovery,
   onOpen,
   message = '',
+  registry: providedRegistry,
 }: {
   message?: string;
+  registry?: ShortcutRegistry;
   native: boolean;
   result: AppInfoResult | null;
   recents: RecentProjectsPort;
@@ -53,30 +65,37 @@ export function Home({
       controller.current = null;
     };
   }, [native, recents]);
-  useEffect(() => {
-    if (!native) return;
-    const onKey = (event: KeyboardEvent) => {
-      if (
-        !(event.metaKey || event.ctrlKey) ||
-        event.shiftKey ||
-        event.altKey ||
-        state.busy
-      )
-        return;
-      if (event.key.toLowerCase() === 'n') {
-        event.preventDefault();
-        onOpen({ kind: 'new' });
-      } else if (event.key.toLowerCase() === 'o') {
-        event.preventDefault();
-        onOpen({ kind: 'picked' });
-      }
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [native, state.busy, onOpen]);
+  const registry = useMemo(
+    () =>
+      providedRegistry ??
+      localShortcutRegistry(/Mac/.test(navigator.platform) ? 'mac' : 'other'),
+    [providedRegistry],
+  );
+  const context = (): CommandContext => ({
+    route: 'home',
+    native,
+    ready: true,
+    blocked: state.busy || !!state.selection,
+    composing: false,
+    staged: false,
+    readOnly: false,
+    form: false,
+    undo: false,
+    redo: false,
+    navigation: false,
+    matches: false,
+  });
+  const execute = (id: string) =>
+    dispatchCommand(id, context(), (known) => {
+      if (known === 'new') onOpen({ kind: 'new' });
+      else if (known === 'newDestination')
+        onOpen({ kind: 'new', destination: true });
+      else if (known === 'open') onOpen({ kind: 'picked' });
+    });
   const selection = state.selection;
   return (
     <main className="shell home">
+      <CommandSurface registry={registry} context={context} execute={execute} />
       <div className="mark" aria-hidden="true">
         b
       </div>
@@ -101,23 +120,24 @@ export function Home({
         <div className="actions" aria-label="Screenplay actions">
           <button
             ref={first}
+            id="home-new"
             type="button"
             disabled={!native || state.busy}
-            onClick={() => onOpen({ kind: 'new' })}
+            onClick={() => execute('new')}
           >
             New screenplay
           </button>
           <button
             type="button"
             disabled={!native || state.busy}
-            onClick={() => onOpen({ kind: 'new', destination: true })}
+            onClick={() => execute('newDestination')}
           >
             New with destination
           </button>
           <button
             type="button"
             disabled={!native || state.busy}
-            onClick={() => onOpen({ kind: 'picked' })}
+            onClick={() => execute('open')}
           >
             Open Fountain
           </button>

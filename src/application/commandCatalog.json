@@ -1,0 +1,354 @@
+[
+  {
+    "id": "element.sceneHeading",
+    "label": "Scene Heading",
+    "scope": "editor",
+    "binding": "Mod+1",
+    "unavailable": null,
+    "group": "Edit"
+  },
+  {
+    "id": "element.action",
+    "label": "Action",
+    "scope": "editor",
+    "binding": "Mod+2",
+    "unavailable": null,
+    "group": "Edit"
+  },
+  {
+    "id": "element.character",
+    "label": "Character",
+    "scope": "editor",
+    "binding": "Mod+3",
+    "unavailable": null,
+    "group": "Edit"
+  },
+  {
+    "id": "element.dialogue",
+    "label": "Dialogue",
+    "scope": "editor",
+    "binding": "Mod+4",
+    "unavailable": null,
+    "group": "Edit"
+  },
+  {
+    "id": "element.parenthetical",
+    "label": "Parenthetical",
+    "scope": "editor",
+    "binding": "Mod+5",
+    "unavailable": null,
+    "group": "Edit"
+  },
+  {
+    "id": "element.transition",
+    "label": "Transition",
+    "scope": "editor",
+    "binding": "Mod+6",
+    "unavailable": null,
+    "group": "Edit"
+  },
+  {
+    "id": "element.shot",
+    "label": "Shot",
+    "scope": "editor",
+    "binding": "Mod+7",
+    "unavailable": null,
+    "group": "Edit"
+  },
+  {
+    "id": "element.lyrics",
+    "label": "Lyrics",
+    "scope": "editor",
+    "binding": "Mod+8",
+    "unavailable": null,
+    "group": "Edit"
+  },
+  {
+    "id": "element.centered",
+    "label": "Centered",
+    "scope": "editor",
+    "binding": null,
+    "unavailable": null,
+    "group": "Edit"
+  },
+  {
+    "id": "element.section",
+    "label": "Section",
+    "scope": "editor",
+    "binding": null,
+    "unavailable": null,
+    "group": "Edit"
+  },
+  {
+    "id": "element.synopsis",
+    "label": "Synopsis",
+    "scope": "editor",
+    "binding": null,
+    "unavailable": null,
+    "group": "Edit"
+  },
+  {
+    "id": "element.note",
+    "label": "Note",
+    "scope": "editor",
+    "binding": null,
+    "unavailable": null,
+    "group": "Edit"
+  },
+  {
+    "id": "element.boneyard",
+    "label": "Omitted material",
+    "scope": "editor",
+    "binding": null,
+    "unavailable": null,
+    "group": "Edit"
+  },
+  {
+    "id": "element.pageBreak",
+    "label": "Page Break",
+    "scope": "editor",
+    "binding": null,
+    "unavailable": null,
+    "group": "Edit"
+  },
+  {
+    "id": "undo",
+    "label": "Undo",
+    "scope": "editor",
+    "binding": "Mod+Z",
+    "unavailable": null,
+    "group": "Edit"
+  },
+  {
+    "id": "redo",
+    "label": "Redo",
+    "scope": "editor",
+    "binding": "Mod+Shift+Z",
+    "unavailable": null,
+    "group": "Edit"
+  },
+  {
+    "id": "format.bold",
+    "label": "Bold",
+    "scope": "editor",
+    "binding": "Mod+B",
+    "unavailable": null,
+    "group": "Edit"
+  },
+  {
+    "id": "format.italic",
+    "label": "Italic",
+    "scope": "editor",
+    "binding": "Mod+I",
+    "unavailable": null,
+    "group": "Edit"
+  },
+  {
+    "id": "format.underline",
+    "label": "Underline",
+    "scope": "editor",
+    "binding": "Mod+U",
+    "unavailable": null,
+    "group": "Edit"
+  },
+  {
+    "id": "new",
+    "label": "New screenplay",
+    "scope": "application",
+    "binding": "Mod+N",
+    "unavailable": null,
+    "group": "Screenplay"
+  },
+  {
+    "id": "newDestination",
+    "label": "New with destination",
+    "scope": "application",
+    "binding": null,
+    "unavailable": null,
+    "group": "Screenplay"
+  },
+  {
+    "id": "save",
+    "label": "Save",
+    "scope": "application",
+    "binding": "Mod+S",
+    "unavailable": null,
+    "group": "Screenplay"
+  },
+  {
+    "id": "saveAs",
+    "label": "Save As",
+    "scope": "application",
+    "binding": "Mod+Shift+S",
+    "unavailable": null,
+    "group": "Screenplay"
+  },
+  {
+    "id": "exportFountain",
+    "label": "Export Fountain copy",
+    "scope": "application",
+    "binding": null,
+    "unavailable": null,
+    "group": "Screenplay"
+  },
+  {
+    "id": "open",
+    "label": "Open",
+    "scope": "application",
+    "binding": "Mod+O",
+    "unavailable": null,
+    "group": "Screenplay"
+  },
+  {
+    "id": "home",
+    "label": "Home",
+    "scope": "application",
+    "binding": null,
+    "unavailable": null,
+    "group": "Screenplay"
+  },
+  {
+    "id": "closeSession",
+    "label": "Close session",
+    "scope": "application",
+    "binding": null,
+    "unavailable": null,
+    "group": "Screenplay"
+  },
+  {
+    "id": "find",
+    "label": "Find",
+    "scope": "application",
+    "binding": "Mod+F",
+    "unavailable": null,
+    "group": "Navigate"
+  },
+  {
+    "id": "replace",
+    "label": "Replace",
+    "scope": "application",
+    "binding": null,
+    "unavailable": null,
+    "group": "Navigate"
+  },
+  {
+    "id": "nextMatch",
+    "label": "Next Match",
+    "scope": "application",
+    "binding": "Mod+G",
+    "unavailable": null,
+    "group": "Navigate"
+  },
+  {
+    "id": "previousMatch",
+    "label": "Previous Match",
+    "scope": "application",
+    "binding": "Mod+Shift+G",
+    "unavailable": null,
+    "group": "Navigate"
+  },
+  {
+    "id": "exportPdf",
+    "label": "Export PDF",
+    "scope": "application",
+    "binding": null,
+    "unavailable": "PDF export is awaiting M5.",
+    "group": "Screenplay"
+  },
+  {
+    "id": "history",
+    "label": "Revision history",
+    "scope": "application",
+    "binding": null,
+    "unavailable": "Revision timeline is awaiting M6.",
+    "group": "Tools"
+  },
+  {
+    "id": "upload",
+    "label": "Upload Current Draft",
+    "scope": "application",
+    "binding": null,
+    "unavailable": "Remote transfer is awaiting M7.",
+    "group": "Tools"
+  },
+  {
+    "id": "getLatest",
+    "label": "Get Latest",
+    "scope": "application",
+    "binding": null,
+    "unavailable": "Remote transfer is awaiting M7.",
+    "group": "Tools"
+  },
+  {
+    "id": "scriptCheck",
+    "label": "Script Check",
+    "scope": "application",
+    "binding": null,
+    "unavailable": null,
+    "group": "Tools"
+  },
+  {
+    "id": "spellcheck",
+    "label": "Spellcheck",
+    "scope": "application",
+    "binding": null,
+    "unavailable": null,
+    "group": "Tools"
+  },
+  {
+    "id": "titlePage",
+    "label": "Title page",
+    "scope": "application",
+    "binding": null,
+    "unavailable": null,
+    "group": "Tools"
+  },
+  {
+    "id": "characters",
+    "label": "Characters and counts",
+    "scope": "application",
+    "binding": null,
+    "unavailable": null,
+    "group": "Navigate"
+  },
+  {
+    "id": "outline",
+    "label": "Outline and scene moves",
+    "scope": "application",
+    "binding": null,
+    "unavailable": null,
+    "group": "Navigate"
+  },
+  {
+    "id": "focusMode",
+    "label": "Focus Mode",
+    "scope": "application",
+    "binding": null,
+    "unavailable": null,
+    "group": "Tools"
+  },
+  {
+    "id": "commandPalette",
+    "label": "Command Palette",
+    "scope": "application",
+    "binding": "Mod+Shift+P",
+    "unavailable": null,
+    "group": "Tools"
+  },
+  {
+    "id": "nextScene",
+    "label": "Next Scene",
+    "scope": "application",
+    "binding": null,
+    "unavailable": null,
+    "group": "Navigate"
+  },
+  {
+    "id": "previousScene",
+    "label": "Previous Scene",
+    "scope": "application",
+    "binding": null,
+    "unavailable": null,
+    "group": "Navigate"
+  }
+]

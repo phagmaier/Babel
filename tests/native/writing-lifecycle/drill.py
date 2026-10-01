@@ -26,7 +26,7 @@ ENV = os.environ.copy()
 ENV.update(TAURI_WEBVIEW_AUTOMATION='true', XDG_DATA_HOME=str(ROOT / 'data'),
            XDG_CONFIG_HOME=str(ROOT / 'config'), XDG_CACHE_HOME=str(ROOT / 'cache'),
            GSETTINGS_BACKEND='memory')
-if '--spellcheck' in sys.argv or '--characters' in sys.argv:
+if any(mode in sys.argv for mode in ['--spellcheck', '--characters', '--commands']):
     ENV['GTK_IM_MODULE'] = 'simple'
 DRIVER_LOG = (ROOT / 'webdriver.log').open('w')
 DRIVER = subprocess.Popen(['WebKitWebDriver', f'--port={PORT}'], env=ENV,
@@ -140,7 +140,7 @@ def picker(path=None):
     subprocess.run(['wtype', '-d', '3', str(path) + ('/' if folder else '')], check=True)
     subprocess.run(['/tmp/babel-m3-08-keyboard', 'return'], check=True)
     time.sleep(.4)
-    if '--characters' in sys.argv:
+    if '--characters' in sys.argv or '--commands' in sys.argv:
         # Every M4-13 destination is a file. One confirmation accepts it; a
         # compositor-title check followed by a second Return can race dialog
         # teardown and deliver authored input to the newly focused editor.
@@ -251,6 +251,10 @@ try:
     if '--replace-smoke' in sys.argv:
         from replace_workflows import run_smoke as run_replace_smoke
         run_replace_smoke(sys.modules[__name__])
+        sys.exit(0)
+    if '--commands' in sys.argv:
+        from command_workflows import run as run_commands
+        run_commands(sys.modules[__name__])
         sys.exit(0)
     if '--characters' in sys.argv:
         from character_workflows import run as run_characters

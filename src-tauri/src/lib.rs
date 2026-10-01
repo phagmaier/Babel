@@ -1,3 +1,5 @@
+mod command_menu;
+use command_menu::{CommandMenu, update_command_menu};
 use screenwriter_core::AppInfo;
 #[cfg(target_os = "linux")]
 use screenwriter_core::documents::DocumentService;
@@ -165,6 +167,7 @@ fn record_native_editor_proof(report: String) -> Result<(), &'static str> {
 pub fn run() {
     let builder = tauri::Builder::default()
         .manage(DocumentHost::default())
+        .manage(CommandMenu::default())
         .manage(RecoveryHost::default())
         .on_window_event(|window, event| {
             if let tauri::WindowEvent::CloseRequested { api, .. } = event
@@ -177,6 +180,9 @@ pub fn run() {
             }
         })
         .setup(|app| {
+            if command_menu::install(app).is_err() {
+                eprintln!("native menus unavailable; visible controls remain available");
+            }
             // Resolve only. Startup review does not initialize/create the writer store or a source.
             let root = app.path().app_data_dir().ok();
             *app.state::<RecoveryHost>()
@@ -223,6 +229,7 @@ pub fn run() {
     ))]
     let builder = builder.invoke_handler(tauri::generate_handler![
         app_info,
+        update_command_menu,
         #[cfg(target_os = "linux")]
         spellcheck,
         read_open_document,
@@ -271,6 +278,7 @@ pub fn run() {
     )))]
     let builder = builder.invoke_handler(tauri::generate_handler![
         app_info,
+        update_command_menu,
         #[cfg(target_os = "linux")]
         spellcheck,
         read_open_document,
@@ -315,6 +323,7 @@ pub fn run() {
     #[cfg(all(feature = "editor-composition-proof", target_os = "linux"))]
     let builder = builder.invoke_handler(tauri::generate_handler![
         app_info,
+        update_command_menu,
         #[cfg(target_os = "linux")]
         spellcheck,
         read_open_document,

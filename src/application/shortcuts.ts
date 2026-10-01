@@ -1,3 +1,4 @@
+import catalog from './commandCatalog.json';
 /** Local UI preferences only: no manuscript bytes, paths or native capabilities. */
 export const elementChoices = [
   ['sceneHeading', 'Scene Heading'],
@@ -16,71 +17,15 @@ export const elementChoices = [
   ['pageBreak', 'Page Break'],
 ] as const;
 export type ElementChoice = (typeof elementChoices)[number][0];
-export const shortcutCommands = [
-  ...elementChoices.map(([element, label], index) => ({
-    id: `element.${element}`,
-    label,
-    scope: 'editor' as const,
-    binding: index < 8 ? `Mod+${index + 1}` : null,
-    unavailable: null,
-  })),
-  {
-    id: 'undo',
-    label: 'Undo',
-    binding: 'Mod+Z',
-    scope: 'editor',
-    unavailable: null,
-  },
-  {
-    id: 'redo',
-    label: 'Redo',
-    binding: 'Mod+Shift+Z',
-    scope: 'editor',
-    unavailable: null,
-  },
-  ...[
-    ['bold', 'Bold', 'Mod+B'],
-    ['italic', 'Italic', 'Mod+I'],
-    ['underline', 'Underline', 'Mod+U'],
-  ].map(([id, label, binding]) => ({
-    id: `format.${id}`,
-    label: label!,
-    binding: binding!,
-    scope: 'editor' as const,
-    unavailable: null,
-  })),
-  ...[
-    ['save', 'Save', 'Mod+S', null],
-    ['saveAs', 'Save As', 'Mod+Shift+S', null],
-    ['open', 'Open', 'Mod+O', null],
-    ['find', 'Find', 'Mod+F', null],
-    ['replace', 'Replace', null, 'Replace is awaiting M4.'],
-    ['nextMatch', 'Next Match', 'Mod+G', null],
-    ['previousMatch', 'Previous Match', 'Mod+Shift+G', null],
-    ['exportPdf', 'Export PDF', null, 'PDF export is awaiting M5.'],
-    ['scriptCheck', 'Script Check', null, 'Script Check is awaiting M4.'],
-    ['focusMode', 'Focus Mode', null, null],
-    [
-      'commandPalette',
-      'Command Palette',
-      'Mod+Shift+P',
-      'Command palette is awaiting M4.',
-    ],
-    ['nextScene', 'Next Scene', null, 'Scene navigation is awaiting M4.'],
-    [
-      'previousScene',
-      'Previous Scene',
-      null,
-      'Scene navigation is awaiting M4.',
-    ],
-  ].map(([id, label, binding, unavailable]) => ({
-    id: id!,
-    label: label!,
-    binding: binding ?? null,
-    scope: 'application' as const,
-    unavailable: unavailable!,
-  })),
-] as const;
+export interface ShortcutCommand {
+  readonly id: string;
+  readonly label: string;
+  readonly scope: 'editor' | 'application';
+  readonly binding: string | null;
+  readonly unavailable: string | null;
+}
+export const shortcutCommands: readonly ShortcutCommand[] =
+  catalog as ShortcutCommand[];
 export type ShortcutPlatform = 'mac' | 'other';
 export interface ShortcutStorage {
   getItem(key: string): string | null;

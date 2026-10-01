@@ -1,0 +1,52 @@
+.palette-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: #0008;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: min(8vh, 48px) 12px;
+}
+.command-palette {
+  width: min(100%, 680px);
+  max-height: 84vh;
+  overflow: auto;
+  padding: 20px;
+  border: 2px solid var(--focus);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--ink);
+}
+.command-palette input {
+  width: 100%;
+  margin-block: 12px;
+}
+.command-palette ul {
+  padding: 0;
+  list-style: none;
+  max-height: 40vh;
+  overflow: auto;
+}
+.command-palette li {
+  padding: 10px;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+.command-palette small {
+  display: block;
+  color: var(--muted);
+}
+.command-palette [aria-selected='true'] {
+  outline: 2px solid var(--focus);
+  outline-offset: -2px;
+  font-weight: 600;
+}
+.command-palette [aria-selected='true']::before {
+  content: '› ';
+}
+@media (forced-colors: active) {
+  .command-palette [aria-selected='true'] {
+    outline-color: Highlight;
+  }
+}

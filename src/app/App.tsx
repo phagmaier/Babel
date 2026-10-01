@@ -1,3 +1,4 @@
+import { localShortcutRegistry } from '../application/shortcuts';
 import { localViewPreferences } from '../application/viewPreferences';
 import { PresentationControls } from './PresentationControls';
 import { useEffect, useMemo, useState } from 'react';
@@ -53,6 +54,11 @@ export function App({
   ports?: WritingPorts;
   recents?: RecentProjectsPort;
 }) {
+  const registry = useMemo(
+    () =>
+      localShortcutRegistry(/Mac/.test(navigator.platform) ? 'mac' : 'other'),
+    [],
+  );
   const preferences = useMemo(() => localViewPreferences(), []);
   const [result, setResult] = useState<AppInfoResult | null>(null);
   const [homeMessage, setHomeMessage] = useState('');
@@ -82,6 +88,7 @@ export function App({
   if (open && native)
     return (
       <WritingView
+        registry={registry}
         preferences={preferences}
         ports={ports}
         recents={recents}
@@ -107,6 +114,7 @@ export function App({
         <PresentationControls preferences={preferences} />
       </div>
       <Home
+        registry={registry}
         native={native}
         result={result}
         recents={recents}

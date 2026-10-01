@@ -30,6 +30,10 @@ int main(int argc,char **argv){
   if(!strcmp(argv[1],"hex-f"))code=33;
   if(!strcmp(argv[1],"hex-6"))code=7;
   if(!strcmp(argv[1],"hex-0"))code=11;
+  int command_menu=!strcmp(argv[1],"command-menu-save-as");
+  if(command_menu)code=68;
+  if(!strcmp(argv[1],"f10"))code=68;
+  if(!strcmp(argv[1],"down"))code=108;
   if(!code)return 2;
   int shift=!strcmp(argv[1],"shift-home");
   int alt=!strcmp(argv[1],"alt-home");
@@ -44,8 +48,13 @@ int main(int argc,char **argv){
   zwp_virtual_keyboard_v1_keymap(keyboard,WL_KEYBOARD_KEYMAP_FORMAT_XKB_V1,fd,(uint32_t)st.st_size);settle(display);close(fd);
   if(modifier)zwp_virtual_keyboard_v1_key(keyboard,stamp(),modifier_key,WL_KEYBOARD_KEY_STATE_PRESSED);
   zwp_virtual_keyboard_v1_modifiers(keyboard,modifier,0,0,0);settle(display);
-  zwp_virtual_keyboard_v1_key(keyboard,stamp(),code,WL_KEYBOARD_KEY_STATE_PRESSED);settle(display);
-  zwp_virtual_keyboard_v1_key(keyboard,stamp(),code,WL_KEYBOARD_KEY_STATE_RELEASED);settle(display);
+  uint32_t menu_keys[]={1,68,108,108,28};
+  unsigned count=command_menu?5:1;
+  for(unsigned i=0;i<count;i++) {
+    uint32_t action_code=command_menu?menu_keys[i]:code;
+    zwp_virtual_keyboard_v1_key(keyboard,stamp(),action_code,WL_KEYBOARD_KEY_STATE_PRESSED);settle(display);
+    zwp_virtual_keyboard_v1_key(keyboard,stamp(),action_code,WL_KEYBOARD_KEY_STATE_RELEASED);settle(display);
+  }
   if(modifier)zwp_virtual_keyboard_v1_key(keyboard,stamp(),modifier_key,WL_KEYBOARD_KEY_STATE_RELEASED);
   zwp_virtual_keyboard_v1_modifiers(keyboard,0,0,0,0);settle(display);
   zwp_virtual_keyboard_v1_destroy(keyboard);wl_seat_destroy(seat);zwp_virtual_keyboard_manager_v1_destroy(manager);wl_registry_destroy(registry);wl_display_flush(display);wl_display_disconnect(display);return 0;

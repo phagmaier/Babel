@@ -1,51 +1,57 @@
-# Current state — M4-13 complete
+# Current state — M4-14 complete (bounded Linux)
 
 Date: 2026-09-30 PDT. Application: **babel**.
 
 ## Completed task
 
-**M4-13 characters/counts/recent position** completed by one editing agent on
-main from clean `db48bb0`. No push. Counts reuse the complete versioned index,
-state inclusion rules and separate body/title/note/omission/raw/outline totals.
-Exact cue spelling identifies characters; optional dialogue/parenthetical
-highlights and wrapping cue navigation leave authored content/Undo untouched.
-Current/stale/unavailable facts and visible rendering caps remain explicit.
+**M4-14 palette/menus/accessibility** completed by one editing agent on main from
+clean `271e2ea`. No push. One 44-entry catalog and current availability/dispatch
+connect Home, writing controls/help, keyboard palette and actual native menus to
+existing editor/lifecycle services. Future M5/M6/M7 actions remain unavailable.
+Read-only, busy/protection, staged input and form/IME guards remain authoritative.
 
-UI-only recent hints store bounded durable UUID/hash/row/scalar caret anchors and
-an independent manual viewport. Ordinary matching Open/Recent can restore them;
-Locate/external changes/Save As/replacement use safe owned/default selection and
-exact checkpoint selection wins. Corrupt/unknown/oversize hints are retained;
-auxiliary failures cannot block Save/close or earn protection credit. Native
-schemas/publication are unchanged; [ADR 0022](decisions/0022-local-shortcut-preferences.md#m4-13-recent-position-hints)
-owns this best-effort boundary. Opening/fresh-view thaw synchronizes the WebKit
-DOM caret; two bounded layout probes account for the toolbar becoming sticky.
+Palette provides enabled actions/current scene-section navigation, explicit
+100-result cap/refinement, labelled combobox/listbox/modal, inert background,
+Enter/Up/Down/Escape/F6/Tab and predictable focus return. Stale projections and
+queued actions after route disposal cannot operate. Native known-ID publication
+is strict, serialized and token-qualified; listener/update failure is visible.
+Remap hints follow local preferences; WebView routing owns accelerators exclusively
+so toolkit keys cannot bypass form/IME ownership or dispatch twice. See
+[ADR 0022](decisions/0022-local-shortcut-preferences.md#m4-14-palette-and-native-menus).
+
+The sole editor exposes multiline/read-only semantics. Read-only navigation seeds
+DOM selection ownership from its accepted editor position before focus/scroll,
+without changing source/Undo. Refreshed spelling-language controls restore focus
+only once enabled. Corrupt shortcut preferences remain visible on Home.
 
 ## Paths and acceptance
 
-- Facts/projection: `src/domain/characterCounts.ts`, `src/application/manuscriptProjection.ts`.
-- UI/decorations: `src/app/CharacterPanel.tsx`, `src/editor/characterFocus.ts`, `WritingView.tsx`, editor state and writing styles.
-- Hints: `src/application/recentPosition.ts`, `src/editor/recentPosition.ts`, `writingSession.ts` exposes existing persistent identity.
-- Contract/UI tests plus `tests/native/writing-lifecycle/character_workflows.py`; mode-specific picker confirmation avoids real Return input after dialog teardown.
+- Catalog/routing: `src/application/commandCatalog.json`, `commandDispatch.ts`, `shortcuts.ts`.
+- Palette/surface: `src/app/CommandPalette.tsx`, `CommandSurface.tsx`, CSS; App/Home/WritingView/EditorControls integration.
+- Native boundary: `src-tauri/src/command_menu.rs`, host registration, `src/infrastructure/nativeCommands.ts`; no new broad capability/filesystem engine.
+- Focus/semantics: `src/editor/view.ts`, `outlineNavigation.ts`, `src/app/SpellcheckPanel.tsx`.
+- Contract/UI tests and `tests/native/writing-lifecycle/command_workflows.py`, `command_accessibility.py`, drill `--commands`; owned keyboard helper's single-lifetime menu traversal.
 
-[Exact checks, failures and scope](test-evidence/M4.md#m4-13--characters-counts-and-recent-position):
-focused five-file suite passed **42**; `pnpm check` passed **674 tests/54 files**,
-format/lint/typecheck/build; browser smoke passed. Rust fmt/clippy passed;
-workspace **234** passed on tmpfs and Btrfs. Default release/AppImage (**99.41 MiB**)
-completed before final native drills. Real controls/typing/one Undo/GTK simple IME,
-manual caret/scroll restart at dark/150%/typewriter, Save As identity isolation,
-changed-source fallback, corrupt hints with native Save/close, and retained
-checkpoint selection precedence passed both filesystems. App screenshots inspected.
+[Exact checks, failures, commands and scope](test-evidence/M4.md#m4-14--palette-menus-and-accessibility):
+focused **105/10 files**; `pnpm check` **688/56 files**, format/lint/typecheck/build;
+browser smoke; Rust fmt/clippy; workspace **237 each on tmpfs/Btrfs**; default
+release/**99.45 MiB AppImage**; final actual native drills passed both filesystems.
+Real menu keyboard/remap/picker cancellation, trusted typing/one Undo/GTK simple
+IME, palette/panel/form keys, interruption/protection, readonly source navigation,
+light/dark/200% writing zoom and synthetic150% whole-view layout preserved exact
+192-byte BOM/CRLF/Unicode source. AT-SPI exposes owned native-menu/palette names
+and numeric roles; screenshots inspected. No screenreader speech claim.
 
 ## Limits and next action
 
-No M4-13 blocker. Best-effort WebView hints are distinct from content durability.
-Installed-profile retention, other platforms/screenreaders/IME, full S13 and
-long-session performance remain open. Protected close/fresh-process restart is
-verified; forced-crash/OS-teardown is not. M4-15 must retain inherited confirmed-save
-review/crash gates and inspect the shared picker's second-confirmation race in
-other automation modes. Failed native attempts/artifacts remain in evidence.
+No M4-14 blocker. Installed-package/profile retention, other platforms,
+screenreaders/IME, full S13 and long-session performance remain open. Native
+menu hints plus WebView accelerators are a documented ownership policy. No new
+forced-crash/OS-teardown certification. Existing manuscript durability and
+confirmed-save/crash gates remain required; previous failed attempts stay recorded.
 
-Next: **M4-14 palette/menus/accessibility**; dependencies M4-02/05/06/08/09/10/12/13
-satisfied. Read [its brief](tasks/M4-14.md), claim one bounded task and preserve
-shared editor/lifecycle ownership. M4-14/15 remain open; no full M4/Local v1 claim.
-Continue on main; no push.
+Next: **M4-15 integrated exit and separate safety review**; bounded dependencies
+M4-01–14 satisfied. Read [its brief](tasks/M4-15.md) and claim the integration
+work separately. Retain the inherited crash/confirmed-save review and inspect
+the shared picker second-confirmation race in other automation modes. M4-15/full
+M4/Local v1 acceptance remains open. Continue on main; no push.

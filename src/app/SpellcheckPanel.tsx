@@ -51,11 +51,11 @@ export function SpellcheckPanel({
     !state || state.busy || blocked() || Boolean(getView()?.composing);
   const status = state?.status;
   useEffect(() => {
-    if (restoreLanguageFocus.current) {
+    if (restoreLanguageFocus.current && !disabled) {
       language.current?.focus();
       restoreLanguageFocus.current = false;
     }
-  }, [status?.language]);
+  }, [status?.language, disabled]);
   return (
     <section
       className="spellcheck-panel"

@@ -233,3 +233,27 @@ textarea {
   text-decoration: underline wavy var(--danger, #b73535);
   text-underline-offset: 0.2em;
 }
+
+.command-surface {
+  margin-block: 12px;
+}
+summary {
+  cursor: pointer;
+}
+[role='alert'] {
+  border-inline-start: 3px solid var(--focus);
+  padding-inline-start: 10px;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 480px) {
+  .shell {
+    padding: 14px;
+  }
+  .card {
+    padding: 16px;
+  }
+  .find-panel input[type='search'] {
+    min-width: 0;
+    width: 100%;
+  }
+}

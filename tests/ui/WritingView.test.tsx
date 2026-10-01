@@ -1,3 +1,4 @@
+import { TextSelection } from 'prosemirror-state';
 /** M3-12 writing surface: open/edit/save/close flows with injected ports. */
 import {
   cleanup,
@@ -1445,4 +1446,114 @@ it('Save As thaws a fresh identity/view with the owned caret focused and never a
   expect(views[1]!.hasFocus()).toBe(true);
   expect(undoDepth(views[1]!.state)).toBe(0);
   expect(f.calls.released).toBe(1);
+});
+
+it('M4-14 palette navigation rechecks its frame and preserves source/Undo, while shared help disables protected actions', async () => {
+  const source =
+    '\ufeffTitle: Palette\r\n\r\n.INT. A - DAY\r\n!First.\r\n\r\n.INT. B - NIGHT\r\n!Second.\r\n';
+  const raw = [...new TextEncoder().encode(source)];
+  const f = fixturePorts({
+    picked: {
+      ...opened(),
+      source: raw,
+      fingerprint: {
+        ...fingerprint(),
+        byteLength: raw.length,
+        sha256: createHash('sha256').update(source).digest('hex'),
+      },
+    },
+  });
+  const mount = vi.spyOn(editorMount, 'mountScreenplayEditor');
+  render(
+    <WritingView
+      ports={f.ports}
+      open={{ kind: 'picked' }}
+      onSessionClosed={vi.fn()}
+    />,
+  );
+  await screen.findByLabelText('Screenplay actions');
+  await waitFor(() =>
+    expect(
+      (
+        screen.getByRole('button', {
+          name: 'Go to Scene 2: INT. B - NIGHT',
+        }) as HTMLButtonElement
+      ).disabled,
+    ).toBe(false),
+  );
+  const view = mount.mock.results[0]!
+    .value as import('prosemirror-view').EditorView;
+  const before = captureEditor(view.state).source,
+    depth = undoDepth(view.state);
+  view.focus();
+  fireEvent.click(screen.getByRole('button', { name: 'Command Palette' }));
+  fireEvent.change(
+    screen.getByRole('combobox', { name: 'Find an action, scene or section' }),
+    {
+      target: { value: 'Scene 2:' },
+    },
+  );
+  fireEvent.keyDown(
+    screen.getByRole('combobox', { name: 'Find an action, scene or section' }),
+    { key: 'Enter' },
+  );
+  await waitFor(() => expect(view.state.selection.$head.index(0)).toBe(5));
+  expect([...captureEditor(view.state).source]).toEqual([...before]);
+  expect(undoDepth(view.state)).toBe(depth);
+  expect(f.calls.saved).toHaveLength(0);
+  await waitFor(() =>
+    expect(
+      (
+        screen.getByRole('button', {
+          name: 'Go to Scene 1: INT. A - DAY',
+        }) as HTMLButtonElement
+      ).disabled,
+    ).toBe(false),
+  );
+  fireEvent.click(screen.getByRole('button', { name: 'Command Palette' }));
+  fireEvent.change(
+    screen.getByRole('combobox', { name: 'Find an action, scene or section' }),
+    {
+      target: { value: 'Scene 1:' },
+    },
+  );
+  expect(
+    within(screen.getByRole('dialog')).getByRole('option', {
+      name: /Scene 1: INT. A - DAY/,
+    }),
+  ).toBeTruthy();
+  // Simulate a frame invalidation between displaying and activating an entry.
+  const changed = view.state.apply(
+    view.state.tr.setSelection(
+      TextSelection.create(view.state.doc, view.state.selection.head + 1),
+    ),
+  );
+  view.updateState(changed);
+  const selection = view.state.selection;
+  fireEvent.keyDown(
+    screen.getByRole('combobox', { name: 'Find an action, scene or section' }),
+    { key: 'Enter' },
+  );
+  await screen.findByText(
+    'Palette navigation is stale or unavailable. Text and selection are retained.',
+  );
+  expect(view.state.selection.eq(selection)).toBe(true);
+  expect(f.calls.saved).toHaveLength(0);
+  fireEvent.click(screen.getByRole('button', { name: 'Home' }));
+  await screen.findByRole('button', { name: 'Retry save and close' });
+  expect(
+    (
+      within(screen.getByLabelText('Screenplay actions')).getByRole('button', {
+        name: 'Save',
+      }) as HTMLButtonElement
+    ).disabled,
+  ).toBe(true);
+  expect(
+    (screen.getByRole('button', { name: 'Run Open' }) as HTMLButtonElement)
+      .disabled,
+  ).toBe(true);
+  expect(
+    (screen.getByRole('button', { name: 'Run Undo' }) as HTMLButtonElement)
+      .disabled,
+  ).toBe(true);
 });

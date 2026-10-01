@@ -254,3 +254,32 @@ pickers, source save/recovery and process restart are native. Artifacts include
 `characters-result.json` and app-only screenshots; no personal manuscript/profile.
 No new native publication adapter is introduced. Installed-profile retention,
 other platforms/screenreaders and long-session certification remain open.
+
+## M4-14 palette/menus/accessibility
+
+After the default embedded release/package finishes, run
+`PATH=/tmp:$PATH python3 tests/native/writing-lifecycle/drill.py /tmp --commands`
+and repeat on `/home/phagmaier/Code/Babel/target`. Uses existing owned Wayland
+keyboard/wtype helpers, WebKitWebDriver, actual GTK native menus/file pickers and
+disposable BOM/CRLF/Unicode source. File pickers use one confirmation to avoid
+racing teardown into authored Return input. `commands-result.json`, screenshots
+and driver logs remain under each printed synthetic root. Native menu labels/
+selection must be visually inspected; semantic DOM facts are not screenreader
+verification. Record actual AT-SPI inspection separately and keep missing Orca/
+other-screenreader/platform coverage open. No proof feature, plugin, personal
+manuscript, credential or new filesystem publication engine is used.
+
+Rebuild `/tmp/babel-m3-08-keyboard` with the checked-in `keyboard.c` and existing
+pinned generated Wayland protocol/keymap, as documented in
+[development commands](../../../docs/development.md). `command-menu-save-as`
+sends Escape/F10/Down/Down/Enter within one virtual-keyboard lifetime; separate
+wtype invocations did not traverse the GTK menu reliably. The existing `gdbus`
+accessibility bus and AT-SPI constants header are prerequisites for
+`command_accessibility.py`. Only application descendants of the owned driver
+are inspected. Actual numeric dialog/combobox/listbox/list-item roles and native
+menu names are recorded; WebKit's empty localized role names are not treated as
+missing numeric roles. This is AT-SPI exposure, with no Orca/speech/announcement
+or screenreader shortcut claim. Dark 200% writing zoom is native preference
+behavior; additional 150% whole-view CSS scaling is a synthetic layout probe.
+The production Close control is invoked programmatically to test interruption
+of an inert background; subsequent protection/release uses actual native services.

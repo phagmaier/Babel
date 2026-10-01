@@ -61,3 +61,32 @@ Evidence still needed: [M4-13 evidence](../test-evidence/M4.md#m4-13--characters
 records bounded Linux production restart/failure/selection scope. Installed/offline
 WebView-profile retention, other platforms, cross-window hints and long-session
 performance remain M6; this auxiliary store makes no durability guarantee.
+
+## M4-14 palette and native menus
+
+The shared `commandCatalog.json` owns IDs, names, groups, defaults and future
+unavailability for both TypeScript and Rust. Live route/editor/form/protection
+facts drive availability; dispatch rechecks them before invoking existing services.
+Home, palette, command help and writing controls share these actions. Native
+menus display registry-derived shortcut hints; WebView logical-key routing owns
+keyboard accelerators exclusively. Registering a second toolkit accelerator would
+bypass form/composition ownership and could dispatch twice. Native menu selection
+remains a real toolkit action, emitting only a catalog ID and opaque publication
+token to the main WebView. No new menu/plugin capability or disk endpoint is added.
+
+Each publication builds menu items with token-qualified native IDs. Queued events
+from replaced items are refused by the host; retired UI listeners and token
+mismatches are also refused. Publications serialize across route changes and
+failure retires native dispatch with a fixed visible fallback notice. The strict
+host envelope accepts the full ordered catalog, enabled flags, canonical bounded
+bindings and a bounded token only; labels/source/paths/shell payloads are rejected.
+Future PDF/timeline/remote actions cannot be enabled. Read-only, staged title,
+composition and protected/busy states retain their existing mutation boundaries.
+
+The palette contains focus, makes background controls inert, filters enabled
+actions and current scene/section targets, caps visible results at 100 with an
+explicit refine notice, and returns focus on Escape/F6/cancel. Navigation rechecks
+the original immutable projection at activation; it never earns an authored Undo
+step. Native menu behavior on other platforms, reserved assistive shortcuts,
+actual screenreaders and installed-profile retention remain open; bounded Linux
+observations are linked in [M4-14 evidence](../test-evidence/M4.md#m4-14--palette-menus-and-accessibility).

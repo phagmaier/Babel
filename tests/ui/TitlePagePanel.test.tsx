@@ -157,6 +157,7 @@ describe('title form drafts and exact-source commands', () => {
   });
   it('read-only buttons and view composing refuse all changes, including direct command submission', () => {
     const { view, original } = setup({ readOnly: true });
+    expect(view.dom.getAttribute('aria-readonly')).toBe('true');
     expect(
       (screen.getByRole('button', { name: 'Add field' }) as HTMLButtonElement)
         .disabled,
@@ -164,7 +165,7 @@ describe('title form drafts and exact-source commands', () => {
     fireEvent.click(
       screen.getByRole('button', { name: 'Edit field 1: Title' }),
     );
-    expect(screen.queryByRole('textbox')).toBeNull();
+    expect(screen.queryByRole('textbox', { name: 'Field value' })).toBeNull();
     expect(applyTitlePage(view, view.state, { kind: 'remove', id: 'b0' })).toBe(
       false,
     );

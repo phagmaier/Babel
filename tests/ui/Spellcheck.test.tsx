@@ -1,4 +1,5 @@
 import {
+  act,
   cleanup,
   fireEvent,
   render,
@@ -132,11 +133,14 @@ it('keeps failed Add visible and old dictionary state usable', async () => {
 });
 
 it('reports the effective language and preserves keyboard focus when the native select is refreshed', async () => {
+  let reply: ((status: SpellcheckReply) => void) | undefined;
   open({
-    request: async (request) => ({
-      ...status,
-      language: request.language ?? 'en_US',
-    }),
+    request: async (request) =>
+      request.action === 'configure'
+        ? new Promise<SpellcheckReply>((resolve) => {
+            reply = resolve;
+          })
+        : status,
   });
   await waitFor(() => expect(button('Check spelling').disabled).toBe(false));
   const select = screen.getByLabelText(
@@ -144,13 +148,17 @@ it('reports the effective language and preserves keyboard focus when the native 
   ) as HTMLSelectElement;
   select.focus();
   fireEvent.change(select, { target: { value: 'en_US-large' } });
+  expect(select.disabled).toBe(true);
+  await act(async () => reply!({ ...status, language: 'en_US-large' }));
   await waitFor(() =>
     expect(
       (screen.getByLabelText('Spelling language') as HTMLSelectElement).value,
     ).toBe('en_US-large'),
   );
-  expect(document.activeElement).toBe(
-    screen.getByLabelText('Spelling language'),
+  await waitFor(() =>
+    expect(document.activeElement).toBe(
+      screen.getByLabelText('Spelling language'),
+    ),
   );
   expect(
     screen.getByText(/Effective spelling language:/).textContent,

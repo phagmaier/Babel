@@ -313,8 +313,18 @@ it('allows explicit read-only selection navigation but refuses mutations, frozen
   f.view.dom.dispatchEvent(
     new CompositionEvent('compositionend', { bubbles: true }),
   );
+  // Navigation begins in an outside control with no owned DOM selection.
+  const form = document.createElement('input');
+  document.body.append(form);
+  form.focus();
+  window.getSelection()!.removeAllRanges();
   // WebKit's real composition gate is additionally covered in the native drill.
   expect(navigateOutline(f.view, f.projection, 1)).toBe(true);
+  const selection = window.getSelection()!;
+  expect(f.view.dom.contains(selection.focusNode)).toBe(true);
+  expect(f.view.posAtDOM(selection.focusNode!, selection.focusOffset)).toBe(
+    f.view.state.selection.head,
+  );
   expect(f.view.hasFocus()).toBe(true);
   expect(captureEditor(f.view.state).source).toEqual(bytes);
   expect(undoDepth(f.view.state)).toBe(0);

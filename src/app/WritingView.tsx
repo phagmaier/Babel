@@ -1,3 +1,14 @@
+import { undoDepth, redoDepth } from 'prosemirror-history';
+import { CommandSurface } from './CommandSurface';
+import {
+  commandReason,
+  dispatchCommand,
+  type CommandContext,
+} from '../application/commandDispatch';
+import {
+  shortcutCommands,
+  type ShortcutRegistry,
+} from '../application/shortcuts';
 import { SpellcheckPanel } from './SpellcheckPanel';
 import {
   type SpellcheckController,
@@ -189,12 +200,14 @@ export function WritingView({
   onOpenRequested,
   recents,
   preferences: providedPreferences,
+  registry: providedRegistry,
   spelling = '__TAURI_INTERNALS__' in window
     ? nativeSpellcheck
     : unavailableSpellcheck,
 }: {
   ports: WritingPorts;
   preferences?: ViewPreferences;
+  registry?: ShortcutRegistry;
   spelling?: SpellcheckPort;
   recents?: RecentProjectsPort;
   open: OpenRequest;
@@ -218,8 +231,9 @@ export function WritingView({
   useEffect(() => () => typewriter.destroy(), [typewriter]);
   const registry = useMemo(
     () =>
+      providedRegistry ??
       localShortcutRegistry(/Mac/.test(navigator.platform) ? 'mac' : 'other'),
-    [],
+    [providedRegistry],
   );
   const editorHost = useRef<HTMLDivElement | null>(null);
   const stagedImportRef = useRef('');
@@ -278,6 +292,19 @@ export function WritingView({
   const [status, setStatus] = useState('');
   const [live, setLive] = useState<CapturedSnapshot | null>(null);
   const [showClose, setShowClose] = useState(false);
+  const [paletteRequested, requestPalette] = useState(0);
+  const [paletteOpen, setPaletteOpen] = useState(false);
+  const [commandComposing, setCommandComposing] = useState(false);
+  useEffect(() => {
+    const start = () => setCommandComposing(true);
+    const end = () => setCommandComposing(false);
+    window.addEventListener('compositionstart', start);
+    window.addEventListener('compositionend', end);
+    return () => {
+      window.removeEventListener('compositionstart', start);
+      window.removeEventListener('compositionend', end);
+    };
+  }, []);
   const [copyDestination, setCopyDestination] =
     useState<CopyDestination | null>(null);
   const [candidates, setCandidates] = useState<RecoveryCandidate[]>([]);
@@ -1178,6 +1205,7 @@ export function WritingView({
         !viewRef.current?.composing &&
         preferences.getSnapshot().settings.focus &&
         !showClose &&
+        !paletteOpen &&
         !showTitle &&
         !findState?.enabled &&
         !showCheck &&
@@ -1190,52 +1218,6 @@ export function WritingView({
         if (preferences.update({ focus: false })) viewRef.current?.focus();
         return;
       }
-      const command = registry.match(event);
-      const session = sessionRef.current;
-      if (
-        !session?.active ||
-        command?.scope !== 'application' ||
-        command.unavailable
-      )
-        return;
-      if (command.id === 'focusMode') {
-        event.preventDefault();
-        if (!operationRef.current && !showClose && !viewRef.current?.composing)
-          preferences.update({
-            focus: !preferences.getSnapshot().settings.focus,
-          });
-        return;
-      }
-      if (['find', 'nextMatch', 'previousMatch'].includes(command.id)) {
-        event.preventDefault();
-        if (
-          operationRef.current ||
-          showClose ||
-          titleDraftRef.current ||
-          viewRef.current?.composing
-        )
-          return;
-        if (command.id === 'find') openFind();
-        else navigateSearch(command.id === 'nextMatch' ? 1 : -1);
-        return;
-      }
-      // Search input owns ordinary typing/Undo, while application commands remain available.
-      if (!['save', 'saveAs', 'open'].includes(command.id)) return;
-      event.preventDefault();
-      if (operationRef.current || showClose || titleDraftRef.current) {
-        if (titleDraftRef.current)
-          setError(
-            'Apply or Discard the uncommitted title input before saving or switching.',
-          );
-        return;
-      }
-      if (command.id === 'open') {
-        pendingSwitchRef.current = true;
-        retainClosingPosition();
-        setShowClose(true);
-      } else if (command.id === 'saveAs')
-        void run(() => session.saveAs().then(reportOutcome));
-      else void run(() => session.save().then(() => refresh()));
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
@@ -1245,6 +1227,7 @@ export function WritingView({
     showTitle,
     showCheck,
     findState?.enabled,
+    paletteOpen,
     registry,
     preferences,
   ]);
@@ -1775,6 +1758,164 @@ export function WritingView({
   // The editor and import hosts are keyed so React preserves their DOM across
   // phase changes. Unkeyed conditional trees unmounted ProseMirror's DOM out
   // from under the live view, silently detaching the editor.
+  const commandContext = (): CommandContext => {
+    const current = viewRef.current;
+    const projection = outline.projection;
+    const currentProjection =
+      !!current &&
+      !!projection &&
+      outline.phase === 'current' &&
+      projection.doc === current.state.doc &&
+      projection.version === editorVersion(current.state) &&
+      projection.session === editorOrigin(current.state).session;
+    return {
+      route: 'writing',
+      native: true,
+      ready:
+        phase === 'active' && readyRef.current && !!sessionRef.current?.active,
+      blocked:
+        operationRef.current || frozenRef.current || showClose || Boolean(move),
+      composing:
+        commandComposing || !!current?.composing || titleComposingRef.current,
+      staged: titleDraftRef.current,
+      readOnly: !writableRef.current,
+      form: false,
+      undo: !!current && undoDepth(current.state) > 0,
+      redo: !!current && redoDepth(current.state) > 0,
+      navigation:
+        currentProjection &&
+        !!projection?.index.items.some((item) => item.kind === 'scene'),
+      matches:
+        !!findRef.current?.state.matches.length &&
+        findRef.current.state.phase === 'current',
+    };
+  };
+  const commandUnavailable = (id: string) => {
+    const command = shortcutCommands.find((entry) => entry.id === id);
+    return command
+      ? commandReason(command, commandContext())
+      : 'Unknown command.';
+  };
+  const executeCommand = (id: string) =>
+    dispatchCommand(id, commandContext(), (known) => {
+      const current = viewRef.current,
+        currentSession = sessionRef.current;
+      if (!current || !currentSession) return;
+      switch (known) {
+        case 'commandPalette':
+          popupRef.current?.controller.dismiss();
+          requestPalette((n) => n + 1);
+          break;
+        case 'save':
+          void run(() => currentSession.save().then(() => refresh()));
+          break;
+        case 'saveAs':
+          void run(() => currentSession.saveAs().then(reportOutcome));
+          break;
+        case 'exportFountain':
+          void run(() => currentSession.exportCopy().then(reportOutcome));
+          break;
+        case 'open':
+          requestClose(true);
+          break;
+        case 'home':
+        case 'closeSession':
+          requestClose();
+          break;
+        case 'find':
+        case 'replace':
+          openFind();
+          break;
+        case 'nextMatch':
+        case 'previousMatch':
+          navigateSearch(known === 'nextMatch' ? 1 : -1);
+          break;
+        case 'scriptCheck':
+          openCheck();
+          break;
+        case 'spellcheck':
+          popupRef.current?.controller.dismiss();
+          setShowSpelling(true);
+          break;
+        case 'titlePage':
+          popupRef.current?.controller.dismiss();
+          setShowTitle(true);
+          break;
+        case 'focusMode':
+          preferences.update({
+            focus: !preferences.getSnapshot().settings.focus,
+          });
+          break;
+        case 'characters':
+        case 'outline': {
+          if (
+            preferences.getSnapshot().settings.focus &&
+            !preferences.update({ focus: false })
+          )
+            break;
+          requestAnimationFrame(() =>
+            document
+              .querySelector<HTMLElement>(
+                known === 'characters'
+                  ? '[aria-label="Character focus"]'
+                  : '.manuscript-outline input',
+              )
+              ?.focus(),
+          );
+          break;
+        }
+        case 'nextScene':
+        case 'previousScene': {
+          const projection = outline.projection;
+          if (!projection) break;
+          const row = current.state.selection.$head.index(0);
+          const scenes = projection.index.items.filter(
+            (item) => item.kind === 'scene',
+          );
+          const target =
+            known === 'nextScene'
+              ? (scenes.find((item) => item.row > row) ?? scenes[0])
+              : ([...scenes].reverse().find((item) => item.row < row) ??
+                scenes.at(-1));
+          if (target) navigateOutline(current, projection, target.row);
+          break;
+        }
+        default:
+          executeEditorCommand(current, known, (reason) =>
+            setError(reason ?? 'Edit refused'),
+          );
+          refresh();
+      }
+    });
+  const paletteNavigation = () =>
+    outline.phase === 'current' && outline.projection
+      ? outline.projection.index.items.map((item) => {
+          const captured = outline.projection!;
+          return {
+            id: `navigation.${item.id}`,
+            label: `${item.kind === 'scene' ? 'Scene ' + item.ordinal : 'Section'}: ${item.label.slice(0, 300)}`,
+            hint: item.sceneNumber
+              ? `Authored number ${item.sceneNumber}`
+              : 'Navigate without editing',
+            activate: () => {
+              const current = viewRef.current;
+              const facts = commandContext();
+              if (
+                !current ||
+                facts.blocked ||
+                facts.composing ||
+                facts.staged ||
+                !facts.ready ||
+                !navigateOutline(current, captured, item.row)
+              )
+                setError(
+                  'Palette navigation is stale or unavailable. Text and selection are retained.',
+                );
+            },
+          };
+        })
+      : [];
+
   const hosts = (
     <div key="writing-hosts">
       {phase === 'active' && showSpelling && (
@@ -2005,6 +2146,14 @@ export function WritingView({
           {error && <p role="alert">{error}</p>}
         </section>
       </div>
+      <CommandSurface
+        registry={registry}
+        context={commandContext}
+        execute={executeCommand}
+        navigation={paletteNavigation}
+        paletteRequested={paletteRequested}
+        onPaletteChange={setPaletteOpen}
+      />
       <h1>Writing</h1>
       <p className="focus-help">
         F6 moves focus from the editor to screenplay actions. Tab then moves
@@ -2020,28 +2169,22 @@ export function WritingView({
         <button
           id="writing-save"
           type="button"
-          disabled={busy || !active || active.readOnly}
-          onClick={() =>
-            session && void run(() => session.save().then(() => refresh()))
-          }
+          disabled={!!commandUnavailable('save')}
+          onClick={() => executeCommand('save')}
         >
           {active?.kind === 'unsaved' ? 'Protect draft' : 'Save'}
         </button>
         <button
           type="button"
-          disabled={busy || !active}
-          onClick={() =>
-            session && void run(() => session.saveAs().then(reportOutcome))
-          }
+          disabled={!!commandUnavailable('saveAs')}
+          onClick={() => executeCommand('saveAs')}
         >
           Save As
         </button>
         <button
           type="button"
-          disabled={busy || !active}
-          onClick={() =>
-            session && void run(() => session.exportCopy().then(reportOutcome))
-          }
+          disabled={!!commandUnavailable('exportFountain')}
+          onClick={() => executeCommand('exportFountain')}
         >
           Export Fountain copy
         </button>
@@ -2067,8 +2210,8 @@ export function WritingView({
           type="button"
           id="writing-find"
           aria-expanded={Boolean(findState?.enabled)}
-          disabled={busy || !active || showClose}
-          onClick={openFind}
+          disabled={!!commandUnavailable('find')}
+          onClick={() => executeCommand('find')}
         >
           Find
         </button>
@@ -2076,15 +2219,8 @@ export function WritingView({
           type="button"
           id="writing-spellcheck"
           aria-expanded={showSpelling}
-          disabled={busy || !active || showClose}
-          onClick={() => {
-            if (
-              !viewRef.current?.composing &&
-              !operationRef.current &&
-              !titleComposingRef.current
-            )
-              setShowSpelling(true);
-          }}
+          disabled={!!commandUnavailable('spellcheck')}
+          onClick={() => executeCommand('spellcheck')}
         >
           Spellcheck
         </button>
@@ -2092,8 +2228,8 @@ export function WritingView({
           type="button"
           id="writing-check"
           aria-expanded={showCheck}
-          disabled={busy || !active || showClose}
-          onClick={openCheck}
+          disabled={!!commandUnavailable('scriptCheck')}
+          onClick={() => executeCommand('scriptCheck')}
         >
           Script Check
         </button>
@@ -2102,31 +2238,22 @@ export function WritingView({
           ref={titleButtonRef}
           aria-expanded={showTitle}
           type="button"
-          disabled={busy || !active || showTitle || showClose}
-          onClick={() => {
-            if (viewRef.current?.composing) {
-              setError('Finish composing before opening the title page.');
-              return;
-            }
-            popupRef.current?.controller.dismiss();
-            setShowTitle(true);
-          }}
+          disabled={!!commandUnavailable('titlePage') || showTitle}
+          onClick={() => executeCommand('titlePage')}
         >
           Title page
         </button>
         <button
           type="button"
-          disabled={busy || !active}
-          onClick={() => requestClose()}
+          disabled={!!commandUnavailable('closeSession')}
+          onClick={() => executeCommand('closeSession')}
         >
           Close session
         </button>
         <button
           type="button"
-          disabled={busy || !active}
-          onClick={() => {
-            requestClose();
-          }}
+          disabled={!!commandUnavailable('home')}
+          onClick={() => executeCommand('home')}
         >
           Home
         </button>
@@ -2136,47 +2263,8 @@ export function WritingView({
           state={view.state}
           registry={registry}
           focusTargetLabel="screenplay actions"
-          execute={(id) => {
-            const current = viewRef.current;
-            if (id === 'focusMode') {
-              if (!modeDisabled)
-                preferences.update({
-                  focus: !preferences.getSnapshot().settings.focus,
-                });
-              return;
-            }
-            if (id === 'find') {
-              openFind();
-              return;
-            }
-            if (id === 'nextMatch' || id === 'previousMatch') {
-              navigateSearch(id === 'nextMatch' ? 1 : -1);
-              return;
-            }
-            if (id === 'save') {
-              if (session) void run(() => session.save());
-              return;
-            }
-            if (id === 'saveAs') {
-              if (session) void run(() => session.saveAs().then(reportOutcome));
-              return;
-            }
-            if (id === 'open') {
-              requestClose(true);
-              return;
-            }
-            if (titleDraftRef.current || titleComposingRef.current) {
-              setError(
-                'Apply or Discard the uncommitted title input before editor commands.',
-              );
-              return;
-            }
-            if (current)
-              executeEditorCommand(current, id, (reason) =>
-                setError(reason ?? 'Edit refused'),
-              );
-            refresh();
-          }}
+          availability={commandUnavailable}
+          execute={executeCommand}
         />
       )}
       {hosts}

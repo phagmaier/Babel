@@ -55,6 +55,12 @@ export function navigateOutline(
   // its editor (as it is after activating an outline button). Focus and sync
   // the accepted caret first, including a selectable read-only view.
   view.dom.focus({ preventScroll: true });
+  if (!view.editable) {
+    // Read-only ProseMirror synchronizes only a DOM selection it already owns.
+    // Seed that ownership from the accepted state, never from authored DOM text.
+    const caret = view.domAtPos(position);
+    view.dom.ownerDocument.getSelection()?.collapse(caret.node, caret.offset);
+  }
   view.focus();
   view.dispatch(view.state.tr.setMeta('addToHistory', false).scrollIntoView());
   return true;

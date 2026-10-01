@@ -219,3 +219,33 @@ manual scrolling stays independent of typewriter follow. An auxiliary failure no
 never blocks Save or Close. [ADR 0022](decisions/0022-local-shortcut-preferences.md#m4-13-recent-position-hints)
 owns the minimal UI-only storage and fallback policy. Installed-package retention,
 other platforms and assistive-technology acceptance remain open.
+
+## M4-14 palette, native menus and keyboard integration
+
+Home and writing expose Command Palette (`Mod+Shift+P`, remappable). It filters
+currently enabled actions and writing scenes/sections. Up/Down selects, Enter
+activates once, Escape/F6 cancels to the prior control/caret, and Tab/Shift+Tab
+stays inside the semantic modal dialog. Background controls are inert. Navigation
+uses the displayed version/hash/session projection and refuses stale frames;
+100 visible results are capped explicitly, with filtering across the full list.
+The sole editor is labelled “Screenplay text,” a multiline textbox. F6 cycles
+from writing to screenplay actions and back; ordinary controls retain native Tab.
+IME/composition and form typing/Undo own their keys. Status/errors remain visible,
+selected palette rows have a glyph/outline as well as weight, and shared theme,
+forced-color focus, reduced-motion and narrow-window styles apply.
+
+Native Screenplay/Edit/Navigate/Tools menus read the same command catalog and
+live registry preferences as help and palette. Shortcut hints update after a
+successful remap; keyboard routing remains in the WebView to respect form/IME
+ownership. Menu clicks emit strict token-bound command IDs and recheck current
+availability before using the existing entry/save/protected-close/editing services.
+Read-only and busy/staged/composing states refuse unsafe actions; unimplemented
+PDF, revision timeline and remote workflows remain visibly disabled with milestone
+reasons. Native menu failure leaves visible controls/palette available and reports
+a fixed notice, without changing saving/recovery status.
+
+[M4-14 evidence](test-evidence/M4.md#m4-14--palette-menus-and-accessibility)
+distinguishes contract/DOM, real Linux menu/keyboard/IME/scaling, and actual
+assistive-technology inspection. No screenreader or broader platform acceptance
+is implied by semantic labels or native tree exposure. M4-15 integrated review
+and installed-profile/full accessibility/performance gates remain separate.

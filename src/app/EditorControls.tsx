@@ -15,12 +15,14 @@ export function EditorControls({
   execute,
   pickerId = 'screenplay-element',
   focusTargetLabel = 'Element',
+  availability,
 }: {
   state: EditorState;
   registry: ShortcutRegistry;
   execute: (id: string) => void;
   pickerId?: string;
   focusTargetLabel?: string;
+  availability?: (id: string) => string | null;
 }) {
   useSyncExternalStore(registry.subscribe, registry.getSnapshot);
   const [commandId, setCommandId] = useState(shortcutCommands[0]!.id);
@@ -35,6 +37,7 @@ export function EditorControls({
       <select
         id={pickerId}
         value={current}
+        disabled={!!availability?.('element.action')}
         aria-describedby={`${pickerId}-context`}
         onChange={(event) => execute(`element.${event.target.value}`)}
       >
@@ -66,8 +69,11 @@ export function EditorControls({
             <li key={command.id}>
               <button
                 type="button"
+                aria-label={availability ? `Run ${command.label}` : undefined}
                 disabled={
-                  !!command.unavailable ||
+                  !!(availability
+                    ? availability(command.id)
+                    : command.unavailable) ||
                   (command.id === 'undo' && undoDepth(state) === 0) ||
                   (command.id === 'redo' && redoDepth(state) === 0)
                 }
@@ -76,7 +82,15 @@ export function EditorControls({
                 {command.label}
               </button>
               <kbd>{registry.label(command.id)}</kbd>
-              {command.unavailable && <span>{command.unavailable}</span>}
+              {(availability
+                ? availability(command.id)
+                : command.unavailable) && (
+                <span>
+                  {availability
+                    ? availability(command.id)
+                    : command.unavailable}
+                </span>
+              )}
             </li>
           ))}
         </ul>

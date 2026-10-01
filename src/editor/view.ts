@@ -40,7 +40,17 @@ export function mountScreenplayEditor(
   let compositionEndedBeforeKeyup = false;
   const view = new EditorView(host, {
     state,
-    attributes: { tabindex: '0', spellcheck: 'false' },
+    attributes: (current) => ({
+      tabindex: '0',
+      spellcheck: 'false',
+      role: 'textbox',
+      'aria-label': 'Screenplay text',
+      'aria-multiline': 'true',
+      'aria-readonly': String(
+        !!editorOrigin(current).document.readOnlyReason ||
+          observers.canEdit?.() === false,
+      ),
+    }),
     handleScrollToSelection: observers.scrollToSelection,
     editable: (current) =>
       !editorOrigin(current).document.readOnlyReason &&

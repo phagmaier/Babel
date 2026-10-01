@@ -320,16 +320,14 @@ describe('M3-06 local shortcut registry', () => {
       'nextMatch',
       'previousMatch',
       'focusMode',
-    ])
-      expect(shortcutCommands.find((c) => c.id === id)?.unavailable).toBeNull();
-    for (const id of [
       'replace',
-      'exportPdf',
       'scriptCheck',
       'commandPalette',
       'nextScene',
       'previousScene',
     ])
+      expect(shortcutCommands.find((c) => c.id === id)?.unavailable).toBeNull();
+    for (const id of ['exportPdf', 'history', 'upload', 'getLatest'])
       expect(
         shortcutCommands.find((c) => c.id === id)?.unavailable,
       ).toBeTruthy();
