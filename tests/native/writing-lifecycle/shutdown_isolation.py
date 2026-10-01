@@ -19,7 +19,11 @@ def main():
     parser.add_argument('--repeats', type=int, default=2)
     parser.add_argument('--modes', nargs='+', default=['presentation'],
                         help='integrated_exit scenario names (default: presentation)')
+    parser.add_argument('--presentation-no-restart', action='store_true',
+                        help='diagnostic only: retain presentation workload, skip preference restart')
     args = parser.parse_args()
+    if args.presentation_no_restart and args.modes != ['presentation']:
+        parser.error('--presentation-no-restart requires --modes presentation alone')
     if args.repeats < 1:
         parser.error('--repeats must be positive')
     args.output.mkdir(parents=True, exist_ok=False)
@@ -29,7 +33,7 @@ def main():
     (args.output / 'binary.json').write_text(json.dumps({
         'path': str(binary), 'sha256': digest, 'repeats': args.repeats,
         'automation': True, 'ordinaryEntry': 'Hyprland graceful window close from Home',
-        'scenarioModes': args.modes,
+        'scenarioModes': args.modes, 'presentationRestart': not args.presentation_no_restart,
     }, indent=2) + '\n')
     reports = []
     matrix = Path(__file__).with_name('integrated_exit.py')
@@ -42,6 +46,8 @@ def main():
                 env = os.environ.copy()
                 env.update(BABEL_SHUTDOWN_MODE=mode, BABEL_NATIVE_BINARY=str(binary))
                 cmd = [sys.executable, str(matrix), str(root), '--modes', *args.modes, '--output', str(output)]
+                if args.presentation_no_restart:
+                    cmd.append('--presentation-no-restart')
                 with (args.output / (output.name + '.log')).open('w') as log:
                     result = subprocess.run(cmd, env=env, stdout=log, stderr=subprocess.STDOUT)
                 entries = json.loads((output / 'results.json').read_text())

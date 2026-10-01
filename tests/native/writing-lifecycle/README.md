@@ -419,6 +419,32 @@ closing a still-open/dirty document through the window manager.
 `shutdown-phases.json` retain binary hash, arm/order/filesystem, process inventory
 and wall-clock phase boundaries. Two repetitions alternate arm order. All crash
 lines still fail the strict matrix; clean repeats do not fix retained C1/C2.
+
+Add `--presentation-no-restart` to run the same typical/stress, zoom, real IME,
+Undo/divergence/Save As and protected document-close oracles with one final exit.
+It omits preference restart verification and requires `--modes presentation`
+alone. The manifest records `presentationRestart: false`; the byte auditor
+requires one complete exit for this diagnostic and two for the default scenario.
+Use a new output directory for every run.
+
+Paired cases now retain a continuous `/proc` descendant ledger beside their
+logs (`*-processes.json`), rooted at the owned drill process before WebDriver
+starts. PID/start tokens and first-observed parent links persist across orphaning
+and restarts; polling sleeps 50ms, with actual maximum gaps recorded. This is
+not lossless fork tracing: processes living entirely between samples can escape
+attribution. After cleanup, five seconds of continued observation precede a
+per-case bounded kernel/coredump journal scan (`*-journal.json`). Owned and
+unattributed WebKit/Babel crash events, scan failure or surviving native
+processes fail `crashAuditPassed` and the matrix. Delayed journal delivery beyond
+the recorded window remains an omission; retained-window replay and targeted
+owned-PID core checks provide additional evidence. Core identity fields are
+checked even when journalctl omits an oversized `MESSAGE` as null. Journal
+warnings also prevent a complete read claim. Replay exact retained windows using
+`python3 tests/native/writing-lifecycle/audit_process_watch.py <results.json> --output <new-directory>`;
+it preserves original manifests and exit codes, creates derived reports and
+returns the strict verdict. The broader
+retained auditor excludes failed crash/phase/matrix verdicts. These diagnostics
+add no product hook or dependency and do not replace the integrated gate.
 Audit frozen presentation bytes and exact source/checkpoint hashes in **all**
 roots, including crash-failed cases, without changing their native verdict:
 

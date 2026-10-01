@@ -307,7 +307,7 @@ try:
         sys.exit(0)
     if '--presentation' in sys.argv:
         from presentation_workflows import run as run_presentation
-        run_presentation(sys.modules[__name__])
+        run_presentation(sys.modules[__name__], restart='--presentation-no-restart' not in sys.argv)
         sys.exit(0)
     if '--script-check' in sys.argv:
         from scriptcheck_workflows import run as run_check

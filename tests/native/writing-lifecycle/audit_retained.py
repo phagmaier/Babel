@@ -40,7 +40,9 @@ def main():
     reports = []
     git_env = dict(os.environ, GIT_CONFIG_GLOBAL='/dev/null', GIT_CONFIG_SYSTEM='/dev/null')
     for run in json.loads(args.manifest.read_text()):
-        if run['exitCode'] != 0 or run.get('runtimeCrashLines'): continue
+        if (run['exitCode'] != 0 or run.get('runtimeCrashLines') or
+                not run.get('crashAuditPassed', True) or run.get('matrixExitCode', 0) != 0 or
+                not run.get('phaseAuditPassed', True)): continue
         root = Path(run['artifacts']).resolve(strict=True)
         assert root.name.startswith('babel-writing-'), root
         report = {'mode': run['mode'], 'filesystem': run['filesystem'], 'root': str(root),

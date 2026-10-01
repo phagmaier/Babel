@@ -38,7 +38,8 @@ def main():
             assert run['matrixExitCode'] != 0, root
             reports.append({'root': str(root), 'mode': run['shutdownMode'],
                             'filesystem': run['filesystem'], 'exitCode': run['exitCode'],
-                            'runtimeCrashLines': run['runtimeCrashLines'], 'auditedExits': 0,
+                            'runtimeCrashLines': run['runtimeCrashLines'],
+                        'journalCrashEvents': run.get('journalCrashEvents', []), 'auditedExits': 0,
                             'completeExitSequences': False, 'shutdownReached': False,
                             'note': 'drill failed before shutdown; bytes not audited'})
             continue
@@ -55,7 +56,9 @@ def main():
             times = [p['wallTime'] for p in phase['phases']]
             assert times == sorted(times)
             assert any(p['name'] == 'WebKitWebProces' for p in phase['processes'])
-        complete = len(phases) == 2 and all(p['phases'][-1]['name'] == 'complete' for p in phases)
+        expected_exits = 2 if run.get('presentationRestart', True) else 1
+        assert len(phases) <= expected_exits, root
+        complete = len(phases) == expected_exits and all(p['phases'][-1]['name'] == 'complete' for p in phases)
         assert complete == run['phaseAuditPassed']
         if run['matrixExitCode'] == 0:
             assert complete, root
@@ -72,11 +75,12 @@ def main():
         # Evidence audit success never changes the strict native crash verdict.
         reports.append({'root': str(root), 'mode': run['shutdownMode'],
                         'filesystem': run['filesystem'], 'exitCode': run['exitCode'],
-                        'runtimeCrashLines': run['runtimeCrashLines'], 'auditedExits': len(phases),
+                        'runtimeCrashLines': run['runtimeCrashLines'],
+                        'journalCrashEvents': run.get('journalCrashEvents', []), 'auditedExits': len(phases),
                         'completeExitSequences': complete, 'shutdownReached': True})
     args.output.write_text(json.dumps(reports, indent=2) + '\n')
     print(json.dumps({'auditedRoots': len(reports), 'auditedExits': sum(r['auditedExits'] for r in reports),
-                      'crashRoots': sum(bool(r['runtimeCrashLines']) for r in reports),
+                      'crashRoots': sum(bool(r['runtimeCrashLines'] or r['journalCrashEvents']) for r in reports),
                       'drillFailedRoots': sum(not r['shutdownReached'] for r in reports)}))
 
 

@@ -10,6 +10,8 @@ import subprocess
 import sys
 import time
 
+from process_watch import ProcessWatch, journal_scan
+
 MODES = ['daily-session', 'home', 'recents', 'outline', 'workflow-protection',
          'scene-moves', 'title-page', 'find', 'find-timing', 'replace', 'script-check',
          'presentation', 'spellcheck', 'characters', 'commands', 'editor-exit',
@@ -21,7 +23,11 @@ def main():
     parser.add_argument('roots', nargs='+', type=Path)
     parser.add_argument('--output', required=True, type=Path)
     parser.add_argument('--modes', nargs='+', choices=MODES, default=MODES)
+    parser.add_argument('--presentation-no-restart', action='store_true',
+                        help='diagnostic only: skip presentation preference restart')
     args = parser.parse_args()
+    if args.presentation_no_restart and args.modes != ['presentation']:
+        parser.error('--presentation-no-restart requires --modes presentation alone')
     args.output.mkdir(parents=True, exist_ok=False)
     env = os.environ.copy()
     env['PATH'] = '/tmp:' + env.get('PATH', '')
@@ -34,13 +40,33 @@ def main():
             label = f'{len(reports):02d}-{filesystem}-{mode}'
             log = args.output / (label + '.log')
             cmd = [sys.executable, str(driver), str(root), '--' + mode]
+            if mode == 'presentation' and args.presentation_no_restart:
+                cmd.append('--presentation-no-restart')
             if mode == 'spellcheck':
                 # Existing offline production spelling gate: only loopback.
                 cmd = ['unshare', '--user', '--map-root-user', '--net', '/bin/sh', '-c',
                        'ip link set lo up && exec "$@"', 'm4-offline', *cmd]
             started = time.monotonic()
+            watch_path = args.output / (label + '-processes.json')
+            journal_path = args.output / (label + '-journal.json')
+            ledger = None
+            scan = None
             with log.open('w') as stream:
-                result = subprocess.run(cmd, env=env, stdout=stream, stderr=subprocess.STDOUT)
+                if env.get('BABEL_SHUTDOWN_MODE'):
+                    with subprocess.Popen(cmd, env=env, stdout=stream, stderr=subprocess.STDOUT) as result:
+                        watch = ProcessWatch(result.pid, watch_path)
+                        while result.poll() is None:
+                            watch.sample()
+                            time.sleep(.05)
+                        # Continue watching known orphans during bounded journal delivery.
+                        until = time.monotonic() + 5
+                        while time.monotonic() < until:
+                            watch.sample()
+                            time.sleep(.05)
+                        ledger = watch.save()
+                    scan = journal_scan(ledger, journal_path)
+                else:
+                    result = subprocess.run(cmd, env=env, stdout=stream, stderr=subprocess.STDOUT)
             content = log.read_text()
             artifacts = re.findall(r'(?:ROOT|ARTIFACTS) ([^\s]+)', content)
             artifact = Path(artifacts[-1]) if artifacts else None
@@ -54,12 +80,20 @@ def main():
                       'seconds': round(time.monotonic() - started, 2), 'log': str(log),
                       'artifacts': str(artifact) if artifact else None,
                       'runtimeCrashLines': crash_lines,
+                      'presentationRestart': not args.presentation_no_restart if mode == 'presentation' else None,
                       'intentionalKillScenario': mode in ['editor-exit', 'audit-fixes']}
+            if ledger is not None:
+                live_native = [p for p in ledger['processes'] if
+                               not p.get('firstMissing') and p['state'] != 'Z' and
+                               re.search(r'WebKit|babel-desktop', p['name'])]
+                report.update(processLedger=str(watch_path), crashJournal=str(journal_path),
+                              journalCrashEvents=scan['events'], liveNativeProcesses=live_native,
+                              crashAuditPassed=scan['readPassed'] and not scan['events'] and not live_native)
             reports.append(report)
             (args.output / 'results.json').write_text(json.dumps(reports, indent=2) + '\n')
             print(json.dumps(report), flush=True)
     failed = [r for r in reports if r['exitCode'] or
-              r['runtimeCrashLines']]
+              r['runtimeCrashLines'] or not r.get('crashAuditPassed', True)]
     print(f'M4-15 MATRIX: {len(reports)-len(failed)}/{len(reports)} successful; crash lines require source review', flush=True)
     return 1 if failed else 0
 

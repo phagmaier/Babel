@@ -228,7 +228,13 @@ owns the two entry points, process/phase recording and scope limits. Audit its
 `shutdown_isolation.py`, `shutdown_lifecycle.py` and `audit_shutdown.py` in Python
 syntax checks. `audit_shutdown.py <results.json> --output <new-audit.json>` checks
 frozen exact bytes/checkpoints and phase order even in crash-failed roots.
-No product behavior/dependency changes or full-matrix acceptance are implied.
+Add `--presentation-no-restart` with a new output directory to omit only the
+preference restart (one final exit); the guide records coverage limits. Paired
+cases continuously poll descendant PID/start tokens and perform bounded kernel/
+coredump journal scans; include `process_watch.py` and `test_process_watch.py`
+and `audit_process_watch.py` in syntax checks and run `python3 tests/native/writing-lifecycle/test_process_watch.py`
+for synthetic attribution/null-message/failure regressions. No product
+behavior/dependency changes or full-matrix acceptance are implied.
 
 Cold-Home non-automation control: replace the diagnostic command with
 `python3 tests/native/writing-lifecycle/plain_quit.py /tmp /home/phagmaier/Code/Babel/target --repeats 4 --output /tmp/babel-m4-15-plain-quit-1`

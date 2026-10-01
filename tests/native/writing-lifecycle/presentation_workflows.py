@@ -7,7 +7,7 @@ import subprocess
 import time
 
 
-def run(d):
+def run(d, *, restart=True):
     report = []
 
     def ready():
@@ -150,10 +150,11 @@ def run(d):
         d.close_session(); d.audit(target, source + b'!External.\r\n'); d.audit(copy, source)
         assert d.script("return document.documentElement.dataset.theme;") == 'dark'
     # Same private profile restart reads preferences; UI-only key has no manuscript.
-    d.release_session(); d.new_session()
+    if restart:
+        d.release_session(); d.new_session()
     assert d.script("return document.documentElement.dataset.theme;") == 'dark'
     settings = d.script("return JSON.parse(localStorage.getItem('babel.view.v1'));")
     assert settings == {'version': 1, 'settings': {'theme': 'dark', 'zoom': 100, 'focus': False, 'typewriter': True}}, settings
     (d.ROOT / 'presentation-measurements.json').write_text(json.dumps(report, indent=2) + '\n')
-    print('PASS native presentation / caret+manual scroll+outline / pinyin commit+cancel / Undo / visible failure / exact bytes / restart', flush=True)
+    print('PASS native presentation / caret+manual scroll+outline / pinyin commit+cancel / Undo / visible failure / exact bytes / ' + ('restart' if restart else 'restart omitted (diagnostic)'), flush=True)
     print('ARTIFACTS', d.ROOT, flush=True)
