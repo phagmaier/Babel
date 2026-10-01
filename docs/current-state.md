@@ -1,14 +1,19 @@
-# Current state — M4-15 ordinary window-close abort reproduced
+# Current state — M4-15 reproducer rerun confirms block (5/8 paired, 8/8 control)
 
-Date: 2026-10-01 PDT. Application: **babel**. Main, continuation from clean
-`2e3ea2a`; one editing agent, no push or M4 verified tag.
+Date: 2026-10-01 PDT. Application: **babel**. Main at `5f3021f`; one editing
+agent, no push or M4 verified tag.
 
 ## Task and work
 
-**M4-15 shutdown isolation** is implemented and exercised. **M4-15 remains
-blocked**: ordinary graceful native window close under WebView automation
-reproduces the WebKit heap abort before any session DELETE. A forced-only
-teardown disposition is invalid. No product/native dependency changes.
+**M4-15 matched reproducer rerun is complete; M4-15 remains blocked.** Same
+default binary `6fbb10a5…` (no rebuild; post-`7cade34` delta is docs-only),
+same verified Fcitx prefix, fresh profiles, arm order alternated. Paired
+presentation probe under automation: **5/8 strict** (~12 min wall) — one
+functional drill failure (no crash), two heap aborts (ordinary tmpfs
+`corrupted double-linked list`, forced Btrfs `free(): corrupted unsorted
+chunks`). Non-automation cold-Home control: **8/8** (<1 min), no crash lines.
+Two new owned WebKitWebProcess SIGABRT cores (PIDs 520856, 526885). No
+product/native dependency changes.
 
 The paired runner uses the same default release SHA256 `6fbb10a5…`, fresh
 profiles, typical/stress presentation workflows, genuine pinyin/Undo/divergence/
@@ -17,6 +22,8 @@ forced arms alternate order. Logs retain owned PID/start-time tokens and exact
 request/process-exit/stale-session-cleanup boundaries. Crash detection is intact.
 A separate direct-launch control removes WebView automation and WebKitWebDriver.
 It exercises only cold Home/window close, with no drafting/content claim.
+Rerun outputs: `/tmp/babel-m4-15-repro-paired-1/` (+ `results.json`,
+`/tmp/babel-m4-15-repro-retained.json`) and `/tmp/babel-m4-15-repro-plain-1/`.
 
 M4-15-R1 genuine Linux preedit and M4-08-R1 replaced-emphasis correction remain
 complete. M4-01–14 bounded Linux dependencies remain accepted. Stop at M4;
@@ -37,6 +44,7 @@ unchanged.
 - Shared **694/56** frontend tests plus formatting/lint/typecheck/build and browser smoke passed; Rust fmt/clippy and **237 tests each on tmpfs/Btrfs** passed. Python syntax/CLI entry points and changed local links passed; final whitespace check recorded in evidence.
 - Separate same-agent diagnostic source/core review recorded; no second-reviewer/human sign-off claim.
 - Check-tier docs change: `prettier --check` passed on touched files; changed-file link target check passed; `git diff --check` passed. No executable suite (docs-only, no commands/config changed).
+- Reproducer rerun: harness syntax passed; paired `5/8` strict with 2 heap-abort crash lines (ordinary + forced) + 1 functional drill failure; `audit_retained` 5/60/20/0/20 passed; `audit_shutdown` blocked on drill-failed root (tooling limitation, recorded); plain control `8/8` passed; 2 new owned SIGABRT cores. Shared gates not repeated (same binary, no source change). Full detail in [M4 evidence](test-evidence/M4.md#continuation-from-5f3021f--matched-reproducer-rerun-same-binary).
 
 ## Blocker and next action
 
@@ -46,12 +54,12 @@ Gallium and `exit`; corruption origin is unproved. Current host is kernel
 7.2.7-arch1-1 and Mesa 26.2.3 (historical host notes were older); no stack upgrade
 was performed by this task. Non-automation control did not reproduce the abort.
 
-Next **M4-15** action: obtain a minimal repeated cold-Home/restart reproducer
-that compares automation and ordinary production lifecycles with matching
-profile/startup timing, then investigate supported WebKit/Mesa exit behavior
-and a justified fix. Preserve crash/core evidence and exact byte/checkpoint
-oracles; rerun affected integrated/native gates after a real correction.
-Do not filter crashes, ship a guessed workaround or tag M4 on clean repeats.
+Next **M4-15** action: narrow the corrupting workload under automation and
+investigate a supported WebKit/Mesa exit fix; fix `audit_shutdown.py` to report
+(not crash on) drill-failed roots. Preserve crash/core evidence and exact
+byte/checkpoint oracles; rerun affected integrated/native gates after a real
+correction. Do not filter crashes, ship a guessed workaround or tag M4 on clean
+repeats.
 
 SC005/SC008 assessment remains unavailable until M5. C1/native dependency
 hardening, screenreader/other platforms, installed/offline packaging, full
