@@ -40,8 +40,8 @@ def run(d):
         for i,line in enumerate(value.split('\n')):
             if i: keys([('keyDown','\ue007'),('keyUp','\ue007')])
             if line: d.command('POST',f'/element/{element}/value',{'text':line})
-        actual=d.command('GET',f'/element/{element}/property/value')
-        assert actual==value,(actual,value)
+        d.wait(lambda:d.command('GET',f'/element/{element}/property/value')==value,
+               'Trusted title text delivered through native input method')
     def apply():
         d.click('Apply title input')
         d.wait(lambda:d.script("return !document.querySelector('.title-page-panel textarea');"),'Title edit applied',timeout=60)
@@ -112,14 +112,19 @@ def run(d):
         assert d.script("return document.querySelector('.title-page-panel textarea').value;")=='IME 你好'
         apply();ime_source=source.replace(b'**Film**\r\n\t  Subtitle\r\n', 'IME 你好\r\n'.encode())
         save(target,ime_source);undo();save(target,source)
-        edit();fill('Cancel ');owned_focus();subprocess.run(['wtype','-d','80','nihao'],check=True);time.sleep(.6)
+        # Baseline form text is literal setup, then the real engine owns preedit.
+        subprocess.run(['fcitx5-remote','-s','keyboard-us'],check=True);time.sleep(.5)
+        edit();fill('Cancel ');owned_focus()
+        subprocess.run(['fcitx5-remote','-s','pinyin'],check=True);time.sleep(.5)
+        subprocess.run(['wtype','-d','80','nihao'],check=True);time.sleep(.6)
         subprocess.run(['/tmp/babel-m3-08-keyboard','escape'],check=True);time.sleep(.4)
         assert d.script("return document.querySelector('.title-page-panel textarea').value;")=='Cancel '
         d.click('Discard title input')
     finally:
         subprocess.run(['fcitx5-remote','-s',previous],check=True)
     events=d.script('return window.titleIme;')
-    assert sum(e['kind']=='compositionend' and e['trusted'] for e in events)>=2
+    assert sum(e['kind'] == 'compositionstart' and e['trusted'] for e in events) >= 2, events
+    assert sum(e['kind']=='compositionend' and e['trusted'] for e in events)>=2, events
     (d.ROOT/'title-ime.json').write_text(json.dumps(events,indent=2))
     # Preserve a named exact title source, restore it through native safety path.
     d.set_input('Snapshot name','Title retained');d.click('Keep named snapshot')

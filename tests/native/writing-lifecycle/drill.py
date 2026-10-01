@@ -27,7 +27,8 @@ ENV.update(TAURI_WEBVIEW_AUTOMATION='true', XDG_DATA_HOME=str(ROOT / 'data'),
            XDG_CONFIG_HOME=str(ROOT / 'config'), XDG_CACHE_HOME=str(ROOT / 'cache'),
            GSETTINGS_BACKEND='memory')
 if any(mode in sys.argv for mode in ['--spellcheck', '--characters', '--commands']):
-    ENV['GTK_IM_MODULE'] = 'simple'
+    # GTK's built-in context ID bypasses an inherited Fcitx wildcard cache.
+    ENV['GTK_IM_MODULE'] = 'gtk-im-context-simple'
 DRIVER_LOG = (ROOT / 'webdriver.log').open('w')
 DRIVER = subprocess.Popen(['WebKitWebDriver', f'--port={PORT}'], env=ENV,
                           stdout=DRIVER_LOG, stderr=DRIVER_LOG)
@@ -46,6 +47,9 @@ def request(method, path, payload=None):
 
 
 def command(method, path, payload=None):
+    if method == 'DELETE' and path == '':
+        DRIVER_LOG.write(f'HARNESS forced WebDriver session delete {SESSION}\n')
+        DRIVER_LOG.flush()
     if method == 'POST' and path.startswith('/element/') and path.rsplit('/', 1)[-1] in ['click', 'clear', 'value']:
         element_id = path.split('/')[2]
         request('POST', f'/session/{SESSION}/execute/sync', {
@@ -237,6 +241,8 @@ def new_session():
         'webkitgtk:browserOptions': {'binary': os.environ.get('BABEL_NATIVE_BINARY', str(REPO / 'target/release/babel-desktop')), 'args': []}}}})
     SESSION = created['sessionId']
     (ROOT / 'session.json').write_text(json.dumps(created))
+    DRIVER_LOG.write(f'HARNESS native session active {SESSION}\n')
+    DRIVER_LOG.flush()
     print('SESSION', SESSION, 'ROOT', ROOT, flush=True)
     assert created['capabilities']['browserName'] == 'wry', created
     wait(lambda: 'Start writing' in body(), 'Real production app starts')
@@ -478,6 +484,9 @@ except Exception:
     print('ARTIFACTS', ROOT, flush=True)
     raise
 finally:
+    # Distinguish forced automation teardown from ordinary protected UI close.
+    DRIVER_LOG.write('HARNESS forced WebDriver teardown begins\n')
+    DRIVER_LOG.flush()
     if SESSION:
         try:
             command('DELETE', '')

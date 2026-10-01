@@ -65,7 +65,10 @@ def run(h):
     h.wait(home_ready, 'Recovery remains discoverable on restart')
     def draft_button(document_id, label, generation=None):
         candidate = f"/ul/li[p[contains(.,'generation {generation} ·')]]" if generation is not None else ''
-        return h.find(f"//li[h3[normalize-space(.)='Draft {document_id}']]{candidate}//button[normalize-space(.)={json.dumps(label)}]")
+        # Route adoption precedes the asynchronous native recovery inventory.
+        # Wait for this exact retained document/generation, not any draft row.
+        return h.wait(lambda:h.find(f"//li[h3[normalize-space(.)='Draft {document_id}']]{candidate}//button[normalize-space(.)={json.dumps(label)}]"),
+                      'Exact recovery candidate ready: ' + document_id + ' / ' + label)
     el = draft_button(original_id, 'Resume as new draft', original[0]['generation'])
     h.command('POST', f'/element/{el}/click', {})
     h.wait(lambda: h.editor_text() == 'Home draft survives.', 'Resume full original bytes')

@@ -180,6 +180,22 @@ pub fn run() {
             }
         })
         .setup(|app| {
+            #[cfg(target_os = "linux")]
+            {
+                use webkit2gtk::{InputMethodContextExt, WebViewExt};
+                // Wry disables client preedit by default. The authoring surface
+                // needs real composition events for its edit/navigation guards.
+                let window = app
+                    .get_webview_window("main")
+                    .ok_or_else(|| std::io::Error::other("main WebView unavailable"))?;
+                window.with_webview(|webview| {
+                    if let Some(context) = webview.inner().input_method_context() {
+                        context.set_enable_preedit(true);
+                    } else {
+                        eprintln!("native input method context unavailable");
+                    }
+                })?;
+            }
             if command_menu::install(app).is_err() {
                 eprintln!("native menus unavailable; visible controls remain available");
             }

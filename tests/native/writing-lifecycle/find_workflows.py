@@ -133,11 +133,14 @@ def run(d):
         assert d.script("return document.activeElement?.type==='search';")
         subprocess.run(['wtype', '-d', '80', 'nihao'], check=True); time.sleep(.5)
         subprocess.run(['/tmp/babel-m3-08-keyboard', 'escape'], check=True); time.sleep(.5)
+        assert d.script("return document.querySelector('.find-panel input[type=search]').value;") == '你好'
         assert d.script("return !!document.querySelector('.find-panel');"), 'Preedit Escape must remain local'
     finally:
         subprocess.run(['fcitx5-remote', '-s', previous], check=True)
     events = d.script('return window.findIme;')
+    assert sum(e['kind'] == 'compositionstart' and e['trusted'] for e in events) >= 2, events
     assert sum(e['kind'] == 'compositionend' and e['trusted'] for e in events) >= 2, events
+    (d.ROOT / 'find-ime.json').write_text(json.dumps(events, indent=2) + '\n')
     d.click('Close find'); d.close_session(); d.audit(target, source)
     print('PASS native pinyin query commit/cancel / author bytes retained', flush=True)
 

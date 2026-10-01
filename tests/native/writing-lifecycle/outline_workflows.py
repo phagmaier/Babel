@@ -36,7 +36,13 @@ def run(d):
             d.command('POST','/element/'+element+'/click',{})
         d.wait(lambda:d.script("return document.activeElement?.classList.contains('ProseMirror');"),'Navigation returns editor focus')
         timing = d.wait(lambda:d.script('return window.outlineTiming;'),'Navigation frame timing')
-        selection = d.wait(lambda:d.script("const s=getSelection();const p=(s.focusNode?.nodeType===1?s.focusNode:s.focusNode?.parentElement)?.closest('.ProseMirror > p');const r=p.getBoundingClientRect();return r.top>=0&&r.bottom<=innerHeight?{row:[...document.querySelectorAll('.ProseMirror > p')].indexOf(p),offset:s.focusOffset,visible:true}:null;"), 'Outline selection visible after scheduled navigation')
+        # GTK integer scroll offsets can leave a fractional CSS-pixel edge.
+        try:
+            selection = d.wait(lambda:d.script("const s=getSelection();const p=(s.focusNode?.nodeType===1?s.focusNode:s.focusNode?.parentElement)?.closest('.ProseMirror > p');const r=p.getBoundingClientRect();return r.top>=-1&&r.bottom<=innerHeight+1?{row:[...document.querySelectorAll('.ProseMirror > p')].indexOf(p),offset:s.focusOffset,visible:true}:null;"), 'Outline selection visible after scheduled navigation')
+        except AssertionError:
+            print('OUTLINE NAVIGATION FAILURE', d.script("const s=getSelection();const e=document.activeElement;const p=(s.focusNode?.nodeType===1?s.focusNode:s.focusNode?.parentElement)?.closest('.ProseMirror > p');return {active:e?.outerHTML.slice(0,200),selection:s?.toString(),node:s?.focusNode?.textContent,offset:s?.focusOffset,row:p?[...document.querySelectorAll('.ProseMirror > p')].indexOf(p):null,rect:p?.getBoundingClientRect().toJSON(),height:innerHeight};"), flush=True)
+            d.screenshot('outline-navigation-failure')
+            raise
         assert selection['visible'],selection
         report.append({'navigation':label,'keyboard':keyboard,'eventThroughHandlerMs':d.script('return window.outlineHandlerTiming;'),'eventToEditorFocusMs':d.script('return window.outlineFocusTiming;'),'eventToTwoAnimationFramesMs':timing,'selection':selection})
         (d.ROOT/'outline-partial-measurements.json').write_text(json.dumps(report,indent=2)+'\n')
@@ -118,7 +124,8 @@ def run(d):
     finally:
         subprocess.run(['fcitx5-remote','-s',previous],check=True)
     events=d.script('return window.outlineIme;')
-    assert sum(e['kind']=='compositionend' and e['trusted'] for e in events)>=2
+    assert sum(e['kind'] == 'compositionstart' and e['trusted'] for e in events) >= 2, events
+    assert sum(e['kind']=='compositionend' and e['trusted'] for e in events)>=2, events
     (d.ROOT/'outline-ime.json').write_text(json.dumps(events,indent=2))
     # DOM zoom only changes this disposable app surface, not global desktop settings.
     d.script("document.querySelector('main').style.zoom='1.5';")

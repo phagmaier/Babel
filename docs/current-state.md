@@ -1,45 +1,54 @@
-# Current state — M4-15 blocked on native input prerequisite
+# Current state — M4-15 native prerequisite restored; runtime exit open
 
-Date: 2026-10-01 PDT. Application: **babel**.
+Date: 2026-10-01 PDT. Application: **babel**. Main, continuation from clean
+`e8c2304`; one editing agent, no push or M4 verified tag.
 
 ## Task and work
 
-**M4-15 integrated exit and separate safety review**, one editing agent on main
-from clean `c79cf1a`; no push or M4 tag. M4-01–14 bounded Linux dependencies
-accepted. Added a continuous default-native screenplay session, sequential
-19-mode tmpfs/Btrfs matrix and independent retained-artifact audit. Separate
-same-agent source review completed; no second-reviewer/human sign-off claim.
+**M4-15** remains open. Restored the missing Fcitx/Mozc prerequisite through
+nine signed test-only packages in a disposable prefix, read-only system overlay
+and private profile. No privileged installation/global input settings changed.
+The wrapper refuses existing input-service ownership and stops only its namespace.
 
-**M4-08-R1 complete:** integration proved replacement discarded emphasis inside
-the matched range. Preserve uniform marks and visibly exclude mixed marks;
-six literal source/Undo/Redo/reopen/boundary/refusal regressions and native
-continuous sessions pass both filesystems. Find explanation/owning contract
-updated. No additional confirmed product defect in the bounded source pass.
+**M4-15-R1:** pinned Wry disabled client preedit. Linux startup now enables the
+existing WebKit input context through Tauri's main-thread callback, using the
+already locked binding version. The five native input modes require genuine
+trusted start/end events; editor-exit checks each pinyin/Mozc case independently.
+Exact source/form/query/cancellation/Undo oracles remain. Native input correction
+is verified; integrated runtime acceptance remains open.
 
-Native harness: file pickers receive one Return; folder acceptance targets the
-owned GTK AT-SPI Select button. Controls scroll into view; pointer geometry
-includes native menu height; navigation/close wait for actual geometry/adoption.
-Recovery prefix oracles reconcile confirmed saves and use trusted editor re-entry
-before Home, preserving M4-13 restored caret semantics and failed attempts.
+Harness corrections wait for exact recovery UUID/generation, native title input,
+Save/thaw and Focus adoption, and observed cold Mozc selection. Separate GTK
+Unicode modes use the actual built-in context ID. Outline visibility allows one
+CSS pixel for integer-scroll rounding while preserving exact row/offset/timing.
+Failed attempts remain retained. Active sessions and forced deletions are logged;
+crash detection is unchanged.
 
-## Paths and verification
+M4-08-R1 replacement-emphasis correction remains complete; M4-01–14 bounded
+Linux dependencies are accepted. Stop at M4; no M5 implementation.
 
-- Correction: `src/editor/replace.ts`, `src/app/FindPanel.tsx`, `tests/contract/replace.test.ts`, `docs/editor-behavior.md`; [bounded task](tasks/M4-08-R1.md).
-- Harness: `tests/native/writing-lifecycle/{integrated_workflows,integrated_exit,audit_retained,picker_accessibility}.py`, shared drill and affected scenarios.
-- [M4 evidence](test-evidence/M4.md#m4-15--integrated-exit-and-separate-safety-review) owns exact commands, failures, artifacts, host and coverage; [separate review](reviews/2026-10-01-m4-15-review.md) owns dispositions/limits.
-- Focused replacement **81/3 files passed**; frontend **694/56 files**, formatting/lint/typecheck/build passed; browser smoke passed. Rust fmt/clippy and **237 tests each on tmpfs/Btrfs passed**. Default embedded release built.
-- Continuous title/hidden replace/dead-key/Undo/Redo/Save/restart/counts/original-snapshot checks and standalone typical Find/navigation timings pass both filesystems. Typical 51/107 ms tmpfs, 40/112 ms Btrfs; stress limits remain recorded. Timing uses rAF proxies, not compositor paint.
-- Latest declared runs: **28/38 successful** (14/19 per filesystem); ten cases blocked by Fcitx. Recovery/safety rerun passed both filesystems; retained audit passed **214 frames / 56 snapshots / eight safety refs**. Exact manifests and earlier failures remain linked in evidence.
+## Paths and checks
 
-## Blockers and next action
+- Product: `src-tauri/{Cargo.toml,src/lib.rs}`, `Cargo.lock`; [M4-15-R1](tasks/M4-15-R1.md), [ADR 0034](decisions/0034-linux-client-preedit.md), native input contract.
+- Native harness: `tests/native/writing-lifecycle/{isolated_ime,drill,editor_exit,outline_workflows,title_page,find_workflows,presentation_workflows,home_workflows}.py` and guide.
+- [Continuation evidence](test-evidence/M4.md#continuation-from-e8c2304--isolated-ime-and-m4-15-r1) owns exact commands/versions/hashes/manifests/failed attempts; [separate same-agent review](reviews/2026-10-01-m4-15-review.md) owns findings/limits. No second-reviewer/human sign-off claim.
+- Focused **90 tests/5 files**; shared **694/56**, formatting/lint/typecheck/build, browser smoke; Rust fmt/clippy and **237 tests each on tmpfs/Btrfs** passed. Full default embedded release/AppImage built; no installed/offline certification.
+- Fresh full 19-mode matrix: **32/38 successful** on the current binary. Four harness failures corrected; both presentation cases completed functional assertions but emitted heap aborts. Corrective reruns pass **5/5 tmpfs + 2/2 Btrfs**; latest same-binary case inventory is **38/38**, not a clean full run or crash resolution. Independent retained audit passed; exact counts in evidence. Original failures remain gate evidence.
 
-`command -v fcitx5-remote` and `command -v fcitx5` fail on this host. Required
-outline/title/find/presentation/editor-exit pinyin/mozc paths remain blocked.
-Use a native host with the approved Fcitx engines and record versions/selection;
-rerun those modes on tmpfs/Btrfs and relevant final gates before marking M4-15
-complete. Do not replace actual candidate-engine checks with synthetic events.
+## Blocker and next action
 
-M4-15/full M4 stay open. Stop at M4; no M5 implementation or verified-exit tag.
-SC005/SC008 assessment stays unavailable until M5. C1 forced WebKit shutdown,
-screenreader/platform, installed/offline package, full S13/long-session,
+Intermittent presentation-restart `corrupted double-linked list` observations
+keep M4-15/full M4 open. Btrfs phase log places one after forced WebDriver session
+deletion; owned core shows allocator abort through Gallium/GBM/WebKit and `exit`.
+This supports a teardown association, not the corruption origin or ordinary
+application-quit safety. Earlier unphased observation also remains unresolved;
+clean reruns do not establish a fix or close retained C1.
+
+Next **M4-15** action: isolate ordinary app quit from forced WebDriver deletion
+with disposable profiles, exact source/checkpoint audits and phase logs; dispose
+of the runtime finding before accepting/tagging the gate. No crash-line filtering,
+dependency-stack upgrade or M6 implementation was included here.
+
+SC005/SC008 assessment stays unavailable until M5. Screenreader/other platforms,
+installed/offline packaging, full S13/long-session, dependency hardening,
 migration/backups and Local v1 adoption remain open. Nothing pushed.

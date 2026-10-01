@@ -335,3 +335,58 @@ source hashes, snapshot record/source bindings and safety-ref source blobs, and
 inventories previous-source generations. Scenario literal oracles remain the
 content/ordering/selection authority; checksum agreement alone is not semantic
 acceptance. Preserve failed-root evidence separately.
+
+### Isolated Fcitx prerequisite for M4-15
+
+`isolated_ime.py <verified-prefix> -- <drill-command...>` runs real Fcitx GTK3,
+pinyin and Mozc from signed, unpacked host packages. It refuses an existing
+Fcitx service or personal legacy `~/.mozc` profile. It uses a private XDG profile,
+a read-only package/system overlay and an owned PID namespace; cleanup stops
+only that namespace, including its Mozc server. The host needs `bwrap` with
+read-only overlay/PID-namespace support, `gtk-query-immodules-3.0`, `gdbus`,
+the existing keyboard helpers and native GUI. No system installation, autostart,
+global settings, xcb/waylandim keyboard frontend or cloud-pinyin addon. The
+existing accessibility/session bus remains available for owned GTK pickers.
+
+The caller must verify signatures before extraction. Current retained preparation:
+`pacman -Sp --print-format '%n %v %l' fcitx5 fcitx5-gtk fcitx5-chinese-addons fcitx5-mozc`
+identifies package URLs/versions without installing. Download each selected
+package and `.sig`, verify with
+`gpgv --keyring /etc/pacman.d/gnupg/pubring.gpg <package>.sig <package>`, then
+`bsdtar -xf <package> -C <private-prefix>`. All verification must succeed.
+The current nine-package manifest excludes unused Qt/WebEngine packages; exact
+URLs, versions, signatures and verification log are retained under
+`/tmp/babel-m4-15-fcitx`. This host-specific preparation is test-only.
+
+Run the affected matrix with:
+
+```sh
+python3 tests/native/writing-lifecycle/isolated_ime.py \
+  /tmp/babel-m4-15-fcitx/prefix -- \
+  python3 tests/native/writing-lifecycle/integrated_exit.py \
+  /tmp /home/phagmaier/Code/Babel/target \
+  --modes outline title-page find presentation editor-exit \
+  --output /tmp/babel-m4-15-preedit-native-1
+```
+
+Use a new output directory for every rerun. Retain the printed `IME ARTIFACTS`
+root. [M4-15-R1](../../../docs/tasks/M4-15-R1.md) enables real client preedit in
+the production Linux WebView. Each scenario requires trusted compositionstart
+and compositionend, literal byte/Undo oracles and actual candidate commit/cancel.
+Editor-exit checks each pinyin/mozc case independently; unrelated Unicode
+compositionend events cannot satisfy the prerequisite. A cold Mozc switch waits
+for the observed engine name and records failed switch attempts; it does not
+substitute a synthetic input. Title baseline typing selects keyboard-us, then
+pinyin owns the cancellation preedit. Publication/thaw and focus adoption are
+observed before subsequent presentation checks. Outline rectangle visibility
+allows one CSS pixel for integer-scroll/subpixel rounding and retains exact
+expected row/offset, timing and failure screenshots.
+
+The shared drill selects GTK's exact built-in `gtk-im-context-simple` ID for
+spellcheck/characters/commands. The shorthand `simple` was an unknown module ID
+that previously fell back to the system default; an isolated Fcitx wildcard
+cache changes that fallback. Genuine GTK Unicode commit/cancel remains required.
+Every active native session and forced WebDriver session DELETE is phase-marked
+in the native log, including profile restart; corruption lines remain detected
+and fail the matrix for review. A clean later rerun does not establish the origin
+of an earlier heap abort or close its safety finding.

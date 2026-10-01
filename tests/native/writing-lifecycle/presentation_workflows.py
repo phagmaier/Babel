@@ -33,6 +33,7 @@ def run(d):
     def save(target, source):
         ready(); d.click('Save', actions=True); d.audit(target, source)
         d.wait(lambda: 'Saved locally' in d.body(), 'Exact source receipt')
+        ready()  # Publication receipt can precede the native operation's thaw.
 
     def owned_focus():
         clients = [c for c in d.owned_clients() if c.get('class') == 'babel-desktop']
@@ -121,12 +122,16 @@ def run(d):
         finally:
             subprocess.run(['fcitx5-remote', '-s', previous], check=True)
         events = d.script('return window.presentationEvents;')
-        assert sum(e['kind'] == 'compositionend' and e['trusted'] for e in events) >= 2
+        assert sum(e['kind'] == 'compositionstart' and e['trusted'] for e in events) >= 2, events
+        assert sum(e['kind'] == 'compositionend' and e['trusted'] for e in events) >= 2, events
         # Save divergence remains visible in focus with a discoverable exit.
         target.write_bytes(source + b'!External.\r\n'); d.click('Focus mode')
+        d.wait(lambda:d.script("return document.querySelector('main').classList.contains('writing-focus');"), 'Focus mode adopted before Find')
         d.script("document.querySelector('.ProseMirror').focus();"); d.command('POST', '/actions', {'actions': [{'type': 'key', 'id': 'focus-find-chord', 'actions': [{'type': 'keyDown', 'value': '\ue009'}, {'type': 'keyDown', 'value': 'f'}, {'type': 'keyUp', 'value': 'f'}, {'type': 'keyUp', 'value': '\ue009'}]}]})
         d.wait(lambda: d.script("return !!document.querySelector('.find-panel');"), 'Find opens in focus')
-        d.script("document.querySelector('#writing-focus').focus();"); key('\ue00c')
+        d.script("document.querySelector('#writing-focus').focus();")
+        print('PRESENTATION BEFORE ESCAPE', d.script("return {focus:document.querySelector('main').classList.contains('writing-focus'),panel:!!document.querySelector('.find-panel'),active:document.activeElement?.id};"),flush=True)
+        key('\ue00c')
         assert d.script("return document.querySelector('main').classList.contains('writing-focus') && !!document.querySelector('.find-panel');")
         d.click('Close find')
         d.script("document.querySelector('.ProseMirror').focus();"); key('\ue036')

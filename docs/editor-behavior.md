@@ -21,6 +21,14 @@ At the end of a nonempty block, with no IME composition or completion acceptance
 
 Mid-block Enter splits at caret and initially retains type on both sides; start-of-block Enter inserts before without retyping existing content. Empty Dialogue/Character/Parenthetical Enter exits to Action. Empty Action remains intentional, including repeated blank content. Shift+Enter makes a hard break only where source-round-trip is proven. Selection replacement and joins preserve all text and group relationships. IME owns keys during composition; no structural transition fires from a composing Enter.
 
+Linux production startup enables WebKitGTK client preedit after Wry creates the
+WebView ([ADR 0034](decisions/0034-linux-client-preedit.md)). Real candidate
+composition must deliver trusted start/end events to the editor and title/find
+forms; candidate commits or end-only totals do not prove in-progress guards.
+[M4-15-R1](tasks/M4-15-R1.md) supersedes earlier end-only IME claims while keeping
+the historical logs. Fcitx/Mozc are test-host prerequisites, not bundled app
+dependencies or global application configuration.
+
 M1-02 native WebKit observation: a dead-key Return committed composition, then delivered `keydown:Enter` with `isComposing=false` in the same sequence. The production view guards the composition-to-Enter boundary using the event sequence, not `isComposing` alone. This is an implementation requirement under the existing table; no Enter behavior was amended.
 
 Key priority: IME > open completion menu > explicit element command > smart editor behavior > normal focus navigation outside editor. An active suggestion accepted with Enter consumes that key; a second Enter runs the table. Tab accepts a selected suggestion, otherwise cycles contextual types; Shift+Tab reverses. F6 or equivalent provides an escape from editor Tab handling. The element picker reflects caret type or Mixed and converts explicit selections without dropping text.

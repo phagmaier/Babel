@@ -194,18 +194,30 @@ def run(d):
 
     previous_ime = subprocess.check_output(['fcitx5-remote','-n'], text=True).strip()
     def ime(name, text, finish):
+        first_event = d.script('return window.exitEvents.length;')
         select(2, 12)
         focus_owned()
-        subprocess.run(['fcitx5-remote','-s',name], check=True)
+        # A cold Mozc server may outlast the remote client's initial request.
+        # Require observed real selection, retaining each failed switch attempt.
+        def selected():
+            result = subprocess.run(['fcitx5-remote','-s',name])
+            current = subprocess.check_output(['fcitx5-remote','-n'], text=True).strip()
+            if result.returncode:
+                print('IME SWITCH WAIT', name, result.returncode, current, flush=True)
+            return current == name
+        d.wait(selected, 'Native input engine selected: ' + name, timeout=30)
         time.sleep(.5)
-        assert subprocess.check_output(['fcitx5-remote','-n'], text=True).strip() == name
         subprocess.run(['wtype','-d','80',text], check=True)
         time.sleep(.8)
+        d.wait(lambda:d.script("return window.exitEvents.slice(arguments[0]).some(e=>e.kind==='compositionstart'&&e.trusted);", [first_event]),
+               'Real ' + name + ' preedit started')
         if finish == 'space':
             subprocess.run(['wtype','-k','space'], check=True)
         else:
             physical(finish)
         time.sleep(.5)
+        d.wait(lambda:d.script("return window.exitEvents.slice(arguments[0]).some(e=>e.kind==='compositionend'&&e.trusted);", [first_event]),
+               'Real ' + name + ' preedit finished')
     try:
         ime('pinyin','nihao','space')
         save(target, '\n@MAYA\nHello world.你好\n'.encode())
@@ -221,7 +233,8 @@ def run(d):
     events = d.script('return window.exitEvents;')
     assert any(e['kind'] == 'paste' and e['trusted'] for e in events)
     assert any(e['kind'] == 'copy' and e['trusted'] for e in events)
-    assert sum(e['kind'] == 'compositionend' and e['trusted'] for e in events) >= 3
+    assert sum(e['kind'] == 'compositionstart' and e['trusted'] for e in events) >= 3, events
+    assert sum(e['kind'] == 'compositionend' and e['trusted'] for e in events) >= 3, events
     (d.ROOT / 'trusted-input.json').write_text(json.dumps(events, indent=2) + '\n')
     d.close_session()
     print('PASS default-app trusted clipboard / backward selection / rich paste / Unicode grapheme / pinyin commit+cancel / mozc Enter / Undo', flush=True)
