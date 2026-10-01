@@ -168,3 +168,22 @@ Build the default embedded release/package with `CARGO_HOME=/tmp/babel-cargo XDG
 The menu bridge itself publishes no files. Shared frontend/browser/Rust checks and inherited full filesystem matrix remain required. Native GTK menu and compositor keyboard evidence must be distinguished from mocked IPC and DOM semantic checks; absent screenreader coverage stays open. [M4 evidence](test-evidence/M4.md#m4-14--palette-menus-and-accessibility) owns results and limits.
 
 M4-14 native menu traversal requires rebuilding the existing owned keyboard helper after its new `command-menu-save-as` action: `cc -Wall -Wextra -Werror -I/tmp tests/native/editor-input/keyboard.c /tmp/babel-m3-08-virtual-keyboard.c $(pkg-config --cflags --libs wayland-client) -o /tmp/babel-m3-08-keyboard`. Use the already generated pinned protocol/keymap from [the native input guide](../tests/native/editor-input/README.md); no global installation. AT-SPI inspection requires the existing accessibility bus, `gdbus` and `/usr/include/at-spi-2.0/atspi/atspi-constants.h`. Missing prerequisites block that gate; they do not justify inspecting unrelated applications.
+
+M4-15 integrated exit: build the default embedded release with
+`CARGO_HOME=/tmp/babel-cargo pnpm tauri build --no-bundle`, then run
+`PATH=/tmp:$PATH python3 tests/native/writing-lifecycle/integrated_exit.py /tmp /home/phagmaier/Code/Babel/target --output /tmp/babel-m4-15-native-final`.
+The output directory must be new. The sequential 19-mode matrix owns fresh
+profiles and preserves per-mode commands, logs, roots, elapsed time, return codes
+and runtime crash lines in `results.json`. Spelling uses the existing loopback-only
+network namespace; all other scenarios use existing owned input/picker helpers.
+Keep builds/shared tests idle during the native matrix's timing modes.
+`--modes <mode ...>` supports explicit failed-mode reruns; retain earlier failures.
+A zero harness exit does not excuse an unresolved runtime crash or content defect.
+[Guide](../tests/native/writing-lifecycle/README.md#m4-15-integrated-exit) defines coverage/limits.
+Focused M4-08 correction: `pnpm exec vitest run tests/contract/replace.test.ts tests/ui/FindPanel.test.tsx tests/contract/editor-bridge.test.ts`.
+Harness syntax: `python3 -m py_compile tests/native/writing-lifecycle/drill.py tests/native/writing-lifecycle/integrated_workflows.py tests/native/writing-lifecycle/integrated_exit.py tests/native/writing-lifecycle/picker_accessibility.py`.
+Full M4-00 shared gates and native workspace tmpfs/Btrfs matrix remain required.
+
+M4-15 retained artifacts: `python3 tests/native/writing-lifecycle/audit_retained.py /tmp/babel-m4-15-native-final/results.json --output /tmp/babel-m4-15-retained.json`. Only successful roots are audited; independent scenario byte/selection/mark oracles remain required. Include `audit_retained.py` in the harness syntax check.
+
+M4-15 standalone current Find/navigation timing: `PATH=/tmp:$PATH python3 tests/native/writing-lifecycle/integrated_exit.py /tmp /home/phagmaier/Code/Babel/target --output /tmp/babel-m4-15-timing --modes find-timing`. It runs the original bounded typical/stress timing assertions independently; full `--find` still requires its actual pinyin query checks.

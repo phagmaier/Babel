@@ -77,6 +77,25 @@ function refusalReason(scope: FindMatch['location']['scope']): string {
   }
 }
 
+/** Preserve a uniformly formatted match; refuse ambiguous emphasis changes. */
+function replacementMarks(node: EditorState['doc'], from: number, to: number) {
+  const marks = node.childAfter(from).node?.marks ?? [];
+  let mixed = false;
+  node.nodesBetween(from, to, (part) => {
+    if (
+      part.isText &&
+      (part.marks.length !== marks.length ||
+        part.marks.some((mark, i) => !mark.eq(marks[i]!)))
+    )
+      mixed = true;
+  });
+  if (mixed)
+    throw new Error(
+      'This match crosses different emphasis. Edit it directly to preserve each mark; source retained.',
+    );
+  return marks;
+}
+
 /**
  * Pure bounded plan over current find matches. Maps logical ranges into the
  * retained editor rows for later EditorState transactions; raw Fountain
@@ -147,6 +166,14 @@ export function planReplace(
       );
       continue;
     }
+    try {
+      replacementMarks(node, editorFrom, editorTo);
+    } catch (failure) {
+      refused.push(
+        Object.freeze({ match, reason: (failure as Error).message }),
+      );
+      continue;
+    }
     edits.push(
       Object.freeze({
         match,
@@ -201,11 +228,15 @@ function insertReplacement(
   to: number,
   replacement: string,
 ): EditorState['tr'] {
-  // Plain-text replacement; marks outside the range are preserved by the
-  // surrounding transaction, while marks inside the range are intentionally
-  // replaced along with their text.
+  const start = tr.doc.resolve(from);
+  const end = tr.doc.resolve(to);
+  const marks = replacementMarks(
+    start.parent,
+    start.parentOffset,
+    end.parentOffset,
+  );
   return replacement
-    ? tr.replaceWith(from, to, screenplaySchema.text(replacement))
+    ? tr.replaceWith(from, to, screenplaySchema.text(replacement, marks))
     : tr.delete(from, to);
 }
 

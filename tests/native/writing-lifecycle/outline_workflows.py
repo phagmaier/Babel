@@ -36,9 +36,10 @@ def run(d):
             d.command('POST','/element/'+element+'/click',{})
         d.wait(lambda:d.script("return document.activeElement?.classList.contains('ProseMirror');"),'Navigation returns editor focus')
         timing = d.wait(lambda:d.script('return window.outlineTiming;'),'Navigation frame timing')
-        selection = d.script("const s=getSelection();const p=(s.focusNode?.nodeType===1?s.focusNode:s.focusNode?.parentElement)?.closest('.ProseMirror > p');const r=p.getBoundingClientRect();return {row:[...document.querySelectorAll('.ProseMirror > p')].indexOf(p),offset:s.focusOffset,visible:r.top>=0&&r.bottom<=innerHeight};")
+        selection = d.wait(lambda:d.script("const s=getSelection();const p=(s.focusNode?.nodeType===1?s.focusNode:s.focusNode?.parentElement)?.closest('.ProseMirror > p');const r=p.getBoundingClientRect();return r.top>=0&&r.bottom<=innerHeight?{row:[...document.querySelectorAll('.ProseMirror > p')].indexOf(p),offset:s.focusOffset,visible:true}:null;"), 'Outline selection visible after scheduled navigation')
         assert selection['visible'],selection
         report.append({'navigation':label,'keyboard':keyboard,'eventThroughHandlerMs':d.script('return window.outlineHandlerTiming;'),'eventToEditorFocusMs':d.script('return window.outlineFocusTiming;'),'eventToTwoAnimationFramesMs':timing,'selection':selection})
+        (d.ROOT/'outline-partial-measurements.json').write_text(json.dumps(report,indent=2)+'\n')
         assert timing < 200, {'navigation':label,'eventToTwoAnimationFramesMs':timing}
         return selection
 

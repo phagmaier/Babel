@@ -46,6 +46,11 @@ def request(method, path, payload=None):
 
 
 def command(method, path, payload=None):
+    if method == 'POST' and path.startswith('/element/') and path.rsplit('/', 1)[-1] in ['click', 'clear', 'value']:
+        element_id = path.split('/')[2]
+        request('POST', f'/session/{SESSION}/execute/sync', {
+            'script': "const e=arguments[0];(e.tagName==='OPTION'?e.parentElement:e).scrollIntoView({block:'center'});",
+            'args': [{ELEMENT: element_id}]})
     return request(method, f'/session/{SESSION}' + path, payload)
 
 
@@ -78,6 +83,7 @@ def click(label, actions=False):
     prefix = "//div[@aria-label='Screenplay actions']" if actions else ''
     print('ACTION', label, flush=True)
     element = find(prefix + f"//button[normalize-space(.)={json.dumps(label)}]")
+    script("arguments[0].scrollIntoView({block:'center'});", [{ELEMENT: element}])
     command('POST', f'/element/{element}/click', {})
 
 
@@ -93,6 +99,16 @@ def type_text(text):
     else:
         actions = [action for char in text for action in [{'type':'keyDown','value':char}, {'type':'keyUp','value':char}]]
     command('POST', '/actions', {'actions':[{'type':'key','id':'writing-keyboard','actions':actions}]})
+
+
+def editor_home():
+    # Trusted re-entry gives WebKit an owned visible selection after toolbar
+    # actions/recovery; DOM focus alone can retain the old selection offset.
+    command('POST', '/element/' + editor() + '/click', {})
+    command('POST', '/actions', {'actions': [{'type': 'key', 'id': 'source-home', 'actions': [
+        {'type': 'keyDown', 'value': '\ue009'}, {'type': 'keyDown', 'value': '\ue011'},
+        {'type': 'keyUp', 'value': '\ue011'}, {'type': 'keyUp', 'value': '\ue009'}]}]})
+    wait(lambda: script("const s=getSelection(), root=document.querySelector('.ProseMirror');const p=(s.focusNode?.nodeType===1?s.focusNode:s.focusNode?.parentElement)?.closest('.ProseMirror > p');return (p===root.firstElementChild || s.focusNode===root) && s.focusOffset===0;"), 'Trusted Home caret at first row start')
 
 
 def editor_text():
@@ -140,18 +156,21 @@ def picker(path=None):
     subprocess.run(['wtype', '-d', '3', str(path) + ('/' if folder else '')], check=True)
     subprocess.run(['/tmp/babel-m3-08-keyboard', 'return'], check=True)
     time.sleep(.4)
-    if '--characters' in sys.argv or '--commands' in sys.argv:
-        # Every M4-13 destination is a file. One confirmation accepts it; a
+    if not folder:
+        # Every file destination needs one confirmation. A
         # compositor-title check followed by a second Return can race dialog
         # teardown and deliver authored input to the newly focused editor.
         wait(lambda: not any(c.get('title') in dialogs for c in owned_clients()),
              'Owned file picker closed after one confirmation', timeout=30)
         return
-    # GTK folder navigation may need a second confirmation. Never deliver it
-    # to the newly focused editor after an open/save dialog already closed.
-    active = json.loads(subprocess.check_output(['hyprctl', '-j', 'activewindow']))
-    if active.get('title') in dialogs and active.get('address') in [c['address'] for c in owned_clients()]:
-        subprocess.run(['/tmp/babel-m3-08-keyboard', 'return'], check=True)
+    # Folder location entry navigates before acceptance. Invoke the exact owned
+    # native button; a stale/disposed target fails without authoring Return.
+    if any(c.get('title') == 'Choose destination folder' for c in owned_clients()):
+        from picker_accessibility import accept_folder
+        accept_folder(sys.modules[__name__])
+    wait(lambda: not any(c.get('title') in dialogs for c in owned_clients()),
+         'Owned folder picker closed after scoped native acceptance', timeout=30)
+
 
 
 def screenshot(name):
@@ -174,6 +193,7 @@ def audit(path, expected):
 
 
 def close_session():
+    wait(lambda: script("return [...document.querySelectorAll('[aria-label=\"Screenplay actions\"] button')].some(b=>b.textContent==='Close session'&&!b.disabled);"), 'Adopted session ready for protected close', timeout=60)
     click('Close session', actions=True)
     wait(lambda: 'Close document safely' in body(), 'Close panel')
     assert script("return document.activeElement?.innerText;") == 'Retry save and close'
@@ -232,6 +252,10 @@ try:
       fetch('http://localhost:5173/__babel_audit_probe').catch(()=>{});""")
     wait(lambda:script("return window.auditBlocked.some(e=>e.uri.startsWith('http://localhost:5173') && e.directive==='connect-src');"),'Release CSP blocks development-server connections')
     print('PASS native release CSP excludes the development server',flush=True)
+    if '--daily-session' in sys.argv:
+        from integrated_workflows import run as run_daily
+        run_daily(sys.modules[__name__])
+        sys.exit(0)
     if '--spellcheck' in sys.argv:
         from spellcheck_workflows import run as run_spellcheck
         run_spellcheck(sys.modules[__name__])
@@ -239,6 +263,10 @@ try:
     if '--home' in sys.argv:
         from home_workflows import run as run_home
         run_home(sys.modules[__name__])
+        sys.exit(0)
+    if '--find-timing' in sys.argv:
+        from find_workflows import run_timing
+        run_timing(sys.modules[__name__])
         sys.exit(0)
     if '--find' in sys.argv:
         from find_workflows import run as run_find
@@ -341,6 +369,7 @@ try:
     set_input('Snapshot name', 'First retained draft')
     click('Keep named snapshot')
     wait(lambda: 'Named snapshot protected' in body(), 'Named snapshot acknowledged')
+    editor_home()
     type_text(' Later.')
     # Open starts at the beginning of the first row.
     newer = b'! Later.Mist curls. More.\n'
@@ -366,7 +395,11 @@ try:
     same = find("//section[.//h2[normalize-space(.)='Recovery choice']][.//p[normalize-space(.)='Both generations hold identical content.']]//button[normalize-space(.)='Keep Current File']")
     command('POST', f'/element/{same}/click', {})
     wait(lambda: 'The current file was kept.' in body(), 'Reconcile before deliberate source failure')
+    if 'A confirmed replacement matches the file.' in body():
+        click('Resolve Interrupted Save')
+        wait(lambda: 'An interrupted save was confirmed' in body() or 'No interrupted save needed completion.' in body(), 'Confirmed save reconciled before source fault')
     (ROOT / 'files').chmod(0o500)
+    editor_home()
     type_text('Recovered ')
     recovered = b'!Recovered  Later.Mist curls. More.\n'
     wait(lambda: any(source == recovered for _, source in journal_records()), 'Latest failing draft durably journaled')
@@ -401,10 +434,7 @@ try:
     history.chmod(0o500)
     # Recovery now restores its source-bound caret metadata. Establish the
     # independent prefix oracle explicitly before the next trusted input.
-    script("document.querySelector('.ProseMirror').focus();")
-    command('POST','/actions',{'actions':[{'type':'key','id':'history-home','actions':[
-        {'type':'keyDown','value':'\ue009'},{'type':'keyDown','value':'\ue011'},
-        {'type':'keyUp','value':'\ue011'},{'type':'keyUp','value':'\ue009'}]}]})
+    editor_home()
     type_text('Despite history ')
     history_saved = b'!Despite history Recovered  Later.Mist curls. More.\n'
     audit(target, history_saved)

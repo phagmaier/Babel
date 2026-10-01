@@ -24,7 +24,9 @@ private `babel-writing-*` root and redirects its data/config/cache into that
 root. It drives the actual production UI and IPC. WebDriver input actions retain
 the caret; GTK dialogs receive physical keys and literal wtype path entry. Each
 compositor input/screenshot is restricted to descendants of the owned driver.
-A second Return is sent only while the owned GTK dialog remains open. The folder picker leaves GTK Recent with Alt+Home before entering the explicit disposable path; no personal file is opened.
+File pickers receive one Return. Folder acceptance uses the exact owned GTK
+AT-SPI Select action after location navigation; a disposed target fails without
+sending a key into the editor. The folder picker leaves GTK Recent with Alt+Home before entering the explicit disposable path; no personal file is opened.
 
 `BABEL_NATIVE_BINARY` can select an explicitly built default release binary
 outside `target/release`. Emergency copies use a dedicated empty fixture folder
@@ -283,3 +285,53 @@ or screenreader shortcut claim. Dark 200% writing zoom is native preference
 behavior; additional 150% whole-view CSS scaling is a synthetic layout probe.
 The production Close control is invoked programmatically to test interruption
 of an inert background; subsequent protection/release uses actual native services.
+
+## M4-15 integrated exit
+
+Build the default release and existing helpers, then run the sequential matrix:
+
+```sh
+PATH=/tmp:$PATH python3 tests/native/writing-lifecycle/integrated_exit.py /tmp /home/phagmaier/Code/Babel/target --output /tmp/babel-m4-15-native-final
+```
+
+The new output directory retains `results.json` plus each exact mode command/log.
+Each run owns fresh app data and a WebDriver; never run two native modes together.
+The 19 modes include a continuous screenplay session and all existing M4 feature
+runners plus inherited editor/input/capture/acknowledged-save/restart/latency
+reviews. `--modes daily-session capture-review` selects an explicit partial rerun.
+`--modes find-timing` independently runs the existing typical/stress Find/navigation
+measurements; full Find still requires its actual pinyin checks.
+Partial results cannot replace the required full acceptance matrix.
+
+The continuous session edits a synthetic 274-byte BOM/CRLF screenplay with an
+unknown title field, three scenes/two sections, Unicode, bold/mixed-emphasis text, safe hidden
+note, protected omission and incomplete speech. It exercises title Apply/Save/
+Undo/Redo, visible/hidden replacement with formatting retained and protected
+omission/mixed emphasis excluded, warning selection, unavailable M5 assessment, presentation,
+characters/counts/spelling, actual dead-key commit/Undo, normal process restart/Recent/recovery review, exact
+reopened bytes/marks and independent named-original snapshot retention. Other
+modes supply New/destination/recovery/missing/read-only/protection/history,
+scene/section pointer/keyboard moves, palette/native menu/remap/accessibility,
+spelling language/Ignore/Add/offline resources, actual IME/dead keys/clipboard,
+external divergence/emergency copy and acknowledged checkpoint SIGKILL recovery.
+
+File picker acceptance now uses one Return in every mode. Folder selection
+requires the existing AT-SPI bus and `gdbus`; only driver-descendant connections
+and the exact Choose destination folder subtree's single Select button can be
+activated. No arbitrary application or editor key receives the action.
+Runtime crash lines are recorded for separate review, including intentional-kill
+scenarios carrying C1. New ordinary-editing/close crashes block acceptance even
+when expected bytes pass. Measurements remain native observations/rAF proxies;
+no screenreader, full S13, installed package, power-loss or Local v1 claim.
+
+Retained artifact audit (read-only, independent of application parsing):
+
+```sh
+python3 tests/native/writing-lifecycle/audit_retained.py /tmp/babel-m4-15-native-final/results.json --output /tmp/babel-m4-15-retained.json
+```
+
+This audits successful roots only. It rechecks journal/confirmed frame checksums,
+source hashes, snapshot record/source bindings and safety-ref source blobs, and
+inventories previous-source generations. Scenario literal oracles remain the
+content/ordering/selection authority; checksum agreement alone is not semantic
+acceptance. Preserve failed-root evidence separately.

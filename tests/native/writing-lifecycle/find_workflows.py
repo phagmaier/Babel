@@ -141,6 +141,10 @@ def run(d):
     d.click('Close find'); d.close_session(); d.audit(target, source)
     print('PASS native pinyin query commit/cancel / author bytes retained', flush=True)
 
+    measure(d, open_source, query, report)
+
+
+def measure(d, open_source, query, report):
     for name, scenes in [('typical', 150), ('stress', 1500)]:
         text = 'Title: Synthetic find workload\n\n# Act\n' + ''.join(f'.INT. ROOM {at} - DAY #{at%7}#\n= Arrival {at}\n= Conflict unfolds\n!Zoë arrives with a worn notebook and reads the sign.\n!A lamp flickers above the doorway.\n\n@MAYA\nThe door is open.\nCome inside.\nWe have time.\n\n@NOAH\nI saw the signal.\nWe should leave.\nWait here.\n\n!They cross the room in silence.\n!A bell rings outside.\n' for at in range(scenes))
         source = text.encode()
@@ -167,3 +171,17 @@ def run(d):
     print('MEASUREMENTS', json.dumps(report), flush=True)
     print('PASS default-release typical/stress find + last-heading navigation / exact bytes', flush=True)
     print('ARTIFACTS', d.ROOT, flush=True)
+
+
+def run_timing(d):
+    """Independent current timing path; full run's IME prerequisite remains required."""
+    def open_source(name, source):
+        target = d.ROOT / 'files' / (name + '.fountain')
+        target.write_bytes(source)
+        d.click('Open Fountain', actions=True); d.picker(target)
+        d.wait(lambda:d.script("return !!document.querySelector('.outline-target:not(:disabled)') && document.querySelector('#writing-save')?.disabled===false;"), 'Timing projection current', timeout=90)
+        return target
+    def query(text, count):
+        d.set_input('Find text', text)
+        d.wait(lambda:f'{count} matches' in d.script("return document.querySelector('.find-panel [role=status]').textContent;"), 'Exact timing query count', timeout=60)
+    measure(d, open_source, query, [])

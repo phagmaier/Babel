@@ -256,10 +256,11 @@ export function FindPanel({
         />
       </label>
       <p>
-        Replacement is plain text within one row; line breaks, incomplete
-        Unicode and hidden-region delimiters are refused. Title, protected note,
-        omitted and raw matches stay read-only and are listed below, not
-        replaced.
+        Replacement is plain text within one row and retains uniform emphasis;
+        line breaks, incomplete Unicode and hidden-region delimiters are
+        refused. Matches crossing different emphasis are excluded. Title,
+        protected note, omitted and raw matches stay read-only and are listed
+        below, not replaced.
       </p>
       <p>
         {current && plan

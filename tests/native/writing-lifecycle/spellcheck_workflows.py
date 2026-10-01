@@ -91,10 +91,12 @@ def run(d):
         d.close_session()
         d.command('DELETE',''); d.SESSION = None
         d.new_session(); d.click('Open Fountain',actions=True); d.picker(target); ready()
+        d.wait(lambda: 'Both generations hold identical content.' in d.body(), 'Reopened recovery comparison settled', timeout=60)
         if 'Recovery choice' in d.body():
             assert target.read_bytes() == SOURCE
             click('Keep Current File')
             d.wait(lambda:'The current file was kept.' in d.body(),'Explicit reviewed recovery choice')
+            d.wait(lambda:'Comparing recovery against' not in d.body(), 'Reopened comparisons settled', timeout=60)
             if 'A confirmed replacement matches the file' in d.body():
                 click('Resolve Interrupted Save')
                 d.wait(lambda:'An interrupted save was confirmed' in d.body() or 'No interrupted' in d.body(),'Confirmed-save reconciliation')
@@ -134,7 +136,7 @@ def run(d):
     client = [c for c in d.owned_clients() if c.get('class') == 'babel-desktop'][0]
     monitors = json.loads(subprocess.check_output(['hyprctl','-j','monitors'])); assert len(monitors) == 1
     monitor = monitors[0]; assert monitor['x'] == monitor['y'] == 0
-    x = client['at'][0] + coords['x'] * client['size'][0] / coords['w']; y = client['at'][1] + coords['y'] * client['size'][1] / coords['h']
+    x = client['at'][0] + coords['x'] * client['size'][0] / coords['w']; y = client['at'][1] + (client['size'][1] - coords['h']) + coords['y']
     subprocess.run(['/tmp/babel-m3-07-pointer',str(round(x)),str(round(y)),str(round(monitor['width']/monitor['scale'])),str(round(monitor['height']/monitor['scale'])),'right'],check=True)
     time.sleep(.3); cx,cy = client['at']; width,height = client['size']
     subprocess.run(['grim','-g',f'{cx},{cy} {width}x{height}',str(d.ROOT/'spellcheck-off-native-menu.png')],check=True)

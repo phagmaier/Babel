@@ -1,7 +1,7 @@
 import { buildCharacterCounts } from '../../src/domain/characterCounts';
 import { createHash } from 'node:crypto';
 import { expect, it } from 'vitest';
-import { undo, undoDepth } from 'prosemirror-history';
+import { redo, undo, undoDepth } from 'prosemirror-history';
 import type { EditorState } from 'prosemirror-state';
 import {
   parseFountain,
@@ -350,5 +350,88 @@ it('replaces inside safe literal notes while keeping delimiters byte-exact', asy
   );
   expect(Array.from(captureEditor(state).source)).toEqual(
     Array.from(bytes('[[sun]]\n\n!sun\n')),
+  );
+});
+
+function expectSource(state: EditorState, source: string) {
+  expect(Array.from(captureEditor(state).source)).toEqual(
+    Array.from(bytes(source)),
+  );
+}
+
+it.each([
+  ['**moon**', '**sun**'],
+  ['*moon*', '*sun*'],
+  ['_moon_', '_sun_'],
+  ['***moon***', '***sun***'],
+])(
+  'preserves replaced emphasis %s through capture, Undo, Redo and reopen',
+  async (original, replacement) => {
+    const source = `\ufeff!Before ${original} after.\r\n`;
+    const expected = `\ufeff!Before ${replacement} after.\r\n`;
+    const { state: initial, projection, index } = await project(source);
+    const plan = planReplace(
+      projection,
+      search(index, 'moon'),
+      opts('moon'),
+      'sun',
+    );
+    let state = dispatch(
+      initial,
+      prepareEditorReplace(initial, projection, plan, { all: true }),
+    );
+    expectSource(state, expected);
+    expectSource(createEditorState(bytes(expected)), expected);
+    expect(
+      undo(state, (tr) => {
+        state = state.applyTransaction(tr).state;
+      }),
+    ).toBe(true);
+    expectSource(state, source);
+    expect(
+      redo(state, (tr) => {
+        state = state.applyTransaction(tr).state;
+      }),
+    ).toBe(true);
+    expectSource(state, expected);
+  },
+);
+
+it('preserves replace-one marks at their start boundary without borrowing adjacent marks', async () => {
+  const { state, projection, index } = await project('!**moon** plain moon.\n');
+  const plan = planReplace(
+    projection,
+    search(index, 'moon'),
+    opts('moon'),
+    'sun',
+  );
+  expectSource(
+    dispatch(state, prepareEditorReplace(state, projection, plan, { one: 0 })),
+    '!**sun** plain moon.\n',
+  );
+  expectSource(
+    dispatch(state, prepareEditorReplace(state, projection, plan, { one: 1 })),
+    '!**moon** plain sun.\n',
+  );
+});
+
+it('previews mixed-emphasis refusals and preserves those ranges while replacing safe matches', async () => {
+  const source = '!**mo**on and moon.\n';
+  const { state, projection, index } = await project(source);
+  const plan = planReplace(
+    projection,
+    search(index, 'moon'),
+    opts('moon'),
+    'sun',
+  );
+  expect(plan.edits).toHaveLength(1);
+  expect(plan.refused).toHaveLength(1);
+  expect(plan.refused[0]!.reason).toContain('crosses different emphasis');
+  expectSource(
+    dispatch(
+      state,
+      prepareEditorReplace(state, projection, plan, { all: true }),
+    ),
+    '!**mo**on and sun.\n',
   );
 });

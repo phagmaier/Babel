@@ -87,10 +87,14 @@ def run(d):
     monitors=json.loads(subprocess.check_output(['hyprctl','-j','monitors']))
     assert len(monitors)==1 and monitors[0]['x']==monitors[0]['y']==0
     monitor=monitors[0]
+    viewport_height = d.script('return innerHeight;')
+    native_menu_height = client['size'][1] - viewport_height
+    assert 0 <= native_menu_height < 100, 'Bounded native menu offset'
     def point(element):
         r=d.script('const r=arguments[0].getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2};',[{d.ELEMENT:element}])
         assert 0<r['x']+1<client['size'][0] and 0<r['y']<client['size'][1],'Only owned app pointer coordinates'
-        return round(client['at'][0]+r['x']),round(client['at'][1]+r['y'])
+        assert d.script('return arguments[0].contains(document.elementFromPoint(arguments[1],arguments[2]));', [{d.ELEMENT:element},r['x'],r['y']]), 'Visible exact drag target'
+        return round(client['at'][0]+r['x']),round(client['at'][1]+native_menu_height+r['y'])
     start=point(second);end=point(first)
     subprocess.run(['/tmp/babel-m3-07-pointer',str(start[0]),str(start[1]),str(round(monitor['width']/monitor['scale'])),str(round(monitor['height']/monitor['scale'])),str(end[0]),str(end[1])],check=True)
     print('DRAG OBSERVATION',d.script("return {events:window.moveEvents,headings:[...document.querySelectorAll('.outline-target')].map(b=>({label:b.getAttribute('aria-label'),draggable:b.draggable,disabled:b.disabled})),preview:!!document.querySelector('.move-preview')};"),flush=True)

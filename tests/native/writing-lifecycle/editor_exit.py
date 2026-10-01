@@ -326,11 +326,24 @@ def audit_fixes(d):
     source=project / 'script.fountain';source.write_bytes(b'!Managed original.\n')
     d.click('Open Fountain',actions=True);d.picker(source)
     d.wait(lambda:d.editor_text() == 'Managed original.','Managed source opens')
-    d.type_text('New.');d.click('Save',actions=True)
+    d.wait(lambda:d.script("return document.querySelector('#writing-save')?.disabled===false;"), 'Managed writing ownership ready')
+    d.editor_home();d.type_text('New.');d.click('Save',actions=True)
     d.audit(source,b'!New.Managed original.\n');d.close_session()
     d.click('Open Fountain',actions=True);d.picker(source)
     d.wait(lambda:'Recovery compares candidates' in d.body() or 'Keep Current File' in d.body(),'Selected managed recovery shown independently of private catalog')
-    d.click('Keep Current File');d.type_text('Again.');d.click('Save',actions=True)
+    d.click('Keep Current File')
+    d.wait(lambda:'The current file was kept.' in d.body(), 'Managed Keep completed before authored input')
+    if 'A confirmed replacement matches the file.' in d.body():
+        d.click('Resolve Interrupted Save')
+        d.wait(lambda:'An interrupted save was confirmed' in d.body() or 'No interrupted save needed completion.' in d.body(), 'Managed confirmed-save reconciliation')
+    d.wait(lambda:d.script("return document.querySelector('#writing-save')?.disabled===false;"), 'Managed recovery thawed before input')
+    d.wait(lambda:d.script("const root=document.querySelector('.ProseMirror');return root?.contentEditable==='true'&&root.getAttribute('aria-readonly')==='false';"), 'Managed editor input and selection enabled')
+    # Re-enter the editor with a trusted pointer before moving the retained
+    # recovery caret. DOM focus alone can leave WebKit's old selection active.
+    d.editor_home()
+    caret=d.script("const s=getSelection(),root=document.querySelector('.ProseMirror');return {first:root.firstElementChild.outerHTML,node:s.focusNode?.textContent,offset:s.focusOffset,readonly:root.getAttribute('aria-readonly'),editable:root.contentEditable,atStart:s.focusNode===root.firstElementChild.firstChild&&s.focusOffset===0};")
+    assert caret['atStart'], caret
+    d.type_text('Again.');d.click('Save',actions=True)
     d.audit(source,b'!Again.New.Managed original.\n');d.close_session()
     print('PASS native selected managed recovery / restart version allocation / explicit keep / subsequent save',flush=True)
 
@@ -347,6 +360,11 @@ def review_capture(d):
     time.sleep(.2)
     d.click('Save', actions=True)
     d.wait(lambda: 'Saved locally' in d.body(), 'Known selected old generation saved')
+    # Toolbar focus does not itself promise a DOM caret on re-entry. Position
+    # the intended split after Save, then await ProseMirror's selection observer.
+    d.script("const p=document.querySelectorAll('.ProseMirror > p')[1];p.closest('.ProseMirror').focus();getSelection().setBaseAndExtent(p.firstChild,4,p.firstChild,4);")
+    time.sleep(.2)
+    assert d.script("return getSelection().focusNode?.textContent==='(softly)' && getSelection().focusOffset===4;")
     d.type_text('\ue007')
     d.wait(lambda: len(d.script("return [...document.querySelectorAll('.ProseMirror > p')];")) == 4, 'Middle Parenthetical split retained in editor')
     d.wait(lambda: d.script("return [...document.querySelectorAll('[role=alert]')].some(e=>e.textContent.length>0);"), 'Capture refusal visible')
