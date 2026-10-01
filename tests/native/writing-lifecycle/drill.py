@@ -250,6 +250,17 @@ def new_session():
     assert script("return location.protocol !== 'http:' || location.host === 'tauri.localhost';")
 
 
+def release_session():
+    global SESSION
+    mode = os.environ.get('BABEL_SHUTDOWN_MODE')
+    if mode:
+        from shutdown_lifecycle import release
+        release(sys.modules[__name__], mode)
+    else:
+        command('DELETE', '')
+    SESSION = None
+
+
 
 try:
     wait(lambda: request('GET', '/status'), 'WebDriver starts')
@@ -484,6 +495,15 @@ except Exception:
     print('ARTIFACTS', ROOT, flush=True)
     raise
 finally:
+    shutdown_error = None
+    if SESSION and os.environ.get('BABEL_SHUTDOWN_MODE'):
+        try:
+            release_session()
+        except Exception as error:
+            DRIVER_LOG.write(f'HARNESS shutdown isolation failed: {error}\n')
+            DRIVER_LOG.flush()
+            # Keep failed normal-close attempts distinct from fallback cleanup.
+            shutdown_error = error
     # Distinguish forced automation teardown from ordinary protected UI close.
     DRIVER_LOG.write('HARNESS forced WebDriver teardown begins\n')
     DRIVER_LOG.flush()
@@ -495,3 +515,5 @@ finally:
     DRIVER.terminate()
     DRIVER.wait(timeout=10)
     DRIVER_LOG.close()
+    if shutdown_error:
+        raise shutdown_error

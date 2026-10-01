@@ -1,54 +1,53 @@
-# Current state — M4-15 native prerequisite restored; runtime exit open
+# Current state — M4-15 ordinary window-close abort reproduced
 
 Date: 2026-10-01 PDT. Application: **babel**. Main, continuation from clean
-`e8c2304`; one editing agent, no push or M4 verified tag.
+`2e3ea2a`; one editing agent, no push or M4 verified tag.
 
 ## Task and work
 
-**M4-15** remains open. Restored the missing Fcitx/Mozc prerequisite through
-nine signed test-only packages in a disposable prefix, read-only system overlay
-and private profile. No privileged installation/global input settings changed.
-The wrapper refuses existing input-service ownership and stops only its namespace.
+**M4-15 shutdown isolation** is implemented and exercised. **M4-15 remains
+blocked**: ordinary graceful native window close under WebView automation
+reproduces the WebKit heap abort before any session DELETE. A forced-only
+teardown disposition is invalid. No product/native dependency changes.
 
-**M4-15-R1:** pinned Wry disabled client preedit. Linux startup now enables the
-existing WebKit input context through Tauri's main-thread callback, using the
-already locked binding version. The five native input modes require genuine
-trusted start/end events; editor-exit checks each pinyin/Mozc case independently.
-Exact source/form/query/cancellation/Undo oracles remain. Native input correction
-is verified; integrated runtime acceptance remains open.
+The paired runner uses the same default release SHA256 `6fbb10a5…`, fresh
+profiles, typical/stress presentation workflows, genuine pinyin/Undo/divergence/
+Save As/protected document-close oracles and preference restart. Ordinary and
+forced arms alternate order. Logs retain owned PID/start-time tokens and exact
+request/process-exit/stale-session-cleanup boundaries. Crash detection is intact.
+A separate direct-launch control removes WebView automation and WebKitWebDriver.
+It exercises only cold Home/window close, with no drafting/content claim.
 
-Harness corrections wait for exact recovery UUID/generation, native title input,
-Save/thaw and Focus adoption, and observed cold Mozc selection. Separate GTK
-Unicode modes use the actual built-in context ID. Outline visibility allows one
-CSS pixel for integer-scroll rounding while preserving exact row/offset/timing.
-Failed attempts remain retained. Active sessions and forced deletions are logged;
-crash detection is unchanged.
-
-M4-08-R1 replacement-emphasis correction remains complete; M4-01–14 bounded
-Linux dependencies are accepted. Stop at M4; no M5 implementation.
+M4-15-R1 genuine Linux preedit and M4-08-R1 replaced-emphasis correction remain
+complete. M4-01–14 bounded Linux dependencies remain accepted. Stop at M4;
+no M5 implementation or accepted M4 gate.
 
 ## Paths and checks
 
-- Product: `src-tauri/{Cargo.toml,src/lib.rs}`, `Cargo.lock`; [M4-15-R1](tasks/M4-15-R1.md), [ADR 0034](decisions/0034-linux-client-preedit.md), native input contract.
-- Native harness: `tests/native/writing-lifecycle/{isolated_ime,drill,editor_exit,outline_workflows,title_page,find_workflows,presentation_workflows,home_workflows}.py` and guide.
-- [Continuation evidence](test-evidence/M4.md#continuation-from-e8c2304--isolated-ime-and-m4-15-r1) owns exact commands/versions/hashes/manifests/failed attempts; [separate same-agent review](reviews/2026-10-01-m4-15-review.md) owns findings/limits. No second-reviewer/human sign-off claim.
-- Focused **90 tests/5 files**; shared **694/56**, formatting/lint/typecheck/build, browser smoke; Rust fmt/clippy and **237 tests each on tmpfs/Btrfs** passed. Full default embedded release/AppImage built; no installed/offline certification.
-- Fresh full 19-mode matrix: **32/38 successful** on the current binary. Four harness failures corrected; both presentation cases completed functional assertions but emitted heap aborts. Corrective reruns pass **5/5 tmpfs + 2/2 Btrfs**; latest same-binary case inventory is **38/38**, not a clean full run or crash resolution. Independent retained audit passed; exact counts in evidence. Original failures remain gate evidence.
+- Native harness: `tests/native/writing-lifecycle/{shutdown_isolation,shutdown_lifecycle,plain_quit,audit_shutdown,drill,presentation_workflows}.py` and guide; command additions in development docs.
+- [Shutdown evidence](test-evidence/M4.md#continuation-from-2e3ea2a--ordinary-and-forced-shutdown-isolation) owns exact commands, host drift, manifests, hashes, core timing/stacks and verification results.
+- Paired native probe: **5/8 strict cases passed**; all four tmpfs pass, Btrfs has two ordinary-close and one forced-delete heap aborts. **Three owned SIGABRT cores**; ordinary PID495675 aborts between native close request and observed process exit, over one second before stale session DELETE. Another ordinary case times out after its close request/abort; incomplete phase record remains failed.
+- Independent fixed-byte/checkpoint/phase-prefix audit: **8/8 roots, 15 attempted exits**, including all three crash-failed roots. One root has an incomplete exit sequence; no success relabelling. Broader retained audit: **5 successful roots / 60 frames / 20 snapshots / 20 previous sources**.
+- Non-automation cold Home control: **8/8 passed**, four per filesystem; no stderr heap error or core for its eight owned WebKit PIDs. Different workload/profile lifecycle, so this does not establish automation as the cause or a fix.
+- Shared **694/56** frontend tests plus formatting/lint/typecheck/build and browser smoke passed; Rust fmt/clippy and **237 tests each on tmpfs/Btrfs** passed. Python syntax/CLI entry points and changed local links passed; final whitespace check recorded in evidence.
+- Separate same-agent diagnostic source/core review recorded; no second-reviewer/human sign-off claim.
 
 ## Blocker and next action
 
-Intermittent presentation-restart `corrupted double-linked list` observations
-keep M4-15/full M4 open. Btrfs phase log places one after forced WebDriver session
-deletion; owned core shows allocator abort through Gallium/GBM/WebKit and `exit`.
-This supports a teardown association, not the corruption origin or ordinary
-application-quit safety. Earlier unphased observation also remains unresolved;
-clean reruns do not establish a fix or close retained C1.
+C2 now includes ordinary graceful window-close failures under automation, not
+only forced teardown. Main-thread core inspection shows libc allocator abort,
+Gallium and `exit`; corruption origin is unproved. Current host is kernel
+7.2.7-arch1-1 and Mesa 26.2.3 (historical host notes were older); no stack upgrade
+was performed by this task. Non-automation control did not reproduce the abort.
 
-Next **M4-15** action: isolate ordinary app quit from forced WebDriver deletion
-with disposable profiles, exact source/checkpoint audits and phase logs; dispose
-of the runtime finding before accepting/tagging the gate. No crash-line filtering,
-dependency-stack upgrade or M6 implementation was included here.
+Next **M4-15** action: obtain a minimal repeated cold-Home/restart reproducer
+that compares automation and ordinary production lifecycles with matching
+profile/startup timing, then investigate supported WebKit/Mesa exit behavior
+and a justified fix. Preserve crash/core evidence and exact byte/checkpoint
+oracles; rerun affected integrated/native gates after a real correction.
+Do not filter crashes, ship a guessed workaround or tag M4 on clean repeats.
 
-SC005/SC008 assessment stays unavailable until M5. Screenreader/other platforms,
-installed/offline packaging, full S13/long-session, dependency hardening,
-migration/backups and Local v1 adoption remain open. Nothing pushed.
+SC005/SC008 assessment remains unavailable until M5. C1/native dependency
+hardening, screenreader/other platforms, installed/offline packaging, full
+S13/long-session, migration/backups and Local v1 adoption remain open. Nothing
+pushed.

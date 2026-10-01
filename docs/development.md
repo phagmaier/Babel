@@ -200,3 +200,19 @@ and [evidence](test-evidence/M4.md#m4-15--integrated-exit-and-separate-safety-re
 record package verification, required helpers and exact versions. Retain the
 wrapper's `IME ARTIFACTS` profile/logs. Include `isolated_ime.py` in Python syntax
 checks. Real start/end and literal source/form/query audits remain mandatory. Native spelling/characters/commands select GTK's exact built-in `gtk-im-context-simple` ID so the private Fcitx wildcard module cache cannot override those separate drills.
+
+M4-15 shutdown diagnostic subset: with the same default embedded release and
+verified private IME prefix, run
+`python3 tests/native/writing-lifecycle/isolated_ime.py /tmp/babel-m4-15-fcitx/prefix -- python3 tests/native/writing-lifecycle/shutdown_isolation.py /tmp /home/phagmaier/Code/Babel/target --repeats 2 --output /tmp/babel-m4-15-shutdown-paired-1`.
+The [native guide](../tests/native/writing-lifecycle/README.md#m4-15-paired-shutdown-isolation)
+owns the two entry points, process/phase recording and scope limits. Audit its
+`results.json` with the existing `audit_retained.py`; include both
+`shutdown_isolation.py`, `shutdown_lifecycle.py` and `audit_shutdown.py` in Python
+syntax checks. `audit_shutdown.py <results.json> --output <new-audit.json>` checks
+frozen exact bytes/checkpoints and phase order even in crash-failed roots.
+No product behavior/dependency changes or full-matrix acceptance are implied.
+
+Cold-Home non-automation control: replace the diagnostic command with
+`python3 tests/native/writing-lifecycle/plain_quit.py /tmp /home/phagmaier/Code/Babel/target --repeats 4 --output /tmp/babel-m4-15-plain-quit-1`
+inside the same private IME wrapper; include `plain_quit.py` in syntax checks.
+This covers graceful native Home quit only, with no manuscript/drafting claim.

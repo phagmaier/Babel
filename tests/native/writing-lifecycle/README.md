@@ -390,3 +390,65 @@ Every active native session and forced WebDriver session DELETE is phase-marked
 in the native log, including profile restart; corruption lines remain detected
 and fail the matrix for review. A clean later rerun does not establish the origin
 of an earlier heap abort or close its safety finding.
+
+### M4-15 paired shutdown isolation
+
+After the same default release build and verified IME preparation above:
+
+```sh
+python3 tests/native/writing-lifecycle/isolated_ime.py \
+  /tmp/babel-m4-15-fcitx/prefix -- \
+  python3 tests/native/writing-lifecycle/shutdown_isolation.py \
+  /tmp /home/phagmaier/Code/Babel/target --repeats 2 \
+  --output /tmp/babel-m4-15-shutdown-paired-1
+```
+
+This is a diagnostic subset, not the full M4 exit. Each arm uses the unchanged
+production binary and a fresh profile, runs all existing presentation oracles,
+and exits twice (preference restart and final Home). `ordinary` sends Hyprland's
+[graceful window-close request](https://github.com/hyprwm/hyprland-wiki/blob/main/content/configuring/core/dispatchers.md)
+to the driver-owned Babel address after protected document close. It observes
+app/WebKit descendant exit before stale session DELETE; it never kills the app.
+`forced` deletes the active WebDriver session at the same point and observes its
+process exit. PID/start-time tokens distinguish exited/zombie processes from
+PID reuse. Failed ordinary exits remain failures even if fallback cleanup works.
+Both arms use WebView automation; this does not certify non-automation exits or
+closing a still-open/dirty document through the window manager.
+
+`binary.json`, per-run logs, aggregate `results.json` and each profile's
+`shutdown-phases.json` retain binary hash, arm/order/filesystem, process inventory
+and wall-clock phase boundaries. Two repetitions alternate arm order. All crash
+lines still fail the strict matrix; clean repeats do not fix retained C1/C2.
+Audit frozen presentation bytes and exact source/checkpoint hashes in **all**
+roots, including crash-failed cases, without changing their native verdict:
+
+```sh
+python3 tests/native/writing-lifecycle/audit_shutdown.py /tmp/babel-m4-15-shutdown-paired-1/results.json --output /tmp/babel-m4-15-shutdown-byte-audit.json
+```
+
+Its literal hashes were independently checked against retained pre-isolation
+presentation artifacts; it imports the independent checksum auditor, not the
+production codec or scenario generator. It also checks complete phase sequences or an honestly
+retained prefix after failure. Incomplete sequences remain native failures. The existing `audit_retained.py` accepts this aggregate manifest for
+broader journal/snapshot/ref auditing of strict successful roots. Failed roots
+remain retained without relabelling them successful.
+
+For a separate cold-Home control without WebKitWebDriver or the automation
+environment variable, run the same binary sequentially (after the paired run):
+
+```sh
+python3 tests/native/writing-lifecycle/isolated_ime.py \
+  /tmp/babel-m4-15-fcitx/prefix -- \
+  python3 tests/native/writing-lifecycle/plain_quit.py \
+  /tmp /home/phagmaier/Code/Babel/target --repeats 4 \
+  --output /tmp/babel-m4-15-plain-quit-1
+```
+
+Each cold launch has a fresh profile and an owned native window, waits for its
+WebKit process plus one second, sends the same graceful close request and
+records process/phase/exit/stderr evidence. There is no WebDriver process or
+session DELETE. This control covers cold Home exit only; it neither opens a
+manuscript nor verifies drafting/content protection. A failed close remains a
+failure; any fallback parent kill is explicitly recorded. Include
+`plain_quit.py` and `audit_shutdown.py` in Python syntax checks. Query only
+recorded owned WebKit PIDs with `coredumpctl` when checking for new cores.

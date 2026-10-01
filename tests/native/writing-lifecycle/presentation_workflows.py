@@ -150,7 +150,7 @@ def run(d):
         d.close_session(); d.audit(target, source + b'!External.\r\n'); d.audit(copy, source)
         assert d.script("return document.documentElement.dataset.theme;") == 'dark'
     # Same private profile restart reads preferences; UI-only key has no manuscript.
-    d.command('DELETE', '', {}); d.new_session()
+    d.release_session(); d.new_session()
     assert d.script("return document.documentElement.dataset.theme;") == 'dark'
     settings = d.script("return JSON.parse(localStorage.getItem('babel.view.v1'));")
     assert settings == {'version': 1, 'settings': {'theme': 'dark', 'zoom': 100, 'focus': False, 'typewriter': True}}, settings
