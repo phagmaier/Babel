@@ -10,6 +10,53 @@ All direct npm and Rust versions are pinned in manifests; `pnpm-lock.yaml` and `
 
 M1-02 reference input host: AMD Ryzen 7 7840U (8 cores/16 threads), 14 GiB RAM, Hyprland 0.56.2, WebKitGTK 4.1 2.52.6, GTK 3.24.52, debug Tauri build. Deterministic synthetic workload hashes and timings are in [M1 evidence](test-evidence/M1.md); the workload labels do not assert actual PDF pages.
 
+## Laptop setup (DEV-01)
+
+On Omarchy/Arch x86_64, install missing native prerequisites with
+`sudo pacman -S --needed base-devel webkit2gtk-4.1 gtk3 librsvg openssl pkgconf appmenu-gtk-module libayatana-appindicator xdotool patchelf`.
+The current app has no tray; the installed Ayatana indicator library suffices.
+No full system upgrade or desktop settings change is required by this setup.
+
+From the checkout:
+
+```sh
+mise trust mise.toml
+mise install node@26.7.0 pnpm@11.22.0
+rustup toolchain install 1.97.1 --profile minimal --component rustfmt --component clippy
+mise exec -- pnpm install --frozen-lockfile
+mise exec -- pnpm pdf-helper
+mise exec -- pnpm tauri dev
+```
+
+`mise.toml` selects the exact Node/pnpm versions locally; `rust-toolchain.toml`
+selects Rust and its format/lint components. No private environment variables,
+credentials or desktop caches need copying. Use the normal persistent Cargo and
+mise caches on an unrestricted laptop; `/tmp` cache overrides above are specific
+to restricted agent runs. `pnpm tauri dev` does not build the renderer, so run
+`pnpm pdf-helper` first on a fresh checkout or after helper source changes.
+
+Native test tools on this laptop include Chromium, WebKitWebDriver, wtype, grim,
+wl-clipboard, Wayland/xkb tools, Poppler, Ghostscript, Enchant/Hunspell with
+`hunspell-en_us`, and system Python GTK/AT-SPI bindings. Build the disposable
+input tools with `python3 tests/native/editor-input/build-keyboard.py` and
+`python3 tests/native/editor-completion/build-pointer.py`; their `/tmp` binaries
+must be rebuilt after reboot. Fcitx5/pinyin/Mozc packages are present; isolated
+IME matrix runs still need the signed private prefix documented in the native
+drill README, rather than changing the personal input method configuration.
+
+Inspection dependencies stay in an ignored project-local venv:
+
+```sh
+/usr/bin/python3 -m venv --system-site-packages target/dev-python
+target/dev-python/bin/python -m pip install -r tools/pdf-helper/requirements-test.txt
+target/dev-python/bin/python tools/pdf-helper/test_profile.py --output target/profile-check-new
+```
+
+The system interpreter exposes installed GTK/AT-SPI bindings. The bundled
+renderer uses its own pinned CPython. Vitest defaults to two isolated workers
+for laptop CPU/memory headroom; tests and timeouts are unchanged. Exact outcomes
+and retained limitations: [DEV-01 evidence](test-evidence/M5.md#dev-01--laptop-development-setup).
+
 ## Commands
 
 | Goal                | Command                                                 | Scope                                             |

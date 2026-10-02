@@ -5,6 +5,12 @@ or borrowed screenplay. [Manifest](manifest.json) records byte hashes, encodings
 and literal expectations. `elements.fountain` deliberately has BOM/CRLF.
 [Review identities](review.json) bind the profile, runtime and accepted goldens.
 
+DEV-01 makes the runtime identity independent of checkout paths by canonicalizing
+Python bytecode filenames. Only bytecode and its manifest identity changed;
+all 33 accepted layout/raster files were independently compared byte-for-byte
+with a fresh render and remain unchanged. The native tree pin and review identity
+advance together; [evidence](../../docs/test-evidence/M5.md#dev-01--laptop-development-setup).
+
 The literals, counts, marker counts and selected coordinates were written before
 rendering. One oracle was corrected after reading the leading explicit break:
 `empty-breaks` intentionally has two body pages, not one; the first is blank,

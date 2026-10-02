@@ -9,5 +9,6 @@ export default defineConfig({
     strictPort: true,
     host: process.env.TAURI_DEV_HOST || false,
   },
-  test: { environment: 'jsdom' },
+  // Leave CPU/memory headroom for native compilation on development laptops.
+  test: { environment: 'jsdom', maxWorkers: 2 },
 });

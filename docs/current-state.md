@@ -1,60 +1,57 @@
-# Current state — M5-03 complete
+# Current state — DEV-01 laptop setup complete
 
-Date: 2026-10-02 PDT. Application: **babel**. Base `4a4824a` on main, tree clean
-at admission (one local commit ahead); one editing agent. Owner said Continue.
+Date: 2026-10-02. Application: **babel**. Base `076f952` on clean main at
+admission; owner requested readiness after switching from desktop to laptop.
 
 ## Task and work
 
-**M5-03 frozen US Letter profile and regression corpus — complete.**
-`us-letter-draft-v1` freezes geometry, line metrics, title/body numbering,
-continuation/keep/oversized splitting and short dual alignment over the pinned
-Screenplain/ReportLab pipeline. Semantic lyrics/dual markers no longer leak.
-Only Courier Prime appears in font resources/content streams; bounded CMap
-chunking removes the Ghostscript warning. Native/frontend require frozen profile
-identity. Generated markers never write back to source.
+**DEV-01 laptop development setup — complete.**
+Node 26.7.0/pnpm 11.22.0 are selected by project-local `mise.toml`; Rust 1.97.1
+and format/lint components by `rust-toolchain.toml`. Locked dependencies,
+persistent Cargo cache, generated PDF runtime, inspection venv
+(`target/dev-python`) and disposable native input helpers are ready. Owner
+installed missing appmenu/xdotool/patchelf packages; native libraries, browser,
+spellcheck, GTK/AT-SPI and Wayland tools were already present.
 
-[ADR 0037](decisions/0037-us-letter-draft-profile.md) records the patch boundary,
-coordinates, grouping and limits. [Corpus review](../fixtures/publication/REVIEW.md)
-binds source/profile/layout/image identities and independent literal/tool/visual
-review. [Evidence](test-evidence/M5.md#m5-03--frozen-us-letter-profile-and-regression-corpus)
-records exact commands, timings and failures. Logs: `target/m5-03/`.
+Setup exposed path-dependent helper bytecode identity and missing native event
+unlisten permission. Canonical bytecode compilation now gives one tree across
+checkout paths. All 33 approved PDF layout/raster files remain byte-identical;
+native/review tree pins advance together. Narrow event cleanup permission fixes
+development StrictMode cleanup. Two isolated Vitest workers provide laptop
+headroom without changing tests/timeouts.
 
-Paths: `tools/pdf-helper/frozen_profile.py`, `profiles/us-letter-draft-v1.json`,
-helper/build/test scripts; `fixtures/publication/`; native/frontend publication
-profile checks/tests and default-release IPC smoke. No capability/DOM change.
+Paths: `mise.toml`, `rust-toolchain.toml`, `vite.config.ts`, `tools/pdf-helper/`,
+`src-tauri/src/publication_host.rs`, `src-tauri/capabilities/main.json`, native
+publication smoke, publication review identity and setup/task/evidence docs.
+[Setup](development.md#laptop-setup-dev-01), [brief](tasks/DEV-01.md),
+[evidence](test-evidence/M5.md#dev-01--laptop-development-setup).
+Logs, command timing wrappers and final extracted AppImage: `target/dev-01/`.
 
 ## Checks and limits
 
-13 corpus cases, 22 reviewed golden pages, 13 extra boundary cases pass with
-exact repeated layout/text/raster identity. Poppler/pypdf font/geometry/text
-inspection passes; Ghostscript renders every corpus page without warning.
-Legacy baseline helper 11/11 passes. Native focused tests 8/8 on tmpfs/Btrfs;
-frontend contracts 19/19. Shared Rust 245 and frontend 714 tests pass;
-fmt/clippy/format/lint/typecheck/build pass. Browser smoke omitted (no DOM change).
+Full frontend check passes: 714 tests, formatting/lint/typecheck/build.
+Rust workspace passes 245 tests; fmt/clippy pass. Browser smoke passes.
+Two-path offline build identity, helper 11/11 self-tests and exact runtime
+verifier pass. Frozen corpus passes 13 cases/22 golden pages/13 boundary checks;
+final packaged copy passes the same corpus in a network-disabled namespace.
+Publication Rust tests pass 8/8 on tmpfs/Btrfs. Final release real WebKit IPC,
+including native listener cleanup, passes on both filesystems. Full AppImage
+build and actual Vite/debug desktop startup with ordinary window close pass.
 
-Default Tauri release real WebKit IPC smoke passes on tmpfs/Btrfs, exact synthetic
-BOM/CRLF capture, frozen identity and actual count, cache lifecycle and no source
-save. Full AppImage build and extracted-helper offline network-namespace corpus
-pass. Pure layout needs no second full filesystem matrix.
+Helper tree: `c805d61692438d7ce7a8e5cd4fb0918b492296e41343be4a2847da7ad88748a8`.
+Release/AppImage hashes, exact commands, initial failures and limitations are
+recorded once in evidence. No full writing/IME matrix rerun: packaging and
+listener cleanup only; existing M4 shutdown/platform/performance limits remain.
+Isolated IME matrices still require preparing their signed private package
+prefix. `/tmp` input helper binaries must be rebuilt after reboot.
 
-Release SHA256 `20d671f4672abda13d52cc19c61dcd3723abb967aa37bffbaf07b59f98bf1f94`.
-Helper tree `a0c6e39d2b316912f6b96b98fdacb4c2ac667556fb4115482bb7c0b790242d6d`.
-AppImage SHA256 `f26f4fce2294ab3572048d8b6391010a1453eb8273bb93fc67f2a83de87304f2`.
-
-Tall dual, unavailable glyphs/shaping and impossible cue/parenthetical/scene
-number geometry are declared refusals. Known upstream omissions carry bounded
-warnings. Frozen layout does not imply full codec fidelity or Script Check:
-M5-04 still owns complete SC005/SC008 assessment; preview/export are M5-05/06,
-integration M5-07. Source maps remain unsupported. Other platforms, installed
-app verification, full licenses and long sessions remain open.
-
-M4 bounded Linux acceptance is unchanged; forced WebDriver teardown/C1 and
-WebKit/performance/platform hardening remain M6. No new product crash observed.
+M5-03 frozen US Letter acceptance remains complete; no renderer layout or source
+fixture changes. M5-04 assessment, M5-05 preview, M5-06 export, M5-07 integration
+and M6 hardening remain open. No new milestone or adoption claim.
 
 ## Next action
 
+Run `pnpm tauri dev` from this checkout (or `mise exec -- pnpm tauri dev`).
 **M5-04 production SC005/SC008 assessment** is dependency-ready, not started.
-Stop after the M5-03 commit. No push is authorized.
-Use `RUSTUP_TOOLCHAIN=1.97.1`, explicit Node 26.7.0/pnpm 11.22.0 mise array, and
-prepend the actual pinned Rust bin directory after mise selection for Tauri.
-Use `pnpm tauri build`, never plain Cargo release build.
+Stop after DEV-01; no push is authorized. Use `pnpm tauri build` for production
+builds. No desktop settings, manuscripts or credentials were copied.

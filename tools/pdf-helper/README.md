@@ -19,6 +19,10 @@ python3 tools/pdf-helper/verify_runtime.py target/pdf-helper/runtime --exact
 SHA-256), then assembles `target/pdf-helper/runtime` in about 3 seconds.
 `--offline` uses only the cache. `runtime/BUILD.json` lists every file's
 SHA-256 and a tree hash; identical pins give an identical tree hash.
+Bytecode is forcibly compiled with the fixed `/babel-pdf-helper` source prefix,
+so checkout locations and upstream bytecode caches cannot change that identity.
+`python3 tools/pdf-helper/test_build.py` verifies two different build paths
+against the same offline inputs and compares their complete manifests.
 `pnpm tauri build` runs the helper build through `beforeBuildCommand`. Plain
 `cargo` commands only need the (possibly empty) runtime directory, which
 `src-tauri/build.rs` creates.

@@ -173,7 +173,7 @@ it. Native `release_open_document_at_risk` is a distinct bounded worker command
 that can relinquish an uncertain registration after an explicit risk or verified
 copy choice, but refuses queued writes. Ordinary release stays conservative.
 The native window event cancels close while registrations exist and emits
-`protected-close-requested`. Only event-listen and window-close core permissions
+`protected-close-requested`. Only event-listen/unlisten and window-close core permissions
 were added; no filesystem, shell or remote permission was added. The marked
 synthetic editor consumes this event and tests real WebKit close. See
 [ADR 0019](decisions/0019-protected-close-lifecycle.md). Once no registration

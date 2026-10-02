@@ -56,6 +56,13 @@ try:
         assert reply['ok'], reply
         return reply['value']
     wait(lambda:script('return !!window.__TAURI_INTERNALS__ && document.body.innerText.includes("Start writing");'))
+    # React route/StrictMode cleanup must be able to retire native listeners.
+    handler=script('return window.__TAURI_INTERNALS__.transformCallback(() => {});')
+    listener=invoke('plugin:event|listen',{'event':'dev-01-cleanup-check',
+                                         'target':{'kind':'Any'},'handler':handler})
+    assert isinstance(listener,int), listener
+    invoke('plugin:event|unlisten',{'event':'dev-01-cleanup-check','eventId':listener})
+    script(f'window.__TAURI_INTERNALS__.unregisterCallback({handler});')
     opened=invoke('create_unsaved_draft',{'request':{}})
     source=b'\xef\xbb\xbfTitle: Synthetic IPC\r\n\r\nINT. ROOM - DAY\r\n\r\nA lamp glows.\r\n'
     digest=hashlib.sha256(source).hexdigest()

@@ -138,11 +138,13 @@ def build(offline):
 
     # Precompile with the bundled interpreter so runtime `-B` never needs to
     # write bytecode; unchecked-hash pycs embed no timestamps, keeping the tree
-    # hash reproducible.
+    # hash reproducible. Force recompilation with a canonical source prefix;
+    # otherwise co_filename embeds the checkout path (or upstream cached paths).
     interpreter = root / 'bin' / 'python3.13'
     for target in (stdlib, lib):
-        subprocess.run([str(interpreter), '-I', '-S', '-m', 'compileall', '-q', '-j', '1',
-                        '--invalidation-mode', 'unchecked-hash', str(target)],
+        subprocess.run([str(interpreter), '-I', '-S', '-m', 'compileall', '-f', '-q', '-j', '1',
+                        '--invalidation-mode', 'unchecked-hash', '-s', str(staging),
+                        '-p', '/babel-pdf-helper', str(target)],
                        check=True, env={'PATH': '/nonexistent'})
 
     files = []

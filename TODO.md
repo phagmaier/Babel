@@ -104,6 +104,8 @@ Prerequisite: [M4 bounded Linux exit](docs/test-evidence/M4.md#continuation-from
 - [ ] **M5-06 Export PDF workflow** — Deps: M5-04/05. Command, native destination token, blocking-warning decision, atomic publish, exact exported version. [Brief](docs/tasks/M5-06.md).
 - [ ] **M5-07 Integrated publication exit and separate review** — Deps: M5-01–06. Full S12.6 gate, offline package drill, two viewers, tmpfs/Btrfs, separate review. [Brief](docs/tasks/M5-07.md).
 
+- [x] **DEV-01 Laptop development setup** — Pinned tools/dependencies, portable renderer identity, native listener cleanup, laptop test concurrency and real development/package checks. [Brief](docs/tasks/DEV-01.md); [evidence](docs/test-evidence/M5.md#dev-01--laptop-development-setup).
+
 Recommended next: **M5-04** production SC005/SC008 assessment.
 
 ## M6–M7 — gated task groups (decompose before starting)

@@ -3,5 +3,9 @@
   "identifier": "main",
   "description": "Shell and protected window close; no file, shell, or remote permissions",
   "windows": ["main"],
-  "permissions": ["core:event:allow-listen", "core:window:allow-close"]
+  "permissions": [
+    "core:event:allow-listen",
+    "core:event:allow-unlisten",
+    "core:window:allow-close"
+  ]
 }
