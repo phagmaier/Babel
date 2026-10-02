@@ -80,6 +80,19 @@ def host_exit_marker(log, exit_order):
     return drain and 'MINIMAL exit-order tao' not in log and 'MINIMAL tao-process-exit ' not in log
 
 
+def view_owner_marker(log, view_owner):
+    """App-owned views must be created at startup and reused; never otherwise."""
+    app = 'MINIMAL view-owner app\n' in log and 'MINIMAL create-web-view existing ' in log
+    if view_owner == 'app':
+        return app
+    return 'MINIMAL view-owner app' not in log and 'MINIMAL create-web-view existing' not in log
+
+
+def host_args(exit_order, view_owner):
+    return ((['--exit-order=tao'] if exit_order == 'tao' else [])
+            + (['--view-owner=app'] if view_owner == 'app' else []))
+
+
 def strict_pass(report):
     return (report.get('workloadCompleted') is True
             and report.get('ordinaryExitCompleted') is True
@@ -89,6 +102,7 @@ def strict_pass(report):
             and report.get('driverAliveBeforeCleanup') is True
             and report.get('driverExitCode') in (0, -signal.SIGTERM)
             and report.get('hostExitMarker') is True
+            and report.get('viewOwnerMarker') is True
             and [p['name'] for p in report.get('phases', [])] == [
                 'ordinary-close-request', 'owned-descendants-exited', 'driver-cleanup']
             and report.get('observedCrashes') == []
@@ -221,7 +235,7 @@ def workload(d, root, rows, report, edit_text='X', undo_method='dom', composited
 
 
 def run_case(root, binary, rows, leave_editor, edit_text, undo_method, composited, keep_focus,
-             exit_order='drain'):
+             exit_order='drain', view_owner='automation'):
     started = time.monotonic()
     root.mkdir()
     env = os.environ.copy()
@@ -267,6 +281,7 @@ def run_case(root, binary, rows, leave_editor, edit_text, undo_method, composite
               'undoMethod': undo_method,
               'composited': composited,
               'keepEditorFocus': keep_focus, 'exitOrder': exit_order,
+              'viewOwner': view_owner,
               'fallbackSignals': [], 'phases': [], 'driverCommand': driver.args}
     d = Driver(port, root / 'requests.json')
 
@@ -288,7 +303,7 @@ def run_case(root, binary, rows, leave_editor, edit_text, undo_method, composite
         session = d.request('POST', '/session', {'capabilities': {'alwaysMatch': {
             'browserName': 'WebKitMiniHost',
             'webkitgtk:browserOptions': {'binary': str(binary),
-                'args': ['--exit-order=tao'] if exit_order == 'tao' else []}}}})
+                'args': host_args(exit_order, view_owner)}}}})
         d.session = session['sessionId']
         write(root / 'session.json', session)
         workload(d, root, rows, report, edit_text, undo_method, composited, keep_focus)
@@ -379,6 +394,7 @@ def run_case(root, binary, rows, leave_editor, edit_text, undo_method, composite
         report['survivors'] = [p for p in tokens() if alive(p, processes())]
         log.close()
         report['hostExitMarker'] = host_exit_marker(logpath.read_text(), exit_order)
+        report['viewOwnerMarker'] = view_owner_marker(logpath.read_text(), view_owner)
         report['crashLines'] = [line for line in logpath.read_text().splitlines() if CRASH.search(line)]
         report['journal'] = journal_scan(ledger, root / 'crash-journal.json')
         report['ended'] = time.time()
@@ -404,6 +420,9 @@ def main():
     parser.add_argument('--exit-order', choices=['drain', 'tao'], default='drain',
                         help='Two-second GTK drain and context unref (default) or the pinned '
                              'Tao/Tauri Linux order: inhibited close, destroy, exit(0)')
+    parser.add_argument('--view-owner', choices=['automation', 'app'], default='automation',
+                        help='Session creates a new view (default) or, as Wry, the host creates '
+                             'one at startup and create-web-view returns it')
     args = parser.parse_args()
     assert args.repeats > 0 and all(n > 0 for n in args.rows) and args.edit_text
     output = args.output.resolve()
@@ -433,7 +452,7 @@ def main():
         root = output / f'case-{i + 1:02}'
         report = run_case(root, binary, args.rows, args.leave_editor, args.edit_text,
                           args.undo_method, args.composited, args.keep_editor_focus,
-                          args.exit_order)
+                          args.exit_order, args.view_owner)
         reports.append({'root': str(root), **report})
         write(output / 'results.json', reports)
         print(json.dumps({'case': i + 1, 'strictPassed': report['strictPassed'],

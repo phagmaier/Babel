@@ -6,8 +6,8 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from minimal_webdriver import (alive, host_exit_marker, installed_library_paths, main,
-                               signal_owned, strict_pass)
+from minimal_webdriver import (alive, host_args, host_exit_marker, installed_library_paths,
+                               main, signal_owned, strict_pass, view_owner_marker)
 
 
 def complete_report():
@@ -15,7 +15,7 @@ def complete_report():
         'workloadCompleted': True, 'ordinaryExitCompleted': True,
         'observerPassed': True, 'watchPassed': True,
         'installedLibrariesObserved': True, 'driverAliveBeforeCleanup': True,
-        'driverExitCode': -signal.SIGTERM, 'hostExitMarker': True,
+        'driverExitCode': -signal.SIGTERM, 'hostExitMarker': True, 'viewOwnerMarker': True,
         'observedCrashes': [], 'observerReadErrors': [],
         'survivors': [], 'fallbackSignals': [], 'crashLines': [],
         'journal': {'readPassed': True, 'events': []},
@@ -58,7 +58,8 @@ class MinimalTests(unittest.TestCase):
         good = complete_report()
         for key, value in [
             ('workloadCompleted', False), ('ordinaryExitCompleted', False),
-            ('hostExitMarker', False), ('driverAliveBeforeCleanup', False),
+            ('hostExitMarker', False), ('viewOwnerMarker', False),
+            ('driverAliveBeforeCleanup', False),
             ('driverExitCode', -signal.SIGABRT), ('watchPassed', False),
             ('installedLibrariesObserved', False), ('observerPassed', False),
             ('survivors', [{'pid': 1}]), ('fallbackSignals', [{'signal': 'SIGKILL'}]),
@@ -85,6 +86,16 @@ class MinimalTests(unittest.TestCase):
         self.assertFalse(host_exit_marker(tao + 'MINIMAL main-loop-exit 4\n', 'tao'))
         self.assertFalse(host_exit_marker(tao.replace('MINIMAL close-requested 1\n', ''), 'tao'))
         self.assertFalse(host_exit_marker('', 'drain'))
+
+    def test_view_owner_marker_requires_selected_owner_and_refuses_the_other(self):
+        app = 'MINIMAL view-owner app\nMINIMAL create-web-view existing 1\n'
+        self.assertTrue(view_owner_marker(app, 'app'))
+        self.assertTrue(view_owner_marker('MINIMAL window-destroy 1\n', 'automation'))
+        self.assertFalse(view_owner_marker(app, 'automation'))
+        self.assertFalse(view_owner_marker('', 'app'))
+        self.assertFalse(view_owner_marker('MINIMAL view-owner app\n', 'app'))
+        self.assertEqual(host_args('drain', 'automation'), [])
+        self.assertEqual(host_args('tao', 'app'), ['--exit-order=tao', '--view-owner=app'])
 
     def test_pid_reuse_or_zombie_refuses_cleanup_signal(self):
         token = {'pid': 12, 'start': '456'}

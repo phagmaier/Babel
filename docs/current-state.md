@@ -1,9 +1,18 @@
-# Current state — M4-15 Tao exit-order control null; shutdown gate open
+# Current state — M4-15 Tauri-like standalone controls null; shutdown gate open
 
 Date: 2026-10-02 PDT. Application: **babel**. Base `7aa7a08` on main;
 one editing agent; no push, verified M4 tag or M5 work.
 
 ## Task and work
+
+**Completed continuation from `e965bae` (Wry-style app-owned view):** added
+opt-in `--view-owner app` (startup view returned by every `create-web-view`, as
+in Wry 0.57.0), combined with `--exit-order tao`. Installed stack,
+`target/m4-15-app-view-1/`: smoke 1/1, Home **4/4**, editor-present **4/4
+strict**; 9/9 independent audits, 36 owned-PID core queries and two negative
+checks pass. **Null result.** Remaining mismatches: data-directory context,
+`GtkBox` packing, `GApplication` window, custom-scheme/IPC page, Babel's page/
+workload. [Evidence](test-evidence/M4.md#continuation-from-e965bae--wry-style-app-owned-view-control).
 
 **Completed continuation from `7aa7a08` (Tao/Tauri exit-order control):**
 source-compared the standalone control with pinned Tauri 2.12.0/Wry 0.57.0/
@@ -90,12 +99,13 @@ unresolved. Last checked Arch listing was 2.52.6-1; this continuation used that
 installed version. Private patches remain isolated at
 `target/m4-15-webkit-candidate-1/`, with no new comparison or system replacement.
 
-Next bounded task: add ONE further standalone mismatch at a time on the
-installed stack, combined with `--exit-order tao`. Suggested order: app-created
-view handed to automation via `create-web-view` (Wry), then data-directory
-context. Retain a positive installed failure before any stack comparison. The
-active-caret stall is a separate setup issue. Supported corrected-runtime and
-full integrated acceptance remain necessary; clean controls cannot close the gate.
+Next bounded task: add the data-directory (non-ephemeral) WebContext as the
+next single mismatch on top of `--exit-order tao --view-owner app`. If that is
+also null, the remaining low-cost standalone differences (`GtkBox`, `GApplication`)
+are unlikely to matter; prefer moving toward Babel's own page content (frozen
+built `dist/` page in the standalone host) over more shell-level variants. Retain
+a positive installed failure before any stack comparison. Supported
+corrected-runtime and full integrated acceptance remain necessary.
 
 M4-01–14 bounded Linux dependencies, R1 preedit and M4-08-R1 emphasis remain
 accepted. Full S13/long sessions, screenreader/other platforms, installed/offline

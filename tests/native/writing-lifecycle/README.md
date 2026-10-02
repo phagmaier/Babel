@@ -121,6 +121,13 @@ the live Hyprland session's `WAYLAND_DISPLAY`, `DISPLAY`, `XDG_SESSION_TYPE`,
 `XDG_CURRENT_DESKTOP` and `HYPRLAND_INSTANCE_SIGNATURE` to the runner only;
 otherwise the host cannot open a display and the session request times out.
 
+`--view-owner app` (default `automation`) passes `--view-owner=app`: as Wry
+0.57.0 does, the host builds its window and view at startup, loads
+`about:blank`, and every automation `create-web-view` request returns that
+existing view instead of creating one. The strict oracle requires the startup
+and reuse markers and refuses them in the default mode. It combines with
+`--exit-order tao`; it does not add Wry's `GtkBox` packing or Tauri's custom-scheme page.
+
 ## M3-13 integrated editor and separate review
 
 After the default release build and keyboard helper above, run sequentially:
