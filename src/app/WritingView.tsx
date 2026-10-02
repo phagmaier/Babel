@@ -844,7 +844,12 @@ export function WritingView({
         const state = viewRef.current?.state;
         const writable = writableRef.current;
         if (!state) throw new Error('Editor unavailable');
-        return () => installState(state, writable);
+        return () => {
+          installState(state, writable);
+          // Rollback restores the editor but invalidates the adopted view's
+          // derived facts. Re-capture the restored session before navigation.
+          changed();
+        };
       },
       async prepareSource(source, version, metadata) {
         if (titleDraftRef.current || titleComposingRef.current)

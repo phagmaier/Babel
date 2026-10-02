@@ -1,5 +1,6 @@
 """Observe owned native processes around two distinct shutdown entry points."""
 import json
+import os
 from pathlib import Path
 import re
 import subprocess
@@ -53,6 +54,22 @@ def release(d, mode):
         d.DRIVER_LOG.write(f'HARNESS shutdown {mode} {name} {d.SESSION}\n')
         d.DRIVER_LOG.flush()
 
+    preparation = os.environ.get('BABEL_SHUTDOWN_PREPARATION', 'none')
+    assert preparation in ['none', 'idle', 'blank'], preparation
+    record['preparation'] = preparation
+    if preparation == 'blank':
+        d.command('POST', '/url', {'url': 'about:blank'})
+        d.wait(lambda: d.script('return location.href;') == 'about:blank', 'Blank navigation committed')
+    if preparation != 'none':
+        time.sleep(5)
+    from shutdown_observer import ExitObserver
+    observer = ExitObserver(record['processes'], d.ROOT / 'webdriver.log',
+                            d.ROOT / f'shutdown-observations-{len(records)}.json')
+    with observer:
+        _exit(d, mode, address, inventory, owned, phase)
+
+
+def _exit(d, mode, address, inventory, owned, phase):
     phase('request')
     if mode == 'ordinary':
         subprocess.run(['hyprctl', 'dispatch',

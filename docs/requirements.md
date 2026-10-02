@@ -107,6 +107,8 @@ Audit correction mapping: M3-12-R1 → DOC-03/SAVE-01/02/05; M3-09-R1 → DOC-01
 | QA-01         | M4-01–15: focused/shared/native/failure evidence and separate post-integration safety review                                                        |
 | QA-02         | M4-02/03/07/10/11/12/13/14/15: bounded home/find/navigation/input/scaling measurements; full S13/native platform/long-session acceptance remains M6 |
 
+[M4-15-R2](tasks/M4-15-R2.md) adds DOC-01/02, NAV-01/03 and SAVE-01/05 regression coverage for restoring current derived facts after Save As rollback while retaining original source, selection and Undo. Shutdown acceptance remains independently open.
+
 Dependency ordering: M4-01–14 are complete for their bounded Linux gates; M4-15 integrated exit and separate safety review is recommended next and dependency-ready. M4-02 integrates the native registry; moves require outline plus confirmed safety protection; find/replace require complete title/hidden navigation. M4-12 satisfied its successful native-proof prerequisite and production gate. Palette/accessibility integrates completed workflows; M4-15 waits for every implementation task and a separate review. The single editing agent works sequentially across shared editor/lifecycle paths.
 
 Remaining owners: M5-G must connect verified renderer/profile/font output to SC005/SC008 and close CHECK-02's publication assessment. M6-G retains C1 recurring WebKit heap abort investigation, transitive advisory/license/dependency hardening, full compositor/page/long-session performance, Tier 1 platform declaration, installed/offline package, independent backup/restore, migration and owner pilot. M4 adds no native-verification or Local v1 claim merely by decomposing these tasks.

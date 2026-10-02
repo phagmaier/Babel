@@ -7,13 +7,16 @@ import subprocess
 import time
 
 
-def run(d, *, restart=True):
+def run(d, *, restart=True, control="baseline"):
+    assert control in ["baseline", "preedit-disabled", "no-ime", "typical-only", "no-zoom", "cleanup-probes"]
     report = []
 
     def ready():
         d.wait(lambda: d.script("return !!document.querySelector('.outline-target:not(:disabled)') && document.querySelector('#writing-save')?.disabled===false;"), 'Ready current screenplay', timeout=90)
 
     def choose(label, value):
+        if control == 'no-zoom' and label == 'Writing zoom':
+            value = 100
         element = d.find('//select[@aria-label=' + json.dumps(label) + ']')
         d.command('POST', '/element/' + element + '/click', {})
         option = d.find('//select[@aria-label=' + json.dumps(label) + ']/option[@value=' + json.dumps(str(value)) + ']')
@@ -48,7 +51,8 @@ def run(d, *, restart=True):
     choose('Theme', 'dark')
     assert d.script("return document.documentElement.dataset.theme;") == 'dark'
     d.screenshot('presentation-home-dark')
-    for name, scenes in [('typical', 150), ('stress', 1500)]:
+    workloads = [('typical', 150)] if control == 'typical-only' else [('typical', 150), ('stress', 1500)]
+    for name, scenes in workloads:
         text = '\ufeffTitle: Synthetic presentation\r\n\r\n# Act\r\n' + ''.join(
             f'.INT. ROOM {i} - DAY\r\n!Zoë reads the sign.  \r\n!A lamp flickers.\r\n\r\n@MAYA\r\nThe door is open.\r\nCome inside.\r\nWe have time.\r\n\r\n@NOAH\r\nI saw the signal.\r\nWe should leave.\r\nWait here.\r\n\r\n!They cross in silence.\r\n!A bell rings.\r\n!A long line ' + 'wraps across the screen with Unicode é🚀. ' * 8 + '\r\n!Tail.\r\n'
             for i in range(scenes))
@@ -56,11 +60,21 @@ def run(d, *, restart=True):
         d.click('Open Fountain', actions=True); d.picker(target); ready(); save(target, source)
         editor = d.editor()
         select(4, 3); before = selection()
-        d.script("window.presentationEvents=[];window.presentationSync=[];window.presentationFrames=[];const root=document.querySelector('.ProseMirror');for(const kind of ['keydown','beforeinput','input']){let start;root.addEventListener(kind,e=>{if(e.isTrusted)start=performance.now();},true);document.addEventListener(kind,e=>{if(root.contains(e.target)&&e.isTrusted&&start!==undefined){window.presentationSync.push({kind,ms:performance.now()-start});if(kind==='input')requestAnimationFrame(()=>window.presentationFrames.push(performance.now()-start));}});}for(const kind of ['compositionstart','compositionend'])root.addEventListener(kind,e=>window.presentationEvents.push({kind,trusted:e.isTrusted,scroll:scrollY}));window.presentationToggles=[];window.presentationToggleSync=[];let toggleStart;document.addEventListener('change',e=>{if(root.closest('main')?.querySelector('.presentation')?.contains(e.target)&&toggleStart!==undefined)window.presentationToggleSync.push(performance.now()-toggleStart);});document.querySelector('.presentation').addEventListener('change',e=>{const start=performance.now();toggleStart=start;requestAnimationFrame(()=>requestAnimationFrame(()=>window.presentationToggles.push({control:e.target.getAttribute('aria-label')||e.target.type,ms:performance.now()-start})));},true);")
+        probe = "window.presentationEvents=[];window.presentationSync=[];window.presentationFrames=[];const root=document.querySelector('.ProseMirror');for(const kind of ['keydown','beforeinput','input']){let start;root.addEventListener(kind,e=>{if(e.isTrusted)start=performance.now();},true);document.addEventListener(kind,e=>{if(root.contains(e.target)&&e.isTrusted&&start!==undefined){window.presentationSync.push({kind,ms:performance.now()-start});if(kind==='input')requestAnimationFrame(()=>window.presentationFrames.push(performance.now()-start));}});}for(const kind of ['compositionstart','compositionend'])root.addEventListener(kind,e=>window.presentationEvents.push({kind,trusted:e.isTrusted,scroll:scrollY}));window.presentationToggles=[];window.presentationToggleSync=[];let toggleStart;document.addEventListener('change',e=>{if(root.closest('main')?.querySelector('.presentation')?.contains(e.target)&&toggleStart!==undefined)window.presentationToggleSync.push(performance.now()-toggleStart);});document.querySelector('.presentation').addEventListener('change',e=>{const start=performance.now();toggleStart=start;requestAnimationFrame(()=>requestAnimationFrame(()=>window.presentationToggles.push({control:e.target.getAttribute('aria-label')||e.target.type,ms:performance.now()-start})));},true);"
+        if control == 'cleanup-probes':
+            probe = ("const listeners=[],frames=new Set();"
+                "const listen=(target,kind,handler,capture=false)=>{target.addEventListener(kind,handler,capture);listeners.push(()=>target.removeEventListener(kind,handler,capture));};"
+                "const frame=callback=>{const id=requestAnimationFrame(t=>{frames.delete(id);callback(t);});frames.add(id);return id;};"
+                "window.disposePresentationProbe=()=>{for(const remove of listeners)remove();for(const id of frames)cancelAnimationFrame(id);delete window.disposePresentationProbe;};"
+                + probe.replace("root.addEventListener(", "listen(root,")
+                    .replace("document.addEventListener(", "listen(document,")
+                    .replace("document.querySelector('.presentation').addEventListener(", "listen(document.querySelector('.presentation'),")
+                    .replace("requestAnimationFrame(", "frame("))
+        d.script(probe)
         choose('Writing zoom', 75); choose('Writing zoom', 200); choose('Writing zoom', 150); choose('Theme', 'light')
         assert selection() == before, (before, selection())
         assert d.editor() == editor
-        assert d.script("return getComputedStyle(document.querySelector('.ProseMirror')).fontSize;") == '24px'
+        assert d.script("return getComputedStyle(document.querySelector('.ProseMirror')).fontSize;") == ('16px' if control == 'no-zoom' else '24px')
         d.click('Focus mode')
         assert d.script("return getComputedStyle(document.querySelector('.manuscript-outline')).display;") == 'none'
         assert d.script("return document.querySelector('#writing-save').getBoundingClientRect().height>0 && document.querySelector('#writing-focus').textContent.includes('Exit');")
@@ -107,23 +121,27 @@ def run(d, *, restart=True):
         key('\ue00c'); assert d.script("return document.querySelector('main').classList.contains('writing-focus') && document.querySelector('.completion-popup').hidden;")
         key('\ue00c'); assert not d.script("return document.querySelector('main').classList.contains('writing-focus');")
         choose('Writing zoom', 150)
-        # Actual composition with zoom and typewriter enabled, commit + cancel.
-        d.script("document.querySelectorAll('.ProseMirror > p')[4].scrollIntoView({block:'center'});"); select(4, 3); owned_focus()
-        previous = subprocess.check_output(['fcitx5-remote', '-n'], text=True).strip()
-        try:
-            subprocess.run(['fcitx5-remote', '-s', 'pinyin'], check=True); time.sleep(.5)
-            subprocess.run(['wtype', '-d', '80', 'nihao'], check=True); time.sleep(.6)
-            preedit_scroll = row_center()['scroll']; d.screenshot('presentation-' + name + '-ime-150'); time.sleep(.3); assert abs(row_center()['scroll'] - preedit_scroll) < 2
-            subprocess.run(['wtype', '-k', 'space'], check=True); time.sleep(.5)
-            save(target, source.replace('!Zoë reads'.encode(), '!Zoë你好 reads'.encode(), 1))
-            d.script("document.querySelector('.ProseMirror').focus();"); d.type_text('\ue009z\ue000'); save(target, source)
-            select(4, 3); owned_focus(); subprocess.run(['wtype', '-d', '80', 'nihao'], check=True); time.sleep(.6)
-            subprocess.run(['/tmp/babel-m3-08-keyboard', 'escape'], check=True); time.sleep(.4); save(target, source)
-        finally:
-            subprocess.run(['fcitx5-remote', '-s', previous], check=True)
-        events = d.script('return window.presentationEvents;')
-        assert sum(e['kind'] == 'compositionstart' and e['trusted'] for e in events) >= 2, events
-        assert sum(e['kind'] == 'compositionend' and e['trusted'] for e in events) >= 2, events
+        if control != 'no-ime':
+            # Actual composition with zoom and typewriter enabled, commit + cancel.
+            d.script("document.querySelectorAll('.ProseMirror > p')[4].scrollIntoView({block:'center'});"); select(4, 3); owned_focus()
+            previous = subprocess.check_output(['fcitx5-remote', '-n'], text=True).strip()
+            try:
+                subprocess.run(['fcitx5-remote', '-s', 'pinyin'], check=True); time.sleep(.5)
+                subprocess.run(['wtype', '-d', '80', 'nihao'], check=True); time.sleep(.6)
+                preedit_scroll = row_center()['scroll']; d.screenshot('presentation-' + name + '-ime-150'); time.sleep(.3); assert abs(row_center()['scroll'] - preedit_scroll) < 2
+                subprocess.run(['wtype', '-k', 'space'], check=True); time.sleep(.5)
+                save(target, source.replace('!Zoë reads'.encode(), '!Zoë你好 reads'.encode(), 1))
+                d.script("document.querySelector('.ProseMirror').focus();"); d.type_text('\ue009z\ue000'); save(target, source)
+                select(4, 3); owned_focus(); subprocess.run(['wtype', '-d', '80', 'nihao'], check=True); time.sleep(.6)
+                subprocess.run(['/tmp/babel-m3-08-keyboard', 'escape'], check=True); time.sleep(.4); save(target, source)
+            finally:
+                subprocess.run(['fcitx5-remote', '-s', previous], check=True)
+            events = d.script('return window.presentationEvents;')
+            if control == 'preedit-disabled':
+                assert not any(e['kind'] == 'compositionstart' and e['trusted'] for e in events), events
+            else:
+                assert sum(e['kind'] == 'compositionstart' and e['trusted'] for e in events) >= 2, events
+                assert sum(e['kind'] == 'compositionend' and e['trusted'] for e in events) >= 2, events
         # Save divergence remains visible in focus with a discoverable exit.
         target.write_bytes(source + b'!External.\r\n'); d.click('Focus mode')
         d.wait(lambda:d.script("return document.querySelector('main').classList.contains('writing-focus');"), 'Focus mode adopted before Find')
@@ -146,7 +164,9 @@ def run(d, *, restart=True):
         d.click('Save As', actions=True); d.picker(copy); d.audit(copy, source); ready()
         choose('Theme', 'dark'); choose('Writing zoom', 100)
         metrics = d.script('return {events:window.presentationEvents,sync:window.presentationSync,frames:window.presentationFrames,toggles:window.presentationToggles,toggleSync:window.presentationToggleSync,devicePixelRatio};')
-        report.append({'workload': name, 'scenes': scenes, 'rows': 3 + 18 * scenes, 'bytes': len(source), 'sha256': hashlib.sha256(source).hexdigest(), 'centered': centered, 'popupGeometry': geometry, **metrics})
+        report.append({'control': control, 'workload': name, 'scenes': scenes, 'rows': 3 + 18 * scenes, 'bytes': len(source), 'sha256': hashlib.sha256(source).hexdigest(), 'centered': centered, 'popupGeometry': geometry, **metrics})
+        if control == 'cleanup-probes':
+            d.script('window.disposePresentationProbe();')
         d.close_session(); d.audit(target, source + b'!External.\r\n'); d.audit(copy, source)
         assert d.script("return document.documentElement.dataset.theme;") == 'dark'
     # Same private profile restart reads preferences; UI-only key has no manuscript.
@@ -156,5 +176,6 @@ def run(d, *, restart=True):
     settings = d.script("return JSON.parse(localStorage.getItem('babel.view.v1'));")
     assert settings == {'version': 1, 'settings': {'theme': 'dark', 'zoom': 100, 'focus': False, 'typewriter': True}}, settings
     (d.ROOT / 'presentation-measurements.json').write_text(json.dumps(report, indent=2) + '\n')
-    print('PASS native presentation / caret+manual scroll+outline / pinyin commit+cancel / Undo / visible failure / exact bytes / ' + ('restart' if restart else 'restart omitted (diagnostic)'), flush=True)
+    print('PRESENTATION CONTROL', control, '— diagnostic omissions are not acceptance', flush=True)
+    print(('PASS native presentation / caret+manual scroll+outline / pinyin commit+cancel / Undo / visible failure / exact bytes / ' if control == 'baseline' else 'PASS diagnostic presentation control=' + control + ' / exercised oracles only / ') + ('restart' if restart else 'restart omitted (diagnostic)'), flush=True)
     print('ARTIFACTS', d.ROOT, flush=True)

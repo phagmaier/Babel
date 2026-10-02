@@ -290,7 +290,7 @@ persistence/cadence/close services. Open allocates its editor version above
 known recovery versions from the selected native registration, including managed project journals, without automatic saving or reconciliation. Save As
 protects a frozen latest capture before exact publication and identity switching;
 cancellation/failure retains the active editor. Old registrations, captures and
-selected copy tokens are retired at the boundary. Read-only sessions reject editor transactions and ordinary Save; Save As can publish exact bytes without checkpointing or writing the original registration. Fresh adoption precedes release of the old registration; failure restores its immutable editor state, selection and undo history while preserving any published copy.
+selected copy tokens are retired at the boundary. Read-only sessions reject editor transactions and ordinary Save; Save As can publish exact bytes without checkpointing or writing the original registration. Fresh adoption precedes release of the old registration; failure restores its immutable editor state, selection and undo history while preserving any published copy. The restored view is re-captured to rebind its outline, counts and navigation; rollback does not leave derived facts permanently pending or add an editor transaction.
 
 Recovery and snapshot restore protect the current live editor in a verified
 pre-destructive snapshot before replacing disk. Native bytes/receipts are checked

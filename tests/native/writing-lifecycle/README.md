@@ -355,7 +355,9 @@ python3 tests/native/writing-lifecycle/isolated_ime.py \
 Use fresh output directories. The observer preserves the IME library path while
 prepending candidate libraries/driver, checks mapped paths/device/inodes and
 executable identities in owned descendants, and rechecks expected file hashes
-and Python tooling after the command. It observes expected mapping devices
+and Python tooling after the command. Each observation retains its current
+process name; an observed exec transition requires a complete mapping proof for
+each executable, and reads spanning a name change are discarded. It observes expected mapping devices
 through private read-only mmaps; Btrfs stat and mapping devices can differ,
 and both are retained. Missing Babel/driver/web-process observations, a missing or
 unexpected native mapping/executable, changed files or command failure refuse
@@ -508,3 +510,40 @@ manuscript nor verifies drafting/content protection. A failed close remains a
 failure; any fallback parent kill is explicitly recorded. Include
 `plain_quit.py` and `audit_shutdown.py` in Python syntax checks. Query only
 recorded owned WebKit PIDs with `coredumpctl` when checking for new cores.
+
+### M4-15 own-code shutdown controls
+
+`shutdown_isolation.py --arms ordinary` restricts the existing paired runner to
+native window close. `--presentation-control` defaults to `baseline`; diagnostic
+choices are `preedit-disabled` (requires a separately built default release with
+client preedit disabled and asserts zero trusted composition starts), `no-ime`,
+`typical-only`, `no-zoom`, and `cleanup-probes` (removes the presentation probe's
+listeners and pending animation frames before document close). Real input/Undo
+and frozen source oracles remain for every workload actually exercised. These
+omissions are recorded in the manifest and measurements and cannot pass the
+integrated acceptance gate. Never use a reduced workload as proof of a fix.
+
+`BABEL_SHUTDOWN_PREPARATION=idle` waits five seconds at Home before exit;
+`blank` navigates to `about:blank`, verifies the navigation and waits five seconds.
+The default `none` retains immediate exit. Document-close/byte assertions precede
+both alternatives. Blank navigation retains an automation session and is not a
+non-automation control. In this driver-owned launch, WebDriver session DELETE
+closes the window itself; it is not a detach operation before native close.
+
+Every shutdown now records `shutdown-observations-N.json`: owned PID/start-token
+state, `CoreDumping`, shared pending signals, thread names/wait channels and
+new stderr with first-observed timestamps, sampled every 100 ms. These read-only
+observations distinguish time waiting before an abort from time writing its
+core. Polling, inaccessible proc fields and thread exits limit attribution;
+there is no ptrace, signal injection, compositor/global setting or crash filter.
+The independent continuous descendant ledger/journal gate remains authoritative.
+Run `python3 tests/native/writing-lifecycle/test_shutdown_observer.py` for the
+synthetic observer tests; these are not native-exit evidence.
+
+For copied diagnostic binaries, retain the basename `babel-desktop` in separate
+directories: GTK derives the window class from it and the input harness refuses
+other classes. Pin `RUSTUP_TOOLCHAIN=1.97.1` and use
+`mise exec node@26.7.0 pnpm@11.22.0 -- pnpm tauri build --no-bundle` for an embedded
+production build. Plain `cargo build --release` does not select Tauri's production
+configuration. Retain both source diffs and binary hashes, restore production
+source/binary after the comparison, and use new output directories for each run.

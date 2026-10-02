@@ -64,7 +64,11 @@ def main():
             assert complete, root
         journals = [frames(p) for p in (root / 'data/app.babel.screenwriter/recovery').glob('*.journal')]
         receipts = [frames(p) for p in (root / 'data/app.babel.screenwriter/source-save').glob('*/confirmed')]
-        for name, (length, copy_hash, source_hash) in ORACLES.items():
+        control = run.get('presentationControl', 'baseline')
+        assert control in ['baseline', 'preedit-disabled', 'no-ime', 'typical-only', 'no-zoom', 'cleanup-probes'], control
+        workloads = ['typical'] if control == 'typical-only' else ['typical', 'stress']
+        for name in workloads:
+            length, copy_hash, source_hash = ORACLES[name]
             for folder, size, digest in [('copies', length, copy_hash), ('files', length + 12, source_hash)]:
                 path = root / folder / f'presentation-{name}.fountain'
                 data = path.read_bytes()
@@ -77,7 +81,8 @@ def main():
                         'filesystem': run['filesystem'], 'exitCode': run['exitCode'],
                         'runtimeCrashLines': run['runtimeCrashLines'],
                         'journalCrashEvents': run.get('journalCrashEvents', []), 'auditedExits': len(phases),
-                        'completeExitSequences': complete, 'shutdownReached': True})
+                        'completeExitSequences': complete, 'shutdownReached': True,
+                        'presentationControl': control, 'auditedWorkloads': workloads})
     args.output.write_text(json.dumps(reports, indent=2) + '\n')
     print(json.dumps({'auditedRoots': len(reports), 'auditedExits': sum(r['auditedExits'] for r in reports),
                       'crashRoots': sum(bool(r['runtimeCrashLines'] or r['journalCrashEvents']) for r in reports),

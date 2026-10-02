@@ -1557,3 +1557,126 @@ it('M4-14 palette navigation rechecks its frame and preserves source/Undo, while
       .disabled,
   ).toBe(true);
 });
+
+it('restores current outline and counts after Save As rollback without losing source, selection or Undo', async () => {
+  const source = '.INT. ROOM - DAY\n!Alpha.\n\n.EXT. GARDEN - DAY\n!Beta.\n';
+  const raw = [...new TextEncoder().encode(source)];
+  const original = {
+    ...opened(),
+    source: raw,
+    fingerprint: {
+      ...fingerprint(),
+      byteLength: raw.length,
+      sha256: createHash('sha256').update(source).digest('hex'),
+    },
+  };
+  const f = fixturePorts({ picked: original });
+  const copiedIdentity = {
+    handle: '22222222-2222-4222-8222-222222222222',
+    documentId: '33333333-3333-4333-8333-333333333333',
+    sessionId: '44444444-4444-4444-8444-444444444444',
+  };
+  f.ports.saveAs.selectDestination = async () => ({
+    token: 'destination',
+    fileName: 'copy.fountain',
+    storageRelation: 'sameFilesystem',
+  });
+  let published: readonly number[] | null = null;
+  f.ports.saveAs.saveAs = async ({ checkpoint }) => {
+    published = checkpoint.source;
+    return {
+      document: {
+        ...original,
+        identity: copiedIdentity,
+        source: checkpoint.source,
+        fingerprint: {
+          ...original.fingerprint,
+          byteLength: checkpoint.source.length,
+          sha256: checkpoint.sourceSha256,
+        },
+      },
+      version: checkpoint.version,
+      sourceSha256: checkpoint.sourceSha256,
+      fileName: 'copy.fountain',
+      storageRelation: 'sameFilesystem',
+    };
+  };
+  f.ports.recovery.inspect = async (id) => ({
+    documentId: id.documentId,
+    candidates: [],
+    notices: [],
+    error: null,
+  });
+  f.ports.documents.release = vi.fn(async (id) => {
+    if (id.handle === original.identity.handle)
+      throw new Error('Original release refused after copy adoption');
+  });
+  const views: ReturnType<typeof editorMount.mountScreenplayEditor>[] = [];
+  const mount = editorMount.mountScreenplayEditor;
+  vi.spyOn(editorMount, 'mountScreenplayEditor').mockImplementation(
+    (...args) => {
+      const view = mount(...args);
+      views.push(view);
+      return view;
+    },
+  );
+  render(
+    <WritingView
+      ports={f.ports}
+      open={{ kind: 'picked' }}
+      onSessionClosed={vi.fn()}
+    />,
+  );
+  await screen.findByLabelText('Screenplay actions');
+  await waitFor(() =>
+    expect(
+      (
+        screen.getByRole('button', {
+          name: 'Go to Scene 1: INT. ROOM - DAY',
+        }) as HTMLButtonElement
+      ).disabled,
+    ).toBe(false),
+  );
+  const initial = views[0]!;
+  initial.dispatch(
+    initial.state.tr.insertText('X', initial.state.doc.child(0).nodeSize + 1),
+  );
+  const before = initial.state;
+  const expected = [...captureEditor(before).source];
+  const depth = undoDepth(before);
+  expect(depth).toBeGreaterThan(0);
+  fireEvent.click(
+    within(screen.getByLabelText('Screenplay actions')).getByRole('button', {
+      name: 'Save As',
+    }),
+  );
+  await screen.findByText(
+    /Save As adoption failed; the original session remains open/,
+  );
+  await waitFor(() => expect(views).toHaveLength(3));
+  const restored = views[2]!;
+  expect([...captureEditor(restored.state).source]).toEqual(expected);
+  expect(published).toEqual(expected);
+  expect(restored.state.selection.eq(before.selection)).toBe(true);
+  expect(undoDepth(restored.state)).toBe(depth);
+  await waitFor(() =>
+    expect(
+      (
+        screen.getByRole('button', {
+          name: 'Go to Scene 1: INT. ROOM - DAY',
+        }) as HTMLButtonElement
+      ).disabled,
+    ).toBe(false),
+  );
+  expect(
+    screen.queryByText('Counts updating; earlier facts are stale.'),
+  ).toBeNull();
+  fireEvent.click(
+    screen.getByRole('button', { name: 'Go to Scene 2: EXT. GARDEN - DAY' }),
+  );
+  expect(restored.state.selection.$head.parent.textContent).toBe(
+    'EXT. GARDEN - DAY',
+  );
+  expect([...captureEditor(restored.state).source]).toEqual(expected);
+  expect(undoDepth(restored.state)).toBe(depth);
+});

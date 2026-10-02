@@ -25,7 +25,10 @@ def main():
     parser.add_argument('--modes', nargs='+', choices=MODES, default=MODES)
     parser.add_argument('--presentation-no-restart', action='store_true',
                         help='diagnostic only: skip presentation preference restart')
+    parser.add_argument('--presentation-control', choices=['baseline', 'preedit-disabled', 'no-ime', 'typical-only', 'no-zoom', 'cleanup-probes'], default='baseline', help='diagnostic workload control; never integrated acceptance')
     args = parser.parse_args()
+    if args.presentation_control != 'baseline' and args.modes != ['presentation']:
+        parser.error('--presentation-control requires --modes presentation alone')
     if args.presentation_no_restart and args.modes != ['presentation']:
         parser.error('--presentation-no-restart requires --modes presentation alone')
     args.output.mkdir(parents=True, exist_ok=False)
@@ -40,6 +43,8 @@ def main():
             label = f'{len(reports):02d}-{filesystem}-{mode}'
             log = args.output / (label + '.log')
             cmd = [sys.executable, str(driver), str(root), '--' + mode]
+            if mode == 'presentation':
+                cmd.extend(['--presentation-control', args.presentation_control])
             if mode == 'presentation' and args.presentation_no_restart:
                 cmd.append('--presentation-no-restart')
             if mode == 'spellcheck':
@@ -81,6 +86,7 @@ def main():
                       'artifacts': str(artifact) if artifact else None,
                       'runtimeCrashLines': crash_lines,
                       'presentationRestart': not args.presentation_no_restart if mode == 'presentation' else None,
+                      'presentationControl': args.presentation_control if mode == 'presentation' else None,
                       'intentionalKillScenario': mode in ['editor-exit', 'audit-fixes']}
             if ledger is not None:
                 live_native = [p for p in ledger['processes'] if

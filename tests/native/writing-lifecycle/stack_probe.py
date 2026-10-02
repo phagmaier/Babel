@@ -75,13 +75,16 @@ def record_passed(record, expected, executables):
     def executable_matches(observation):
         executable = executables.get(observation['executable'])
         return (executable is not None
-            and Path(observation['executable']).name[:15] == record['name']
+            and Path(observation['executable']).name[:15] == observation.get('name', record['name'])
             and all(observation[key] == executable[key]
                     for key in ['device', 'inode']))
 
     observations = record['observations']
-    valid = any(executable_matches(o) and (record['name'] == 'WebKitWebDriver'
-        or not any(validate_mappings(o['libraries'], expected))) for o in observations)
+    valid = bool(observations) and all(any(executable_matches(o)
+        and (o.get('name', record['name']) == 'WebKitWebDriver'
+             or not any(validate_mappings(o['libraries'], expected)))
+        for o in observations if o['executable'] == path)
+        for path in {o['executable'] for o in observations})
     wrong = any(not executable_matches(o) or validate_mappings(o['libraries'], expected)[1]
                 for o in observations)
     return valid and not wrong
@@ -128,15 +131,17 @@ def main():
                     name = before[before.find('(') + 1:before.rfind(')')]
                     if name != 'babel-desktop' and not name.startswith('WebKit'):
                         continue
-                    record = reports.setdefault(token, {'pid': token[0], 'start': token[1],
-                        'name': name, 'observations': [], 'readErrors': []})
                     executable = str((proc / 'exe').resolve(strict=True))
                     stat = (proc / 'exe').stat()
                     mapped = mapped_libraries((proc / 'maps').read_text())
                     after = (proc / 'stat').read_text()
-                    if before != after and after[after.rfind(')') + 2:].split()[19] != token[1]:
+                    if (after[after.rfind(')') + 2:].split()[19] != token[1]
+                            or after[after.find('(') + 1:after.rfind(')')] != name):
                         continue
-                    observation = {'executable': executable, 'libraries': mapped,
+                    record = reports.setdefault(token, {'pid': token[0], 'start': token[1],
+                        'firstName': name, 'name': name, 'observations': [], 'readErrors': []})
+                    record['name'] = name
+                    observation = {'name': name, 'executable': executable, 'libraries': mapped,
                         'device': [os.major(stat.st_dev), os.minor(stat.st_dev)], 'inode': stat.st_ino}
                     if observation not in record['observations']:
                         record['observations'].append(observation)

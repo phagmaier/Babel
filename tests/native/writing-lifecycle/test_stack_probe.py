@@ -83,6 +83,29 @@ class StackTests(unittest.TestCase):
         self.assertEqual(missing, ['webkit'])
         self.assertEqual(unexpected, mapped)
 
+    def test_exec_transition_keeps_each_observation_associated_with_its_name(self):
+        library = {'path': '/candidate/libwebkit2gtk-4.1.so.0', 'device': [8, 1], 'inode': 5}
+        app = {'path': '/candidate/babel-desktop', 'device': [8, 1], 'inode': 6}
+        web = {'path': '/candidate/WebKitWebProcess', 'device': [8, 1], 'inode': 7}
+        observations = [{**e, 'name': name, 'executable': e['path'], 'libraries': [library]}
+                        for e, name in [(app, 'babel-desktop'), (web, 'WebKitWebProces')]]
+        record = {'name': 'WebKitWebProces', 'firstName': 'babel-desktop', 'observations': observations}
+        expected, executables = {'webkit': library}, {e['path']: e for e in [app, web]}
+        self.assertTrue(record_passed(record, expected, executables))
+        for changes in [{'name': 'babel-desktop'}, {'libraries': []}, {'inode': 8}]:
+            self.assertFalse(record_passed({**record, 'observations': [
+                observations[0], {**observations[1], **changes}]}, expected, executables))
+
+    def test_driver_phase_cannot_substitute_for_missing_web_process_mappings(self):
+        library = {'path': '/candidate/libwebkit2gtk-4.1.so.0', 'device': [8, 1], 'inode': 5}
+        driver = {'path': '/candidate/WebKitWebDriver', 'device': [8, 1], 'inode': 6}
+        web = {'path': '/candidate/WebKitWebProcess', 'device': [8, 1], 'inode': 7}
+        observations = [{**e, 'name': name, 'executable': e['path'], 'libraries': []}
+                        for e, name in [(driver, 'WebKitWebDriver'), (web, 'WebKitWebProces')]]
+        record = {'name': 'WebKitWebProces', 'observations': observations}
+        self.assertFalse(record_passed(record, {'webkit': library},
+                                      {e['path']: e for e in [driver, web]}))
+
     def test_executable_identity_and_every_observed_library_copy_are_required(self):
         library = {'path': '/candidate/libwebkit2gtk-4.1.so.0', 'device': [8, 1], 'inode': 5}
         expected = {'webkit': library}
