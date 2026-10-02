@@ -1,7 +1,7 @@
-# Current state — M4-15 accepted; M4 exit awaiting tag/push authorization
+# Current state — M4 exit verified, tagged and pushed
 
 Date: 2026-10-02 PDT. Application: **babel**. Base `a97a577` on main
-(`origin/main` equal to it at start); one editing agent. Not pushed or tagged; no M5 work.
+(`origin/main` equal to it at start); one editing agent.
 
 ## Task and work
 
@@ -28,9 +28,12 @@ unchanged: SHA256 `0f4ba9bb83078278e6954162e2fe24166ab3a4a08b79b41eb25a9227a9fe1
 
 ## Next action
 
-Owner: authorize tagging the verified M4 exit (proposed
-`m4-daily-workflows-linux-verified`) and pushing main. Then M5-00 decomposition
-(not started). Do not resume WebKit/Mesa work without new ordinary-close evidence.
+With owner authorization, annotated tag `m4-daily-workflows-linux-verified` was
+created at `fe0343f`, and main and the tag were pushed. The M3 tag
+`m3-core-editor-linux-verified` was missing locally and on the remote. It was
+recreated as an annotated tag at the recorded commit `97e1798` and pushed.
+Next: M5-00 decomposition. Do not resume WebKit/Mesa work without new
+ordinary-close evidence.
 
 ## Paths and checks
 
