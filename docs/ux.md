@@ -249,3 +249,19 @@ distinguishes contract/DOM, real Linux menu/keyboard/IME/scaling, and actual
 assistive-technology inspection. No screenreader or broader platform acceptance
 is implied by semantic labels or native tree exposure. M4-15 integrated review
 and installed-profile/full accessibility/performance gates remain separate.
+
+## PDF preview (M5-05)
+
+The writing toolbar opens a separate **Read-only PDF preview** and reports
+current captured version/page count only after the exact PDF displays and its
+parsed count matches the native receipt. Opening focuses Close; Escape or Close
+returns to the toolbar. Previous/Next and zoom controls are keyboard accessible;
+page text is selectable in a read-only disclosure. Printed paper stays white in
+both themes and preview zoom does not change export typography.
+
+Typing, Undo, source/session replacement and selection-version changes show
+**Updating** immediately. Earlier pages retain a captured-version/stale label.
+Failure explicitly leaves editing and Save available; Refresh retries. Closing
+cancels work and clears count. Renderer limitations stay visible, and a preview
+is not an export-success receipt. [PDF contract](pdf-and-formatting.md#authoritative-preview-m5-05)
+and [evidence](test-evidence/M5.md#m5-05--authoritative-preview-and-page-count-freshness).

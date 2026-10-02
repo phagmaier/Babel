@@ -360,3 +360,90 @@ fn publication_cache_lease_restart_cleanup_and_private_modes() {
     // Restore host ownership for fixture teardown.
     *f.host.inner.lock().unwrap() = second.inner.lock().unwrap().take();
 }
+
+#[test]
+fn preview_reads_only_current_owned_bounded_regular_artifact() {
+    let f = Fixture::new(None, Duration::from_secs(10));
+    let result = f.run(f.request(1, 1)).unwrap();
+    let request = ReadPublicationRequest {
+        identity: result.identity.clone(),
+        request_id: result.request_id,
+        artifact: result.artifact.clone(),
+    };
+    let bytes = f.host.read(&request).unwrap();
+    assert!(bytes.starts_with(b"%PDF-"));
+    for wrong in [
+        ReadPublicationRequest {
+            artifact: "../../outside".into(),
+            ..request.clone()
+        },
+        ReadPublicationRequest {
+            request_id: 2,
+            ..request.clone()
+        },
+        ReadPublicationRequest {
+            identity: DocumentRequest {
+                session_id: "foreign".into(),
+                ..request.identity.clone()
+            },
+            ..request.clone()
+        },
+    ] {
+        assert_eq!(
+            f.host.read(&wrong).unwrap_err(),
+            PublicationError::InvalidRequest
+        );
+    }
+    let second = f.run(f.request(2, 2)).unwrap();
+    assert_eq!(
+        f.host.read(&request).unwrap_err(),
+        PublicationError::InvalidRequest
+    );
+    let current = ReadPublicationRequest {
+        request_id: 2,
+        artifact: second.artifact.clone(),
+        ..request
+    };
+    let path = f
+        .root
+        .join("cache")
+        .join(format!("{}.pdf", second.artifact));
+    fs::OpenOptions::new()
+        .write(true)
+        .open(&path)
+        .unwrap()
+        .set_len(32 * 1024 * 1024 + 1)
+        .unwrap();
+    assert_eq!(
+        f.host.read(&current).unwrap_err(),
+        PublicationError::OutputInvalid
+    );
+    fs::write(&path, b"bad").unwrap();
+    assert_eq!(
+        f.host.read(&current).unwrap_err(),
+        PublicationError::OutputInvalid
+    );
+    fs::remove_file(&path).unwrap();
+    let outside = f.root.join("outside.pdf");
+    fs::write(&outside, &bytes).unwrap();
+    symlink(&outside, &path).unwrap();
+    assert_eq!(
+        f.host.read(&current).unwrap_err(),
+        PublicationError::CacheUnavailable
+    );
+    fs::remove_file(&path).unwrap();
+    fs::write(&path, &bytes).unwrap();
+    fs::set_permissions(&path, fs::Permissions::from_mode(0o600)).unwrap();
+    let link = f.root.join("linked.pdf");
+    fs::hard_link(&path, &link).unwrap();
+    assert_eq!(
+        f.host.read(&current).unwrap_err(),
+        PublicationError::OutputInvalid
+    );
+    fs::remove_file(link).unwrap();
+    f.host.cancel(None, true).unwrap();
+    assert_eq!(
+        f.host.read(&current).unwrap_err(),
+        PublicationError::Cancelled
+    );
+}

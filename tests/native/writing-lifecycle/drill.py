@@ -310,6 +310,10 @@ try:
         control = sys.argv[sys.argv.index('--presentation-control') + 1] if '--presentation-control' in sys.argv else 'baseline'
         run_presentation(sys.modules[__name__], restart='--presentation-no-restart' not in sys.argv, control=control)
         sys.exit(0)
+    if '--publication-preview' in sys.argv:
+        from publication_preview import run as run_preview
+        run_preview(sys.modules[__name__])
+        sys.exit(0)
     if '--script-check' in sys.argv:
         from scriptcheck_workflows import run as run_check
         run_check(sys.modules[__name__])

@@ -33,7 +33,7 @@ mod publication_host;
 mod recovery_choices_host;
 mod snapshot_host;
 use publication_host::{
-    PublicationHost, assess_publication, cancel_publication, render_publication,
+    PublicationHost, assess_publication, cancel_publication, read_publication, render_publication,
 };
 mod startup_host;
 use persistence_host::{
@@ -304,6 +304,7 @@ pub fn run() {
         app_info,
         update_command_menu,
         render_publication,
+        read_publication,
         assess_publication,
         cancel_publication,
         #[cfg(target_os = "linux")]
@@ -356,6 +357,7 @@ pub fn run() {
         app_info,
         update_command_menu,
         render_publication,
+        read_publication,
         assess_publication,
         cancel_publication,
         #[cfg(target_os = "linux")]
@@ -404,6 +406,7 @@ pub fn run() {
         app_info,
         update_command_menu,
         render_publication,
+        read_publication,
         assess_publication,
         cancel_publication,
         #[cfg(target_os = "linux")]

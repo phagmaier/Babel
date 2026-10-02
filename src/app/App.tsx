@@ -1,4 +1,7 @@
-import { nativeExportAssessment } from '../infrastructure/nativePublication';
+import {
+  nativeExportAssessment,
+  nativePublicationPreview,
+} from '../infrastructure/nativePublication';
 import { localShortcutRegistry } from '../application/shortcuts';
 import { localViewPreferences } from '../application/viewPreferences';
 import { PresentationControls } from './PresentationControls';
@@ -43,6 +46,7 @@ const writingPorts = {
   fountainImport: nativeFountainImport,
   workflows: nativeWorkflowProtection,
   exportAssessment: nativeExportAssessment,
+  publication: nativePublicationPreview,
 };
 
 export function App({

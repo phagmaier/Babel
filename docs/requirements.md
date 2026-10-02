@@ -115,20 +115,20 @@ Remaining owners: M5-04 publication assessment passed; M5-06 export decisions an
 
 ## M5 decomposition coverage (planned)
 
-[M5-00](test-evidence/M5.md#m5-00--decomposition) defines [M5-01–07 briefs](../TODO.md#m5--publication-pipeline). M5-01 passed its bounded Linux packaging gate; M5-02 passed its bounded Linux service/adapter gate; M5-03 passed its frozen-profile/corpus gate; M5-04 passed its bounded Linux assessment gate; M5-05–07 are planned. M5 is a bounded Linux gate.
+[M5-00](test-evidence/M5.md#m5-00--decomposition) defines [M5-01–07 briefs](../TODO.md#m5--publication-pipeline). M5-01 passed its bounded Linux packaging gate; M5-02 passed its bounded Linux service/adapter gate; M5-03 passed its frozen-profile/corpus gate; M5-04 passed its bounded Linux assessment gate; M5-05 passed its bounded Linux preview/freshness gate; M5-06/07 are planned. M5 is a bounded Linux gate.
 
 | Requirement | M5 owners and acceptance boundary                                                                                                                                                            |
 | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | PDF-01      | M5-01 bundled offline helper; M5-03 frozen profile **passed**; M5-06 export; M5-07 offline package drill                                                                                     |
-| PDF-02      | M5-02 exact jobs/count **passed**; M5-05 same-job preview/freshness; M5-06 exported version; M5-07 preview/export agreement                                                                  |
+| PDF-02      | M5-02 exact jobs/count **passed**; M5-05 same-job preview/freshness **passed**; M5-06 exported version; M5-07 preview/export agreement                                                       |
 | PDF-03      | M5-03 rules and reviewed layout/text/image goldens **passed**; M5-07 full corpus                                                                                                             |
 | PDF-04      | M5-01 pins; M5-02 identities **passed**; M5-03 font/profile **passed**; M5-04 support/cmap/shaping **passed**; M5-06 export decisions; M5-07 integrated audit                                |
 | CHECK-02    | M5-04 production SC005/SC008 with provenance **passed**; M5-06 export review/blocking; M5-07 integrated check                                                                                |
 | DOC-04      | M5-03 profile and M5-04 primary-codec unsupported-content/paragraph assessment **passed**, source preserved; M5-07 integrated corpus                                                         |
-| UX-01       | M5-05 accessible read-only preview and status; M5-06 export command/decision UI; M5-07 integrated native session                                                                             |
+| UX-01       | M5-05 accessible read-only preview and status **passed**; M5-06 export command/decision UI; M5-07 integrated native session                                                                  |
 | SEC-01/02   | M5-01 no-network, no-shell helper; M5-02 path-free IPC and app-owned artifacts; M5-05 offline viewer, no upload; M5-06 single-use destination token; M5-07 offline package and egress review |
 | QA-01       | M5-01–07 focused/shared/native and failure evidence; M5-07 separate review                                                                                                                   |
-| QA-02       | M5-05 typing-latency regression; M5-07 integrated off-typing-path measurements                                                                                                               |
+| QA-02       | M5-05 measured typing/rAF regression and closed control **passed bounded** (full S13 open); M5-07 integrated off-typing-path measurements                                                    |
 
 Invariants: INV-03 (M5-03/04/06), INV-06 (M5-02/04/06), INV-10 (M5-02/05/06), INV-11 (M5-02/05), INV-13 (M5-01/03/07), INV-14 (M5-02/04/05/06).
 

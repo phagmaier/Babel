@@ -1,6 +1,6 @@
 # PDF and formatting
 
-Status: M1 proof recorded; renderer baseline is **conditional** (Screenplain + ReportLab, [ADR 0009](decisions/0009-pdf-renderer-baseline.md)). M5-01 bundles it as an offline standalone-CPython helper ([ADR 0036](decisions/0036-bundled-pdf-helper.md), [evidence](test-evidence/M5.md#m5-01--bundled-offline-renderer-helper)); M5-02 native service and M5-03 frozen profile are complete; M5-04 adds production assessment; preview and export remain M5-05–07. [SPEC S12](../SPEC.md#s12); PDF-01–04, INV-03/10/13/14.
+Status: M1 proof recorded; renderer baseline is **conditional** (Screenplain + ReportLab, [ADR 0009](decisions/0009-pdf-renderer-baseline.md)). M5-01 bundles it as an offline standalone-CPython helper ([ADR 0036](decisions/0036-bundled-pdf-helper.md), [evidence](test-evidence/M5.md#m5-01--bundled-offline-renderer-helper)); M5-02 native service and M5-03 frozen profile are complete; M5-04 adds production assessment; M5-05 adds the offline authoritative viewer; export/integration remain M5-06/07. [SPEC S12](../SPEC.md#s12); PDF-01–04, INV-03/10/13/14.
 
 Evaluate an existing offline renderer first; Screenplain was the initial candidate and is now the conditional M5 baseline per [ADR 0009](decisions/0009-pdf-renderer-baseline.md), not an unconditional engine. M1 compared supported elements, pagination, licensed font embedding, packaging without end-user Python/Node, determinism, source mapping, performance, and failure behavior. Do not create a custom paginator before evidence warrants it. The selected adapter takes immutable source bytes and source version/hash, project identity, layout-profile version, pinned font identities, and export options. It returns PDF, actual page count, renderer/profile/font identities, warnings, and only a genuinely supported source map.
 
@@ -26,3 +26,26 @@ layout-dependent limitations. The [Script Check contract](screenplay-validation.
 owns severities, shaping limits, stale/failure behavior and source targets.
 These are support diagnostics, not PDF export/page-count receipts. M5-06 owns
 explicit export decisions and M5-07 the integrated gate.
+
+## Authoritative preview (M5-05)
+
+[ADR 0038](decisions/0038-offline-pdf-viewer.md) selects pinned PDF.js 6.3.289
+with a bundled worker. The native read boundary resolves only the current
+identity/request/artifact registry entry, returns binary PDF bytes and bounds
+reads to 32 MiB. No caller path, URL, arbitrary PDF import or upload endpoint.
+The preview parses those exact bytes and verifies page count against that render
+receipt before announcing a fresh count. One page canvas at a time, independent
+50–150% zoom and read-only extracted page text avoid a second editing/layout
+engine. Dark/light themes affect chrome; printed paper stays white.
+
+Opening the PDF preview enables a 750 ms quiet-period job fed by existing deferred
+captures. Editor version changes (including selection metadata versions), source
+replacement, Undo and identity changes invalidate immediately. Superseded render,
+read and display callbacks cannot announce current pages. During updates the
+previous captured PDF may remain visible with its version and a stale label;
+page count is not advertised as current. Closing clears count, cancels work and
+destroys viewer workers. Save/recovery/Undo remain independently owned.
+Renderer warnings stay visible; support limitations, helper/resource/viewer
+failure and count disagreement earn no fresh-preview/export success. No page
+markers or Script Check page targets exist without a supported source map.
+M5-06 owns export decisions/destinations and M5-07 preview/export agreement.

@@ -83,6 +83,14 @@ export interface PublicationPort {
     requestId: number;
   }): Promise<void>;
 }
+/** Binary reads are separate from render-only clients; no paths cross this port. */
+export interface PublicationPreviewPort extends PublicationPort {
+  read(request: {
+    identity: DocumentIdentity;
+    requestId: number;
+    artifact: string;
+  }): Promise<Uint8Array>;
+}
 /** Latest-result authority; even an adapter returning late success cannot publish it. */
 export class PublicationController {
   private serial = 0;

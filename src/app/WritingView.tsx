@@ -1,3 +1,8 @@
+import { PublicationPreview } from './PublicationPreview';
+import {
+  PublicationPreviewController,
+  type PublicationPreviewState,
+} from '../application/publicationPreview';
 import { undoDepth, redoDepth } from 'prosemirror-history';
 import { CommandSurface } from './CommandSurface';
 import {
@@ -131,6 +136,7 @@ export interface WritingPorts {
   choices: RecoveryChoicesPort;
   recovery: RecoveryPort;
   fountainImport: FountainImportPort;
+  publication?: import('../application/publication').PublicationPreviewPort;
   exportAssessment?: import('../application/exportAssessment').ExportAssessmentPort;
   workflows?: import('../application/workflowProtection').WorkflowProtectionPort;
 }
@@ -291,6 +297,10 @@ export function WritingView({
   const [error, setError] = useState('');
   const [active, setActive] = useState<ActiveInfo | null>(null);
   const [status, setStatus] = useState('');
+  const previewRef = useRef<PublicationPreviewController | null>(null);
+  const previewButton = useRef<HTMLButtonElement | null>(null);
+  const [previewState, setPreviewState] =
+    useState<PublicationPreviewState | null>(null);
   const [live, setLive] = useState<CapturedSnapshot | null>(null);
   const [showClose, setShowClose] = useState(false);
   const [paletteRequested, requestPalette] = useState(0);
@@ -608,6 +618,22 @@ export function WritingView({
           }
         : null;
     };
+    const preview = ports.publication
+      ? new PublicationPreviewController(
+          ports.publication,
+          () => {
+            const currentStamp = stamp(),
+              active = sessionRef.current?.active;
+            return readyRef.current && currentStamp && active
+              ? { stamp: currentStamp, identity: active.identity }
+              : null;
+          },
+          (state) => {
+            if (alive) setPreviewState(state);
+          },
+        )
+      : null;
+    previewRef.current = preview;
     const find = new FindController(stamp, (state) => {
       if (!alive) return;
       setFindState(state);
@@ -657,6 +683,7 @@ export function WritingView({
         viewRef.current?.state.selection.$head.index(0) ?? -1,
       );
       check.setProjection(state);
+      preview?.accept(state);
     });
     let navigationCapture = false;
     const changed = (
@@ -664,6 +691,7 @@ export function WritingView({
       transaction?: import('prosemirror-state').Transaction,
     ) => {
       spellingRef.current?.invalidate();
+      preview?.invalidate();
       if (transaction?.getMeta('findNavigation')) {
         // Unchanged content needs no stale-outline repaint; every old anchor still checks its stamp.
         find.setProjection(
@@ -725,6 +753,7 @@ export function WritingView({
       writable: boolean,
     ) => {
       projection.changedDraft();
+      preview?.invalidate();
       spellingRef.current?.invalidate();
       writableRef.current = writable;
       typewriter.destroy();
@@ -1166,6 +1195,8 @@ export function WritingView({
         disposePosition();
         alive = false;
         moveAbortRef.current?.abort();
+        preview?.dispose();
+        previewRef.current = null;
         projection.dispose();
         find.dispose();
         findRef.current = null;
@@ -1182,6 +1213,8 @@ export function WritingView({
       disposePosition();
       alive = false;
       moveAbortRef.current?.abort();
+      preview?.dispose();
+      previewRef.current = null;
       projection.dispose();
       find.dispose();
       findRef.current = null;
@@ -1928,6 +1961,16 @@ export function WritingView({
 
   const hosts = (
     <div key="writing-hosts">
+      {phase === 'active' && previewState?.enabled && previewRef.current && (
+        <PublicationPreview
+          controller={previewRef.current}
+          state={previewState}
+          onClose={() => {
+            previewRef.current?.close();
+            previewButton.current?.focus();
+          }}
+        />
+      )}
       {phase === 'active' && showSpelling && (
         <SpellcheckPanel
           port={spelling}
@@ -2234,6 +2277,30 @@ export function WritingView({
         >
           Spellcheck
         </button>
+        <button
+          type="button"
+          ref={previewButton}
+          id="writing-preview"
+          aria-expanded={previewState?.enabled ?? false}
+          disabled={
+            !ports.publication ||
+            busy ||
+            showClose ||
+            !active ||
+            titleDraftRef.current ||
+            titleComposingRef.current ||
+            commandComposing
+          }
+          onClick={() => {
+            previewRef.current?.accept(outline);
+            previewRef.current?.open();
+          }}
+        >
+          PDF preview
+        </button>
+        <span role="status" aria-label="Publication page count">
+          {previewState?.message ?? 'Pages: open PDF preview'}
+        </span>
         <button
           type="button"
           id="writing-check"

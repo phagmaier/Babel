@@ -60,6 +60,7 @@ fn publication_ipc_strict_owned_path_free_and_isolated_from_save_recovery() {
         .manage(publication)
         .invoke_handler(tauri::generate_handler![
             render_publication,
+            read_publication,
             cancel_publication,
             release_open_document
         ])
@@ -108,6 +109,22 @@ fn publication_ipc_strict_owned_path_free_and_isolated_from_save_recovery() {
     assert_eq!(result.page_count, 1);
     assert!(result.profile_frozen);
     assert!(!result.artifact.contains('/'));
+    let read_body =
+        json!({"request":{"identity":opened.identity,"requestId":1,"artifact":result.artifact}});
+    let binary = invoke(&view, "read_publication", read_body.clone()).unwrap();
+    match binary {
+        tauri::ipc::InvokeResponseBody::Raw(bytes) => assert!(bytes.starts_with(b"%PDF-")),
+        _ => panic!("preview must use binary IPC"),
+    }
+    for (key, value) in [
+        ("path", json!("/outside")),
+        ("artifact", json!("../outside")),
+        ("requestId", json!(2)),
+    ] {
+        let mut invalid = read_body.clone();
+        invalid["request"][key] = value;
+        assert!(invoke(&view, "read_publication", invalid).is_err());
+    }
     let permit = app
         .state::<DocumentHost>()
         .reserve(screenwriter_core::documents::saving::MAX_QUEUED_BYTES)

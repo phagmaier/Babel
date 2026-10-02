@@ -2,6 +2,8 @@
 use super::*;
 use screenwriter_core::documents::{MAX_SOURCE_BYTES, recovery::source_hash};
 use serde::{Deserialize, Serialize};
+#[cfg(unix)]
+use std::os::unix::fs::OpenOptionsExt;
 use std::{
     collections::HashMap,
     fs,
@@ -41,6 +43,13 @@ pub struct RenderOptions {}
 pub struct CancelRequest {
     pub identity: DocumentRequest,
     pub request_id: u64,
+}
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct ReadPublicationRequest {
+    pub identity: DocumentRequest,
+    pub request_id: u64,
+    pub artifact: String,
 }
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
@@ -258,6 +267,54 @@ impl PublicationHost {
             tauri::async_runtime::spawn_blocking(move || drain(worker));
         }
         Ok(receiver)
+    }
+    fn read(&self, request: &ReadPublicationRequest) -> Result<Vec<u8>, PublicationError> {
+        let inner = self.get()?;
+        // Admission, cancellation and reading are serialized: no replaced artifact
+        // can be read by an older request, even if the filename happens to match.
+        let q = inner.queue.lock().map_err(|_| PublicationError::Internal)?;
+        let (identity, path) = q.artifact.as_ref().ok_or(PublicationError::Cancelled)?;
+        if *identity != request.identity
+            || q.latest
+                .get(&identity.handle)
+                .is_none_or(|entry| entry.0 != request.request_id)
+            || path.file_stem().and_then(|s| s.to_str()) != Some(request.artifact.as_str())
+        {
+            return Err(PublicationError::InvalidRequest);
+        }
+        let mut options = fs::OpenOptions::new();
+        options.read(true);
+        #[cfg(unix)]
+        options.custom_flags(libc::O_NOFOLLOW | libc::O_NONBLOCK);
+        let mut file = options
+            .open(path)
+            .map_err(|_| PublicationError::CacheUnavailable)?;
+        let metadata = file
+            .metadata()
+            .map_err(|_| PublicationError::CacheUnavailable)?;
+        const MAX_PREVIEW: u64 = 32 * 1024 * 1024;
+        if !metadata.is_file() || metadata.len() > MAX_PREVIEW {
+            return Err(PublicationError::OutputInvalid);
+        }
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::MetadataExt;
+            if metadata.nlink() != 1
+                || metadata.mode() & 0o777 != 0o600
+                || metadata.uid() != unsafe { libc::geteuid() }
+            {
+                return Err(PublicationError::OutputInvalid);
+            }
+        }
+        let mut bytes = Vec::new();
+        (&mut file)
+            .take(MAX_PREVIEW + 1)
+            .read_to_end(&mut bytes)
+            .map_err(|_| PublicationError::CacheUnavailable)?;
+        if bytes.len() as u64 > MAX_PREVIEW || !bytes.starts_with(b"%PDF-") {
+            return Err(PublicationError::OutputInvalid);
+        }
+        Ok(bytes)
     }
     pub fn cancel(
         &self,
@@ -603,6 +660,24 @@ pub async fn render_publication(
     .await
     .map_err(|_| PublicationError::Internal)?
 }
+#[tauri::command]
+pub async fn read_publication(
+    request: ReadPublicationRequest,
+    documents: tauri::State<'_, DocumentHost>,
+    state: tauri::State<'_, PublicationHost>,
+) -> Result<tauri::ipc::Response, PublicationError> {
+    let permit = documents
+        .reserve(0)
+        .map_err(|_| PublicationError::QueueFull)?;
+    let host = state.inner().clone();
+    tauri::async_runtime::spawn_blocking(move || {
+        let _permit = permit;
+        host.read(&request).map(tauri::ipc::Response::new)
+    })
+    .await
+    .map_err(|_| PublicationError::Internal)?
+}
+
 #[tauri::command]
 pub async fn cancel_publication(
     request: CancelRequest,

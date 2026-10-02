@@ -3,6 +3,7 @@ import {
   PublicationFailure,
   type PublicationErrorCode,
   type PublicationPort,
+  type PublicationPreviewPort,
 } from '../application/publication';
 export const nativePublication: PublicationPort = {
   render: (request) =>
@@ -34,3 +35,11 @@ export const nativeExportAssessment: import('../application/exportAssessment').E
   {
     assess: (sources) => invoke('assess_publication', { request: { sources } }),
   };
+
+export const nativePublicationPreview: PublicationPreviewPort = {
+  ...nativePublication,
+  read: async (request) => {
+    const bytes = await invoke<ArrayBuffer>('read_publication', { request });
+    return new Uint8Array(bytes);
+  },
+};

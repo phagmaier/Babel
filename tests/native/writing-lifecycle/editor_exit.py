@@ -408,7 +408,7 @@ def review_capture(d):
 
 
 
-def review_latency(d):
+def review_latency(d, preview=False):
     """Trusted Ctrl+End establishes the caret before the large-row probe."""
     source = ''.join(f'!Synthetic row {i}: A quiet signal beside Zoë and her notebook.\n' for i in range(2400)).encode()
     target = d.ROOT / 'files/cadence-latency.fountain'
@@ -418,6 +418,9 @@ def review_latency(d):
     d.wait(lambda: d.script("return document.querySelectorAll('.ProseMirror > p').length;") == 2400, 'Large source opens', timeout=90)
     d.wait(lambda: d.script("return document.querySelector('.ProseMirror').isContentEditable && document.querySelector('#writing-save')?.disabled === false;"), 'Large session ready', timeout=90)
     open_ready_ms = (time.monotonic() - opening) * 1000
+    if preview:
+        d.click('PDF preview', actions=True)
+        d.wait(lambda: 'preview version' in d.script("return document.querySelector('[aria-label=\"Publication page count\"]').textContent;"), 'Large-row preview current before typing', timeout=90)
     app = [c for c in d.owned_clients() if c.get('class') == 'babel-desktop'][0]
     address = app['address']
     assert address.startswith('0x') and all(c in '0123456789abcdef' for c in address[2:])
@@ -471,6 +474,11 @@ def review_latency(d):
     assert len(keys) == 120 and all(k['trusted'] for k in keys), 'Trusted key delivery must precede any result claim'
     assert acknowledged, 'Integrated source acknowledgement failed; keep M3 exit open'
     assert actual == expected, 'Large-row source/input audit failed; keep M3 exit open'
+    if preview:
+        d.wait(lambda: 'preview version' in d.script("return document.querySelector('[aria-label=\"Publication page count\"]').textContent;"), 'Large-row preview/count refreshes after typing', timeout=90)
+        metrics['previewStatus'] = d.script("return document.querySelector('[aria-label=\"Publication page count\"]').textContent;")
+        (d.ROOT / 'preview-latency.json').write_text(json.dumps(metrics, indent=2) + '\n')
+        assert metrics['keyToRafProxyMs']['p95'] <= 100, 'Repeated typing stalls regress bounded M4 baseline'
     d.close_session()
     print('PASS exact 120 trusted physical inputs with production capture/cadence active; rAF proxy is not compositor paint', flush=True)
     print('ARTIFACTS', d.ROOT, flush=True)
