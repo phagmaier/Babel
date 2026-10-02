@@ -228,3 +228,22 @@ or content authority is introduced.
 ## M4-04 destructive workflow boundary
 
 `WorkflowProtectionPort` invokes the strict native `protect_workflow` envelope: closed operation enum plus owned checkpoint, without labels, paths or source parsing. One bounded blocking worker serializes checkpoint/safety publication under existing native document ownership. The compatibility import operation reuses the same core implementation. `WritingSession.runProtectedWorkflow` owns freeze/pause/settle/capture and receipt/frame/cancel validation; a separately owned synchronous callback performs the editor transaction after the final check. The view permits only that callback while frozen. Production import uses the coordinator, retaining staged text and Undo; it exposes cancellation and restores cadence on thaw. Neither history nor recovery receipt has source-save credit. The writing status identifies the unavailable timeline without claiming safety revisions are absent. [ADR 0030](decisions/0030-version-bound-workflow-protection.md).
+
+## M5-02 publication workers
+
+`src-tauri/src/publication_host.rs` admits owned captured-source envelopes under
+the document-registration mutex and the existing eight-job/32 MiB native
+payload budget. A separate drain worker owns one helper process and one
+replaceable pending capture. Request IDs and version/hash high-water marks
+reject stale admission; cancellation/generation checks and artifact publication
+share a mutex. Document release cancels publication under the same document
+lock, preventing admission after close. No live editor or source/recovery write
+operation enters this service.
+
+`src/application/publication.ts` copies existing `CapturedSnapshot` derivatives
+and checks exact result identity/version/hash/length, renderer/fonts/profile,
+actual count and handle before returning current results. The native adapter
+translates typed IPC failures; browser publication reports unavailable. Private
+native artifacts and their budget/integrity policy are in
+[ADR 0036](decisions/0036-bundled-pdf-helper.md#m5-02-caller-integrity-and-lifecycle-policy).
+Preview UI, frozen profile, assessments and export remain later tasks.

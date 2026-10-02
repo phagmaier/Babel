@@ -12,7 +12,7 @@
 | Content protection                     | [persistence](persistence-and-recovery.md), [history/remote](sync-and-versioning.md)                                                                                                                                  |
 | Publication                            | [PDF](pdf-and-formatting.md)                                                                                                                                                                                          |
 | Requirement coverage                   | [requirements](requirements.md)                                                                                                                                                                                       |
-| Next agent task                        | [current-state](current-state.md) → [TODO](../TODO.md#m5--publication-pipeline) → [M5-02 native render service](tasks/M5-02.md)                                                                                       |
+| Next agent task                        | [current-state](current-state.md) → [TODO](../TODO.md#m5--publication-pipeline) → [M5-03 frozen US Letter profile](tasks/M5-03.md)                                                                                    |
 
 The [fixture guide](../fixtures/README.md) defines synthetic test data. Product authority remains with [SPEC S00-S03](../SPEC.md#s00). If a contract here disagrees with the spec, record and resolve it; do not silently weaken the spec.
 
@@ -38,6 +38,6 @@ The [fixture guide](../fixtures/README.md) defines synthetic test data. Product 
 - **M5-00:** [Decomposition](test-evidence/M5.md#m5-00--decomposition) — M5-01–07 assigned
 - **M5-01:** [Bundled renderer helper](test-evidence/M5.md#m5-01--bundled-offline-renderer-helper) — [ADR 0036](decisions/0036-bundled-pdf-helper.md)
 
-**Next:** [M5-02 native render service](tasks/M5-02.md)
+**Next:** [M5-03 frozen US Letter profile](tasks/M5-03.md)
 
-**Remaining:** M5-02–07 (publication), M6 (hardening/adoption), M7 (remote). WebKit/performance/platform hardening = M6.
+**Remaining:** M5-03–07 (publication), M6 (hardening/adoption), M7 (remote). WebKit/performance/platform hardening = M6.

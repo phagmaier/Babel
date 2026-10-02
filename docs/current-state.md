@@ -1,61 +1,50 @@
-# Current state — M5-01 helper bundled; M5-02 next
+# Current state — M5-02 complete; M5-03 next
 
-Date: 2026-10-02 PDT. Application: **babel**. Base `a97a577` on main
-(`origin/main` equal to it at start); one editing agent.
+Date: 2026-10-02 PDT. Application: **babel**. Base `c29b736` on main
+(`origin/main` equal at start), tree clean at admission; one editing agent.
 
 ## Task and work
 
-**M5-01 bundled offline renderer helper — complete** (owner delegated the choice),
-base `7552b02`. Standalone CPython 3.13.16 + Screenplain/ReportLab/Courier Prime
-with a Pillow stub ([ADR 0036](decisions/0036-bundled-pdf-helper.md)); reproducible
-tree `7f1fdf68…`; +19.5 MiB AppImage; 11/11 self-tests on build and packaged
-copies, including offline. Shared gates pass. [Evidence](test-evidence/M5.md#m5-01--bundled-offline-renderer-helper).
+**M5-02 native render service and adapter contract — complete.** Native captured
+jobs bind document/session, request/version/hash, profile/font set and options.
+One helper plus replaceable pending capture, cancellation, stale rejection,
+70 s wall timeout, bounded stdout and typed helper/process failures. Artifacts
+stay in a private leased native cache; supersede/cancel/registration close clean
+them. Source, save and recovery bytes stay untouched; no capability change.
+Frontend copies existing captures and refuses stale/mismatched results.
+[Evidence](test-evidence/M5.md#m5-02--native-render-service-and-adapter-contract).
 
-**M5-00 publication decomposition — complete** (owner authorized starting M5),
-base `7506368`. Documentation only: [M5-01–07 briefs](../TODO.md#m5--publication-pipeline),
-[M5 trace](requirements.md#m5-decomposition-coverage-planned) and
-[evidence](test-evidence/M5.md#m5-00--decomposition). Plan audit passed; M5-01 is the only ready task.
+Paths: `src-tauri/src/publication_host.rs`, publication tests/IPC tests,
+`src/application/publication.ts`, `src/infrastructure/nativePublication.ts`,
+`tests/contract/publication.test.ts`, native `publication_smoke.py`.
+Integrity/cache/process policy extends [ADR 0036](decisions/0036-bundled-pdf-helper.md#m5-02-caller-integrity-and-lifecycle-policy).
 
-**M4-15 integrated exit — accepted for its bounded Linux gate.** Release
-unchanged: SHA256 `0f4ba9bb83078278e6954162e2fe24166ab3a4a08b79b41eb25a9227a9fe130d`
-(ADR 0035 mitigation). Host webkit2gtk-4.1 2.52.6-1, mesa 26.2.3-2, glibc 2.44.
+## Checks and limits
 
-- Run 1 (`/tmp/babel-m4-15-native-final-1`): 35/38. Exposed missing `/tmp`
-  helpers and a harness gap: journal-only cores and surviving automation apps
-  went undetected. Helpers were provisioned, and `integrated_exit.py` now always
-  records the process ledger and journal scan.
-- Run 2 (`/tmp/babel-m4-15-native-final-2`), the acceptance matrix: **38/38
-  functional, 36/38 strict**. Retained audit 36 roots, journal replay 36/38.
-  The one abort (Btrfs presentation restart) followed forced WebDriver delete;
-  its late core also landed in spellcheck's window, unattributed.
-- Shared gates pass: Rust 237, Vitest 695, clippy/fmt/lint/typecheck/format/build.
-- [Separate review](reviews/2026-10-02-m4-15-post-integration-review.md): no
-  blocking product defect, content loss or ordinary-close crash. The owner
-  delegated F2 ("Do whatever you think is best and continue"). Aborts after
-  forced WebDriver teardown, a test-only path that bypasses ADR 0035, are
-  classified with C1 and carried to M6. A new ordinary-close abort or any
-  content loss reopens this.
-- TODO M4-15 `[x]`; trace rows, brief and ADR 0035 note updated.
+Focused native/helper tests: 8 passed on tmpfs and Btrfs; frontend contracts:
+19 passed. Shared Rust: 245 passed on each filesystem; frontend: 714 passed,
+format/lint/typecheck/build pass. Rust fmt/clippy pass. Default release real
+WebKit IPC smoke passes on tmpfs/Btrfs: exact BOM/CRLF capture, actual two-page
+count, pinned identities, artifact lifecycle and no source save. Retained logs
+and reports: `target/m5-02/`; commands/timings/failures are linked in evidence.
+Browser smoke omitted because no frontend DOM changes.
+
+Release SHA256 `274719f43664031c2f17a48c680165ff3c707bfa2b20ee58db3f46c6ff22e740`.
+Helper exact tree unchanged: `7f1fdf6828596d43097816a61cbabc7a638eb4680da3a98b636020a095ad29a0`.
+Only `screenplain-baseline` exists, `profileFrozen: false`, source map unsupported;
+no fidelity, Script Check, preview UI or export claim. No M5-03 implementation.
+
+M5-01 bundled helper is complete. M4-15 remains accepted for its bounded Linux
+gate; forced WebDriver teardown crashes/C1 and dependency/performance/platform
+hardening remain M6. No new native product crash was observed in this smoke.
+Full license texts, installed/offline and other-platform verification, long
+sessions, screenreader coverage and Local v1 adoption remain open.
 
 ## Next action
 
-**M5-02 native render service:** locate `pdf-helper/` through Tauri's resource
-directory, run it with an argument vector, captured source on stdin and an
-app-owned output path, plus wall-clock timeout, supersede/cancel, exact-version
-results and typed failures. Report the renderer unavailable when the resource
-directory is empty. Builds now need `python3` and one networked fetch to fill
-`target/pdf-helper/cache`. M5-01 is committed locally, not pushed.
-
-## Paths and checks
-
-- [Evidence](test-evidence/M4.md#continuation-from-a97a577--full-native-matrix-and-post-integration-review):
-  commands, timings, cores, audits and failures. Artifacts `target/m4-15-native-final-{1,2}/`.
-- `/tmp` helpers (pointer, `wtype`, keyboard) do not survive a reboot; rebuild per
-  `tests/native/writing-lifecycle/README.md` before native runs.
-
-## Retained limits
-
-C1 and forced-teardown aborts, dependency hardening, full S13/long sessions,
-screenreader/other platforms, installed/offline packaging, migration/backups
-and Local v1 adoption remain open (M6). The SC005/SC008 export assessment is
-deferred to M5. The upstream WebKit/Mesa race is unchanged.
+**M5-03 frozen US Letter profile and regression corpus** is dependency-ready.
+Owner requested stopping after the M5-02 commit. No push is authorized.
+Use `RUSTUP_TOOLCHAIN=1.97.1`; explicit Node 26.7.0/pnpm 11.22.0 mise wrapper.
+For Tauri builds, prepend the actual Rust 1.97.1 bin directory after mise
+selection so its global `rust@stable` shim cannot trigger an installation.
+Use `pnpm tauri build --no-bundle`, never plain Cargo release build.

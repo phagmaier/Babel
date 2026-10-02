@@ -63,5 +63,36 @@ Ship a helper directory as a Tauri resource (`pdf-helper/`), built by
 
 Evidence: [M5 evidence](../test-evidence/M5.md#m5-01--bundled-offline-renderer-helper).
 Evidence still needed: full license texts for the statically linked components
-before distribution (M6); other platforms' interpreters and installers; the
-runtime locating, wall-clock timeout and integrity checks in M5-02.
+before distribution (M6); other platforms' interpreters/installers and
+installed/offline verification. M5-02 caller evidence is
+[recorded separately](../test-evidence/M5.md#m5-02--native-render-service-and-adapter-contract).
+
+## M5-02 caller integrity and lifecycle policy
+
+The native caller resolves `pdf-helper/` using Tauri's resource resolver. Each
+render reads at most 1 MiB of `BUILD.json`, requires protocol 1 and the pinned
+tree identity, checks the interpreter is a regular executable and that the
+helper script exists. It does **not** rehash the 60 MB runtime per render.
+Build/package verification owns whole-tree integrity; the helper verifies font
+bytes each invocation. This is a bundled-resource policy, not authentication
+of a hostile mutable installation; distribution hardening remains M6.
+
+One drain worker runs one isolated helper process group, with one replaceable
+pending capture. Admission shares the native eight-job/32 MiB payload budget.
+The caller writes stdin on a separate thread, caps stdout at 64 KiB, enforces
+70 s wall time (helper CPU limit 60 s), kills/reaps the group on cancellation,
+timeout or exit, and checks exact source/profile/renderer/font results.
+Linux/Unix process-group termination and the private cache lease promote the
+already-locked `libc` 0.2.189 (MIT OR Apache-2.0) to a direct pinned dependency;
+there is no dependency version change.
+
+The private app-cache `publication/` directory is exclusively leased with a
+native nonblocking lock. A second instance refuses cache initialization rather
+than removing the active instance's files. Under that lease, startup removes
+abandoned regular `render-*.pdf` files and refuses unexpected entries. One
+artifact/output is retained, bounded to 256 MiB by the pinned helper's output
+limit and native result checks. Supersede, cancel and registration/window close
+remove artifacts. A cleanup failure disables further cache admission. Handles
+are opaque; no frontend path, shell, filesystem permission or save receipt is
+introduced. Only `screenplain-baseline`, empty options and its pinned font set
+are admitted; `profileFrozen: false` and `sourceMap: unsupported` remain visible.

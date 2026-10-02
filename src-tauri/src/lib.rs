@@ -29,8 +29,10 @@ use recent_projects_host::{
 mod save_as_host;
 use save_as_host::{save_as_copy, select_save_destination};
 mod persistence_host;
+mod publication_host;
 mod recovery_choices_host;
 mod snapshot_host;
+use publication_host::{PublicationHost, cancel_publication, render_publication};
 mod startup_host;
 use persistence_host::{
     Budget, checkpoint_document, protect_fountain_import, protect_workflow, save_document,
@@ -58,6 +60,7 @@ struct DocumentHost {
     #[cfg(not(target_os = "linux"))]
     service: Arc<Mutex<()>>,
     budget: Arc<Mutex<Budget>>,
+    publication: PublicationHost,
 }
 
 impl DocumentHost {
@@ -98,7 +101,16 @@ impl DocumentHost {
         return service
             .as_mut()
             .ok_or_else(|| DocumentError::new(ErrorCode::NativeUnavailable))?
-            .release(request);
+            .release(request)
+            .map(|()| {
+                let _ = self.publication.cancel(
+                    Some(&publication_host::CancelRequest {
+                        identity: request.clone(),
+                        request_id: 0,
+                    }),
+                    true,
+                );
+            });
         #[cfg(not(target_os = "linux"))]
         {
             let _ = (service, request);
@@ -115,7 +127,16 @@ impl DocumentHost {
         return service
             .as_mut()
             .ok_or_else(|| DocumentError::new(ErrorCode::NativeUnavailable))?
-            .release_at_risk(request);
+            .release_at_risk(request)
+            .map(|()| {
+                let _ = self.publication.cancel(
+                    Some(&publication_host::CancelRequest {
+                        identity: request.clone(),
+                        request_id: 0,
+                    }),
+                    true,
+                );
+            });
         #[cfg(not(target_os = "linux"))]
         {
             let _ = (service, request);
@@ -181,9 +202,12 @@ fn end_web_content_before_close<R: tauri::Runtime>(window: &tauri::Window<R>) {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    let documents = DocumentHost::default();
+    let publication = documents.publication.clone();
     let builder = tauri::Builder::default()
-        .manage(DocumentHost::default())
+        .manage(documents)
         .manage(CommandMenu::default())
+        .manage(publication)
         .manage(RecoveryHost::default())
         .on_window_event(|window, event| {
             if let tauri::WindowEvent::CloseRequested { api, .. } = event {
@@ -193,6 +217,7 @@ pub fn run() {
                         eprintln!("protected close event unavailable: {error}");
                     }
                 } else {
+                    let _ = window.state::<PublicationHost>().cancel(None, true);
                     #[cfg(target_os = "linux")]
                     end_web_content_before_close(window);
                 }
@@ -217,6 +242,17 @@ pub fn run() {
             }
             if command_menu::install(app).is_err() {
                 eprintln!("native menus unavailable; visible controls remain available");
+            }
+            if let (Ok(runtime), Ok(cache)) = (
+                app.path()
+                    .resolve("pdf-helper", tauri::path::BaseDirectory::Resource),
+                app.path().app_cache_dir(),
+            ) && app
+                .state::<PublicationHost>()
+                .initialize(runtime, cache.join("publication"))
+                .is_err()
+            {
+                eprintln!("publication cache unavailable");
             }
             // Resolve only. Startup review does not initialize/create the writer store or a source.
             let root = app.path().app_data_dir().ok();
@@ -265,6 +301,8 @@ pub fn run() {
     let builder = builder.invoke_handler(tauri::generate_handler![
         app_info,
         update_command_menu,
+        render_publication,
+        cancel_publication,
         #[cfg(target_os = "linux")]
         spellcheck,
         read_open_document,
@@ -314,6 +352,8 @@ pub fn run() {
     let builder = builder.invoke_handler(tauri::generate_handler![
         app_info,
         update_command_menu,
+        render_publication,
+        cancel_publication,
         #[cfg(target_os = "linux")]
         spellcheck,
         read_open_document,
@@ -359,6 +399,8 @@ pub fn run() {
     let builder = builder.invoke_handler(tauri::generate_handler![
         app_info,
         update_command_menu,
+        render_publication,
+        cancel_publication,
         #[cfg(target_os = "linux")]
         spellcheck,
         read_open_document,
@@ -455,3 +497,6 @@ mod recent_projects_ipc_tests;
 
 #[cfg(all(test, target_os = "linux"))]
 mod workflow_protection_ipc_tests;
+
+#[cfg(all(test, target_os = "linux"))]
+mod publication_ipc_tests;

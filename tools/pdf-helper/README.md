@@ -68,3 +68,29 @@ ReportLab imports `PIL.Image` when it loads but uses it only for images. The
 helper ships a two-file stub (`stubs/PIL`) that refuses any image use. The M1
 corpus renders byte-identically with the stub and with real Pillow 12.3.0, so
 no imaging library or its vendored native code is bundled.
+
+## Native caller (M5-02)
+
+`src-tauri/src/publication_host.rs` resolves the bundled resource and dispatches
+captured source bytes through protocol 1. `render_publication` admits only an
+owned document/session, positive exact version/request ID, SHA-256, the baseline
+profile, `courier-prime-screenplain-0.12.0` and empty options. Native and frontend
+checks reject stale versions and conflicting hashes. `cancel_publication` takes
+only identity/request ID; an old cancel cannot delete a newer artifact.
+
+The native service owns output paths in its private leased app cache. IPC
+returns an opaque `render-…` handle, actual count, exact capture identity,
+renderer/font identities and warnings, with `profileFrozen: false` and
+`sourceMap: unsupported`. It supplies no fidelity or Script Check assessment.
+One helper plus one replaceable pending capture share bounded admission; stdin
+has its own thread, stdout is capped at 64 KiB and wall time at 70 s. Typed
+failures include unavailable renderer, queue full, invalid capture/identity,
+stale version, cancellation, timeout, helper kill/crash, invalid response,
+cache failure and each protocol error code. No source is logged.
+
+[ADR 0036](../../docs/decisions/0036-bundled-pdf-helper.md#m5-02-caller-integrity-and-lifecycle-policy)
+records the inexpensive manifest/executable check, process-group cleanup and
+cache lease/bounds. Native synthetic smoke:
+`python3 tests/native/writing-lifecycle/publication_smoke.py /tmp` (repeat with
+`target/` on Btrfs, with GUI environment/access); it exercises the default
+release's real WebView IPC without editor/persistence/export UI changes.
