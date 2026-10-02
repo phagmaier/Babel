@@ -1,9 +1,14 @@
-# Current state — M4 exit verified, tagged and pushed
+# Current state — M5-00 decomposed; M5-01 next
 
 Date: 2026-10-02 PDT. Application: **babel**. Base `a97a577` on main
 (`origin/main` equal to it at start); one editing agent.
 
 ## Task and work
+
+**M5-00 publication decomposition — complete** (owner authorized starting M5),
+base `7506368`. Documentation only: [M5-01–07 briefs](../TODO.md#m5--publication-pipeline),
+[M5 trace](requirements.md#m5-decomposition-coverage-planned) and
+[evidence](test-evidence/M5.md#m5-00--decomposition). Plan audit passed; M5-01 is the only ready task.
 
 **M4-15 integrated exit — accepted for its bounded Linux gate.** Release
 unchanged: SHA256 `0f4ba9bb83078278e6954162e2fe24166ab3a4a08b79b41eb25a9227a9fe130d`
@@ -28,12 +33,13 @@ unchanged: SHA256 `0f4ba9bb83078278e6954162e2fe24166ab3a4a08b79b41eb25a9227a9fe1
 
 ## Next action
 
-With owner authorization, annotated tag `m4-daily-workflows-linux-verified` was
-created at `fe0343f`, and main and the tag were pushed. The M3 tag
-`m3-core-editor-linux-verified` was missing locally and on the remote. It was
-recreated as an annotated tag at the recorded commit `97e1798` and pushed.
-Next: M5-00 decomposition. Do not resume WebKit/Mesa work without new
-ordinary-close evidence.
+**M5-01 bundled offline renderer helper:** the packaging gate for ADR 0009's
+Screenplain/ReportLab/Courier Prime baseline. It needs a pinned, self-contained
+helper with no system Python, plus a packaging/license ADR. If bundling fails a
+platform, license or conformance gate, stop and ask the owner about the pdf-lib
+fallback. M4 is tagged `m4-daily-workflows-linux-verified` (`fe0343f`); the
+recreated M3 tag is at `97e1798`; both are pushed. M5-00 is committed locally,
+not pushed.
 
 ## Paths and checks
 

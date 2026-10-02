@@ -89,15 +89,29 @@ Prerequisite: [corrected M3-13 bounded Linux exit](docs/test-evidence/M3.md#m3-1
 
 - [x] **[M4-15-R2](docs/tasks/M4-15-R2.md) Save As rollback derived state** — Restore outline/counts/navigation after retained editor rollback without losing source, selection or Undo. [Evidence](docs/test-evidence/M4.md#m4-15-r2--derived-state-after-save-as-rollback); independent shutdown blocker remains open.
 
-Recommended next: owner authorization to tag the verified M4 exit (`m4-daily-workflows-linux-verified` proposed) and to push. Then M5-00 decomposition, which is not started. No system upgrade.
+M4 exit tagged `m4-daily-workflows-linux-verified` at `fe0343f` and pushed.
 
-## M5–M7 — gated task groups (decompose before starting)
+## M5 — publication pipeline
 
-Each `M*-G` group requires a prior `M*-00` decomposition with refined requirement trace before implementation. Create M5-00–M7-00 when dependencies near completion. Owner decision required before M6 implementation: declare Tier 1 OS/arch targets and record them in docs/development.md; M1-02 remains the performance hardware baseline.
+Prerequisite: [M4 bounded Linux exit](docs/test-evidence/M4.md#continuation-from-a97a577--full-native-matrix-and-post-integration-review), tagged `m4-daily-workflows-linux-verified`; renderer baseline [ADR 0009](docs/decisions/0009-pdf-renderer-baseline.md). [M5-00 brief](docs/tasks/M5-00.md) owns the verification policy; [M5 trace](docs/requirements.md#m5-decomposition-coverage-planned) maps requirement owners. M5 is a bounded Linux gate: A4, editor page markers, other platforms' installed/offline verification and Local v1 adoption are outside it.
+
+- [x] **M5-00 Decomposition** — Deps: M4 exit. Bounded tasks, trace and dependency audit. [Brief](docs/tasks/M5-00.md); [evidence](docs/test-evidence/M5.md#m5-00--decomposition).
+- [ ] **M5-01 Bundled offline renderer helper** — Deps: M5-00. Pinned Screenplain/ReportLab/Courier Prime as a self-contained helper with no system Python; fixed stdin/JSON protocol; license inventory and packaging ADR. Gate: owner decision before any pdf-lib fallback. [Brief](docs/tasks/M5-01.md).
+- [ ] **M5-02 Native render service and adapter contract** — Deps: M5-01. Captured-snapshot jobs, supersede/cancel, exact-version results, app-owned artifacts, failure isolation. [Brief](docs/tasks/M5-02.md).
+- [ ] **M5-03 Frozen US Letter profile and regression corpus** — Deps: M5-01/02. `(MORE)`/`(CONT'D)`, title numbering, keep rules, lyrics/dual leaks, font audit; layout/text/image goldens. [Brief](docs/tasks/M5-03.md).
+- [ ] **M5-04 Production SC005/SC008 assessment** — Deps: M5-03, M4-09. Codec-model support mapping and pinned-font glyph coverage with provenance; `unavailable` never implies success. [Brief](docs/tasks/M5-04.md).
+- [ ] **M5-05 Authoritative preview and page-count freshness** — Deps: M5-02/03. Same-job preview/count, Updating/stale states, off the typing path, viewer ADR. [Brief](docs/tasks/M5-05.md).
+- [ ] **M5-06 Export PDF workflow** — Deps: M5-04/05. Command, native destination token, blocking-warning decision, atomic publish, exact exported version. [Brief](docs/tasks/M5-06.md).
+- [ ] **M5-07 Integrated publication exit and separate review** — Deps: M5-01–06. Full S12.6 gate, offline package drill, two viewers, tmpfs/Btrfs, separate review. [Brief](docs/tasks/M5-07.md).
+
+Recommended next: **M5-01** bundled offline renderer helper (packaging gate; everything else depends on it).
+
+## M6–M7 — gated task groups (decompose before starting)
+
+Each `M*-G` group requires a prior `M*-00` decomposition with refined requirement trace before implementation. Create M6-00/M7-00 when dependencies near completion. Owner decision required before M6 implementation: declare Tier 1 OS/arch targets and record them in docs/development.md; M1-02 remains the performance hardware baseline.
 
 Carry [M3 re-review C1](docs/reviews/2026-09-29-m3-13-rereview.md#c1--recurring-webkit-child-heap-abort-at-forced-shutdown) into native hardening before adoption: recurring owned WebKit heap abort during deliberate parent SIGKILL and, per [M4-15 review F2](docs/reviews/2026-10-02-m4-15-post-integration-review.md), after forced WebDriver teardown. Ordinary close is mitigated by ADR 0035; the upstream cause is unresolved. Transitive advisory warnings and full performance/platform gaps remain in that review.
 
-- [ ] **M5-G Publication** — Deps: M1 PDF proof, M3 source gate, M4-15 UX gate. Reqs: PDF-01–04, CHECK-02 production SC005/SC008 assessment. Read: SPEC S09/S12; docs/pdf-and-formatting.md and M4-09. Gate includes verified renderer/profile/font diagnostics connected to Script Check before any successful export claim.
 - [ ] **M6-G Local history, hardening, adoption** — Deps: M2 history gate, M4/M5 gates. Reqs: HIST-01/02, SAVE-04/05, QA-01–03, SEC-01/02, APP-01. Read: SPEC S11/S14/S15; docs/testing.md.
 - [ ] **M7-G Explicit remote extension** — Deps: M6 local adoption gate and owner privacy/destination decision. Reqs: SYNC-01–05, INV-07/09/15. Read: SPEC S11; docs/sync-and-versioning.md.
 

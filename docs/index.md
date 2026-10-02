@@ -12,7 +12,7 @@
 | Content protection                     | [persistence](persistence-and-recovery.md), [history/remote](sync-and-versioning.md)                                                                                                                                  |
 | Publication                            | [PDF](pdf-and-formatting.md)                                                                                                                                                                                          |
 | Requirement coverage                   | [requirements](requirements.md)                                                                                                                                                                                       |
-| Next agent task                        | [current-state](current-state.md) → [TODO](../TODO.md#m4--professional-daily-workflows) → [M4-06 title-page form](tasks/M4-06.md)                                                                                     |
+| Next agent task                        | [current-state](current-state.md) → [TODO](../TODO.md#m5--publication-pipeline) → [M5-01 bundled renderer helper](tasks/M5-01.md)                                                                                     |
 
 The [fixture guide](../fixtures/README.md) defines synthetic test data. Product authority remains with [SPEC S00-S03](../SPEC.md#s00). If a contract here disagrees with the spec, record and resolve it; do not silently weaken the spec.
 
@@ -33,7 +33,10 @@ The [fixture guide](../fixtures/README.md) defines synthetic test data. Product 
 - **M4-03:** [Outline](test-evidence/M4.md#m4-03--versioned-manuscript-index-and-outline-navigation) — [ADR 0029](decisions/0029-versioned-manuscript-index.md)
 - **M4-04:** [Workflow protection](test-evidence/M4.md#m4-04--version-bound-workflow-protection) — [ADR 0030](decisions/0030-version-bound-workflow-protection.md)
 - **M4-05:** [Scene/section moves](test-evidence/M4.md#m4-05--reversible-scene-and-section-moves) — [ADR 0031](decisions/0031-exact-source-outline-moves.md)
+- **M4-06–14:** see [TODO](../TODO.md#m4--professional-daily-workflows) and [M4 evidence](test-evidence/M4.md), [M5 evidence](test-evidence/M5.md)
+- **M4-15:** [Integrated exit](test-evidence/M4.md#continuation-from-a97a577--full-native-matrix-and-post-integration-review) + [review](reviews/2026-10-02-m4-15-post-integration-review.md) — bounded Linux gate tagged `m4-daily-workflows-linux-verified`; [ADR 0035](decisions/0035-linux-web-process-close.md)
+- **M5-00:** [Decomposition](test-evidence/M5.md#m5-00--decomposition) — M5-01–07 assigned
 
-**Next:** [M4-06 title-page form](tasks/M4-06.md)
+**Next:** [M5-01 bundled offline renderer helper](tasks/M5-01.md)
 
-**Remaining:** M4-06–15, then M5 (publication), M6 (hardening/adoption), M7 (remote). Production renderer/fonts = M5; WebKit/performance/platform hardening = M6.
+**Remaining:** M5-01–07 (publication), M6 (hardening/adoption), M7 (remote). WebKit/performance/platform hardening = M6.
