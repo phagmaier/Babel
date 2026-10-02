@@ -43,9 +43,10 @@ request and persisted by the network process, which exits normally. Native
 restart oracles verified them after the change. No `beforeunload`/`pagehide`
 handlers exist; adding one later would not run on this path. A JS `destroy()`
 bypasses the close event and keeps the previous exit behavior. So does forced
-WebDriver session deletion: WebKit's web view `close` signal makes Wry destroy
-only the view, and the same teardown abort recurred there in the M4-15 matrix
-(test-only; production never calls `window.close()`). Remove this
+WebDriver session deletion (inferred: WebKit's `close` signal, which Wry handles
+by destroying only the view). The same teardown abort recurred after it in the
+M4-15 matrix. That path is test-only, since production never calls `window.close()`,
+and is carried with C1 to M6. Remove this
 when a supported WebKitGTK release fixes the teardown race and evidence shows
 ordinary close is clean without it.
 
@@ -56,4 +57,5 @@ unchanged binary 2/4 crashed on the reproducer; mitigated 8/8 on the same
 command, 4/4 full workload on tmpfs/Btrfs, final binary 2/2. Zero owned cores
 across 84 mitigated PIDs; Tier 2 shared gates pass.
 Evidence still needed: other Linux distributions/GPU drivers, packaged/installed
-builds, long sessions, and the remaining full M4-15 integrated exit and separate review.
+builds and long sessions. The [M4-15 integrated exit](../test-evidence/M4.md#continuation-from-a97a577--full-native-matrix-and-post-integration-review)
+passed bounded Linux: 38/38 functional, with no ordinary-close abort.
