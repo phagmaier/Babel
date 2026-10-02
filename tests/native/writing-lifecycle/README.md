@@ -58,6 +58,55 @@ WebView resource entries; it is not a packet capture. Full compositor paint,
 page-calibrated performance, other platforms and installed/offline adoption
 remain separate gates.
 
+## M4-15 standalone WebKit shutdown control
+
+On the existing GTK3/WebKitGTK/Hyprland desktop, run installed libraries first:
+
+```sh
+python3 tests/native/writing-lifecycle/test_minimal_webdriver.py
+python3 tests/native/writing-lifecycle/minimal_webdriver.py --output target/minimal-webkit-home --repeats 4
+python3 tests/native/writing-lifecycle/minimal_webdriver.py --output target/minimal-webkit-editor --repeats 4 --leave-editor
+```
+
+Each output directory must be new. The runner compiles `minimal_webkit.c` with
+`-Wall -Wextra -Werror` and installed GTK3/WebKitGTK 4.1 development packages;
+it unsets private loader overrides, records live library mappings/hashes, and
+uses disposable XDG profiles. No Babel/Tauri/manuscript/persistence code runs.
+The synthetic 2,703/27,003-row pages exercise remote element IDs, trusted typing,
+exact native Undo, font changes, scrolling and viewport screenshots. Requests
+allow up to 120 seconds for full-document relayout; timings are diagnostic.
+`--composited` retains the draft forced `translateZ(0)` editor layer. That variant
+timed out before close at both 30s and 120s request budgets. The default has no
+forced layer, consistent with Babel’s editor CSS; all row/input/zoom checks stay.
+The default blurs the editor after typing/Undo, as Babel's zoom dropdown moves
+focus away from the editor. `--keep-editor-focus` retains the draft active-caret
+variant; that variant also timed out before close without the forced layer.
+These are explicit control differences, not a product workaround or proof of the
+shutdown corruption's cause.
+
+The default single-character edit uses `document.execCommand('undo')`, WebCore's
+native editing history, and records exact text plus delivered events. This is
+an explicit browser editing command, not a physical shortcut or Babel Undo
+verification. `--undo-method keys --edit-text 'PROBE '` retains the original
+Ctrl+Z diagnostic: the bare host received trusted keys without undoing text on
+the reference runtime. An Undo failure stays a failed workload, never exit proof.
+
+Ordinary close targets the owned PID/start/window address through Hyprland while
+WebDriver remains attached. GTK drains for two seconds after window destruction;
+only after all observed descendants exit does the runner delete the stale session
+and stop the driver. `--leave-editor` closes with the large document present;
+the default removes it for a synthetic Home. These differ from Babel's event loop
+and protected manuscript close. They cannot satisfy M4-15 application acceptance.
+
+Results retain request/phase spans, source snapshots, PID/start ledgers, exit
+observations, screenshots and bounded journal scans. Any crash/core observation,
+failed observation, fallback signal, survivor or incomplete workload prevents a
+strict pass. Failed cleanup pins a process with a pidfd and rechecks start time
+before signalling. Sampling and delayed journal delivery remain limitations.
+All failed evidence is retained; a clean control does not establish a fix or
+exclude a Babel-dependent trigger. No private-stack comparison is meaningful
+until the installed control reproduces the relevant failure.
+
 ## M3-13 integrated editor and separate review
 
 After the default release build and keyboard helper above, run sequentially:

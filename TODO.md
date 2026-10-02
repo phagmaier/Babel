@@ -89,7 +89,7 @@ Prerequisite: [corrected M3-13 bounded Linux exit](docs/test-evidence/M3.md#m3-1
 
 - [x] **[M4-15-R2](docs/tasks/M4-15-R2.md) Save As rollback derived state** — Restore outline/counts/navigation after retained editor rollback without losing source, selection or Undo. [Evidence](docs/test-evidence/M4.md#m4-15-r2--derived-state-after-save-as-rollback); independent shutdown blocker remains open.
 
-Recommended next: **M4-15**. Final no-WebDriver typical/stress control passes 2/2 with exact source/copy/final-checkpoint checks; omitted interactions and timing differences prevent an automation-necessity claim. Full workload comparison passes installed before 1/1, private patched candidate 4/4 and installed after 1/1, with verified candidate loader mappings; this is inconclusive, not a fix. Next build a minimal GTK/WebKit WebDriver stress reproducer and retain a positive installed-stack failure before attributing stack improvements. [Current evidence](docs/test-evidence/M4.md#continuation-from-58bb421--presentation-without-webdriver). R2 remains complete; M4-15 remains blocked. No system upgrade, M5 or M4 tag.
+Recommended next: **M4-15**. Standalone installed GTK/WebKit WebDriver control is validated: 8/8 strict ordinary closes, independent raw evidence/journal audits pass; it has not reproduced the integrated heap abort. Compare renderer/automation/close lifetimes and add explicit matched controls to retain a positive installed-stack failure before attributing candidate improvements. All failed setups and prior crashes remain; [current evidence](docs/test-evidence/M4.md#continuation-from-473858b--standalone-webkit-control). R2 remains complete; M4-15 stays open. No system upgrade, M5 or M4 tag.
 
 ## M5–M7 — gated task groups (decompose before starting)
 

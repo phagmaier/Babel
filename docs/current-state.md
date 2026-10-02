@@ -1,9 +1,43 @@
-# Current state — M4-15 controls complete; shutdown gate open
+# Current state — M4-15 standalone control validated; shutdown gate open
 
-Date: 2026-10-01 PDT. Application: **babel**. Base `58bb421` on main;
+Date: 2026-10-02 PDT. Application: **babel**. Base `473858b` on main;
 one editing agent; no push, verified M4 tag or M5 work.
 
 ## Task and work
+
+**Claimed continuation:** standalone GTK/WebKit WebDriver stress/ordinary-close
+probe, removing Babel application code. Installed stack first; retain failures,
+process identities and close timing. No product change or gate advancement.
+
+**Standalone GTK/WebKit control completed and validated.**
+`minimal_webkit.c` / `minimal_webdriver.py` now drive complete 2,703/27,003-row
+pages with trusted typing, exact WebCore native Undo, twelve zoom/scroll steps
+per page, screenshots, live installed-library hashes and PID/start-owned close.
+Six refusal/ownership/provenance tests in `test_minimal_webdriver.py`; invocation
+and control differences in the [native guide](../tests/native/writing-lifecycle/README.md#m4-15-standalone-webkit-shutdown-control).
+
+Installed runtime **8/8 strict**: Home close 4/4 (181.73s recorded case time),
+editor-present close 4/4 (182.10s). Both use ordinary GTK destroy, two-second
+main-loop drain, complete descendant exit before session DELETE, then expected
+driver SIGTERM. Independent raw text/event/hash/library/phase/drain/journal
+audits pass; zero crash lines/core observations/events/fallbacks/survivors.
+Source/host/driver hashes stayed unchanged during final runs. This validates the
+control, **does not reproduce Babel's abort or establish a fix**.
+
+Artifacts: `target/m4-15-minimal-webdriver-1/`; all failed setup/control roots
+1–11 retained. Ctrl+Z delivered trusted keys without native Undo; default now
+uses WebCore Undo and records trusted `historyUndo`. Active-caret rendering
+controls timed out before close even at 120s without the forced layer. Default
+blurs before zoom, matching dropdown focus; `--keep-editor-focus` / `--composited`
+retain both earlier variants. No product workaround or causal conclusion.
+
+Six new + inherited 6/3/10 synthetic checks, Python syntax/CLI, separate same-agent
+source review and mutated cloned-evidence refusal checks pass. Full product
+suites omitted for standalone tooling only. No second-reviewer, lossless tracing,
+S13, manuscript safety or milestone acceptance claim. No tool security rejection
+received; no global settings changed after the denied ptrace attempt.
+[Exact commands, failures and final evidence](test-evidence/M4.md#continuation-from-473858b--standalone-webkit-control).
+No native probe remains.
 
 **M4-15 continuation completed:** added a bounded presentation control without
 WebDriver, independent source/final-checkpoint/crash auditing, and an isolated
@@ -61,17 +95,19 @@ audit_plain_presentation,test_owned_accessibility,test_plain_audit}.py`;
 
 ## Blocker and next action
 
-**M4-15 remains open.** This turn neither reproduced an ordinary-close crash
-without WebDriver nor established that the private patches fix it. No supported
-corrected package is available in the checked Arch listing (still 2.52.6-1).
-The private prefix remains isolated at `target/m4-15-webkit-candidate-1/`.
+**M4-15 remains open.** Installed standalone controls closed cleanly; the
+original integrated ordinary-close heap abort and all historical evidence remain
+unresolved. Last checked Arch listing was 2.52.6-1; this continuation used that
+installed version. Private patches remain isolated at
+`target/m4-15-webkit-candidate-1/`, with no new comparison or system replacement.
 
-Next bounded task: build a minimal GTK/WebKit WebDriver stress reproducer using
-the implicated page size, interactions and graceful-close order, to remove Babel
-code from the comparison. Retain positive installed-stack failure evidence and
-match the trigger before attributing any clean patched-stack results. A supported
-corrected runtime still needs full integrated acceptance; a private prefix cannot
-close the distribution gate. Preserve all historical crashes and byte oracles.
+Next bounded task: compare the standalone and implicated integrated controls'
+renderer/automation/close lifetimes, then add one explicit matching interaction
+or lifetime control at a time. Retain a positive installed-stack failure before
+attributing clean candidate results. The active-caret rendering stall is a
+separate observed setup issue; do not infer it causes heap corruption. Supported
+corrected-runtime validation and full integrated acceptance remain necessary;
+a private prefix or these clean controls cannot close the gate.
 
 M4-01–14 bounded Linux dependencies, R1 preedit and M4-08-R1 emphasis remain
 accepted. Full S13/long sessions, screenreader/other platforms, installed/offline
