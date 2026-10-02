@@ -99,14 +99,14 @@ Prerequisite: [M4 bounded Linux exit](docs/test-evidence/M4.md#continuation-from
 - [x] **M5-01 Bundled offline renderer helper** — Deps: M5-00. Standalone CPython 3.13.16 + pinned Screenplain/ReportLab/Courier Prime with a Pillow stub; protocol 1, typed errors, reproducible tree hash, +19.5 MiB AppImage; offline render passes from the packaged AppImage. [ADR 0036](docs/decisions/0036-bundled-pdf-helper.md); [brief](docs/tasks/M5-01.md); [evidence](docs/test-evidence/M5.md#m5-01--bundled-offline-renderer-helper).
 - [x] **M5-02 Native render service and adapter contract** — Deps: M5-01. Captured-snapshot jobs, supersede/cancel, exact-version results, app-owned artifacts, failure isolation. [Brief](docs/tasks/M5-02.md); [evidence](docs/test-evidence/M5.md#m5-02--native-render-service-and-adapter-contract).
 - [x] **M5-03 Frozen US Letter profile and regression corpus** — Deps: M5-01/02. `(MORE)`/`(CONT'D)`, title numbering, keep rules, lyrics/dual leaks, font audit; layout/text/image goldens. [Brief](docs/tasks/M5-03.md).
-- [ ] **M5-04 Production SC005/SC008 assessment** — Deps: M5-03, M4-09. Codec-model support mapping and pinned-font glyph coverage with provenance; `unavailable` never implies success. [Brief](docs/tasks/M5-04.md).
+- [x] **M5-04 Production SC005/SC008 assessment** — Deps: M5-03, M4-09. Primary-codec support/paragraph limitations, independently reviewed four-face cmap coverage, actual native identity/in-memory layout checks, versioned non-dismissable findings; unavailable/stale never implies export success. [Brief](docs/tasks/M5-04.md); [evidence](docs/test-evidence/M5.md#m5-04--production-sc005sc008-assessment).
 - [ ] **M5-05 Authoritative preview and page-count freshness** — Deps: M5-02/03. Same-job preview/count, Updating/stale states, off the typing path, viewer ADR. [Brief](docs/tasks/M5-05.md).
 - [ ] **M5-06 Export PDF workflow** — Deps: M5-04/05. Command, native destination token, blocking-warning decision, atomic publish, exact exported version. [Brief](docs/tasks/M5-06.md).
 - [ ] **M5-07 Integrated publication exit and separate review** — Deps: M5-01–06. Full S12.6 gate, offline package drill, two viewers, tmpfs/Btrfs, separate review. [Brief](docs/tasks/M5-07.md).
 
 - [x] **DEV-01 Laptop development setup** — Pinned tools/dependencies, portable renderer identity, native listener cleanup, laptop test concurrency and real development/package checks. [Brief](docs/tasks/DEV-01.md); [evidence](docs/test-evidence/M5.md#dev-01--laptop-development-setup).
 
-Recommended next: **M5-04** production SC005/SC008 assessment.
+Recommended next: **M5-05** authoritative preview and page-count freshness.
 
 ## M6–M7 — gated task groups (decompose before starting)
 

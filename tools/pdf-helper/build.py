@@ -136,6 +136,17 @@ def build(offline):
                 'collected and confirmed before distribution (M6).',
     }, indent=2) + '\n')
 
+    # Generate coverage from these verified font tables at build time. A pin
+    # change requires deliberate review of the committed frontend inventory.
+    coverage = subprocess.check_output([
+        str(root / 'bin' / 'python3.13'), '-I', '-S', '-B',
+        str(HERE / 'coverage.py'), str(lib),
+        str(HERE / 'profiles' / 'us-letter-draft-v1.json'), str(HERE / 'pins.json')],
+        env={'PATH': '/nonexistent'})
+    expected_coverage = REPO / 'src' / 'domain' / 'publicationCoverage.json'
+    if json.loads(coverage) != json.loads(expected_coverage.read_text()):
+        sys.exit('font coverage inventory changed: regenerate and review publicationCoverage.json')
+
     # Precompile with the bundled interpreter so runtime `-B` never needs to
     # write bytecode; unchecked-hash pycs embed no timestamps, keeping the tree
     # hash reproducible. Force recompilation with a canonical source prefix;

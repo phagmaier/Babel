@@ -88,8 +88,8 @@ Sections, synopses, notes, boneyards and unknown title fields are still omitted
 by upstream publication, with bounded structured `unsupported-publication:*`
 warnings. They are preserved in captured Fountain, never written back. Missing
 font glyphs and scripts requiring RTL shaping are refused. The profile's
-unsupported catalog is an input to M5-04, which still owns complete codec-model
-SC005/SC008 assessment and export decisions. These helper guards do not make a
+unsupported catalog feeds the completed M5-04 primary-codec SC005/SC008 support
+assessment and verified resource/in-memory layout boundary. M5-06 owns export decisions. These helper guards do not make a
 primary-codec fidelity claim. Preview/export UI remains M5-05/06.
 
 ## Alternatives and consequences
@@ -113,5 +113,7 @@ requires a new profile version and reviewed evidence. Other platforms/viewer
 versions, complex-script shaping, tall dual and full export fidelity remain
 open. Native job/cache ownership and integrity policy stay in ADR 0036.
 
-Evidence still needed: complete M5-04 codec assessment, M5-05/06 preview/export
+M5-04 assessment evidence: [production assessment](../test-evidence/M5.md#m5-04--production-sc005sc008-assessment), including actual font tables and native resource/layout checks.
+
+Evidence still needed: M5-05/06 preview/export
 agreement, M5-07 integration, installed/other-platform and broader viewer checks.

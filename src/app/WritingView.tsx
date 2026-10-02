@@ -131,6 +131,7 @@ export interface WritingPorts {
   choices: RecoveryChoicesPort;
   recovery: RecoveryPort;
   fountainImport: FountainImportPort;
+  exportAssessment?: import('../application/exportAssessment').ExportAssessmentPort;
   workflows?: import('../application/workflowProtection').WorkflowProtectionPort;
 }
 
@@ -626,23 +627,27 @@ export function WritingView({
         );
     });
     findRef.current = find;
-    const check = new ScriptCheckController(stamp, (state) => {
-      if (!alive) return;
-      setCheckState(state);
-      const view = viewRef.current;
-      if (
-        view &&
-        !operationRef.current &&
-        !frozenRef.current &&
-        !titleDraftRef.current &&
-        !titleComposingRef.current
-      )
-        highlightCheckIssues(
-          view,
-          state.phase === 'current' ? state.projection : null,
-          visibleIssues(state),
-        );
-    });
+    const check = new ScriptCheckController(
+      stamp,
+      (state) => {
+        if (!alive) return;
+        setCheckState(state);
+        const view = viewRef.current;
+        if (
+          view &&
+          !operationRef.current &&
+          !frozenRef.current &&
+          !titleDraftRef.current &&
+          !titleComposingRef.current
+        )
+          highlightCheckIssues(
+            view,
+            state.phase === 'current' ? state.projection : null,
+            visibleIssues(state),
+          );
+      },
+      ports.exportAssessment,
+    );
     checkRef.current = check;
     const projection = new ManuscriptProjectionController(stamp, (state) => {
       if (alive) setOutline(state);

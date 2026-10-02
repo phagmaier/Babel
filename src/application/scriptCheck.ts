@@ -1,4 +1,9 @@
 import {
+  assessmentLayoutProbes,
+  type AssessmentContext,
+} from '../domain/exportAssessment';
+import type { ExportAssessmentPort } from './exportAssessment';
+import {
   evaluateScriptCheck,
   type CheckIssue,
   type CheckReport,
@@ -28,7 +33,8 @@ export function visibleIssues(state: CheckState): readonly CheckIssue[] {
   return state.report.issues.filter(
     (issue) =>
       !dismissed.has(issue.key) &&
-      ((issue.severity === 'warning' && state.showWarnings) ||
+      (issue.severity === 'blocking' ||
+        (issue.severity === 'warning' && state.showWarnings) ||
         (issue.severity === 'advisory' && state.showAdvisories)),
   );
 }
@@ -49,10 +55,12 @@ export class ScriptCheckController {
     message: 'Run Script Check against the current script.',
   };
   private live = true;
+  private serial = 0;
   private source: ProjectionState | null = null;
   constructor(
     private readonly stamp: () => ManuscriptStamp | null,
     private readonly changed: (state: CheckState) => void,
+    private readonly assessment?: ExportAssessmentPort,
   ) {}
   private publish(patch: Partial<CheckState>) {
     if (!this.live) return;
@@ -92,7 +100,22 @@ export class ScriptCheckController {
     ) {
       // Selection-only drift on the identical document (for example Go to
       // Issue navigation): rebase without stale-ing; content is unchanged.
-      if (projection !== retained) this.publish({ projection });
+      if (projection !== retained) {
+        const report = this.state.report;
+        this.publish({
+          projection,
+          report:
+            report?.exportAssessment.status === 'verified'
+              ? Object.freeze({
+                  ...report,
+                  exportAssessment: Object.freeze({
+                    ...report.exportAssessment,
+                    version: projection.version,
+                  }),
+                })
+              : report,
+        });
+      }
       return;
     }
     if (!this.state.report) {
@@ -118,6 +141,7 @@ export class ScriptCheckController {
     });
   }
   run() {
+    const serial = ++this.serial;
     const projection = this.source?.projection;
     if (
       this.source?.phase !== 'current' ||
@@ -134,16 +158,67 @@ export class ScriptCheckController {
       });
       return;
     }
-    const report = evaluateScriptCheck(projection.snapshot.capture.document);
-    const kept = new Set(report.issues.map((issue) => issue.key));
+    const finish = (
+      current: ManuscriptProjection,
+      context?: AssessmentContext,
+    ) => {
+      const report = evaluateScriptCheck(
+        current.snapshot.capture.document,
+        context,
+      );
+      const kept = new Set(report.issues.map((issue) => issue.key));
+      this.publish({
+        phase: 'current',
+        projection: current,
+        report,
+        dismissed: this.state.dismissed.filter((key) => kept.has(key)),
+        message: '',
+      });
+    };
+    if (!this.assessment) {
+      finish(projection);
+      return;
+    }
     this.publish({
-      phase: 'current',
-      projection,
-      report,
-      dismissed: this.state.dismissed.filter((key) => kept.has(key)),
-      message: '',
+      phase: 'pending',
+      message: 'Checking publication support and pinned fonts…',
     });
+    const probes = assessmentLayoutProbes(projection.snapshot.capture.document);
+    const settle = (
+      result?: Awaited<ReturnType<ExportAssessmentPort['assess']>>,
+    ) => {
+      if (!this.live || serial !== this.serial) return;
+      const current = this.source?.projection;
+      if (
+        this.source?.phase !== 'current' ||
+        !current ||
+        !this.isCurrent(current) ||
+        current.session !== projection.session ||
+        current.doc !== projection.doc
+      ) {
+        this.publish({
+          phase: 'stale',
+          message:
+            'The script changed during assessment. Refresh to recompute.',
+        });
+        return;
+      }
+      finish(
+        current,
+        result
+          ? {
+              ...result,
+              version: current.version,
+              sourceSha256: current.sourceSha256,
+            }
+          : undefined,
+      );
+    };
+    void this.assessment
+      .assess(probes.map((probe) => probe.source))
+      .then(settle, () => settle());
   }
+
   dismiss(key: string) {
     const issue = this.state.report?.issues.find(
       (candidate) => candidate.key === key,
@@ -162,5 +237,6 @@ export class ScriptCheckController {
   }
   dispose() {
     this.live = false;
+    this.serial++;
   }
 }

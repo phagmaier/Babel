@@ -96,6 +96,7 @@
 .check-highlight {
   border-bottom: 2px dotted var(--focus);
 }
+.check-blocking,
 .check-warning {
   background: var(--highlight);
   color: var(--highlight-ink);

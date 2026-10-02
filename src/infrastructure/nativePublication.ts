@@ -29,3 +29,8 @@ export const unavailablePublication: PublicationPort = {
   render: () => Promise.reject(new PublicationFailure('renderer-unavailable')),
   cancel: () => Promise.resolve(),
 };
+
+export const nativeExportAssessment: import('../application/exportAssessment').ExportAssessmentPort =
+  {
+    assess: (sources) => invoke('assess_publication', { request: { sources } }),
+  };

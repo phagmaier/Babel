@@ -1,6 +1,6 @@
 # PDF and formatting
 
-Status: M1 proof recorded; renderer baseline is **conditional** (Screenplain + ReportLab, [ADR 0009](decisions/0009-pdf-renderer-baseline.md)). M5-01 bundles it as an offline standalone-CPython helper ([ADR 0036](decisions/0036-bundled-pdf-helper.md), [evidence](test-evidence/M5.md#m5-01--bundled-offline-renderer-helper)); M5-02 native service and M5-03 frozen profile are complete; assessment, preview and export remain M5-04–07. [SPEC S12](../SPEC.md#s12); PDF-01–04, INV-03/10/13/14.
+Status: M1 proof recorded; renderer baseline is **conditional** (Screenplain + ReportLab, [ADR 0009](decisions/0009-pdf-renderer-baseline.md)). M5-01 bundles it as an offline standalone-CPython helper ([ADR 0036](decisions/0036-bundled-pdf-helper.md), [evidence](test-evidence/M5.md#m5-01--bundled-offline-renderer-helper)); M5-02 native service and M5-03 frozen profile are complete; M5-04 adds production assessment; preview and export remain M5-05–07. [SPEC S12](../SPEC.md#s12); PDF-01–04, INV-03/10/13/14.
 
 Evaluate an existing offline renderer first; Screenplain was the initial candidate and is now the conditional M5 baseline per [ADR 0009](decisions/0009-pdf-renderer-baseline.md), not an unconditional engine. M1 compared supported elements, pagination, licensed font embedding, packaging without end-user Python/Node, determinism, source mapping, performance, and failure behavior. Do not create a custom paginator before evidence warrants it. The selected adapter takes immutable source bytes and source version/hash, project identity, layout-profile version, pinned font identities, and export options. It returns PDF, actual page count, renderer/profile/font identities, warnings, and only a genuinely supported source map.
 
@@ -19,3 +19,10 @@ font streams, bounding boxes and 22 images. Tall dual, unavailable glyphs/shapin
 and structurally oversized cues/parentheticals are refused; known upstream
 omissions carry structured warnings for M5-04. Source maps remain unsupported.
 No publication marker or profile transformation writes back to Fountain.
+
+M5-04 connects primary-codec SC005 support mapping and pinned-font SC008 coverage
+with actual bundled identity verification and read-only in-memory probes for
+layout-dependent limitations. The [Script Check contract](screenplay-validation.md#m5-04-publication-assessment)
+owns severities, shaping limits, stale/failure behavior and source targets.
+These are support diagnostics, not PDF export/page-count receipts. M5-06 owns
+explicit export decisions and M5-07 the integrated gate.

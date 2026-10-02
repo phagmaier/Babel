@@ -662,3 +662,7 @@ fn remove_artifact(path: &Path) -> std::io::Result<()> {
         result => result,
     }
 }
+
+#[path = "publication_assessment.rs"]
+mod assessment;
+pub use assessment::assess_publication;

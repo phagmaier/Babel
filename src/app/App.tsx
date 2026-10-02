@@ -1,3 +1,4 @@
+import { nativeExportAssessment } from '../infrastructure/nativePublication';
 import { localShortcutRegistry } from '../application/shortcuts';
 import { localViewPreferences } from '../application/viewPreferences';
 import { PresentationControls } from './PresentationControls';
@@ -41,6 +42,7 @@ const writingPorts = {
   recovery: nativeRecovery,
   fountainImport: nativeFountainImport,
   workflows: nativeWorkflowProtection,
+  exportAssessment: nativeExportAssessment,
 };
 
 export function App({

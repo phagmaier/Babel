@@ -32,7 +32,9 @@ mod persistence_host;
 mod publication_host;
 mod recovery_choices_host;
 mod snapshot_host;
-use publication_host::{PublicationHost, cancel_publication, render_publication};
+use publication_host::{
+    PublicationHost, assess_publication, cancel_publication, render_publication,
+};
 mod startup_host;
 use persistence_host::{
     Budget, checkpoint_document, protect_fountain_import, protect_workflow, save_document,
@@ -302,6 +304,7 @@ pub fn run() {
         app_info,
         update_command_menu,
         render_publication,
+        assess_publication,
         cancel_publication,
         #[cfg(target_os = "linux")]
         spellcheck,
@@ -353,6 +356,7 @@ pub fn run() {
         app_info,
         update_command_menu,
         render_publication,
+        assess_publication,
         cancel_publication,
         #[cfg(target_os = "linux")]
         spellcheck,
@@ -400,6 +404,7 @@ pub fn run() {
         app_info,
         update_command_menu,
         render_publication,
+        assess_publication,
         cancel_publication,
         #[cfg(target_os = "linux")]
         spellcheck,

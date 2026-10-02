@@ -11,6 +11,8 @@ const codeLabels: Record<CheckIssue['code'], string> = {
   SC002: 'Parenthetical without dialogue',
   SC003: 'Broken dual dialogue',
   SC004: 'Raw source needs review',
+  SC005: 'Publication content limitation',
+  SC008: 'Font or shaping limitation',
   SC006: 'Duplicate scene number',
   SC007: 'Suspicious spacing',
 };
@@ -36,6 +38,8 @@ export function ScriptCheckPanel({
   const stale = state.phase === 'stale';
   const shown = current || stale;
   const visible = visibleIssues(state);
+  const blockers = visible.filter((issue) => issue.severity === 'blocking');
+  const assessment = state.report?.exportAssessment;
   const warnings = visible.filter((issue) => issue.severity === 'warning');
   const advisories = visible.filter((issue) => issue.severity === 'advisory');
   const navigable = current && controller.isCurrent(state.projection);
@@ -58,19 +62,23 @@ export function ScriptCheckPanel({
     >
       <h2>Script Check</h2>
       <p>
-        Structural warnings and dismissible style advisories over the current
-        script. Checks never change source, files or the cursor, and warnings
-        never block saving. This baseline offers no automatic fixes.
+        Publication limitations, structural warnings and dismissible style
+        advisories over the current script. Checks never change source, files or
+        the cursor, and warnings never block saving. This baseline offers no
+        automatic fixes.
       </p>
       <p role="status" aria-live="polite">
         {shown && state.report
-          ? `${warnings.length} warnings · ${advisories.length} advisories${state.dismissed.length ? ` · ${state.dismissed.length} dismissed` : ''}${stale ? ' · stale, refresh to recompute' : ''}.`
+          ? `${warnings.length} warnings · ${advisories.length} advisories${state.dismissed.length ? ` · ${state.dismissed.length} dismissed` : ''}${blockers.length ? ` · ${blockers.length} export limitations` : ''}${stale ? ' · stale, refresh to recompute' : ''}.`
           : state.message}
       </p>
       <button
         type="button"
         disabled={disabled}
-        onClick={() => controller.run()}
+        aria-disabled={state.phase === 'pending'}
+        onClick={() => {
+          if (state.phase !== 'pending') controller.run();
+        }}
       >
         Refresh check
       </button>
@@ -140,13 +148,44 @@ export function ScriptCheckPanel({
           </section>
         ))}
       <section aria-label="Export assessment">
-        <h3>Export assessment unavailable</h3>
-        <p>
-          Renderer limitations (SC005) and font coverage (SC008) need the
-          verified production renderer, profile and font set. Until M5 connects
-          them, Script Check cannot assess them and never implies export
-          success.
-        </p>
+        <h3>
+          {state.phase === 'pending'
+            ? 'Export assessment updating'
+            : stale
+              ? 'Export assessment stale'
+              : assessment?.status === 'verified'
+                ? 'Export support assessed'
+                : 'Export assessment unavailable'}
+        </h3>
+        {assessment?.status === 'verified' ? (
+          <>
+            <p>
+              {assessment.issues.length} publication limitations for version{' '}
+              {assessment.version}.
+              {assessment.layout === 'unavailable'
+                ? ' Layout assessment unavailable.'
+                : ' Frozen layout checks complete.'}{' '}
+              This check does not certify a PDF export. Saving remains
+              available.
+            </p>
+            <p>
+              {assessment.provenance.profile} · Screenplain{' '}
+              {assessment.provenance.renderer.screenplain} / ReportLab{' '}
+              {assessment.provenance.renderer.reportlab} ·{' '}
+              {assessment.provenance.fontSet}
+            </p>
+          </>
+        ) : (
+          <p>
+            {assessment?.reason ??
+              'SC005/SC008 need a matching verified renderer, profile and pinned font identity.'}
+          </p>
+        )}
+        {state.report?.truncated && (
+          <p>
+            Results are limited to 1,000 issues; more limitations may remain.
+          </p>
+        )}
       </section>
     </section>
   );

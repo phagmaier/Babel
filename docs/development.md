@@ -302,3 +302,19 @@ Cold-Home non-automation control: replace the diagnostic command with
 `python3 tests/native/writing-lifecycle/plain_quit.py /tmp /home/phagmaier/Code/Babel/target --repeats 4 --output /tmp/babel-m4-15-plain-quit-1`
 inside the same private IME wrapper; include `plain_quit.py` in syntax checks.
 This covers graceful native Home quit only, with no manuscript/drafting claim.
+
+M5-04 focused checks: `pnpm exec vitest run tests/contract/script-check.test.ts tests/contract/export-assessment.test.ts tests/ui/ScriptCheckPanel.test.tsx`,
+`cargo test -p babel-desktop publication --locked` and repeat with
+`BABEL_PUBLICATION_TEST_ROOT=$PWD/target/m5-04`.
+`python3 tools/pdf-helper/test_coverage.py` compares pinned coverage with installed
+Fontconfig/FreeType. `python3 tools/pdf-helper/build.py --offline` regenerates and
+checks that coverage at build time; exact runtime identity remains unchanged.
+Build the default embedded release with `pnpm tauri build --no-bundle`, then run
+`GTK_IM_MODULE=gtk-im-context-simple python3 tests/native/writing-lifecycle/drill.py /tmp --script-check`
+and repeat with `$PWD/target/m5-04`. The existing owned keyboard helper and
+installed `wtype` are required; no personal manuscript or profile is inspected.
+Harness syntax: `python3 -m py_compile tests/native/writing-lifecycle/scriptcheck_workflows.py src-tauri/src/assessment_probe.py tools/pdf-helper/coverage.py tools/pdf-helper/test_coverage.py`.
+Shared frontend/browser/Rust gates and native tmpfs/Btrfs workspace matrix remain
+required for the new read-only IPC boundary. Pure assessment logic needs no
+second filesystem. [Evidence](test-evidence/M5.md#m5-04--production-sc005sc008-assessment)
+owns commands/results and omissions.

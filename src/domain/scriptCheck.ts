@@ -1,8 +1,14 @@
+import {
+  evaluateExportAssessment,
+  type AssessmentContext,
+  type ExportAssessment,
+} from './exportAssessment';
+export type { ExportAssessment } from './exportAssessment';
 import type { FountainDocument } from './fountainModel';
 
 export type CheckCode =
-  'SC001' | 'SC002' | 'SC003' | 'SC004' | 'SC006' | 'SC007';
-export type CheckSeverity = 'warning' | 'advisory';
+  'SC001' | 'SC002' | 'SC003' | 'SC004' | 'SC005' | 'SC008' | 'SC006' | 'SC007';
+export type CheckSeverity = 'blocking' | 'warning' | 'advisory';
 export interface CheckIssue {
   readonly code: CheckCode;
   readonly severity: CheckSeverity;
@@ -13,18 +19,16 @@ export interface CheckIssue {
   /** Physical document line; null only for document-level findings. */
   readonly line: number | null;
   readonly endLine: number;
-  /** The M4 baseline offers no automatic fixes; every result declares this. */
+  /** Source byte targets for publication limitations. */
+  readonly sourceStart?: number;
+  readonly sourceEnd?: number;
+  /** No automatic fixes are offered. */
   readonly hasFix: false;
-}
-export interface ExportAssessment {
-  readonly status: 'unavailable';
-  readonly reason: string;
-  readonly provenance: string;
 }
 export interface CheckReport {
   readonly issues: readonly CheckIssue[];
   readonly truncated: boolean;
-  /** SC005/SC008 cannot be assessed without the verified M5 renderer. */
+  /** SC005/SC008 require matching verified profile/font and layout identities. */
   readonly exportAssessment: ExportAssessment;
 }
 
@@ -32,6 +36,8 @@ export interface CheckReport {
 export const MAX_CHECK_ISSUES = 1000;
 
 const explanations: Record<CheckCode, string> = {
+  SC005: 'The selected publication profile cannot represent this content.',
+  SC008: 'The pinned fonts or shaping policy cannot render this text.',
   SC001:
     'A nonempty character cue has no spoken dialogue attached. The text is preserved and saving stays available; add dialogue or leave the cue while drafting.',
   SC002:
@@ -45,14 +51,6 @@ const explanations: Record<CheckCode, string> = {
   SC007:
     'Three or more consecutive blank lines may be unintended spacing. Single and double blanks are never flagged.',
 };
-
-const assessment: ExportAssessment = Object.freeze({
-  status: 'unavailable',
-  reason:
-    'Export limitations (SC005) and font coverage (SC008) need the verified production renderer, profile and font set. Until M5 connects them, Script Check cannot assess them and never implies export success.',
-  provenance:
-    'ADR 0009 records the M1-03 baseline gaps: dropped sections/synopses/notes/boneyards/unknown title fields, blank CJK/emoji/RTL gaps with no warning, and no source map. M5 owns the verified assessment.',
-});
 
 function issue(
   code: CheckCode,
@@ -78,7 +76,10 @@ function issue(
  * diagnostics; never parses, edits, hashes, writes or fetches anything.
  * Blank lines, empty cues and unfinished drafting are not issues.
  */
-export function evaluateScriptCheck(document: FountainDocument): CheckReport {
+export function evaluateScriptCheck(
+  document: FountainDocument,
+  context?: AssessmentContext,
+): CheckReport {
   const issues: CheckIssue[] = [];
   const push = (found: CheckIssue) => {
     if (issues.length < MAX_CHECK_ISSUES) issues.push(found);
@@ -245,9 +246,18 @@ export function evaluateScriptCheck(document: FountainDocument): CheckReport {
     index = end + 1;
   }
 
+  const exportAssessment = evaluateExportAssessment(document, context);
+  const blocking =
+    exportAssessment.status === 'verified' ? exportAssessment.issues : [];
+  // Structural findings cannot consume the entire display budget and hide
+  // known export blockers. Within each class the existing order is retained.
+  const displayed = [
+    ...issues.slice(0, MAX_CHECK_ISSUES - blocking.length),
+    ...blocking,
+  ];
   return Object.freeze({
-    issues: Object.freeze(issues),
-    truncated: issues.length >= MAX_CHECK_ISSUES,
-    exportAssessment: assessment,
+    issues: Object.freeze(displayed),
+    truncated: issues.length + blocking.length >= MAX_CHECK_ISSUES,
+    exportAssessment,
   });
 }

@@ -72,7 +72,7 @@ profile. It makes no fidelity claim; Script Check assessment stays unavailable.
 `profileFrozen: true`. The baseline stays available for M1/M5-01 regressions.
 [ADR 0037](../../docs/decisions/0037-us-letter-draft-profile.md) freezes geometry,
 continuation, grouping, title numbering, the bounded patch boundary and declared
-unsupported cases. Complete SC005/SC008 assessment remains M5-04.
+unsupported cases. M5-04 connects primary-codec SC005/SC008 assessment.
 
 The [synthetic corpus and reviewed goldens](../../fixtures/publication/REVIEW.md)
 use an inspection-only pypdf dependency plus Poppler, never a runtime dependency:
@@ -118,3 +118,17 @@ cache lease/bounds. Native synthetic smoke:
 `python3 tests/native/writing-lifecycle/publication_smoke.py /tmp` (repeat with
 `target/` on Btrfs, with GUI environment/access); it exercises the default
 release's real WebView IPC without editor/persistence/export UI changes.
+
+## Build-time assessment coverage (M5-04)
+
+`coverage.py` runs with the bundled interpreter during every helper build. It
+uses the pinned ReportLab TrueType reader over verified font bytes and compares
+the result with `src/domain/publicationCoverage.json`. A profile/font pin change
+requires regenerating and independently reviewing that inventory. The script
+and inventory do not enter the runtime tree or alter the frozen layout.
+`python3 tools/pdf-helper/test_coverage.py` independently compares the inventory
+against installed Fontconfig/FreeType (`fc-query`), including its documented
+NUL/CR exclusions. No inspection tool becomes an app dependency.
+The native host embeds a read-only in-memory layout probe outside the helper
+resource tree; [Script Check](../../docs/screenplay-validation.md#m5-04-publication-assessment)
+records the exact assessment contract.

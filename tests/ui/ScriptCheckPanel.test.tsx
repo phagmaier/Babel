@@ -1,3 +1,4 @@
+import { PUBLICATION_ASSESSMENT_IDENTITY as identity } from '../../src/domain/exportAssessment';
 import {
   cleanup,
   fireEvent,
@@ -37,7 +38,10 @@ afterEach(() => {
 const SOURCE =
   'Title: Check panel\n\n.INT. A - DAY #1#\n@ALICE\n(Hello?)\n.INT. B - DAY #1#\n';
 
-async function fixture(source: string) {
+async function fixture(
+  source: string,
+  port?: import('../../src/application/exportAssessment').ExportAssessmentPort,
+) {
   const host = document.createElement('div');
   document.body.append(host);
   view = mountScreenplayEditor(
@@ -62,9 +66,9 @@ async function fixture(source: string) {
       );
       return rows;
     })(),
-    sourceSha256: 'test',
+    sourceSha256: 'a'.repeat(64),
   } as unknown as ManuscriptProjection;
-  const controller = new ScriptCheckController(stamp, vi.fn());
+  const controller = new ScriptCheckController(stamp, vi.fn(), port);
   controller.setProjection({ phase: 'current', projection, message: '' });
   controller.run();
   await waitFor(() => expect(controller.state.phase).toBe('current'));
@@ -199,5 +203,86 @@ it('creates no issues for an empty draft and declines document-level navigation'
   expect(screen.getByRole('status').textContent).toContain(
     '0 warnings · 0 advisories',
   );
+  f.controller.dispose();
+});
+
+it('shows verified blocking export limitations with provenance and cannot hide or dismiss them', async () => {
+  const f = await fixture('Archive: Extra\n\n!中文 😀\n', {
+    assess: async () => ({ identity, layout: [] }),
+  });
+  const before = Array.from(captureEditor(f.view.state).source);
+  const selection = f.view.state.selection.toJSON();
+  const depth = undoDepth(f.view.state);
+  const ui = render(
+    <ScriptCheckPanel
+      controller={f.controller}
+      state={f.controller.state}
+      disabled={false}
+      onNavigate={vi.fn()}
+      onClose={vi.fn()}
+    />,
+  );
+  await waitFor(() => expect(f.controller.state.phase).toBe('current'));
+  ui.rerender(
+    <ScriptCheckPanel
+      controller={f.controller}
+      state={f.controller.state}
+      disabled={false}
+      onNavigate={vi.fn()}
+      onClose={vi.fn()}
+    />,
+  );
+  expect(screen.getByText('Export support assessed')).toBeTruthy();
+  expect(screen.getByRole('status').textContent).toContain(
+    'export limitations',
+  );
+  expect(screen.getByText(/us-letter-draft-v1 · Screenplain/)).toBeTruthy();
+  fireEvent.click(screen.getByLabelText('Show warnings'));
+  fireEvent.click(screen.getByLabelText('Show advisories'));
+  ui.rerender(
+    <ScriptCheckPanel
+      controller={f.controller}
+      state={f.controller.state}
+      disabled={false}
+      onNavigate={vi.fn()}
+      onClose={vi.fn()}
+    />,
+  );
+  expect(screen.queryByRole('button', { name: 'Dismiss' })).toBeNull();
+  expect(screen.getAllByRole('button', { name: 'Go to issue' })).toHaveLength(
+    4,
+  );
+  expect(Array.from(captureEditor(f.view.state).source)).toEqual(before);
+  expect(f.view.state.selection.toJSON()).toEqual(selection);
+  expect(undoDepth(f.view.state)).toBe(depth);
+  f.controller.dispose();
+});
+
+it('retains the Refresh focus target while pending, rejects repeat activation, and handles Escape', async () => {
+  const f = await fixture(SOURCE);
+  const run = vi.spyOn(f.controller, 'run');
+  const close = vi.fn();
+  render(
+    <ScriptCheckPanel
+      controller={f.controller}
+      state={{ ...f.controller.state, phase: 'pending' }}
+      disabled={false}
+      onNavigate={vi.fn()}
+      onClose={close}
+    />,
+  );
+  const refresh = screen.getByRole('button', {
+    name: 'Refresh check',
+  }) as HTMLButtonElement;
+  expect(refresh.disabled).toBe(false);
+  expect(refresh.getAttribute('aria-disabled')).toBe('true');
+  refresh.focus();
+  const calls = run.mock.calls.length;
+  fireEvent.click(refresh);
+  expect(run).toHaveBeenCalledTimes(calls);
+  expect(document.activeElement).toBe(refresh);
+  expect(screen.getByText('Export assessment updating')).toBeTruthy();
+  fireEvent.keyDown(refresh, { key: 'Escape' });
+  expect(close).toHaveBeenCalledTimes(1);
   f.controller.dispose();
 });

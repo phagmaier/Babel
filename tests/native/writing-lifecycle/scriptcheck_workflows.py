@@ -30,8 +30,10 @@ def run(d):
     opened_ms = int((time.monotonic() - started) * 1000)
     for code in ['SC001', 'SC002', 'SC006']:
         assert code in d.script("return document.querySelector('.check-panel').textContent;"), code
-    assert 'Export assessment unavailable' in d.body()
-    assert 'SC005' in d.body() and 'SC008' in d.body()
+    assert 'Export support assessed' in d.body()
+    assert 'export limitations' in d.body()
+    panel = d.script("return document.querySelector('.check-panel').textContent;")
+    assert 'SC005' in panel and 'SC008' not in panel, 'ASCII has content limitations but no glyph loss'
     assert target.read_bytes() == source
     d.screenshot('check-panel')
     # Severity filters and advisory dismissal reshape counts without edits.
@@ -81,6 +83,40 @@ def run(d):
     d.wait(lambda: d.script("return !document.querySelector('.check-panel') && document.activeElement?.classList.contains('ProseMirror');"), 'Escape closes to the editor', timeout=30)
     assert target.read_bytes() == source
     d.close_session(); d.audit(target, source)
-    print('OPEN_MS', opened_ms, flush=True)
+    # M5-04 independently authored omissions/glyph literals plus frozen dual
+    # overflow corpus. Native identity/layout IPC is real; no file output.
+    second_source = (b'Title: M5 assessment\nArchive: Extra field\n   Extra continuation\n\n'
+                     b'# Section omitted\n= Synopsis omitted\n\n[[Note omitted]]\n\n'
+                     b'/* Boneyard omitted */\n\n' + '!Café Zoë 中文 😀 العربية e\u0301\n\n'.encode() +
+                     (d.REPO / 'fixtures/publication/dual-overflow.fountain').read_bytes())
+    second = d.ROOT / 'files' / 'assessment.fountain'
+    second.write_bytes(second_source)
+    d.click('Open Fountain', actions=True); d.picker(second); ready()
+    d.click('Save', actions=True); d.audit(second, second_source)
+    d.wait(lambda: 'Saved locally' in d.body(), 'Assessment baseline source receipt')
+    before = d.editor()
+    open_panel()
+    d.wait(lambda: 'Export support assessed' in d.body(), 'Verified production assessment', timeout=60)
+    panel = d.script("return document.querySelector('.check-panel').textContent;")
+    for literal in ['SC005', 'SC008', 'dual-dialogue-overflow', 'U+4E2D', 'U+1F600', 'unsupported shaping', 'us-letter-draft-v1']:
+        assert literal in panel, literal
+    assert 'font is substituted' in panel
+    assert d.editor() == before and second.read_bytes() == second_source
+    assert not list((d.ROOT / 'cache').rglob('*.pdf')), 'assessment must not publish a PDF'
+    # Blocking limitations remain visible when structural warnings are filtered.
+    e = d.find('//label[contains(.,"Show warnings")]/input')
+    d.command('POST', '/element/' + e + '/click', {})
+    assert 'SC005' in d.script("return document.querySelector('.check-panel').textContent;")
+    assert 'SC008' in d.script("return document.querySelector('.check-panel').textContent;")
+    # Explicit native WebDriver navigation to the unknown title's exact row.
+    e = d.find('//section[@aria-label="Publication content limitation issues"]//button[normalize-space(.)="Go to issue"]')
+    d.command('POST', '/element/' + e + '/click', {})
+    d.wait(lambda: d.script("return getSelection().toString().includes('Extra field');"), 'Unknown title target selected')
+    assert d.editor() == before and second.read_bytes() == second_source
+    d.screenshot('m5-04-assessment')
+    d.click('Close Script Check'); d.click('Save', actions=True); d.audit(second, second_source)
+    d.close_session(); d.audit(second, second_source)
+    print('PASS M5-04 native codec omissions, accents, CJK/emoji/RTL/shaping, dual overflow, non-hideable blockers, title navigation and Save with exact source; no PDF writes', flush=True)
+    print('OPEN_MS' , opened_ms, flush=True)
     print('PASS native check panel/filter/dismiss/navigation/save-with-warning/escape/refresh with exact bytes', flush=True)
     print('ARTIFACTS', d.ROOT, flush=True)
