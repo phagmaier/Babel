@@ -547,3 +547,45 @@ other classes. Pin `RUSTUP_TOOLCHAIN=1.97.1` and use
 production build. Plain `cargo build --release` does not select Tauri's production
 configuration. Retain both source diffs and binary hashes, restore production
 source/binary after the comparison, and use new output directories for each run.
+
+### M4-15 presentation without WebDriver
+
+`plain_presentation.py` launches the unchanged production binary directly with
+fresh XDG directories and verifies the automation environment flag is absent.
+AT-SPI operates only controls whose bus owners descend from the launched app;
+PID/start tokens are rechecked before mutations. `wtype` input requires an owned
+focused window. Disposed accessibility objects may be rediscovered during reads;
+ambiguous mutation failures are never retried. No JavaScript/DOM injection or
+WebDriver session is used. This is OS-assisted automation, not manual testing.
+
+```sh
+python3 tests/native/writing-lifecycle/isolated_ime.py /path/to/verified-prefix -- \
+  python3 tests/native/writing-lifecycle/plain_presentation.py /tmp target \
+    --repeats 2 --output /tmp/babel-plain-presentation-results-1
+python3 tests/native/writing-lifecycle/audit_plain_presentation.py \
+  /tmp/babel-plain-presentation-results-1/results.json \
+  --output /tmp/babel-plain-presentation-audit-1
+python3 tests/native/writing-lifecycle/test_owned_accessibility.py
+```
+
+Use fresh output directories. Existing `busctl`, the accessibility/compositor
+bus, verified `wtype`, and `/tmp/babel-m3-08-keyboard` are required. Build the
+keyboard helper with the existing `tests/native/editor-input/build-keyboard.py`.
+No GI binding, screenreader, package installation or global setting is required.
+The IME wrapper retains the prior environment; this control does not compose text.
+
+The default workloads use the exact typical/stress manuscript hashes from the
+presentation auditor. They exercise real Save, a verified edit/Undo, theme/zoom,
+focus/typewriter, long-document scrolling, Save As and protected document close.
+A post-Save-As edit must change the copy while leaving the original intact, then
+Undo restores the exact copy. Native confirmed/recovery frames are independently
+checked. `--workloads typical` or `stress` selects a diagnostic subset.
+
+IME, completion/Find, external divergence, geometry assertions and preference
+restart remain omitted. These are not the full presentation acceptance workload;
+clean results do not establish that WebDriver is necessary for the crash.
+The runner retains continuous process attribution, close/core-dump observations,
+strict stderr/journal failures, command/binary/tooling provenance and failed
+setup cases. Failed-probe forced cleanup is never ordinary-close evidence.
+The independent auditor reports byte coverage separately from strict results;
+an audit completing successfully does not relabel a crashed run as passing.

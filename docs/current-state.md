@@ -1,86 +1,78 @@
-# Current state — M4-15 shutdown investigation; gate open
+# Current state — M4-15 controls complete; shutdown gate open
 
-Date: 2026-10-01 PDT. Application: **babel**. Base `677a6dc` on main;
-one editing agent, no push or M4 verified tag.
+Date: 2026-10-01 PDT. Application: **babel**. Base `58bb421` on main;
+one editing agent; no push, verified M4 tag or M5 work.
 
 ## Task and work
 
-**M4-15 continuation:** completed controls on the installed WebKitGTK 2.52.6
-stack before any private candidate trial. Inherited six dirty paths preserved
-in `target/m4-15-own-code-controls-1/inherited.patch`; executable-phase stack
-observer correction reviewed and rechecked. Reboot removed previous `/tmp`
-artifacts/prerequisites; synthetic IME prerequisites restored privately from
-verified packages. No system libraries changed.
+**M4-15 continuation completed:** added a bounded presentation control without
+WebDriver, independent source/final-checkpoint/crash auditing, and an isolated
+upstream-patched stack comparison. Product source and the default release remain
+unchanged: SHA256 `17072c518333fdd4975625b8dfb28388325a1b7ddda2323187633f153f83602c`.
 
-**M4-15-R2 complete:** fixed a separate Save As rollback defect in
-`src/app/WritingView.tsx`. Restoring the retained editor now schedules capture,
-so outline/counts/navigation recover while source, selection and Undo remain
-intact. Injected late native-release failure reproduced the defect before the
-fix. This does not explain native adoption refusal or fix the heap crash.
+**M4-15-R2 remains complete:** Save As rollback recaptures the restored editor so
+outline/counts/navigation recover without losing source, selection or Undo.
+It does not resolve the underlying native adoption refusal or shutdown abort.
 
-## Findings and evidence
+## Findings
 
-[Investigation and exact commands](test-evidence/M4.md#continuation-from-677a6dc--own-code-shutdown-controls)
-and [R2 checks](test-evidence/M4.md#m4-15-r2--derived-state-after-save-as-rollback)
-own results, omissions and host details. All new artifacts use
-`target/m4-15-own-code-controls-1/`; eight synthetic tmpfs roots archived in
-`tmpfs-evidence.tar.gz` before reboot can remove them.
+- Final no-WebDriver control **2/2 strict** on tmpfs/Btrfs (~3m19s). Same frozen
+  typical/stress manuscripts, real typing/Undo, zoom/theme/focus/typewriter,
+  scrolling, Save As, copy-only edit/Undo and protected close; all expected source
+  bytes and final recovery/confirmed heads intact. Earlier revision: 3/4 strict,
+  one transient accessibility selection failure excluded from complete coverage.
+- This uses AT-SPI/physical keyboard automation, with no WebDriver session or
+  automation flag. IME, completion/Find, external divergence, geometry assertions
+  and preference restart are omitted. Clean runs do not prove WebDriver necessary.
+- Full original workload comparison: **installed before 1/1; candidate 4/4;
+  installed after 1/1 strict**. Real IME/restart and every existing byte/crash gate
+  retained. Independent byte/phase, retained-generation and journal audits pass
+  six roots/twelve exits, zero crash events. **Comparison is inconclusive:** both
+  stacks closed cleanly, so it does not demonstrate a correction.
+- Candidate loader proof passes all 28 observed native tokens with expected
+  executables/libraries, unchanged files and no failed token. Existing private
+  2.54.0 + upstream EGL/DRM patches only; no system package replacement. All six
+  candidate binary/library hashes and 14 patched-source hashes were rechecked.
+- Prior evidence remains valid: preedit-off crashed 3/4; completed no-IME cases
+  crashed; zoom, probe cleanup and blank navigation did not prevent crashes.
+  CoreDumping starts ~110ms after close; the 13–18s delay follows the crash.
+  Symbolized EGL/TLS and DRM/GBM teardown paths strengthen an upstream race lead
+  but do not identify the original corrupting write.
 
-- Preedit disabled: **1/4 strict, 4/4 functional**; three owned crashes before
-  restart/DELETE. The R1 override is not necessary; production preedit retained.
-- No IME: two completed tmpfs cases both crashed at ordinary close; two Btrfs
-  cases failed Save As before shutdown and crashed in fallback cleanup. Do not
-  count the latter as ordinary-close controls or complete byte proofs.
-- Probe cleanup: **1/2 strict**; blank navigation + five-second wait: **0/2**;
-  no zoom: **1/2**. All six workloads completed functional/byte checks.
-- Typical only: **2/2 strict**, insufficient to establish stress necessity.
-  Five-second Home idle: one clean Btrfs case; tmpfs failed caret centering
-  before shutdown, so this paired control is incomplete.
-- Owned process observations show CoreDumping by ~110ms after close; exits
-  finish 13–18 seconds later. The long delay follows the crash/core dump;
-  it is not evidence of a pre-abort 20-second deadlock.
-- Matched debuginfo resolves Gallium finalization, concurrent WebKit Skia/EGL
-  TLS destruction, and DRM/GBM destruction. This strengthens the upstream
-  teardown-race lead; the original corrupting write remains unobserved.
-- Eight simplified standalone GTK/WebKit large-page closes were clean.
-  They are not a matched Babel workload and do not prove automation necessary.
-  WebDriver DELETE closes its windows; it is not a detach operation.
+## Paths and checks
 
-## Checks and paths
-
-- R2 regression fails before fix; focused UI/session checks **56 passed**.
-- Full pinned `pnpm check` quiet rerun **695 passed**, formatting/lint/typecheck/
-  build passed. Initial run had one existing readiness timeout under concurrent
-  workloads; both logs retained, no assertions/timeouts weakened.
-- Pinned Rust format/clippy/workspace tests **passed, 237 tests**; browser smoke
-  passed; default production release rebuilt. No native persistence code changed.
-- Python observer/process/stack tests **3/6/10 passed**; frozen byte/phase and
-  independent journal audits retain every native failure.
-- Rebuilt product native presentation/restart: **2/2 functional, 0/2 strict**
-  (~3m28s); owned WebKit aborts on both filesystems. Independent frozen-byte/
-  phase audits passed both roots/four exits; journal replay retains both failures.
-  Injected rollback failure is UI-tested; it did not recur in these native runs.
-  Full 19-mode acceptance is not claimed.
-- New tools: `tests/native/writing-lifecycle/shutdown_observer.py` and tests;
-  optional workload/exit controls described in that directory's README.
-- R2 contract/trace: [brief](tasks/M4-15-R2.md), persistence/recovery and
-  requirements docs. Source plus UI regression are the only product changes.
+- [Current evidence and exact commands](test-evidence/M4.md#continuation-from-58bb421--presentation-without-webdriver)
+  owns coverage, failed setup attempts, timings, host/provenance and omissions.
+  Artifacts: `target/m4-15-no-webdriver-1/`; five synthetic tmpfs roots retained
+  in `tmpfs-evidence.tar.gz`, with explicit root inventory.
+- Tools: `tests/native/writing-lifecycle/{plain_presentation,owned_accessibility,
+audit_plain_presentation,test_owned_accessibility,test_plain_audit}.py`;
+  invocation and prerequisites in that directory's README.
+- New focused synthetic checks **5 ownership/readiness + 2 audit checks pass**;
+  existing process/exit/stack observer checks **6/3/10 pass**. Live cloned-evidence
+  checks reject changed bytes, a stale edited final recovery head hidden behind
+  an earlier matching frame, and a false strict pass containing a crash.
+- Python syntax/CLI and doc formatting/link/whitespace checks recorded in evidence.
+  No product/dependency change: full frontend/Rust/build/browser suites omitted;
+  prior R2 695 frontend/237 Rust gates remain snapshot-specific historical results.
+- Separate same-agent source review checks ownership, mutation retry refusal,
+  byte/adoption oracles, final generation heads and crash retention. No second
+  reviewer or screenreader acceptance claimed. All failed probes retained.
 
 ## Blocker and next action
 
-**M4-15 remains open.** No supported corrected WebKit package was found; Arch
-still supplies 2.52.6-1. The existing private 2.54.0 + upstream EGL/DRM patch
-prefix is left unused at `target/m4-15-webkit-candidate-1/`; it is neither a
-verified fix nor distribution-supported acceptance evidence.
+**M4-15 remains open.** This turn neither reproduced an ordinary-close crash
+without WebDriver nor established that the private patches fix it. No supported
+corrected package is available in the checked Arch listing (still 2.52.6-1).
+The private prefix remains isolated at `target/m4-15-webkit-candidate-1/`.
 
-Next: reduce the large-document trigger and
-exercise a matched non-automation workload. Use that reproducer for supported
-WebKit/Mesa correction or a controlled upstream comparison; a private build
-can inform diagnosis but cannot close the distribution gate. Preserve bytes,
-crashes and strict journal attribution; clean repeats alone do not establish a
-fix. The separate native Save As adoption refusal also remains unexplained.
+Next bounded task: build a minimal GTK/WebKit WebDriver stress reproducer using
+the implicated page size, interactions and graceful-close order, to remove Babel
+code from the comparison. Retain positive installed-stack failure evidence and
+match the trigger before attributing any clean patched-stack results. A supported
+corrected runtime still needs full integrated acceptance; a private prefix cannot
+close the distribution gate. Preserve all historical crashes and byte oracles.
 
-M4-01–14 bounded Linux dependencies, R1 real preedit and M4-08-R1 emphasis fix
-remain accepted. Stop at M4; no M5. Full S13/long sessions, screenreader/other
-platforms, installed/offline packaging, migration/backups and Local v1 adoption
-remain open. Nothing pushed.
+M4-01–14 bounded Linux dependencies, R1 preedit and M4-08-R1 emphasis remain
+accepted. Full S13/long sessions, screenreader/other platforms, installed/offline
+packaging, migration/backups and Local v1 adoption remain open. Nothing pushed.
