@@ -1,9 +1,15 @@
-# Current state — M5-00 decomposed; M5-01 next
+# Current state — M5-01 helper bundled; M5-02 next
 
 Date: 2026-10-02 PDT. Application: **babel**. Base `a97a577` on main
 (`origin/main` equal to it at start); one editing agent.
 
 ## Task and work
+
+**M5-01 bundled offline renderer helper — complete** (owner delegated the choice),
+base `7552b02`. Standalone CPython 3.13.16 + Screenplain/ReportLab/Courier Prime
+with a Pillow stub ([ADR 0036](decisions/0036-bundled-pdf-helper.md)); reproducible
+tree `7f1fdf68…`; +19.5 MiB AppImage; 11/11 self-tests on build and packaged
+copies, including offline. Shared gates pass. [Evidence](test-evidence/M5.md#m5-01--bundled-offline-renderer-helper).
 
 **M5-00 publication decomposition — complete** (owner authorized starting M5),
 base `7506368`. Documentation only: [M5-01–07 briefs](../TODO.md#m5--publication-pipeline),
@@ -33,13 +39,12 @@ unchanged: SHA256 `0f4ba9bb83078278e6954162e2fe24166ab3a4a08b79b41eb25a9227a9fe1
 
 ## Next action
 
-**M5-01 bundled offline renderer helper:** the packaging gate for ADR 0009's
-Screenplain/ReportLab/Courier Prime baseline. It needs a pinned, self-contained
-helper with no system Python, plus a packaging/license ADR. If bundling fails a
-platform, license or conformance gate, stop and ask the owner about the pdf-lib
-fallback. M4 is tagged `m4-daily-workflows-linux-verified` (`fe0343f`); the
-recreated M3 tag is at `97e1798`; both are pushed. M5-00 is committed locally,
-not pushed.
+**M5-02 native render service:** locate `pdf-helper/` through Tauri's resource
+directory, run it with an argument vector, captured source on stdin and an
+app-owned output path, plus wall-clock timeout, supersede/cancel, exact-version
+results and typed failures. Report the renderer unavailable when the resource
+directory is empty. Builds now need `python3` and one networked fetch to fill
+`target/pdf-helper/cache`. M5-01 is committed locally, not pushed.
 
 ## Paths and checks
 

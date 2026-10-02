@@ -1,0 +1,58 @@
+{
+  "comment": "M5-01 pinned inputs for the offline PDF renderer helper. Every artifact is verified by SHA-256 before use. Build-time network only; the helper never uses the network.",
+  "python": {
+    "file": "cpython-3.13.16+20261001-x86_64-unknown-linux-gnu-install_only_stripped.tar.gz",
+    "url": "https://github.com/astral-sh/python-build-standalone/releases/download/20261001/cpython-3.13.16+20261001-x86_64-unknown-linux-gnu-install_only_stripped.tar.gz",
+    "sha256": "ffcb50e716789d1a6e1db5e745d4d194ac8ed9b015ccf5eabcaccb179a25e4a8",
+    "license": "PSF-2.0 (CPython); statically linked components per python-build-standalone",
+    "staticComponents": {
+      "comment": "Built into python3.13 (observed with sys.builtin_module_names and module version attributes). Licenses are the expected upstream licenses; confirm full texts before distribution (M6).",
+      "OpenSSL 3.5.9": "Apache-2.0",
+      "libedit (readline backend: editline)": "BSD-3-Clause",
+      "ncurses 6.5": "X11-style (MIT)",
+      "SQLite 3.53.1": "blessing (public domain)",
+      "expat 2.8.5": "MIT",
+      "mpdecimal 4.0.0": "BSD-2-Clause",
+      "zlib 1.3.2": "Zlib",
+      "bzip2": "bzip2-1.0.6",
+      "xz/liblzma": "0BSD",
+      "libffi": "MIT",
+      "libuuid (util-linux)": "BSD-3-Clause"
+    }
+  },
+  "wheels": [
+    {
+      "name": "screenplain",
+      "version": "0.12.0",
+      "file": "screenplain-0.12.0-py3-none-any.whl",
+      "url": "https://files.pythonhosted.org/packages/7e/fd/c11f0072d85fb0fc4ab4feff133bb9fd7bcff6e6b2e56fdf20e03da0859c/screenplain-0.12.0-py3-none-any.whl",
+      "sha256": "35feb87cbb0d99a8a713cd1368b9fcf67e522afbc68390a9d691c5fe77d3d4c0",
+      "license": "MIT; bundled Courier Prime OFL-1.1"
+    },
+    {
+      "name": "reportlab",
+      "version": "4.4.7",
+      "file": "reportlab-4.4.7-py3-none-any.whl",
+      "url": "https://files.pythonhosted.org/packages/e7/bf/a29507386366ab17306b187ad247dd78e4599be9032cb5f44c940f547fc0/reportlab-4.4.7-py3-none-any.whl",
+      "sha256": "8fa05cbf468e0e76745caf2029a4770276edb3c8e86a0b71e0398926baf50673",
+      "license": "BSD-3-Clause"
+    },
+    {
+      "name": "charset-normalizer",
+      "version": "3.5.1",
+      "file": "charset_normalizer-3.5.1-py3-none-any.whl",
+      "url": "https://files.pythonhosted.org/packages/cc/61/d01fc49b8dea277640b55a9e15960dbca9fdc8c9fde18e572d39c59f4019/charset_normalizer-3.5.1-py3-none-any.whl",
+      "sha256": "6df0ec430f9a831772c23ca5a224cba36517a58a84bb32c32bb59a9fa67c47f6",
+      "license": "MIT"
+    }
+  ],
+  "fonts": {
+    "screenplain/export/courier_prime/Courier Prime.ttf": "6cc9525b1334047445cba53f323e810331acfdf59f18f4008397d13137737b91",
+    "screenplain/export/courier_prime/Courier Prime Bold.ttf": "aa5a0a31d25dac006fe2d71fc6ff0feff250bc6de3b3c81b7e9d3a58e1329b52",
+    "screenplain/export/courier_prime/Courier Prime Italic.ttf": "e1c9bde2ef55f90a5619cff5dac0d5674700045d666a7d2cddee1879bb83d552",
+    "screenplain/export/courier_prime/Courier Prime Bold Italic.ttf": "cfc77df22c0516962b6ba841e63c59ad8c2f95aff4d7a44f6328eeaaeff7e7d8"
+  },
+  "stubs": {
+    "PIL": "ReportLab imports PIL.Image at load time but this text-only helper never draws images; a refusing stub replaces Pillow (byte-identical corpus output, M5-01)."
+  }
+}

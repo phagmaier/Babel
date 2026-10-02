@@ -1,6 +1,6 @@
 # PDF and formatting
 
-Status: M1 proof recorded; renderer baseline is **conditional** (Screenplain + ReportLab, [ADR 0009](decisions/0009-pdf-renderer-baseline.md)). [SPEC S12](../SPEC.md#s12); PDF-01–04, INV-03/10/13/14.
+Status: M1 proof recorded; renderer baseline is **conditional** (Screenplain + ReportLab, [ADR 0009](decisions/0009-pdf-renderer-baseline.md)). M5-01 bundles it as an offline standalone-CPython helper ([ADR 0036](decisions/0036-bundled-pdf-helper.md), [evidence](test-evidence/M5.md#m5-01--bundled-offline-renderer-helper)); profile, assessment, preview and export remain M5-02–07. [SPEC S12](../SPEC.md#s12); PDF-01–04, INV-03/10/13/14.
 
 Evaluate an existing offline renderer first; Screenplain was the initial candidate and is now the conditional M5 baseline per [ADR 0009](decisions/0009-pdf-renderer-baseline.md), not an unconditional engine. M1 compared supported elements, pagination, licensed font embedding, packaging without end-user Python/Node, determinism, source mapping, performance, and failure behavior. Do not create a custom paginator before evidence warrants it. The selected adapter takes immutable source bytes and source version/hash, project identity, layout-profile version, pinned font identities, and export options. It returns PDF, actual page count, renderer/profile/font identities, warnings, and only a genuinely supported source map.
 

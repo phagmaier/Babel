@@ -17,6 +17,8 @@
     "test": "vitest run",
     "test:browser": "node tests/browser/smoke.mjs",
     "build": "tsc --noEmit && vite build",
+    "pdf-helper": "python3 tools/pdf-helper/build.py",
+    "test:pdf-helper": "python3 tools/pdf-helper/test_helper.py",
     "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build"
   },
   "dependencies": {

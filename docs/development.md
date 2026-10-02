@@ -29,6 +29,7 @@ M1-02 reference input host: AMD Ryzen 7 7840U (8 cores/16 threads), 14 GiB RAM, 
 | Rust unit           | `cargo test --workspace`                                | Includes host command wiring                      |
 | Core unit           | `cargo test -p screenwriter-core`                       | No WebView                                        |
 | Desktop package     | `pnpm tauri build`                                      | Native package; platform prerequisite gate        |
+| PDF helper          | `pnpm pdf-helper`; `pnpm test:pdf-helper`               | M5-01 bundled renderer build/self-test            |
 
 M1-02 isolated native editor proof: `CARGO_HOME=/tmp/babel-cargo pnpm tauri dev --features native-editor-proof --config src-tauri/tauri.native-proof.conf.json`. This feature-gated diagnostic run logs synthetic metrics, without changing the production app route. [Proof instructions](../prototypes/native-editor/README.md) include input sequences.
 
@@ -59,6 +60,20 @@ Direct runtime dependencies are React, React DOM, Tauri API and the four M3-04 p
 Registry metadata checked during M0: React/React DOM and Vite use MIT; Tauri API/CLI and Rust Tauri use MIT OR Apache-2.0; TypeScript and Playwright core use Apache-2.0. This is a direct-package snapshot, not a complete transitive notice file. Before distributing a release, collect the exact locked transitive notices and inspect bundled GTK/WebKit and other native license obligations. The app source has no owner-selected open-source license.
 
 M1-02 registry metadata checked all six direct ProseMirror proof packages (`commands`, `history`, `keymap`, `schema-basic`, `state`, `view`) at their pinned versions as MIT. The lockfile adds transitive `model` and `transform`; their exact distribution notices still require release review. M3-04 promotes four selected packages; [exact runtime notices](third-party/editor-runtime.md) cover those and their existing transitive dependencies.
+
+M5-01 bundled PDF helper: `python3 tools/pdf-helper/build.py` assembles
+`target/pdf-helper/runtime` from SHA-256-pinned python-build-standalone CPython
+3.13.16, Screenplain 0.12.0 (MIT, Courier Prime OFL-1.1), ReportLab 4.4.7
+(BSD-3-Clause) and charset-normalizer 3.5.1 (MIT), with a refusing Pillow stub.
+It needs `python3` 3.12 or newer and network access once to fill
+`target/pdf-helper/cache`; `--offline` uses the cache only. `pnpm tauri build`
+runs it through `beforeBuildCommand`. Plain `cargo` commands work without it,
+because `src-tauri/build.rs` creates the empty resource directory. Check with
+`python3 tools/pdf-helper/test_helper.py` and
+`python3 tools/pdf-helper/verify_runtime.py <runtime> [--exact]`.
+Statically linked interpreter components and their expected licenses are listed
+in `tools/pdf-helper/pins.json`; full texts before distribution remain M6.
+[ADR 0036](decisions/0036-bundled-pdf-helper.md), [README](../tools/pdf-helper/README.md).
 
 M1-04 isolated native filesystem proof (Linux, unprivileged user):
 `CARGO_HOME=/tmp/babel-cargo cargo test -p durable-replacement-proof --locked`.

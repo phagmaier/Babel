@@ -6,7 +6,7 @@
   "build": {
     "beforeDevCommand": "pnpm dev",
     "devUrl": "http://localhost:5173",
-    "beforeBuildCommand": "pnpm build",
+    "beforeBuildCommand": "pnpm build && pnpm pdf-helper",
     "frontendDist": "../dist"
   },
   "app": {
@@ -25,6 +25,9 @@
   "bundle": {
     "active": true,
     "targets": ["appimage"],
-    "icon": ["icons/icon.png"]
+    "icon": ["icons/icon.png"],
+    "resources": {
+      "../target/pdf-helper/runtime/": "pdf-helper/"
+    }
   }
 }
