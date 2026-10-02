@@ -163,6 +163,22 @@ fn record_native_editor_proof(report: String) -> Result<(), &'static str> {
     Ok(())
 }
 
+/// WebKitGTK 2.52 can abort while its web process runs exit-time EGL/GBM
+/// teardown after the window closes (M4-15; upstream WebKit 305909/315577).
+/// This close is unprotected: no document remains open and the web process
+/// owns no author state, so end it before the window and app go away instead
+/// of letting it run that teardown. Runs synchronously on the main thread.
+#[cfg(target_os = "linux")]
+fn end_web_content_before_close<R: tauri::Runtime>(window: &tauri::Window<R>) {
+    use webkit2gtk::WebViewExt;
+    let Some(webview) = window.app_handle().get_webview_window(window.label()) else {
+        return;
+    };
+    if let Err(error) = webview.with_webview(|platform| platform.inner().terminate_web_process()) {
+        eprintln!("web content shutdown unavailable: {error}");
+    }
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let builder = tauri::Builder::default()
@@ -170,12 +186,15 @@ pub fn run() {
         .manage(CommandMenu::default())
         .manage(RecoveryHost::default())
         .on_window_event(|window, event| {
-            if let tauri::WindowEvent::CloseRequested { api, .. } = event
-                && window.state::<DocumentHost>().has_open_documents()
-            {
-                api.prevent_close();
-                if let Err(error) = window.emit("protected-close-requested", ()) {
-                    eprintln!("protected close event unavailable: {error}");
+            if let tauri::WindowEvent::CloseRequested { api, .. } = event {
+                if window.state::<DocumentHost>().has_open_documents() {
+                    api.prevent_close();
+                    if let Err(error) = window.emit("protected-close-requested", ()) {
+                        eprintln!("protected close event unavailable: {error}");
+                    }
+                } else {
+                    #[cfg(target_os = "linux")]
+                    end_web_content_before_close(window);
                 }
             }
         })

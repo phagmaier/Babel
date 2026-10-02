@@ -176,7 +176,9 @@ The native window event cancels close while registrations exist and emits
 `protected-close-requested`. Only event-listen and window-close core permissions
 were added; no filesystem, shell or remote permission was added. The marked
 synthetic editor consumes this event and tests real WebKit close. See
-[ADR 0019](decisions/0019-protected-close-lifecycle.md).
+[ADR 0019](decisions/0019-protected-close-lifecycle.md). Once no registration
+remains, Linux ends the WebKit web process before the window drops, avoiding
+its crashing exit-time teardown ([ADR 0035](decisions/0035-linux-web-process-close.md)).
 
 ## M2-06 native history boundary
 

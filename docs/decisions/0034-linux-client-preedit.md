@@ -30,3 +30,4 @@ same-agent source review are recorded in [M4 evidence](../test-evidence/M4.md#co
 Evidence still needed: the full integrated exit remains open because native
 presentation restarts emitted heap aborts; ordinary application-quit impact and
 corruption origin remain unresolved. Other platforms/distribution are unverified.
+The ordinary-close abort is mitigated separately by [ADR 0035](0035-linux-web-process-close.md).

@@ -1,41 +1,26 @@
-# Current state — M4-15 Tauri-like standalone controls null; shutdown gate open
+# Current state — M4-15 shutdown abort mitigated; integrated exit open
 
 Date: 2026-10-02 PDT. Application: **babel**. Base `7aa7a08` on main;
 one editing agent; no push, verified M4 tag or M5 work.
 
 ## Task and work
 
-**Completed continuation from `e965bae` (Wry-style app-owned view):** added
-opt-in `--view-owner app` (startup view returned by every `create-web-view`, as
-in Wry 0.57.0), combined with `--exit-order tao`. Installed stack,
-`target/m4-15-app-view-1/`: smoke 1/1, Home **4/4**, editor-present **4/4
-strict**; 9/9 independent audits, 36 owned-PID core queries and two negative
-checks pass. **Null result.** Remaining mismatches: data-directory context,
-`GtkBox` packing, `GApplication` window, custom-scheme/IPC page, Babel's page/
-workload. [Evidence](test-evidence/M4.md#continuation-from-e965bae--wry-style-app-owned-view-control).
+**Completed continuation from `8e21ee3`: shutdown abort mitigated in product.**
+Owner stopped WebKit bisection. On Linux, `CloseRequested` with no open document
+now ends the WebKit web process synchronously before the window drops
+([ADR 0035](decisions/0035-linux-web-process-close.md); `src-tauri/src/lib.rs`,
+`webkit2gtk` feature `v2_28` → `v2_34`, same pinned version). Unchanged binary
+on the ordinary-close reproducer: **2/4 crashed** (owned SIGSEGV + SIGABRT cores).
+Mitigated: **8/8** same command, **4/4** full default workload tmpfs/Btrfs, final
+rebuilt binary **2/2**; zero owned cores, byte/journal/retained audits pass,
+preference restart intact, close→exit median unchanged (140ms). Shared gates pass:
+Rust 237, Vitest 695, clippy/fmt/lint/typecheck/format/build. Release SHA256 now
+`0f4ba9bb83078278e6954162e2fe24166ab3a4a08b79b41eb25a9227a9fe130d`.
+[Evidence](test-evidence/M4.md#continuation-from-8e21ee3--terminate-web-process-on-accepted-close).
 
-**Completed continuation from `7aa7a08` (Tao/Tauri exit-order control):**
-source-compared the standalone control with pinned Tauri 2.12.0/Wry 0.57.0/
-Tao 0.37.1. All historical cores are WebKitWebProcess. The control drained GTK
-2s, unreffed its context and returned from `main`; Tauri exits via
-`process::exit(0)` about two non-blocking iterations after the last window's
-destroy, with the WebContext retained. Added opt-in `--exit-order tao`
-(`minimal_webkit.c`/`minimal_webdriver.py`); default unchanged.
-
-Installed stack, `target/m4-15-tao-exit-1/`: Home **4/4 strict** (171.86s),
-editor-present **4/4 strict** (173.50s); host exit ~1ms after destroy, web
-process sampled alive after the host was gone in 5/8 cases. Independent audit,
-journal replay, 36 owned-PID core queries and two negative checks pass. The first
-series failed setup (SSH shell without display variables, retained).
-**Null result**: does not reproduce, exonerate or fix. Remaining mismatches:
-ephemeral versus data-directory context, WebDriver-created versus app-owned view
-(Wry `create-web-view`), plain `GtkWindow` versus Tao `GApplication`.
-[Evidence](test-evidence/M4.md#continuation-from-7aa7a08--taotauri-exit-order-standalone-control);
-invocation in the [native guide](../tests/native/writing-lifecycle/README.md#m4-15-standalone-webkit-shutdown-control).
-
-Prior standalone control (`7aa7a08`): drain-order installed runs 8/8 strict
-(Home/editor 4/4 each), `target/m4-15-minimal-webdriver-1/`, failed roots 1–11
-retained. [Evidence](test-evidence/M4.md#continuation-from-473858b--standalone-webkit-control).
+Earlier standalone controls (default drain 8/8, Tao exit order 8/8, Wry app-owned
+view 9/9) were clean and are superseded as the next action; artifacts retained
+under `target/m4-15-{minimal-webdriver,tao-exit,app-view}-1/`.
 
 **M4-15 continuation completed:** added a bounded presentation control without
 WebDriver, independent source/final-checkpoint/crash auditing, and an isolated
@@ -93,19 +78,12 @@ audit_plain_presentation,test_owned_accessibility,test_plain_audit}.py`;
 
 ## Blocker and next action
 
-**M4-15 remains open.** Installed standalone controls closed cleanly; the
-original integrated ordinary-close heap abort and all historical evidence remain
-unresolved. Last checked Arch listing was 2.52.6-1; this continuation used that
-installed version. Private patches remain isolated at
-`target/m4-15-webkit-candidate-1/`, with no new comparison or system replacement.
-
-Next bounded task: add the data-directory (non-ephemeral) WebContext as the
-next single mismatch on top of `--exit-order tao --view-owner app`. If that is
-also null, the remaining low-cost standalone differences (`GtkBox`, `GApplication`)
-are unlikely to matter; prefer moving toward Babel's own page content (frozen
-built `dist/` page in the standalone host) over more shell-level variants. Retain
-a positive installed failure before any stack comparison. Supported
-corrected-runtime and full integrated acceptance remain necessary.
+**M4-15 remains open** for its own acceptance gate, not the shutdown abort: run
+the complete default M4 integrated native matrix on tmpfs/Btrfs with the final
+release, then the separate post-integration source review. If ordinary-close
+crashes recur there, retain them and revisit ADR 0035; do not resume WebKit
+bisection without new evidence. Upstream WebKit/Mesa race is unchanged; other
+distributions, GPU drivers and packaged builds are unverified.
 
 M4-01–14 bounded Linux dependencies, R1 preedit and M4-08-R1 emphasis remain
 accepted. Full S13/long sessions, screenreader/other platforms, installed/offline
