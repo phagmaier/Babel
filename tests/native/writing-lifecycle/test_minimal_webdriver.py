@@ -6,7 +6,8 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from minimal_webdriver import alive, installed_library_paths, main, signal_owned, strict_pass
+from minimal_webdriver import (alive, host_exit_marker, installed_library_paths, main,
+                               signal_owned, strict_pass)
 
 
 def complete_report():
@@ -72,6 +73,18 @@ class MinimalTests(unittest.TestCase):
         report = deepcopy(good)
         report['phases'].reverse()
         self.assertFalse(strict_pass(report))
+
+    def test_exit_marker_requires_selected_order_and_refuses_the_other(self):
+        drain = 'MINIMAL window-destroy 1\nMINIMAL main-loop-exit 2\n'
+        tao = ('MINIMAL exit-order tao\nMINIMAL close-requested 1\n'
+               'MINIMAL window-destroy 2\nMINIMAL tao-process-exit 3\n')
+        self.assertTrue(host_exit_marker(drain, 'drain'))
+        self.assertTrue(host_exit_marker(tao, 'tao'))
+        self.assertFalse(host_exit_marker(tao, 'drain'))
+        self.assertFalse(host_exit_marker(drain, 'tao'))
+        self.assertFalse(host_exit_marker(tao + 'MINIMAL main-loop-exit 4\n', 'tao'))
+        self.assertFalse(host_exit_marker(tao.replace('MINIMAL close-requested 1\n', ''), 'tao'))
+        self.assertFalse(host_exit_marker('', 'drain'))
 
     def test_pid_reuse_or_zombie_refuses_cleanup_signal(self):
         token = {'pid': 12, 'start': '456'}

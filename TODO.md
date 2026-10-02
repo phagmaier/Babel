@@ -89,7 +89,7 @@ Prerequisite: [corrected M3-13 bounded Linux exit](docs/test-evidence/M3.md#m3-1
 
 - [x] **[M4-15-R2](docs/tasks/M4-15-R2.md) Save As rollback derived state** — Restore outline/counts/navigation after retained editor rollback without losing source, selection or Undo. [Evidence](docs/test-evidence/M4.md#m4-15-r2--derived-state-after-save-as-rollback); independent shutdown blocker remains open.
 
-Recommended next: **M4-15**. Standalone installed GTK/WebKit WebDriver control is validated: 8/8 strict ordinary closes, independent raw evidence/journal audits pass; it has not reproduced the integrated heap abort. Compare renderer/automation/close lifetimes and add explicit matched controls to retain a positive installed-stack failure before attributing candidate improvements. All failed setups and prior crashes remain; [current evidence](docs/test-evidence/M4.md#continuation-from-473858b--standalone-webkit-control). R2 remains complete; M4-15 stays open. No system upgrade, M5 or M4 tag.
+Recommended next: **M4-15**. Standalone installed control now also covers the pinned Tao/Tauri exit order (`--exit-order tao`: immediate `exit(0)`, retained WebContext): 8/8 strict, null result; [current evidence](docs/test-evidence/M4.md#continuation-from-7aa7a08--taotauri-exit-order-standalone-control). Next add one further mismatch at a time (app-owned view via `create-web-view`, then data-directory context) and retain a positive installed-stack failure before any stack comparison. All failed setups and prior crashes remain. R2 remains complete; M4-15 stays open. No system upgrade, M5 or M4 tag.
 
 ## M5–M7 — gated task groups (decompose before starting)
 

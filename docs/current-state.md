@@ -1,43 +1,32 @@
-# Current state — M4-15 standalone control validated; shutdown gate open
+# Current state — M4-15 Tao exit-order control null; shutdown gate open
 
-Date: 2026-10-02 PDT. Application: **babel**. Base `473858b` on main;
+Date: 2026-10-02 PDT. Application: **babel**. Base `7aa7a08` on main;
 one editing agent; no push, verified M4 tag or M5 work.
 
 ## Task and work
 
-**Claimed continuation:** standalone GTK/WebKit WebDriver stress/ordinary-close
-probe, removing Babel application code. Installed stack first; retain failures,
-process identities and close timing. No product change or gate advancement.
+**Completed continuation from `7aa7a08` (Tao/Tauri exit-order control):**
+source-compared the standalone control with pinned Tauri 2.12.0/Wry 0.57.0/
+Tao 0.37.1. All historical cores are WebKitWebProcess. The control drained GTK
+2s, unreffed its context and returned from `main`; Tauri exits via
+`process::exit(0)` about two non-blocking iterations after the last window's
+destroy, with the WebContext retained. Added opt-in `--exit-order tao`
+(`minimal_webkit.c`/`minimal_webdriver.py`); default unchanged.
 
-**Standalone GTK/WebKit control completed and validated.**
-`minimal_webkit.c` / `minimal_webdriver.py` now drive complete 2,703/27,003-row
-pages with trusted typing, exact WebCore native Undo, twelve zoom/scroll steps
-per page, screenshots, live installed-library hashes and PID/start-owned close.
-Six refusal/ownership/provenance tests in `test_minimal_webdriver.py`; invocation
-and control differences in the [native guide](../tests/native/writing-lifecycle/README.md#m4-15-standalone-webkit-shutdown-control).
+Installed stack, `target/m4-15-tao-exit-1/`: Home **4/4 strict** (171.86s),
+editor-present **4/4 strict** (173.50s); host exit ~1ms after destroy, web
+process sampled alive after the host was gone in 5/8 cases. Independent audit,
+journal replay, 36 owned-PID core queries and two negative checks pass. The first
+series failed setup (SSH shell without display variables, retained).
+**Null result**: does not reproduce, exonerate or fix. Remaining mismatches:
+ephemeral versus data-directory context, WebDriver-created versus app-owned view
+(Wry `create-web-view`), plain `GtkWindow` versus Tao `GApplication`.
+[Evidence](test-evidence/M4.md#continuation-from-7aa7a08--taotauri-exit-order-standalone-control);
+invocation in the [native guide](../tests/native/writing-lifecycle/README.md#m4-15-standalone-webkit-shutdown-control).
 
-Installed runtime **8/8 strict**: Home close 4/4 (181.73s recorded case time),
-editor-present close 4/4 (182.10s). Both use ordinary GTK destroy, two-second
-main-loop drain, complete descendant exit before session DELETE, then expected
-driver SIGTERM. Independent raw text/event/hash/library/phase/drain/journal
-audits pass; zero crash lines/core observations/events/fallbacks/survivors.
-Source/host/driver hashes stayed unchanged during final runs. This validates the
-control, **does not reproduce Babel's abort or establish a fix**.
-
-Artifacts: `target/m4-15-minimal-webdriver-1/`; all failed setup/control roots
-1–11 retained. Ctrl+Z delivered trusted keys without native Undo; default now
-uses WebCore Undo and records trusted `historyUndo`. Active-caret rendering
-controls timed out before close even at 120s without the forced layer. Default
-blurs before zoom, matching dropdown focus; `--keep-editor-focus` / `--composited`
-retain both earlier variants. No product workaround or causal conclusion.
-
-Six new + inherited 6/3/10 synthetic checks, Python syntax/CLI, separate same-agent
-source review and mutated cloned-evidence refusal checks pass. Full product
-suites omitted for standalone tooling only. No second-reviewer, lossless tracing,
-S13, manuscript safety or milestone acceptance claim. No tool security rejection
-received; no global settings changed after the denied ptrace attempt.
-[Exact commands, failures and final evidence](test-evidence/M4.md#continuation-from-473858b--standalone-webkit-control).
-No native probe remains.
+Prior standalone control (`7aa7a08`): drain-order installed runs 8/8 strict
+(Home/editor 4/4 each), `target/m4-15-minimal-webdriver-1/`, failed roots 1–11
+retained. [Evidence](test-evidence/M4.md#continuation-from-473858b--standalone-webkit-control).
 
 **M4-15 continuation completed:** added a bounded presentation control without
 WebDriver, independent source/final-checkpoint/crash auditing, and an isolated
@@ -101,13 +90,12 @@ unresolved. Last checked Arch listing was 2.52.6-1; this continuation used that
 installed version. Private patches remain isolated at
 `target/m4-15-webkit-candidate-1/`, with no new comparison or system replacement.
 
-Next bounded task: compare the standalone and implicated integrated controls'
-renderer/automation/close lifetimes, then add one explicit matching interaction
-or lifetime control at a time. Retain a positive installed-stack failure before
-attributing clean candidate results. The active-caret rendering stall is a
-separate observed setup issue; do not infer it causes heap corruption. Supported
-corrected-runtime validation and full integrated acceptance remain necessary;
-a private prefix or these clean controls cannot close the gate.
+Next bounded task: add ONE further standalone mismatch at a time on the
+installed stack, combined with `--exit-order tao`. Suggested order: app-created
+view handed to automation via `create-web-view` (Wry), then data-directory
+context. Retain a positive installed failure before any stack comparison. The
+active-caret stall is a separate setup issue. Supported corrected-runtime and
+full integrated acceptance remain necessary; clean controls cannot close the gate.
 
 M4-01–14 bounded Linux dependencies, R1 preedit and M4-08-R1 emphasis remain
 accepted. Full S13/long sessions, screenreader/other platforms, installed/offline

@@ -1,9 +1,18 @@
 /* Standalone diagnostic host: no Babel, Tauri, manuscript or persistence code.
  * WebDriver creates one view; ordinary GTK window destroy drains the main loop
  * for two seconds before process exit. This is not Babel's event-loop lifetime.
+ * --exit-order=tao instead follows pinned Tao 0.37.1/Tauri 2.12 on Linux: the
+ * close request is inhibited, the window is destroyed outside GTK dispatch, two
+ * non-blocking iterations run, then exit(0) with the context still referenced.
  */
 #include <gtk/gtk.h>
+#include <stdlib.h>
 #include <webkit2/webkit2.h>
+
+static gboolean tao_exit_order;
+static gboolean close_requested;
+static gboolean window_destroyed;
+static GtkWidget *owned_window;
 
 static gboolean quit_loop(gpointer data)
 {
@@ -18,7 +27,20 @@ static void destroyed(GtkWidget *widget, gpointer data)
     (void)widget;
     (void)data;
     g_printerr("MINIMAL window-destroy %" G_GINT64_FORMAT "\n", g_get_real_time());
-    g_timeout_add(2000, quit_loop, NULL);
+    window_destroyed = TRUE;
+    if (!tao_exit_order)
+        g_timeout_add(2000, quit_loop, NULL);
+}
+
+/* Tao connects delete-event, returns TRUE and queues CloseRequested. */
+static gboolean delete_requested(GtkWidget *widget, GdkEvent *event, gpointer data)
+{
+    (void)widget;
+    (void)event;
+    (void)data;
+    g_printerr("MINIMAL close-requested %" G_GINT64_FORMAT "\n", g_get_real_time());
+    close_requested = TRUE;
+    return TRUE;
 }
 
 static void close_view(WebKitWebView *view, gpointer window)
@@ -37,6 +59,10 @@ static WebKitWebView *create_view(WebKitAutomationSession *session, gpointer con
     gtk_window_set_title(GTK_WINDOW(window), "WebKit minimal shutdown probe");
     gtk_container_add(GTK_CONTAINER(window), view);
     g_signal_connect(window, "destroy", G_CALLBACK(destroyed), NULL);
+    if (tao_exit_order) {
+        g_signal_connect(window, "delete-event", G_CALLBACK(delete_requested), NULL);
+        owned_window = window;
+    }
     g_signal_connect(view, "close", G_CALLBACK(close_view), window);
     gtk_widget_show_all(window);
     return WEBKIT_WEB_VIEW(view);
@@ -57,9 +83,26 @@ static void automation_started(WebKitWebContext *context,
 int main(int argc, char **argv)
 {
     gtk_init(&argc, &argv);
+    for (int i = 1; i < argc; i++)
+        tao_exit_order |= g_strcmp0(argv[i], "--exit-order=tao") == 0;
     WebKitWebContext *context = webkit_web_context_new_ephemeral();
     webkit_web_context_set_automation_allowed(context, TRUE);
     g_signal_connect(context, "automation-started", G_CALLBACK(automation_started), NULL);
+    if (tao_exit_order) {
+        g_printerr("MINIMAL exit-order tao\n");
+        while (!close_requested && !window_destroyed)
+            gtk_main_iteration_do(TRUE);
+        /* Tauri drops the Tao window (gtk destroy) while handling the queued
+         * request; Destroyed for the last window then sets ControlFlow::Exit.
+         * Each handled event is followed by gtk_main_iteration_do(FALSE). */
+        if (!window_destroyed)
+            gtk_widget_destroy(owned_window);
+        gtk_main_iteration_do(FALSE);
+        gtk_main_iteration_do(FALSE);
+        /* Rust process::exit is libc exit; WebContextStore is never released. */
+        g_printerr("MINIMAL tao-process-exit %" G_GINT64_FORMAT "\n", g_get_real_time());
+        exit(0);
+    }
     gtk_main();
     g_object_unref(context);
     return 0;

@@ -70,6 +70,16 @@ def installed_library_paths(paths):
                 for p in paths))
 
 
+def host_exit_marker(log, exit_order):
+    """Require the selected host exit path's markers; never accept the other."""
+    drain = 'MINIMAL main-loop-exit ' in log
+    tao = all(m in log for m in ('MINIMAL exit-order tao\n', 'MINIMAL close-requested ',
+                                 'MINIMAL window-destroy ', 'MINIMAL tao-process-exit '))
+    if exit_order == 'tao':
+        return tao and not drain
+    return drain and 'MINIMAL exit-order tao' not in log and 'MINIMAL tao-process-exit ' not in log
+
+
 def strict_pass(report):
     return (report.get('workloadCompleted') is True
             and report.get('ordinaryExitCompleted') is True
@@ -210,7 +220,8 @@ def workload(d, root, rows, report, edit_text='X', undo_method='dom', composited
                                 'retainedElements': len(refs), 'geometry': geometries, 'undoPassed': True})
 
 
-def run_case(root, binary, rows, leave_editor, edit_text, undo_method, composited, keep_focus):
+def run_case(root, binary, rows, leave_editor, edit_text, undo_method, composited, keep_focus,
+             exit_order='drain'):
     started = time.monotonic()
     root.mkdir()
     env = os.environ.copy()
@@ -255,7 +266,7 @@ def run_case(root, binary, rows, leave_editor, edit_text, undo_method, composite
     report = {'started': time.time(), 'rows': rows, 'leaveEditor': leave_editor, 'editText': edit_text,
               'undoMethod': undo_method,
               'composited': composited,
-              'keepEditorFocus': keep_focus,
+              'keepEditorFocus': keep_focus, 'exitOrder': exit_order,
               'fallbackSignals': [], 'phases': [], 'driverCommand': driver.args}
     d = Driver(port, root / 'requests.json')
 
@@ -276,7 +287,8 @@ def run_case(root, binary, rows, leave_editor, edit_text, undo_method, composite
                 time.sleep(.1)
         session = d.request('POST', '/session', {'capabilities': {'alwaysMatch': {
             'browserName': 'WebKitMiniHost',
-            'webkitgtk:browserOptions': {'binary': str(binary), 'args': []}}}})
+            'webkitgtk:browserOptions': {'binary': str(binary),
+                'args': ['--exit-order=tao'] if exit_order == 'tao' else []}}}})
         d.session = session['sessionId']
         write(root / 'session.json', session)
         workload(d, root, rows, report, edit_text, undo_method, composited, keep_focus)
@@ -366,7 +378,7 @@ def run_case(root, binary, rows, leave_editor, edit_text, undo_method, composite
         report['watchErrors'] = watch_errors
         report['survivors'] = [p for p in tokens() if alive(p, processes())]
         log.close()
-        report['hostExitMarker'] = 'MINIMAL main-loop-exit ' in logpath.read_text()
+        report['hostExitMarker'] = host_exit_marker(logpath.read_text(), exit_order)
         report['crashLines'] = [line for line in logpath.read_text().splitlines() if CRASH.search(line)]
         report['journal'] = journal_scan(ledger, root / 'crash-journal.json')
         report['ended'] = time.time()
@@ -389,6 +401,9 @@ def main():
                         help='Force the draft translateZ(0) layer; Babel does not use this editor style')
     parser.add_argument('--keep-editor-focus', action='store_true',
                         help='Keep the native caret during presentation changes (draft control)')
+    parser.add_argument('--exit-order', choices=['drain', 'tao'], default='drain',
+                        help='Two-second GTK drain and context unref (default) or the pinned '
+                             'Tao/Tauri Linux order: inhibited close, destroy, exit(0)')
     args = parser.parse_args()
     assert args.repeats > 0 and all(n > 0 for n in args.rows) and args.edit_text
     output = args.output.resolve()
@@ -417,7 +432,8 @@ def main():
     for i in range(args.repeats):
         root = output / f'case-{i + 1:02}'
         report = run_case(root, binary, args.rows, args.leave_editor, args.edit_text,
-                          args.undo_method, args.composited, args.keep_editor_focus)
+                          args.undo_method, args.composited, args.keep_editor_focus,
+                          args.exit_order)
         reports.append({'root': str(root), **report})
         write(output / 'results.json', reports)
         print(json.dumps({'case': i + 1, 'strictPassed': report['strictPassed'],

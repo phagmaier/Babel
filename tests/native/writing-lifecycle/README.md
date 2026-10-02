@@ -107,6 +107,20 @@ All failed evidence is retained; a clean control does not establish a fix or
 exclude a Babel-dependent trigger. No private-stack comparison is meaningful
 until the installed control reproduces the relevant failure.
 
+`--exit-order tao` (default `drain`) passes `--exit-order=tao` to the host and
+follows pinned Tao 0.37.1/Tauri 2.12.0 on Linux instead: `delete-event` is
+inhibited, the window is destroyed outside GTK dispatch, two non-blocking
+`gtk_main_iteration_do` calls run, then `exit(0)` (Rust `process::exit`) with the
+WebContext still referenced, as Tauri's Linux `WebContextStore` keeps it. The
+host exits about 1ms after destroy, so the web process may outlive it. The strict
+oracle requires this path's markers and refuses the drain marker. Remaining
+differences: ephemeral context versus Tauri's data directory, a WebDriver-created
+view versus Wry returning the app's existing view, and a plain `GtkWindow` versus
+Tao's `GApplication` window. From a non-graphical (for example SSH) shell, pass
+the live Hyprland session's `WAYLAND_DISPLAY`, `DISPLAY`, `XDG_SESSION_TYPE`,
+`XDG_CURRENT_DESKTOP` and `HYPRLAND_INSTANCE_SIGNATURE` to the runner only;
+otherwise the host cannot open a display and the session request times out.
+
 ## M3-13 integrated editor and separate review
 
 After the default release build and keyboard helper above, run sequentially:
