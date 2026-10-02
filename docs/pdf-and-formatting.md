@@ -48,4 +48,39 @@ destroys viewer workers. Save/recovery/Undo remain independently owned.
 Renderer warnings stay visible; support limitations, helper/resource/viewer
 failure and count disagreement earn no fresh-preview/export success. No page
 markers or Script Check page targets exist without a supported source map.
-M5-06 owns export decisions/destinations and M5-07 preview/export agreement.
+M5-07 owns the integrated preview/export and offline-package gate.
+
+## Captured PDF export (M5-06)
+
+[ADR 0039](decisions/0039-pdf-export-publication.md) defines Linux publication.
+Export PDF is available through the shared command palette, native menu and
+shortcut registry. A short freeze protects the exact source in recovery and
+receives an opaque native capture token; typing resumes for review and rendering.
+Review names that captured version, shows all structural warnings and SC005/SC008
+source targets, and requires explicit acknowledgment of warnings/limitations.
+Unavailable, mismatched, truncated or incomplete assessments refuse export.
+Acknowledgment permits known omissions; the frozen helper still refuses unsupported
+glyphs, shaping and layout. Source Save is independently available.
+
+Preview and export share one render controller, sequence and native queue.
+Preview admission pauses during export. Typing marks preview stale while export
+continues over immutable protected bytes; completion resumes the latest preview.
+Only the current artifact bound to the native capture token and PDF hash can be
+published. A verified receipt reports captured version/source hash, actual pages,
+PDF hash and destination filename. Export grants no source-file Save credit.
+
+The GTK picker returns a single-use destination token, never a frontend path.
+Only eligible `.pdf` names and existing regular, owned, writable PDFs qualify.
+App data, `.screenwriter`, reserved `.babel-` names, every registered source
+path/inode, symlinks, hardlinks, changed directory/destination generations and
+unpreservable metadata are refused. New files use atomic NOREPLACE; replacements
+use EXCHANGE after a verified, synced 0600 previous-PDF copy. Candidate and final
+bytes are independently read back. Failed confirmation attempts guarded rollback;
+uncertain rollback retains generations and reports attention, never success.
+Previous copies and crash candidates are not automatically removed or promoted.
+
+Cancel is available before publication, including review/rendering/picker wait;
+late callbacks cannot write a destination. Once atomic publication starts,
+Cancel is disabled with an explicit status. This derivative workflow does not
+rewrite source, editor Undo or history. No upload, network or shell endpoint is
+added. Verification is recorded in [M5 evidence](test-evidence/M5.md#m5-06--captured-pdf-export).

@@ -1,3 +1,4 @@
+import { nativeExportPdf } from '../infrastructure/nativeExportPdf';
 import {
   nativeExportAssessment,
   nativePublicationPreview,
@@ -47,6 +48,7 @@ const writingPorts = {
   workflows: nativeWorkflowProtection,
   exportAssessment: nativeExportAssessment,
   publication: nativePublicationPreview,
+  exportPdf: nativeExportPdf,
 };
 
 export function App({

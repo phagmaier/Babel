@@ -137,8 +137,8 @@ def owned_clients():
     return [client for client in clients if owned(client.get('pid', 0))]
 
 
-def picker(path=None):
-    dialogs = {'Save screenplay as', 'Open Fountain screenplay', 'Choose destination folder'}
+def picker(path=None, overwrite=False):
+    dialogs = {'Save screenplay as', 'Open Fountain screenplay', 'Choose destination folder', 'Export PDF'}
     clients = wait(lambda: [c for c in owned_clients() if c.get('title') in dialogs], 'Owned GTK picker appears')
     active = json.loads(subprocess.check_output(['hyprctl', '-j', 'activewindow']))
     if active.get('address') not in [c['address'] for c in clients]:
@@ -160,6 +160,14 @@ def picker(path=None):
     subprocess.run(['wtype', '-d', '3', str(path) + ('/' if folder else '')], check=True)
     subprocess.run(['/tmp/babel-m3-08-keyboard', 'return'], check=True)
     time.sleep(.4)
+    if overwrite:
+        from owned_accessibility import Accessibility
+        app = next(c for c in owned_clients() if c.get('class') == 'babel-desktop')
+        accessibility = Accessibility(app['pid'])
+        nodes = wait(lambda: [n for n in accessibility.tree() if n['role'] == 43 and n['name'].replace('_', '') == 'Replace'], 'Owned GTK overwrite confirmation')
+        assert len(nodes) == 1, nodes
+        node = nodes[0]; accessibility.validate(node)
+        assert accessibility.call(node['bus'], node['path'], 'Action', 'DoAction', 'i', '0') == [True]
     if not folder:
         # Every file destination needs one confirmation. A
         # compositor-title check followed by a second Return can race dialog
@@ -313,6 +321,10 @@ try:
     if '--publication-preview' in sys.argv:
         from publication_preview import run as run_preview
         run_preview(sys.modules[__name__])
+        sys.exit(0)
+    if '--pdf-export' in sys.argv:
+        from pdf_export import run as run_export
+        run_export(sys.modules[__name__])
         sys.exit(0)
     if '--script-check' in sys.argv:
         from scriptcheck_workflows import run as run_check

@@ -20,6 +20,26 @@ const writing: CommandContext = {
   matches: true,
 };
 describe('M4-14 shared live command boundary', () => {
+  it('keeps Save available during PDF export while guarding identity changes and duplicate exports', () => {
+    const execute = vi.fn();
+    expect(
+      dispatchCommand('save', { ...writing, exporting: true }, execute),
+    ).toBe(true);
+    for (const id of ['saveAs', 'open', 'closeSession', 'home', 'exportPdf'])
+      expect(
+        dispatchCommand(id, { ...writing, exporting: true }, execute),
+      ).toBe(false);
+    expect(
+      dispatchCommand(
+        'exportPdf',
+        { ...writing, pdfAvailable: false },
+        execute,
+      ),
+    ).toBe(false);
+    expect(
+      dispatchCommand('exportPdf', { ...writing, readOnly: true }, execute),
+    ).toBe(false);
+  });
   it('dispatches implemented workflows once and refuses unknown/future identifiers', () => {
     const execute = vi.fn();
     for (const id of [
@@ -30,13 +50,13 @@ describe('M4-14 shared live command boundary', () => {
       'nextScene',
       'save',
       'home',
+      'exportPdf',
     ]) {
       expect(dispatchCommand(id, writing, execute)).toBe(true);
       expect(execute).toHaveBeenLastCalledWith(id);
     }
-    expect(execute).toHaveBeenCalledTimes(7);
+    expect(execute).toHaveBeenCalledTimes(8);
     for (const id of [
-      'exportPdf',
       'history',
       'upload',
       'getLatest',
@@ -45,7 +65,7 @@ describe('M4-14 shared live command boundary', () => {
       { id: 'save' },
     ])
       expect(dispatchCommand(id, writing, execute)).toBe(false);
-    expect(execute).toHaveBeenCalledTimes(7);
+    expect(execute).toHaveBeenCalledTimes(8);
     expect(new Set(shortcutCommands.map((command) => command.id)).size).toBe(
       shortcutCommands.length,
     );

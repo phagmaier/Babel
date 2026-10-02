@@ -33,7 +33,9 @@ mod publication_host;
 mod recovery_choices_host;
 mod snapshot_host;
 use publication_host::{
-    PublicationHost, assess_publication, cancel_publication, read_publication, render_publication,
+    PublicationHost, assess_publication, cancel_pdf_export, cancel_publication,
+    prepare_pdf_capture, publish_pdf_export, read_publication, render_pdf_export,
+    render_publication, select_pdf_destination,
 };
 mod startup_host;
 use persistence_host::{
@@ -304,6 +306,11 @@ pub fn run() {
         app_info,
         update_command_menu,
         render_publication,
+        prepare_pdf_capture,
+        select_pdf_destination,
+        render_pdf_export,
+        publish_pdf_export,
+        cancel_pdf_export,
         read_publication,
         assess_publication,
         cancel_publication,
@@ -357,6 +364,11 @@ pub fn run() {
         app_info,
         update_command_menu,
         render_publication,
+        prepare_pdf_capture,
+        select_pdf_destination,
+        render_pdf_export,
+        publish_pdf_export,
+        cancel_pdf_export,
         read_publication,
         assess_publication,
         cancel_publication,
@@ -406,6 +418,11 @@ pub fn run() {
         app_info,
         update_command_menu,
         render_publication,
+        prepare_pdf_capture,
+        select_pdf_destination,
+        render_pdf_export,
+        publish_pdf_export,
+        cancel_pdf_export,
         read_publication,
         assess_publication,
         cancel_publication,

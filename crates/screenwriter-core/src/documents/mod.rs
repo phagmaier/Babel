@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 
 pub mod choices;
 pub mod history;
+pub mod pdf;
 pub mod persistence;
 pub mod recents;
 pub mod recovery;
@@ -102,6 +103,7 @@ pub struct OpenDocument {
 #[serde(rename_all = "camelCase")]
 pub enum ErrorCode {
     MissingSource,
+    ExportNeedsAttention,
     PermissionDenied,
     UnsafePath,
     NotRegularFile,

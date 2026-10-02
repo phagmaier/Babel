@@ -276,6 +276,61 @@ function ports(overrides: Partial<SessionPorts> = {}): {
 }
 
 describe('M3-12 writing session lifecycle', () => {
+  it('protects a PDF capture while frozen, then thaws without granting source-save credit', async () => {
+    const fakes = ports(),
+      editor = new FakeEditor();
+    const session = new WritingSession(fakes.ports, editor, fakeClock());
+    fakes.entry.picked = opened();
+    await session.openPicked();
+    editor.sourceWas([98], 2);
+    const prepare = vi.fn(
+      async (
+        cp: import('../../src/application/documents').CheckpointRequest,
+      ) => {
+        expect(editor.frozen).toBe(true);
+        expect(fakes.ports.documents.checkpoint).toHaveBeenCalledWith(
+          expect.objectContaining({ version: 2, source: [98] }),
+        );
+        return {
+          identity: cp.identity,
+          captureToken: 'capture',
+          version: cp.version,
+          sourceSha256: cp.sourceSha256,
+          checkpoint: {
+            identity: cp.identity,
+            version: cp.version,
+            sourceSha256: cp.sourceSha256,
+            generation: 1,
+            protection: 'recoveryCheckpoint' as const,
+          },
+        };
+      },
+    );
+    const capture = await session.captureForPdf(prepare);
+    expect(capture.snapshot.version).toBe(2);
+    expect(editor.frozen).toBe(false);
+    expect(fakes.documents.saved).toEqual([]);
+    expect(editor.current.source).toEqual([98]);
+    session.dispose();
+  });
+  it('refuses PDF capture after failed protection and thaws the unchanged editor', async () => {
+    const fakes = ports(),
+      editor = new FakeEditor();
+    const session = new WritingSession(fakes.ports, editor, fakeClock());
+    fakes.entry.picked = opened();
+    await session.openPicked();
+    editor.sourceWas([98], 2);
+    vi.mocked(fakes.ports.documents.checkpoint).mockRejectedValueOnce({
+      code: 'io',
+    });
+    const prepare = vi.fn();
+    await expect(session.captureForPdf(prepare)).rejects.toBeTruthy();
+    expect(prepare).not.toHaveBeenCalled();
+    expect(editor.frozen).toBe(false);
+    expect(editor.current.source).toEqual([98]);
+    expect(fakes.documents.saved).toEqual([]);
+    session.dispose();
+  });
   it.each(['load', 'release'] as const)(
     'retains the original editor and identity after Save As %s failure',
     async (failure) => {

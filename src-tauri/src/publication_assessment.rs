@@ -12,7 +12,7 @@ pub struct AssessmentResult {
     identity: serde_json::Value,
     layout: Vec<Option<String>>,
 }
-fn assessment_identity(runtime: &Path) -> Result<serde_json::Value, PublicationError> {
+pub(super) fn assessment_identity(runtime: &Path) -> Result<serde_json::Value, PublicationError> {
     if !runtime_ready(runtime) {
         return Err(PublicationError::RendererUnavailable);
     }

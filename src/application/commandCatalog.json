@@ -252,7 +252,7 @@
     "label": "Export PDF",
     "scope": "application",
     "binding": null,
-    "unavailable": "PDF export is awaiting M5.",
+    "unavailable": null,
     "group": "Screenplay"
   },
   {

@@ -17,6 +17,8 @@ mod app_dir_tests;
 mod choices_store;
 #[path = "history_store.rs"]
 mod history_store;
+#[path = "pdf_store.rs"]
+mod pdf_store;
 #[path = "recent_store.rs"]
 mod recent_store;
 #[path = "recovery_store.rs"]
@@ -311,6 +313,8 @@ pub struct DocumentService {
     documents: HashMap<String, Registered>,
     copy_destinations: HashMap<String, snapshot_store::Destination>,
     save_destinations: HashMap<String, save_as_store::SaveDestination>,
+    pdf_destinations: HashMap<String, pdf_store::PdfDestination>,
+    pdf_captures: HashMap<String, pdf_store::PdfCapture>,
     locate_selections: HashMap<String, recent_store::PendingLocate>,
     recent_attention: bool,
 }
@@ -340,6 +344,8 @@ impl DocumentService {
             documents: HashMap::new(),
             copy_destinations: HashMap::new(),
             save_destinations: HashMap::new(),
+            pdf_destinations: HashMap::new(),
+            pdf_captures: HashMap::new(),
             locate_selections: HashMap::new(),
             recent_attention: false,
         })
@@ -615,6 +621,9 @@ impl DocumentService {
         }
         self.copy_destinations.retain(|_, d| &d.identity != request);
         self.save_destinations.retain(|_, d| &d.identity != request);
+        self.pdf_destinations.retain(|_, d| &d.identity != request);
+        self.pdf_captures
+            .retain(|_, c| &c.checkpoint.identity != request);
         self.documents.remove(&request.handle);
         Ok(())
     }
@@ -628,6 +637,9 @@ impl DocumentService {
         }
         self.copy_destinations.retain(|_, d| &d.identity != request);
         self.save_destinations.retain(|_, d| &d.identity != request);
+        self.pdf_destinations.retain(|_, d| &d.identity != request);
+        self.pdf_captures
+            .retain(|_, c| &c.checkpoint.identity != request);
         self.documents.remove(&request.handle);
         Ok(())
     }

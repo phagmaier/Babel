@@ -101,12 +101,12 @@ Prerequisite: [M4 bounded Linux exit](docs/test-evidence/M4.md#continuation-from
 - [x] **M5-03 Frozen US Letter profile and regression corpus** — Deps: M5-01/02. `(MORE)`/`(CONT'D)`, title numbering, keep rules, lyrics/dual leaks, font audit; layout/text/image goldens. [Brief](docs/tasks/M5-03.md).
 - [x] **M5-04 Production SC005/SC008 assessment** — Deps: M5-03, M4-09. Primary-codec support/paragraph limitations, independently reviewed four-face cmap coverage, actual native identity/in-memory layout checks, versioned non-dismissable findings; unavailable/stale never implies export success. [Brief](docs/tasks/M5-04.md); [evidence](docs/test-evidence/M5.md#m5-04--production-sc005sc008-assessment).
 - [x] **M5-05 Authoritative preview and page-count freshness** — Deps: M5-02/03. Bundled local-worker PDF.js viewer, current-only binary reads, exact-job display/count confirmation and stale render/read/display refusal; source/Save independent. [ADR 0038](docs/decisions/0038-offline-pdf-viewer.md); [brief](docs/tasks/M5-05.md); [evidence](docs/test-evidence/M5.md#m5-05--authoritative-preview-and-page-count-freshness).
-- [ ] **M5-06 Export PDF workflow** — Deps: M5-04/05. Command, native destination token, blocking-warning decision, atomic publish, exact exported version. [Brief](docs/tasks/M5-06.md).
+- [x] **M5-06 Export PDF workflow** — Deps: M5-04/05. Protected exact-version review, informed SC005/SC008 decisions, native capture/destination tokens, same-pipeline rendering and verified atomic PDF replacement; Save/source independent. [ADR 0039](docs/decisions/0039-pdf-export-publication.md); [brief](docs/tasks/M5-06.md); [evidence](docs/test-evidence/M5.md#m5-06--captured-pdf-export).
 - [ ] **M5-07 Integrated publication exit and separate review** — Deps: M5-01–06. Full S12.6 gate, offline package drill, two viewers, tmpfs/Btrfs, separate review. [Brief](docs/tasks/M5-07.md).
 
 - [x] **DEV-01 Laptop development setup** — Pinned tools/dependencies, portable renderer identity, native listener cleanup, laptop test concurrency and real development/package checks. [Brief](docs/tasks/DEV-01.md); [evidence](docs/test-evidence/M5.md#dev-01--laptop-development-setup).
 
-Recommended next: **M5-06** Export PDF workflow.
+Recommended next: **M5-07** Integrated publication exit and separate review.
 
 ## M6–M7 — gated task groups (decompose before starting)
 

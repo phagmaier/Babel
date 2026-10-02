@@ -31,6 +31,8 @@ export class PublicationPreviewController {
     message: 'Pages: open PDF preview',
   };
   private disposed = false;
+  private exporting = false;
+  private cancellation: Promise<void> = Promise.resolve();
   private captureUnavailable = false;
   private sequence = 0;
   private artifactSequence = -1;
@@ -68,12 +70,10 @@ export class PublicationPreviewController {
     this.requestedProjection = null;
     if (this.timer !== null) clearTimeout(this.timer);
     this.timer = null;
-    // Invalidate synchronously; native cancellation runs away from typing.
-    const controller = this.controller;
-    if (controller)
-      setTimeout(() => {
-        void controller.cancel().catch(() => {});
-      }, 0);
+    // Cancellation owns the current request immediately. A deferred cancel must
+    // never capture a later export request and cancel it instead.
+    if (this.controller && !this.exporting)
+      this.cancellation = this.controller.cancel().catch(() => {});
   }
   invalidate() {
     if (this.disposed || !this.state.enabled) return;
@@ -140,7 +140,7 @@ export class PublicationPreviewController {
     }
   }
   private schedule() {
-    if (!this.projection || this.timer !== null) return;
+    if (this.exporting || !this.projection || this.timer !== null) return;
     this.timer = setTimeout(() => {
       this.timer = null;
       const projection = this.projection;
@@ -205,6 +205,48 @@ export class PublicationPreviewController {
         }
       })();
     }, 750);
+  }
+  /** Pause preview admission while an explicitly captured export owns the queue. */
+  async beginExport() {
+    if (this.disposed || this.exporting) throw new Error('Publication is busy');
+    this.stop();
+    this.exporting = true;
+    if (this.state.enabled)
+      this.update({
+        ...this.state,
+        phase: 'updating',
+        message: 'Preview is stale · exporting a captured version',
+      });
+    await this.cancellation;
+    const now = this.current();
+    if (!now || this.disposed) throw new Error('No active screenplay');
+    if (!this.identity || !sameIdentity(this.identity, now.identity)) {
+      await this.controller?.close();
+      this.identity = now.identity;
+      this.controller = new PublicationController(now.identity, this.port);
+    }
+  }
+  renderExport(
+    snapshot: import('./persistenceController').CapturedSnapshot,
+    render: import('./publication').PublicationPort['render'],
+  ) {
+    if (!this.exporting || !this.controller)
+      throw new Error('No active export');
+    return this.controller.render(snapshot, render);
+  }
+  async cancelExportRender() {
+    await this.controller?.cancel();
+  }
+  endExport() {
+    this.exporting = false;
+    if (this.state.enabled) {
+      this.update({
+        ...this.state,
+        phase: 'updating',
+        message: 'Updating · earlier preview is stale',
+      });
+      this.schedule();
+    }
   }
   displayed(artifact: PreviewArtifact, pages: number) {
     if (

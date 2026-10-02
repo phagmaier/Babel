@@ -144,6 +144,7 @@ struct Queue {
     current: Option<(DocumentRequest, u64, Arc<AtomicBool>)>,
     latest: HashMap<String, (u64, u64, String)>,
     artifact: Option<(DocumentRequest, PathBuf)>,
+    export_artifact: Option<(String, RenderResult, String)>,
 }
 struct Inner {
     queue: Mutex<Queue>,
@@ -237,6 +238,7 @@ impl PublicationHost {
         if let Some(old) = q.pending.take() {
             let _ = old.reply.send(Err(PublicationError::Cancelled));
         }
+        q.export_artifact = None;
         if let Some((_, path)) = q.artifact.take()
             && remove_artifact(&path).is_err()
         {
@@ -273,49 +275,9 @@ impl PublicationHost {
         // Admission, cancellation and reading are serialized: no replaced artifact
         // can be read by an older request, even if the filename happens to match.
         let q = inner.queue.lock().map_err(|_| PublicationError::Internal)?;
-        let (identity, path) = q.artifact.as_ref().ok_or(PublicationError::Cancelled)?;
-        if *identity != request.identity
-            || q.latest
-                .get(&identity.handle)
-                .is_none_or(|entry| entry.0 != request.request_id)
-            || path.file_stem().and_then(|s| s.to_str()) != Some(request.artifact.as_str())
-        {
-            return Err(PublicationError::InvalidRequest);
-        }
-        let mut options = fs::OpenOptions::new();
-        options.read(true);
-        #[cfg(unix)]
-        options.custom_flags(libc::O_NOFOLLOW | libc::O_NONBLOCK);
-        let mut file = options
-            .open(path)
-            .map_err(|_| PublicationError::CacheUnavailable)?;
-        let metadata = file
-            .metadata()
-            .map_err(|_| PublicationError::CacheUnavailable)?;
-        const MAX_PREVIEW: u64 = 32 * 1024 * 1024;
-        if !metadata.is_file() || metadata.len() > MAX_PREVIEW {
-            return Err(PublicationError::OutputInvalid);
-        }
-        #[cfg(unix)]
-        {
-            use std::os::unix::fs::MetadataExt;
-            if metadata.nlink() != 1
-                || metadata.mode() & 0o777 != 0o600
-                || metadata.uid() != unsafe { libc::geteuid() }
-            {
-                return Err(PublicationError::OutputInvalid);
-            }
-        }
-        let mut bytes = Vec::new();
-        (&mut file)
-            .take(MAX_PREVIEW + 1)
-            .read_to_end(&mut bytes)
-            .map_err(|_| PublicationError::CacheUnavailable)?;
-        if bytes.len() as u64 > MAX_PREVIEW || !bytes.starts_with(b"%PDF-") {
-            return Err(PublicationError::OutputInvalid);
-        }
-        Ok(bytes)
+        read_locked(&q, request)
     }
+
     pub fn cancel(
         &self,
         request: Option<&CancelRequest>,
@@ -341,6 +303,7 @@ impl PublicationHost {
         if q.artifact.as_ref().is_some_and(|(identity, _)| {
             matches(identity, q.latest.get(&identity.handle).map_or(0, |x| x.0))
         }) {
+            q.export_artifact = None;
             let (_, path) = q.artifact.take().unwrap();
             if remove_artifact(&path).is_err() {
                 q.cache_failed = true;
@@ -357,6 +320,51 @@ impl PublicationHost {
         Ok(())
     }
 }
+fn read_locked(q: &Queue, request: &ReadPublicationRequest) -> Result<Vec<u8>, PublicationError> {
+    let (identity, path) = q.artifact.as_ref().ok_or(PublicationError::Cancelled)?;
+    if *identity != request.identity
+        || q.latest
+            .get(&identity.handle)
+            .is_none_or(|entry| entry.0 != request.request_id)
+        || path.file_stem().and_then(|s| s.to_str()) != Some(request.artifact.as_str())
+    {
+        return Err(PublicationError::InvalidRequest);
+    }
+    let mut options = fs::OpenOptions::new();
+    options.read(true);
+    #[cfg(unix)]
+    options.custom_flags(libc::O_NOFOLLOW | libc::O_NONBLOCK);
+    let mut file = options
+        .open(path)
+        .map_err(|_| PublicationError::CacheUnavailable)?;
+    let metadata = file
+        .metadata()
+        .map_err(|_| PublicationError::CacheUnavailable)?;
+    const MAX_PREVIEW: u64 = 32 * 1024 * 1024;
+    if !metadata.is_file() || metadata.len() > MAX_PREVIEW {
+        return Err(PublicationError::OutputInvalid);
+    }
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::MetadataExt;
+        if metadata.nlink() != 1
+            || metadata.mode() & 0o777 != 0o600
+            || metadata.uid() != unsafe { libc::geteuid() }
+        {
+            return Err(PublicationError::OutputInvalid);
+        }
+    }
+    let mut bytes = Vec::new();
+    (&mut file)
+        .take(MAX_PREVIEW + 1)
+        .read_to_end(&mut bytes)
+        .map_err(|_| PublicationError::CacheUnavailable)?;
+    if bytes.len() as u64 > MAX_PREVIEW || !bytes.starts_with(b"%PDF-") {
+        return Err(PublicationError::OutputInvalid);
+    }
+    Ok(bytes)
+}
+
 fn validate(r: &RenderRequest) -> Result<(), PublicationError> {
     if r.source.len() > MAX_SOURCE_BYTES {
         return Err(PublicationError::SourceTooLarge);
@@ -741,3 +749,10 @@ fn remove_artifact(path: &Path) -> std::io::Result<()> {
 #[path = "publication_assessment.rs"]
 mod assessment;
 pub use assessment::assess_publication;
+
+#[path = "pdf_export_host.rs"]
+mod export;
+pub use export::{
+    cancel_pdf_export, prepare_pdf_capture, publish_pdf_export, render_pdf_export,
+    select_pdf_destination,
+};

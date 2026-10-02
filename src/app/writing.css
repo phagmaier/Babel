@@ -157,10 +157,19 @@
   }
 }
 
-.publication-preview {
+.publication-preview,
+.export-pdf-panel {
   border: 1px solid var(--border, #888);
   padding: 1rem;
   margin-block: 1rem;
+}
+.export-pdf-panel ol {
+  max-height: 40vh;
+  overflow: auto;
+}
+.export-pdf-panel label {
+  display: block;
+  margin-block: 0.75rem;
 }
 .pdf-page-controls {
   display: flex;

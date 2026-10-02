@@ -227,7 +227,7 @@ mod tests {
         let valid = request();
         assert!(validate(&valid).is_ok());
         assert!(action(&valid, "abcdef:1/save").is_some());
-        assert!(action(&valid, "abcdef:1/exportPdf").is_none());
+        assert!(action(&valid, "abcdef:1/exportPdf").is_some());
         assert!(action(&valid, "/tmp/script").is_none());
         assert!(action(&valid, "abcdef:0/save").is_none());
         assert!(action(&valid, "save").is_none());
@@ -256,7 +256,7 @@ mod tests {
         invalid
             .commands
             .iter_mut()
-            .find(|command| command.id == "exportPdf")
+            .find(|command| command.id == "history")
             .unwrap()
             .enabled = true;
         assert!(validate(&invalid).is_err());

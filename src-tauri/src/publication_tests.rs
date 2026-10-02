@@ -122,7 +122,9 @@ fn publication_timeout_bounds_blocked_stdin_and_inherited_pipes() {
 fn publication_crash_kill_errors_and_stdout_cap() {
     for (script, error) in [
         (
-            "import os,signal\nos.kill(os.getpid(),signal.SIGABRT)",
+            // PR_SET_DUMPABLE=0 applies only to this synthetic crashing child.
+            // Keep the real SIGABRT failure without a core or desktop alert.
+            "import os,signal,ctypes\nassert ctypes.CDLL(None).prctl(4,0,0,0,0)==0\nos.kill(os.getpid(),signal.SIGABRT)",
             PublicationError::HelperCrashed,
         ),
         (

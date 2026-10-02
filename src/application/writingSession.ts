@@ -554,6 +554,27 @@ export class WritingSession {
     });
   }
 
+  /** Freeze only capture/protection; review and rendering permit later typing. */
+  async captureForPdf(prepare: import('./exportPdf').ExportPdfPort['prepare']) {
+    const active = this.requireActive();
+    if (active.readOnly)
+      throw new Error('Save As a writable copy before PDF export');
+    return this.withFrozen(async (snapshot) => {
+      await this.controller!.checkpoint(snapshot);
+      const receipt = await prepare(this.checkpoint(snapshot));
+      if (
+        !sameIdentity(receipt.identity, active.identity) ||
+        receipt.version !== snapshot.version ||
+        receipt.sourceSha256 !== snapshot.sourceSha256 ||
+        receipt.checkpoint.version !== snapshot.version ||
+        receipt.checkpoint.sourceSha256 !== snapshot.sourceSha256 ||
+        !receipt.captureToken
+      )
+        throw new Error('PDF capture does not match the protected version');
+      return { snapshot, receipt };
+    });
+  }
+
   private checkpoint(
     snapshot: CapturedSnapshot,
   ): import('./documents').CheckpointRequest {

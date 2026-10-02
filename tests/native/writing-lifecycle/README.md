@@ -58,6 +58,16 @@ WebView resource entries; it is not a packet capture. Full compositor paint,
 page-calibrated performance, other platforms and installed/offline adoption
 remain separate gates.
 
+M5-06 export-only drills: after a default release build and keyboard-helper build,
+run `python3 tests/native/writing-lifecycle/drill.py /tmp --pdf-export`, then repeat
+with `/home/phagmaier/Code/babel/target`. These use actual WebKit/GTK/native helper
+and synthetic BOM/CRLF drafts: informed omissions/SC008 refusal, review/picker
+cancellation, capture while typing/Save, preview resumption, verified atomic
+replacement/previous PDF, protected-source/app-data refusal and destination
+permission failure. A delayed real render callback tests capture freshness; no
+mock renderer/destination or feature flag is used. Poppler checks actual pages
+and text. Each run retains its report and app-only screenshots.
+
 ## M4-15 standalone WebKit shutdown control
 
 On the existing GTK3/WebKitGTK/Hyprland desktop, run installed libraries first:

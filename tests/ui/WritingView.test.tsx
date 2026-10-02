@@ -802,9 +802,12 @@ describe('M4-04 coordinated import', () => {
       .getByLabelText('Screenplay editor')
       .querySelector<HTMLElement>('.ProseMirror')!;
     const original = editor.textContent;
-    fireEvent.change(screen.getByLabelText('Fountain screenplay to import'), {
-      target: { value: '!Replacement.' },
-    });
+    fireEvent.change(
+      await screen.findByLabelText('Fountain screenplay to import'),
+      {
+        target: { value: '!Replacement.' },
+      },
+    );
     fireEvent.click(screen.getByText('Import Fountain as screenplay'));
     await waitFor(() => expect(finish).toBeDefined());
     expect(editor.getAttribute('contenteditable')).toBe('false');

@@ -12,7 +12,7 @@ import {
 } from '../../src/application/shortcuts';
 afterEach(cleanup);
 describe('M3-06 picker, menu/help and remap settings', () => {
-  it('reflects caret/Mixed and offers every element; workflow actions are honestly disabled', () => {
+  it('reflects caret/Mixed and enables implemented workflows while keeping future actions disabled', () => {
     let state = createEditorState(
       new TextEncoder().encode('\n!First.\n~River.\n'),
     );
@@ -52,7 +52,9 @@ describe('M3-06 picker, menu/help and remap settings', () => {
     expect(
       (screen.getByRole('button', { name: 'Export PDF' }) as HTMLButtonElement)
         .disabled,
-    ).toBe(true);
+    ).toBe(false);
+    fireEvent.click(screen.getByRole('button', { name: 'Export PDF' }));
+    expect(execute).toHaveBeenLastCalledWith('exportPdf');
   });
   it('remaps through settings and updates command/help labels immediately; conflict and write failure stay visible', () => {
     const values = new Map<string, string>();

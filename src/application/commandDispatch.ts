@@ -14,6 +14,8 @@ export interface CommandContext {
   redo: boolean;
   navigation: boolean;
   matches: boolean;
+  exporting?: boolean;
+  pdfAvailable?: boolean;
 }
 export function commandReason(
   command: ShortcutCommand,
@@ -32,6 +34,20 @@ export function commandReason(
     return ['new', 'newDestination', 'open'].includes(command.id)
       ? null
       : 'Open a screenplay first.';
+  if (command.id === 'exportPdf' && context.pdfAvailable === false)
+    return 'PDF export requires the native publication services.';
+  if (
+    context.exporting &&
+    [
+      'exportPdf',
+      'saveAs',
+      'exportFountain',
+      'open',
+      'home',
+      'closeSession',
+    ].includes(command.id)
+  )
+    return 'Finish or cancel PDF export first.';
   if (['new', 'newDestination'].includes(command.id))
     return 'Return Home to start a new screenplay.';
   if (context.form && command.scope === 'editor')
@@ -40,6 +56,7 @@ export function commandReason(
     context.readOnly &&
     (command.scope === 'editor' ||
       command.id === 'save' ||
+      command.id === 'exportPdf' ||
       command.id === 'replace')
   )
     return 'This screenplay is read-only; Save As can create a writable copy.';

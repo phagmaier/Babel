@@ -102,7 +102,10 @@ export class PublicationController {
     private readonly identity: DocumentIdentity,
     private readonly port: PublicationPort,
   ) {}
-  async render(snapshot: CapturedSnapshot): Promise<PublicationResult> {
+  async render(
+    snapshot: CapturedSnapshot,
+    render: PublicationPort['render'] = (request) => this.port.render(request),
+  ): Promise<PublicationResult> {
     if (this.closed) throw new PublicationFailure('cancelled');
     if (
       !Number.isSafeInteger(snapshot.version) ||
@@ -131,7 +134,7 @@ export class PublicationController {
     this.version = request.version;
     this.hash = request.sourceSha256;
     this.latest = request;
-    const result = await this.port.render(request);
+    const result = await render(request);
     if (this.closed || this.latest !== request)
       throw new PublicationFailure('cancelled');
     let invalid: boolean;

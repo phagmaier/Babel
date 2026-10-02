@@ -1,62 +1,64 @@
-# Current state — M5-05 complete
+# Current state — M5-06 complete
 
-Date: 2026-10-02. Application: **babel**. Admission base `666c168` on clean main.
-Owner requested M5-05 continuation; completed directly on main, no push.
+Date: 2026-10-02. Application: **babel**. Admission `e6e6f1d` on clean main.
+Work directly on main; no push. M5-05 remains complete at `e6e6f1d`.
 
 ## Task and work
 
-**M5-05 authoritative preview and page-count freshness — complete, bounded Linux gate.**
-Writing now offers read-only PDF preview and versioned page-count status. Pinned
-PDF.js 6.3.289 loads lazily with an explicit bundled local worker; it displays
-actual native renderer bytes and checks parsed count against that exact receipt
-before announcing freshness. One page canvas, selectable extracted page text,
-keyboard Previous/Next/Close/Escape, independent zoom and white printed paper
-in light/dark chrome. Renderer limitations remain visible.
+**M5-06 Export PDF workflow — complete, bounded Linux gate.** Export PDF now
+uses the shared palette/native menu/remappable command registry. A brief freeze
+protects an exact source capture in recovery and mints a native capture token.
+Review reports that version, structural warnings and verified SC005/SC008 targets.
+Explicit acknowledgment permits known omissions; unavailable/truncated assessment
+and actual glyph/shaping/layout refusal cannot earn success. Typing and Save
+continue while review/rendering use immutable captured bytes.
 
-A narrow binary IPC read accepts only identity/request/opaque artifact IDs,
-checks the current native registry under its publication lock and bounds reads
-to 32 MiB. No caller filesystem path, arbitrary imported PDF, URL or upload.
-Existing deferred captures feed a 750 ms quiet-period job while preview is open.
-Editor version changes, Undo/source/session replacement invalidate immediately;
-late/superseded render/read/display callbacks cannot earn freshness. Old pages
-stay explicitly stale. Closing clears count/cancels work/destroys workers.
-Failures keep editing, Save, source bytes and Undo independently owned.
+Preview and export share one request sequence, native queue and pinned pipeline.
+Preview is explicitly stale during export and resumes the latest projection
+afterward. Late render/picker/cancel replies cannot authorize publication.
+Cleanup completes before another export may start. Native destination selection
+returns a separate single-use token; no frontend path/output-byte authority.
+Source/app-data/history/open-document aliases, unsafe metadata and changed
+directory/destination generations are refused. Atomic NOREPLACE/EXCHANGE follows
+verified candidate and prior-PDF protection; exact read-back receipts report
+captured version/hash, actual pages, PDF hash and destination filename.
+Uncertain rollback retains generations and reports attention. Cancel writes
+nothing before publication; the final atomic phase explicitly disables Cancel.
 
-Paths: `src/application/publicationPreview.ts`, `src/app/PublicationPreview.tsx`,
-`src/infrastructure/localPdfViewer.ts`, native adapter and writing wiring;
-`src-tauri/src/publication_host.rs`, registration/CSP; focused/UI/native/browser
-checks, direct viewer license and owning docs.
-[Brief](tasks/M5-05.md), [ADR 0038](decisions/0038-offline-pdf-viewer.md),
-[contract](pdf-and-formatting.md#authoritative-preview-m5-05),
-[evidence](test-evidence/M5.md#m5-05--authoritative-preview-and-page-count-freshness).
-Logs/timings/host/matrix: `target/m5-05/`; GUI roots/retained failures in evidence.
+Paths: core `documents/pdf*`, native `pdf_export_host.rs` and artifact registry,
+`exportPdf.ts`, shared publication/preview/session controllers, export panel,
+command/native ports and writing wiring; contract/UI/native filesystem/GTK drills.
+[Brief](tasks/M5-06.md), [ADR 0039](decisions/0039-pdf-export-publication.md),
+[contract](pdf-and-formatting.md#captured-pdf-export-m5-06),
+[evidence](test-evidence/M5.md#m5-06--captured-pdf-export).
 
 ## Checks and limits
 
-Final `pnpm check` passes 745 frontend/JSDOM tests, formatting/lint/typecheck/build;
-18 focused freshness/viewer tests pass. Rust fmt/clippy and all 248 workspace
-tests pass on tmpfs and Btrfs. Chromium smoke displays a real frozen-helper PDF
-in a local worker. Default embedded release passes actual WebKit worker/canvas/
-text/native/Poppler count agreement, theme/zoom/keyboard focus, delayed real IPC
-stale reply, actual glyph renderer refusal and exact BOM/CRLF/Save/protected-close
-checks on both filesystems. Both actual page screenshots visually reviewed.
-Helper/profile/font identity remains unchanged; no export publication.
+`pnpm check` passes 765 frontend tests and formatting/lint/typecheck/build.
+Rust fmt/clippy and all 257 workspace tests pass on tmpfs and Btrfs. Chromium
+smoke uses real frozen-helper bytes/local PDF.js worker. Default-release native
+WebKit/GTK/Poppler drills pass on both filesystems: palette/toolbar export,
+informed omissions, strict glyph refusal, cancellation, capture during typing/
+Save, fresh preview resumption, previous PDF retention, source/app-data refusal,
+permission failure, exact BOM/CRLF Save and protected close. Actual PDF body and
+review screenshots visually checked. Logs/timings/roots in `target/m5-06/` and
+the linked evidence; initial failed gates and corrections are retained honestly.
 
-Unchanged M4 2,400-row/120-key source/control audits pass, with preview refreshed
-to 89 actual pages at version 122. Key-to-rAF p95/max: preview-open tmpfs 79/85 ms,
-Btrfs 17/41 ms; contemporary closed tmpfs control 94/199 ms (six >100 ms).
-Compared with M4 49/59 and 56/61 ms, host/run variability prevents a causal
-regression or full S13 claim. rAF is not compositor paint. Existing full latency,
-long-session, IME/platform, M6 hardening/license/adoption limits stay open.
+Owner initially prohibited desktop takeover, then explicitly resumed testing.
+All interactive drills started after that authorization. Python notifications
+were intentional SIGABRT from a synthetic helper-crash test. Only that child
+now disables dump generation; real crash/error coverage still passes. No system
+notification/core policy or production-helper setting changed, no new Python
+core journal records after correction. No user manuscript or credentials used.
 
-Initial type/API/lint and native harness failures are retained with passing
-corrections. No new AppImage/installation/offline-package, broad M4 matrix,
-other-platform, integrated preview/export or Local v1 claim. DEV-01 setup
-remains ready; `/tmp` native input helpers must be rebuilt after reboot.
+Previous PDFs/crash candidates are retained, never auto-promoted/pruned. No
+new dependencies, renderer/font/profile change, source-file/Undo/history mutation
+or upload. Other-platform, integrated/offline-package/two-viewer, full compositor/
+long-session, license/adoption and broader retention/power-loss work remain open.
+M5-05 host timing variability and existing M4/M6 limits remain unchanged.
 
 ## Next action
 
-**M5-06 Export PDF workflow** is dependency-ready. Read its brief before work:
-explicit support decisions, native destination token, atomic publication and
-exact exported version. M5-07 owns integrated publication/offline-package exit.
-Stop after M5-05. No push is authorized.
+**M5-07 Integrated publication exit and separate review** is dependency-ready.
+Read its brief before work; perform the full integrated/offline-package and
+independent review gates. Stop after M5-06. No push is authorized.

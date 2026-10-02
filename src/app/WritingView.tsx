@@ -1,4 +1,9 @@
 import { PublicationPreview } from './PublicationPreview';
+import { ExportPdfPanel } from './ExportPdfPanel';
+import {
+  ExportPdfController,
+  type ExportPdfState,
+} from '../application/exportPdf';
 import {
   PublicationPreviewController,
   type PublicationPreviewState,
@@ -137,6 +142,7 @@ export interface WritingPorts {
   recovery: RecoveryPort;
   fountainImport: FountainImportPort;
   publication?: import('../application/publication').PublicationPreviewPort;
+  exportPdf?: import('../application/exportPdf').ExportPdfPort;
   exportAssessment?: import('../application/exportAssessment').ExportAssessmentPort;
   workflows?: import('../application/workflowProtection').WorkflowProtectionPort;
 }
@@ -298,6 +304,8 @@ export function WritingView({
   const [active, setActive] = useState<ActiveInfo | null>(null);
   const [status, setStatus] = useState('');
   const previewRef = useRef<PublicationPreviewController | null>(null);
+  const exportRef = useRef<ExportPdfController | null>(null);
+  const [exportState, setExportState] = useState<ExportPdfState | null>(null);
   const previewButton = useRef<HTMLButtonElement | null>(null);
   const [previewState, setPreviewState] =
     useState<PublicationPreviewState | null>(null);
@@ -634,6 +642,18 @@ export function WritingView({
         )
       : null;
     previewRef.current = preview;
+    const exporter =
+      preview && ports.exportPdf && ports.exportAssessment
+        ? new ExportPdfController(
+            ports.exportPdf,
+            ports.exportAssessment,
+            preview,
+            (state) => {
+              if (alive) setExportState(state);
+            },
+          )
+        : null;
+    exportRef.current = exporter;
     const find = new FindController(stamp, (state) => {
       if (!alive) return;
       setFindState(state);
@@ -1174,6 +1194,10 @@ export function WritingView({
       let stop: (() => void) | undefined;
       void listen('protected-close-requested', () => {
         if (alive) {
+          if (exportRef.current?.busy) {
+            setError('Finish or cancel PDF export before closing the window.');
+            return;
+          }
           if (titleDraftRef.current || titleComposingRef.current) {
             setError(
               'Apply or Discard the uncommitted title input before closing the window.',
@@ -1195,6 +1219,8 @@ export function WritingView({
         disposePosition();
         alive = false;
         moveAbortRef.current?.abort();
+        exporter?.dispose();
+        exportRef.current = null;
         preview?.dispose();
         previewRef.current = null;
         projection.dispose();
@@ -1213,6 +1239,8 @@ export function WritingView({
       disposePosition();
       alive = false;
       moveAbortRef.current?.abort();
+      exporter?.dispose();
+      exportRef.current = null;
       preview?.dispose();
       previewRef.current = null;
       projection.dispose();
@@ -1309,7 +1337,13 @@ export function WritingView({
     phase,
   ]);
 
-  const run = async (action: () => Promise<unknown>) => {
+  const run = async (action: () => Promise<unknown>, duringExport = false) => {
+    if (exportRef.current?.busy && !duringExport) {
+      setError(
+        'Finish or cancel PDF export before this action. Editing and Save remain available.',
+      );
+      return;
+    }
     if (titleDraftRef.current || titleComposingRef.current) {
       setError(
         'Apply or Discard the uncommitted title input before saving or leaving.',
@@ -1337,6 +1371,10 @@ export function WritingView({
   };
 
   const requestClose = (switching = false) => {
+    if (exportRef.current?.busy) {
+      setError('Finish or cancel PDF export before leaving this screenplay.');
+      return;
+    }
     if (titleDraftRef.current || titleComposingRef.current) {
       setError(
         'Apply or Discard the uncommitted title input before leaving the screenplay.',
@@ -1831,6 +1869,8 @@ export function WritingView({
       matches:
         !!findRef.current?.state.matches.length &&
         findRef.current.state.phase === 'current',
+      exporting: exportRef.current?.busy ?? false,
+      pdfAvailable: !!exportRef.current,
     };
   };
   const commandUnavailable = (id: string) => {
@@ -1850,7 +1890,15 @@ export function WritingView({
           requestPalette((n) => n + 1);
           break;
         case 'save':
-          void run(() => currentSession.save().then(() => refresh()));
+          void run(() => currentSession.save().then(() => refresh()), true);
+          break;
+        case 'exportPdf':
+          if (ports.exportPdf)
+            void exportRef.current?.start(() =>
+              currentSession.captureForPdf((cp) =>
+                ports.exportPdf!.prepare(cp),
+              ),
+            );
           break;
         case 'saveAs':
           void run(() => currentSession.saveAs().then(reportOutcome));
@@ -1961,6 +2009,17 @@ export function WritingView({
 
   const hosts = (
     <div key="writing-hosts">
+      {phase === 'active' &&
+        exportState &&
+        exportState.phase !== 'idle' &&
+        exportRef.current && (
+          <ExportPdfPanel
+            key={exportState.version ?? 'capture'}
+            controller={exportRef.current}
+            state={exportState}
+            onDismiss={() => setExportState(null)}
+          />
+        )}
       {phase === 'active' && previewState?.enabled && previewRef.current && (
         <PublicationPreview
           controller={previewRef.current}
@@ -2240,6 +2299,13 @@ export function WritingView({
           onClick={() => executeCommand('exportFountain')}
         >
           Export Fountain copy
+        </button>
+        <button
+          type="button"
+          disabled={!!commandUnavailable('exportPdf')}
+          onClick={() => executeCommand('exportPdf')}
+        >
+          Export PDF
         </button>
         <button
           type="button"

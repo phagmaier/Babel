@@ -184,7 +184,7 @@ describe('M4-14 palette focus, routing and live native events', () => {
     expect(latest.commands.find((c) => c.id === 'save')?.binding).toBe('Mod+K');
     act(() => callback({ token: first.token, id: 'open' }));
     act(() => callback({ token: latest.token, id: '/tmp/private' }));
-    act(() => callback({ token: latest.token, id: 'exportPdf' }));
+    act(() => callback({ token: latest.token, id: 'history' }));
     facts = { ...context, blocked: true };
     act(() => callback({ token: latest.token, id: 'open' }));
     expect(execute).toHaveBeenCalledOnce();
