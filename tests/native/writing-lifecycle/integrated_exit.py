@@ -54,24 +54,22 @@ def main():
             started = time.monotonic()
             watch_path = args.output / (label + '-processes.json')
             journal_path = args.output / (label + '-journal.json')
-            ledger = None
-            scan = None
+            # Every mode keeps an owned-process ledger and bounded crash journal:
+            # journal-only web-process crashes and surviving apps after forced
+            # WebDriver teardown leave no stderr line.
             with log.open('w') as stream:
-                if env.get('BABEL_SHUTDOWN_MODE'):
-                    with subprocess.Popen(cmd, env=env, stdout=stream, stderr=subprocess.STDOUT) as result:
-                        watch = ProcessWatch(result.pid, watch_path)
-                        while result.poll() is None:
-                            watch.sample()
-                            time.sleep(.05)
-                        # Continue watching known orphans during bounded journal delivery.
-                        until = time.monotonic() + 5
-                        while time.monotonic() < until:
-                            watch.sample()
-                            time.sleep(.05)
-                        ledger = watch.save()
-                    scan = journal_scan(ledger, journal_path)
-                else:
-                    result = subprocess.run(cmd, env=env, stdout=stream, stderr=subprocess.STDOUT)
+                with subprocess.Popen(cmd, env=env, stdout=stream, stderr=subprocess.STDOUT) as result:
+                    watch = ProcessWatch(result.pid, watch_path)
+                    while result.poll() is None:
+                        watch.sample()
+                        time.sleep(.05)
+                    # Continue watching known orphans during bounded journal delivery.
+                    until = time.monotonic() + 5
+                    while time.monotonic() < until:
+                        watch.sample()
+                        time.sleep(.05)
+                    ledger = watch.save()
+                scan = journal_scan(ledger, journal_path)
             content = log.read_text()
             artifacts = re.findall(r'(?:ROOT|ARTIFACTS) ([^\s]+)', content)
             artifact = Path(artifacts[-1]) if artifacts else None
@@ -88,13 +86,12 @@ def main():
                       'presentationRestart': not args.presentation_no_restart if mode == 'presentation' else None,
                       'presentationControl': args.presentation_control if mode == 'presentation' else None,
                       'intentionalKillScenario': mode in ['editor-exit', 'audit-fixes']}
-            if ledger is not None:
-                live_native = [p for p in ledger['processes'] if
-                               not p.get('firstMissing') and p['state'] != 'Z' and
-                               re.search(r'WebKit|babel-desktop', p['name'])]
-                report.update(processLedger=str(watch_path), crashJournal=str(journal_path),
-                              journalCrashEvents=scan['events'], liveNativeProcesses=live_native,
-                              crashAuditPassed=scan['readPassed'] and not scan['events'] and not live_native)
+            live_native = [p for p in ledger['processes'] if
+                           not p.get('firstMissing') and p['state'] != 'Z' and
+                           re.search(r'WebKit|babel-desktop', p['name'])]
+            report.update(processLedger=str(watch_path), crashJournal=str(journal_path),
+                          journalCrashEvents=scan['events'], liveNativeProcesses=live_native,
+                          crashAuditPassed=scan['readPassed'] and not scan['events'] and not live_native)
             reports.append(report)
             (args.output / 'results.json').write_text(json.dumps(reports, indent=2) + '\n')
             print(json.dumps(report), flush=True)

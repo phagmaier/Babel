@@ -390,7 +390,10 @@ requires the existing AT-SPI bus and `gdbus`; only driver-descendant connections
 and the exact Choose destination folder subtree's single Select button can be
 activated. No arbitrary application or editor key receives the action.
 Runtime crash lines are recorded for separate review, including intentional-kill
-scenarios carrying C1. New ordinary-editing/close crashes block acceptance even
+scenarios carrying C1. Every mode also keeps an owned-process ledger
+(`*-processes.json`) and bounded crash journal (`*-journal.json`): journal-only
+cores and surviving app/WebKit processes fail `crashAuditPassed`. Replay them
+with `audit_process_watch.py <results.json> --output <new-dir>`. New ordinary-editing/close crashes block acceptance even
 when expected bytes pass. Measurements remain native observations/rAF proxies;
 no screenreader, full S13, installed package, power-loss or Local v1 claim.
 

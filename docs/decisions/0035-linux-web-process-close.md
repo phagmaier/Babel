@@ -42,7 +42,10 @@ preferences, recent positions and shortcuts are written before the close
 request and persisted by the network process, which exits normally. Native
 restart oracles verified them after the change. No `beforeunload`/`pagehide`
 handlers exist; adding one later would not run on this path. A JS `destroy()`
-bypasses the close event and keeps the previous exit behavior. Remove this
+bypasses the close event and keeps the previous exit behavior. So does forced
+WebDriver session deletion: WebKit's web view `close` signal makes Wry destroy
+only the view, and the same teardown abort recurred there in the M4-15 matrix
+(test-only; production never calls `window.close()`). Remove this
 when a supported WebKitGTK release fixes the teardown race and evidence shows
 ordinary close is clean without it.
 
