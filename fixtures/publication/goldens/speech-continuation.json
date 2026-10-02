@@ -1,0 +1,4100 @@
+{
+  "text": [
+    "MARA\nSpeech row 001.\nSpeech row 002.\nSpeech row 003.\nSpeech row 004.\nSpeech row 005.\nSpeech row 006.\nSpeech row 007.\nSpeech row 008.\nSpeech row 009.\nSpeech row 010.\nSpeech row 011.\nSpeech row 012.\nSpeech row 013.\nSpeech row 014.\nSpeech row 015.\nSpeech row 016.\nSpeech row 017.\nSpeech row 018.\nSpeech row 019.\n (a measured pause)\nSpeech row 020.\nSpeech row 021.\nSpeech row 022.\nSpeech row 023.\nSpeech row 024.\nSpeech row 025.\nSpeech row 026.\nSpeech row 027.\nSpeech row 028.\nSpeech row 029.\nSpeech row 030.\nSpeech row 031.\nSpeech row 032.\nSpeech row 033.\nSpeech row 034.\nSpeech row 035.\nSpeech row 036.\nSpeech row 037.\nSpeech row 038.\nSpeech row 039.\n (a measured pause)\nSpeech row 040.\nSpeech row 041.\nSpeech row 042.\nSpeech row 043.\nSpeech row 044.\nSpeech row 045.\nSpeech row 046.\nSpeech row 047.\nSpeech row 048.\nSpeech row 049.\nSpeech row 050.\n (MORE)\n",
+    "2.\nMARA (CONT'D)\nSpeech row 051.\nSpeech row 052.\nSpeech row 053.\nSpeech row 054.\nSpeech row 055.\nSpeech row 056.\nSpeech row 057.\nSpeech row 058.\nSpeech row 059.\n (a measured pause)\nSpeech row 060.\nSpeech row 061.\nSpeech row 062.\nSpeech row 063.\nSpeech row 064.\nSpeech row 065.\nSpeech row 066.\nSpeech row 067.\nSpeech row 068.\nSpeech row 069.\nSpeech row 070.\nSpeech row 071.\nSpeech row 072.\nSpeech row 073.\nSpeech row 074.\nSpeech row 075.\nSpeech row 076.\nSpeech row 077.\nSpeech row 078.\nSpeech row 079.\n (a measured pause)\nSpeech row 080.\nSpeech row 081.\nSpeech row 082.\nSpeech row 083.\nSpeech row 084.\nSpeech row 085.\nSpeech row 086.\nSpeech row 087.\nSpeech row 088.\nSpeech row 089.\nSpeech row 090.\nSpeech row 091.\nSpeech row 092.\nSpeech row 093.\nSpeech row 094.\nSpeech row 095.\nSpeech row 096.\nSpeech row 097.\nSpeech row 098.\nSpeech row 099.\n (MORE)\n",
+    "3.\nMARA (CONT'D)\n(a measured pause)\nSpeech row 100.\nSpeech row 101.\nSpeech row 102.\nSpeech row 103.\nSpeech row 104.\nSpeech row 105.\nSpeech row 106.\nSpeech row 107.\nSpeech row 108.\nSpeech row 109.\nSpeech row 110.\nSpeech row 111.\nSpeech row 112.\nSpeech row 113.\nSpeech row 114.\nSpeech row 115.\nSpeech row 116.\nSpeech row 117.\nSpeech row 118.\nSpeech row 119.\n (a measured pause)\nSpeech row 120.\nSpeech row 121.\nSpeech row 122.\nSpeech row 123.\nSpeech row 124.\nSpeech row 125.\nSpeech row 126.\nSpeech row 127.\nSpeech row 128.\nSpeech row 129.\nSpeech row 130.\nSpeech row 131.\nSpeech row 132.\nSpeech row 133.\nSpeech row 134.\nSpeech row 135.\nSpeech row 136.\nSpeech row 137.\nSpeech row 138.\nSpeech row 139.\n (a measured pause)\nSpeech row 140.\n"
+  ],
+  "positions": [
+    [
+      {
+        "text": "MARA",
+        "x": 266.4,
+        "y": 708.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 001.",
+        "x": 180.0,
+        "y": 696.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 002.",
+        "x": 180.0,
+        "y": 684.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 003.",
+        "x": 180.0,
+        "y": 672.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 004.",
+        "x": 180.0,
+        "y": 660.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 005.",
+        "x": 180.0,
+        "y": 648.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 006.",
+        "x": 180.0,
+        "y": 636.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 007.",
+        "x": 180.0,
+        "y": 624.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 008.",
+        "x": 180.0,
+        "y": 612.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 009.",
+        "x": 180.0,
+        "y": 600.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 010.",
+        "x": 180.0,
+        "y": 588.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 011.",
+        "x": 180.0,
+        "y": 576.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 012.",
+        "x": 180.0,
+        "y": 564.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 013.",
+        "x": 180.0,
+        "y": 552.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 014.",
+        "x": 180.0,
+        "y": 540.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 015.",
+        "x": 180.0,
+        "y": 528.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 016.",
+        "x": 180.0,
+        "y": 516.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 017.",
+        "x": 180.0,
+        "y": 504.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 018.",
+        "x": 180.0,
+        "y": 492.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 019.",
+        "x": 180.0,
+        "y": 480.0,
+        "size": 12.0
+      },
+      {
+        "text": "(a measured pause)",
+        "x": 223.2,
+        "y": 468.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 020.",
+        "x": 180.0,
+        "y": 456.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 021.",
+        "x": 180.0,
+        "y": 444.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 022.",
+        "x": 180.0,
+        "y": 432.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 023.",
+        "x": 180.0,
+        "y": 420.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 024.",
+        "x": 180.0,
+        "y": 408.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 025.",
+        "x": 180.0,
+        "y": 396.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 026.",
+        "x": 180.0,
+        "y": 384.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 027.",
+        "x": 180.0,
+        "y": 372.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 028.",
+        "x": 180.0,
+        "y": 360.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 029.",
+        "x": 180.0,
+        "y": 348.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 030.",
+        "x": 180.0,
+        "y": 336.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 031.",
+        "x": 180.0,
+        "y": 324.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 032.",
+        "x": 180.0,
+        "y": 312.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 033.",
+        "x": 180.0,
+        "y": 300.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 034.",
+        "x": 180.0,
+        "y": 288.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 035.",
+        "x": 180.0,
+        "y": 276.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 036.",
+        "x": 180.0,
+        "y": 264.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 037.",
+        "x": 180.0,
+        "y": 252.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 038.",
+        "x": 180.0,
+        "y": 240.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 039.",
+        "x": 180.0,
+        "y": 228.0,
+        "size": 12.0
+      },
+      {
+        "text": "(a measured pause)",
+        "x": 223.2,
+        "y": 216.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 040.",
+        "x": 180.0,
+        "y": 204.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 041.",
+        "x": 180.0,
+        "y": 192.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 042.",
+        "x": 180.0,
+        "y": 180.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 043.",
+        "x": 180.0,
+        "y": 168.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 044.",
+        "x": 180.0,
+        "y": 156.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 045.",
+        "x": 180.0,
+        "y": 144.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 046.",
+        "x": 180.0,
+        "y": 132.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 047.",
+        "x": 180.0,
+        "y": 120.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 048.",
+        "x": 180.0,
+        "y": 108.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 049.",
+        "x": 180.0,
+        "y": 96.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 050.",
+        "x": 180.0,
+        "y": 84.0,
+        "size": 12.0
+      },
+      {
+        "text": "(MORE)",
+        "x": 266.4,
+        "y": 72.0,
+        "size": 12.0
+      }
+    ],
+    [
+      {
+        "text": "2.",
+        "x": 525.609,
+        "y": 750.0,
+        "size": 12.0
+      },
+      {
+        "text": "MARA (CONT'D)",
+        "x": 266.4,
+        "y": 708.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 051.",
+        "x": 180.0,
+        "y": 696.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 052.",
+        "x": 180.0,
+        "y": 684.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 053.",
+        "x": 180.0,
+        "y": 672.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 054.",
+        "x": 180.0,
+        "y": 660.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 055.",
+        "x": 180.0,
+        "y": 648.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 056.",
+        "x": 180.0,
+        "y": 636.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 057.",
+        "x": 180.0,
+        "y": 624.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 058.",
+        "x": 180.0,
+        "y": 612.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 059.",
+        "x": 180.0,
+        "y": 600.0,
+        "size": 12.0
+      },
+      {
+        "text": "(a measured pause)",
+        "x": 223.2,
+        "y": 588.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 060.",
+        "x": 180.0,
+        "y": 576.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 061.",
+        "x": 180.0,
+        "y": 564.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 062.",
+        "x": 180.0,
+        "y": 552.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 063.",
+        "x": 180.0,
+        "y": 540.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 064.",
+        "x": 180.0,
+        "y": 528.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 065.",
+        "x": 180.0,
+        "y": 516.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 066.",
+        "x": 180.0,
+        "y": 504.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 067.",
+        "x": 180.0,
+        "y": 492.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 068.",
+        "x": 180.0,
+        "y": 480.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 069.",
+        "x": 180.0,
+        "y": 468.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 070.",
+        "x": 180.0,
+        "y": 456.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 071.",
+        "x": 180.0,
+        "y": 444.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 072.",
+        "x": 180.0,
+        "y": 432.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 073.",
+        "x": 180.0,
+        "y": 420.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 074.",
+        "x": 180.0,
+        "y": 408.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 075.",
+        "x": 180.0,
+        "y": 396.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 076.",
+        "x": 180.0,
+        "y": 384.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 077.",
+        "x": 180.0,
+        "y": 372.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 078.",
+        "x": 180.0,
+        "y": 360.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 079.",
+        "x": 180.0,
+        "y": 348.0,
+        "size": 12.0
+      },
+      {
+        "text": "(a measured pause)",
+        "x": 223.2,
+        "y": 336.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 080.",
+        "x": 180.0,
+        "y": 324.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 081.",
+        "x": 180.0,
+        "y": 312.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 082.",
+        "x": 180.0,
+        "y": 300.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 083.",
+        "x": 180.0,
+        "y": 288.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 084.",
+        "x": 180.0,
+        "y": 276.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 085.",
+        "x": 180.0,
+        "y": 264.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 086.",
+        "x": 180.0,
+        "y": 252.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 087.",
+        "x": 180.0,
+        "y": 240.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 088.",
+        "x": 180.0,
+        "y": 228.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 089.",
+        "x": 180.0,
+        "y": 216.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 090.",
+        "x": 180.0,
+        "y": 204.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 091.",
+        "x": 180.0,
+        "y": 192.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 092.",
+        "x": 180.0,
+        "y": 180.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 093.",
+        "x": 180.0,
+        "y": 168.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 094.",
+        "x": 180.0,
+        "y": 156.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 095.",
+        "x": 180.0,
+        "y": 144.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 096.",
+        "x": 180.0,
+        "y": 132.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 097.",
+        "x": 180.0,
+        "y": 120.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 098.",
+        "x": 180.0,
+        "y": 108.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 099.",
+        "x": 180.0,
+        "y": 96.0,
+        "size": 12.0
+      },
+      {
+        "text": "(MORE)",
+        "x": 266.4,
+        "y": 84.0,
+        "size": 12.0
+      }
+    ],
+    [
+      {
+        "text": "3.",
+        "x": 525.609,
+        "y": 750.0,
+        "size": 12.0
+      },
+      {
+        "text": "MARA (CONT'D)",
+        "x": 266.4,
+        "y": 708.0,
+        "size": 12.0
+      },
+      {
+        "text": "(a measured pause)",
+        "x": 223.2,
+        "y": 696.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 100.",
+        "x": 180.0,
+        "y": 684.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 101.",
+        "x": 180.0,
+        "y": 672.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 102.",
+        "x": 180.0,
+        "y": 660.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 103.",
+        "x": 180.0,
+        "y": 648.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 104.",
+        "x": 180.0,
+        "y": 636.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 105.",
+        "x": 180.0,
+        "y": 624.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 106.",
+        "x": 180.0,
+        "y": 612.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 107.",
+        "x": 180.0,
+        "y": 600.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 108.",
+        "x": 180.0,
+        "y": 588.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 109.",
+        "x": 180.0,
+        "y": 576.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 110.",
+        "x": 180.0,
+        "y": 564.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 111.",
+        "x": 180.0,
+        "y": 552.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 112.",
+        "x": 180.0,
+        "y": 540.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 113.",
+        "x": 180.0,
+        "y": 528.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 114.",
+        "x": 180.0,
+        "y": 516.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 115.",
+        "x": 180.0,
+        "y": 504.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 116.",
+        "x": 180.0,
+        "y": 492.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 117.",
+        "x": 180.0,
+        "y": 480.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 118.",
+        "x": 180.0,
+        "y": 468.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 119.",
+        "x": 180.0,
+        "y": 456.0,
+        "size": 12.0
+      },
+      {
+        "text": "(a measured pause)",
+        "x": 223.2,
+        "y": 444.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 120.",
+        "x": 180.0,
+        "y": 432.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 121.",
+        "x": 180.0,
+        "y": 420.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 122.",
+        "x": 180.0,
+        "y": 408.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 123.",
+        "x": 180.0,
+        "y": 396.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 124.",
+        "x": 180.0,
+        "y": 384.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 125.",
+        "x": 180.0,
+        "y": 372.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 126.",
+        "x": 180.0,
+        "y": 360.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 127.",
+        "x": 180.0,
+        "y": 348.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 128.",
+        "x": 180.0,
+        "y": 336.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 129.",
+        "x": 180.0,
+        "y": 324.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 130.",
+        "x": 180.0,
+        "y": 312.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 131.",
+        "x": 180.0,
+        "y": 300.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 132.",
+        "x": 180.0,
+        "y": 288.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 133.",
+        "x": 180.0,
+        "y": 276.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 134.",
+        "x": 180.0,
+        "y": 264.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 135.",
+        "x": 180.0,
+        "y": 252.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 136.",
+        "x": 180.0,
+        "y": 240.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 137.",
+        "x": 180.0,
+        "y": 228.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 138.",
+        "x": 180.0,
+        "y": 216.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 139.",
+        "x": 180.0,
+        "y": 204.0,
+        "size": 12.0
+      },
+      {
+        "text": "(a measured pause)",
+        "x": 223.2,
+        "y": 192.0,
+        "size": 12.0
+      },
+      {
+        "text": "Speech row 140.",
+        "x": 180.0,
+        "y": 180.0,
+        "size": 12.0
+      }
+    ]
+  ],
+  "words": [
+    [
+      {
+        "text": "MARA",
+        "xMin": 266.4,
+        "yMin": 75.674,
+        "xMax": 295.181,
+        "yMax": 87.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 87.674,
+        "xMax": 223.172,
+        "yMax": 99.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 87.674,
+        "xMax": 251.953,
+        "yMax": 99.768
+      },
+      {
+        "text": "001.",
+        "xMin": 259.148,
+        "yMin": 87.674,
+        "xMax": 287.93,
+        "yMax": 99.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 99.674,
+        "xMax": 223.172,
+        "yMax": 111.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 99.674,
+        "xMax": 251.953,
+        "yMax": 111.768
+      },
+      {
+        "text": "002.",
+        "xMin": 259.148,
+        "yMin": 99.674,
+        "xMax": 287.93,
+        "yMax": 111.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 111.674,
+        "xMax": 223.172,
+        "yMax": 123.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 111.674,
+        "xMax": 251.953,
+        "yMax": 123.768
+      },
+      {
+        "text": "003.",
+        "xMin": 259.148,
+        "yMin": 111.674,
+        "xMax": 287.93,
+        "yMax": 123.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 123.674,
+        "xMax": 223.172,
+        "yMax": 135.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 123.674,
+        "xMax": 251.953,
+        "yMax": 135.768
+      },
+      {
+        "text": "004.",
+        "xMin": 259.148,
+        "yMin": 123.674,
+        "xMax": 287.93,
+        "yMax": 135.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 135.674,
+        "xMax": 223.172,
+        "yMax": 147.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 135.674,
+        "xMax": 251.953,
+        "yMax": 147.768
+      },
+      {
+        "text": "005.",
+        "xMin": 259.148,
+        "yMin": 135.674,
+        "xMax": 287.93,
+        "yMax": 147.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 147.674,
+        "xMax": 223.172,
+        "yMax": 159.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 147.674,
+        "xMax": 251.953,
+        "yMax": 159.768
+      },
+      {
+        "text": "006.",
+        "xMin": 259.148,
+        "yMin": 147.674,
+        "xMax": 287.93,
+        "yMax": 159.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 159.674,
+        "xMax": 223.172,
+        "yMax": 171.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 159.674,
+        "xMax": 251.953,
+        "yMax": 171.768
+      },
+      {
+        "text": "007.",
+        "xMin": 259.148,
+        "yMin": 159.674,
+        "xMax": 287.93,
+        "yMax": 171.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 171.674,
+        "xMax": 223.172,
+        "yMax": 183.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 171.674,
+        "xMax": 251.953,
+        "yMax": 183.768
+      },
+      {
+        "text": "008.",
+        "xMin": 259.148,
+        "yMin": 171.674,
+        "xMax": 287.93,
+        "yMax": 183.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 183.674,
+        "xMax": 223.172,
+        "yMax": 195.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 183.674,
+        "xMax": 251.953,
+        "yMax": 195.768
+      },
+      {
+        "text": "009.",
+        "xMin": 259.148,
+        "yMin": 183.674,
+        "xMax": 287.93,
+        "yMax": 195.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 195.674,
+        "xMax": 223.172,
+        "yMax": 207.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 195.674,
+        "xMax": 251.953,
+        "yMax": 207.768
+      },
+      {
+        "text": "010.",
+        "xMin": 259.148,
+        "yMin": 195.674,
+        "xMax": 287.93,
+        "yMax": 207.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 207.674,
+        "xMax": 223.172,
+        "yMax": 219.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 207.674,
+        "xMax": 251.953,
+        "yMax": 219.768
+      },
+      {
+        "text": "011.",
+        "xMin": 259.148,
+        "yMin": 207.674,
+        "xMax": 287.93,
+        "yMax": 219.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 219.674,
+        "xMax": 223.172,
+        "yMax": 231.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 219.674,
+        "xMax": 251.953,
+        "yMax": 231.768
+      },
+      {
+        "text": "012.",
+        "xMin": 259.148,
+        "yMin": 219.674,
+        "xMax": 287.93,
+        "yMax": 231.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 231.674,
+        "xMax": 223.172,
+        "yMax": 243.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 231.674,
+        "xMax": 251.953,
+        "yMax": 243.768
+      },
+      {
+        "text": "013.",
+        "xMin": 259.148,
+        "yMin": 231.674,
+        "xMax": 287.93,
+        "yMax": 243.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 243.674,
+        "xMax": 223.172,
+        "yMax": 255.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 243.674,
+        "xMax": 251.953,
+        "yMax": 255.768
+      },
+      {
+        "text": "014.",
+        "xMin": 259.148,
+        "yMin": 243.674,
+        "xMax": 287.93,
+        "yMax": 255.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 255.674,
+        "xMax": 223.172,
+        "yMax": 267.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 255.674,
+        "xMax": 251.953,
+        "yMax": 267.768
+      },
+      {
+        "text": "015.",
+        "xMin": 259.148,
+        "yMin": 255.674,
+        "xMax": 287.93,
+        "yMax": 267.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 267.674,
+        "xMax": 223.172,
+        "yMax": 279.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 267.674,
+        "xMax": 251.953,
+        "yMax": 279.768
+      },
+      {
+        "text": "016.",
+        "xMin": 259.148,
+        "yMin": 267.674,
+        "xMax": 287.93,
+        "yMax": 279.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 279.674,
+        "xMax": 223.172,
+        "yMax": 291.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 279.674,
+        "xMax": 251.953,
+        "yMax": 291.768
+      },
+      {
+        "text": "017.",
+        "xMin": 259.148,
+        "yMin": 279.674,
+        "xMax": 287.93,
+        "yMax": 291.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 291.674,
+        "xMax": 223.172,
+        "yMax": 303.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 291.674,
+        "xMax": 251.953,
+        "yMax": 303.768
+      },
+      {
+        "text": "018.",
+        "xMin": 259.148,
+        "yMin": 291.674,
+        "xMax": 287.93,
+        "yMax": 303.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 303.674,
+        "xMax": 223.172,
+        "yMax": 315.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 303.674,
+        "xMax": 251.953,
+        "yMax": 315.768
+      },
+      {
+        "text": "019.",
+        "xMin": 259.148,
+        "yMin": 303.674,
+        "xMax": 287.93,
+        "yMax": 315.768
+      },
+      {
+        "text": "(a",
+        "xMin": 223.2,
+        "yMin": 315.674,
+        "xMax": 237.591,
+        "yMax": 327.768
+      },
+      {
+        "text": "measured",
+        "xMin": 244.786,
+        "yMin": 315.674,
+        "xMax": 302.348,
+        "yMax": 327.768
+      },
+      {
+        "text": "pause)",
+        "xMin": 309.544,
+        "yMin": 315.674,
+        "xMax": 352.716,
+        "yMax": 327.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 327.674,
+        "xMax": 223.172,
+        "yMax": 339.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 327.674,
+        "xMax": 251.953,
+        "yMax": 339.768
+      },
+      {
+        "text": "020.",
+        "xMin": 259.148,
+        "yMin": 327.674,
+        "xMax": 287.93,
+        "yMax": 339.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 339.674,
+        "xMax": 223.172,
+        "yMax": 351.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 339.674,
+        "xMax": 251.953,
+        "yMax": 351.768
+      },
+      {
+        "text": "021.",
+        "xMin": 259.148,
+        "yMin": 339.674,
+        "xMax": 287.93,
+        "yMax": 351.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 351.674,
+        "xMax": 223.172,
+        "yMax": 363.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 351.674,
+        "xMax": 251.953,
+        "yMax": 363.768
+      },
+      {
+        "text": "022.",
+        "xMin": 259.148,
+        "yMin": 351.674,
+        "xMax": 287.93,
+        "yMax": 363.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 363.674,
+        "xMax": 223.172,
+        "yMax": 375.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 363.674,
+        "xMax": 251.953,
+        "yMax": 375.768
+      },
+      {
+        "text": "023.",
+        "xMin": 259.148,
+        "yMin": 363.674,
+        "xMax": 287.93,
+        "yMax": 375.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 375.674,
+        "xMax": 223.172,
+        "yMax": 387.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 375.674,
+        "xMax": 251.953,
+        "yMax": 387.768
+      },
+      {
+        "text": "024.",
+        "xMin": 259.148,
+        "yMin": 375.674,
+        "xMax": 287.93,
+        "yMax": 387.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 387.674,
+        "xMax": 223.172,
+        "yMax": 399.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 387.674,
+        "xMax": 251.953,
+        "yMax": 399.768
+      },
+      {
+        "text": "025.",
+        "xMin": 259.148,
+        "yMin": 387.674,
+        "xMax": 287.93,
+        "yMax": 399.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 399.674,
+        "xMax": 223.172,
+        "yMax": 411.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 399.674,
+        "xMax": 251.953,
+        "yMax": 411.768
+      },
+      {
+        "text": "026.",
+        "xMin": 259.148,
+        "yMin": 399.674,
+        "xMax": 287.93,
+        "yMax": 411.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 411.674,
+        "xMax": 223.172,
+        "yMax": 423.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 411.674,
+        "xMax": 251.953,
+        "yMax": 423.768
+      },
+      {
+        "text": "027.",
+        "xMin": 259.148,
+        "yMin": 411.674,
+        "xMax": 287.93,
+        "yMax": 423.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 423.674,
+        "xMax": 223.172,
+        "yMax": 435.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 423.674,
+        "xMax": 251.953,
+        "yMax": 435.768
+      },
+      {
+        "text": "028.",
+        "xMin": 259.148,
+        "yMin": 423.674,
+        "xMax": 287.93,
+        "yMax": 435.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 435.674,
+        "xMax": 223.172,
+        "yMax": 447.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 435.674,
+        "xMax": 251.953,
+        "yMax": 447.768
+      },
+      {
+        "text": "029.",
+        "xMin": 259.148,
+        "yMin": 435.674,
+        "xMax": 287.93,
+        "yMax": 447.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 447.674,
+        "xMax": 223.172,
+        "yMax": 459.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 447.674,
+        "xMax": 251.953,
+        "yMax": 459.768
+      },
+      {
+        "text": "030.",
+        "xMin": 259.148,
+        "yMin": 447.674,
+        "xMax": 287.93,
+        "yMax": 459.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 459.674,
+        "xMax": 223.172,
+        "yMax": 471.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 459.674,
+        "xMax": 251.953,
+        "yMax": 471.768
+      },
+      {
+        "text": "031.",
+        "xMin": 259.148,
+        "yMin": 459.674,
+        "xMax": 287.93,
+        "yMax": 471.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 471.674,
+        "xMax": 223.172,
+        "yMax": 483.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 471.674,
+        "xMax": 251.953,
+        "yMax": 483.768
+      },
+      {
+        "text": "032.",
+        "xMin": 259.148,
+        "yMin": 471.674,
+        "xMax": 287.93,
+        "yMax": 483.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 483.674,
+        "xMax": 223.172,
+        "yMax": 495.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 483.674,
+        "xMax": 251.953,
+        "yMax": 495.768
+      },
+      {
+        "text": "033.",
+        "xMin": 259.148,
+        "yMin": 483.674,
+        "xMax": 287.93,
+        "yMax": 495.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 495.674,
+        "xMax": 223.172,
+        "yMax": 507.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 495.674,
+        "xMax": 251.953,
+        "yMax": 507.768
+      },
+      {
+        "text": "034.",
+        "xMin": 259.148,
+        "yMin": 495.674,
+        "xMax": 287.93,
+        "yMax": 507.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 507.674,
+        "xMax": 223.172,
+        "yMax": 519.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 507.674,
+        "xMax": 251.953,
+        "yMax": 519.768
+      },
+      {
+        "text": "035.",
+        "xMin": 259.148,
+        "yMin": 507.674,
+        "xMax": 287.93,
+        "yMax": 519.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 519.674,
+        "xMax": 223.172,
+        "yMax": 531.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 519.674,
+        "xMax": 251.953,
+        "yMax": 531.768
+      },
+      {
+        "text": "036.",
+        "xMin": 259.148,
+        "yMin": 519.674,
+        "xMax": 287.93,
+        "yMax": 531.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 531.674,
+        "xMax": 223.172,
+        "yMax": 543.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 531.674,
+        "xMax": 251.953,
+        "yMax": 543.768
+      },
+      {
+        "text": "037.",
+        "xMin": 259.148,
+        "yMin": 531.674,
+        "xMax": 287.93,
+        "yMax": 543.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 543.674,
+        "xMax": 223.172,
+        "yMax": 555.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 543.674,
+        "xMax": 251.953,
+        "yMax": 555.768
+      },
+      {
+        "text": "038.",
+        "xMin": 259.148,
+        "yMin": 543.674,
+        "xMax": 287.93,
+        "yMax": 555.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 555.674,
+        "xMax": 223.172,
+        "yMax": 567.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 555.674,
+        "xMax": 251.953,
+        "yMax": 567.768
+      },
+      {
+        "text": "039.",
+        "xMin": 259.148,
+        "yMin": 555.674,
+        "xMax": 287.93,
+        "yMax": 567.768
+      },
+      {
+        "text": "(a",
+        "xMin": 223.2,
+        "yMin": 567.674,
+        "xMax": 237.591,
+        "yMax": 579.768
+      },
+      {
+        "text": "measured",
+        "xMin": 244.786,
+        "yMin": 567.674,
+        "xMax": 302.348,
+        "yMax": 579.768
+      },
+      {
+        "text": "pause)",
+        "xMin": 309.544,
+        "yMin": 567.674,
+        "xMax": 352.716,
+        "yMax": 579.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 579.674,
+        "xMax": 223.172,
+        "yMax": 591.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 579.674,
+        "xMax": 251.953,
+        "yMax": 591.768
+      },
+      {
+        "text": "040.",
+        "xMin": 259.148,
+        "yMin": 579.674,
+        "xMax": 287.93,
+        "yMax": 591.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 591.674,
+        "xMax": 223.172,
+        "yMax": 603.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 591.674,
+        "xMax": 251.953,
+        "yMax": 603.768
+      },
+      {
+        "text": "041.",
+        "xMin": 259.148,
+        "yMin": 591.674,
+        "xMax": 287.93,
+        "yMax": 603.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 603.674,
+        "xMax": 223.172,
+        "yMax": 615.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 603.674,
+        "xMax": 251.953,
+        "yMax": 615.768
+      },
+      {
+        "text": "042.",
+        "xMin": 259.148,
+        "yMin": 603.674,
+        "xMax": 287.93,
+        "yMax": 615.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 615.674,
+        "xMax": 223.172,
+        "yMax": 627.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 615.674,
+        "xMax": 251.953,
+        "yMax": 627.768
+      },
+      {
+        "text": "043.",
+        "xMin": 259.148,
+        "yMin": 615.674,
+        "xMax": 287.93,
+        "yMax": 627.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 627.674,
+        "xMax": 223.172,
+        "yMax": 639.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 627.674,
+        "xMax": 251.953,
+        "yMax": 639.768
+      },
+      {
+        "text": "044.",
+        "xMin": 259.148,
+        "yMin": 627.674,
+        "xMax": 287.93,
+        "yMax": 639.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 639.674,
+        "xMax": 223.172,
+        "yMax": 651.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 639.674,
+        "xMax": 251.953,
+        "yMax": 651.768
+      },
+      {
+        "text": "045.",
+        "xMin": 259.148,
+        "yMin": 639.674,
+        "xMax": 287.93,
+        "yMax": 651.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 651.674,
+        "xMax": 223.172,
+        "yMax": 663.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 651.674,
+        "xMax": 251.953,
+        "yMax": 663.768
+      },
+      {
+        "text": "046.",
+        "xMin": 259.148,
+        "yMin": 651.674,
+        "xMax": 287.93,
+        "yMax": 663.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 663.674,
+        "xMax": 223.172,
+        "yMax": 675.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 663.674,
+        "xMax": 251.953,
+        "yMax": 675.768
+      },
+      {
+        "text": "047.",
+        "xMin": 259.148,
+        "yMin": 663.674,
+        "xMax": 287.93,
+        "yMax": 675.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 675.674,
+        "xMax": 223.172,
+        "yMax": 687.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 675.674,
+        "xMax": 251.953,
+        "yMax": 687.768
+      },
+      {
+        "text": "048.",
+        "xMin": 259.148,
+        "yMin": 675.674,
+        "xMax": 287.93,
+        "yMax": 687.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 687.674,
+        "xMax": 223.172,
+        "yMax": 699.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 687.674,
+        "xMax": 251.953,
+        "yMax": 699.768
+      },
+      {
+        "text": "049.",
+        "xMin": 259.148,
+        "yMin": 687.674,
+        "xMax": 287.93,
+        "yMax": 699.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 699.674,
+        "xMax": 223.172,
+        "yMax": 711.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 699.674,
+        "xMax": 251.953,
+        "yMax": 711.768
+      },
+      {
+        "text": "050.",
+        "xMin": 259.148,
+        "yMin": 699.674,
+        "xMax": 287.93,
+        "yMax": 711.768
+      },
+      {
+        "text": "(MORE)",
+        "xMin": 266.4,
+        "yMin": 711.674,
+        "xMax": 309.572,
+        "yMax": 723.768
+      }
+    ],
+    [
+      {
+        "text": "2.",
+        "xMin": 525.609,
+        "yMin": 33.674,
+        "xMax": 540.0,
+        "yMax": 45.768
+      },
+      {
+        "text": "MARA",
+        "xMin": 266.4,
+        "yMin": 75.674,
+        "xMax": 295.181,
+        "yMax": 87.768
+      },
+      {
+        "text": "(CONT'D)",
+        "xMin": 302.377,
+        "yMin": 75.674,
+        "xMax": 359.939,
+        "yMax": 87.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 87.674,
+        "xMax": 223.172,
+        "yMax": 99.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 87.674,
+        "xMax": 251.953,
+        "yMax": 99.768
+      },
+      {
+        "text": "051.",
+        "xMin": 259.148,
+        "yMin": 87.674,
+        "xMax": 287.93,
+        "yMax": 99.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 99.674,
+        "xMax": 223.172,
+        "yMax": 111.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 99.674,
+        "xMax": 251.953,
+        "yMax": 111.768
+      },
+      {
+        "text": "052.",
+        "xMin": 259.148,
+        "yMin": 99.674,
+        "xMax": 287.93,
+        "yMax": 111.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 111.674,
+        "xMax": 223.172,
+        "yMax": 123.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 111.674,
+        "xMax": 251.953,
+        "yMax": 123.768
+      },
+      {
+        "text": "053.",
+        "xMin": 259.148,
+        "yMin": 111.674,
+        "xMax": 287.93,
+        "yMax": 123.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 123.674,
+        "xMax": 223.172,
+        "yMax": 135.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 123.674,
+        "xMax": 251.953,
+        "yMax": 135.768
+      },
+      {
+        "text": "054.",
+        "xMin": 259.148,
+        "yMin": 123.674,
+        "xMax": 287.93,
+        "yMax": 135.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 135.674,
+        "xMax": 223.172,
+        "yMax": 147.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 135.674,
+        "xMax": 251.953,
+        "yMax": 147.768
+      },
+      {
+        "text": "055.",
+        "xMin": 259.148,
+        "yMin": 135.674,
+        "xMax": 287.93,
+        "yMax": 147.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 147.674,
+        "xMax": 223.172,
+        "yMax": 159.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 147.674,
+        "xMax": 251.953,
+        "yMax": 159.768
+      },
+      {
+        "text": "056.",
+        "xMin": 259.148,
+        "yMin": 147.674,
+        "xMax": 287.93,
+        "yMax": 159.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 159.674,
+        "xMax": 223.172,
+        "yMax": 171.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 159.674,
+        "xMax": 251.953,
+        "yMax": 171.768
+      },
+      {
+        "text": "057.",
+        "xMin": 259.148,
+        "yMin": 159.674,
+        "xMax": 287.93,
+        "yMax": 171.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 171.674,
+        "xMax": 223.172,
+        "yMax": 183.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 171.674,
+        "xMax": 251.953,
+        "yMax": 183.768
+      },
+      {
+        "text": "058.",
+        "xMin": 259.148,
+        "yMin": 171.674,
+        "xMax": 287.93,
+        "yMax": 183.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 183.674,
+        "xMax": 223.172,
+        "yMax": 195.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 183.674,
+        "xMax": 251.953,
+        "yMax": 195.768
+      },
+      {
+        "text": "059.",
+        "xMin": 259.148,
+        "yMin": 183.674,
+        "xMax": 287.93,
+        "yMax": 195.768
+      },
+      {
+        "text": "(a",
+        "xMin": 223.2,
+        "yMin": 195.674,
+        "xMax": 237.591,
+        "yMax": 207.768
+      },
+      {
+        "text": "measured",
+        "xMin": 244.786,
+        "yMin": 195.674,
+        "xMax": 302.348,
+        "yMax": 207.768
+      },
+      {
+        "text": "pause)",
+        "xMin": 309.544,
+        "yMin": 195.674,
+        "xMax": 352.716,
+        "yMax": 207.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 207.674,
+        "xMax": 223.172,
+        "yMax": 219.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 207.674,
+        "xMax": 251.953,
+        "yMax": 219.768
+      },
+      {
+        "text": "060.",
+        "xMin": 259.148,
+        "yMin": 207.674,
+        "xMax": 287.93,
+        "yMax": 219.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 219.674,
+        "xMax": 223.172,
+        "yMax": 231.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 219.674,
+        "xMax": 251.953,
+        "yMax": 231.768
+      },
+      {
+        "text": "061.",
+        "xMin": 259.148,
+        "yMin": 219.674,
+        "xMax": 287.93,
+        "yMax": 231.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 231.674,
+        "xMax": 223.172,
+        "yMax": 243.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 231.674,
+        "xMax": 251.953,
+        "yMax": 243.768
+      },
+      {
+        "text": "062.",
+        "xMin": 259.148,
+        "yMin": 231.674,
+        "xMax": 287.93,
+        "yMax": 243.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 243.674,
+        "xMax": 223.172,
+        "yMax": 255.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 243.674,
+        "xMax": 251.953,
+        "yMax": 255.768
+      },
+      {
+        "text": "063.",
+        "xMin": 259.148,
+        "yMin": 243.674,
+        "xMax": 287.93,
+        "yMax": 255.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 255.674,
+        "xMax": 223.172,
+        "yMax": 267.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 255.674,
+        "xMax": 251.953,
+        "yMax": 267.768
+      },
+      {
+        "text": "064.",
+        "xMin": 259.148,
+        "yMin": 255.674,
+        "xMax": 287.93,
+        "yMax": 267.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 267.674,
+        "xMax": 223.172,
+        "yMax": 279.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 267.674,
+        "xMax": 251.953,
+        "yMax": 279.768
+      },
+      {
+        "text": "065.",
+        "xMin": 259.148,
+        "yMin": 267.674,
+        "xMax": 287.93,
+        "yMax": 279.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 279.674,
+        "xMax": 223.172,
+        "yMax": 291.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 279.674,
+        "xMax": 251.953,
+        "yMax": 291.768
+      },
+      {
+        "text": "066.",
+        "xMin": 259.148,
+        "yMin": 279.674,
+        "xMax": 287.93,
+        "yMax": 291.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 291.674,
+        "xMax": 223.172,
+        "yMax": 303.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 291.674,
+        "xMax": 251.953,
+        "yMax": 303.768
+      },
+      {
+        "text": "067.",
+        "xMin": 259.148,
+        "yMin": 291.674,
+        "xMax": 287.93,
+        "yMax": 303.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 303.674,
+        "xMax": 223.172,
+        "yMax": 315.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 303.674,
+        "xMax": 251.953,
+        "yMax": 315.768
+      },
+      {
+        "text": "068.",
+        "xMin": 259.148,
+        "yMin": 303.674,
+        "xMax": 287.93,
+        "yMax": 315.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 315.674,
+        "xMax": 223.172,
+        "yMax": 327.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 315.674,
+        "xMax": 251.953,
+        "yMax": 327.768
+      },
+      {
+        "text": "069.",
+        "xMin": 259.148,
+        "yMin": 315.674,
+        "xMax": 287.93,
+        "yMax": 327.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 327.674,
+        "xMax": 223.172,
+        "yMax": 339.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 327.674,
+        "xMax": 251.953,
+        "yMax": 339.768
+      },
+      {
+        "text": "070.",
+        "xMin": 259.148,
+        "yMin": 327.674,
+        "xMax": 287.93,
+        "yMax": 339.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 339.674,
+        "xMax": 223.172,
+        "yMax": 351.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 339.674,
+        "xMax": 251.953,
+        "yMax": 351.768
+      },
+      {
+        "text": "071.",
+        "xMin": 259.148,
+        "yMin": 339.674,
+        "xMax": 287.93,
+        "yMax": 351.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 351.674,
+        "xMax": 223.172,
+        "yMax": 363.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 351.674,
+        "xMax": 251.953,
+        "yMax": 363.768
+      },
+      {
+        "text": "072.",
+        "xMin": 259.148,
+        "yMin": 351.674,
+        "xMax": 287.93,
+        "yMax": 363.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 363.674,
+        "xMax": 223.172,
+        "yMax": 375.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 363.674,
+        "xMax": 251.953,
+        "yMax": 375.768
+      },
+      {
+        "text": "073.",
+        "xMin": 259.148,
+        "yMin": 363.674,
+        "xMax": 287.93,
+        "yMax": 375.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 375.674,
+        "xMax": 223.172,
+        "yMax": 387.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 375.674,
+        "xMax": 251.953,
+        "yMax": 387.768
+      },
+      {
+        "text": "074.",
+        "xMin": 259.148,
+        "yMin": 375.674,
+        "xMax": 287.93,
+        "yMax": 387.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 387.674,
+        "xMax": 223.172,
+        "yMax": 399.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 387.674,
+        "xMax": 251.953,
+        "yMax": 399.768
+      },
+      {
+        "text": "075.",
+        "xMin": 259.148,
+        "yMin": 387.674,
+        "xMax": 287.93,
+        "yMax": 399.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 399.674,
+        "xMax": 223.172,
+        "yMax": 411.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 399.674,
+        "xMax": 251.953,
+        "yMax": 411.768
+      },
+      {
+        "text": "076.",
+        "xMin": 259.148,
+        "yMin": 399.674,
+        "xMax": 287.93,
+        "yMax": 411.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 411.674,
+        "xMax": 223.172,
+        "yMax": 423.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 411.674,
+        "xMax": 251.953,
+        "yMax": 423.768
+      },
+      {
+        "text": "077.",
+        "xMin": 259.148,
+        "yMin": 411.674,
+        "xMax": 287.93,
+        "yMax": 423.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 423.674,
+        "xMax": 223.172,
+        "yMax": 435.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 423.674,
+        "xMax": 251.953,
+        "yMax": 435.768
+      },
+      {
+        "text": "078.",
+        "xMin": 259.148,
+        "yMin": 423.674,
+        "xMax": 287.93,
+        "yMax": 435.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 435.674,
+        "xMax": 223.172,
+        "yMax": 447.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 435.674,
+        "xMax": 251.953,
+        "yMax": 447.768
+      },
+      {
+        "text": "079.",
+        "xMin": 259.148,
+        "yMin": 435.674,
+        "xMax": 287.93,
+        "yMax": 447.768
+      },
+      {
+        "text": "(a",
+        "xMin": 223.2,
+        "yMin": 447.674,
+        "xMax": 237.591,
+        "yMax": 459.768
+      },
+      {
+        "text": "measured",
+        "xMin": 244.786,
+        "yMin": 447.674,
+        "xMax": 302.348,
+        "yMax": 459.768
+      },
+      {
+        "text": "pause)",
+        "xMin": 309.544,
+        "yMin": 447.674,
+        "xMax": 352.716,
+        "yMax": 459.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 459.674,
+        "xMax": 223.172,
+        "yMax": 471.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 459.674,
+        "xMax": 251.953,
+        "yMax": 471.768
+      },
+      {
+        "text": "080.",
+        "xMin": 259.148,
+        "yMin": 459.674,
+        "xMax": 287.93,
+        "yMax": 471.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 471.674,
+        "xMax": 223.172,
+        "yMax": 483.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 471.674,
+        "xMax": 251.953,
+        "yMax": 483.768
+      },
+      {
+        "text": "081.",
+        "xMin": 259.148,
+        "yMin": 471.674,
+        "xMax": 287.93,
+        "yMax": 483.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 483.674,
+        "xMax": 223.172,
+        "yMax": 495.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 483.674,
+        "xMax": 251.953,
+        "yMax": 495.768
+      },
+      {
+        "text": "082.",
+        "xMin": 259.148,
+        "yMin": 483.674,
+        "xMax": 287.93,
+        "yMax": 495.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 495.674,
+        "xMax": 223.172,
+        "yMax": 507.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 495.674,
+        "xMax": 251.953,
+        "yMax": 507.768
+      },
+      {
+        "text": "083.",
+        "xMin": 259.148,
+        "yMin": 495.674,
+        "xMax": 287.93,
+        "yMax": 507.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 507.674,
+        "xMax": 223.172,
+        "yMax": 519.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 507.674,
+        "xMax": 251.953,
+        "yMax": 519.768
+      },
+      {
+        "text": "084.",
+        "xMin": 259.148,
+        "yMin": 507.674,
+        "xMax": 287.93,
+        "yMax": 519.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 519.674,
+        "xMax": 223.172,
+        "yMax": 531.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 519.674,
+        "xMax": 251.953,
+        "yMax": 531.768
+      },
+      {
+        "text": "085.",
+        "xMin": 259.148,
+        "yMin": 519.674,
+        "xMax": 287.93,
+        "yMax": 531.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 531.674,
+        "xMax": 223.172,
+        "yMax": 543.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 531.674,
+        "xMax": 251.953,
+        "yMax": 543.768
+      },
+      {
+        "text": "086.",
+        "xMin": 259.148,
+        "yMin": 531.674,
+        "xMax": 287.93,
+        "yMax": 543.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 543.674,
+        "xMax": 223.172,
+        "yMax": 555.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 543.674,
+        "xMax": 251.953,
+        "yMax": 555.768
+      },
+      {
+        "text": "087.",
+        "xMin": 259.148,
+        "yMin": 543.674,
+        "xMax": 287.93,
+        "yMax": 555.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 555.674,
+        "xMax": 223.172,
+        "yMax": 567.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 555.674,
+        "xMax": 251.953,
+        "yMax": 567.768
+      },
+      {
+        "text": "088.",
+        "xMin": 259.148,
+        "yMin": 555.674,
+        "xMax": 287.93,
+        "yMax": 567.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 567.674,
+        "xMax": 223.172,
+        "yMax": 579.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 567.674,
+        "xMax": 251.953,
+        "yMax": 579.768
+      },
+      {
+        "text": "089.",
+        "xMin": 259.148,
+        "yMin": 567.674,
+        "xMax": 287.93,
+        "yMax": 579.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 579.674,
+        "xMax": 223.172,
+        "yMax": 591.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 579.674,
+        "xMax": 251.953,
+        "yMax": 591.768
+      },
+      {
+        "text": "090.",
+        "xMin": 259.148,
+        "yMin": 579.674,
+        "xMax": 287.93,
+        "yMax": 591.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 591.674,
+        "xMax": 223.172,
+        "yMax": 603.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 591.674,
+        "xMax": 251.953,
+        "yMax": 603.768
+      },
+      {
+        "text": "091.",
+        "xMin": 259.148,
+        "yMin": 591.674,
+        "xMax": 287.93,
+        "yMax": 603.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 603.674,
+        "xMax": 223.172,
+        "yMax": 615.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 603.674,
+        "xMax": 251.953,
+        "yMax": 615.768
+      },
+      {
+        "text": "092.",
+        "xMin": 259.148,
+        "yMin": 603.674,
+        "xMax": 287.93,
+        "yMax": 615.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 615.674,
+        "xMax": 223.172,
+        "yMax": 627.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 615.674,
+        "xMax": 251.953,
+        "yMax": 627.768
+      },
+      {
+        "text": "093.",
+        "xMin": 259.148,
+        "yMin": 615.674,
+        "xMax": 287.93,
+        "yMax": 627.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 627.674,
+        "xMax": 223.172,
+        "yMax": 639.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 627.674,
+        "xMax": 251.953,
+        "yMax": 639.768
+      },
+      {
+        "text": "094.",
+        "xMin": 259.148,
+        "yMin": 627.674,
+        "xMax": 287.93,
+        "yMax": 639.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 639.674,
+        "xMax": 223.172,
+        "yMax": 651.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 639.674,
+        "xMax": 251.953,
+        "yMax": 651.768
+      },
+      {
+        "text": "095.",
+        "xMin": 259.148,
+        "yMin": 639.674,
+        "xMax": 287.93,
+        "yMax": 651.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 651.674,
+        "xMax": 223.172,
+        "yMax": 663.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 651.674,
+        "xMax": 251.953,
+        "yMax": 663.768
+      },
+      {
+        "text": "096.",
+        "xMin": 259.148,
+        "yMin": 651.674,
+        "xMax": 287.93,
+        "yMax": 663.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 663.674,
+        "xMax": 223.172,
+        "yMax": 675.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 663.674,
+        "xMax": 251.953,
+        "yMax": 675.768
+      },
+      {
+        "text": "097.",
+        "xMin": 259.148,
+        "yMin": 663.674,
+        "xMax": 287.93,
+        "yMax": 675.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 675.674,
+        "xMax": 223.172,
+        "yMax": 687.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 675.674,
+        "xMax": 251.953,
+        "yMax": 687.768
+      },
+      {
+        "text": "098.",
+        "xMin": 259.148,
+        "yMin": 675.674,
+        "xMax": 287.93,
+        "yMax": 687.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 687.674,
+        "xMax": 223.172,
+        "yMax": 699.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 687.674,
+        "xMax": 251.953,
+        "yMax": 699.768
+      },
+      {
+        "text": "099.",
+        "xMin": 259.148,
+        "yMin": 687.674,
+        "xMax": 287.93,
+        "yMax": 699.768
+      },
+      {
+        "text": "(MORE)",
+        "xMin": 266.4,
+        "yMin": 699.674,
+        "xMax": 309.572,
+        "yMax": 711.768
+      }
+    ],
+    [
+      {
+        "text": "3.",
+        "xMin": 525.609,
+        "yMin": 33.674,
+        "xMax": 540.0,
+        "yMax": 45.768
+      },
+      {
+        "text": "MARA",
+        "xMin": 266.4,
+        "yMin": 75.674,
+        "xMax": 295.181,
+        "yMax": 87.768
+      },
+      {
+        "text": "(CONT'D)",
+        "xMin": 302.377,
+        "yMin": 75.674,
+        "xMax": 359.939,
+        "yMax": 87.768
+      },
+      {
+        "text": "(a",
+        "xMin": 223.2,
+        "yMin": 87.674,
+        "xMax": 237.591,
+        "yMax": 99.768
+      },
+      {
+        "text": "measured",
+        "xMin": 244.786,
+        "yMin": 87.674,
+        "xMax": 302.348,
+        "yMax": 99.768
+      },
+      {
+        "text": "pause)",
+        "xMin": 309.544,
+        "yMin": 87.674,
+        "xMax": 352.716,
+        "yMax": 99.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 99.674,
+        "xMax": 223.172,
+        "yMax": 111.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 99.674,
+        "xMax": 251.953,
+        "yMax": 111.768
+      },
+      {
+        "text": "100.",
+        "xMin": 259.148,
+        "yMin": 99.674,
+        "xMax": 287.93,
+        "yMax": 111.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 111.674,
+        "xMax": 223.172,
+        "yMax": 123.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 111.674,
+        "xMax": 251.953,
+        "yMax": 123.768
+      },
+      {
+        "text": "101.",
+        "xMin": 259.148,
+        "yMin": 111.674,
+        "xMax": 287.93,
+        "yMax": 123.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 123.674,
+        "xMax": 223.172,
+        "yMax": 135.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 123.674,
+        "xMax": 251.953,
+        "yMax": 135.768
+      },
+      {
+        "text": "102.",
+        "xMin": 259.148,
+        "yMin": 123.674,
+        "xMax": 287.93,
+        "yMax": 135.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 135.674,
+        "xMax": 223.172,
+        "yMax": 147.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 135.674,
+        "xMax": 251.953,
+        "yMax": 147.768
+      },
+      {
+        "text": "103.",
+        "xMin": 259.148,
+        "yMin": 135.674,
+        "xMax": 287.93,
+        "yMax": 147.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 147.674,
+        "xMax": 223.172,
+        "yMax": 159.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 147.674,
+        "xMax": 251.953,
+        "yMax": 159.768
+      },
+      {
+        "text": "104.",
+        "xMin": 259.148,
+        "yMin": 147.674,
+        "xMax": 287.93,
+        "yMax": 159.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 159.674,
+        "xMax": 223.172,
+        "yMax": 171.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 159.674,
+        "xMax": 251.953,
+        "yMax": 171.768
+      },
+      {
+        "text": "105.",
+        "xMin": 259.148,
+        "yMin": 159.674,
+        "xMax": 287.93,
+        "yMax": 171.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 171.674,
+        "xMax": 223.172,
+        "yMax": 183.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 171.674,
+        "xMax": 251.953,
+        "yMax": 183.768
+      },
+      {
+        "text": "106.",
+        "xMin": 259.148,
+        "yMin": 171.674,
+        "xMax": 287.93,
+        "yMax": 183.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 183.674,
+        "xMax": 223.172,
+        "yMax": 195.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 183.674,
+        "xMax": 251.953,
+        "yMax": 195.768
+      },
+      {
+        "text": "107.",
+        "xMin": 259.148,
+        "yMin": 183.674,
+        "xMax": 287.93,
+        "yMax": 195.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 195.674,
+        "xMax": 223.172,
+        "yMax": 207.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 195.674,
+        "xMax": 251.953,
+        "yMax": 207.768
+      },
+      {
+        "text": "108.",
+        "xMin": 259.148,
+        "yMin": 195.674,
+        "xMax": 287.93,
+        "yMax": 207.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 207.674,
+        "xMax": 223.172,
+        "yMax": 219.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 207.674,
+        "xMax": 251.953,
+        "yMax": 219.768
+      },
+      {
+        "text": "109.",
+        "xMin": 259.148,
+        "yMin": 207.674,
+        "xMax": 287.93,
+        "yMax": 219.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 219.674,
+        "xMax": 223.172,
+        "yMax": 231.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 219.674,
+        "xMax": 251.953,
+        "yMax": 231.768
+      },
+      {
+        "text": "110.",
+        "xMin": 259.148,
+        "yMin": 219.674,
+        "xMax": 287.93,
+        "yMax": 231.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 231.674,
+        "xMax": 223.172,
+        "yMax": 243.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 231.674,
+        "xMax": 251.953,
+        "yMax": 243.768
+      },
+      {
+        "text": "111.",
+        "xMin": 259.148,
+        "yMin": 231.674,
+        "xMax": 287.93,
+        "yMax": 243.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 243.674,
+        "xMax": 223.172,
+        "yMax": 255.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 243.674,
+        "xMax": 251.953,
+        "yMax": 255.768
+      },
+      {
+        "text": "112.",
+        "xMin": 259.148,
+        "yMin": 243.674,
+        "xMax": 287.93,
+        "yMax": 255.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 255.674,
+        "xMax": 223.172,
+        "yMax": 267.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 255.674,
+        "xMax": 251.953,
+        "yMax": 267.768
+      },
+      {
+        "text": "113.",
+        "xMin": 259.148,
+        "yMin": 255.674,
+        "xMax": 287.93,
+        "yMax": 267.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 267.674,
+        "xMax": 223.172,
+        "yMax": 279.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 267.674,
+        "xMax": 251.953,
+        "yMax": 279.768
+      },
+      {
+        "text": "114.",
+        "xMin": 259.148,
+        "yMin": 267.674,
+        "xMax": 287.93,
+        "yMax": 279.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 279.674,
+        "xMax": 223.172,
+        "yMax": 291.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 279.674,
+        "xMax": 251.953,
+        "yMax": 291.768
+      },
+      {
+        "text": "115.",
+        "xMin": 259.148,
+        "yMin": 279.674,
+        "xMax": 287.93,
+        "yMax": 291.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 291.674,
+        "xMax": 223.172,
+        "yMax": 303.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 291.674,
+        "xMax": 251.953,
+        "yMax": 303.768
+      },
+      {
+        "text": "116.",
+        "xMin": 259.148,
+        "yMin": 291.674,
+        "xMax": 287.93,
+        "yMax": 303.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 303.674,
+        "xMax": 223.172,
+        "yMax": 315.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 303.674,
+        "xMax": 251.953,
+        "yMax": 315.768
+      },
+      {
+        "text": "117.",
+        "xMin": 259.148,
+        "yMin": 303.674,
+        "xMax": 287.93,
+        "yMax": 315.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 315.674,
+        "xMax": 223.172,
+        "yMax": 327.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 315.674,
+        "xMax": 251.953,
+        "yMax": 327.768
+      },
+      {
+        "text": "118.",
+        "xMin": 259.148,
+        "yMin": 315.674,
+        "xMax": 287.93,
+        "yMax": 327.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 327.674,
+        "xMax": 223.172,
+        "yMax": 339.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 327.674,
+        "xMax": 251.953,
+        "yMax": 339.768
+      },
+      {
+        "text": "119.",
+        "xMin": 259.148,
+        "yMin": 327.674,
+        "xMax": 287.93,
+        "yMax": 339.768
+      },
+      {
+        "text": "(a",
+        "xMin": 223.2,
+        "yMin": 339.674,
+        "xMax": 237.591,
+        "yMax": 351.768
+      },
+      {
+        "text": "measured",
+        "xMin": 244.786,
+        "yMin": 339.674,
+        "xMax": 302.348,
+        "yMax": 351.768
+      },
+      {
+        "text": "pause)",
+        "xMin": 309.544,
+        "yMin": 339.674,
+        "xMax": 352.716,
+        "yMax": 351.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 351.674,
+        "xMax": 223.172,
+        "yMax": 363.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 351.674,
+        "xMax": 251.953,
+        "yMax": 363.768
+      },
+      {
+        "text": "120.",
+        "xMin": 259.148,
+        "yMin": 351.674,
+        "xMax": 287.93,
+        "yMax": 363.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 363.674,
+        "xMax": 223.172,
+        "yMax": 375.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 363.674,
+        "xMax": 251.953,
+        "yMax": 375.768
+      },
+      {
+        "text": "121.",
+        "xMin": 259.148,
+        "yMin": 363.674,
+        "xMax": 287.93,
+        "yMax": 375.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 375.674,
+        "xMax": 223.172,
+        "yMax": 387.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 375.674,
+        "xMax": 251.953,
+        "yMax": 387.768
+      },
+      {
+        "text": "122.",
+        "xMin": 259.148,
+        "yMin": 375.674,
+        "xMax": 287.93,
+        "yMax": 387.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 387.674,
+        "xMax": 223.172,
+        "yMax": 399.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 387.674,
+        "xMax": 251.953,
+        "yMax": 399.768
+      },
+      {
+        "text": "123.",
+        "xMin": 259.148,
+        "yMin": 387.674,
+        "xMax": 287.93,
+        "yMax": 399.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 399.674,
+        "xMax": 223.172,
+        "yMax": 411.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 399.674,
+        "xMax": 251.953,
+        "yMax": 411.768
+      },
+      {
+        "text": "124.",
+        "xMin": 259.148,
+        "yMin": 399.674,
+        "xMax": 287.93,
+        "yMax": 411.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 411.674,
+        "xMax": 223.172,
+        "yMax": 423.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 411.674,
+        "xMax": 251.953,
+        "yMax": 423.768
+      },
+      {
+        "text": "125.",
+        "xMin": 259.148,
+        "yMin": 411.674,
+        "xMax": 287.93,
+        "yMax": 423.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 423.674,
+        "xMax": 223.172,
+        "yMax": 435.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 423.674,
+        "xMax": 251.953,
+        "yMax": 435.768
+      },
+      {
+        "text": "126.",
+        "xMin": 259.148,
+        "yMin": 423.674,
+        "xMax": 287.93,
+        "yMax": 435.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 435.674,
+        "xMax": 223.172,
+        "yMax": 447.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 435.674,
+        "xMax": 251.953,
+        "yMax": 447.768
+      },
+      {
+        "text": "127.",
+        "xMin": 259.148,
+        "yMin": 435.674,
+        "xMax": 287.93,
+        "yMax": 447.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 447.674,
+        "xMax": 223.172,
+        "yMax": 459.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 447.674,
+        "xMax": 251.953,
+        "yMax": 459.768
+      },
+      {
+        "text": "128.",
+        "xMin": 259.148,
+        "yMin": 447.674,
+        "xMax": 287.93,
+        "yMax": 459.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 459.674,
+        "xMax": 223.172,
+        "yMax": 471.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 459.674,
+        "xMax": 251.953,
+        "yMax": 471.768
+      },
+      {
+        "text": "129.",
+        "xMin": 259.148,
+        "yMin": 459.674,
+        "xMax": 287.93,
+        "yMax": 471.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 471.674,
+        "xMax": 223.172,
+        "yMax": 483.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 471.674,
+        "xMax": 251.953,
+        "yMax": 483.768
+      },
+      {
+        "text": "130.",
+        "xMin": 259.148,
+        "yMin": 471.674,
+        "xMax": 287.93,
+        "yMax": 483.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 483.674,
+        "xMax": 223.172,
+        "yMax": 495.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 483.674,
+        "xMax": 251.953,
+        "yMax": 495.768
+      },
+      {
+        "text": "131.",
+        "xMin": 259.148,
+        "yMin": 483.674,
+        "xMax": 287.93,
+        "yMax": 495.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 495.674,
+        "xMax": 223.172,
+        "yMax": 507.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 495.674,
+        "xMax": 251.953,
+        "yMax": 507.768
+      },
+      {
+        "text": "132.",
+        "xMin": 259.148,
+        "yMin": 495.674,
+        "xMax": 287.93,
+        "yMax": 507.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 507.674,
+        "xMax": 223.172,
+        "yMax": 519.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 507.674,
+        "xMax": 251.953,
+        "yMax": 519.768
+      },
+      {
+        "text": "133.",
+        "xMin": 259.148,
+        "yMin": 507.674,
+        "xMax": 287.93,
+        "yMax": 519.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 519.674,
+        "xMax": 223.172,
+        "yMax": 531.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 519.674,
+        "xMax": 251.953,
+        "yMax": 531.768
+      },
+      {
+        "text": "134.",
+        "xMin": 259.148,
+        "yMin": 519.674,
+        "xMax": 287.93,
+        "yMax": 531.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 531.674,
+        "xMax": 223.172,
+        "yMax": 543.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 531.674,
+        "xMax": 251.953,
+        "yMax": 543.768
+      },
+      {
+        "text": "135.",
+        "xMin": 259.148,
+        "yMin": 531.674,
+        "xMax": 287.93,
+        "yMax": 543.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 543.674,
+        "xMax": 223.172,
+        "yMax": 555.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 543.674,
+        "xMax": 251.953,
+        "yMax": 555.768
+      },
+      {
+        "text": "136.",
+        "xMin": 259.148,
+        "yMin": 543.674,
+        "xMax": 287.93,
+        "yMax": 555.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 555.674,
+        "xMax": 223.172,
+        "yMax": 567.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 555.674,
+        "xMax": 251.953,
+        "yMax": 567.768
+      },
+      {
+        "text": "137.",
+        "xMin": 259.148,
+        "yMin": 555.674,
+        "xMax": 287.93,
+        "yMax": 567.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 567.674,
+        "xMax": 223.172,
+        "yMax": 579.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 567.674,
+        "xMax": 251.953,
+        "yMax": 579.768
+      },
+      {
+        "text": "138.",
+        "xMin": 259.148,
+        "yMin": 567.674,
+        "xMax": 287.93,
+        "yMax": 579.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 579.674,
+        "xMax": 223.172,
+        "yMax": 591.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 579.674,
+        "xMax": 251.953,
+        "yMax": 591.768
+      },
+      {
+        "text": "139.",
+        "xMin": 259.148,
+        "yMin": 579.674,
+        "xMax": 287.93,
+        "yMax": 591.768
+      },
+      {
+        "text": "(a",
+        "xMin": 223.2,
+        "yMin": 591.674,
+        "xMax": 237.591,
+        "yMax": 603.768
+      },
+      {
+        "text": "measured",
+        "xMin": 244.786,
+        "yMin": 591.674,
+        "xMax": 302.348,
+        "yMax": 603.768
+      },
+      {
+        "text": "pause)",
+        "xMin": 309.544,
+        "yMin": 591.674,
+        "xMax": 352.716,
+        "yMax": 603.768
+      },
+      {
+        "text": "Speech",
+        "xMin": 180.0,
+        "yMin": 603.674,
+        "xMax": 223.172,
+        "yMax": 615.768
+      },
+      {
+        "text": "row",
+        "xMin": 230.367,
+        "yMin": 603.674,
+        "xMax": 251.953,
+        "yMax": 615.768
+      },
+      {
+        "text": "140.",
+        "xMin": 259.148,
+        "yMin": 603.674,
+        "xMax": 287.93,
+        "yMax": 615.768
+      }
+    ]
+  ],
+  "fonts": [
+    "CourierPrime"
+  ]
+}

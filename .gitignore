@@ -13,6 +13,7 @@ test-results/
 # This is application source, never manuscript runtime storage.
 *.fountain
 !fixtures/fountain/*.fountain
+!fixtures/publication/*.fountain
 !prototypes/pdf/corpus/*.fountain
 prototypes/pdf/out/
 .screenwriter/

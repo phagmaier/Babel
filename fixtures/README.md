@@ -1,6 +1,6 @@
 # Fixture conventions
 
-Only original synthetic scripts with known provenance belong here; never copy a private manuscript or web screenplay. `fountain/` contains tiny named source cases, including minimal elements, ambiguous markers, title variants, dual dialogue, notes/omissions, Unicode, intentional blanks, malformed/raw regions, and exact CRLF/BOM bytes. `expected/` contains the [M3-01 independent literal/semantic oracles](expected/README.md); separately reviewed PDF layout evidence remains future work.
+Only original synthetic scripts with known provenance belong here; never copy a private manuscript or web screenplay. `fountain/` contains tiny named source cases, including minimal elements, ambiguous markers, title variants, dual dialogue, notes/omissions, Unicode, intentional blanks, malformed/raw regions, and exact CRLF/BOM bytes. `expected/` contains the [M3-01 independent literal/semantic oracles](expected/README.md); the [M5-03 publication corpus](publication/REVIEW.md) adds reviewed PDF layout/text/image goldens and declared unsupported cases.
 
 The M1-01 [fixture manifest](fountain/README.md) and [focused assertions](../tests/contract/fountain.test.ts) cover a selected subset. They are proof material, not production parser conformance.
 

@@ -1,0 +1,122 @@
+{
+  "text": [
+    "KIM\nLeft one.\nLeft two.\nMARA\nRight one.\nRight two.\n"
+  ],
+  "positions": [
+    [
+      {
+        "text": "KIM",
+        "x": 187.2,
+        "y": 708.0,
+        "size": 12.0
+      },
+      {
+        "text": "Left one.",
+        "x": 144.0,
+        "y": 696.0,
+        "size": 12.0
+      },
+      {
+        "text": "Left two.",
+        "x": 144.0,
+        "y": 684.0,
+        "size": 12.0
+      },
+      {
+        "text": "MARA",
+        "x": 403.2,
+        "y": 708.0,
+        "size": 12.0
+      },
+      {
+        "text": "Right one.",
+        "x": 360.0,
+        "y": 696.0,
+        "size": 12.0
+      },
+      {
+        "text": "Right two.",
+        "x": 360.0,
+        "y": 684.0,
+        "size": 12.0
+      }
+    ]
+  ],
+  "words": [
+    [
+      {
+        "text": "KIM",
+        "xMin": 187.2,
+        "yMin": 75.674,
+        "xMax": 208.786,
+        "yMax": 87.768
+      },
+      {
+        "text": "Left",
+        "xMin": 144.0,
+        "yMin": 87.674,
+        "xMax": 172.781,
+        "yMax": 99.768
+      },
+      {
+        "text": "one.",
+        "xMin": 179.977,
+        "yMin": 87.674,
+        "xMax": 208.758,
+        "yMax": 99.768
+      },
+      {
+        "text": "Left",
+        "xMin": 144.0,
+        "yMin": 99.674,
+        "xMax": 172.781,
+        "yMax": 111.768
+      },
+      {
+        "text": "two.",
+        "xMin": 179.977,
+        "yMin": 99.674,
+        "xMax": 208.758,
+        "yMax": 111.768
+      },
+      {
+        "text": "MARA",
+        "xMin": 403.2,
+        "yMin": 75.674,
+        "xMax": 431.981,
+        "yMax": 87.768
+      },
+      {
+        "text": "Right",
+        "xMin": 360.0,
+        "yMin": 87.674,
+        "xMax": 395.977,
+        "yMax": 99.768
+      },
+      {
+        "text": "one.",
+        "xMin": 403.172,
+        "yMin": 87.674,
+        "xMax": 431.953,
+        "yMax": 99.768
+      },
+      {
+        "text": "Right",
+        "xMin": 360.0,
+        "yMin": 99.674,
+        "xMax": 395.977,
+        "yMax": 111.768
+      },
+      {
+        "text": "two.",
+        "xMin": 403.172,
+        "yMin": 99.674,
+        "xMax": 431.953,
+        "yMax": 111.768
+      }
+    ]
+  ],
+  "fonts": [
+    "CourierPrime"
+  ]
+}

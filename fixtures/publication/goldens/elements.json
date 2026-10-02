@@ -1,0 +1,344 @@
+{
+  "text": [
+    "THE SIGNAL\n7B\n7B\nA bold italic both underlined lamp glows. Café mañana naïve.\nMARA\n(softly)\nA short speech.\nA lyric beneath the moon.\n Centered signal.\n CUT TO:\n",
+    "2.\nSECOND BODY PAGE.\n"
+  ],
+  "positions": [
+    [
+      {
+        "text": "THE SIGNAL",
+        "x": 108.0,
+        "y": 708.0,
+        "size": 12.0
+      },
+      {
+        "text": "7B",
+        "x": 54.0,
+        "y": 708.0,
+        "size": 12.0
+      },
+      {
+        "text": "7B",
+        "x": 525.609,
+        "y": 708.0,
+        "size": 12.0
+      },
+      {
+        "text": "A",
+        "x": 108.0,
+        "y": 684.0,
+        "size": 12.0
+      },
+      {
+        "text": "bold",
+        "x": 108.0,
+        "y": 684.0,
+        "size": 12.0
+      },
+      {
+        "text": "italic",
+        "x": 108.0,
+        "y": 684.0,
+        "size": 12.0
+      },
+      {
+        "text": "both",
+        "x": 108.0,
+        "y": 684.0,
+        "size": 12.0
+      },
+      {
+        "text": "underlined lamp glows. Café mañana naïve.",
+        "x": 108.0,
+        "y": 684.0,
+        "size": 12.0
+      },
+      {
+        "text": "MARA",
+        "x": 266.4,
+        "y": 660.0,
+        "size": 12.0
+      },
+      {
+        "text": "(softly)",
+        "x": 223.2,
+        "y": 648.0,
+        "size": 12.0
+      },
+      {
+        "text": "A short speech.",
+        "x": 180.0,
+        "y": 636.0,
+        "size": 12.0
+      },
+      {
+        "text": "A lyric beneath the moon.",
+        "x": 108.0,
+        "y": 612.0,
+        "size": 12.0
+      },
+      {
+        "text": "Centered signal.",
+        "x": 266.438,
+        "y": 588.0,
+        "size": 12.0
+      },
+      {
+        "text": "CUT TO:",
+        "x": 489.633,
+        "y": 564.0,
+        "size": 12.0
+      }
+    ],
+    [
+      {
+        "text": "2.",
+        "x": 525.609,
+        "y": 750.0,
+        "size": 12.0
+      },
+      {
+        "text": "SECOND BODY PAGE.",
+        "x": 108.0,
+        "y": 708.0,
+        "size": 12.0
+      }
+    ]
+  ],
+  "words": [
+    [
+      {
+        "text": "7B",
+        "xMin": 54.0,
+        "yMin": 75.674,
+        "xMax": 68.391,
+        "yMax": 87.768
+      },
+      {
+        "text": "THE",
+        "xMin": 108.0,
+        "yMin": 75.674,
+        "xMax": 129.586,
+        "yMax": 87.768
+      },
+      {
+        "text": "SIGNAL",
+        "xMin": 136.781,
+        "yMin": 75.674,
+        "xMax": 179.953,
+        "yMax": 87.768
+      },
+      {
+        "text": "7B",
+        "xMin": 525.609,
+        "yMin": 75.674,
+        "xMax": 540.0,
+        "yMax": 87.768
+      },
+      {
+        "text": "A",
+        "xMin": 108.0,
+        "yMin": 99.674,
+        "xMax": 115.195,
+        "yMax": 111.768
+      },
+      {
+        "text": "bold",
+        "xMin": 122.391,
+        "yMin": 99.674,
+        "xMax": 151.172,
+        "yMax": 111.768
+      },
+      {
+        "text": "italic",
+        "xMin": 158.367,
+        "yMin": 99.674,
+        "xMax": 201.539,
+        "yMax": 111.768
+      },
+      {
+        "text": "both",
+        "xMin": 208.734,
+        "yMin": 99.674,
+        "xMax": 237.516,
+        "yMax": 111.768
+      },
+      {
+        "text": "underlined",
+        "xMin": 244.711,
+        "yMin": 99.674,
+        "xMax": 316.664,
+        "yMax": 111.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 323.859,
+        "yMin": 99.674,
+        "xMax": 352.641,
+        "yMax": 111.768
+      },
+      {
+        "text": "glows.",
+        "xMin": 359.836,
+        "yMin": 99.674,
+        "xMax": 403.008,
+        "yMax": 111.768
+      },
+      {
+        "text": "Café",
+        "xMin": 410.203,
+        "yMin": 99.674,
+        "xMax": 438.984,
+        "yMax": 111.768
+      },
+      {
+        "text": "mañana",
+        "xMin": 446.18,
+        "yMin": 99.674,
+        "xMax": 489.352,
+        "yMax": 111.768
+      },
+      {
+        "text": "naïve.",
+        "xMin": 496.547,
+        "yMin": 99.674,
+        "xMax": 539.719,
+        "yMax": 111.768
+      },
+      {
+        "text": "MARA",
+        "xMin": 266.4,
+        "yMin": 123.674,
+        "xMax": 295.181,
+        "yMax": 135.768
+      },
+      {
+        "text": "(softly)",
+        "xMin": 223.2,
+        "yMin": 135.674,
+        "xMax": 280.763,
+        "yMax": 147.768
+      },
+      {
+        "text": "A",
+        "xMin": 180.0,
+        "yMin": 147.674,
+        "xMax": 187.195,
+        "yMax": 159.768
+      },
+      {
+        "text": "short",
+        "xMin": 194.391,
+        "yMin": 147.674,
+        "xMax": 230.367,
+        "yMax": 159.768
+      },
+      {
+        "text": "speech.",
+        "xMin": 237.563,
+        "yMin": 147.674,
+        "xMax": 287.93,
+        "yMax": 159.768
+      },
+      {
+        "text": "A",
+        "xMin": 108.0,
+        "yMin": 171.674,
+        "xMax": 115.195,
+        "yMax": 183.768
+      },
+      {
+        "text": "lyric",
+        "xMin": 122.391,
+        "yMin": 171.674,
+        "xMax": 158.367,
+        "yMax": 183.768
+      },
+      {
+        "text": "beneath",
+        "xMin": 165.563,
+        "yMin": 171.674,
+        "xMax": 215.93,
+        "yMax": 183.768
+      },
+      {
+        "text": "the",
+        "xMin": 223.125,
+        "yMin": 171.674,
+        "xMax": 244.711,
+        "yMax": 183.768
+      },
+      {
+        "text": "moon.",
+        "xMin": 251.906,
+        "yMin": 171.674,
+        "xMax": 287.883,
+        "yMax": 183.768
+      },
+      {
+        "text": "Centered",
+        "xMin": 266.438,
+        "yMin": 195.674,
+        "xMax": 324.0,
+        "yMax": 207.768
+      },
+      {
+        "text": "signal.",
+        "xMin": 331.195,
+        "yMin": 195.674,
+        "xMax": 381.563,
+        "yMax": 207.768
+      },
+      {
+        "text": "CUT",
+        "xMin": 489.633,
+        "yMin": 219.674,
+        "xMax": 511.219,
+        "yMax": 231.768
+      },
+      {
+        "text": "TO:",
+        "xMin": 518.414,
+        "yMin": 219.674,
+        "xMax": 540.0,
+        "yMax": 231.768
+      }
+    ],
+    [
+      {
+        "text": "2.",
+        "xMin": 525.609,
+        "yMin": 33.674,
+        "xMax": 540.0,
+        "yMax": 45.768
+      },
+      {
+        "text": "SECOND",
+        "xMin": 108.0,
+        "yMin": 75.674,
+        "xMax": 151.172,
+        "yMax": 87.768
+      },
+      {
+        "text": "BODY",
+        "xMin": 158.367,
+        "yMin": 75.674,
+        "xMax": 187.148,
+        "yMax": 87.768
+      },
+      {
+        "text": "PAGE.",
+        "xMin": 194.344,
+        "yMin": 75.674,
+        "xMax": 230.32,
+        "yMax": 87.768
+      }
+    ]
+  ],
+  "fonts": [
+    "CourierPrime",
+    "CourierPrime-Bold",
+    "CourierPrime-BoldItalic",
+    "CourierPrime-Italic"
+  ]
+}

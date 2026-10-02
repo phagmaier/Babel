@@ -1,0 +1,2247 @@
+{
+  "text": [
+    "MARA (CONT'D)\nAuthored row 001.\nAuthored row 002.\nAuthored row 003.\nAuthored row 004.\nAuthored row 005.\nAuthored row 006.\nAuthored row 007.\nAuthored row 008.\nAuthored row 009.\nAuthored row 010.\nAuthored row 011.\nAuthored row 012.\nAuthored row 013.\nAuthored row 014.\nAuthored row 015.\nAuthored row 016.\nAuthored row 017.\nAuthored row 018.\nAuthored row 019.\nAuthored row 020.\nAuthored row 021.\nAuthored row 022.\nAuthored row 023.\nAuthored row 024.\nAuthored row 025.\nAuthored row 026.\nAuthored row 027.\nAuthored row 028.\nAuthored row 029.\nAuthored row 030.\nAuthored row 031.\nAuthored row 032.\nAuthored row 033.\nAuthored row 034.\nAuthored row 035.\nAuthored row 036.\nAuthored row 037.\nAuthored row 038.\nAuthored row 039.\nAuthored row 040.\nAuthored row 041.\nAuthored row 042.\nAuthored row 043.\nAuthored row 044.\nAuthored row 045.\nAuthored row 046.\nAuthored row 047.\nAuthored row 048.\nAuthored row 049.\nAuthored row 050.\nAuthored row 051.\nAuthored row 052.\n (MORE)\n",
+    "2.\nMARA (CONT'D)\nAuthored row 053.\nAuthored row 054.\nAuthored row 055.\nAuthored row 056.\nAuthored row 057.\nAuthored row 058.\nAuthored row 059.\nAuthored row 060.\nAuthored row 061.\nAuthored row 062.\nAuthored row 063.\nAuthored row 064.\nAuthored row 065.\nAuthored row 066.\nAuthored row 067.\nAuthored row 068.\nAuthored row 069.\nAuthored row 070.\nAuthored row 071.\nAuthored row 072.\nAuthored row 073.\nAuthored row 074.\nAuthored row 075.\nAuthored row 076.\nAuthored row 077.\nAuthored row 078.\nAuthored row 079.\nAuthored row 080.\n"
+  ],
+  "positions": [
+    [
+      {
+        "text": "MARA (CONT'D)",
+        "x": 266.4,
+        "y": 708.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 001.",
+        "x": 180.0,
+        "y": 696.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 002.",
+        "x": 180.0,
+        "y": 684.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 003.",
+        "x": 180.0,
+        "y": 672.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 004.",
+        "x": 180.0,
+        "y": 660.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 005.",
+        "x": 180.0,
+        "y": 648.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 006.",
+        "x": 180.0,
+        "y": 636.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 007.",
+        "x": 180.0,
+        "y": 624.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 008.",
+        "x": 180.0,
+        "y": 612.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 009.",
+        "x": 180.0,
+        "y": 600.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 010.",
+        "x": 180.0,
+        "y": 588.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 011.",
+        "x": 180.0,
+        "y": 576.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 012.",
+        "x": 180.0,
+        "y": 564.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 013.",
+        "x": 180.0,
+        "y": 552.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 014.",
+        "x": 180.0,
+        "y": 540.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 015.",
+        "x": 180.0,
+        "y": 528.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 016.",
+        "x": 180.0,
+        "y": 516.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 017.",
+        "x": 180.0,
+        "y": 504.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 018.",
+        "x": 180.0,
+        "y": 492.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 019.",
+        "x": 180.0,
+        "y": 480.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 020.",
+        "x": 180.0,
+        "y": 468.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 021.",
+        "x": 180.0,
+        "y": 456.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 022.",
+        "x": 180.0,
+        "y": 444.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 023.",
+        "x": 180.0,
+        "y": 432.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 024.",
+        "x": 180.0,
+        "y": 420.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 025.",
+        "x": 180.0,
+        "y": 408.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 026.",
+        "x": 180.0,
+        "y": 396.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 027.",
+        "x": 180.0,
+        "y": 384.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 028.",
+        "x": 180.0,
+        "y": 372.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 029.",
+        "x": 180.0,
+        "y": 360.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 030.",
+        "x": 180.0,
+        "y": 348.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 031.",
+        "x": 180.0,
+        "y": 336.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 032.",
+        "x": 180.0,
+        "y": 324.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 033.",
+        "x": 180.0,
+        "y": 312.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 034.",
+        "x": 180.0,
+        "y": 300.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 035.",
+        "x": 180.0,
+        "y": 288.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 036.",
+        "x": 180.0,
+        "y": 276.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 037.",
+        "x": 180.0,
+        "y": 264.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 038.",
+        "x": 180.0,
+        "y": 252.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 039.",
+        "x": 180.0,
+        "y": 240.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 040.",
+        "x": 180.0,
+        "y": 228.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 041.",
+        "x": 180.0,
+        "y": 216.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 042.",
+        "x": 180.0,
+        "y": 204.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 043.",
+        "x": 180.0,
+        "y": 192.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 044.",
+        "x": 180.0,
+        "y": 180.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 045.",
+        "x": 180.0,
+        "y": 168.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 046.",
+        "x": 180.0,
+        "y": 156.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 047.",
+        "x": 180.0,
+        "y": 144.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 048.",
+        "x": 180.0,
+        "y": 132.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 049.",
+        "x": 180.0,
+        "y": 120.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 050.",
+        "x": 180.0,
+        "y": 108.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 051.",
+        "x": 180.0,
+        "y": 96.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 052.",
+        "x": 180.0,
+        "y": 84.0,
+        "size": 12.0
+      },
+      {
+        "text": "(MORE)",
+        "x": 223.2,
+        "y": 72.0,
+        "size": 12.0
+      }
+    ],
+    [
+      {
+        "text": "2.",
+        "x": 525.609,
+        "y": 750.0,
+        "size": 12.0
+      },
+      {
+        "text": "MARA (CONT'D)",
+        "x": 266.4,
+        "y": 708.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 053.",
+        "x": 180.0,
+        "y": 696.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 054.",
+        "x": 180.0,
+        "y": 684.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 055.",
+        "x": 180.0,
+        "y": 672.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 056.",
+        "x": 180.0,
+        "y": 660.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 057.",
+        "x": 180.0,
+        "y": 648.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 058.",
+        "x": 180.0,
+        "y": 636.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 059.",
+        "x": 180.0,
+        "y": 624.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 060.",
+        "x": 180.0,
+        "y": 612.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 061.",
+        "x": 180.0,
+        "y": 600.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 062.",
+        "x": 180.0,
+        "y": 588.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 063.",
+        "x": 180.0,
+        "y": 576.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 064.",
+        "x": 180.0,
+        "y": 564.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 065.",
+        "x": 180.0,
+        "y": 552.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 066.",
+        "x": 180.0,
+        "y": 540.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 067.",
+        "x": 180.0,
+        "y": 528.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 068.",
+        "x": 180.0,
+        "y": 516.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 069.",
+        "x": 180.0,
+        "y": 504.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 070.",
+        "x": 180.0,
+        "y": 492.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 071.",
+        "x": 180.0,
+        "y": 480.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 072.",
+        "x": 180.0,
+        "y": 468.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 073.",
+        "x": 180.0,
+        "y": 456.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 074.",
+        "x": 180.0,
+        "y": 444.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 075.",
+        "x": 180.0,
+        "y": 432.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 076.",
+        "x": 180.0,
+        "y": 420.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 077.",
+        "x": 180.0,
+        "y": 408.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 078.",
+        "x": 180.0,
+        "y": 396.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 079.",
+        "x": 180.0,
+        "y": 384.0,
+        "size": 12.0
+      },
+      {
+        "text": "Authored row 080.",
+        "x": 180.0,
+        "y": 372.0,
+        "size": 12.0
+      }
+    ]
+  ],
+  "words": [
+    [
+      {
+        "text": "MARA",
+        "xMin": 266.4,
+        "yMin": 75.674,
+        "xMax": 295.181,
+        "yMax": 87.768
+      },
+      {
+        "text": "(CONT'D)",
+        "xMin": 302.377,
+        "yMin": 75.674,
+        "xMax": 359.939,
+        "yMax": 87.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 87.674,
+        "xMax": 237.563,
+        "yMax": 99.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 87.674,
+        "xMax": 266.344,
+        "yMax": 99.768
+      },
+      {
+        "text": "001.",
+        "xMin": 273.539,
+        "yMin": 87.674,
+        "xMax": 302.32,
+        "yMax": 99.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 99.674,
+        "xMax": 237.563,
+        "yMax": 111.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 99.674,
+        "xMax": 266.344,
+        "yMax": 111.768
+      },
+      {
+        "text": "002.",
+        "xMin": 273.539,
+        "yMin": 99.674,
+        "xMax": 302.32,
+        "yMax": 111.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 111.674,
+        "xMax": 237.563,
+        "yMax": 123.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 111.674,
+        "xMax": 266.344,
+        "yMax": 123.768
+      },
+      {
+        "text": "003.",
+        "xMin": 273.539,
+        "yMin": 111.674,
+        "xMax": 302.32,
+        "yMax": 123.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 123.674,
+        "xMax": 237.563,
+        "yMax": 135.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 123.674,
+        "xMax": 266.344,
+        "yMax": 135.768
+      },
+      {
+        "text": "004.",
+        "xMin": 273.539,
+        "yMin": 123.674,
+        "xMax": 302.32,
+        "yMax": 135.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 135.674,
+        "xMax": 237.563,
+        "yMax": 147.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 135.674,
+        "xMax": 266.344,
+        "yMax": 147.768
+      },
+      {
+        "text": "005.",
+        "xMin": 273.539,
+        "yMin": 135.674,
+        "xMax": 302.32,
+        "yMax": 147.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 147.674,
+        "xMax": 237.563,
+        "yMax": 159.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 147.674,
+        "xMax": 266.344,
+        "yMax": 159.768
+      },
+      {
+        "text": "006.",
+        "xMin": 273.539,
+        "yMin": 147.674,
+        "xMax": 302.32,
+        "yMax": 159.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 159.674,
+        "xMax": 237.563,
+        "yMax": 171.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 159.674,
+        "xMax": 266.344,
+        "yMax": 171.768
+      },
+      {
+        "text": "007.",
+        "xMin": 273.539,
+        "yMin": 159.674,
+        "xMax": 302.32,
+        "yMax": 171.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 171.674,
+        "xMax": 237.563,
+        "yMax": 183.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 171.674,
+        "xMax": 266.344,
+        "yMax": 183.768
+      },
+      {
+        "text": "008.",
+        "xMin": 273.539,
+        "yMin": 171.674,
+        "xMax": 302.32,
+        "yMax": 183.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 183.674,
+        "xMax": 237.563,
+        "yMax": 195.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 183.674,
+        "xMax": 266.344,
+        "yMax": 195.768
+      },
+      {
+        "text": "009.",
+        "xMin": 273.539,
+        "yMin": 183.674,
+        "xMax": 302.32,
+        "yMax": 195.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 195.674,
+        "xMax": 237.563,
+        "yMax": 207.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 195.674,
+        "xMax": 266.344,
+        "yMax": 207.768
+      },
+      {
+        "text": "010.",
+        "xMin": 273.539,
+        "yMin": 195.674,
+        "xMax": 302.32,
+        "yMax": 207.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 207.674,
+        "xMax": 237.563,
+        "yMax": 219.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 207.674,
+        "xMax": 266.344,
+        "yMax": 219.768
+      },
+      {
+        "text": "011.",
+        "xMin": 273.539,
+        "yMin": 207.674,
+        "xMax": 302.32,
+        "yMax": 219.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 219.674,
+        "xMax": 237.563,
+        "yMax": 231.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 219.674,
+        "xMax": 266.344,
+        "yMax": 231.768
+      },
+      {
+        "text": "012.",
+        "xMin": 273.539,
+        "yMin": 219.674,
+        "xMax": 302.32,
+        "yMax": 231.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 231.674,
+        "xMax": 237.563,
+        "yMax": 243.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 231.674,
+        "xMax": 266.344,
+        "yMax": 243.768
+      },
+      {
+        "text": "013.",
+        "xMin": 273.539,
+        "yMin": 231.674,
+        "xMax": 302.32,
+        "yMax": 243.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 243.674,
+        "xMax": 237.563,
+        "yMax": 255.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 243.674,
+        "xMax": 266.344,
+        "yMax": 255.768
+      },
+      {
+        "text": "014.",
+        "xMin": 273.539,
+        "yMin": 243.674,
+        "xMax": 302.32,
+        "yMax": 255.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 255.674,
+        "xMax": 237.563,
+        "yMax": 267.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 255.674,
+        "xMax": 266.344,
+        "yMax": 267.768
+      },
+      {
+        "text": "015.",
+        "xMin": 273.539,
+        "yMin": 255.674,
+        "xMax": 302.32,
+        "yMax": 267.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 267.674,
+        "xMax": 237.563,
+        "yMax": 279.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 267.674,
+        "xMax": 266.344,
+        "yMax": 279.768
+      },
+      {
+        "text": "016.",
+        "xMin": 273.539,
+        "yMin": 267.674,
+        "xMax": 302.32,
+        "yMax": 279.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 279.674,
+        "xMax": 237.563,
+        "yMax": 291.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 279.674,
+        "xMax": 266.344,
+        "yMax": 291.768
+      },
+      {
+        "text": "017.",
+        "xMin": 273.539,
+        "yMin": 279.674,
+        "xMax": 302.32,
+        "yMax": 291.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 291.674,
+        "xMax": 237.563,
+        "yMax": 303.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 291.674,
+        "xMax": 266.344,
+        "yMax": 303.768
+      },
+      {
+        "text": "018.",
+        "xMin": 273.539,
+        "yMin": 291.674,
+        "xMax": 302.32,
+        "yMax": 303.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 303.674,
+        "xMax": 237.563,
+        "yMax": 315.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 303.674,
+        "xMax": 266.344,
+        "yMax": 315.768
+      },
+      {
+        "text": "019.",
+        "xMin": 273.539,
+        "yMin": 303.674,
+        "xMax": 302.32,
+        "yMax": 315.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 315.674,
+        "xMax": 237.563,
+        "yMax": 327.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 315.674,
+        "xMax": 266.344,
+        "yMax": 327.768
+      },
+      {
+        "text": "020.",
+        "xMin": 273.539,
+        "yMin": 315.674,
+        "xMax": 302.32,
+        "yMax": 327.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 327.674,
+        "xMax": 237.563,
+        "yMax": 339.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 327.674,
+        "xMax": 266.344,
+        "yMax": 339.768
+      },
+      {
+        "text": "021.",
+        "xMin": 273.539,
+        "yMin": 327.674,
+        "xMax": 302.32,
+        "yMax": 339.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 339.674,
+        "xMax": 237.563,
+        "yMax": 351.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 339.674,
+        "xMax": 266.344,
+        "yMax": 351.768
+      },
+      {
+        "text": "022.",
+        "xMin": 273.539,
+        "yMin": 339.674,
+        "xMax": 302.32,
+        "yMax": 351.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 351.674,
+        "xMax": 237.563,
+        "yMax": 363.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 351.674,
+        "xMax": 266.344,
+        "yMax": 363.768
+      },
+      {
+        "text": "023.",
+        "xMin": 273.539,
+        "yMin": 351.674,
+        "xMax": 302.32,
+        "yMax": 363.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 363.674,
+        "xMax": 237.563,
+        "yMax": 375.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 363.674,
+        "xMax": 266.344,
+        "yMax": 375.768
+      },
+      {
+        "text": "024.",
+        "xMin": 273.539,
+        "yMin": 363.674,
+        "xMax": 302.32,
+        "yMax": 375.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 375.674,
+        "xMax": 237.563,
+        "yMax": 387.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 375.674,
+        "xMax": 266.344,
+        "yMax": 387.768
+      },
+      {
+        "text": "025.",
+        "xMin": 273.539,
+        "yMin": 375.674,
+        "xMax": 302.32,
+        "yMax": 387.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 387.674,
+        "xMax": 237.563,
+        "yMax": 399.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 387.674,
+        "xMax": 266.344,
+        "yMax": 399.768
+      },
+      {
+        "text": "026.",
+        "xMin": 273.539,
+        "yMin": 387.674,
+        "xMax": 302.32,
+        "yMax": 399.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 399.674,
+        "xMax": 237.563,
+        "yMax": 411.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 399.674,
+        "xMax": 266.344,
+        "yMax": 411.768
+      },
+      {
+        "text": "027.",
+        "xMin": 273.539,
+        "yMin": 399.674,
+        "xMax": 302.32,
+        "yMax": 411.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 411.674,
+        "xMax": 237.563,
+        "yMax": 423.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 411.674,
+        "xMax": 266.344,
+        "yMax": 423.768
+      },
+      {
+        "text": "028.",
+        "xMin": 273.539,
+        "yMin": 411.674,
+        "xMax": 302.32,
+        "yMax": 423.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 423.674,
+        "xMax": 237.563,
+        "yMax": 435.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 423.674,
+        "xMax": 266.344,
+        "yMax": 435.768
+      },
+      {
+        "text": "029.",
+        "xMin": 273.539,
+        "yMin": 423.674,
+        "xMax": 302.32,
+        "yMax": 435.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 435.674,
+        "xMax": 237.563,
+        "yMax": 447.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 435.674,
+        "xMax": 266.344,
+        "yMax": 447.768
+      },
+      {
+        "text": "030.",
+        "xMin": 273.539,
+        "yMin": 435.674,
+        "xMax": 302.32,
+        "yMax": 447.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 447.674,
+        "xMax": 237.563,
+        "yMax": 459.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 447.674,
+        "xMax": 266.344,
+        "yMax": 459.768
+      },
+      {
+        "text": "031.",
+        "xMin": 273.539,
+        "yMin": 447.674,
+        "xMax": 302.32,
+        "yMax": 459.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 459.674,
+        "xMax": 237.563,
+        "yMax": 471.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 459.674,
+        "xMax": 266.344,
+        "yMax": 471.768
+      },
+      {
+        "text": "032.",
+        "xMin": 273.539,
+        "yMin": 459.674,
+        "xMax": 302.32,
+        "yMax": 471.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 471.674,
+        "xMax": 237.563,
+        "yMax": 483.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 471.674,
+        "xMax": 266.344,
+        "yMax": 483.768
+      },
+      {
+        "text": "033.",
+        "xMin": 273.539,
+        "yMin": 471.674,
+        "xMax": 302.32,
+        "yMax": 483.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 483.674,
+        "xMax": 237.563,
+        "yMax": 495.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 483.674,
+        "xMax": 266.344,
+        "yMax": 495.768
+      },
+      {
+        "text": "034.",
+        "xMin": 273.539,
+        "yMin": 483.674,
+        "xMax": 302.32,
+        "yMax": 495.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 495.674,
+        "xMax": 237.563,
+        "yMax": 507.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 495.674,
+        "xMax": 266.344,
+        "yMax": 507.768
+      },
+      {
+        "text": "035.",
+        "xMin": 273.539,
+        "yMin": 495.674,
+        "xMax": 302.32,
+        "yMax": 507.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 507.674,
+        "xMax": 237.563,
+        "yMax": 519.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 507.674,
+        "xMax": 266.344,
+        "yMax": 519.768
+      },
+      {
+        "text": "036.",
+        "xMin": 273.539,
+        "yMin": 507.674,
+        "xMax": 302.32,
+        "yMax": 519.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 519.674,
+        "xMax": 237.563,
+        "yMax": 531.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 519.674,
+        "xMax": 266.344,
+        "yMax": 531.768
+      },
+      {
+        "text": "037.",
+        "xMin": 273.539,
+        "yMin": 519.674,
+        "xMax": 302.32,
+        "yMax": 531.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 531.674,
+        "xMax": 237.563,
+        "yMax": 543.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 531.674,
+        "xMax": 266.344,
+        "yMax": 543.768
+      },
+      {
+        "text": "038.",
+        "xMin": 273.539,
+        "yMin": 531.674,
+        "xMax": 302.32,
+        "yMax": 543.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 543.674,
+        "xMax": 237.563,
+        "yMax": 555.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 543.674,
+        "xMax": 266.344,
+        "yMax": 555.768
+      },
+      {
+        "text": "039.",
+        "xMin": 273.539,
+        "yMin": 543.674,
+        "xMax": 302.32,
+        "yMax": 555.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 555.674,
+        "xMax": 237.563,
+        "yMax": 567.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 555.674,
+        "xMax": 266.344,
+        "yMax": 567.768
+      },
+      {
+        "text": "040.",
+        "xMin": 273.539,
+        "yMin": 555.674,
+        "xMax": 302.32,
+        "yMax": 567.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 567.674,
+        "xMax": 237.563,
+        "yMax": 579.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 567.674,
+        "xMax": 266.344,
+        "yMax": 579.768
+      },
+      {
+        "text": "041.",
+        "xMin": 273.539,
+        "yMin": 567.674,
+        "xMax": 302.32,
+        "yMax": 579.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 579.674,
+        "xMax": 237.563,
+        "yMax": 591.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 579.674,
+        "xMax": 266.344,
+        "yMax": 591.768
+      },
+      {
+        "text": "042.",
+        "xMin": 273.539,
+        "yMin": 579.674,
+        "xMax": 302.32,
+        "yMax": 591.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 591.674,
+        "xMax": 237.563,
+        "yMax": 603.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 591.674,
+        "xMax": 266.344,
+        "yMax": 603.768
+      },
+      {
+        "text": "043.",
+        "xMin": 273.539,
+        "yMin": 591.674,
+        "xMax": 302.32,
+        "yMax": 603.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 603.674,
+        "xMax": 237.563,
+        "yMax": 615.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 603.674,
+        "xMax": 266.344,
+        "yMax": 615.768
+      },
+      {
+        "text": "044.",
+        "xMin": 273.539,
+        "yMin": 603.674,
+        "xMax": 302.32,
+        "yMax": 615.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 615.674,
+        "xMax": 237.563,
+        "yMax": 627.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 615.674,
+        "xMax": 266.344,
+        "yMax": 627.768
+      },
+      {
+        "text": "045.",
+        "xMin": 273.539,
+        "yMin": 615.674,
+        "xMax": 302.32,
+        "yMax": 627.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 627.674,
+        "xMax": 237.563,
+        "yMax": 639.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 627.674,
+        "xMax": 266.344,
+        "yMax": 639.768
+      },
+      {
+        "text": "046.",
+        "xMin": 273.539,
+        "yMin": 627.674,
+        "xMax": 302.32,
+        "yMax": 639.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 639.674,
+        "xMax": 237.563,
+        "yMax": 651.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 639.674,
+        "xMax": 266.344,
+        "yMax": 651.768
+      },
+      {
+        "text": "047.",
+        "xMin": 273.539,
+        "yMin": 639.674,
+        "xMax": 302.32,
+        "yMax": 651.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 651.674,
+        "xMax": 237.563,
+        "yMax": 663.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 651.674,
+        "xMax": 266.344,
+        "yMax": 663.768
+      },
+      {
+        "text": "048.",
+        "xMin": 273.539,
+        "yMin": 651.674,
+        "xMax": 302.32,
+        "yMax": 663.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 663.674,
+        "xMax": 237.563,
+        "yMax": 675.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 663.674,
+        "xMax": 266.344,
+        "yMax": 675.768
+      },
+      {
+        "text": "049.",
+        "xMin": 273.539,
+        "yMin": 663.674,
+        "xMax": 302.32,
+        "yMax": 675.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 675.674,
+        "xMax": 237.563,
+        "yMax": 687.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 675.674,
+        "xMax": 266.344,
+        "yMax": 687.768
+      },
+      {
+        "text": "050.",
+        "xMin": 273.539,
+        "yMin": 675.674,
+        "xMax": 302.32,
+        "yMax": 687.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 687.674,
+        "xMax": 237.563,
+        "yMax": 699.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 687.674,
+        "xMax": 266.344,
+        "yMax": 699.768
+      },
+      {
+        "text": "051.",
+        "xMin": 273.539,
+        "yMin": 687.674,
+        "xMax": 302.32,
+        "yMax": 699.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 699.674,
+        "xMax": 237.563,
+        "yMax": 711.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 699.674,
+        "xMax": 266.344,
+        "yMax": 711.768
+      },
+      {
+        "text": "052.",
+        "xMin": 273.539,
+        "yMin": 699.674,
+        "xMax": 302.32,
+        "yMax": 711.768
+      },
+      {
+        "text": "(MORE)",
+        "xMin": 223.2,
+        "yMin": 711.674,
+        "xMax": 266.372,
+        "yMax": 723.768
+      }
+    ],
+    [
+      {
+        "text": "2.",
+        "xMin": 525.609,
+        "yMin": 33.674,
+        "xMax": 540.0,
+        "yMax": 45.768
+      },
+      {
+        "text": "MARA",
+        "xMin": 266.4,
+        "yMin": 75.674,
+        "xMax": 295.181,
+        "yMax": 87.768
+      },
+      {
+        "text": "(CONT'D)",
+        "xMin": 302.377,
+        "yMin": 75.674,
+        "xMax": 359.939,
+        "yMax": 87.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 87.674,
+        "xMax": 237.563,
+        "yMax": 99.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 87.674,
+        "xMax": 266.344,
+        "yMax": 99.768
+      },
+      {
+        "text": "053.",
+        "xMin": 273.539,
+        "yMin": 87.674,
+        "xMax": 302.32,
+        "yMax": 99.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 99.674,
+        "xMax": 237.563,
+        "yMax": 111.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 99.674,
+        "xMax": 266.344,
+        "yMax": 111.768
+      },
+      {
+        "text": "054.",
+        "xMin": 273.539,
+        "yMin": 99.674,
+        "xMax": 302.32,
+        "yMax": 111.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 111.674,
+        "xMax": 237.563,
+        "yMax": 123.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 111.674,
+        "xMax": 266.344,
+        "yMax": 123.768
+      },
+      {
+        "text": "055.",
+        "xMin": 273.539,
+        "yMin": 111.674,
+        "xMax": 302.32,
+        "yMax": 123.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 123.674,
+        "xMax": 237.563,
+        "yMax": 135.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 123.674,
+        "xMax": 266.344,
+        "yMax": 135.768
+      },
+      {
+        "text": "056.",
+        "xMin": 273.539,
+        "yMin": 123.674,
+        "xMax": 302.32,
+        "yMax": 135.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 135.674,
+        "xMax": 237.563,
+        "yMax": 147.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 135.674,
+        "xMax": 266.344,
+        "yMax": 147.768
+      },
+      {
+        "text": "057.",
+        "xMin": 273.539,
+        "yMin": 135.674,
+        "xMax": 302.32,
+        "yMax": 147.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 147.674,
+        "xMax": 237.563,
+        "yMax": 159.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 147.674,
+        "xMax": 266.344,
+        "yMax": 159.768
+      },
+      {
+        "text": "058.",
+        "xMin": 273.539,
+        "yMin": 147.674,
+        "xMax": 302.32,
+        "yMax": 159.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 159.674,
+        "xMax": 237.563,
+        "yMax": 171.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 159.674,
+        "xMax": 266.344,
+        "yMax": 171.768
+      },
+      {
+        "text": "059.",
+        "xMin": 273.539,
+        "yMin": 159.674,
+        "xMax": 302.32,
+        "yMax": 171.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 171.674,
+        "xMax": 237.563,
+        "yMax": 183.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 171.674,
+        "xMax": 266.344,
+        "yMax": 183.768
+      },
+      {
+        "text": "060.",
+        "xMin": 273.539,
+        "yMin": 171.674,
+        "xMax": 302.32,
+        "yMax": 183.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 183.674,
+        "xMax": 237.563,
+        "yMax": 195.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 183.674,
+        "xMax": 266.344,
+        "yMax": 195.768
+      },
+      {
+        "text": "061.",
+        "xMin": 273.539,
+        "yMin": 183.674,
+        "xMax": 302.32,
+        "yMax": 195.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 195.674,
+        "xMax": 237.563,
+        "yMax": 207.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 195.674,
+        "xMax": 266.344,
+        "yMax": 207.768
+      },
+      {
+        "text": "062.",
+        "xMin": 273.539,
+        "yMin": 195.674,
+        "xMax": 302.32,
+        "yMax": 207.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 207.674,
+        "xMax": 237.563,
+        "yMax": 219.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 207.674,
+        "xMax": 266.344,
+        "yMax": 219.768
+      },
+      {
+        "text": "063.",
+        "xMin": 273.539,
+        "yMin": 207.674,
+        "xMax": 302.32,
+        "yMax": 219.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 219.674,
+        "xMax": 237.563,
+        "yMax": 231.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 219.674,
+        "xMax": 266.344,
+        "yMax": 231.768
+      },
+      {
+        "text": "064.",
+        "xMin": 273.539,
+        "yMin": 219.674,
+        "xMax": 302.32,
+        "yMax": 231.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 231.674,
+        "xMax": 237.563,
+        "yMax": 243.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 231.674,
+        "xMax": 266.344,
+        "yMax": 243.768
+      },
+      {
+        "text": "065.",
+        "xMin": 273.539,
+        "yMin": 231.674,
+        "xMax": 302.32,
+        "yMax": 243.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 243.674,
+        "xMax": 237.563,
+        "yMax": 255.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 243.674,
+        "xMax": 266.344,
+        "yMax": 255.768
+      },
+      {
+        "text": "066.",
+        "xMin": 273.539,
+        "yMin": 243.674,
+        "xMax": 302.32,
+        "yMax": 255.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 255.674,
+        "xMax": 237.563,
+        "yMax": 267.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 255.674,
+        "xMax": 266.344,
+        "yMax": 267.768
+      },
+      {
+        "text": "067.",
+        "xMin": 273.539,
+        "yMin": 255.674,
+        "xMax": 302.32,
+        "yMax": 267.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 267.674,
+        "xMax": 237.563,
+        "yMax": 279.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 267.674,
+        "xMax": 266.344,
+        "yMax": 279.768
+      },
+      {
+        "text": "068.",
+        "xMin": 273.539,
+        "yMin": 267.674,
+        "xMax": 302.32,
+        "yMax": 279.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 279.674,
+        "xMax": 237.563,
+        "yMax": 291.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 279.674,
+        "xMax": 266.344,
+        "yMax": 291.768
+      },
+      {
+        "text": "069.",
+        "xMin": 273.539,
+        "yMin": 279.674,
+        "xMax": 302.32,
+        "yMax": 291.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 291.674,
+        "xMax": 237.563,
+        "yMax": 303.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 291.674,
+        "xMax": 266.344,
+        "yMax": 303.768
+      },
+      {
+        "text": "070.",
+        "xMin": 273.539,
+        "yMin": 291.674,
+        "xMax": 302.32,
+        "yMax": 303.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 303.674,
+        "xMax": 237.563,
+        "yMax": 315.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 303.674,
+        "xMax": 266.344,
+        "yMax": 315.768
+      },
+      {
+        "text": "071.",
+        "xMin": 273.539,
+        "yMin": 303.674,
+        "xMax": 302.32,
+        "yMax": 315.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 315.674,
+        "xMax": 237.563,
+        "yMax": 327.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 315.674,
+        "xMax": 266.344,
+        "yMax": 327.768
+      },
+      {
+        "text": "072.",
+        "xMin": 273.539,
+        "yMin": 315.674,
+        "xMax": 302.32,
+        "yMax": 327.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 327.674,
+        "xMax": 237.563,
+        "yMax": 339.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 327.674,
+        "xMax": 266.344,
+        "yMax": 339.768
+      },
+      {
+        "text": "073.",
+        "xMin": 273.539,
+        "yMin": 327.674,
+        "xMax": 302.32,
+        "yMax": 339.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 339.674,
+        "xMax": 237.563,
+        "yMax": 351.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 339.674,
+        "xMax": 266.344,
+        "yMax": 351.768
+      },
+      {
+        "text": "074.",
+        "xMin": 273.539,
+        "yMin": 339.674,
+        "xMax": 302.32,
+        "yMax": 351.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 351.674,
+        "xMax": 237.563,
+        "yMax": 363.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 351.674,
+        "xMax": 266.344,
+        "yMax": 363.768
+      },
+      {
+        "text": "075.",
+        "xMin": 273.539,
+        "yMin": 351.674,
+        "xMax": 302.32,
+        "yMax": 363.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 363.674,
+        "xMax": 237.563,
+        "yMax": 375.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 363.674,
+        "xMax": 266.344,
+        "yMax": 375.768
+      },
+      {
+        "text": "076.",
+        "xMin": 273.539,
+        "yMin": 363.674,
+        "xMax": 302.32,
+        "yMax": 375.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 375.674,
+        "xMax": 237.563,
+        "yMax": 387.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 375.674,
+        "xMax": 266.344,
+        "yMax": 387.768
+      },
+      {
+        "text": "077.",
+        "xMin": 273.539,
+        "yMin": 375.674,
+        "xMax": 302.32,
+        "yMax": 387.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 387.674,
+        "xMax": 237.563,
+        "yMax": 399.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 387.674,
+        "xMax": 266.344,
+        "yMax": 399.768
+      },
+      {
+        "text": "078.",
+        "xMin": 273.539,
+        "yMin": 387.674,
+        "xMax": 302.32,
+        "yMax": 399.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 399.674,
+        "xMax": 237.563,
+        "yMax": 411.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 399.674,
+        "xMax": 266.344,
+        "yMax": 411.768
+      },
+      {
+        "text": "079.",
+        "xMin": 273.539,
+        "yMin": 399.674,
+        "xMax": 302.32,
+        "yMax": 411.768
+      },
+      {
+        "text": "Authored",
+        "xMin": 180.0,
+        "yMin": 411.674,
+        "xMax": 237.563,
+        "yMax": 423.768
+      },
+      {
+        "text": "row",
+        "xMin": 244.758,
+        "yMin": 411.674,
+        "xMax": 266.344,
+        "yMax": 423.768
+      },
+      {
+        "text": "080.",
+        "xMin": 273.539,
+        "yMin": 411.674,
+        "xMax": 302.32,
+        "yMax": 423.768
+      }
+    ]
+  ],
+  "fonts": [
+    "CourierPrime"
+  ]
+}

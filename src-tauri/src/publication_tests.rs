@@ -255,7 +255,7 @@ fn publication_real_helper_exact_result_cache_supersede_close() {
     assert_eq!(result.source_sha256, source_hash(&expected));
     assert_eq!(result.version, 1);
     assert_eq!(result.page_count, 2);
-    assert!(!result.profile_frozen);
+    assert!(result.profile_frozen);
     assert_eq!(result.source_map, "unsupported");
     assert_eq!(
         fs::read_dir(f.root.join("cache"))
@@ -310,7 +310,7 @@ fn publication_rejects_bad_capture_and_false_helper_identity() {
     // Copy real helper output and falsify its exact source binding independently.
     let r = f.request(1, 1);
     let result = f.run(r.clone()).unwrap();
-    let response = serde_json::json!({"protocol":1,"ok":true,"pageCount":1,"sourceSha256":"0".repeat(64),"sourceBytes":r.source.len(),"profile":PROFILE,"profileFrozen":false,"renderer":result.renderer,"fonts":result.fonts,"sourceMap":"unsupported","warnings":[]});
+    let response = serde_json::json!({"protocol":1,"ok":true,"pageCount":1,"sourceSha256":"0".repeat(64),"sourceBytes":r.source.len(),"profile":PROFILE,"profileFrozen":true,"renderer":result.renderer,"fonts":result.fonts,"sourceMap":"unsupported","warnings":[]});
     let script = format!(
         "import json,sys\nr=json.loads(sys.argv[1])\nopen(r['output'],'wb').write(b'%PDF-fake')\nprint({:?})",
         response.to_string()

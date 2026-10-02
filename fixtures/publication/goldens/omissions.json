@@ -1,0 +1,56 @@
+{
+  "text": [
+    "VISIBLE START.\nVISIBLE END.\n"
+  ],
+  "positions": [
+    [
+      {
+        "text": "VISIBLE START.",
+        "x": 108.0,
+        "y": 708.0,
+        "size": 12.0
+      },
+      {
+        "text": "VISIBLE END.",
+        "x": 108.0,
+        "y": 684.0,
+        "size": 12.0
+      }
+    ]
+  ],
+  "words": [
+    [
+      {
+        "text": "VISIBLE",
+        "xMin": 108.0,
+        "yMin": 75.674,
+        "xMax": 158.367,
+        "yMax": 87.768
+      },
+      {
+        "text": "START.",
+        "xMin": 165.563,
+        "yMin": 75.674,
+        "xMax": 208.734,
+        "yMax": 87.768
+      },
+      {
+        "text": "VISIBLE",
+        "xMin": 108.0,
+        "yMin": 99.674,
+        "xMax": 158.367,
+        "yMax": 111.768
+      },
+      {
+        "text": "END.",
+        "xMin": 165.563,
+        "yMin": 99.674,
+        "xMax": 194.344,
+        "yMax": 111.768
+      }
+    ]
+  ],
+  "fonts": [
+    "CourierPrime"
+  ]
+}

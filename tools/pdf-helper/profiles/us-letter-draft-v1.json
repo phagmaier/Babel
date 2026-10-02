@@ -1,0 +1,39 @@
+{
+  "id": "us-letter-draft-v1",
+  "frozen": true,
+  "pagePoints": [612, 792],
+  "fontPoints": 12,
+  "leadingPoints": 12,
+  "framePoints": [108, 72, 432, 648],
+  "dialoguePoints": [180, 252],
+  "cuePoints": [266.4, 273.6],
+  "parentheticalPoints": [223.2, 216],
+  "numberPoints": [540, 750],
+  "titleFramePoints": [108, 72, 396, 648],
+  "titlePoints": 24,
+  "titleLeadingPoints": 36,
+  "minimumSpeechLines": 2,
+  "more": "(MORE)",
+  "continued": "(CONT'D)",
+  "dual": "single-page-only",
+  "hyphenation": false,
+  "unsupported": [
+    "dual-dialogue-overflow",
+    "glyph-coverage-or-shaping",
+    "sections",
+    "synopses",
+    "notes",
+    "boneyards",
+    "unknown-title-fields",
+    "cue-exceeds-page",
+    "parenthetical-exceeds-page",
+    "unpaired-dual-dialogue",
+    "scene-number-width"
+  ],
+  "sourceMap": "unsupported",
+  "upstreamSha256": {
+    "screenplain/export/pdf.py": "b0b8a2438a0bc70be7a2568e9ec66c113c9c447637336fbdd664829f0eb7d612",
+    "screenplain/parsers/fountain.py": "05e72c8f4716138f4cb586ff1b401b55e9b4d9ebf85660f75a2106c05e07b8dd",
+    "reportlab/pdfbase/ttfonts.py": "9df9d24832e36a8db85408845558fe2508580d8565f3b0447033c11f0ab3a2c7"
+  }
+}

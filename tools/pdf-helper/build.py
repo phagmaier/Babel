@@ -113,6 +113,8 @@ def build(offline):
             sys.exit(f'pinned font hash mismatch: {relative}')
     shutil.copy2(HERE / 'babel_pdf_helper.py', app / 'babel_pdf_helper.py')
     shutil.copy2(HERE / 'pins.json', app / 'pins.json')
+    shutil.copy2(HERE / 'frozen_profile.py', app / 'frozen_profile.py')
+    shutil.copytree(HERE / 'profiles', app / 'profiles')
 
     licenses = staging / 'licenses'
     licenses.mkdir()

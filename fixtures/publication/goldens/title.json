@@ -1,0 +1,222 @@
+{
+  "text": [
+    "THE SIGNAL\n Written by\n Synthetic Writer\n An original test\n2026-10-02\n123 Synthetic Lane\nnowhere@example.invalid\n",
+    "INT. ROOM - DAY\nA lamp glows.\n"
+  ],
+  "positions": [
+    [
+      {
+        "text": "THE SIGNAL",
+        "x": 234.047,
+        "y": 480.0,
+        "size": 24.0
+      },
+      {
+        "text": "Written by",
+        "x": 270.023,
+        "y": 444.0,
+        "size": 12.0
+      },
+      {
+        "text": "Synthetic Writer",
+        "x": 248.438,
+        "y": 432.0,
+        "size": 12.0
+      },
+      {
+        "text": "An original test",
+        "x": 248.438,
+        "y": 420.0,
+        "size": 12.0
+      },
+      {
+        "text": "2026-10-02",
+        "x": 108.0,
+        "y": 114.0,
+        "size": 12.0
+      },
+      {
+        "text": "123 Synthetic Lane",
+        "x": 108.0,
+        "y": 90.0,
+        "size": 12.0
+      },
+      {
+        "text": "nowhere@example.invalid",
+        "x": 108.0,
+        "y": 78.0,
+        "size": 12.0
+      }
+    ],
+    [
+      {
+        "text": "INT. ROOM - DAY",
+        "x": 108.0,
+        "y": 708.0,
+        "size": 12.0
+      },
+      {
+        "text": "A lamp glows.",
+        "x": 108.0,
+        "y": 684.0,
+        "size": 12.0
+      }
+    ]
+  ],
+  "words": [
+    [
+      {
+        "text": "THE",
+        "xMin": 234.047,
+        "yMin": 295.348,
+        "xMax": 277.219,
+        "yMax": 319.535
+      },
+      {
+        "text": "SIGNAL",
+        "xMin": 291.609,
+        "yMin": 295.348,
+        "xMax": 377.953,
+        "yMax": 319.535
+      },
+      {
+        "text": "Written",
+        "xMin": 270.023,
+        "yMin": 339.674,
+        "xMax": 320.391,
+        "yMax": 351.768
+      },
+      {
+        "text": "by",
+        "xMin": 327.586,
+        "yMin": 339.674,
+        "xMax": 341.977,
+        "yMax": 351.768
+      },
+      {
+        "text": "Synthetic",
+        "xMin": 248.438,
+        "yMin": 351.674,
+        "xMax": 313.195,
+        "yMax": 363.768
+      },
+      {
+        "text": "Writer",
+        "xMin": 320.391,
+        "yMin": 351.674,
+        "xMax": 363.563,
+        "yMax": 363.768
+      },
+      {
+        "text": "An",
+        "xMin": 248.438,
+        "yMin": 363.674,
+        "xMax": 262.828,
+        "yMax": 375.768
+      },
+      {
+        "text": "original",
+        "xMin": 270.023,
+        "yMin": 363.674,
+        "xMax": 327.586,
+        "yMax": 375.768
+      },
+      {
+        "text": "test",
+        "xMin": 334.781,
+        "yMin": 363.674,
+        "xMax": 363.563,
+        "yMax": 375.768
+      },
+      {
+        "text": "2026-10-02",
+        "xMin": 108.0,
+        "yMin": 669.674,
+        "xMax": 179.953,
+        "yMax": 681.768
+      },
+      {
+        "text": "123",
+        "xMin": 108.0,
+        "yMin": 693.674,
+        "xMax": 129.586,
+        "yMax": 705.768
+      },
+      {
+        "text": "Synthetic",
+        "xMin": 136.781,
+        "yMin": 693.674,
+        "xMax": 201.539,
+        "yMax": 705.768
+      },
+      {
+        "text": "Lane",
+        "xMin": 208.734,
+        "yMin": 693.674,
+        "xMax": 237.516,
+        "yMax": 705.768
+      },
+      {
+        "text": "nowhere@example.invalid",
+        "xMin": 108.0,
+        "yMin": 705.674,
+        "xMax": 273.492,
+        "yMax": 717.768
+      }
+    ],
+    [
+      {
+        "text": "INT.",
+        "xMin": 108.0,
+        "yMin": 75.674,
+        "xMax": 136.781,
+        "yMax": 87.768
+      },
+      {
+        "text": "ROOM",
+        "xMin": 143.977,
+        "yMin": 75.674,
+        "xMax": 172.758,
+        "yMax": 87.768
+      },
+      {
+        "text": "-",
+        "xMin": 179.953,
+        "yMin": 75.674,
+        "xMax": 187.148,
+        "yMax": 87.768
+      },
+      {
+        "text": "DAY",
+        "xMin": 194.344,
+        "yMin": 75.674,
+        "xMax": 215.93,
+        "yMax": 87.768
+      },
+      {
+        "text": "A",
+        "xMin": 108.0,
+        "yMin": 99.674,
+        "xMax": 115.195,
+        "yMax": 111.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 122.391,
+        "yMin": 99.674,
+        "xMax": 151.172,
+        "yMax": 111.768
+      },
+      {
+        "text": "glows.",
+        "xMin": 158.367,
+        "yMin": 99.674,
+        "xMax": 201.539,
+        "yMax": 111.768
+      }
+    ]
+  ],
+  "fonts": [
+    "CourierPrime"
+  ]
+}

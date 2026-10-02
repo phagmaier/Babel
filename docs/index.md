@@ -12,7 +12,7 @@
 | Content protection                     | [persistence](persistence-and-recovery.md), [history/remote](sync-and-versioning.md)                                                                                                                                  |
 | Publication                            | [PDF](pdf-and-formatting.md)                                                                                                                                                                                          |
 | Requirement coverage                   | [requirements](requirements.md)                                                                                                                                                                                       |
-| Next agent task                        | [current-state](current-state.md) → [TODO](../TODO.md#m5--publication-pipeline) → [M5-03 frozen US Letter profile](tasks/M5-03.md)                                                                                    |
+| Next agent task                        | [current-state](current-state.md) → [TODO](../TODO.md#m5--publication-pipeline) → [M5-04 production SC005/SC008 assessment](tasks/M5-04.md)                                                                           |
 
 The [fixture guide](../fixtures/README.md) defines synthetic test data. Product authority remains with [SPEC S00-S03](../SPEC.md#s00). If a contract here disagrees with the spec, record and resolve it; do not silently weaken the spec.
 
@@ -38,6 +38,8 @@ The [fixture guide](../fixtures/README.md) defines synthetic test data. Product 
 - **M5-00:** [Decomposition](test-evidence/M5.md#m5-00--decomposition) — M5-01–07 assigned
 - **M5-01:** [Bundled renderer helper](test-evidence/M5.md#m5-01--bundled-offline-renderer-helper) — [ADR 0036](decisions/0036-bundled-pdf-helper.md)
 
-**Next:** [M5-03 frozen US Letter profile](tasks/M5-03.md)
+- **M5-03:** [Frozen profile and reviewed corpus](test-evidence/M5.md#m5-03--frozen-us-letter-profile-and-regression-corpus) — [ADR 0037](decisions/0037-us-letter-draft-profile.md)
 
-**Remaining:** M5-03–07 (publication), M6 (hardening/adoption), M7 (remote). WebKit/performance/platform hardening = M6.
+**Next:** [M5-04 production SC005/SC008 assessment](tasks/M5-04.md)
+
+**Remaining:** M5-04–07 (publication), M6 (hardening/adoption), M7 (remote). WebKit/performance/platform hardening = M6.

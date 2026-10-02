@@ -1,0 +1,66 @@
+{
+  "text": [
+    "",
+    "2.\nA final body line.\n"
+  ],
+  "positions": [
+    [],
+    [
+      {
+        "text": "2.",
+        "x": 525.609,
+        "y": 750.0,
+        "size": 12.0
+      },
+      {
+        "text": "A final body line.",
+        "x": 108.0,
+        "y": 708.0,
+        "size": 12.0
+      }
+    ]
+  ],
+  "words": [
+    [],
+    [
+      {
+        "text": "2.",
+        "xMin": 525.609,
+        "yMin": 33.674,
+        "xMax": 540.0,
+        "yMax": 45.768
+      },
+      {
+        "text": "A",
+        "xMin": 108.0,
+        "yMin": 75.674,
+        "xMax": 115.195,
+        "yMax": 87.768
+      },
+      {
+        "text": "final",
+        "xMin": 122.391,
+        "yMin": 75.674,
+        "xMax": 158.367,
+        "yMax": 87.768
+      },
+      {
+        "text": "body",
+        "xMin": 165.563,
+        "yMin": 75.674,
+        "xMax": 194.344,
+        "yMax": 87.768
+      },
+      {
+        "text": "line.",
+        "xMin": 201.539,
+        "yMin": 75.674,
+        "xMax": 237.516,
+        "yMax": 87.768
+      }
+    ]
+  ],
+  "fonts": [
+    "CourierPrime"
+  ]
+}

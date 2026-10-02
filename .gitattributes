@@ -3,3 +3,5 @@
 fixtures/** -text
 *.png binary
 *.ico binary
+# This synthetic fixture intentionally preserves BOM/CRLF bytes.
+fixtures/publication/elements.fountain whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol

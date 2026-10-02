@@ -1,0 +1,586 @@
+{
+  "profile": "us-letter-draft-v1",
+  "provenance": "Original synthetic fixtures authored for Babel M5-03; no real manuscript or borrowed screenplay.",
+  "requirements": [
+    "PDF-01",
+    "PDF-03",
+    "PDF-04",
+    "DOC-04",
+    "QA-01",
+    "INV-03",
+    "INV-13"
+  ],
+  "cases": [
+    {
+      "id": "elements",
+      "file": "elements.fountain",
+      "sourceSha256": "58bd2783b16807b84d3c87b258d03b300e26de2ce3c9c9470bde99b181b4cccd",
+      "encoding": "UTF-8 BOM/CRLF",
+      "expected": {
+        "pages": 2,
+        "present": [
+          "THE SIGNAL",
+          "7B",
+          "bold",
+          "italic",
+          "both",
+          "underlined",
+          "Caf\u00e9 ma\u00f1ana na\u00efve",
+          "MARA",
+          "(softly)",
+          "A short speech.",
+          "A lyric beneath the moon.",
+          "Centered signal.",
+          "CUT TO:",
+          "SECOND BODY PAGE."
+        ],
+        "absent": [
+          "~",
+          "^"
+        ],
+        "at": {
+          "THE SIGNAL": {
+            "x": 108
+          },
+          "MARA": {
+            "x": 266.4
+          },
+          "(softly)": {
+            "x": 223.2
+          },
+          "A short speech.": {
+            "x": 180
+          }
+        },
+        "fontFaces": 4
+      }
+    },
+    {
+      "id": "title",
+      "file": "title.fountain",
+      "sourceSha256": "49d6ca6babbfcd89369df445ef183ef7775161fa960b96b6610deb0baa3a4b4c",
+      "encoding": "UTF-8/LF",
+      "expected": {
+        "pages": 2,
+        "present": [
+          "THE SIGNAL",
+          "Synthetic Writer",
+          "123 Synthetic Lane",
+          "nowhere@example.invalid",
+          "INT. ROOM - DAY",
+          "A lamp glows."
+        ],
+        "noNumberPages": [
+          1,
+          2
+        ]
+      }
+    },
+    {
+      "id": "title-overflow",
+      "file": "title-overflow.fountain",
+      "sourceSha256": "4780a297f8643e9f6d2cb7eca53512ffd53ec8cb43f0ed9d62cb65c7ca5080e6",
+      "encoding": "UTF-8/LF",
+      "expected": {
+        "pages": 4,
+        "present": [
+          "TITLE OVERFLOW",
+          "Contact line 001",
+          "Contact line 080",
+          "INT. BODY ONE - DAY",
+          "INT. BODY TWO - DAY"
+        ],
+        "noNumberPages": [
+          1,
+          2,
+          3
+        ],
+        "numbered": {
+          "4": "2."
+        }
+      }
+    },
+    {
+      "id": "heading-boundary",
+      "file": "heading-boundary.fountain",
+      "sourceSha256": "55f2d48b7e5816b59205185235f336aed0d6a67565ccbc3438a6cdbe0ff818e7",
+      "encoding": "UTF-8/LF",
+      "expected": {
+        "pages": 2,
+        "present": [
+          "Prelude 01.",
+          "Prelude 25.",
+          "THE HELD HEADING",
+          "MARA",
+          "(quietly)",
+          "The cue stays with these words."
+        ],
+        "samePage": [
+          "THE HELD HEADING",
+          "MARA",
+          "(quietly)",
+          "The cue stays with these words."
+        ]
+      }
+    },
+    {
+      "id": "action-overflow",
+      "file": "action-overflow.fountain",
+      "sourceSha256": "9fcb290eb80f5d8b46c8961f1713479e75b2b7fdf62d444fb3ff4de471e233e6",
+      "encoding": "UTF-8/LF",
+      "expected": {
+        "pages": 2,
+        "tokens": [
+          "001:",
+          "002:",
+          "003:",
+          "004:",
+          "005:",
+          "006:",
+          "007:",
+          "008:",
+          "009:",
+          "010:",
+          "011:",
+          "012:",
+          "013:",
+          "014:",
+          "015:",
+          "016:",
+          "017:",
+          "018:",
+          "019:",
+          "020:",
+          "021:",
+          "022:",
+          "023:",
+          "024:",
+          "025:",
+          "026:",
+          "027:",
+          "028:",
+          "029:",
+          "030:",
+          "031:",
+          "032:",
+          "033:",
+          "034:",
+          "035:",
+          "036:",
+          "037:",
+          "038:",
+          "039:",
+          "040:",
+          "041:",
+          "042:",
+          "043:",
+          "044:",
+          "045:",
+          "046:",
+          "047:",
+          "048:",
+          "049:",
+          "050:",
+          "051:",
+          "052:",
+          "053:",
+          "054:",
+          "055:",
+          "056:",
+          "057:",
+          "058:",
+          "059:",
+          "060:",
+          "061:",
+          "062:",
+          "063:",
+          "064:",
+          "065:",
+          "066:",
+          "067:",
+          "068:",
+          "069:",
+          "070:",
+          "071:",
+          "072:",
+          "073:",
+          "074:",
+          "075:",
+          "076:",
+          "077:",
+          "078:",
+          "079:",
+          "080:",
+          "081:",
+          "082:",
+          "083:",
+          "084:",
+          "085:",
+          "086:",
+          "087:",
+          "088:",
+          "089:",
+          "090:"
+        ],
+        "present": [
+          "ACTION END."
+        ]
+      }
+    },
+    {
+      "id": "long-words",
+      "file": "long-words.fountain",
+      "sourceSha256": "be86e81544b313d217c34dd4e7b82a158a1bd7e1a6d54bb745dbbd5f7e7036e9",
+      "encoding": "UTF-8/LF",
+      "expected": {
+        "pages": 1,
+        "unwrapped": [
+          "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+          "NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN"
+        ],
+        "present": [
+          "A short speech after a long name."
+        ]
+      }
+    },
+    {
+      "id": "speech-continuation",
+      "file": "speech-continuation.fountain",
+      "sourceSha256": "5d879c7a41b7fb4af6857863e6847dfcae80c81fb0bf11e747e84a64962956f7",
+      "encoding": "UTF-8/LF",
+      "expected": {
+        "pages": 3,
+        "tokens": [
+          "001.",
+          "002.",
+          "003.",
+          "004.",
+          "005.",
+          "006.",
+          "007.",
+          "008.",
+          "009.",
+          "010.",
+          "011.",
+          "012.",
+          "013.",
+          "014.",
+          "015.",
+          "016.",
+          "017.",
+          "018.",
+          "019.",
+          "020.",
+          "021.",
+          "022.",
+          "023.",
+          "024.",
+          "025.",
+          "026.",
+          "027.",
+          "028.",
+          "029.",
+          "030.",
+          "031.",
+          "032.",
+          "033.",
+          "034.",
+          "035.",
+          "036.",
+          "037.",
+          "038.",
+          "039.",
+          "040.",
+          "041.",
+          "042.",
+          "043.",
+          "044.",
+          "045.",
+          "046.",
+          "047.",
+          "048.",
+          "049.",
+          "050.",
+          "051.",
+          "052.",
+          "053.",
+          "054.",
+          "055.",
+          "056.",
+          "057.",
+          "058.",
+          "059.",
+          "060.",
+          "061.",
+          "062.",
+          "063.",
+          "064.",
+          "065.",
+          "066.",
+          "067.",
+          "068.",
+          "069.",
+          "070.",
+          "071.",
+          "072.",
+          "073.",
+          "074.",
+          "075.",
+          "076.",
+          "077.",
+          "078.",
+          "079.",
+          "080.",
+          "081.",
+          "082.",
+          "083.",
+          "084.",
+          "085.",
+          "086.",
+          "087.",
+          "088.",
+          "089.",
+          "090.",
+          "091.",
+          "092.",
+          "093.",
+          "094.",
+          "095.",
+          "096.",
+          "097.",
+          "098.",
+          "099.",
+          "100.",
+          "101.",
+          "102.",
+          "103.",
+          "104.",
+          "105.",
+          "106.",
+          "107.",
+          "108.",
+          "109.",
+          "110.",
+          "111.",
+          "112.",
+          "113.",
+          "114.",
+          "115.",
+          "116.",
+          "117.",
+          "118.",
+          "119.",
+          "120.",
+          "121.",
+          "122.",
+          "123.",
+          "124.",
+          "125.",
+          "126.",
+          "127.",
+          "128.",
+          "129.",
+          "130.",
+          "131.",
+          "132.",
+          "133.",
+          "134.",
+          "135.",
+          "136.",
+          "137.",
+          "138.",
+          "139.",
+          "140."
+        ],
+        "more": 2,
+        "continued": 2,
+        "parentheticalsAttached": true
+      }
+    },
+    {
+      "id": "authored-continuation",
+      "file": "authored-continuation.fountain",
+      "sourceSha256": "5e584c540a085fdc76e5179c8e895dd80ff5c3df6e4bb04d53d04ec95fd90c03",
+      "encoding": "UTF-8/LF",
+      "expected": {
+        "pages": 2,
+        "tokens": [
+          "001.",
+          "002.",
+          "003.",
+          "004.",
+          "005.",
+          "006.",
+          "007.",
+          "008.",
+          "009.",
+          "010.",
+          "011.",
+          "012.",
+          "013.",
+          "014.",
+          "015.",
+          "016.",
+          "017.",
+          "018.",
+          "019.",
+          "020.",
+          "021.",
+          "022.",
+          "023.",
+          "024.",
+          "025.",
+          "026.",
+          "027.",
+          "028.",
+          "029.",
+          "030.",
+          "031.",
+          "032.",
+          "033.",
+          "034.",
+          "035.",
+          "036.",
+          "037.",
+          "038.",
+          "039.",
+          "040.",
+          "041.",
+          "042.",
+          "043.",
+          "044.",
+          "045.",
+          "046.",
+          "047.",
+          "048.",
+          "049.",
+          "050.",
+          "051.",
+          "052.",
+          "053.",
+          "054.",
+          "055.",
+          "056.",
+          "057.",
+          "058.",
+          "059.",
+          "060.",
+          "061.",
+          "062.",
+          "063.",
+          "064.",
+          "065.",
+          "066.",
+          "067.",
+          "068.",
+          "069.",
+          "070.",
+          "071.",
+          "072.",
+          "073.",
+          "074.",
+          "075.",
+          "076.",
+          "077.",
+          "078.",
+          "079.",
+          "080."
+        ],
+        "more": 1,
+        "continued": 2,
+        "absent": [
+          "(CONT'D) (CONT'D)"
+        ]
+      }
+    },
+    {
+      "id": "dual-first",
+      "file": "dual-first.fountain",
+      "sourceSha256": "5d7a752737fec18b017ad8a24f5f2e85917557e2c0e0e81fc6ccfc33409f490e",
+      "encoding": "UTF-8/LF",
+      "expected": {
+        "pages": 1,
+        "present": [
+          "KIM",
+          "MARA",
+          "Left one.",
+          "Right one.",
+          "Left two.",
+          "Right two."
+        ],
+        "absent": [
+          "^"
+        ],
+        "aligned": [
+          "Left one.",
+          "Right one."
+        ]
+      }
+    },
+    {
+      "id": "dual-overflow",
+      "file": "dual-overflow.fountain",
+      "sourceSha256": "97b5a95ec8a5b0dcb502dcd642abf806639ddaf8a011162a39e965b548e707bc",
+      "encoding": "UTF-8/LF",
+      "expected": {
+        "error": "render-failed",
+        "feature": "dual-dialogue-overflow"
+      }
+    },
+    {
+      "id": "omissions",
+      "file": "omissions.fountain",
+      "sourceSha256": "4b59e125a16a07704863861f2975185f9728d75120eaec3ef99b9b33f4f22805",
+      "encoding": "UTF-8/LF",
+      "expected": {
+        "pages": 1,
+        "present": [
+          "VISIBLE START.",
+          "VISIBLE END."
+        ],
+        "absent": [
+          "Unknown title value",
+          "Section omitted",
+          "Synopsis omitted",
+          "Note omitted",
+          "Boneyard omitted"
+        ],
+        "unsupported": [
+          "unknown-title-fields",
+          "sections",
+          "synopses",
+          "notes",
+          "boneyards"
+        ]
+      }
+    },
+    {
+      "id": "unicode-unsupported",
+      "file": "unicode-unsupported.fountain",
+      "sourceSha256": "509cbb434b0119fd98eb84850dd67784e7c2645762d400377af93f6eb923e9cf",
+      "encoding": "UTF-8/LF",
+      "expected": {
+        "error": "render-failed",
+        "feature": "glyph-coverage-or-shaping"
+      }
+    },
+    {
+      "id": "empty-breaks",
+      "file": "empty-breaks.fountain",
+      "sourceSha256": "3840e0fe3c51b67f182ccf406eff23ddd225c0a40c374e02077b07f6e0ff0fc7",
+      "encoding": "UTF-8/LF",
+      "expected": {
+        "pages": 2,
+        "present": [
+          "A final body line."
+        ],
+        "numbered": {
+          "2": "2."
+        },
+        "noNumberPages": [
+          1
+        ]
+      }
+    }
+  ]
+}

@@ -23,7 +23,7 @@ import sys
 PROTOCOL = 1
 # M5-01 renders Screenplain's own layout. It is not the frozen M5-03 profile
 # and makes no fidelity claim; Script Check assessment stays unavailable.
-PROFILES = ('screenplain-baseline',)
+PROFILES = ('screenplain-baseline', 'us-letter-draft-v1')
 MAX_SOURCE_BYTES = 16 * 1024 * 1024
 MAX_OUTPUT_BYTES = 256 * 1024 * 1024
 CPU_SECONDS = 60
@@ -107,7 +107,7 @@ def _verify_fonts():
     return pins, fonts
 
 
-def _render(text, output):
+def _render(text, output, profile):
     sys.path.insert(0, LIB)
     import reportlab
     import reportlab.rl_config as rl_config
@@ -123,7 +123,13 @@ def _render(text, output):
             CountingTemplate.last = self
             super().__init__(*args, **kwargs)
 
-    screenplay = fountain.parse(io.StringIO(text, newline=None))
+    if profile == 'us-letter-draft-v1':
+        sys.path.insert(0, HERE)
+        import frozen_profile
+        screenplay = frozen_profile.parse(text)
+    else:
+        screenplay = fountain.parse(io.StringIO(text, newline=None))
+    warnings = frozen_profile.warnings(screenplay, text) if profile == 'us-letter-draft-v1' else []
     flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, 'O_NOFOLLOW', 0) | getattr(os, 'O_CLOEXEC', 0)
     try:
         fd = os.open(output, flags, 0o600)
@@ -133,10 +139,15 @@ def _render(text, output):
         raise HelperError('output-invalid', f'cannot create output: {error.strerror}') from None
     try:
         with os.fdopen(fd, 'wb') as handle:
-            pdf_export.to_pdf(screenplay, handle, template_constructor=CountingTemplate)
+            if profile == 'us-letter-draft-v1':
+                sys.path.insert(0, HERE)
+                import frozen_profile
+                pages = frozen_profile.render(screenplay, handle)
+            else:
+                pdf_export.to_pdf(screenplay, handle, template_constructor=CountingTemplate)
+                pages = CountingTemplate.last.page
             handle.flush()
             os.fsync(handle.fileno())
-        pages = CountingTemplate.last.page
     except BaseException as error:
         try:
             os.unlink(output)
@@ -145,7 +156,7 @@ def _render(text, output):
         if isinstance(error, HelperError):
             raise
         raise HelperError('render-failed', f'{type(error).__name__}: {error}') from None
-    return pages, reportlab.Version
+    return pages, reportlab.Version, warnings
 
 
 def main(argv):
@@ -160,7 +171,7 @@ def main(argv):
         request = _parse_request(argv)
         data, text = _read_source()
         pins, fonts = _verify_fonts()
-        pages, reportlab_version = _render(text, request['output'])
+        pages, reportlab_version, warnings = _render(text, request['output'], request['profile'])
     except Exception as error:
         if not isinstance(error, HelperError):
             error = HelperError('internal', f'{type(error).__name__}: {error}')
@@ -173,7 +184,7 @@ def main(argv):
         'protocol': PROTOCOL,
         'ok': True,
         'profile': request['profile'],
-        'profileFrozen': False,
+        'profileFrozen': request['profile'] == 'us-letter-draft-v1',
         'pageCount': pages,
         'sourceBytes': len(data),
         'sourceSha256': hashlib.sha256(data).hexdigest(),
@@ -181,7 +192,7 @@ def main(argv):
                      'python': '.'.join(map(str, sys.version_info[:3]))},
         'fonts': fonts,
         'sourceMap': 'unsupported',
-        'warnings': [],
+        'warnings': warnings,
     }, sys.stdout)
     sys.stdout.write('\n')
     return 0

@@ -48,7 +48,7 @@ python3.13 -I -S -B app/babel_pdf_helper.py '{"protocol":1,"profile":"screenplai
   exclusively (`O_EXCL|O_NOFOLLOW`, mode 0600), writes the PDF and fsyncs it.
   It writes nothing else, so HOME, TMPDIR, cwd and the runtime stay untouched.
 - stdout is one JSON object. Success gives `pageCount`, `sourceSha256`,
-  renderer versions, font hashes, `profile`, `profileFrozen: false`,
+  renderer versions, font hashes, `profile`, `profileFrozen` (true for the frozen profile),
   `sourceMap: "unsupported"` and `warnings`. Failure gives
   `{"ok": false, "error": {"code", "message"}}` and exit status 2. Codes:
   `bad-request`, `unsupported-protocol`, `unsupported-profile`,
@@ -62,6 +62,26 @@ python3.13 -I -S -B app/babel_pdf_helper.py '{"protocol":1,"profile":"screenplai
 `screenplain-baseline` is Screenplain's own layout, not the frozen M5-03
 profile. It makes no fidelity claim; Script Check assessment stays unavailable.
 
+## Frozen draft profile (M5-03)
+
+`us-letter-draft-v1` is the default native/frontend profile, with
+`profileFrozen: true`. The baseline stays available for M1/M5-01 regressions.
+[ADR 0037](../../docs/decisions/0037-us-letter-draft-profile.md) freezes geometry,
+continuation, grouping, title numbering, the bounded patch boundary and declared
+unsupported cases. Complete SC005/SC008 assessment remains M5-04.
+
+The [synthetic corpus and reviewed goldens](../../fixtures/publication/REVIEW.md)
+use an inspection-only pypdf dependency plus Poppler, never a runtime dependency:
+
+```sh
+python3 -m venv /tmp/babel-profile-inspect
+/tmp/babel-profile-inspect/bin/pip install -r tools/pdf-helper/requirements-test.txt
+/tmp/babel-profile-inspect/bin/python tools/pdf-helper/test_profile.py --output target/profile-check-new
+```
+
+Choose a fresh output directory; `--candidates` cannot update accepted goldens.
+Set `BABEL_PDF_HELPER_RUNTIME` to verify the same corpus against a packaged copy.
+
 ## Pillow
 
 ReportLab imports `PIL.Image` when it loads but uses it only for images. The
@@ -73,14 +93,14 @@ no imaging library or its vendored native code is bundled.
 
 `src-tauri/src/publication_host.rs` resolves the bundled resource and dispatches
 captured source bytes through protocol 1. `render_publication` admits only an
-owned document/session, positive exact version/request ID, SHA-256, the baseline
+owned document/session, positive exact version/request ID, SHA-256, `us-letter-draft-v1`
 profile, `courier-prime-screenplain-0.12.0` and empty options. Native and frontend
 checks reject stale versions and conflicting hashes. `cancel_publication` takes
 only identity/request ID; an old cancel cannot delete a newer artifact.
 
 The native service owns output paths in its private leased app cache. IPC
 returns an opaque `render-…` handle, actual count, exact capture identity,
-renderer/font identities and warnings, with `profileFrozen: false` and
+renderer/font identities and warnings, with `profileFrozen: true` and
 `sourceMap: unsupported`. It supplies no fidelity or Script Check assessment.
 One helper plus one replaceable pending capture share bounded admission; stdin
 has its own thread, stdout is capped at 64 KiB and wall time at 70 s. Typed

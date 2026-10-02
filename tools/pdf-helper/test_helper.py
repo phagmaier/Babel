@@ -166,7 +166,7 @@ class HelperTest(unittest.TestCase):
             (json.dumps({'protocol': 1, 'profile': 'screenplain-baseline'}), 'bad-request'),
             (request(out, extra=True), 'bad-request'),
             (request(out, protocol=2), 'unsupported-protocol'),
-            (request(out, profile='us-letter-draft-v1'), 'unsupported-profile'),
+            (request(out, profile='us-letter-draft-v2'), 'unsupported-profile'),
             (request('relative.pdf'), 'output-invalid'),
             (request(self.tmp / 'missing' / 'x.pdf'), 'output-invalid'),
         ]
@@ -213,7 +213,8 @@ class HelperTest(unittest.TestCase):
 
 if __name__ == '__main__':
     try:
-        unittest.main(verbosity=2, exit=False)
+        program = unittest.main(verbosity=2, exit=False)
+        sys.exit(0 if program.result.wasSuccessful() else 1)
     finally:
         if TIMINGS:
             ordered = sorted(TIMINGS)

@@ -96,3 +96,8 @@ remove artifacts. A cleanup failure disables further cache admission. Handles
 are opaque; no frontend path, shell, filesystem permission or save receipt is
 introduced. Only `screenplain-baseline`, empty options and its pinned font set
 are admitted; `profileFrozen: false` and `sourceMap: unsupported` remain visible.
+
+M5-03 changes native admission to frozen `us-letter-draft-v1` and
+`profileFrozen: true`; [ADR 0037](0037-us-letter-draft-profile.md) records the
+profile and additional small patch-boundary checks. The native tree pin updates
+to include that patch/profile. Cache/process ownership is unchanged.

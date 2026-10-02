@@ -1,0 +1,2 @@
+# Inspection-only dependency; never bundled into the renderer.
+pypdf==6.19.0

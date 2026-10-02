@@ -2,7 +2,7 @@
 import type { CapturedSnapshot } from './persistenceController';
 import type { DocumentIdentity } from './documents';
 import { MAX_SOURCE_BYTES, sameIdentity, validHash } from './persistenceState';
-export const PUBLICATION_PROFILE = 'screenplain-baseline' as const;
+export const PUBLICATION_PROFILE = 'us-letter-draft-v1' as const;
 export const PUBLICATION_FONT_SET = 'courier-prime-screenplain-0.12.0' as const;
 export const PUBLICATION_FONTS = [
   {
@@ -41,7 +41,7 @@ export interface PublicationResult {
   readonly artifact: string;
   readonly pageCount: number;
   readonly profile: typeof PUBLICATION_PROFILE;
-  readonly profileFrozen: false;
+  readonly profileFrozen: true;
   readonly fontSet: typeof PUBLICATION_FONT_SET;
   readonly renderer: { python: string; screenplain: string; reportlab: string };
   readonly fonts: readonly { file: string; sha256: string }[];
@@ -135,7 +135,7 @@ export class PublicationController {
         result.sourceSha256 !== request.sourceSha256 ||
         result.sourceBytes !== request.source.length ||
         result.profile !== request.profile ||
-        result.profileFrozen !== false ||
+        result.profileFrozen !== true ||
         result.fontSet !== request.fontSet ||
         result.sourceMap !== 'unsupported' ||
         !/^render-[0-9]+-[0-9]+$/.test(result.artifact) ||

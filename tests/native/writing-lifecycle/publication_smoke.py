@@ -60,11 +60,11 @@ try:
     source=b'\xef\xbb\xbfTitle: Synthetic IPC\r\n\r\nINT. ROOM - DAY\r\n\r\nA lamp glows.\r\n'
     digest=hashlib.sha256(source).hexdigest()
     envelope={'identity':opened['identity'],'requestId':1,'version':1,'source':list(source),
-              'sourceSha256':digest,'profile':'screenplain-baseline',
+              'sourceSha256':digest,'profile':'us-letter-draft-v1',
               'fontSet':'courier-prime-screenplain-0.12.0','options':{}}
     result=invoke('render_publication',{'request':envelope})
     assert result['version']==1 and result['sourceSha256']==digest and result['sourceBytes']==len(source)
-    assert result['profileFrozen'] is False and result['sourceMap']=='unsupported'
+    assert result['profileFrozen'] is True and result['sourceMap']=='unsupported'
     assert result['pageCount']==2 and '/' not in result['artifact']
     artifact=ROOT/'cache/app.babel.screenwriter/publication'/f"{result['artifact']}.pdf"
     assert artifact.read_bytes().startswith(b'%PDF-')

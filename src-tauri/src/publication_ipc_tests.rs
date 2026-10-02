@@ -106,7 +106,7 @@ fn publication_ipc_strict_owned_path_free_and_isolated_from_save_recovery() {
     assert_eq!(result.version, 7);
     assert_eq!(result.source_sha256, source_hash(capture));
     assert_eq!(result.page_count, 1);
-    assert!(!result.profile_frozen);
+    assert!(result.profile_frozen);
     assert!(!result.artifact.contains('/'));
     let permit = app
         .state::<DocumentHost>()

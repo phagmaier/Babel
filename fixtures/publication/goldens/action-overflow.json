@@ -1,0 +1,5004 @@
+{
+  "text": [
+    "Action row 001: a lamp remains visible.\nAction row 002: a lamp remains visible.\nAction row 003: a lamp remains visible.\nAction row 004: a lamp remains visible.\nAction row 005: a lamp remains visible.\nAction row 006: a lamp remains visible.\nAction row 007: a lamp remains visible.\nAction row 008: a lamp remains visible.\nAction row 009: a lamp remains visible.\nAction row 010: a lamp remains visible.\nAction row 011: a lamp remains visible.\nAction row 012: a lamp remains visible.\nAction row 013: a lamp remains visible.\nAction row 014: a lamp remains visible.\nAction row 015: a lamp remains visible.\nAction row 016: a lamp remains visible.\nAction row 017: a lamp remains visible.\nAction row 018: a lamp remains visible.\nAction row 019: a lamp remains visible.\nAction row 020: a lamp remains visible.\nAction row 021: a lamp remains visible.\nAction row 022: a lamp remains visible.\nAction row 023: a lamp remains visible.\nAction row 024: a lamp remains visible.\nAction row 025: a lamp remains visible.\nAction row 026: a lamp remains visible.\nAction row 027: a lamp remains visible.\nAction row 028: a lamp remains visible.\nAction row 029: a lamp remains visible.\nAction row 030: a lamp remains visible.\nAction row 031: a lamp remains visible.\nAction row 032: a lamp remains visible.\nAction row 033: a lamp remains visible.\nAction row 034: a lamp remains visible.\nAction row 035: a lamp remains visible.\nAction row 036: a lamp remains visible.\nAction row 037: a lamp remains visible.\nAction row 038: a lamp remains visible.\nAction row 039: a lamp remains visible.\nAction row 040: a lamp remains visible.\nAction row 041: a lamp remains visible.\nAction row 042: a lamp remains visible.\nAction row 043: a lamp remains visible.\nAction row 044: a lamp remains visible.\nAction row 045: a lamp remains visible.\nAction row 046: a lamp remains visible.\nAction row 047: a lamp remains visible.\nAction row 048: a lamp remains visible.\nAction row 049: a lamp remains visible.\nAction row 050: a lamp remains visible.\nAction row 051: a lamp remains visible.\nAction row 052: a lamp remains visible.\nAction row 053: a lamp remains visible.\nAction row 054: a lamp remains visible.\n",
+    "2.\nAction row 055: a lamp remains visible.\nAction row 056: a lamp remains visible.\nAction row 057: a lamp remains visible.\nAction row 058: a lamp remains visible.\nAction row 059: a lamp remains visible.\nAction row 060: a lamp remains visible.\nAction row 061: a lamp remains visible.\nAction row 062: a lamp remains visible.\nAction row 063: a lamp remains visible.\nAction row 064: a lamp remains visible.\nAction row 065: a lamp remains visible.\nAction row 066: a lamp remains visible.\nAction row 067: a lamp remains visible.\nAction row 068: a lamp remains visible.\nAction row 069: a lamp remains visible.\nAction row 070: a lamp remains visible.\nAction row 071: a lamp remains visible.\nAction row 072: a lamp remains visible.\nAction row 073: a lamp remains visible.\nAction row 074: a lamp remains visible.\nAction row 075: a lamp remains visible.\nAction row 076: a lamp remains visible.\nAction row 077: a lamp remains visible.\nAction row 078: a lamp remains visible.\nAction row 079: a lamp remains visible.\nAction row 080: a lamp remains visible.\nAction row 081: a lamp remains visible.\nAction row 082: a lamp remains visible.\nAction row 083: a lamp remains visible.\nAction row 084: a lamp remains visible.\nAction row 085: a lamp remains visible.\nAction row 086: a lamp remains visible.\nAction row 087: a lamp remains visible.\nAction row 088: a lamp remains visible.\nAction row 089: a lamp remains visible.\nAction row 090: a lamp remains visible.\nACTION END.\n"
+  ],
+  "positions": [
+    [
+      {
+        "text": "Action row 001: a lamp remains visible.",
+        "x": 108.0,
+        "y": 708.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 002: a lamp remains visible.",
+        "x": 108.0,
+        "y": 696.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 003: a lamp remains visible.",
+        "x": 108.0,
+        "y": 684.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 004: a lamp remains visible.",
+        "x": 108.0,
+        "y": 672.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 005: a lamp remains visible.",
+        "x": 108.0,
+        "y": 660.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 006: a lamp remains visible.",
+        "x": 108.0,
+        "y": 648.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 007: a lamp remains visible.",
+        "x": 108.0,
+        "y": 636.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 008: a lamp remains visible.",
+        "x": 108.0,
+        "y": 624.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 009: a lamp remains visible.",
+        "x": 108.0,
+        "y": 612.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 010: a lamp remains visible.",
+        "x": 108.0,
+        "y": 600.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 011: a lamp remains visible.",
+        "x": 108.0,
+        "y": 588.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 012: a lamp remains visible.",
+        "x": 108.0,
+        "y": 576.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 013: a lamp remains visible.",
+        "x": 108.0,
+        "y": 564.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 014: a lamp remains visible.",
+        "x": 108.0,
+        "y": 552.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 015: a lamp remains visible.",
+        "x": 108.0,
+        "y": 540.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 016: a lamp remains visible.",
+        "x": 108.0,
+        "y": 528.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 017: a lamp remains visible.",
+        "x": 108.0,
+        "y": 516.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 018: a lamp remains visible.",
+        "x": 108.0,
+        "y": 504.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 019: a lamp remains visible.",
+        "x": 108.0,
+        "y": 492.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 020: a lamp remains visible.",
+        "x": 108.0,
+        "y": 480.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 021: a lamp remains visible.",
+        "x": 108.0,
+        "y": 468.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 022: a lamp remains visible.",
+        "x": 108.0,
+        "y": 456.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 023: a lamp remains visible.",
+        "x": 108.0,
+        "y": 444.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 024: a lamp remains visible.",
+        "x": 108.0,
+        "y": 432.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 025: a lamp remains visible.",
+        "x": 108.0,
+        "y": 420.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 026: a lamp remains visible.",
+        "x": 108.0,
+        "y": 408.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 027: a lamp remains visible.",
+        "x": 108.0,
+        "y": 396.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 028: a lamp remains visible.",
+        "x": 108.0,
+        "y": 384.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 029: a lamp remains visible.",
+        "x": 108.0,
+        "y": 372.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 030: a lamp remains visible.",
+        "x": 108.0,
+        "y": 360.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 031: a lamp remains visible.",
+        "x": 108.0,
+        "y": 348.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 032: a lamp remains visible.",
+        "x": 108.0,
+        "y": 336.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 033: a lamp remains visible.",
+        "x": 108.0,
+        "y": 324.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 034: a lamp remains visible.",
+        "x": 108.0,
+        "y": 312.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 035: a lamp remains visible.",
+        "x": 108.0,
+        "y": 300.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 036: a lamp remains visible.",
+        "x": 108.0,
+        "y": 288.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 037: a lamp remains visible.",
+        "x": 108.0,
+        "y": 276.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 038: a lamp remains visible.",
+        "x": 108.0,
+        "y": 264.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 039: a lamp remains visible.",
+        "x": 108.0,
+        "y": 252.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 040: a lamp remains visible.",
+        "x": 108.0,
+        "y": 240.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 041: a lamp remains visible.",
+        "x": 108.0,
+        "y": 228.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 042: a lamp remains visible.",
+        "x": 108.0,
+        "y": 216.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 043: a lamp remains visible.",
+        "x": 108.0,
+        "y": 204.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 044: a lamp remains visible.",
+        "x": 108.0,
+        "y": 192.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 045: a lamp remains visible.",
+        "x": 108.0,
+        "y": 180.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 046: a lamp remains visible.",
+        "x": 108.0,
+        "y": 168.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 047: a lamp remains visible.",
+        "x": 108.0,
+        "y": 156.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 048: a lamp remains visible.",
+        "x": 108.0,
+        "y": 144.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 049: a lamp remains visible.",
+        "x": 108.0,
+        "y": 132.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 050: a lamp remains visible.",
+        "x": 108.0,
+        "y": 120.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 051: a lamp remains visible.",
+        "x": 108.0,
+        "y": 108.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 052: a lamp remains visible.",
+        "x": 108.0,
+        "y": 96.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 053: a lamp remains visible.",
+        "x": 108.0,
+        "y": 84.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 054: a lamp remains visible.",
+        "x": 108.0,
+        "y": 72.0,
+        "size": 12.0
+      }
+    ],
+    [
+      {
+        "text": "2.",
+        "x": 525.609,
+        "y": 750.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 055: a lamp remains visible.",
+        "x": 108.0,
+        "y": 696.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 056: a lamp remains visible.",
+        "x": 108.0,
+        "y": 684.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 057: a lamp remains visible.",
+        "x": 108.0,
+        "y": 672.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 058: a lamp remains visible.",
+        "x": 108.0,
+        "y": 660.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 059: a lamp remains visible.",
+        "x": 108.0,
+        "y": 648.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 060: a lamp remains visible.",
+        "x": 108.0,
+        "y": 636.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 061: a lamp remains visible.",
+        "x": 108.0,
+        "y": 624.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 062: a lamp remains visible.",
+        "x": 108.0,
+        "y": 612.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 063: a lamp remains visible.",
+        "x": 108.0,
+        "y": 600.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 064: a lamp remains visible.",
+        "x": 108.0,
+        "y": 588.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 065: a lamp remains visible.",
+        "x": 108.0,
+        "y": 576.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 066: a lamp remains visible.",
+        "x": 108.0,
+        "y": 564.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 067: a lamp remains visible.",
+        "x": 108.0,
+        "y": 552.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 068: a lamp remains visible.",
+        "x": 108.0,
+        "y": 540.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 069: a lamp remains visible.",
+        "x": 108.0,
+        "y": 528.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 070: a lamp remains visible.",
+        "x": 108.0,
+        "y": 516.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 071: a lamp remains visible.",
+        "x": 108.0,
+        "y": 504.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 072: a lamp remains visible.",
+        "x": 108.0,
+        "y": 492.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 073: a lamp remains visible.",
+        "x": 108.0,
+        "y": 480.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 074: a lamp remains visible.",
+        "x": 108.0,
+        "y": 468.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 075: a lamp remains visible.",
+        "x": 108.0,
+        "y": 456.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 076: a lamp remains visible.",
+        "x": 108.0,
+        "y": 444.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 077: a lamp remains visible.",
+        "x": 108.0,
+        "y": 432.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 078: a lamp remains visible.",
+        "x": 108.0,
+        "y": 420.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 079: a lamp remains visible.",
+        "x": 108.0,
+        "y": 408.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 080: a lamp remains visible.",
+        "x": 108.0,
+        "y": 396.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 081: a lamp remains visible.",
+        "x": 108.0,
+        "y": 384.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 082: a lamp remains visible.",
+        "x": 108.0,
+        "y": 372.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 083: a lamp remains visible.",
+        "x": 108.0,
+        "y": 360.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 084: a lamp remains visible.",
+        "x": 108.0,
+        "y": 348.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 085: a lamp remains visible.",
+        "x": 108.0,
+        "y": 336.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 086: a lamp remains visible.",
+        "x": 108.0,
+        "y": 324.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 087: a lamp remains visible.",
+        "x": 108.0,
+        "y": 312.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 088: a lamp remains visible.",
+        "x": 108.0,
+        "y": 300.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 089: a lamp remains visible.",
+        "x": 108.0,
+        "y": 288.0,
+        "size": 12.0
+      },
+      {
+        "text": "Action row 090: a lamp remains visible.",
+        "x": 108.0,
+        "y": 276.0,
+        "size": 12.0
+      },
+      {
+        "text": "ACTION END.",
+        "x": 108.0,
+        "y": 252.0,
+        "size": 12.0
+      }
+    ]
+  ],
+  "words": [
+    [
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 75.674,
+        "xMax": 151.172,
+        "yMax": 87.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 75.674,
+        "xMax": 179.953,
+        "yMax": 87.768
+      },
+      {
+        "text": "001:",
+        "xMin": 187.148,
+        "yMin": 75.674,
+        "xMax": 215.93,
+        "yMax": 87.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 75.674,
+        "xMax": 230.32,
+        "yMax": 87.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 75.674,
+        "xMax": 266.297,
+        "yMax": 87.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 75.674,
+        "xMax": 323.859,
+        "yMax": 87.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 75.674,
+        "xMax": 388.617,
+        "yMax": 87.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 87.674,
+        "xMax": 151.172,
+        "yMax": 99.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 87.674,
+        "xMax": 179.953,
+        "yMax": 99.768
+      },
+      {
+        "text": "002:",
+        "xMin": 187.148,
+        "yMin": 87.674,
+        "xMax": 215.93,
+        "yMax": 99.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 87.674,
+        "xMax": 230.32,
+        "yMax": 99.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 87.674,
+        "xMax": 266.297,
+        "yMax": 99.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 87.674,
+        "xMax": 323.859,
+        "yMax": 99.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 87.674,
+        "xMax": 388.617,
+        "yMax": 99.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 99.674,
+        "xMax": 151.172,
+        "yMax": 111.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 99.674,
+        "xMax": 179.953,
+        "yMax": 111.768
+      },
+      {
+        "text": "003:",
+        "xMin": 187.148,
+        "yMin": 99.674,
+        "xMax": 215.93,
+        "yMax": 111.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 99.674,
+        "xMax": 230.32,
+        "yMax": 111.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 99.674,
+        "xMax": 266.297,
+        "yMax": 111.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 99.674,
+        "xMax": 323.859,
+        "yMax": 111.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 99.674,
+        "xMax": 388.617,
+        "yMax": 111.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 111.674,
+        "xMax": 151.172,
+        "yMax": 123.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 111.674,
+        "xMax": 179.953,
+        "yMax": 123.768
+      },
+      {
+        "text": "004:",
+        "xMin": 187.148,
+        "yMin": 111.674,
+        "xMax": 215.93,
+        "yMax": 123.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 111.674,
+        "xMax": 230.32,
+        "yMax": 123.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 111.674,
+        "xMax": 266.297,
+        "yMax": 123.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 111.674,
+        "xMax": 323.859,
+        "yMax": 123.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 111.674,
+        "xMax": 388.617,
+        "yMax": 123.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 123.674,
+        "xMax": 151.172,
+        "yMax": 135.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 123.674,
+        "xMax": 179.953,
+        "yMax": 135.768
+      },
+      {
+        "text": "005:",
+        "xMin": 187.148,
+        "yMin": 123.674,
+        "xMax": 215.93,
+        "yMax": 135.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 123.674,
+        "xMax": 230.32,
+        "yMax": 135.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 123.674,
+        "xMax": 266.297,
+        "yMax": 135.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 123.674,
+        "xMax": 323.859,
+        "yMax": 135.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 123.674,
+        "xMax": 388.617,
+        "yMax": 135.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 135.674,
+        "xMax": 151.172,
+        "yMax": 147.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 135.674,
+        "xMax": 179.953,
+        "yMax": 147.768
+      },
+      {
+        "text": "006:",
+        "xMin": 187.148,
+        "yMin": 135.674,
+        "xMax": 215.93,
+        "yMax": 147.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 135.674,
+        "xMax": 230.32,
+        "yMax": 147.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 135.674,
+        "xMax": 266.297,
+        "yMax": 147.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 135.674,
+        "xMax": 323.859,
+        "yMax": 147.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 135.674,
+        "xMax": 388.617,
+        "yMax": 147.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 147.674,
+        "xMax": 151.172,
+        "yMax": 159.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 147.674,
+        "xMax": 179.953,
+        "yMax": 159.768
+      },
+      {
+        "text": "007:",
+        "xMin": 187.148,
+        "yMin": 147.674,
+        "xMax": 215.93,
+        "yMax": 159.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 147.674,
+        "xMax": 230.32,
+        "yMax": 159.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 147.674,
+        "xMax": 266.297,
+        "yMax": 159.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 147.674,
+        "xMax": 323.859,
+        "yMax": 159.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 147.674,
+        "xMax": 388.617,
+        "yMax": 159.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 159.674,
+        "xMax": 151.172,
+        "yMax": 171.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 159.674,
+        "xMax": 179.953,
+        "yMax": 171.768
+      },
+      {
+        "text": "008:",
+        "xMin": 187.148,
+        "yMin": 159.674,
+        "xMax": 215.93,
+        "yMax": 171.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 159.674,
+        "xMax": 230.32,
+        "yMax": 171.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 159.674,
+        "xMax": 266.297,
+        "yMax": 171.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 159.674,
+        "xMax": 323.859,
+        "yMax": 171.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 159.674,
+        "xMax": 388.617,
+        "yMax": 171.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 171.674,
+        "xMax": 151.172,
+        "yMax": 183.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 171.674,
+        "xMax": 179.953,
+        "yMax": 183.768
+      },
+      {
+        "text": "009:",
+        "xMin": 187.148,
+        "yMin": 171.674,
+        "xMax": 215.93,
+        "yMax": 183.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 171.674,
+        "xMax": 230.32,
+        "yMax": 183.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 171.674,
+        "xMax": 266.297,
+        "yMax": 183.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 171.674,
+        "xMax": 323.859,
+        "yMax": 183.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 171.674,
+        "xMax": 388.617,
+        "yMax": 183.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 183.674,
+        "xMax": 151.172,
+        "yMax": 195.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 183.674,
+        "xMax": 179.953,
+        "yMax": 195.768
+      },
+      {
+        "text": "010:",
+        "xMin": 187.148,
+        "yMin": 183.674,
+        "xMax": 215.93,
+        "yMax": 195.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 183.674,
+        "xMax": 230.32,
+        "yMax": 195.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 183.674,
+        "xMax": 266.297,
+        "yMax": 195.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 183.674,
+        "xMax": 323.859,
+        "yMax": 195.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 183.674,
+        "xMax": 388.617,
+        "yMax": 195.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 195.674,
+        "xMax": 151.172,
+        "yMax": 207.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 195.674,
+        "xMax": 179.953,
+        "yMax": 207.768
+      },
+      {
+        "text": "011:",
+        "xMin": 187.148,
+        "yMin": 195.674,
+        "xMax": 215.93,
+        "yMax": 207.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 195.674,
+        "xMax": 230.32,
+        "yMax": 207.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 195.674,
+        "xMax": 266.297,
+        "yMax": 207.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 195.674,
+        "xMax": 323.859,
+        "yMax": 207.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 195.674,
+        "xMax": 388.617,
+        "yMax": 207.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 207.674,
+        "xMax": 151.172,
+        "yMax": 219.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 207.674,
+        "xMax": 179.953,
+        "yMax": 219.768
+      },
+      {
+        "text": "012:",
+        "xMin": 187.148,
+        "yMin": 207.674,
+        "xMax": 215.93,
+        "yMax": 219.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 207.674,
+        "xMax": 230.32,
+        "yMax": 219.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 207.674,
+        "xMax": 266.297,
+        "yMax": 219.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 207.674,
+        "xMax": 323.859,
+        "yMax": 219.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 207.674,
+        "xMax": 388.617,
+        "yMax": 219.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 219.674,
+        "xMax": 151.172,
+        "yMax": 231.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 219.674,
+        "xMax": 179.953,
+        "yMax": 231.768
+      },
+      {
+        "text": "013:",
+        "xMin": 187.148,
+        "yMin": 219.674,
+        "xMax": 215.93,
+        "yMax": 231.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 219.674,
+        "xMax": 230.32,
+        "yMax": 231.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 219.674,
+        "xMax": 266.297,
+        "yMax": 231.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 219.674,
+        "xMax": 323.859,
+        "yMax": 231.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 219.674,
+        "xMax": 388.617,
+        "yMax": 231.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 231.674,
+        "xMax": 151.172,
+        "yMax": 243.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 231.674,
+        "xMax": 179.953,
+        "yMax": 243.768
+      },
+      {
+        "text": "014:",
+        "xMin": 187.148,
+        "yMin": 231.674,
+        "xMax": 215.93,
+        "yMax": 243.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 231.674,
+        "xMax": 230.32,
+        "yMax": 243.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 231.674,
+        "xMax": 266.297,
+        "yMax": 243.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 231.674,
+        "xMax": 323.859,
+        "yMax": 243.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 231.674,
+        "xMax": 388.617,
+        "yMax": 243.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 243.674,
+        "xMax": 151.172,
+        "yMax": 255.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 243.674,
+        "xMax": 179.953,
+        "yMax": 255.768
+      },
+      {
+        "text": "015:",
+        "xMin": 187.148,
+        "yMin": 243.674,
+        "xMax": 215.93,
+        "yMax": 255.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 243.674,
+        "xMax": 230.32,
+        "yMax": 255.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 243.674,
+        "xMax": 266.297,
+        "yMax": 255.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 243.674,
+        "xMax": 323.859,
+        "yMax": 255.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 243.674,
+        "xMax": 388.617,
+        "yMax": 255.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 255.674,
+        "xMax": 151.172,
+        "yMax": 267.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 255.674,
+        "xMax": 179.953,
+        "yMax": 267.768
+      },
+      {
+        "text": "016:",
+        "xMin": 187.148,
+        "yMin": 255.674,
+        "xMax": 215.93,
+        "yMax": 267.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 255.674,
+        "xMax": 230.32,
+        "yMax": 267.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 255.674,
+        "xMax": 266.297,
+        "yMax": 267.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 255.674,
+        "xMax": 323.859,
+        "yMax": 267.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 255.674,
+        "xMax": 388.617,
+        "yMax": 267.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 267.674,
+        "xMax": 151.172,
+        "yMax": 279.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 267.674,
+        "xMax": 179.953,
+        "yMax": 279.768
+      },
+      {
+        "text": "017:",
+        "xMin": 187.148,
+        "yMin": 267.674,
+        "xMax": 215.93,
+        "yMax": 279.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 267.674,
+        "xMax": 230.32,
+        "yMax": 279.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 267.674,
+        "xMax": 266.297,
+        "yMax": 279.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 267.674,
+        "xMax": 323.859,
+        "yMax": 279.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 267.674,
+        "xMax": 388.617,
+        "yMax": 279.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 279.674,
+        "xMax": 151.172,
+        "yMax": 291.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 279.674,
+        "xMax": 179.953,
+        "yMax": 291.768
+      },
+      {
+        "text": "018:",
+        "xMin": 187.148,
+        "yMin": 279.674,
+        "xMax": 215.93,
+        "yMax": 291.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 279.674,
+        "xMax": 230.32,
+        "yMax": 291.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 279.674,
+        "xMax": 266.297,
+        "yMax": 291.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 279.674,
+        "xMax": 323.859,
+        "yMax": 291.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 279.674,
+        "xMax": 388.617,
+        "yMax": 291.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 291.674,
+        "xMax": 151.172,
+        "yMax": 303.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 291.674,
+        "xMax": 179.953,
+        "yMax": 303.768
+      },
+      {
+        "text": "019:",
+        "xMin": 187.148,
+        "yMin": 291.674,
+        "xMax": 215.93,
+        "yMax": 303.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 291.674,
+        "xMax": 230.32,
+        "yMax": 303.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 291.674,
+        "xMax": 266.297,
+        "yMax": 303.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 291.674,
+        "xMax": 323.859,
+        "yMax": 303.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 291.674,
+        "xMax": 388.617,
+        "yMax": 303.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 303.674,
+        "xMax": 151.172,
+        "yMax": 315.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 303.674,
+        "xMax": 179.953,
+        "yMax": 315.768
+      },
+      {
+        "text": "020:",
+        "xMin": 187.148,
+        "yMin": 303.674,
+        "xMax": 215.93,
+        "yMax": 315.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 303.674,
+        "xMax": 230.32,
+        "yMax": 315.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 303.674,
+        "xMax": 266.297,
+        "yMax": 315.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 303.674,
+        "xMax": 323.859,
+        "yMax": 315.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 303.674,
+        "xMax": 388.617,
+        "yMax": 315.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 315.674,
+        "xMax": 151.172,
+        "yMax": 327.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 315.674,
+        "xMax": 179.953,
+        "yMax": 327.768
+      },
+      {
+        "text": "021:",
+        "xMin": 187.148,
+        "yMin": 315.674,
+        "xMax": 215.93,
+        "yMax": 327.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 315.674,
+        "xMax": 230.32,
+        "yMax": 327.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 315.674,
+        "xMax": 266.297,
+        "yMax": 327.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 315.674,
+        "xMax": 323.859,
+        "yMax": 327.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 315.674,
+        "xMax": 388.617,
+        "yMax": 327.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 327.674,
+        "xMax": 151.172,
+        "yMax": 339.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 327.674,
+        "xMax": 179.953,
+        "yMax": 339.768
+      },
+      {
+        "text": "022:",
+        "xMin": 187.148,
+        "yMin": 327.674,
+        "xMax": 215.93,
+        "yMax": 339.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 327.674,
+        "xMax": 230.32,
+        "yMax": 339.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 327.674,
+        "xMax": 266.297,
+        "yMax": 339.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 327.674,
+        "xMax": 323.859,
+        "yMax": 339.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 327.674,
+        "xMax": 388.617,
+        "yMax": 339.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 339.674,
+        "xMax": 151.172,
+        "yMax": 351.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 339.674,
+        "xMax": 179.953,
+        "yMax": 351.768
+      },
+      {
+        "text": "023:",
+        "xMin": 187.148,
+        "yMin": 339.674,
+        "xMax": 215.93,
+        "yMax": 351.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 339.674,
+        "xMax": 230.32,
+        "yMax": 351.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 339.674,
+        "xMax": 266.297,
+        "yMax": 351.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 339.674,
+        "xMax": 323.859,
+        "yMax": 351.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 339.674,
+        "xMax": 388.617,
+        "yMax": 351.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 351.674,
+        "xMax": 151.172,
+        "yMax": 363.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 351.674,
+        "xMax": 179.953,
+        "yMax": 363.768
+      },
+      {
+        "text": "024:",
+        "xMin": 187.148,
+        "yMin": 351.674,
+        "xMax": 215.93,
+        "yMax": 363.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 351.674,
+        "xMax": 230.32,
+        "yMax": 363.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 351.674,
+        "xMax": 266.297,
+        "yMax": 363.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 351.674,
+        "xMax": 323.859,
+        "yMax": 363.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 351.674,
+        "xMax": 388.617,
+        "yMax": 363.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 363.674,
+        "xMax": 151.172,
+        "yMax": 375.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 363.674,
+        "xMax": 179.953,
+        "yMax": 375.768
+      },
+      {
+        "text": "025:",
+        "xMin": 187.148,
+        "yMin": 363.674,
+        "xMax": 215.93,
+        "yMax": 375.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 363.674,
+        "xMax": 230.32,
+        "yMax": 375.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 363.674,
+        "xMax": 266.297,
+        "yMax": 375.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 363.674,
+        "xMax": 323.859,
+        "yMax": 375.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 363.674,
+        "xMax": 388.617,
+        "yMax": 375.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 375.674,
+        "xMax": 151.172,
+        "yMax": 387.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 375.674,
+        "xMax": 179.953,
+        "yMax": 387.768
+      },
+      {
+        "text": "026:",
+        "xMin": 187.148,
+        "yMin": 375.674,
+        "xMax": 215.93,
+        "yMax": 387.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 375.674,
+        "xMax": 230.32,
+        "yMax": 387.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 375.674,
+        "xMax": 266.297,
+        "yMax": 387.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 375.674,
+        "xMax": 323.859,
+        "yMax": 387.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 375.674,
+        "xMax": 388.617,
+        "yMax": 387.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 387.674,
+        "xMax": 151.172,
+        "yMax": 399.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 387.674,
+        "xMax": 179.953,
+        "yMax": 399.768
+      },
+      {
+        "text": "027:",
+        "xMin": 187.148,
+        "yMin": 387.674,
+        "xMax": 215.93,
+        "yMax": 399.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 387.674,
+        "xMax": 230.32,
+        "yMax": 399.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 387.674,
+        "xMax": 266.297,
+        "yMax": 399.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 387.674,
+        "xMax": 323.859,
+        "yMax": 399.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 387.674,
+        "xMax": 388.617,
+        "yMax": 399.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 399.674,
+        "xMax": 151.172,
+        "yMax": 411.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 399.674,
+        "xMax": 179.953,
+        "yMax": 411.768
+      },
+      {
+        "text": "028:",
+        "xMin": 187.148,
+        "yMin": 399.674,
+        "xMax": 215.93,
+        "yMax": 411.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 399.674,
+        "xMax": 230.32,
+        "yMax": 411.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 399.674,
+        "xMax": 266.297,
+        "yMax": 411.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 399.674,
+        "xMax": 323.859,
+        "yMax": 411.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 399.674,
+        "xMax": 388.617,
+        "yMax": 411.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 411.674,
+        "xMax": 151.172,
+        "yMax": 423.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 411.674,
+        "xMax": 179.953,
+        "yMax": 423.768
+      },
+      {
+        "text": "029:",
+        "xMin": 187.148,
+        "yMin": 411.674,
+        "xMax": 215.93,
+        "yMax": 423.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 411.674,
+        "xMax": 230.32,
+        "yMax": 423.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 411.674,
+        "xMax": 266.297,
+        "yMax": 423.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 411.674,
+        "xMax": 323.859,
+        "yMax": 423.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 411.674,
+        "xMax": 388.617,
+        "yMax": 423.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 423.674,
+        "xMax": 151.172,
+        "yMax": 435.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 423.674,
+        "xMax": 179.953,
+        "yMax": 435.768
+      },
+      {
+        "text": "030:",
+        "xMin": 187.148,
+        "yMin": 423.674,
+        "xMax": 215.93,
+        "yMax": 435.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 423.674,
+        "xMax": 230.32,
+        "yMax": 435.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 423.674,
+        "xMax": 266.297,
+        "yMax": 435.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 423.674,
+        "xMax": 323.859,
+        "yMax": 435.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 423.674,
+        "xMax": 388.617,
+        "yMax": 435.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 435.674,
+        "xMax": 151.172,
+        "yMax": 447.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 435.674,
+        "xMax": 179.953,
+        "yMax": 447.768
+      },
+      {
+        "text": "031:",
+        "xMin": 187.148,
+        "yMin": 435.674,
+        "xMax": 215.93,
+        "yMax": 447.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 435.674,
+        "xMax": 230.32,
+        "yMax": 447.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 435.674,
+        "xMax": 266.297,
+        "yMax": 447.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 435.674,
+        "xMax": 323.859,
+        "yMax": 447.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 435.674,
+        "xMax": 388.617,
+        "yMax": 447.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 447.674,
+        "xMax": 151.172,
+        "yMax": 459.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 447.674,
+        "xMax": 179.953,
+        "yMax": 459.768
+      },
+      {
+        "text": "032:",
+        "xMin": 187.148,
+        "yMin": 447.674,
+        "xMax": 215.93,
+        "yMax": 459.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 447.674,
+        "xMax": 230.32,
+        "yMax": 459.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 447.674,
+        "xMax": 266.297,
+        "yMax": 459.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 447.674,
+        "xMax": 323.859,
+        "yMax": 459.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 447.674,
+        "xMax": 388.617,
+        "yMax": 459.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 459.674,
+        "xMax": 151.172,
+        "yMax": 471.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 459.674,
+        "xMax": 179.953,
+        "yMax": 471.768
+      },
+      {
+        "text": "033:",
+        "xMin": 187.148,
+        "yMin": 459.674,
+        "xMax": 215.93,
+        "yMax": 471.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 459.674,
+        "xMax": 230.32,
+        "yMax": 471.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 459.674,
+        "xMax": 266.297,
+        "yMax": 471.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 459.674,
+        "xMax": 323.859,
+        "yMax": 471.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 459.674,
+        "xMax": 388.617,
+        "yMax": 471.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 471.674,
+        "xMax": 151.172,
+        "yMax": 483.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 471.674,
+        "xMax": 179.953,
+        "yMax": 483.768
+      },
+      {
+        "text": "034:",
+        "xMin": 187.148,
+        "yMin": 471.674,
+        "xMax": 215.93,
+        "yMax": 483.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 471.674,
+        "xMax": 230.32,
+        "yMax": 483.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 471.674,
+        "xMax": 266.297,
+        "yMax": 483.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 471.674,
+        "xMax": 323.859,
+        "yMax": 483.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 471.674,
+        "xMax": 388.617,
+        "yMax": 483.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 483.674,
+        "xMax": 151.172,
+        "yMax": 495.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 483.674,
+        "xMax": 179.953,
+        "yMax": 495.768
+      },
+      {
+        "text": "035:",
+        "xMin": 187.148,
+        "yMin": 483.674,
+        "xMax": 215.93,
+        "yMax": 495.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 483.674,
+        "xMax": 230.32,
+        "yMax": 495.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 483.674,
+        "xMax": 266.297,
+        "yMax": 495.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 483.674,
+        "xMax": 323.859,
+        "yMax": 495.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 483.674,
+        "xMax": 388.617,
+        "yMax": 495.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 495.674,
+        "xMax": 151.172,
+        "yMax": 507.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 495.674,
+        "xMax": 179.953,
+        "yMax": 507.768
+      },
+      {
+        "text": "036:",
+        "xMin": 187.148,
+        "yMin": 495.674,
+        "xMax": 215.93,
+        "yMax": 507.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 495.674,
+        "xMax": 230.32,
+        "yMax": 507.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 495.674,
+        "xMax": 266.297,
+        "yMax": 507.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 495.674,
+        "xMax": 323.859,
+        "yMax": 507.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 495.674,
+        "xMax": 388.617,
+        "yMax": 507.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 507.674,
+        "xMax": 151.172,
+        "yMax": 519.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 507.674,
+        "xMax": 179.953,
+        "yMax": 519.768
+      },
+      {
+        "text": "037:",
+        "xMin": 187.148,
+        "yMin": 507.674,
+        "xMax": 215.93,
+        "yMax": 519.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 507.674,
+        "xMax": 230.32,
+        "yMax": 519.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 507.674,
+        "xMax": 266.297,
+        "yMax": 519.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 507.674,
+        "xMax": 323.859,
+        "yMax": 519.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 507.674,
+        "xMax": 388.617,
+        "yMax": 519.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 519.674,
+        "xMax": 151.172,
+        "yMax": 531.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 519.674,
+        "xMax": 179.953,
+        "yMax": 531.768
+      },
+      {
+        "text": "038:",
+        "xMin": 187.148,
+        "yMin": 519.674,
+        "xMax": 215.93,
+        "yMax": 531.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 519.674,
+        "xMax": 230.32,
+        "yMax": 531.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 519.674,
+        "xMax": 266.297,
+        "yMax": 531.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 519.674,
+        "xMax": 323.859,
+        "yMax": 531.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 519.674,
+        "xMax": 388.617,
+        "yMax": 531.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 531.674,
+        "xMax": 151.172,
+        "yMax": 543.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 531.674,
+        "xMax": 179.953,
+        "yMax": 543.768
+      },
+      {
+        "text": "039:",
+        "xMin": 187.148,
+        "yMin": 531.674,
+        "xMax": 215.93,
+        "yMax": 543.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 531.674,
+        "xMax": 230.32,
+        "yMax": 543.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 531.674,
+        "xMax": 266.297,
+        "yMax": 543.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 531.674,
+        "xMax": 323.859,
+        "yMax": 543.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 531.674,
+        "xMax": 388.617,
+        "yMax": 543.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 543.674,
+        "xMax": 151.172,
+        "yMax": 555.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 543.674,
+        "xMax": 179.953,
+        "yMax": 555.768
+      },
+      {
+        "text": "040:",
+        "xMin": 187.148,
+        "yMin": 543.674,
+        "xMax": 215.93,
+        "yMax": 555.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 543.674,
+        "xMax": 230.32,
+        "yMax": 555.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 543.674,
+        "xMax": 266.297,
+        "yMax": 555.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 543.674,
+        "xMax": 323.859,
+        "yMax": 555.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 543.674,
+        "xMax": 388.617,
+        "yMax": 555.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 555.674,
+        "xMax": 151.172,
+        "yMax": 567.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 555.674,
+        "xMax": 179.953,
+        "yMax": 567.768
+      },
+      {
+        "text": "041:",
+        "xMin": 187.148,
+        "yMin": 555.674,
+        "xMax": 215.93,
+        "yMax": 567.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 555.674,
+        "xMax": 230.32,
+        "yMax": 567.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 555.674,
+        "xMax": 266.297,
+        "yMax": 567.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 555.674,
+        "xMax": 323.859,
+        "yMax": 567.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 555.674,
+        "xMax": 388.617,
+        "yMax": 567.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 567.674,
+        "xMax": 151.172,
+        "yMax": 579.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 567.674,
+        "xMax": 179.953,
+        "yMax": 579.768
+      },
+      {
+        "text": "042:",
+        "xMin": 187.148,
+        "yMin": 567.674,
+        "xMax": 215.93,
+        "yMax": 579.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 567.674,
+        "xMax": 230.32,
+        "yMax": 579.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 567.674,
+        "xMax": 266.297,
+        "yMax": 579.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 567.674,
+        "xMax": 323.859,
+        "yMax": 579.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 567.674,
+        "xMax": 388.617,
+        "yMax": 579.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 579.674,
+        "xMax": 151.172,
+        "yMax": 591.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 579.674,
+        "xMax": 179.953,
+        "yMax": 591.768
+      },
+      {
+        "text": "043:",
+        "xMin": 187.148,
+        "yMin": 579.674,
+        "xMax": 215.93,
+        "yMax": 591.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 579.674,
+        "xMax": 230.32,
+        "yMax": 591.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 579.674,
+        "xMax": 266.297,
+        "yMax": 591.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 579.674,
+        "xMax": 323.859,
+        "yMax": 591.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 579.674,
+        "xMax": 388.617,
+        "yMax": 591.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 591.674,
+        "xMax": 151.172,
+        "yMax": 603.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 591.674,
+        "xMax": 179.953,
+        "yMax": 603.768
+      },
+      {
+        "text": "044:",
+        "xMin": 187.148,
+        "yMin": 591.674,
+        "xMax": 215.93,
+        "yMax": 603.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 591.674,
+        "xMax": 230.32,
+        "yMax": 603.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 591.674,
+        "xMax": 266.297,
+        "yMax": 603.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 591.674,
+        "xMax": 323.859,
+        "yMax": 603.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 591.674,
+        "xMax": 388.617,
+        "yMax": 603.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 603.674,
+        "xMax": 151.172,
+        "yMax": 615.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 603.674,
+        "xMax": 179.953,
+        "yMax": 615.768
+      },
+      {
+        "text": "045:",
+        "xMin": 187.148,
+        "yMin": 603.674,
+        "xMax": 215.93,
+        "yMax": 615.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 603.674,
+        "xMax": 230.32,
+        "yMax": 615.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 603.674,
+        "xMax": 266.297,
+        "yMax": 615.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 603.674,
+        "xMax": 323.859,
+        "yMax": 615.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 603.674,
+        "xMax": 388.617,
+        "yMax": 615.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 615.674,
+        "xMax": 151.172,
+        "yMax": 627.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 615.674,
+        "xMax": 179.953,
+        "yMax": 627.768
+      },
+      {
+        "text": "046:",
+        "xMin": 187.148,
+        "yMin": 615.674,
+        "xMax": 215.93,
+        "yMax": 627.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 615.674,
+        "xMax": 230.32,
+        "yMax": 627.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 615.674,
+        "xMax": 266.297,
+        "yMax": 627.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 615.674,
+        "xMax": 323.859,
+        "yMax": 627.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 615.674,
+        "xMax": 388.617,
+        "yMax": 627.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 627.674,
+        "xMax": 151.172,
+        "yMax": 639.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 627.674,
+        "xMax": 179.953,
+        "yMax": 639.768
+      },
+      {
+        "text": "047:",
+        "xMin": 187.148,
+        "yMin": 627.674,
+        "xMax": 215.93,
+        "yMax": 639.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 627.674,
+        "xMax": 230.32,
+        "yMax": 639.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 627.674,
+        "xMax": 266.297,
+        "yMax": 639.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 627.674,
+        "xMax": 323.859,
+        "yMax": 639.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 627.674,
+        "xMax": 388.617,
+        "yMax": 639.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 639.674,
+        "xMax": 151.172,
+        "yMax": 651.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 639.674,
+        "xMax": 179.953,
+        "yMax": 651.768
+      },
+      {
+        "text": "048:",
+        "xMin": 187.148,
+        "yMin": 639.674,
+        "xMax": 215.93,
+        "yMax": 651.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 639.674,
+        "xMax": 230.32,
+        "yMax": 651.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 639.674,
+        "xMax": 266.297,
+        "yMax": 651.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 639.674,
+        "xMax": 323.859,
+        "yMax": 651.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 639.674,
+        "xMax": 388.617,
+        "yMax": 651.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 651.674,
+        "xMax": 151.172,
+        "yMax": 663.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 651.674,
+        "xMax": 179.953,
+        "yMax": 663.768
+      },
+      {
+        "text": "049:",
+        "xMin": 187.148,
+        "yMin": 651.674,
+        "xMax": 215.93,
+        "yMax": 663.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 651.674,
+        "xMax": 230.32,
+        "yMax": 663.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 651.674,
+        "xMax": 266.297,
+        "yMax": 663.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 651.674,
+        "xMax": 323.859,
+        "yMax": 663.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 651.674,
+        "xMax": 388.617,
+        "yMax": 663.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 663.674,
+        "xMax": 151.172,
+        "yMax": 675.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 663.674,
+        "xMax": 179.953,
+        "yMax": 675.768
+      },
+      {
+        "text": "050:",
+        "xMin": 187.148,
+        "yMin": 663.674,
+        "xMax": 215.93,
+        "yMax": 675.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 663.674,
+        "xMax": 230.32,
+        "yMax": 675.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 663.674,
+        "xMax": 266.297,
+        "yMax": 675.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 663.674,
+        "xMax": 323.859,
+        "yMax": 675.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 663.674,
+        "xMax": 388.617,
+        "yMax": 675.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 675.674,
+        "xMax": 151.172,
+        "yMax": 687.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 675.674,
+        "xMax": 179.953,
+        "yMax": 687.768
+      },
+      {
+        "text": "051:",
+        "xMin": 187.148,
+        "yMin": 675.674,
+        "xMax": 215.93,
+        "yMax": 687.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 675.674,
+        "xMax": 230.32,
+        "yMax": 687.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 675.674,
+        "xMax": 266.297,
+        "yMax": 687.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 675.674,
+        "xMax": 323.859,
+        "yMax": 687.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 675.674,
+        "xMax": 388.617,
+        "yMax": 687.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 687.674,
+        "xMax": 151.172,
+        "yMax": 699.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 687.674,
+        "xMax": 179.953,
+        "yMax": 699.768
+      },
+      {
+        "text": "052:",
+        "xMin": 187.148,
+        "yMin": 687.674,
+        "xMax": 215.93,
+        "yMax": 699.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 687.674,
+        "xMax": 230.32,
+        "yMax": 699.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 687.674,
+        "xMax": 266.297,
+        "yMax": 699.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 687.674,
+        "xMax": 323.859,
+        "yMax": 699.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 687.674,
+        "xMax": 388.617,
+        "yMax": 699.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 699.674,
+        "xMax": 151.172,
+        "yMax": 711.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 699.674,
+        "xMax": 179.953,
+        "yMax": 711.768
+      },
+      {
+        "text": "053:",
+        "xMin": 187.148,
+        "yMin": 699.674,
+        "xMax": 215.93,
+        "yMax": 711.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 699.674,
+        "xMax": 230.32,
+        "yMax": 711.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 699.674,
+        "xMax": 266.297,
+        "yMax": 711.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 699.674,
+        "xMax": 323.859,
+        "yMax": 711.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 699.674,
+        "xMax": 388.617,
+        "yMax": 711.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 711.674,
+        "xMax": 151.172,
+        "yMax": 723.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 711.674,
+        "xMax": 179.953,
+        "yMax": 723.768
+      },
+      {
+        "text": "054:",
+        "xMin": 187.148,
+        "yMin": 711.674,
+        "xMax": 215.93,
+        "yMax": 723.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 711.674,
+        "xMax": 230.32,
+        "yMax": 723.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 711.674,
+        "xMax": 266.297,
+        "yMax": 723.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 711.674,
+        "xMax": 323.859,
+        "yMax": 723.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 711.674,
+        "xMax": 388.617,
+        "yMax": 723.768
+      }
+    ],
+    [
+      {
+        "text": "2.",
+        "xMin": 525.609,
+        "yMin": 33.674,
+        "xMax": 540.0,
+        "yMax": 45.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 87.674,
+        "xMax": 151.172,
+        "yMax": 99.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 87.674,
+        "xMax": 179.953,
+        "yMax": 99.768
+      },
+      {
+        "text": "055:",
+        "xMin": 187.148,
+        "yMin": 87.674,
+        "xMax": 215.93,
+        "yMax": 99.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 87.674,
+        "xMax": 230.32,
+        "yMax": 99.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 87.674,
+        "xMax": 266.297,
+        "yMax": 99.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 87.674,
+        "xMax": 323.859,
+        "yMax": 99.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 87.674,
+        "xMax": 388.617,
+        "yMax": 99.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 99.674,
+        "xMax": 151.172,
+        "yMax": 111.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 99.674,
+        "xMax": 179.953,
+        "yMax": 111.768
+      },
+      {
+        "text": "056:",
+        "xMin": 187.148,
+        "yMin": 99.674,
+        "xMax": 215.93,
+        "yMax": 111.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 99.674,
+        "xMax": 230.32,
+        "yMax": 111.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 99.674,
+        "xMax": 266.297,
+        "yMax": 111.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 99.674,
+        "xMax": 323.859,
+        "yMax": 111.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 99.674,
+        "xMax": 388.617,
+        "yMax": 111.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 111.674,
+        "xMax": 151.172,
+        "yMax": 123.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 111.674,
+        "xMax": 179.953,
+        "yMax": 123.768
+      },
+      {
+        "text": "057:",
+        "xMin": 187.148,
+        "yMin": 111.674,
+        "xMax": 215.93,
+        "yMax": 123.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 111.674,
+        "xMax": 230.32,
+        "yMax": 123.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 111.674,
+        "xMax": 266.297,
+        "yMax": 123.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 111.674,
+        "xMax": 323.859,
+        "yMax": 123.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 111.674,
+        "xMax": 388.617,
+        "yMax": 123.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 123.674,
+        "xMax": 151.172,
+        "yMax": 135.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 123.674,
+        "xMax": 179.953,
+        "yMax": 135.768
+      },
+      {
+        "text": "058:",
+        "xMin": 187.148,
+        "yMin": 123.674,
+        "xMax": 215.93,
+        "yMax": 135.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 123.674,
+        "xMax": 230.32,
+        "yMax": 135.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 123.674,
+        "xMax": 266.297,
+        "yMax": 135.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 123.674,
+        "xMax": 323.859,
+        "yMax": 135.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 123.674,
+        "xMax": 388.617,
+        "yMax": 135.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 135.674,
+        "xMax": 151.172,
+        "yMax": 147.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 135.674,
+        "xMax": 179.953,
+        "yMax": 147.768
+      },
+      {
+        "text": "059:",
+        "xMin": 187.148,
+        "yMin": 135.674,
+        "xMax": 215.93,
+        "yMax": 147.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 135.674,
+        "xMax": 230.32,
+        "yMax": 147.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 135.674,
+        "xMax": 266.297,
+        "yMax": 147.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 135.674,
+        "xMax": 323.859,
+        "yMax": 147.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 135.674,
+        "xMax": 388.617,
+        "yMax": 147.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 147.674,
+        "xMax": 151.172,
+        "yMax": 159.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 147.674,
+        "xMax": 179.953,
+        "yMax": 159.768
+      },
+      {
+        "text": "060:",
+        "xMin": 187.148,
+        "yMin": 147.674,
+        "xMax": 215.93,
+        "yMax": 159.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 147.674,
+        "xMax": 230.32,
+        "yMax": 159.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 147.674,
+        "xMax": 266.297,
+        "yMax": 159.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 147.674,
+        "xMax": 323.859,
+        "yMax": 159.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 147.674,
+        "xMax": 388.617,
+        "yMax": 159.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 159.674,
+        "xMax": 151.172,
+        "yMax": 171.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 159.674,
+        "xMax": 179.953,
+        "yMax": 171.768
+      },
+      {
+        "text": "061:",
+        "xMin": 187.148,
+        "yMin": 159.674,
+        "xMax": 215.93,
+        "yMax": 171.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 159.674,
+        "xMax": 230.32,
+        "yMax": 171.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 159.674,
+        "xMax": 266.297,
+        "yMax": 171.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 159.674,
+        "xMax": 323.859,
+        "yMax": 171.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 159.674,
+        "xMax": 388.617,
+        "yMax": 171.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 171.674,
+        "xMax": 151.172,
+        "yMax": 183.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 171.674,
+        "xMax": 179.953,
+        "yMax": 183.768
+      },
+      {
+        "text": "062:",
+        "xMin": 187.148,
+        "yMin": 171.674,
+        "xMax": 215.93,
+        "yMax": 183.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 171.674,
+        "xMax": 230.32,
+        "yMax": 183.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 171.674,
+        "xMax": 266.297,
+        "yMax": 183.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 171.674,
+        "xMax": 323.859,
+        "yMax": 183.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 171.674,
+        "xMax": 388.617,
+        "yMax": 183.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 183.674,
+        "xMax": 151.172,
+        "yMax": 195.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 183.674,
+        "xMax": 179.953,
+        "yMax": 195.768
+      },
+      {
+        "text": "063:",
+        "xMin": 187.148,
+        "yMin": 183.674,
+        "xMax": 215.93,
+        "yMax": 195.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 183.674,
+        "xMax": 230.32,
+        "yMax": 195.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 183.674,
+        "xMax": 266.297,
+        "yMax": 195.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 183.674,
+        "xMax": 323.859,
+        "yMax": 195.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 183.674,
+        "xMax": 388.617,
+        "yMax": 195.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 195.674,
+        "xMax": 151.172,
+        "yMax": 207.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 195.674,
+        "xMax": 179.953,
+        "yMax": 207.768
+      },
+      {
+        "text": "064:",
+        "xMin": 187.148,
+        "yMin": 195.674,
+        "xMax": 215.93,
+        "yMax": 207.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 195.674,
+        "xMax": 230.32,
+        "yMax": 207.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 195.674,
+        "xMax": 266.297,
+        "yMax": 207.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 195.674,
+        "xMax": 323.859,
+        "yMax": 207.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 195.674,
+        "xMax": 388.617,
+        "yMax": 207.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 207.674,
+        "xMax": 151.172,
+        "yMax": 219.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 207.674,
+        "xMax": 179.953,
+        "yMax": 219.768
+      },
+      {
+        "text": "065:",
+        "xMin": 187.148,
+        "yMin": 207.674,
+        "xMax": 215.93,
+        "yMax": 219.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 207.674,
+        "xMax": 230.32,
+        "yMax": 219.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 207.674,
+        "xMax": 266.297,
+        "yMax": 219.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 207.674,
+        "xMax": 323.859,
+        "yMax": 219.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 207.674,
+        "xMax": 388.617,
+        "yMax": 219.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 219.674,
+        "xMax": 151.172,
+        "yMax": 231.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 219.674,
+        "xMax": 179.953,
+        "yMax": 231.768
+      },
+      {
+        "text": "066:",
+        "xMin": 187.148,
+        "yMin": 219.674,
+        "xMax": 215.93,
+        "yMax": 231.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 219.674,
+        "xMax": 230.32,
+        "yMax": 231.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 219.674,
+        "xMax": 266.297,
+        "yMax": 231.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 219.674,
+        "xMax": 323.859,
+        "yMax": 231.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 219.674,
+        "xMax": 388.617,
+        "yMax": 231.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 231.674,
+        "xMax": 151.172,
+        "yMax": 243.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 231.674,
+        "xMax": 179.953,
+        "yMax": 243.768
+      },
+      {
+        "text": "067:",
+        "xMin": 187.148,
+        "yMin": 231.674,
+        "xMax": 215.93,
+        "yMax": 243.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 231.674,
+        "xMax": 230.32,
+        "yMax": 243.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 231.674,
+        "xMax": 266.297,
+        "yMax": 243.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 231.674,
+        "xMax": 323.859,
+        "yMax": 243.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 231.674,
+        "xMax": 388.617,
+        "yMax": 243.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 243.674,
+        "xMax": 151.172,
+        "yMax": 255.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 243.674,
+        "xMax": 179.953,
+        "yMax": 255.768
+      },
+      {
+        "text": "068:",
+        "xMin": 187.148,
+        "yMin": 243.674,
+        "xMax": 215.93,
+        "yMax": 255.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 243.674,
+        "xMax": 230.32,
+        "yMax": 255.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 243.674,
+        "xMax": 266.297,
+        "yMax": 255.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 243.674,
+        "xMax": 323.859,
+        "yMax": 255.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 243.674,
+        "xMax": 388.617,
+        "yMax": 255.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 255.674,
+        "xMax": 151.172,
+        "yMax": 267.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 255.674,
+        "xMax": 179.953,
+        "yMax": 267.768
+      },
+      {
+        "text": "069:",
+        "xMin": 187.148,
+        "yMin": 255.674,
+        "xMax": 215.93,
+        "yMax": 267.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 255.674,
+        "xMax": 230.32,
+        "yMax": 267.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 255.674,
+        "xMax": 266.297,
+        "yMax": 267.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 255.674,
+        "xMax": 323.859,
+        "yMax": 267.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 255.674,
+        "xMax": 388.617,
+        "yMax": 267.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 267.674,
+        "xMax": 151.172,
+        "yMax": 279.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 267.674,
+        "xMax": 179.953,
+        "yMax": 279.768
+      },
+      {
+        "text": "070:",
+        "xMin": 187.148,
+        "yMin": 267.674,
+        "xMax": 215.93,
+        "yMax": 279.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 267.674,
+        "xMax": 230.32,
+        "yMax": 279.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 267.674,
+        "xMax": 266.297,
+        "yMax": 279.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 267.674,
+        "xMax": 323.859,
+        "yMax": 279.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 267.674,
+        "xMax": 388.617,
+        "yMax": 279.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 279.674,
+        "xMax": 151.172,
+        "yMax": 291.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 279.674,
+        "xMax": 179.953,
+        "yMax": 291.768
+      },
+      {
+        "text": "071:",
+        "xMin": 187.148,
+        "yMin": 279.674,
+        "xMax": 215.93,
+        "yMax": 291.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 279.674,
+        "xMax": 230.32,
+        "yMax": 291.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 279.674,
+        "xMax": 266.297,
+        "yMax": 291.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 279.674,
+        "xMax": 323.859,
+        "yMax": 291.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 279.674,
+        "xMax": 388.617,
+        "yMax": 291.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 291.674,
+        "xMax": 151.172,
+        "yMax": 303.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 291.674,
+        "xMax": 179.953,
+        "yMax": 303.768
+      },
+      {
+        "text": "072:",
+        "xMin": 187.148,
+        "yMin": 291.674,
+        "xMax": 215.93,
+        "yMax": 303.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 291.674,
+        "xMax": 230.32,
+        "yMax": 303.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 291.674,
+        "xMax": 266.297,
+        "yMax": 303.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 291.674,
+        "xMax": 323.859,
+        "yMax": 303.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 291.674,
+        "xMax": 388.617,
+        "yMax": 303.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 303.674,
+        "xMax": 151.172,
+        "yMax": 315.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 303.674,
+        "xMax": 179.953,
+        "yMax": 315.768
+      },
+      {
+        "text": "073:",
+        "xMin": 187.148,
+        "yMin": 303.674,
+        "xMax": 215.93,
+        "yMax": 315.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 303.674,
+        "xMax": 230.32,
+        "yMax": 315.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 303.674,
+        "xMax": 266.297,
+        "yMax": 315.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 303.674,
+        "xMax": 323.859,
+        "yMax": 315.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 303.674,
+        "xMax": 388.617,
+        "yMax": 315.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 315.674,
+        "xMax": 151.172,
+        "yMax": 327.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 315.674,
+        "xMax": 179.953,
+        "yMax": 327.768
+      },
+      {
+        "text": "074:",
+        "xMin": 187.148,
+        "yMin": 315.674,
+        "xMax": 215.93,
+        "yMax": 327.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 315.674,
+        "xMax": 230.32,
+        "yMax": 327.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 315.674,
+        "xMax": 266.297,
+        "yMax": 327.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 315.674,
+        "xMax": 323.859,
+        "yMax": 327.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 315.674,
+        "xMax": 388.617,
+        "yMax": 327.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 327.674,
+        "xMax": 151.172,
+        "yMax": 339.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 327.674,
+        "xMax": 179.953,
+        "yMax": 339.768
+      },
+      {
+        "text": "075:",
+        "xMin": 187.148,
+        "yMin": 327.674,
+        "xMax": 215.93,
+        "yMax": 339.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 327.674,
+        "xMax": 230.32,
+        "yMax": 339.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 327.674,
+        "xMax": 266.297,
+        "yMax": 339.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 327.674,
+        "xMax": 323.859,
+        "yMax": 339.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 327.674,
+        "xMax": 388.617,
+        "yMax": 339.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 339.674,
+        "xMax": 151.172,
+        "yMax": 351.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 339.674,
+        "xMax": 179.953,
+        "yMax": 351.768
+      },
+      {
+        "text": "076:",
+        "xMin": 187.148,
+        "yMin": 339.674,
+        "xMax": 215.93,
+        "yMax": 351.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 339.674,
+        "xMax": 230.32,
+        "yMax": 351.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 339.674,
+        "xMax": 266.297,
+        "yMax": 351.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 339.674,
+        "xMax": 323.859,
+        "yMax": 351.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 339.674,
+        "xMax": 388.617,
+        "yMax": 351.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 351.674,
+        "xMax": 151.172,
+        "yMax": 363.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 351.674,
+        "xMax": 179.953,
+        "yMax": 363.768
+      },
+      {
+        "text": "077:",
+        "xMin": 187.148,
+        "yMin": 351.674,
+        "xMax": 215.93,
+        "yMax": 363.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 351.674,
+        "xMax": 230.32,
+        "yMax": 363.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 351.674,
+        "xMax": 266.297,
+        "yMax": 363.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 351.674,
+        "xMax": 323.859,
+        "yMax": 363.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 351.674,
+        "xMax": 388.617,
+        "yMax": 363.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 363.674,
+        "xMax": 151.172,
+        "yMax": 375.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 363.674,
+        "xMax": 179.953,
+        "yMax": 375.768
+      },
+      {
+        "text": "078:",
+        "xMin": 187.148,
+        "yMin": 363.674,
+        "xMax": 215.93,
+        "yMax": 375.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 363.674,
+        "xMax": 230.32,
+        "yMax": 375.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 363.674,
+        "xMax": 266.297,
+        "yMax": 375.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 363.674,
+        "xMax": 323.859,
+        "yMax": 375.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 363.674,
+        "xMax": 388.617,
+        "yMax": 375.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 375.674,
+        "xMax": 151.172,
+        "yMax": 387.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 375.674,
+        "xMax": 179.953,
+        "yMax": 387.768
+      },
+      {
+        "text": "079:",
+        "xMin": 187.148,
+        "yMin": 375.674,
+        "xMax": 215.93,
+        "yMax": 387.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 375.674,
+        "xMax": 230.32,
+        "yMax": 387.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 375.674,
+        "xMax": 266.297,
+        "yMax": 387.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 375.674,
+        "xMax": 323.859,
+        "yMax": 387.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 375.674,
+        "xMax": 388.617,
+        "yMax": 387.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 387.674,
+        "xMax": 151.172,
+        "yMax": 399.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 387.674,
+        "xMax": 179.953,
+        "yMax": 399.768
+      },
+      {
+        "text": "080:",
+        "xMin": 187.148,
+        "yMin": 387.674,
+        "xMax": 215.93,
+        "yMax": 399.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 387.674,
+        "xMax": 230.32,
+        "yMax": 399.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 387.674,
+        "xMax": 266.297,
+        "yMax": 399.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 387.674,
+        "xMax": 323.859,
+        "yMax": 399.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 387.674,
+        "xMax": 388.617,
+        "yMax": 399.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 399.674,
+        "xMax": 151.172,
+        "yMax": 411.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 399.674,
+        "xMax": 179.953,
+        "yMax": 411.768
+      },
+      {
+        "text": "081:",
+        "xMin": 187.148,
+        "yMin": 399.674,
+        "xMax": 215.93,
+        "yMax": 411.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 399.674,
+        "xMax": 230.32,
+        "yMax": 411.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 399.674,
+        "xMax": 266.297,
+        "yMax": 411.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 399.674,
+        "xMax": 323.859,
+        "yMax": 411.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 399.674,
+        "xMax": 388.617,
+        "yMax": 411.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 411.674,
+        "xMax": 151.172,
+        "yMax": 423.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 411.674,
+        "xMax": 179.953,
+        "yMax": 423.768
+      },
+      {
+        "text": "082:",
+        "xMin": 187.148,
+        "yMin": 411.674,
+        "xMax": 215.93,
+        "yMax": 423.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 411.674,
+        "xMax": 230.32,
+        "yMax": 423.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 411.674,
+        "xMax": 266.297,
+        "yMax": 423.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 411.674,
+        "xMax": 323.859,
+        "yMax": 423.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 411.674,
+        "xMax": 388.617,
+        "yMax": 423.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 423.674,
+        "xMax": 151.172,
+        "yMax": 435.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 423.674,
+        "xMax": 179.953,
+        "yMax": 435.768
+      },
+      {
+        "text": "083:",
+        "xMin": 187.148,
+        "yMin": 423.674,
+        "xMax": 215.93,
+        "yMax": 435.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 423.674,
+        "xMax": 230.32,
+        "yMax": 435.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 423.674,
+        "xMax": 266.297,
+        "yMax": 435.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 423.674,
+        "xMax": 323.859,
+        "yMax": 435.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 423.674,
+        "xMax": 388.617,
+        "yMax": 435.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 435.674,
+        "xMax": 151.172,
+        "yMax": 447.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 435.674,
+        "xMax": 179.953,
+        "yMax": 447.768
+      },
+      {
+        "text": "084:",
+        "xMin": 187.148,
+        "yMin": 435.674,
+        "xMax": 215.93,
+        "yMax": 447.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 435.674,
+        "xMax": 230.32,
+        "yMax": 447.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 435.674,
+        "xMax": 266.297,
+        "yMax": 447.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 435.674,
+        "xMax": 323.859,
+        "yMax": 447.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 435.674,
+        "xMax": 388.617,
+        "yMax": 447.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 447.674,
+        "xMax": 151.172,
+        "yMax": 459.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 447.674,
+        "xMax": 179.953,
+        "yMax": 459.768
+      },
+      {
+        "text": "085:",
+        "xMin": 187.148,
+        "yMin": 447.674,
+        "xMax": 215.93,
+        "yMax": 459.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 447.674,
+        "xMax": 230.32,
+        "yMax": 459.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 447.674,
+        "xMax": 266.297,
+        "yMax": 459.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 447.674,
+        "xMax": 323.859,
+        "yMax": 459.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 447.674,
+        "xMax": 388.617,
+        "yMax": 459.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 459.674,
+        "xMax": 151.172,
+        "yMax": 471.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 459.674,
+        "xMax": 179.953,
+        "yMax": 471.768
+      },
+      {
+        "text": "086:",
+        "xMin": 187.148,
+        "yMin": 459.674,
+        "xMax": 215.93,
+        "yMax": 471.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 459.674,
+        "xMax": 230.32,
+        "yMax": 471.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 459.674,
+        "xMax": 266.297,
+        "yMax": 471.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 459.674,
+        "xMax": 323.859,
+        "yMax": 471.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 459.674,
+        "xMax": 388.617,
+        "yMax": 471.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 471.674,
+        "xMax": 151.172,
+        "yMax": 483.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 471.674,
+        "xMax": 179.953,
+        "yMax": 483.768
+      },
+      {
+        "text": "087:",
+        "xMin": 187.148,
+        "yMin": 471.674,
+        "xMax": 215.93,
+        "yMax": 483.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 471.674,
+        "xMax": 230.32,
+        "yMax": 483.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 471.674,
+        "xMax": 266.297,
+        "yMax": 483.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 471.674,
+        "xMax": 323.859,
+        "yMax": 483.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 471.674,
+        "xMax": 388.617,
+        "yMax": 483.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 483.674,
+        "xMax": 151.172,
+        "yMax": 495.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 483.674,
+        "xMax": 179.953,
+        "yMax": 495.768
+      },
+      {
+        "text": "088:",
+        "xMin": 187.148,
+        "yMin": 483.674,
+        "xMax": 215.93,
+        "yMax": 495.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 483.674,
+        "xMax": 230.32,
+        "yMax": 495.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 483.674,
+        "xMax": 266.297,
+        "yMax": 495.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 483.674,
+        "xMax": 323.859,
+        "yMax": 495.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 483.674,
+        "xMax": 388.617,
+        "yMax": 495.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 495.674,
+        "xMax": 151.172,
+        "yMax": 507.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 495.674,
+        "xMax": 179.953,
+        "yMax": 507.768
+      },
+      {
+        "text": "089:",
+        "xMin": 187.148,
+        "yMin": 495.674,
+        "xMax": 215.93,
+        "yMax": 507.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 495.674,
+        "xMax": 230.32,
+        "yMax": 507.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 495.674,
+        "xMax": 266.297,
+        "yMax": 507.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 495.674,
+        "xMax": 323.859,
+        "yMax": 507.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 495.674,
+        "xMax": 388.617,
+        "yMax": 507.768
+      },
+      {
+        "text": "Action",
+        "xMin": 108.0,
+        "yMin": 507.674,
+        "xMax": 151.172,
+        "yMax": 519.768
+      },
+      {
+        "text": "row",
+        "xMin": 158.367,
+        "yMin": 507.674,
+        "xMax": 179.953,
+        "yMax": 519.768
+      },
+      {
+        "text": "090:",
+        "xMin": 187.148,
+        "yMin": 507.674,
+        "xMax": 215.93,
+        "yMax": 519.768
+      },
+      {
+        "text": "a",
+        "xMin": 223.125,
+        "yMin": 507.674,
+        "xMax": 230.32,
+        "yMax": 519.768
+      },
+      {
+        "text": "lamp",
+        "xMin": 237.516,
+        "yMin": 507.674,
+        "xMax": 266.297,
+        "yMax": 519.768
+      },
+      {
+        "text": "remains",
+        "xMin": 273.492,
+        "yMin": 507.674,
+        "xMax": 323.859,
+        "yMax": 519.768
+      },
+      {
+        "text": "visible.",
+        "xMin": 331.055,
+        "yMin": 507.674,
+        "xMax": 388.617,
+        "yMax": 519.768
+      },
+      {
+        "text": "ACTION",
+        "xMin": 108.0,
+        "yMin": 531.674,
+        "xMax": 151.172,
+        "yMax": 543.768
+      },
+      {
+        "text": "END.",
+        "xMin": 158.367,
+        "yMin": 531.674,
+        "xMax": 187.148,
+        "yMax": 543.768
+      }
+    ]
+  ],
+  "fonts": [
+    "CourierPrime"
+  ]
+}

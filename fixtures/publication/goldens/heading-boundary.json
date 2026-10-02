@@ -1,0 +1,635 @@
+{
+  "text": [
+    "Prelude 01.\nPrelude 02.\nPrelude 03.\nPrelude 04.\nPrelude 05.\nPrelude 06.\nPrelude 07.\nPrelude 08.\nPrelude 09.\nPrelude 10.\nPrelude 11.\nPrelude 12.\nPrelude 13.\nPrelude 14.\nPrelude 15.\nPrelude 16.\nPrelude 17.\nPrelude 18.\nPrelude 19.\nPrelude 20.\nPrelude 21.\nPrelude 22.\nPrelude 23.\nPrelude 24.\nPrelude 25.\n",
+    "2.\nTHE HELD HEADING\nMARA\n(quietly)\nThe cue stays with these words.\n"
+  ],
+  "positions": [
+    [
+      {
+        "text": "Prelude 01.",
+        "x": 108.0,
+        "y": 708.0,
+        "size": 12.0
+      },
+      {
+        "text": "Prelude 02.",
+        "x": 108.0,
+        "y": 684.0,
+        "size": 12.0
+      },
+      {
+        "text": "Prelude 03.",
+        "x": 108.0,
+        "y": 660.0,
+        "size": 12.0
+      },
+      {
+        "text": "Prelude 04.",
+        "x": 108.0,
+        "y": 636.0,
+        "size": 12.0
+      },
+      {
+        "text": "Prelude 05.",
+        "x": 108.0,
+        "y": 612.0,
+        "size": 12.0
+      },
+      {
+        "text": "Prelude 06.",
+        "x": 108.0,
+        "y": 588.0,
+        "size": 12.0
+      },
+      {
+        "text": "Prelude 07.",
+        "x": 108.0,
+        "y": 564.0,
+        "size": 12.0
+      },
+      {
+        "text": "Prelude 08.",
+        "x": 108.0,
+        "y": 540.0,
+        "size": 12.0
+      },
+      {
+        "text": "Prelude 09.",
+        "x": 108.0,
+        "y": 516.0,
+        "size": 12.0
+      },
+      {
+        "text": "Prelude 10.",
+        "x": 108.0,
+        "y": 492.0,
+        "size": 12.0
+      },
+      {
+        "text": "Prelude 11.",
+        "x": 108.0,
+        "y": 468.0,
+        "size": 12.0
+      },
+      {
+        "text": "Prelude 12.",
+        "x": 108.0,
+        "y": 444.0,
+        "size": 12.0
+      },
+      {
+        "text": "Prelude 13.",
+        "x": 108.0,
+        "y": 420.0,
+        "size": 12.0
+      },
+      {
+        "text": "Prelude 14.",
+        "x": 108.0,
+        "y": 396.0,
+        "size": 12.0
+      },
+      {
+        "text": "Prelude 15.",
+        "x": 108.0,
+        "y": 372.0,
+        "size": 12.0
+      },
+      {
+        "text": "Prelude 16.",
+        "x": 108.0,
+        "y": 348.0,
+        "size": 12.0
+      },
+      {
+        "text": "Prelude 17.",
+        "x": 108.0,
+        "y": 324.0,
+        "size": 12.0
+      },
+      {
+        "text": "Prelude 18.",
+        "x": 108.0,
+        "y": 300.0,
+        "size": 12.0
+      },
+      {
+        "text": "Prelude 19.",
+        "x": 108.0,
+        "y": 276.0,
+        "size": 12.0
+      },
+      {
+        "text": "Prelude 20.",
+        "x": 108.0,
+        "y": 252.0,
+        "size": 12.0
+      },
+      {
+        "text": "Prelude 21.",
+        "x": 108.0,
+        "y": 228.0,
+        "size": 12.0
+      },
+      {
+        "text": "Prelude 22.",
+        "x": 108.0,
+        "y": 204.0,
+        "size": 12.0
+      },
+      {
+        "text": "Prelude 23.",
+        "x": 108.0,
+        "y": 180.0,
+        "size": 12.0
+      },
+      {
+        "text": "Prelude 24.",
+        "x": 108.0,
+        "y": 156.0,
+        "size": 12.0
+      },
+      {
+        "text": "Prelude 25.",
+        "x": 108.0,
+        "y": 132.0,
+        "size": 12.0
+      }
+    ],
+    [
+      {
+        "text": "2.",
+        "x": 525.609,
+        "y": 750.0,
+        "size": 12.0
+      },
+      {
+        "text": "THE HELD HEADING",
+        "x": 108.0,
+        "y": 708.0,
+        "size": 12.0
+      },
+      {
+        "text": "MARA",
+        "x": 266.4,
+        "y": 684.0,
+        "size": 12.0
+      },
+      {
+        "text": "(quietly)",
+        "x": 223.2,
+        "y": 672.0,
+        "size": 12.0
+      },
+      {
+        "text": "The cue stays with these words.",
+        "x": 180.0,
+        "y": 660.0,
+        "size": 12.0
+      }
+    ]
+  ],
+  "words": [
+    [
+      {
+        "text": "Prelude",
+        "xMin": 108.0,
+        "yMin": 75.674,
+        "xMax": 158.367,
+        "yMax": 87.768
+      },
+      {
+        "text": "01.",
+        "xMin": 165.563,
+        "yMin": 75.674,
+        "xMax": 187.148,
+        "yMax": 87.768
+      },
+      {
+        "text": "Prelude",
+        "xMin": 108.0,
+        "yMin": 99.674,
+        "xMax": 158.367,
+        "yMax": 111.768
+      },
+      {
+        "text": "02.",
+        "xMin": 165.563,
+        "yMin": 99.674,
+        "xMax": 187.148,
+        "yMax": 111.768
+      },
+      {
+        "text": "Prelude",
+        "xMin": 108.0,
+        "yMin": 123.674,
+        "xMax": 158.367,
+        "yMax": 135.768
+      },
+      {
+        "text": "03.",
+        "xMin": 165.563,
+        "yMin": 123.674,
+        "xMax": 187.148,
+        "yMax": 135.768
+      },
+      {
+        "text": "Prelude",
+        "xMin": 108.0,
+        "yMin": 147.674,
+        "xMax": 158.367,
+        "yMax": 159.768
+      },
+      {
+        "text": "04.",
+        "xMin": 165.563,
+        "yMin": 147.674,
+        "xMax": 187.148,
+        "yMax": 159.768
+      },
+      {
+        "text": "Prelude",
+        "xMin": 108.0,
+        "yMin": 171.674,
+        "xMax": 158.367,
+        "yMax": 183.768
+      },
+      {
+        "text": "05.",
+        "xMin": 165.563,
+        "yMin": 171.674,
+        "xMax": 187.148,
+        "yMax": 183.768
+      },
+      {
+        "text": "Prelude",
+        "xMin": 108.0,
+        "yMin": 195.674,
+        "xMax": 158.367,
+        "yMax": 207.768
+      },
+      {
+        "text": "06.",
+        "xMin": 165.563,
+        "yMin": 195.674,
+        "xMax": 187.148,
+        "yMax": 207.768
+      },
+      {
+        "text": "Prelude",
+        "xMin": 108.0,
+        "yMin": 219.674,
+        "xMax": 158.367,
+        "yMax": 231.768
+      },
+      {
+        "text": "07.",
+        "xMin": 165.563,
+        "yMin": 219.674,
+        "xMax": 187.148,
+        "yMax": 231.768
+      },
+      {
+        "text": "Prelude",
+        "xMin": 108.0,
+        "yMin": 243.674,
+        "xMax": 158.367,
+        "yMax": 255.768
+      },
+      {
+        "text": "08.",
+        "xMin": 165.563,
+        "yMin": 243.674,
+        "xMax": 187.148,
+        "yMax": 255.768
+      },
+      {
+        "text": "Prelude",
+        "xMin": 108.0,
+        "yMin": 267.674,
+        "xMax": 158.367,
+        "yMax": 279.768
+      },
+      {
+        "text": "09.",
+        "xMin": 165.563,
+        "yMin": 267.674,
+        "xMax": 187.148,
+        "yMax": 279.768
+      },
+      {
+        "text": "Prelude",
+        "xMin": 108.0,
+        "yMin": 291.674,
+        "xMax": 158.367,
+        "yMax": 303.768
+      },
+      {
+        "text": "10.",
+        "xMin": 165.563,
+        "yMin": 291.674,
+        "xMax": 187.148,
+        "yMax": 303.768
+      },
+      {
+        "text": "Prelude",
+        "xMin": 108.0,
+        "yMin": 315.674,
+        "xMax": 158.367,
+        "yMax": 327.768
+      },
+      {
+        "text": "11.",
+        "xMin": 165.563,
+        "yMin": 315.674,
+        "xMax": 187.148,
+        "yMax": 327.768
+      },
+      {
+        "text": "Prelude",
+        "xMin": 108.0,
+        "yMin": 339.674,
+        "xMax": 158.367,
+        "yMax": 351.768
+      },
+      {
+        "text": "12.",
+        "xMin": 165.563,
+        "yMin": 339.674,
+        "xMax": 187.148,
+        "yMax": 351.768
+      },
+      {
+        "text": "Prelude",
+        "xMin": 108.0,
+        "yMin": 363.674,
+        "xMax": 158.367,
+        "yMax": 375.768
+      },
+      {
+        "text": "13.",
+        "xMin": 165.563,
+        "yMin": 363.674,
+        "xMax": 187.148,
+        "yMax": 375.768
+      },
+      {
+        "text": "Prelude",
+        "xMin": 108.0,
+        "yMin": 387.674,
+        "xMax": 158.367,
+        "yMax": 399.768
+      },
+      {
+        "text": "14.",
+        "xMin": 165.563,
+        "yMin": 387.674,
+        "xMax": 187.148,
+        "yMax": 399.768
+      },
+      {
+        "text": "Prelude",
+        "xMin": 108.0,
+        "yMin": 411.674,
+        "xMax": 158.367,
+        "yMax": 423.768
+      },
+      {
+        "text": "15.",
+        "xMin": 165.563,
+        "yMin": 411.674,
+        "xMax": 187.148,
+        "yMax": 423.768
+      },
+      {
+        "text": "Prelude",
+        "xMin": 108.0,
+        "yMin": 435.674,
+        "xMax": 158.367,
+        "yMax": 447.768
+      },
+      {
+        "text": "16.",
+        "xMin": 165.563,
+        "yMin": 435.674,
+        "xMax": 187.148,
+        "yMax": 447.768
+      },
+      {
+        "text": "Prelude",
+        "xMin": 108.0,
+        "yMin": 459.674,
+        "xMax": 158.367,
+        "yMax": 471.768
+      },
+      {
+        "text": "17.",
+        "xMin": 165.563,
+        "yMin": 459.674,
+        "xMax": 187.148,
+        "yMax": 471.768
+      },
+      {
+        "text": "Prelude",
+        "xMin": 108.0,
+        "yMin": 483.674,
+        "xMax": 158.367,
+        "yMax": 495.768
+      },
+      {
+        "text": "18.",
+        "xMin": 165.563,
+        "yMin": 483.674,
+        "xMax": 187.148,
+        "yMax": 495.768
+      },
+      {
+        "text": "Prelude",
+        "xMin": 108.0,
+        "yMin": 507.674,
+        "xMax": 158.367,
+        "yMax": 519.768
+      },
+      {
+        "text": "19.",
+        "xMin": 165.563,
+        "yMin": 507.674,
+        "xMax": 187.148,
+        "yMax": 519.768
+      },
+      {
+        "text": "Prelude",
+        "xMin": 108.0,
+        "yMin": 531.674,
+        "xMax": 158.367,
+        "yMax": 543.768
+      },
+      {
+        "text": "20.",
+        "xMin": 165.563,
+        "yMin": 531.674,
+        "xMax": 187.148,
+        "yMax": 543.768
+      },
+      {
+        "text": "Prelude",
+        "xMin": 108.0,
+        "yMin": 555.674,
+        "xMax": 158.367,
+        "yMax": 567.768
+      },
+      {
+        "text": "21.",
+        "xMin": 165.563,
+        "yMin": 555.674,
+        "xMax": 187.148,
+        "yMax": 567.768
+      },
+      {
+        "text": "Prelude",
+        "xMin": 108.0,
+        "yMin": 579.674,
+        "xMax": 158.367,
+        "yMax": 591.768
+      },
+      {
+        "text": "22.",
+        "xMin": 165.563,
+        "yMin": 579.674,
+        "xMax": 187.148,
+        "yMax": 591.768
+      },
+      {
+        "text": "Prelude",
+        "xMin": 108.0,
+        "yMin": 603.674,
+        "xMax": 158.367,
+        "yMax": 615.768
+      },
+      {
+        "text": "23.",
+        "xMin": 165.563,
+        "yMin": 603.674,
+        "xMax": 187.148,
+        "yMax": 615.768
+      },
+      {
+        "text": "Prelude",
+        "xMin": 108.0,
+        "yMin": 627.674,
+        "xMax": 158.367,
+        "yMax": 639.768
+      },
+      {
+        "text": "24.",
+        "xMin": 165.563,
+        "yMin": 627.674,
+        "xMax": 187.148,
+        "yMax": 639.768
+      },
+      {
+        "text": "Prelude",
+        "xMin": 108.0,
+        "yMin": 651.674,
+        "xMax": 158.367,
+        "yMax": 663.768
+      },
+      {
+        "text": "25.",
+        "xMin": 165.563,
+        "yMin": 651.674,
+        "xMax": 187.148,
+        "yMax": 663.768
+      }
+    ],
+    [
+      {
+        "text": "2.",
+        "xMin": 525.609,
+        "yMin": 33.674,
+        "xMax": 540.0,
+        "yMax": 45.768
+      },
+      {
+        "text": "THE",
+        "xMin": 108.0,
+        "yMin": 75.674,
+        "xMax": 129.586,
+        "yMax": 87.768
+      },
+      {
+        "text": "HELD",
+        "xMin": 136.781,
+        "yMin": 75.674,
+        "xMax": 165.563,
+        "yMax": 87.768
+      },
+      {
+        "text": "HEADING",
+        "xMin": 172.758,
+        "yMin": 75.674,
+        "xMax": 223.125,
+        "yMax": 87.768
+      },
+      {
+        "text": "MARA",
+        "xMin": 266.4,
+        "yMin": 99.674,
+        "xMax": 295.181,
+        "yMax": 111.768
+      },
+      {
+        "text": "(quietly)",
+        "xMin": 223.2,
+        "yMin": 111.674,
+        "xMax": 287.958,
+        "yMax": 123.768
+      },
+      {
+        "text": "The",
+        "xMin": 180.0,
+        "yMin": 123.674,
+        "xMax": 201.586,
+        "yMax": 135.768
+      },
+      {
+        "text": "cue",
+        "xMin": 208.781,
+        "yMin": 123.674,
+        "xMax": 230.367,
+        "yMax": 135.768
+      },
+      {
+        "text": "stays",
+        "xMin": 237.563,
+        "yMin": 123.674,
+        "xMax": 273.539,
+        "yMax": 135.768
+      },
+      {
+        "text": "with",
+        "xMin": 280.734,
+        "yMin": 123.674,
+        "xMax": 309.516,
+        "yMax": 135.768
+      },
+      {
+        "text": "these",
+        "xMin": 316.711,
+        "yMin": 123.674,
+        "xMax": 352.688,
+        "yMax": 135.768
+      },
+      {
+        "text": "words.",
+        "xMin": 359.883,
+        "yMin": 123.674,
+        "xMax": 403.055,
+        "yMax": 135.768
+      }
+    ]
+  ],
+  "fonts": [
+    "CourierPrime"
+  ]
+}

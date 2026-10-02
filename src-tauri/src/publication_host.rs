@@ -14,11 +14,11 @@ use std::{
     },
     time::{Duration, Instant},
 };
-const TREE: &str = "7f1fdf6828596d43097816a61cbabc7a638eb4680da3a98b636020a095ad29a0";
+const TREE: &str = "a0c6e39d2b316912f6b96b98fdacb4c2ac667556fb4115482bb7c0b790242d6d";
 const MAX_STDOUT: u64 = 64 * 1024;
 const MAX_PDF: u64 = 256 * 1024 * 1024;
 const MAX_ID: u64 = 9_007_199_254_740_991;
-pub const PROFILE: &str = "screenplain-baseline";
+pub const PROFILE: &str = "us-letter-draft-v1";
 pub const FONT_SET: &str = "courier-prime-screenplain-0.12.0";
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -494,7 +494,7 @@ fn render(
         || result.source_sha256 != request.source_sha256
         || result.source_bytes != source_len
         || result.profile != request.profile
-        || result.profile_frozen
+        || !result.profile_frozen
         || result.source_map != "unsupported"
         || result.page_count == 0
         || !valid_renderer(&result.renderer, &result.fonts)
@@ -521,7 +521,7 @@ fn render(
         artifact: handle,
         page_count: result.page_count,
         profile: result.profile,
-        profile_frozen: false,
+        profile_frozen: true,
         font_set: request.font_set.clone(),
         renderer: result.renderer,
         fonts: result.fonts,
