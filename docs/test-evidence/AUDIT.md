@@ -292,9 +292,11 @@ Completed raw logs are also copied to `target/audit-w0-r1/logs/` for retention.
 - `python3 -m py_compile tests/native/writing-lifecycle/spellcheck_workflows.py` — **pass**; later three-line harness-only protected-close correction is covered by the named real two-filesystem rerun against the unchanged binary; shared app gates were not unnecessarily repeated.
 - Final touched prettier / changed local links (177) / shellcheck / shell syntax / `git diff --check` — **pass**; no author-content fixtures formatted.
 
-Local acceptance complete; actual corrected pushed CI result remains pending.
+Local acceptance complete; actual corrected pushed CI result is recorded below.
 Implementation push is warranted under the owner's recorded origin/main permission.
 C1/F2 unchanged; no
 installed-distribution acceptance or full integrated/native-editor claim.
 
 - Implementation commit `7d45253` pushed to existing `origin/main`; [first corrected CI](https://github.com/phagmaier/Babel/actions/runs/37157414707) **fail** in source-build prerequisite: `groff: fatal error: cannot load 'DESC' description file for device 'html'`, upstream `make enchant.html` exit 2 before Rust gates. Full log `/tmp/babel-w0-r1-ci-source-failure.log` (also retained under `target/audit-w0-r1/logs/`); add exactly `groff` to the runner's apt prerequisites, preserving upstream build/checks.
+- `49129df` groff prerequisite follow-up pushed; `gh run view 37157598075 --json status,conclusion,headSha,url,jobs` / `--log` — [actual corrected CI **pass**](https://github.com/phagmaier/Babel/actions/runs/37157598075), completed success at exact `49129df390d8ad39593dc2d1b152b6676161fb7e`; frontend/core job 105s (frontend 844/844, Rust fmt/core suites), native job 631s (pinned source build/ordinary-PWL control/empty-PWL probe, clippy, PDF helper, native workspace **275/275**, default package build). Full metadata `target/audit-w0-r1/ci-final.json`, raw log `target/audit-w0-r1/logs/ci-final.log`; initial corrected-run metadata `ci-first.json`. Runner is Ubuntu 24.04; no installed/native-UI distribution support claim.
+- Final evidence/handoff-only update: touched prettier, changed local-link checks and `git diff --check` pass; no additional executable change or repeated expensive gate. Implementation/prerequisite commits are pushed; completion evidence is committed locally for review.

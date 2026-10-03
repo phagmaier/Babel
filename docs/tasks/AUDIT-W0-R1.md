@@ -1,9 +1,14 @@
 # AUDIT-W0-R1 — Enchant ABI prerequisite on CI
 
-Status: **in progress**. Base `e284a33`, main. Owner continuation authorizes
+Status: **done**. Base `e284a33`, main. Owner continuation authorizes
 the failed-CI follow-up before AUDIT-C356; no other audit cluster in this task.
 Requirements: QA-01; preserve [ADR 0033](../decisions/0033-production-spellcheck-boundary.md).
 Dependency: [AUDIT-W0](AUDIT-W0.md); original workflow changes are present.
+
+Implementation `7d45253`, CI prerequisite follow-up `49129df`, both pushed.
+[Actual corrected CI](https://github.com/phagmaier/Babel/actions/runs/37157598075)
+passes both jobs including workspace tests and package build.
+[Evidence and retained failures](../test-evidence/AUDIT.md#audit-w0-r1--enchant-ci-abi-prerequisite).
 
 ## Problem and deliverable
 

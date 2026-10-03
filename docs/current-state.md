@@ -1,4 +1,4 @@
-# Current state — AUDIT-W0-R1 in progress; D08A done
+# Current state — AUDIT-W0-R1 done; AUDIT-C356 next
 
 Date: 2026-10-03. Application: **babel**. Main; owner authorized warranted push.
 Current task base `e284a33`, clean main/origin at claim. M0–M5 and bounded M6-01
@@ -7,7 +7,7 @@ operation findings, C1/F2 and Local v1 admission remain open.**
 
 ## Task and work
 
-**AUDIT-W0-R1 claimed** at clean `e284a33`, owner continuation after the pushed
+**AUDIT-W0-R1 done**, base clean `e284a33`, owner continuation after the pushed
 D08A CI failure. [Brief](tasks/AUDIT-W0-R1.md). Deliverable: require Enchant >=2.4,
 provision pinned 2.8.21/Hunspell in CI's temporary prefix, preserve explicit empty
 PWL isolation, and verify the actual workflow. Build script/manifests, CI script
@@ -16,13 +16,13 @@ Checks: old 2.3.3 metadata refusal, real contaminated-profile/empty-PWL controls
 focused native spelling 3/3 and clippy/fmt pass; frontend full rerun 844/844,
 browser pass; workspace 275/275 each tmpfs/Btrfs. Initial frontend focus failure
 retained, focused rerun 4/4. Default release/package and named offline spelling
-drill 2/2 strict pass; actual pushed CI pending. Native harness now performs the
-missing final protected document close; failed launches/manual-input-era
-attempt/Home teardown failures remain in evidence and raw artifacts. No native
-assertion relaxed. Implementation `7d45253` pushed; first corrected CI finds missing
-groff HTML device files during Enchant's manual build. Add the full runner `groff`
-package and verify the next actual run; no app source changed by that follow-up.
+drill 2/2 strict pass. Native harness now performs the missing final protected
+close. Failed launches/interrupted-input-era attempt/Home teardown failures are
+retained; no native assertion relaxed. Implementation `7d45253` and groff
+prerequisite correction `49129df` pushed. [Actual corrected CI green](https://github.com/phagmaier/Babel/actions/runs/37157598075)
+at `49129df`: frontend/core, native workspace 275/275 and package build pass.
 [Evidence](test-evidence/AUDIT.md#audit-w0-r1--enchant-ci-abi-prerequisite).
+Completion evidence/handoff committed locally for review; no further push.
 Stop at W0-R1; C356 remains unstarted.
 
 Prior M6-02 bounded Linux hardening: stage-qualified Save As refusal/identity and
@@ -65,7 +65,7 @@ Paths: `reload.rs`/`reload_store.rs`, source/recovery retry base helper, `reload
 
 ## Next action and blockers
 
-Current task: `AUDIT-W0-R1`, then stop. Next Wave 1 cluster remains `AUDIT-C356` (draft brief first). D-06 remains a later separate brief. Owner permits a warranted push to existing origin/main so CI can run; CI status must be read from its pushed run, never inferred from local results. Capture-failure draft-bundle fallback remains an owner decision (ADR + Tier 3). [M6-02-R1](tasks/M6-02-R1.md) remains behind audit Waves 0–1; C1/F2 unchanged.
+Completed `AUDIT-W0-R1`; stopped here. Next Wave 1 cluster is `AUDIT-C356` (draft brief first). D-06 remains a later separate brief. Owner permits a warranted push to existing origin/main so CI can run; CI status must be read from its pushed run, never inferred from local results. Capture-failure draft-bundle fallback remains an owner decision (ADR + Tier 3). [M6-02-R1](tasks/M6-02-R1.md) remains behind audit Waves 0–1; C1/F2 unchanged.
 
 [Supported-runtime M6-01-R1](tasks/M6-01-R1.md) remains gated by an available
 identified supported correction. C1/F2 release gate C remains open before
