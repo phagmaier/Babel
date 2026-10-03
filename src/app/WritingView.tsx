@@ -120,6 +120,7 @@ import { createFountainImportPanel } from './FountainImportPanel';
 import { useFindSession } from './findSession';
 import { useCheckSession } from './checkSession';
 import { useSpellingSession } from './spellingSession';
+import { useTitleSession } from './titleSession';
 import {
   clampedSelection,
   toSessionSelection,
@@ -204,10 +205,7 @@ export function WritingView({
   const titleDraftRef = useRef(false);
   const titleComposingRef = useRef(false);
   const titleApplyingRef = useRef(false);
-  const [showTitle, setShowTitle] = useState(false);
   const [showCheck, setShowCheck] = useState(false);
-  const titleButtonRef = useRef<HTMLButtonElement | null>(null);
-  const titleReturnFocusRef = useRef(false);
   const importHost = useRef<HTMLDivElement | null>(null);
   const viewRef = useRef<EditorView | null>(null);
   const popupRef = useRef<ReturnType<typeof createCompletionPopup> | null>(
@@ -307,6 +305,9 @@ export function WritingView({
       viewRef,
       popupRef,
     });
+  const { showTitle, titleButtonRef, openTitle, closeTitle } = useTitleSession({
+    popupRef,
+  });
   useEffect(() => {
     if (!previewFocusPending.current || previewState?.enabled) return;
     const button = previewButton.current;
@@ -401,13 +402,6 @@ export function WritingView({
       cancelAnimationFrame(second);
     };
   }, [phase, outline]);
-
-  useEffect(() => {
-    if (!showTitle && titleReturnFocusRef.current) {
-      titleReturnFocusRef.current = false;
-      titleButtonRef.current?.focus();
-    }
-  }, [showTitle]);
 
   useEffect(() => {
     const header = editorHost.current
@@ -1622,8 +1616,7 @@ export function WritingView({
           openSpelling();
           break;
         case 'titlePage':
-          popupRef.current?.controller.dismiss();
-          setShowTitle(true);
+          openTitle();
           break;
         case 'focusMode':
           preferences.update({
@@ -1806,10 +1799,7 @@ export function WritingView({
               refresh();
             }
           }}
-          onClose={() => {
-            titleReturnFocusRef.current = true;
-            setShowTitle(false);
-          }}
+          onClose={closeTitle}
         />
       )}
       {phase === 'active' && (

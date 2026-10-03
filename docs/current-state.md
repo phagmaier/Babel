@@ -42,7 +42,12 @@ focused 41/41, full suite green, native `--spellcheck` drill PASS;
 palette stays for the designed panel-JSX phase. Panel-phase design
 recorded in the brief: title → move → outline/positions → palette
 navigation → preview/export (last, M5-07 focus race), with a permanent
-composition core; no code changed.
+composition core; no code changed. Slice 5 landed: title-page session →
+`useTitleSession` (visibility, button/return-focus refs, return-focus
+effect, open/close pair; shared draft/composing/applying refs stay);
+`WritingView.tsx` 2,157 → 2,148 lines, focused 49/49, full suite green,
+native `--title-page` drill completed all pre-IME actions with exact
+bytes, pinyin IME section blocked (no Fcitx5 on this host).
 [Brief](tasks/DEV-02.md), [evidence](test-evidence/M5.md#dev-02--second-machine-smoothness-tooling-slice).
 Tier 1: `bash -n`/`shellcheck`, doctor/host green, `cargo fmt`/`cargo check
 -p babel-desktop`, `tsc`, one vitest file, `prettier`, `git diff --check`.

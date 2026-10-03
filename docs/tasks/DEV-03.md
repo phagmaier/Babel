@@ -107,6 +107,32 @@ and reran green.
 
 Evidence: [M5](../test-evidence/M5.md#dev-03--writingview-decomposition-slice-4).
 
+## Slice 5 (landed)
+
+Title-page session → `src/app/titleSession.ts` (`useTitleSession`):
+panel visibility, the toolbar button/return-focus refs, the
+return-focus effect and the open/close pair, moved from the inline
+dispatch/panel sites and one component effect (bodies byte-identical).
+The draft/composing/applying refs stay component-owned per the panel
+design: the panel mutates them and the find/check/spelling hooks read
+them. All other reads go through the hook's returned handles (same
+identities). Net component effect: session block gone, one hook call +
+import in its place (`WritingView.tsx` 2,157 → 2,148 lines).
+
+Checks: `tsc` clean (proves the dependency boundary is exact), focused
+suites 49/49 (title-page contract, TitlePagePanel, WritingView incl.
+focus regressions), full `pnpm test` 772/772, `lint`, `typecheck`,
+`build`, `cargo` fmt/clippy/workspace (Rust untouched), `prettier`,
+`git diff --check`. Native `--title-page` drill on a fresh release:
+CSP plus all 28 pre-IME actions (open/edit/add/remove/reorder,
+invalid-input refusal, Undo/Save with exact bytes, panel close with
+return focus, reopen) completed in real WebKit/GTK with no assertion
+failure; the mode PASS line sits past the pinyin IME section, which is
+BLOCKED — `fcitx5-remote` is not installed on this host (next safe
+step: Fcitx5 per DEV-01 IME notes, or run on the laptop).
+
+Evidence: [M5](../test-evidence/M5.md#dev-03--writingview-decomposition-slice-5).
+
 ## Later slices (proposed, not started)
 
 - Feature-hook sections (find/replace/check/spelling/palette) as custom
