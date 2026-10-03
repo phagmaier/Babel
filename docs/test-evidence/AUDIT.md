@@ -337,6 +337,9 @@ native metadata. Frozen audit and all prior failed roots/logs/cores preserved.
 
 - Final `pnpm format:check`, changed-link checker and `git diff --check` — **pass** after completion/handoff; final logs `/tmp/babel-c356-final-format-check.log`, `/tmp/babel-c356-final-links.log`.
 
+- Git boundary — sandbox staging/commit refused `.git/index.lock` (read-only); explicitly authorized unrestricted commit/push succeeded. Implementation `614cb8d` pushed to existing origin/main, clean tree; no force or branch change. CI queries that failed sandbox API access were retried read-only unrestricted.
+- `gh run view 37161598998 --json status,conclusion,headSha,url,jobs` — actual implementation CI **pass** on `614cb8db97a52c6fd324bb8ab03b07904d83afec`, both frontend/core and native-linux workspace/package jobs successful; [run](https://github.com/phagmaier/Babel/actions/runs/37161598998). Documentation-only completion records this actual result; completed expensive local suites were not rerun.
+
 Coverage limits: SELinux names/syscall failures are injected unit evidence; actual
 Arch tmpfs/Btrfs descriptors, ACL/user-xattr refusal and publication safety use
 real syscalls. No enforcing SELinux/Fedora host is available; label transition

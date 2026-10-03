@@ -26,8 +26,10 @@ pass. [Commands, elapsed times, retained red/prerequisite failures and limits](t
 SELinux names/read failures are injected evidence; enforcing SELinux/Fedora
 remains unverified. Native metadata uses real descriptors/files on both
 filesystems; no shared-keyboard GUI drill or native highlight-input claim.
-Completed work is ready for owner-authorized warranted push; pushed CI must be
-read from its actual run. Stop after C356; no Wave 2.
+Implementation `614cb8d` pushed; [actual implementation CI passed](https://github.com/phagmaier/Babel/actions/runs/37161598998)
+(frontend/core and native workspace/package). Completion evidence is a
+documentation-only follow-up; no expensive local suite rerun. Stop after C356;
+no Wave 2.
 
 **AUDIT-W0-R1 done** (`7d45253`, groff prerequisite `49129df`): Enchant >=2.4,
 pinned 2.8.21/Hunspell CI prefix and empty personal-wordlist isolation, native
@@ -79,7 +81,7 @@ acceptance; exact-version retries retain their original recovery base.
 
 ## Next action and blockers
 
-Completed `AUDIT-C356`; stopped at the requested boundary. Wave 2 `AUDIT-TEST` is next in tracker order but remains unstarted; draft its brief only on a later authorized continuation. D-06 remains a later separate brief. Owner permits a warranted push to existing origin/main so CI can run; CI status must be read from its pushed run, never inferred from local results. Capture-failure draft-bundle fallback remains an owner decision (ADR + Tier 3). [M6-02-R1](tasks/M6-02-R1.md) remains behind audit Waves 0–1; C1/F2 unchanged.
+Completed `AUDIT-C356`; stopped at the requested boundary. Wave 2 `AUDIT-TEST` is next in tracker order but remains unstarted; draft its brief only on a later authorized continuation. D-06 remains a later separate brief. Capture-failure draft-bundle fallback remains an owner decision (ADR + Tier 3). [M6-02-R1](tasks/M6-02-R1.md) remains a separate follow-up; C1/F2 unchanged.
 
 [Supported-runtime M6-01-R1](tasks/M6-01-R1.md) remains gated by an available
 identified supported correction. C1/F2 release gate C remains open before
