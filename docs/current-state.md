@@ -19,6 +19,15 @@ measurement (proofs cost 5.3 s; exclusion breaks more than it saves);
 `src/` duplicates audited as clean per-layer splits, no code changed.
 Python lint gate added (`tools/lint-py.sh`, 75 files green); harness
 repackaging deferred until after M6-00.
+
+**DEV-03 WritingView decomposition — slice 1 claimed.** Pure helpers
+(`toSessionSelection`, `writingFailureMessage`, `clampedSelection`) moved
+to `src/app/writingHelpers.ts` with new contract tests; component diff is
+removal + import only (2,483 → 2,438 lines), no behavior change.
+[Brief](tasks/DEV-03.md), [evidence](test-evidence/M5.md#dev-03--writingview-decomposition-slice-1).
+Tier 2: new tests 5/5, `WritingView.test.tsx` 28/28 (focus regressions
+green), full `pnpm test` 772/772, lint/typecheck/build, `cargo`
+fmt/clippy/workspace-test, `prettier`, `git diff --check`.
 [Brief](tasks/DEV-02.md), [evidence](test-evidence/M5.md#dev-02--second-machine-smoothness-tooling-slice).
 Tier 1: `bash -n`/`shellcheck`, doctor/host green, `cargo fmt`/`cargo check
 -p babel-desktop`, `tsc`, one vitest file, `prettier`, `git diff --check`.

@@ -43,7 +43,6 @@ import {
 import { PresentationControls, usePresentation } from './PresentationControls';
 import { TypewriterScroll } from '../editor/presentation';
 import type { EditorView } from 'prosemirror-view';
-import { TextSelection } from 'prosemirror-state';
 import { EditorCaptureBoundary } from '../application/editorCapture';
 import {
   ManuscriptProjectionController,
@@ -125,6 +124,11 @@ import { ProtectedClosePanel } from './ProtectedClosePanel';
 import { RecoveryChoicePanel } from './RecoveryChoicePanel';
 import { SnapshotPanel } from './SnapshotPanel';
 import { createFountainImportPanel } from './FountainImportPanel';
+import {
+  clampedSelection,
+  toSessionSelection,
+  writingFailureMessage,
+} from './writingHelpers';
 import type { CheckpointRequest } from '../application/documents';
 
 import type {
@@ -156,55 +160,6 @@ export type OpenRequest =
       kind: 'recovered';
       selection: import('../application/startupRecovery').RecoverySelection;
     };
-
-function toSessionSelection(view: EditorView): SessionSelection | null {
-  return {
-    anchor: view.state.selection.anchor,
-    head: view.state.selection.head,
-  };
-}
-
-function writingFailureMessage(failure: unknown): string {
-  if (failure instanceof Error) return failure.message;
-  const value = failure as { code?: string; error?: { code?: string } } | null;
-  const code = value?.error?.code ?? value?.code;
-  const messages: Record<string, string> = {
-    checkpointConflict:
-      'Recovery contains a different draft at this version. Your current text stays open; save a copy before retrying.',
-    staleRecoveryVersion:
-      'Recovery holds a newer version. Your current text stays open; refresh the recovery comparison.',
-    recoveryNeedsAttention:
-      'Existing recovery needs review. Your current text stays open; save a copy or review recovery.',
-    invalidDestination:
-      'The selected destination is unavailable or unsafe. Choose another location.',
-    sourceChanged:
-      'The source changed outside this session. Both versions are preserved; save a copy before choosing how to continue.',
-    permissionDenied:
-      'Writing was denied. Your text stays open; choose a writable copy destination.',
-    io: 'The storage operation failed. Your text stays open; retry or save a copy to another location.',
-    historyNeedsAttention:
-      'Local history needs attention. Normal saving and emergency copies remain available.',
-  };
-  return code
-    ? (messages[code] ??
-        `The action could not be confirmed (${code}). Your text stays open.`)
-    : 'The action could not be confirmed. Your text stays open.';
-}
-
-function clampedSelection(
-  doc: import('prosemirror-model').Node,
-  selection: SessionSelection,
-) {
-  const clamp = (position: number) =>
-    TextSelection.near(
-      doc.resolve(Math.max(0, Math.min(position, doc.content.size))),
-    ).from;
-  return TextSelection.create(
-    doc,
-    clamp(selection.anchor),
-    clamp(selection.head),
-  );
-}
 
 export function WritingView({
   ports,
