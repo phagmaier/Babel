@@ -28,8 +28,10 @@ mise exec -- pnpm pdf-helper
 mise exec -- pnpm tauri dev
 ```
 
-`mise.toml` selects the exact Node/pnpm versions locally; `rust-toolchain.toml`
-selects Rust and its format/lint components. No private environment variables,
+`mise.toml` selects the exact Node/pnpm/Rust versions locally; `rust-toolchain.toml`
+pins the same Rust version (with format/lint components) for rustup users outside
+mise. Keep both pins in agreement; mise's `RUSTUP_TOOLCHAIN` takes precedence for
+mise users. No private environment variables,
 credentials or desktop caches need copying. Use the normal persistent Cargo and
 mise caches on an unrestricted laptop; `/tmp` cache overrides above are specific
 to restricted agent runs. `pnpm tauri dev` does not build the renderer, so run
