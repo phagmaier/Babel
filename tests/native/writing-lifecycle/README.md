@@ -8,7 +8,7 @@ no proof feature and build the disposable physical-key helper:
 CARGO_HOME=/tmp/babel-cargo pnpm tauri build --no-bundle
 python3 tests/native/editor-input/build-keyboard.py
 python3 tests/native/writing-lifecycle/drill.py /tmp
-python3 tests/native/writing-lifecycle/drill.py /home/phagmaier/Code/babel/target
+python3 tests/native/writing-lifecycle/drill.py $PWD/target
 ```
 
 The helper's pinned protocol/license and prerequisites are documented in the
@@ -60,7 +60,7 @@ remain separate gates.
 
 M5-06 export-only drills: after a default release build and keyboard-helper build,
 run `python3 tests/native/writing-lifecycle/drill.py /tmp --pdf-export`, then repeat
-with `/home/phagmaier/Code/babel/target`. These use actual WebKit/GTK/native helper
+with `$PWD/target`. These use actual WebKit/GTK/native helper
 and synthetic BOM/CRLF drafts: informed omissions/SC008 refusal, review/picker
 cancellation, capture while typing/Save, preview resumption, verified atomic
 replacement/previous PDF, protected-source/app-data refusal and destination
@@ -193,11 +193,11 @@ After the default release build and keyboard helper above, run sequentially:
 
 ```sh
 python3 tests/native/writing-lifecycle/drill.py /tmp --editor-exit
-python3 tests/native/writing-lifecycle/drill.py /home/phagmaier/Code/babel/target --editor-exit
+python3 tests/native/writing-lifecycle/drill.py $PWD/target --editor-exit
 python3 tests/native/writing-lifecycle/drill.py /tmp --capture-review
-python3 tests/native/writing-lifecycle/drill.py /home/phagmaier/Code/babel/target --capture-review
+python3 tests/native/writing-lifecycle/drill.py $PWD/target --capture-review
 python3 tests/native/writing-lifecycle/drill.py /tmp --latency-review
-python3 tests/native/writing-lifecycle/drill.py /home/phagmaier/Code/babel/target --latency-review
+python3 tests/native/writing-lifecycle/drill.py $PWD/target --latency-review
 ```
 
 For the repository audit corrections, run `--audit-fixes` on both roots before
@@ -253,7 +253,7 @@ Build the default production release as above, then run sequentially:
 
 ```sh
 python3 tests/native/writing-lifecycle/drill.py /tmp --recents
-python3 tests/native/writing-lifecycle/drill.py /home/phagmaier/Code/babel/target --recents
+python3 tests/native/writing-lifecycle/drill.py $PWD/target --recents
 ```
 
 This mode drives the five production recent commands through real WebKit IPC
@@ -274,7 +274,7 @@ and checks idle for the timing observations:
 
 ```sh
 python3 tests/native/writing-lifecycle/drill.py /tmp --home
-python3 tests/native/writing-lifecycle/drill.py /home/phagmaier/Code/babel/target --home
+python3 tests/native/writing-lifecycle/drill.py $PWD/target --home
 ```
 
 `home_workflows.py` drives actual visible Home/writing controls and real GTK
@@ -313,13 +313,13 @@ Typical/stress workloads match the independently authored V8 measurement fixture
 
 ## M4-05 scene/section moves
 
-After the default release build, run `python3 tests/native/writing-lifecycle/drill.py /tmp --scene-moves` and repeat on `/home/phagmaier/Code/babel/target`. `scene_moves.py` uses trusted WebDriver Enter and physical compositor pointer drag and visible Apply/Cancel/Save controls, with DOM-only observations and explicit backward-selection setup. Independent literal BOM/CRLF/EOF bytes/order, caret IDs/offsets, recovery checksums and native safety blobs verify small/large scene and nested-section moves, one-step Undo, immediate Save/reopen, history failure with ordinary Save independent, and refused EOF permutations with retained source review copies. Reports/screenshots/profile/source files remain in the disposable artifact root. No editor-state/native-invoke hook, mock port, personal manuscript, credential or remote operation is used.
+After the default release build, run `python3 tests/native/writing-lifecycle/drill.py /tmp --scene-moves` and repeat on `$PWD/target`. `scene_moves.py` uses trusted WebDriver Enter and physical compositor pointer drag and visible Apply/Cancel/Save controls, with DOM-only observations and explicit backward-selection setup. Independent literal BOM/CRLF/EOF bytes/order, caret IDs/offsets, recovery checksums and native safety blobs verify small/large scene and nested-section moves, one-step Undo, immediate Save/reopen, history failure with ordinary Save independent, and refused EOF permutations with retained source review copies. Reports/screenshots/profile/source files remain in the disposable artifact root. No editor-state/native-invoke hook, mock port, personal manuscript, credential or remote operation is used.
 
 For the M4-05 reference-host drag drill also build `python3 tests/native/editor-completion/build-pointer.py`. Its existing pinned MIT protocol and compiler prerequisites are documented in the [completion guide](../editor-completion/README.md). The disposable helper retains four-argument click behavior and accepts destination x/y as two additional arguments for a physical compositor drag. The runner refuses multiple monitors and coordinates outside the sole owned app. WebDriver-only HTML drag did not deliver dragover/drop, and physical native HTML drags reached trusted target dragover but still delivered no drop. Production outline handles therefore use owned pointer capture; the physical helper verifies trusted pointer-down/up and resulting preview/Apply. No desktop settings or application capability are changed.
 
 ## M4-06 title-page form
 
-After the default embedded release build, run `python3 tests/native/writing-lifecycle/drill.py /tmp --title-page` and repeat on `/home/phagmaier/Code/babel/target`. `title_page.py` drives visible form/Save/snapshot/recovery controls, WebDriver trusted keyboard/pointer and owned compositor pinyin commit/cancel. Enter is sent as a keyboard action between textarea continuation lines because raw newline characters in WebKit's text-entry command are dropped. Independent literal BOM/mixed-ending/EOF/body oracles check no-op, edit/Undo/immediate Save, complete-field add/remove/reorder, refused continuation input, staged Home/restore protection, named restore/reopen, source-divergence refusal/recovery/Save As and read-only bytes. DOM scripts observe or focus controls only; they never invoke native commands or editor-state hooks. Exact-byte reports, actual composition events and app-only screenshots remain in each disposable root. The runner requires uninterrupted desktop use while owned keyboard/IME/pickers are active and restores the prior IME selection.
+After the default embedded release build, run `python3 tests/native/writing-lifecycle/drill.py /tmp --title-page` and repeat on `$PWD/target`. `title_page.py` drives visible form/Save/snapshot/recovery controls, WebDriver trusted keyboard/pointer and owned compositor pinyin commit/cancel. Enter is sent as a keyboard action between textarea continuation lines because raw newline characters in WebKit's text-entry command are dropped. Independent literal BOM/mixed-ending/EOF/body oracles check no-op, edit/Undo/immediate Save, complete-field add/remove/reorder, refused continuation input, staged Home/restore protection, named restore/reopen, source-divergence refusal/recovery/Save As and read-only bytes. DOM scripts observe or focus controls only; they never invoke native commands or editor-state hooks. Exact-byte reports, actual composition events and app-only screenshots remain in each disposable root. The runner requires uninterrupted desktop use while owned keyboard/IME/pickers are active and restores the prior IME selection.
 
 ## M4-07 logical find and hidden navigation
 
@@ -355,7 +355,7 @@ cc -O2 -DVERSION='"0.4 pinned d71be3a"' -I/tmp /tmp/babel-m4-12-wtype.c /tmp/bab
 PATH=/tmp:$PATH unshare --user --map-root-user --net /bin/sh -c 'ip link set lo up && exec python3 tests/native/writing-lifecycle/drill.py /tmp --spellcheck'
 ```
 
-Repeat the final command with `/home/phagmaier/Code/Babel/target` instead of
+Repeat the final command with `$PWD/target` instead of
 `/tmp`. The runner requires only loopback in its private network namespace and
 checks compiled local resource URLs. It uses real default-release controls and
 trusted keyboard activation, with exact independent BOM/CRLF/marks/Unicode
@@ -370,7 +370,7 @@ invoke hooks, mock ports, personal manuscript/dictionary or app runtime network.
 
 Build the default release with the pinned Node/Rust PATH prefixes, `CARGO_HOME=/tmp/babel-cargo XDG_CACHE_HOME=/tmp/babel-cache pnpm tauri build`.
 Run `PATH=/tmp:$PATH python3 tests/native/writing-lifecycle/drill.py /tmp --characters`
-and repeat on `/home/phagmaier/Code/Babel/target`. Existing picker/keyboard/compositor
+and repeat on `$PWD/target`. Existing picker/keyboard/compositor
 prerequisites apply. `python3 -m py_compile tests/native/writing-lifecycle/drill.py tests/native/writing-lifecycle/character_workflows.py` checks syntax.
 
 Synthetic BOM/CRLF/Unicode/emphasis/title/note/omission source exercises actual
@@ -390,7 +390,7 @@ other platforms/screenreaders and long-session certification remain open.
 
 After the default embedded release/package finishes, run
 `PATH=/tmp:$PATH python3 tests/native/writing-lifecycle/drill.py /tmp --commands`
-and repeat on `/home/phagmaier/Code/Babel/target`. Uses existing owned Wayland
+and repeat on `$PWD/target`. Uses existing owned Wayland
 keyboard/wtype helpers, WebKitWebDriver, actual GTK native menus/file pickers and
 disposable BOM/CRLF/Unicode source. File pickers use one confirmation to avoid
 racing teardown into authored Return input. `commands-result.json`, screenshots
@@ -420,7 +420,7 @@ of an inert background; subsequent protection/release uses actual native service
 Build the default release and existing helpers, then run the sequential matrix:
 
 ```sh
-PATH=/tmp:$PATH python3 tests/native/writing-lifecycle/integrated_exit.py /tmp /home/phagmaier/Code/Babel/target --output /tmp/babel-m4-15-native-final
+PATH=/tmp:$PATH python3 tests/native/writing-lifecycle/integrated_exit.py /tmp $PWD/target --output /tmp/babel-m4-15-native-final
 ```
 
 The new output directory retains `results.json` plus each exact mode command/log.
@@ -477,10 +477,10 @@ wrapper, after building/installing the candidate into a private prefix:
 python3 tests/native/writing-lifecycle/isolated_ime.py \
   /tmp/babel-m4-15-fcitx/prefix -- \
   python3 tests/native/writing-lifecycle/stack_probe.py \
-  --prefix /home/phagmaier/Code/Babel/target/m4-15-webkit-candidate-1/prefix \
+  --prefix $PWD/target/m4-15-webkit-candidate-1/prefix \
   --output /tmp/babel-m4-15-candidate-stack-1 -- \
   python3 tests/native/writing-lifecycle/shutdown_isolation.py \
-  /tmp /home/phagmaier/Code/Babel/target --repeats 2 \
+  /tmp $PWD/target --repeats 2 \
   --output /tmp/babel-m4-15-candidate-paired-1
 ```
 
@@ -528,7 +528,7 @@ Run the affected matrix with:
 python3 tests/native/writing-lifecycle/isolated_ime.py \
   /tmp/babel-m4-15-fcitx/prefix -- \
   python3 tests/native/writing-lifecycle/integrated_exit.py \
-  /tmp /home/phagmaier/Code/Babel/target \
+  /tmp $PWD/target \
   --modes outline title-page find presentation editor-exit \
   --output /tmp/babel-m4-15-preedit-native-1
 ```
@@ -563,7 +563,7 @@ After the same default release build and verified IME preparation above:
 python3 tests/native/writing-lifecycle/isolated_ime.py \
   /tmp/babel-m4-15-fcitx/prefix -- \
   python3 tests/native/writing-lifecycle/shutdown_isolation.py \
-  /tmp /home/phagmaier/Code/Babel/target --repeats 2 \
+  /tmp $PWD/target --repeats 2 \
   --output /tmp/babel-m4-15-shutdown-paired-1
 ```
 
@@ -630,7 +630,7 @@ environment variable, run the same binary sequentially (after the paired run):
 python3 tests/native/writing-lifecycle/isolated_ime.py \
   /tmp/babel-m4-15-fcitx/prefix -- \
   python3 tests/native/writing-lifecycle/plain_quit.py \
-  /tmp /home/phagmaier/Code/Babel/target --repeats 4 \
+  /tmp $PWD/target --repeats 4 \
   --output /tmp/babel-m4-15-plain-quit-1
 ```
 

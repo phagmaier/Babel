@@ -10,6 +10,8 @@ Work directly on main; no push. M5-07 remains complete at `bfdbdbb`.
 (native prerequisites, Arch/Ubuntu hints), `tools/clean.sh` (dry-run prune of
 regenerable `target/` roots, cache never touched), plus `VITEST_WORKERS`,
 `CARGO_TARGET_DIR`-aware `build.rs` placeholder and `.env.example`.
+Follow-up sweep replaced 41 hardcoded `/home/phagmaier/Code/...` paths in
+live docs with `$PWD`; evidence logs keep their originals.
 [Brief](tasks/DEV-02.md), [evidence](test-evidence/M5.md#dev-02--second-machine-smoothness-tooling-slice).
 Tier 1: `bash -n`/`shellcheck`, doctor/host green, `cargo fmt`/`cargo check
 -p babel-desktop`, `tsc`, one vitest file, `prettier`, `git diff --check`.

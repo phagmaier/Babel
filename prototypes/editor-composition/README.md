@@ -18,7 +18,7 @@ Seed a new root explicitly (optional argument chooses the reference filesystem):
 
 ```sh
 python3 prototypes/editor-composition/seed.py /tmp
-python3 prototypes/editor-composition/seed.py /home/phagmaier/Code/babel
+python3 prototypes/editor-composition/seed.py $PWD
 ```
 
 Use the printed path, keeping data isolated beneath it:
@@ -49,7 +49,7 @@ manuscripts never use this diagnostic selector.
 ```sh
 pnpm exec vitest run tests/contract/editor-composition.test.ts
 cargo test -p babel-desktop --features editor-composition-proof --locked
-BABEL_COMPOSITION_TEST_ROOT=/home/phagmaier/Code/babel \
+BABEL_COMPOSITION_TEST_ROOT=$PWD \
   cargo test -p babel-desktop --features editor-composition-proof --locked editor_composition_proof
 ```
 

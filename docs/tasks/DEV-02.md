@@ -7,7 +7,20 @@ Owner develops on two Linux/Hyprland machines and switching is painful.
 Make a fresh checkout productive with one command and make local-state costs
 visible, without touching app behavior or milestone gates.
 
-## Landed slice (this commit)
+## Landed slices
+
+Tooling (committed): `tools/doctor.sh`, `tools/check-host.sh`,
+`tools/bootstrap.sh`, `tools/clean.sh`, `VITEST_WORKERS`,
+`CARGO_TARGET_DIR`-aware `build.rs` placeholder, `.env.example`.
+
+Absolute-path sweep (this change): all 41 hardcoded
+`/home/phagmaier/Code/babel` and `/home/phagmaier/Code/Babel` occurrences in
+live instruction docs (`docs/development.md`, the writing-lifecycle drill
+guide, three proof READMEs) now read `$PWD` (commands run from the checkout
+root). Historical `docs/test-evidence/` command logs are intentionally
+untouched — they record what was actually run.
+
+### Tooling detail
 
 - `tools/doctor.sh` — asserts the toolchain pins agree (`mise.toml` vs
   `rust-toolchain.toml` vs `.node-version` vs `package.json`) and that the
@@ -44,17 +57,14 @@ Evidence: [M5](../test-evidence/M5.md#dev-02--second-machine-smoothness-tooling-
 
 1. Second-host acceptance: run `bootstrap.sh` + `doctor.sh` + `check-host.sh`
    on machine 2 and record it. Nothing here is accepted until then.
-2. Absolute-path sweep: ~30 `BABEL_*_TEST_ROOT=/home/phagmaier/Code/babel`
-   references (lowercase) vs real `Code/Babel`; replace with `$PWD/target`
-   or a repo-root variable.
-3. `target/` retention policy: `clean.sh --apply` deliberately NOT run yet —
+2. `target/` retention policy: `clean.sh --apply` deliberately NOT run yet —
    `target/m5-07` and `target/m4-15-*` are linked evidence. Decide what the
    evidence-retention rule is before pruning.
-4. Workspace exclusion for `prototypes/durable-replacement` and
+3. Workspace exclusion for `prototypes/durable-replacement` and
    `prototypes/history-store` (still built by every `--workspace` gate).
-5. `src/` layer duplication audit (9 duplicate basenames across
+4. `src/` layer duplication audit (9 duplicate basenames across
    domain/application/editor/infrastructure) and `WritingView.tsx` split.
-6. Native harness packaging (`tests/native/writing-lifecycle`, ~50 modules)
+5. Native harness packaging (`tests/native/writing-lifecycle`, ~50 modules)
    - Python lint gate; `development.md` split.
 
 ## Excludes

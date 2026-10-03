@@ -8,7 +8,7 @@ saving, account, credential, real remote, or cloud operation is connected.
 
 ```sh
 CARGO_HOME=/tmp/babel-cargo cargo test -p history-store-proof --locked
-BABEL_HISTORY_PROOF_ROOT=/home/phagmaier/Code/babel CARGO_HOME=/tmp/babel-cargo cargo test -p history-store-proof --locked
+BABEL_HISTORY_PROOF_ROOT=$PWD CARGO_HOME=/tmp/babel-cargo cargo test -p history-store-proof --locked
 CARGO_HOME=/tmp/babel-cargo cargo build -p history-store-proof --release --locked
 env PATH=/nonexistent ./target/release/history-store-proof
 ldd target/release/history-store-proof

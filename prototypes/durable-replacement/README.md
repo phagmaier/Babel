@@ -9,7 +9,7 @@ when root bypasses permissions):
 
 ```sh
 CARGO_HOME=/tmp/babel-cargo cargo test -p durable-replacement-proof --locked
-BABEL_PROOF_ROOT=/home/phagmaier/Code/babel CARGO_HOME=/tmp/babel-cargo cargo test -p durable-replacement-proof --locked
+BABEL_PROOF_ROOT=$PWD CARGO_HOME=/tmp/babel-cargo cargo test -p durable-replacement-proof --locked
 ```
 
 The first command uses `/tmp` (tmpfs on the recorded host); the second uses
