@@ -39,7 +39,10 @@ and no blocked sections. Slice 4 landed: spellcheck session →
 `useSpellingSession` (open/close pair from inline sites,
 bodies byte-identical); `WritingView.tsx` 2,158 → 2,157 lines,
 focused 41/41, full suite green, native `--spellcheck` drill PASS;
-palette stays for the designed panel-JSX phase.
+palette stays for the designed panel-JSX phase. Panel-phase design
+recorded in the brief: title → move → outline/positions → palette
+navigation → preview/export (last, M5-07 focus race), with a permanent
+composition core; no code changed.
 [Brief](tasks/DEV-02.md), [evidence](test-evidence/M5.md#dev-02--second-machine-smoothness-tooling-slice).
 Tier 1: `bash -n`/`shellcheck`, doctor/host green, `cargo fmt`/`cargo check
 -p babel-desktop`, `tsc`, one vitest file, `prettier`, `git diff --check`.

@@ -115,6 +115,57 @@ Evidence: [M5](../test-evidence/M5.md#dev-03--writingview-decomposition-slice-4)
 - Panel JSX wiring last — entangled with the most closures; prop-drilling
   surface must be designed, not improvised.
 
+## Panel phase — designed, not started
+
+Slices 1–4 proved the pattern: session hooks own state machines plus
+their effects; the component keeps controller creation/disposal,
+cross-panel coordination and render. What remains in `WritingView.tsx`
+(2,157 lines) falls into extractable sessions plus a permanent
+composition core. Panel JSX itself does not move: every panel's props
+mix hook handles with composition flags (`busy`, `showClose`,
+`operationRef`, `active`), so relocating JSX without its prop surface
+is the improvised step this design exists to prevent.
+
+Shared-ref rule (from slice 3): refs consumed by two or more hooks
+(`viewRef`, `popupRef`, `operationRef`, `frozenRef`, `readyRef`,
+title draft/composing, `showClose`) stay component-owned and pass down
+as hook deps. No hook-to-hook imports — that cycle is what forced
+`closeCheck` to stay composed.
+
+Proposed extraction order, one slice each with the same proof as
+slices 1–4 (`tsc`-exact boundary, focused plus full suite with the
+M5-07 focus regressions green, named native drill):
+
+- Slice 5, title session: `showTitle`, button/return-focus refs, the
+  `[showTitle]` return-focus effect, dispatch open, panel open/close.
+  The draft/composing/applying refs stay component-owned: panel
+  `onDraft`/`onApply` mutate them and the find/check/spelling hooks
+  read them. Drill: `--title-page`.
+- Slice 6, move session: `move`/`moveMessage`/`moveBusy`/abort ref,
+  `previewMove`, async `applyMove`, `MovePreview` wiring. Drill:
+  `--scene-moves`.
+- Slice 7, outline/character/position session: `outline`,
+  `character`/`characterHighlight`, `positions` plus the
+  remember/closing/hint/restore refs and their effects,
+  `onOutlineNavigate`. Boundary with the lifecycle's
+  schedule/dispose-position calls is set at implementation time.
+  Drill: `--outline` (plus `--characters` if selection moves).
+- Slice 8, palette navigation: `paletteNavigation` with `outline`,
+  `viewRef`, a `getFacts` closure dep and `setError`; dispatch switch
+  and `CommandSurface` props stay composed. Drill: `--commands`.
+- Slice 9, preview/export session, explicitly last: the M5-07
+  preview-close focus race lives here, so its regressions gate the
+  move. Drill: `--publication-preview` (plus `--pdf-export` if export
+  state moves).
+
+Permanent composition core (never moves): the session lifecycle
+effect and teardown (one session per mounted view), protection
+wiring (`run`, `requestClose`, `reportOutcome`, snapshot/choice
+ports, close/recovery/snapshot panels), the Escape handler, the
+Fountain import boundary, the three phase branches, toolbar and
+`presentationBlocked`/`modeDisabled`/`checkpoint` memos. New hook
+calls append after the existing session hooks, never conditionally.
+
 ## Excludes
 
 No rendered-output, handler, timing or focus-behavior change. No push.
