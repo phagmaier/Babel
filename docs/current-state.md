@@ -27,7 +27,10 @@ removal + import only (2,483 → 2,438 lines), no behavior change.
 [Brief](tasks/DEV-03.md), [evidence](test-evidence/M5.md#dev-03--writingview-decomposition-slice-1).
 Tier 2: new tests 5/5, `WritingView.test.tsx` 28/28 (focus regressions
 green), full `pnpm test` 772/772, lint/typecheck/build, `cargo`
-fmt/clippy/workspace-test, `prettier`, `git diff --check`.
+fmt/clippy/workspace-test, `prettier`, `git diff --check`. Slice 2 landed:
+find/replace session → `useFindSession` (verbatim move, `tsc`-exact
+boundary); focused 64/64, full suite green, native `--find` drill PASS
+except pinyin IME (no Fcitx5 on this host — blocked, laptop can cover).
 [Brief](tasks/DEV-02.md), [evidence](test-evidence/M5.md#dev-02--second-machine-smoothness-tooling-slice).
 Tier 1: `bash -n`/`shellcheck`, doctor/host green, `cargo fmt`/`cargo check
 -p babel-desktop`, `tsc`, one vitest file, `prettier`, `git diff --check`.

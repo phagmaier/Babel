@@ -18,6 +18,7 @@ Pure helpers `toSessionSelection`, `writingFailureMessage`,
 `tests/contract/writing-helpers.test.ts` (8 failure-code paths incl.
 nested-code precedence, Error passthrough, unknown/missing fallback, live
 selection mapping). `WritingView.tsx` 2,483 → 2,438, removal + import only.
+Slice-1 evidence: [M5](../test-evidence/M5.md#dev-03--writingview-decomposition-slice-1).
 
 Checks: focused new tests (5/5) and `WritingView.test.tsx` (28/28, incl.
 focus regressions), full `pnpm test` 772/772, `lint`, `typecheck`, `build`
@@ -26,7 +27,31 @@ focus regressions), full `pnpm test` 772/772, `lint`, `typecheck`, `build`
 Browser smoke skipped with rationale: no rendered output changed, DOM
 covered by the JSDOM suite.
 
-Evidence: [M5](../test-evidence/M5.md#dev-03--writingview-decomposition-slice-1).
+## Slice 2 (landed)
+
+Find/replace session → `src/app/findSession.ts` (`useFindSession`): the
+controller/scroll/advance refs, panel state, the two `findState` scroll
+effects and all seven session callbacks (`openFind`, `navigateSearch`,
+`closeFind`, `replacePlanCurrent`, `dispatchReplacement`, `replaceOne`,
+`replaceAll`), moved verbatim. The component keeps controller
+creation/disposal, teardown nulls and all other reads through the hook's
+returned handles (same identities). `closeCheck` moved above the hook call
+(definition reorder only; it runs solely on user action). Net component
+effect: session block gone, one hook call + import in its place.
+
+Checks: `tsc` clean (proves the dependency boundary is exact — a missed
+handle is a compile error), focused suites 64/64 (helpers, find/replace
+contracts, FindPanel, WritingView incl. focus regressions), full `pnpm
+test` 772/772, `lint`, `typecheck`, `build`, `cargo` fmt/clippy/workspace
+(Rust untouched), `prettier`, `git diff --check`. Native `--find` drill on
+a fresh release: CSP/shortcuts/hidden/wrap/filters/focus/no-writes and
+Undo/counts/Save PASS in real WebKit/GTK; pinyin section BLOCKED —
+`fcitx5-remote` is not installed on this host (next safe step: Fcitx5 per
+DEV-01 IME notes, or run on the laptop). Runner note: agent shells lack
+`WAYLAND_DISPLAY`/`HYPRLAND_INSTANCE_SIGNATURE`; export `wayland-1` and
+the signature from `/run/user/1000/hypr/` or session creation times out.
+
+Evidence: [M5](../test-evidence/M5.md#dev-03--writingview-decomposition-slice-2).
 
 ## Later slices (proposed, not started)
 
