@@ -1,6 +1,6 @@
 # Dependency-ordered tasks
 
-Authority: [SPEC S02/S03/S16/S18](SPEC.md#s16). `[x]` requires evidence; `[ ]` is open even when files exist. Each task names its gate and planned verification. M1–M4 are decomposed; M5–M7 groups must be decomposed into bounded tasks before implementation. No M1 investigation begins during M0. Evidence lands in `docs/test-evidence/M*.md`, one file per milestone.
+Authority: [SPEC S02/S03/S16/S18](SPEC.md#s16). `[x]` requires evidence; `[ ]` is open even when files exist. Each task names its gate and planned verification. M1–M6 are decomposed; M7 requires bounded decomposition before implementation. No M1 investigation begins during M0. Evidence lands in `docs/test-evidence/M*.md`, one file per milestone.
 
 Open tasks have detailed briefs in `docs/tasks/`. Completed tasks link to evidence.
 
@@ -110,16 +110,50 @@ Prerequisite: [M4 bounded Linux exit](docs/test-evidence/M4.md#continuation-from
 
 - [x] **DEV-03 WritingView decomposition** — Slices 1–9 complete: helpers plus find/check/spelling/title/move/outline/palette/publication sessions; component 2,483 → 1,939 lines. Verbatim bodies and typed boundaries; lifecycle/protection/dispatch/JSX and original focus-effect order stay composed. Shared gates and named native drills pass; slices 8–9 have no blocked sections. [Brief](docs/tasks/DEV-03.md); [evidence](docs/test-evidence/M5.md#dev-03--writingview-decomposition-slice-9).
 
-M5 bounded Linux publication gate complete. Recommended next, when authorized:
-**M6-00** decomposition. Declare Tier 1 targets before M6 implementation; stop at M5 here.
+M5 bounded Linux publication gate and DEV-03 are complete. M6-00 planning is
+complete; implementation and Local v1 admission remain gated.
 
-## M6–M7 — gated task groups (decompose before starting)
+## M6 — local history, hardening and adoption (planned)
 
-Each `M*-G` group requires a prior `M*-00` decomposition with refined requirement trace before implementation. Create M6-00/M7-00 when dependencies near completion. Owner decision required before M6 implementation: declare Tier 1 OS/arch targets and record them in docs/development.md; M1-02 remains the performance hardware baseline.
+- [x] **M6-00 Planning and decomposition** — Documentation acceptance only; [proposal](docs/tasks/M6-00.md), [planning evidence](docs/test-evidence/M6.md#m6-00--decomposition), [trace](docs/requirements.md#m6-decomposition-coverage-planned). No implementation or milestone admission.
+- [ ] **M6-G Local history, hardening, adoption** — Deps: M2 history and M4/M5 bounded gates; M6-01–16 and all Local v1 evidence. Reqs: HIST-01/02, SAVE-04/05, QA-01–03, SEC-01/02, APP-01. Remains open.
 
-Carry [M3 re-review C1](docs/reviews/2026-09-29-m3-13-rereview.md#c1--recurring-webkit-child-heap-abort-at-forced-shutdown) into native hardening before adoption: recurring owned WebKit heap abort during deliberate parent SIGKILL and, per [M4-15 review F2](docs/reviews/2026-10-02-m4-15-post-integration-review.md), after forced WebDriver teardown. Ordinary close is mitigated by ADR 0035; the upstream cause is unresolved. Transitive advisory warnings and full performance/platform gaps remain in that review.
+Owner must declare Tier 1 OS/arch targets in `docs/development.md` before any
+M6 implementation, then authorize implementation. M1-02 remains the performance
+reference. Numeric order prioritizes shutdown/recovery safety, history workflows,
+then performance and installed adoption; exact dependencies and unresolved gates
+are in M6-00. C1/F2 failures remain retained; ordinary-close passes do not resolve
+them. No implementation task below is admitted by this planning commit.
 
-- [ ] **M6-G Local history, hardening, adoption** — Deps: M2 history gate, M4/M5 gates. Reqs: HIST-01/02, SAVE-04/05, QA-01–03, SEC-01/02, APP-01. Read: SPEC S11/S14/S15; docs/testing.md.
+- [ ] **M6-01 Shutdown hardening and retained crash disposition** — Deps: M6-00 and bounded M2/M4/M5 gates; platform/authorization gate P. [Brief](docs/tasks/M6-01.md).
+- [ ] **M6-02 Persistence interruption and restart hardening** — Deps: M6-01; platform/authorization gate P. [Brief](docs/tasks/M6-02.md).
+- [ ] **M6-03 Independent snapshot and retention workflow** — Deps: M6-02; platform/authorization gate P. [Brief](docs/tasks/M6-03.md).
+- [ ] **M6-04 Configured external backup destination** — Deps: M6-03; platform/authorization gate P. [Brief](docs/tasks/M6-04.md).
+- [ ] **M6-05 Bounded native history inspection and selection** — Deps: M6-02/04; platform/authorization gate P. [Brief](docs/tasks/M6-05.md).
+- [ ] **M6-06 Automatic and named local revision cadence** — Deps: M6-05; platform/authorization gate P. [Brief](docs/tasks/M6-06.md).
+- [ ] **M6-07 History timeline preview and readable comparison** — Deps: M6-05/06; platform/authorization gate P. [Brief](docs/tasks/M6-07.md).
+- [ ] **M6-08 Non-destructive historical restore** — Deps: M6-03/06/07; platform/authorization gate P. [Brief](docs/tasks/M6-08.md).
+- [ ] **M6-09 Explicit history corruption recovery** — Deps: M6-05/08; platform/authorization gate P. [Brief](docs/tasks/M6-09.md).
+- [ ] **M6-10 Release security and locked dependency review** — Deps: M6-01/02/09; platform/authorization gate P. [Brief](docs/tasks/M6-10.md).
+- [ ] **M6-11 Full responsiveness and long-session baseline** — Deps: M6-04/06/08/10; platform/authorization gate P. [Brief](docs/tasks/M6-11.md).
+- [ ] **M6-12 Measured responsiveness correction** — Deps: M6-11; platform/authorization gate P. [Brief](docs/tasks/M6-12.md).
+- [ ] **M6-13 Declared-target native and accessibility matrix** — Deps: M6-02/09/10/12; platform/authorization gate P. [Brief](docs/tasks/M6-13.md).
+- [ ] **M6-14 Installed offline package and manual update checks** — Deps: M6-10/13; platform/authorization gate P. [Brief](docs/tasks/M6-14.md).
+- [ ] **M6-15 Disposable migration and independent backup restore** — Deps: M6-04/08/14; platform/authorization gate P. [Brief](docs/tasks/M6-15.md).
+- [ ] **M6-16 Owner writing pilot and Local v1 release review** — Deps: M6-01/02/03/04/05/06/07/08/09/10/11/12/13/14/15; platform/authorization gate P. [Brief](docs/tasks/M6-16.md).
+
+M6-02 needs the M6-01 review artifact; an unresolved C1/F2 release gate may remain
+while independent safety work proceeds. M6-12 requires a measured scope addendum
+before correction; M6-13 needs new bounded briefs for missing target adapters.
+First future agent task: **M6-01**, once P and native prerequisites are satisfied.
+DEV-02 second-host acceptance remains owner-only and outside M6 work.
+
+## M7 — explicit remote extension (gated)
+
+Each `M*-G` group needs an `M*-00` decomposition and refined trace before coding.
+M7 remains unchanged in scope and cannot begin before Local v1 adoption and the
+owner's privacy/destination decision.
+
 - [ ] **M7-G Explicit remote extension** — Deps: M6 local adoption gate and owner privacy/destination decision. Reqs: SYNC-01–05, INV-07/09/15. Read: SPEC S11; docs/sync-and-versioning.md.
 
 ## M8 — optional, separately scoped

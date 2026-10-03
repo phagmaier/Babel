@@ -1,105 +1,76 @@
-# Current state — M5 complete, DEV-03 complete
+# Current state — M6-00 planning complete, implementation gated
 
-Date: 2026-10-02. Application: **babel**. Admission `bfdbdbb` on main.
-Work directly on main; no push. M5-07 remains complete at `bfdbdbb`.
+Date: 2026-10-02. Application: **babel**. Work directly on main; no push.
+Planning base `48ac7fa`, clean main 17 ahead of origin/main. M0–M5 remain
+complete only under their recorded bounded Linux acceptance; M5 admission
+`bfdbdbb` is unchanged. DEV-03 slices 8/9 are `4e18c58`/`48ac7fa`.
 
 ## Task and work
 
-**DEV-02 Second-machine smoothness — tooling slice claimed.** One-command
-`tools/bootstrap.sh`, `tools/doctor.sh` (pin agreement), `tools/check-host.sh`
-(native prerequisites, Arch/Ubuntu hints), `tools/clean.sh` (dry-run prune of
-regenerable `target/` roots, cache never touched), plus `VITEST_WORKERS`,
-`CARGO_TARGET_DIR`-aware `build.rs` placeholder and `.env.example`.
-Follow-up sweep replaced 41 hardcoded `/home/phagmaier/Code/...` paths in
-live docs with `$PWD`; evidence logs keep their originals. Retention policy
-decided and executed: 162 unreferenced run roots pruned (`target/` 31 →
-30 GiB), docs-named evidence kept; two `clean.sh` robustness bugs found and
-fixed by the first real `--apply`. Workspace exclusion rejected by
-measurement (proofs cost 5.3 s; exclusion breaks more than it saves);
-`src/` duplicates audited as clean per-layer splits, no code changed.
-Python lint gate added (`tools/lint-py.sh`, 75 files green); harness
-repackaging deferred until after M6-00.
+**M6-00 — planning/decomposition only.**
+Created [proposal](tasks/M6-00.md) and bounded M6-01–16 briefs, refined the
+[affected requirement trace](requirements.md#m6-decomposition-coverage-planned)
+and [TODO](../TODO.md#m6--local-history-hardening-and-adoption-planned).
+[Planning evidence](test-evidence/M6.md#m6-00--decomposition) records checks,
+base/host, exclusions and review. No implementation, source/config/dependency,
+fixture, SPEC or ADR change; no development-doc split/harness repackaging.
 
-**DEV-03 WritingView decomposition — complete, slices 1–9 landed.**
-Helpers and find/check/spelling/title/move/outline/palette/publication sessions
-are extracted; `WritingView.tsx` 2,483 → 1,939 lines. Slice 8 (`4e18c58`)
-moved palette navigation; slice 9 moves preview/export state/refs and
-focus/open/close/dismiss bodies to `src/app/publicationSession.ts`
-(`usePublicationSession`). Original no-deps focus-effect registration stays
-in place and calls the moved body synchronously; effect order, M5-07 toolbar
-wait/newer-focus refusal and stable lifecycle handles remain exact.
-Controllers/lifecycle/dispatch/protection/JSX stay composed. No behavior change.
-Slice 9 strict TypeScript, focused 82/82 (both M5-07 focus regressions), full
-772/772, shared frontend/Rust and final formatting/link/diff checks pass.
-Fresh-release native `--publication-preview` and `--pdf-export` pass on tmpfs,
-including the held-real-Save-receipt focus race, exact bytes and refusal/
-cancellation paths. Ordinary close completed before stale-session deletion
-in both; no matching driver crash/error lines and no blocked sections.
-Helper tree unchanged (`c805d6…`); existing M6 performance limits remain.
-Commands/timings, paths and omissions: [brief](tasks/DEV-03.md),
-[evidence](test-evidence/M5.md#dev-03--writingview-decomposition-slice-9).
-DEV-02 tooling is landed; second-host acceptance is owner-only.
-[DEV-02 brief](tasks/DEV-02.md),
-[evidence](test-evidence/M5.md#dev-02--second-machine-smoothness-tooling-slice).
+Numeric execution order:
 
-**M5-07 Integrated publication exit and separate review — complete, bounded
-Linux gate.** The integrated native scenario compares preview/export from the
-same protected version: source/profile/font identities, actual pages, Poppler
-word boxes and full page rasters. It then runs real GTK cancellation, protected
-atomic replacement, source/app-data refusal, permission/glyph failures, typing/
-Save, latest preview resumption and delayed actual native replies. Exact
-BOM/CRLF source bytes remain preserved. No renderer/font/profile change.
+1. M6-01 shutdown/C1/F2 disposition; M6-02 persistence fault/kill/restart.
+2. M6-03 independent snapshots/retention; M6-04 configured external backup.
+3. M6-05 history read IPC; M6-06 cadence/named revisions; M6-07 timeline/diff;
+   M6-08 protected new-child restore; M6-09 explicit corruption recovery.
+4. M6-10 release security/advisory/license/runtime-trust review.
+5. M6-11 full performance/long-session measurement; M6-12 one measured fix
+   after a scope addendum (or reviewed no-change result if all budgets pass).
+6. M6-13 declared-target native/accessibility matrix; M6-14 actual installed
+   offline/manual-update checks; M6-15 disposable migration/backup restore.
+7. M6-16 owner writing pilot, final evidence and separate release review.
 
-Review found and corrected a preview-close focus race during Save: focus now
-waits for the toolbar's enabled DOM commit and respects a newer writer choice.
-Two UI regressions and a native held-real-Save-receipt oracle verify it.
-The full frozen corpus retains all 22 accepted goldens. Poppler/Ghostscript
-layout/text/font/raster and visual reviews pass; no golden adopted or rewritten.
+Actual dependencies, focused/shared tests, planned named native drills,
+filesystem/platform coverage and exclusions live in each brief. Missing target
+adapters or further measured fixes need bounded follow-up briefs before coding.
+No concurrency, M6 admission/tagging or M7 work is authorized by this plan.
 
-The rebuilt AppImage's extracted AppRun passes the full scenario offline on
-both tmpfs/Btrfs with home/temp toolchains hidden and system Python masked.
-App/driver share only loopback; namespace/route and runtime witnesses pass.
-Continuous descendant ledgers and bounded crash-journal scans pass ordinary
-window close before stale-session teardown, with no observed crashes/survivors.
-Initial invalid-isolation JSC/GTK crashes and focus/cancellation failures remain
-retained; no crash filtering, sandbox bypass or system policy change.
+## Checks and retained limits
 
-Paths: `src/app/WritingView.tsx`, UI focus regressions; native
-`publication_exit.py`, `offline_publication.py` and existing lifecycle/preview/
-export runners; `tools/pdf-helper/audit_viewers.py`; publication contract,
-trace, task/evidence and separate review docs.
-[Brief](tasks/M5-07.md), [contract](pdf-and-formatting.md#authoritative-preview-m5-05),
-[review](reviews/2026-10-02-m5-07-publication-review.md),
-[evidence](test-evidence/M5.md#m5-07--integrated-publication-exit-and-separate-review).
+M6-00 Tier 1: formatting, changed local links/anchors, task/trace/dependency
+and boundary audit, review of every diff, final `git diff --check`.
+Results/commands: [M6 evidence](test-evidence/M6.md#m6-00--decomposition).
+No executable checks required or newly claimed for docs-only planning.
 
-## Checks and limits
+Last verified DEV-03 state remains historical: 772/772 frontend tests,
+lint/typecheck/build, Rust fmt/clippy/workspace, formatting/link/diff checks,
+and native commands/publication-preview/pdf-export. This planning commit
+changes no executable behavior and does not refresh runtime acceptance.
 
-`pnpm check` passes 767 frontend tests plus formatting/lint/typecheck/build.
-Rust fmt/clippy and all 257 unchanged Rust tests pass on tmpfs/Btrfs; browser
-smoke passes. Final default release/AppImage build passes. Native offline
-package gates pass in 105.681/115.413 s; full corpus/two-viewer checks and
-package runtime identity verifier pass. Syntax, final formatting/local links
-and `git diff --check` are recorded in the linked evidence. Detailed logs,
-commands, roots and final binary/package hashes live in `target/m5-07/`.
+Owner Tier 1 OS/arch targets are **undeclared**. SPEC S01.2 and TODO require
+that decision, recorded in `docs/development.md`, before M6 implementation;
+subsequent implementation authorization is also required. The plan does not
+invent targets or change development.md. M1-02 is the performance hardware
+reference; later i5-host/rAF/row observations do not establish full S13.
 
-Actual test host: Linux 7.2.7-arch1-1, Intel i5-9400, about 11.5 GiB RAM,
-GTK 3.24.52/WebKitGTK 2.52.6. This differs from the prior laptop; no cross-host
-performance claim. The unchanged 2,400-row/120-trusted-key workload preserves
-exact source and produces 89 actual preview pages at version 122. rAF proxy
-p95 60/59 ms exceeds the 50 ms target; full compositor/S13/long-session/scaling
-work remains M6. No full performance acceptance.
+C1 deliberate parent-kill and F2 forced-WebDriver teardown heap aborts remain
+retained. Ordinary-close mitigation (ADR 0035) and later clean publication
+exits do not resolve them. M6-01/02 own current phase/core/byte audits and
+supported correction/disposition; unresolved release gates remain explicit.
+No failure evidence is removed and no crash line is filtered.
 
-M5 is accepted only for this bounded Linux publication gate. Other platforms,
-Tier 1 declaration, FUSE/desktop registration and installed adoption, A4,
-editor page markers, full transitive notices/runtime trust, retention UX,
-broader interruption/power loss, backup/migration and Local v1 remain open.
-Existing M4 C1/F2 forced-kill/automation-shutdown hardening remains M6.
-No real manuscript, credentials or upload; no push. This slice began with a
-clean tree at `4e18c58`; `mise.toml` and `docs/development.md` are untouched.
+Full S13 compositor/page-calibrated/long-session evidence, current fault/
+restore/repair matrix, transitive notices/advisories/runtime trust, declared
+native/screenreader/platform adapters, FUSE/desktop/installed/offline/update
+checks, owner-authorized migration exports/independent backup restore and owner
+pilot remain open.
+A4/editor page markers remain outside this plan. Same filesystem/different
+device does not prove independent physical storage. No universal power-loss
+claim. No real manuscript, credentials, uploads or system/global changes.
+DEV-02 tooling is complete; second-host acceptance is owner-only and excluded.
 
 ## Next action
 
-STOP: DEV-03 is complete. The authorized slices 8–9 are finished; no other
-track started. DEV-02 second-host acceptance remains owner-only. Production
-work stops at M5; M6-00, development-doc splitting and harness repackaging
-remain outside this task and need their separate decisions/authorization.
+STOP after the M6-00 planning commit. All M6 implementation tasks and M6-G
+remain unchecked; Local v1 admission stays open. First future agent-executable
+task is [M6-01](tasks/M6-01.md), once owner platform declaration, subsequent
+implementation assignment and native prerequisites are satisfied. Begin with
+current production shutdown/recovery audit; do not start history UI first.
