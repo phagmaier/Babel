@@ -202,3 +202,5 @@ read-only drills supplement the existing adapter matrix.
 No new receipt/format/capability/adapter policy or universal storage claim.
 M6-01 Save As/IME operation findings, C1/F2 and Local v1 admission remain open;
 this additional coverage does not replace those requirements' final acceptance.
+
+AUDIT-D01 → EDIT-02/03/05: separator Enter, speech continuation, hard-break and explicit dual-toggle codec wiring; [evidence](test-evidence/AUDIT.md#audit-d01--portable-enter-separators-and-explicit-speechbreak-authoring) is mocked/JSDOM plus browser smoke. D-07 retains the independent native scene/PDF oracle; historical native gates are unchanged.

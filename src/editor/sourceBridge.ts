@@ -4,6 +4,8 @@ import {
   FountainEditError,
   replaceKnownSourceContext,
   replaceLines,
+  replaceLineWithBreaks,
+  setDualDialogue,
   serializeFountain,
 } from '../domain/fountainCodec';
 import { richView, sourceForInline } from '../domain/fountainInline';
@@ -295,6 +297,25 @@ export function captureEditor(
         newEnd--;
       }
       if (from === oldEnd && newFrom === newEnd) continue;
+      // A same-kind continuation inserted after an unchanged row still owns
+      // that row's break boundary; use the checked break primitive below.
+      if (
+        from === oldEnd &&
+        newFrom < newEnd &&
+        from > lower.old + 1 &&
+        ['action', 'dialogue'].includes(rows[newFrom - 1]!.type.name) &&
+        rows
+          .slice(newFrom, newEnd)
+          .every(
+            (node) =>
+              node.type === rows[newFrom - 1]!.type &&
+              node.textContent &&
+              node.attrs.speechOf === rows[newFrom - 1]!.attrs.speechOf,
+          )
+      ) {
+        from--;
+        newFrom--;
+      }
       if (
         from === base.lines.length &&
         from > lower.old + 1 &&
@@ -309,15 +330,25 @@ export function captureEditor(
           document.lines.map((line) => [line.id, line]),
         );
         try {
-          document = replaceLines(
-            document,
-            from,
-            oldEnd - from,
-            changed.map((node) =>
-              editForNode(node, priorById.get(String(node.attrs.id))),
-            ),
-            changed.map((node) => String(node.attrs.id)),
+          const edits = changed.map((node) =>
+            editForNode(node, priorById.get(String(node.attrs.id))),
           );
+          const ids = changed.map((node) => String(node.attrs.id));
+          const prior = document.lines[from];
+          const breaks =
+            oldEnd - from === 1 &&
+            changed.length > 1 &&
+            prior &&
+            ['action', 'dialogue'].includes(prior.kind) &&
+            edits.every((edit) => edit.kind === prior.kind);
+          document = breaks
+            ? replaceLineWithBreaks(
+                document,
+                from,
+                edits.map((edit) => edit.text),
+                ids,
+              )
+            : replaceLines(document, from, oldEnd - from, edits, ids);
           break;
         } catch (error) {
           if (
@@ -399,6 +430,16 @@ export function captureEditor(
       }
       while (at < edits.length && edits[at]!.index <= to) at++;
     }
+  }
+  // Relationship changes originate only in an explicit live cue command.
+  for (const [index, node] of state.doc.content.content.entries()) {
+    if (node.type.name !== 'character') continue;
+    const line = document.lines[index];
+    if (!line) continue; // An empty virtual cue has no portable source row yet.
+    const priorTarget = document.lines[line.dualWith ?? -1]?.id ?? null;
+    const target = node.attrs.dualWith as string | null;
+    if (target !== priorTarget)
+      document = setDualDialogue(document, line.id, target);
   }
   const bytes = serializeFountain(document);
   return captureEnvelope(state, {

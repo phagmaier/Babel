@@ -112,6 +112,14 @@
     "group": "Edit"
   },
   {
+    "id": "dialogue.dual",
+    "label": "Toggle dual dialogue",
+    "scope": "editor",
+    "binding": null,
+    "unavailable": null,
+    "group": "Edit"
+  },
+  {
     "id": "undo",
     "label": "Undo",
     "scope": "editor",

@@ -1632,6 +1632,7 @@ export function replaceLineWithBreaks(
   document: FountainDocument,
   index: number,
   texts: readonly string[],
+  retainedIds?: readonly string[],
 ): FountainDocument {
   const prior = document.lines[index];
   if (
@@ -1649,5 +1650,5 @@ export function replaceLineWithBreaks(
     text: prior.kind === 'dialogue' && text === '' ? '  ' : text,
     actionSubtype: prior.actionSubtype,
   }));
-  return replaceLines(document, index, 1, edits);
+  return replaceLines(document, index, 1, edits, retainedIds);
 }

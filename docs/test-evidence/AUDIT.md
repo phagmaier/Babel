@@ -121,3 +121,58 @@ Tier 3 (`source_store.rs` is a filesystem-matrix path). Logs and JSON reports: `
 - No drill asserts the end-to-end case (a real click in the WebView leaves inode and mtime unchanged). The no-rewrite proof is the Rust tests on real files on both filesystems plus the MockRuntime IPC test; the drills show ordinary save, recovery, snapshot and divergence paths still pass on the new build.
 - The intermittent Btrfs publication-cache failure is retained as an open observation, not explained.
 - The status line still changes on every caret move (D-06, ordered after this brief). `prime()` still starts the dirty clock at open (optional in the audit; not done).
+
+## AUDIT-D01 — portable Enter separators and explicit speech/break authoring
+
+Date: 2026-10-03. Base `bc1476e`, clean main at claim; no push. [Brief](../tasks/AUDIT-D01.md). Same pinned toolchains as above. Tier 2, frontend-only; no filesystem/IPC/packaging changes, no second-filesystem matrix or native WebView drill. Browser smoke required; native Rust gates exercise existing services, not editor input. D-07's independent renderer/native scene oracle remains separate.
+
+### Checks
+
+- `pnpm exec vitest run tests/contract/editor-d01.test.ts tests/contract/editor-unforced.test.ts tests/ui/EditorControls.test.tsx --reporter=verbose --silent=false` — mocked/JSDOM, **red before fix**, 19 failed / 41 passed; missing separators/continuation, hard-break and dual commands/controls, newly included speech property cases; `/tmp/babel-audit-d01-red.log`.
+
+- First implementation rerun of the same red command — mocked/JSDOM, fail 4 / pass 56; break-call insertion ownership missing, new dual test incorrectly held absolute byte offset constant, and two old Enter byte pins need approved separator changes; `/tmp/babel-audit-d01-first.log`.
+- Deliberate expectations: `editor-keys` new Action caret moves past a separator (Shot likewise); hard-break refusal now tests unsupported Scene Heading, retaining refusal coverage; C01 heading/transition Enter pins gain separators and retain unforced spelling because grammar context no longer drifts. New dual test keeps logical selection and expects absolute byte anchors to advance by the inserted three marker bytes.
+
+- `pnpm typecheck` first implementation — static, pass; `/tmp/babel-audit-d01-type-first.log`.
+- Brief's 8-file focused run — mocked/JSDOM, fail 6 / pass 254; remaining old Enter index/byte/count pins, new unsupported-break test selected its leading blank, and a broad test-text substitution accidentally changed one unrelated transition-blank pin (restored); `/tmp/babel-audit-d01-focused.log`.
+- Deliberate expectations: page-break/EOF append and composition-boundary tests gain the separator row; protected-neighbour regression moves the later typing target by one row and retains its exact protected bytes. Enter-table length checks strengthened to literal source bytes.
+
+- Focused 8-file rerun — mocked/JSDOM, pass 260/260; `/tmp/babel-audit-d01-focused2.log`.
+- `pnpm test` first shared run — mocked/JSDOM, pass 833/833 (34.32s); `/tmp/babel-audit-d01-shared-first.log`.
+- Added edge regressions `pnpm exec vitest run tests/contract/editor-d01.test.ts --reporter=verbose --silent=false` — mocked/JSDOM, red 2 / pass 20: new capture postpass dereferenced a source-less virtual cue; remap test omitted storage and correctly refused to persist preferences; `/tmp/babel-audit-d01-edge-red.log` (guard added, test supplies storage).
+- `cargo test --workspace --locked --offline` (Rust pin/cache above) — native files + MockRuntime, fail (57.24s log interval) at existing `source_acl_and_extended_attributes_are_rejected_without_silent_metadata_loss`: POSIX ACL fixture `fsetxattr` returns EINVAL in sandbox; `/tmp/babel-audit-d01-rust.log`.
+- Same Rust command approved outside sandbox — native tmpfs files + MockRuntime, pass 268/268 (41.77s from fresh log birth-to-final-write timestamps); `/tmp/babel-audit-d01-rust-unrestricted.log`; no persistence code or test changed.
+- `cargo fmt --all -- --check` — static, pass; `/tmp/babel-audit-d01-fmt.log`.
+- `cargo clippy --workspace --all-targets --locked --offline -- -D warnings` — static/native compilation, pass; `/tmp/babel-audit-d01-clippy.log`.
+- `pnpm lint` — static, pass; `/tmp/babel-audit-d01-lint.log`.
+- `pnpm build` — frontend build, pass (existing >500 kB chunk advisory); `/tmp/babel-audit-d01-build.log`.
+- `pnpm test:browser` restricted run — browser, fail before Chromium: local Vite server exits 1; `/tmp/babel-audit-d01-browser.log`; unrestricted retry approval interrupted by accidental owner denial, owner then explicitly resumed with unrestricted environment.
+
+- Final focused 8-file command from the brief (`--reporter=verbose --silent=false`) — mocked/JSDOM, pass 262/262; `/tmp/babel-audit-d01-focused-final.log`.
+- Final `pnpm test` — mocked/JSDOM, pass 835/835 (35.35s); `/tmp/babel-audit-d01-shared-final.log`.
+- Final `pnpm lint` — static, pass; `/tmp/babel-audit-d01-lint-final.log`.
+- Final `pnpm typecheck` — static, pass; `/tmp/babel-audit-d01-type-final.log`.
+- Final `pnpm build` — frontend build, pass (same chunk-size advisory); `/tmp/babel-audit-d01-build-final.log`.
+- `pnpm test:browser` unrestricted rerun — Chromium/browser + bundled offline helper, pass; `/tmp/babel-audit-d01-browser-unrestricted.log`; generic Home/viewer smoke, not D01 native writing/renderer acceptance.
+
+### Behavior and limits
+
+- SPEC S07.2 now explicitly describes the separator/caret and continuing-speech exception; its resulting element kinds stay unchanged, and table/source/caret/Undo tests changed together. Owning editor behavior and EDIT-02/03/05 correction mapping updated; frozen `AUDIT.md` unchanged.
+- S-08 keep-set calls run at deferred capture, not on keys; tests spy on actual codec calls, preserve logical selection/marks/IDs and CRLF neighbour bytes, verify Undo/Redo and visible/remapped dual routing. The missing virtual-cue guard was found and corrected before completion.
+- C01's mid-speech Enter exclusion removed; its independent dual-regroup/protected-neighbour exclusions remain. Other unsupported splits, whole-speech/select-all operations, inline-note authoring, schema rewrite and draft-bundle fallback remain outside this brief; D-07 still owns an independent Screenplain/PDF/native scene oracle.
+- Recorded Btrfs cache issue remains untouched (no matrix run here); CI/Hunspell and native-click verification remain unrun/unverified. No unrelated finding fixed. Native editor input cases covering Character continuation/middle splits remain unchanged and were not rerun.
+
+- Final-review Shot assertion `pnpm exec vitest run tests/contract/editor-keys.test.ts -t 'explicit Shot' --reporter=verbose --silent=false` — mocked/JSDOM, red 1/1 (33 skipped): new separator incorrectly inherited Shot metadata; `/tmp/babel-audit-d01-shot-red.log`; separator now clears subtype, authored Shot retained.
+- `prettier --check` touched files — static, pass; `/tmp/babel-audit-d01-prettier.log`.
+- `python3 tools/check-links.py` — static, pass 246 changed links; `/tmp/babel-audit-d01-links.log`.
+- `sh tools/lint-py.sh` — static, pass 80 files; `/tmp/babel-audit-d01-python.log`.
+- `git diff --check` — static, pass before final-review Shot correction; final check follows.
+
+- Post-Shot focused 8-file rerun — mocked/JSDOM, pass 262/262 (13.75s); `/tmp/babel-audit-d01-focused-shot.log`.
+- Post-Shot `pnpm test` — mocked/JSDOM, pass 835/835 (36.18s); `/tmp/babel-audit-d01-shared-shot.log`.
+- Post-Shot `pnpm lint` — static, pass; `/tmp/babel-audit-d01-lint-shot.log`.
+- Post-Shot `pnpm build` (includes `tsc --noEmit`) — static/frontend build, pass; `/tmp/babel-audit-d01-build-shot.log`.
+- Final touched-file `prettier --check` — static, pass; `/tmp/babel-audit-d01-final-prettier.log`.
+- Final `python3 tools/check-links.py` — static, pass 245 changed links; `/tmp/babel-audit-d01-final-links.log`.
+- Final `sh tools/lint-py.sh` — static, pass 80 files; `/tmp/babel-audit-d01-final-python.log`.
+- Final `git diff --check` — static, pass; frozen `AUDIT.md` diff empty; handoff 85 lines / 7,265 bytes.

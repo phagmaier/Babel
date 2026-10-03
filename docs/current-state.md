@@ -1,4 +1,4 @@
-# Current state — AUDIT-W0/C01/C04 done; M6-02 disposition open
+# Current state — AUDIT-D01 done; M6-02 disposition open
 
 Date: 2026-10-03. Application: **babel**. Main; no push/tag/branch.
 Base `ccf9fb5`, clean main/19 ahead at claim. M0–M5 and bounded M6-01
@@ -57,23 +57,25 @@ IME readiness were not reproduced in stronger-oracle samples; causes stay open.
 
 ## Docs maintenance (2026-10-03, Tier 1, no behavior change)
 
-Owner-authorized repo-debloat pass; `AUDIT.md` untouched. `TODO.md` 167→~60 lines (completed M0–M6-01 frozen to summary, all evidence links kept; open M6-02–16/M6-G/DEV-02/M7-G/M8 intact). `docs/index.md` demoted to stub pointing at `map.md`. Applied AUDIT S-14 stale one-liners (README status, `BOOTSTRAP_PROMPT.md` refs in AGENTS/SPEC S17.1/`.prettierignore`, `index.html` title, development/testing status to M6, `map.md` prototypes row, `.env.example` load note). Tracked `tools/check-links.py` (changed-scope link gate) and `tools/run-workspace-matrix.py` (16-selector canonical matrix, incl. `BABEL_OPEN/M2_EXIT_TEST_ROOT`); `tools/clean.sh --apply` pruned unreferenced run roots (target 31→30 GiB, evidence/caches kept).
-
-Checks (Tier 1; docs-only, no Tier 2/3 matrix): `prettier --check` touched files pass; `python3 tools/check-links.py` 172/172 changed links pass (`--all` shows only 5 known frozen M4.md `../src/...` links, intentionally untouched); `git diff --check` pass; `sh tools/lint-py.sh` 78 files compile. Next agent-executable task unchanged: [M6-02-R1](tasks/M6-02-R1.md).
+Owner-authorized Tier 1 debloat (`433c150`): tracker collapse, index stub, stale S-14 refs and tracked link/matrix tools; frozen audit/evidence retained. Formatting, 172 changed links, Python compilation and diff passed; five frozen M4 links remain intentionally untouched. Details are committed; no behavior gate credited.
 
 ## Audit execution (2026-10-03, `AUDIT.md` frozen)
 
-Tracker: `TODO.md` `## Audit execution`; evidence: [`docs/test-evidence/AUDIT.md`](test-evidence/AUDIT.md).
+Tracker: `TODO.md` `## Audit execution`; [audit evidence](test-evidence/AUDIT.md).
 
-[AUDIT-W0](tasks/AUDIT-W0.md) done (`004bd6d`): `check.yml` gains `libenchant-2-dev` and `pnpm pdf-helper`; desktop crate is `rlib` only; S-13 dead symbols removed or deduplicated; `inspect_local_recovery` is `#[cfg(test)]`. Tier 2 pass. **CI not run** — the workflow is the gate at the next owner-authorized push; Hunspell dictionary on the runner unverified.
+[AUDIT-W0](tasks/AUDIT-W0.md) done (`004bd6d`): CI dependencies/helper, rlib-only desktop and S-13 cleanup. Local Tier 2 pass; **CI unrun**, Hunspell dictionary on runner unverified until owner-authorized push.
 
-[AUDIT-C01](tasks/AUDIT-C01.md) done (C-01, C-02, T-01; frontend only): deferred capture now owns a drifting unforced neighbour and inserts only its forcing marker; Enter at the start of a speech row and joins that strand text after a parenthetical refuse; a split heading's tail becomes Action; typed edge whitespace in emphasis is captured unstyled; the capture alert clears on the next good capture. Paths: `fountainCodec.ts`, `fountainInline.ts`, `sourceBridge.ts`, `commands.ts`, `WritingView.tsx`, new `tests/contract/editor-unforced.test.ts`, `docs/editor-behavior.md`. Checks: frontend 813/813 (39 new, red before the fix), lint/typecheck/build; Rust fmt/clippy, workspace 265/265; prettier, links, `git diff --check`. **Mocked/JSDOM only — no native WebView run.** Remaining uncapturable shapes (mid-speech Enter then typing, dual regrouping, edits beside protected rows) and the unbuilt draft-bundle fallback are listed in the evidence.
+[AUDIT-C01](tasks/AUDIT-C01.md) done (`fe103bf`): unforced-neighbour capture, split/join refusals and edge-space emphasis. Tier 2, mocked/JSDOM only. D01 now covers its mid-speech Enter exclusion; arbitrary dual regroup/protected-neighbour shapes and the draft-bundle fallback remain outside that fix.
 
-[AUDIT-C04](tasks/AUDIT-C04.md) done (C-04; native): `source_store.rs` acknowledges a later version whose bytes equal the source with a fresh flush and an unchanged-fingerprint `sourceFile` receipt instead of a replacement, so caret pauses no longer rewrite the file or clobber `previous`. One deliberate expectation change in `tests/source_save.rs` (no-op save now publishes no transaction). Checks: Tier 3 — tmpfs/Btrfs matrix 268/268 each, browser smoke, release build, native lifecycle drill 7/7 on tmpfs and Btrfs, shared frontend/Rust gates. Retained: one Btrfs `publication_cache_lease_restart…` `CacheUnavailable` failure, not reproduced in 7 reruns, cause unknown; no drill asserts the WebView click case end to end.
+[AUDIT-C04](tasks/AUDIT-C04.md) done (`bc1476e`): identical-byte source save acknowledges without replacement. Tier 3 matrix 268/268 each and lifecycle drill 7/7 each tmpfs/Btrfs. Retained: one Btrfs publication-cache `CacheUnavailable` failure, not reproduced in 7 reruns, cause unknown; no native drill asserts WebView click end to end.
+
+[AUDIT-D01](tasks/AUDIT-D01.md) done (base `bc1476e`, main, no push): Enter inserts a physical separator when starting Action; within continuing speech it inserts attached Dialogue. Boundary Backspace/Delete reverses empty paragraph creation or joins two Action paragraphs. Shift+Enter splits proven Action/Dialogue rows; explicit remappable Toggle dual dialogue pairs/unpairs adjacent complete speeches. Deferred capture wires `replaceLineWithBreaks` (retained IDs) and `setDualDialogue`; empty virtual cues stay capturable. Existing row schema/native formats unchanged.
+
+Paths: `commands.ts`, `sourceBridge.ts`, `shortcuts.ts`, `fountainCodec.ts`, `commandCatalog.json`, `editor-d01.test.ts` and existing key/unforced/controls tests. SPEC S07.2 clarifies separators and continuing speech, with matching tests; no transition-table kind change. Owning editor doc and scoped requirement mapping updated. Tests written/red before fix; C01 speech exclusion removed. [Checks/failures/expectation reasons](test-evidence/AUDIT.md#audit-d01--portable-enter-separators-and-explicit-speechbreak-authoring): focused 262/262 and frontend 835/835, lint/typecheck/build, Rust fmt/clippy and 268/268 workspace, browser smoke, prettier/links/Python/diff. Sandbox ACL fixture and Vite startup failed; unrestricted reruns pass. **Editor evidence remains mocked/JSDOM; Chromium smoke is generic. No native WebView writing, independent renderer oracle or Tier 3 matrix for this frontend-only task.**
 
 ## Next action and blockers
 
-Next agent-executable task: draft and execute `docs/tasks/AUDIT-D01.md` (D-01 separator-row Enter + S-08 keep-set wiring; inherits the mid-speech Enter shape from AUDIT-C01). Wave 1 order in the TODO tracker is binding; D-06 is now unblocked by C-04 but stays in its own later brief. Owner actions, non-blocking: push when ready so `native-linux` runs (record the result and any missing Hunspell package in the AUDIT evidence); decide whether to brief the capture-failure draft-bundle fallback (ADR, Tier 3). Check off in the TODO tracker, never in `AUDIT.md`. [M6-02-R1](tasks/M6-02-R1.md) queued behind audit Waves 0–1; C1/F2 gate unchanged.
+Next agent-executable task: draft and execute `docs/tasks/AUDIT-D08A.md` (external-change Reload, next unchecked Wave 1 box); **stop here at AUDIT-D01**. D-06 remains a later separate brief. Owner actions, non-blocking: review/push so CI runs; decide whether to brief capture-failure draft-bundle fallback (ADR + Tier 3). [M6-02-R1](tasks/M6-02-R1.md) remains behind audit Waves 0–1; C1/F2 unchanged.
 
 [Supported-runtime M6-01-R1](tasks/M6-01-R1.md) remains gated by an available
 identified supported correction. C1/F2 release gate C remains open before

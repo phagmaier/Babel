@@ -2,7 +2,7 @@ import { undo, redo } from 'prosemirror-history';
 import type { EditorView } from 'prosemirror-view';
 import type { ShortcutRegistry } from '../application/shortcuts';
 import { toggleEditorMark, dispatchIsolated } from './formatting';
-import { convertEditorSelection } from './commands';
+import { convertEditorSelection, toggleEditorDualDialogue } from './commands';
 
 export function executeEditorCommand(
   view: EditorView,
@@ -19,11 +19,11 @@ export function executeEditorCommand(
     else if (result.reason) refused?.(result.reason);
     return result.handled;
   }
-  if (!id.startsWith('element.')) return false;
-  const result = convertEditorSelection(
-    view.state,
-    id.slice('element.'.length),
-  );
+  if (!id.startsWith('element.') && id !== 'dialogue.dual') return false;
+  const result =
+    id === 'dialogue.dual'
+      ? toggleEditorDualDialogue(view.state)
+      : convertEditorSelection(view.state, id.slice('element.'.length));
   if (result.transaction) view.dispatch(result.transaction);
   else if (result.reason) refused?.(result.reason);
   return result.handled;

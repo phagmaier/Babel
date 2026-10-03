@@ -33,6 +33,10 @@ describe('M3-06 picker, menu/help and remap settings', () => {
       expect([...picker.options].some((option) => option.value === id)).toBe(
         true,
       );
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Toggle dual dialogue' }),
+    );
+    expect(execute).toHaveBeenCalledWith('dialogue.dual');
     fireEvent.change(picker, { target: { value: 'shot' } });
     expect(execute).toHaveBeenCalledWith('element.shot');
     state = applyEditorTransaction(

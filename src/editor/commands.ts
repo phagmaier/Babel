@@ -1,6 +1,6 @@
 import type { ElementChoice } from '../application/shortcuts';
 import { closeHistory } from 'prosemirror-history';
-import type { Node as EditorNode } from 'prosemirror-model';
+import { Fragment, type Node as EditorNode } from 'prosemirror-model';
 import {
   TextSelection,
   type EditorState,
@@ -238,6 +238,22 @@ function enter(state: EditorState): EditorCommandResult {
         TextSelection.create(state.doc, rowStart(state, start.index + 1) + 1),
       ),
     );
+  // A physical row boundary inside a speech is not its element boundary.
+  if (
+    left.attrs.speechOf &&
+    following?.attrs.speechOf === left.attrs.speechOf
+  ) {
+    const continuation = newNode('dialogue', left, allocate());
+    return replaceRows(
+      state,
+      start.index,
+      1,
+      [left, continuation],
+      1,
+      0,
+      nextId,
+    );
+  }
   const kind = nextKind(left.type.name);
   const created = newNode(kind, left, allocate());
   const next =
@@ -254,6 +270,22 @@ function enter(state: EditorState): EditorCommandResult {
               : left.attrs.speechOf,
         })
       : next;
+  if (kind === 'action' && left.textContent) {
+    const spacer = newNode('action', left, allocate());
+    const separator = spacer.type.create({
+      ...spacer.attrs,
+      actionSubtype: null,
+    });
+    return replaceRows(
+      state,
+      start.index,
+      1,
+      [left, separator, attached],
+      2,
+      0,
+      nextId,
+    );
+  }
   return replaceRows(state, start.index, 1, [left, attached], 1, 0, nextId);
 }
 
@@ -318,6 +350,39 @@ function join(
   const right = state.doc.child(rightIndex);
   if (!editable([left, right]))
     return refused('Protected source cannot be joined');
+  // Collapse a paragraph boundary in one action, while keeping speech joins guarded.
+  const before = direction === 'Backspace' ? leftIndex - 1 : leftIndex;
+  const after = before + 2;
+  if (before >= 0 && after < state.doc.childCount) {
+    const first = state.doc.child(before);
+    const separator = state.doc.child(before + 1);
+    const last = state.doc.child(after);
+    if (
+      separator.type.name === 'action' &&
+      !separator.textContent &&
+      last.type.name === 'action' &&
+      editable([first, separator, last]) &&
+      first.textContent &&
+      !first.attrs.dualWith &&
+      (!last.textContent || first.type.name === 'action')
+    ) {
+      const merged = newNode(
+        first.type.name,
+        first,
+        String(first.attrs.id),
+        first.content.append(last.content),
+      );
+      return replaceRows(
+        state,
+        before,
+        3,
+        [merged],
+        0,
+        first.textContent.length,
+        editorOrigin(state).nextId,
+      );
+    }
+  }
   if (left.type.name === 'note' || right.type.name === 'note')
     return refused('A note cannot be joined with another element');
   if (
@@ -372,13 +437,116 @@ function join(
   );
 }
 
+/** Same-kind physical rows; codec validation is deferred with normal source capture. */
+function hardBreak(state: EditorState): EditorCommandResult {
+  const at = location(state, state.selection.from);
+  const end = location(state, state.selection.to);
+  const row = state.doc.child(at.index);
+  if (
+    at.index !== end.index ||
+    !editable([row]) ||
+    !['action', 'dialogue'].includes(row.type.name) ||
+    (row.type.name === 'dialogue' && !row.attrs.speechOf)
+  )
+    return refused(
+      'Hard breaks are supported only within editable Action or attached Dialogue',
+    );
+  let prefix = row.content.cut(0, at.offset);
+  let suffix = row.content.cut(end.offset);
+  if (row.type.name === 'dialogue') {
+    const plain = (content: EditorNode['content']) =>
+      content.content.map((node) => node.textContent).join('');
+    if (/^\s*\(/.test(plain(prefix)) || /^\s*\(/.test(plain(suffix)))
+      return refused('A hard break cannot turn speech into a parenthetical');
+    if (!prefix.size) prefix = Fragment.from(screenplaySchema.text('  '));
+    if (!suffix.size) suffix = Fragment.from(screenplaySchema.text('  '));
+  }
+  const nextId = editorOrigin(state).nextId;
+  const first = newNode(row.type.name, row, String(row.attrs.id), prefix);
+  const second = newNode(row.type.name, row, `b${nextId}`, suffix);
+  return replaceRows(state, at.index, 1, [first, second], 1, 0, nextId + 1);
+}
+
+/** Explicit relationship toggle over adjacent, complete live speech groups. */
+export function toggleEditorDualDialogue(
+  state: EditorState,
+): EditorCommandResult {
+  const selected = selectedEditorRows(state).rows;
+  const cueId = (node: EditorNode) =>
+    node.type.name === 'character' ? node.attrs.id : node.attrs.speechOf;
+  const rightId = cueId(selected[0]!);
+  if (!rightId || selected.some((node) => cueId(node) !== rightId))
+    return refused('Choose a single complete speech to toggle dual dialogue');
+  const rows = state.doc.content.content;
+  const rightIndex = rows.findIndex((node) => node.attrs.id === rightId);
+  const right = rows[rightIndex]!;
+  let leftEnd = rightIndex - 1;
+  while (
+    leftEnd >= 0 &&
+    rows[leftEnd]!.type.name === 'action' &&
+    !rows[leftEnd]!.textContent
+  )
+    leftEnd--;
+  const leftId = leftEnd >= 0 ? cueId(rows[leftEnd]!) : null;
+  const leftIndex = rows.findIndex((node) => node.attrs.id === leftId);
+  const complete = (index: number, id: string) => {
+    if (
+      index < 0 ||
+      rows[index]!.type.name !== 'character' ||
+      !rows[index]!.textContent
+    )
+      return false;
+    let end = index + 1;
+    while (end < rows.length && rows[end]!.attrs.speechOf === id) end++;
+    const speech = rows.slice(index + 1, end);
+    return (
+      speech.some(
+        (node) => node.type.name === 'dialogue' && node.textContent.trim(),
+      ) &&
+      editable(rows.slice(index, end)) &&
+      speech.every(
+        (node) =>
+          node.textContent.trim() &&
+          (node.type.name !== 'parenthetical' ||
+            /^\([^)]*\)$/.test(node.textContent)),
+      )
+    );
+  };
+  if (
+    !leftId ||
+    !complete(leftIndex, leftId) ||
+    !complete(rightIndex, rightId) ||
+    !editable(rows.slice(leftIndex, rightIndex)) ||
+    rows[leftIndex]!.attrs.dualWith ||
+    rows.some(
+      (node) =>
+        (node.attrs.dualWith === leftId && node.attrs.id !== rightId) ||
+        node.attrs.dualWith === rightId,
+    )
+  )
+    return refused(
+      'Dual dialogue needs two adjacent complete speeches without overlapping relationships',
+    );
+  const cue = right.type.create(
+    { ...right.attrs, dualWith: right.attrs.dualWith ? null : leftId },
+    right.content,
+  );
+  const tr = closeHistory(state.tr).setNodeMarkup(
+    rowStart(state, rightIndex),
+    undefined,
+    cue.attrs,
+  );
+  return handled(
+    authorizeStructuralTransaction(tr, editorOrigin(state).nextId),
+  );
+}
+
 /** Structural editing is a single transaction. Normal character deletion stays native. */
 export function smartKeyTransaction(
   state: EditorState,
   key: SmartKey,
 ): EditorCommandResult {
-  if (key === 'ShiftEnter')
-    return refused('Hard breaks require a proven Fountain round trip');
+  if (key === 'ShiftEnter') return hardBreak(state);
   if (key === 'Enter') return enter(state);
   return join(state, key);
 }

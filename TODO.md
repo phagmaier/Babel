@@ -72,8 +72,8 @@ How to pick work: the next unchecked `[ ]` box below is the task. Read its brief
 
 - [x] **AUDIT-C01** — [Brief](docs/tasks/AUDIT-C01.md). [Evidence](docs/test-evidence/AUDIT.md#audit-c01--capture-stays-possible-on-standard-fountain-edits-and-edge-space-emphasis): Tier 2, mocked/JSDOM only; remaining uncapturable shapes listed there.
 - [x] **AUDIT-C04** — [Brief](docs/tasks/AUDIT-C04.md). [Evidence](docs/test-evidence/AUDIT.md#audit-c04--a-caret-move-no-longer-rewrites-the-manuscript): Tier 3, tmpfs/Btrfs matrix 268/268 and native lifecycle drill on both; one unreproduced Btrfs publication-cache failure retained there.
-- [ ] **AUDIT-D01 — NEXT** (draft the brief first; inherits the mid-speech Enter shape left by AUDIT-C01)
-- [ ] **AUDIT-D08A**
+- [x] **AUDIT-D01** — [Brief](docs/tasks/AUDIT-D01.md). [Evidence](docs/test-evidence/AUDIT.md#audit-d01--portable-enter-separators-and-explicit-speechbreak-authoring): Tier 2, separator Enter and inherited speech continuation, Shift+Enter/dual codec wiring; mocked/JSDOM + browser smoke, no native scene/PDF oracle.
+- [ ] **AUDIT-D08A — NEXT** (draft the brief first)
 - [ ] **AUDIT-C356**
 
 ### Wave 2 — test gaps (approved as AUDIT-TEST; draft when Wave 1 completes)

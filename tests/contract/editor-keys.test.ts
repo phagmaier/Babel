@@ -80,18 +80,28 @@ describe('M3-05 structural key matrix (production state and codec)', () => {
       state = select(state, index, state.doc.child(index).textContent.length);
       const before = captureEditor(state);
       state = run(state, 'Enter');
-      expect(state.doc.child(index + 1).type.name).toBe(expectedKind);
+      const newIndex = index + (expectedKind === 'action' ? 2 : 1);
+      if (expectedKind === 'action')
+        expect(state.doc.child(index + 1).textContent).toBe('');
+      expect(state.doc.child(newIndex).type.name).toBe(expectedKind);
       if (expectedKind === 'dialogue') {
         const cueId =
           kind === 'character'
             ? state.doc.child(index).attrs.id
             : state.doc.child(index - 1).attrs.id;
-        expect(state.doc.child(index + 1).attrs.speechOf).toBe(cueId);
+        expect(state.doc.child(newIndex).attrs.speechOf).toBe(cueId);
       }
-      expect(captureEditor(state).selection!.head.sourceIndex).toBe(index + 1);
+      expect(captureEditor(state).selection!.head.sourceIndex).toBe(newIndex);
       expect(captureEditor(state).selection!.head.utf16Offset).toBe(0);
       const after = captureEditor(state);
-      expect(after.source.length).toBeGreaterThan(before.source.length);
+      const expectedSource =
+        original +
+        (expectedKind === 'action'
+          ? '\n\n'
+          : expectedKind === 'lyrics'
+            ? '~\n'
+            : '\n');
+      expect(new TextDecoder().decode(after.source)).toBe(expectedSource);
       expect(after.document.lines[index]!.id).toBe(
         before.document.lines[index]!.id,
       );
@@ -116,8 +126,10 @@ describe('M3-05 structural key matrix (production state and codec)', () => {
     state = select(state, 1, state.doc.child(1).textContent.length);
     state = run(state, 'Enter');
     expect(state.doc.child(1).attrs.actionSubtype).toBe('shot');
+    expect(state.doc.child(2).textContent).toBe('');
     expect(state.doc.child(2).attrs.actionSubtype).toBeNull();
-    expect(state.doc.child(2).type.name).toBe('action');
+    expect(state.doc.child(3).attrs.actionSubtype).toBeNull();
+    expect(state.doc.child(3).type.name).toBe('action');
     state = history(state, undo);
     expect(state.doc.child(1).attrs.actionSubtype).toBe('shot');
     state = select(state, 1, 0);
@@ -311,9 +323,14 @@ describe('M3-05 structural key matrix (production state and codec)', () => {
     expect(captureEditor(state).selection).toEqual(selected);
   });
 
-  it('hard break is a visible refusal and explicit type conversion preserves text/undo', () => {
+  it('unsupported hard break refuses and explicit type conversion preserves text/undo', () => {
     let state = createEditorState(bytes('\n!A bell.\n'));
-    expect(smartKeyTransaction(state, 'ShiftEnter')).toMatchObject({
+    expect(
+      smartKeyTransaction(
+        select(createEditorState(bytes('\n.INT. ROOM - DAY\n')), 1, 5),
+        'ShiftEnter',
+      ),
+    ).toMatchObject({
       handled: true,
       reason: expect.any(String),
     });
@@ -342,7 +359,9 @@ describe('M3-05 structural key matrix (production state and codec)', () => {
     state = select(state, 1, state.doc.child(1).textContent.length);
     state = run(state, 'Enter');
     expect(state.doc.child(2).type.name).toBe('action');
-    expect(source(state)).toBe('\n===\n\n');
+    expect(state.doc.child(3).type.name).toBe('action');
+    expect(captureEditor(state).selection!.head.sourceIndex).toBe(3);
+    expect(source(state)).toBe('\n===\n\n\n');
     for (const original of ['\n[[Unclosed\n', '\n{{raw}}\n']) {
       let protectedState = createEditorState(bytes(original));
       protectedState = select(protectedState, 1, 0);
@@ -427,7 +446,7 @@ describe('M3-05 structural key matrix (production state and codec)', () => {
     let state = createEditorState(bytes('!A bell.'));
     state = select(state, 0, 7);
     state = run(state, 'Enter');
-    expect(source(state)).toBe('!A bell.\n\n');
+    expect(source(state)).toBe('!A bell.\n\n\n');
     state = history(state, undo);
     expect(source(state)).toBe('!A bell.');
   });
@@ -436,9 +455,9 @@ describe('M3-05 structural key matrix (production state and codec)', () => {
     let state = createEditorState(bytes('\n!First.\n{{raw}}\n\n!Last.\n'));
     state = select(state, 1, 6);
     state = run(state, 'Enter');
-    state = select(state, 5, 5);
+    state = select(state, 6, 5);
     state = applyEditorTransaction(state, state.tr.insertText(' X')).state;
-    expect(source(state)).toBe('\n!First.\n\n{{raw}}\n\n!Last. X\n');
+    expect(source(state)).toBe('\n!First.\n\n\n{{raw}}\n\n!Last. X\n');
   });
 
   it('parenthetical Enter moves into an already attached dialogue without rewriting source', () => {
@@ -479,7 +498,7 @@ describe('M3-05 structural key matrix (production state and codec)', () => {
     expect(source(view.state)).toBe('\n!A bell.\n');
     dom.keyup!(view, new KeyboardEvent('keyup', { key: 'Enter' }));
     expect(key(view, event)).toBe(true);
-    expect(view.state.doc.childCount).toBe(3);
+    expect(view.state.doc.childCount).toBe(4);
     view.destroy();
     host.remove();
   });

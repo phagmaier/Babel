@@ -69,7 +69,7 @@ describe('AUDIT-C01 edits on an unforced standard Fountain source', () => {
   it('case 1: Enter at the end of a scene heading, then typing', () => {
     const state = type(press(end(open(), 0), 'Enter'), 'Dark.');
     expect(saved(state)).toBe(
-      '.INT. HOUSE - DAY\n!Dark.\n\nJohn walks in.\n\nJOHN\nHello there.\n\nCUT TO:\n\nEXT. PARK - NIGHT\n\nThey sit.\n',
+      'INT. HOUSE - DAY\n\n!Dark.\n\nJohn walks in.\n\nJOHN\nHello there.\n\nCUT TO:\n\nEXT. PARK - NIGHT\n\nThey sit.\n',
     );
   });
 
@@ -106,7 +106,7 @@ describe('AUDIT-C01 edits on an unforced standard Fountain source', () => {
 
   it('case 6: Enter after an unforced transition, then typing', () => {
     expect(saved(type(press(end(open(), 7), 'Enter'), 'x'))).toBe(
-      'INT. HOUSE - DAY\n\nJohn walks in.\n\nJOHN\nHello there.\n\n>CUT TO:\n!x\n\nEXT. PARK - NIGHT\n\nThey sit.\n',
+      'INT. HOUSE - DAY\n\nJohn walks in.\n\nJOHN\nHello there.\n\nCUT TO:\n\n!x\n\nEXT. PARK - NIGHT\n\nThey sit.\n',
     );
   });
 
@@ -200,23 +200,12 @@ describe('AUDIT-C01/T-01 property: blank rows and row boundaries on idiomatic so
   ];
   /**
    * Shapes AUDIT-C01 leaves uncapturable, recorded in docs/test-evidence/AUDIT.md:
-   * Enter between the rows of one speech (Dialogue has no forcing marker; the
-   * Enter table belongs to AUDIT-D01), edits that regroup dual dialogue (needs
-   * explicit group intent), and rows next to protected source.
+   * Edits that regroup dual dialogue (need explicit group intent), and rows
+   * next to protected source. AUDIT-D01 removes the mid-speech Enter exclusion.
    */
-  function remaining(state: EditorState, index: number, label: string) {
+  function remaining(state: EditorState, index: number) {
     const row = (at: number) =>
       at >= 0 && at < state.doc.childCount ? state.doc.child(at) : undefined;
-    const group = (at: number) =>
-      row(at)?.type.name === 'character'
-        ? row(at)!.attrs.id
-        : row(at)?.attrs.speechOf;
-    if (
-      label.startsWith('Enter at row end') &&
-      group(index) &&
-      group(index) === group(index + 1)
-    )
-      return true;
     let cue = index + 1;
     while (row(cue) && !row(cue)!.textContent) cue++;
     if (row(cue)?.attrs.dualWith) return true;
@@ -249,7 +238,7 @@ describe('AUDIT-C01/T-01 property: blank rows and row boundaries on idiomatic so
             continue; // Caret cannot be placed in this row.
           }
           if (!next || next.doc.eq(initial.doc)) continue;
-          if (remaining(initial, index, label)) continue;
+          if (remaining(initial, index)) continue;
           accepted++;
           try {
             const captured = captureEditor(next).source;

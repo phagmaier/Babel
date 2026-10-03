@@ -437,6 +437,8 @@ The following table applies when the caret is at the **end of a nonempty element
 | Explicit page break | Action | Position the caret after the nontext break node |
 | Raw/unsupported | Preserve raw editing rules | Do not perform speculative structural conversion |
 
+Starting a new Action paragraph also inserts a physical blank separator row before its editable row. The caret skips the separator; the separator and new row are one undoable edit. Intentional existing blanks remain authorable. Character/Parenthetical-to-Dialogue continuation has no separator. If the caret is at the end of a physical speech row and another row in the same speech follows, Enter inserts an attached Dialogue continuation; the Dialogue-to-Action table transition applies at the end of the speech group. Backspace at the new empty Action (or Delete at the preceding row end) removes the separator and placeholder together; two Action paragraphs can likewise join across their separator without losing text or emphasis.
+
 Illustrative acceptance case:
 
 ```text
@@ -444,7 +446,7 @@ Illustrative acceptance case:
 => [Character: MAYA] [Dialogue: |]
 
 [Action: The door closes.] + Enter
-=> [Action: The door closes.] [Action: |]
+=> [Action: The door closes.] [separator] [Action: |]
 
 [Character: MAYA] [Parenthetical: (quietly)] + Enter
 => [Character: MAYA] [Parenthetical: (quietly)] [Dialogue: |]
