@@ -394,6 +394,20 @@ impl DocumentService {
         safety: bool,
     ) -> Result<RevisionReceipt, DocumentError> {
         self.validate_owner(identity)?;
+        self.record_owned_revision(identity, version, source, profile, label, safety)
+    }
+
+    /// Internal only: caller has validated document/store leases and any disk adoption.
+    pub(super) fn record_owned_revision(
+        &mut self,
+        identity: &DocumentRequest,
+        version: Option<u64>,
+        source: &[u8],
+        profile: &str,
+        label: &str,
+        safety: bool,
+    ) -> Result<RevisionReceipt, DocumentError> {
+        self.validate_recovery_owner(identity)?;
         let registered = self.registered(identity)?;
         if !registered.queue.is_empty() {
             return Err(error(ErrorCode::SaveQueueFull));

@@ -18,3 +18,9 @@ export const nativeDocuments: DocumentPort = {
     return invoke('release_open_document_at_risk', { request: identity });
   },
 };
+
+export const nativeExternalSource: import('../application/documents').ExternalSourcePort =
+  {
+    check: (request) => invoke('check_source_document', { request }),
+    reload: (request) => invoke('reload_source_document', { request }),
+  };

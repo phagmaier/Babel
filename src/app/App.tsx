@@ -17,7 +17,10 @@ import {
 } from '../application/startupRecovery';
 import { nativeRecovery } from '../infrastructure/nativeRecovery';
 import { nativeDocumentEntry } from '../infrastructure/nativeDocumentEntry';
-import { nativeDocuments } from '../infrastructure/nativeDocuments';
+import {
+  nativeDocuments,
+  nativeExternalSource,
+} from '../infrastructure/nativeDocuments';
 import { nativeSaveAs } from '../infrastructure/nativeSaveAs';
 import { nativeSnapshots } from '../infrastructure/nativeSnapshots';
 import { nativeRecoveryChoices } from '../infrastructure/nativeRecoveryChoices';
@@ -40,6 +43,7 @@ const defaultRecovery =
 const writingPorts = {
   entry: nativeDocumentEntry,
   documents: nativeDocuments,
+  externalSource: nativeExternalSource,
   saveAs: nativeSaveAs,
   snapshots: nativeSnapshots,
   choices: nativeRecoveryChoices,

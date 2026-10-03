@@ -16,6 +16,7 @@ export interface CommandContext {
   matches: boolean;
   exporting?: boolean;
   pdfAvailable?: boolean;
+  sourceCheckAvailable?: boolean;
 }
 export function commandReason(
   command: ShortcutCommand,
@@ -34,12 +35,19 @@ export function commandReason(
     return ['new', 'newDestination', 'open'].includes(command.id)
       ? null
       : 'Open a screenplay first.';
+  if (
+    ['checkExternal', 'reloadSource'].includes(command.id) &&
+    context.sourceCheckAvailable === false
+  )
+    return 'Requires a writable source file in the native app.';
   if (command.id === 'exportPdf' && context.pdfAvailable === false)
     return 'PDF export requires the native publication services.';
   if (
     context.exporting &&
     [
       'exportPdf',
+      'checkExternal',
+      'reloadSource',
       'saveAs',
       'exportFountain',
       'open',
@@ -56,6 +64,8 @@ export function commandReason(
     context.readOnly &&
     (command.scope === 'editor' ||
       command.id === 'save' ||
+      command.id === 'checkExternal' ||
+      command.id === 'reloadSource' ||
       command.id === 'exportPdf' ||
       command.id === 'replace')
   )

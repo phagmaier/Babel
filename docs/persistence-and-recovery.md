@@ -34,8 +34,8 @@ race limitation. No source or managed metadata is written during open.
 
 Private schema-1 loose identity records use exclusive creation and sync;
 corrupt/future entries remain intact and cause ephemeral view-only open.
-Locks are never unlinked. M2-02 adds native recovery checkpoints; M2-03 adds native-only source receipts; automatic
-reload, Save As and protected close remain unimplemented. `release_open_document`
+Locks are never unlinked. M2-02 adds native recovery checkpoints; M2-03 adds native-only source receipts; later M3 tasks connect Save As and
+protected close, and AUDIT-D08A connects explicit protected Reload (never automatic). `release_open_document`
 is registration relinquishment only and must not become an editor close
 without the M2-05 protection protocol. See [ADR 0012](decisions/0012-native-document-identity.md)
 and [M2 evidence](test-evidence/M2.md). Full source replacement must use the
@@ -434,3 +434,25 @@ share them. Parent rename is an unavailable-path simulation, not real unmount
 or controller/power-loss proof. [M6 evidence](test-evidence/M6.md#m6-02--persistence-interruption-and-operation-investigation)
 retains all failures; clean samples cannot resolve retained M6-01 Save As/IME
 operation findings or C1/F2.
+
+## AUDIT-D08A external source Reload
+
+Native window focus and five-second advisory polling recheck the selected source
+through its native handle. Source inspection shares the save FIFO, verifies
+metadata/ownership/identity, and distinguishes self-writes by fingerprint/hash.
+Identical-byte metadata changes re-anchor the baseline without granting a new
+file-saved version. Source checks are not durability receipts.
+
+A divergent source offers comparison of the literal draft and disk generations,
+Keep editing, Save As a separate copy, and explicit Reload. Keep editing preserves
+both and blocks source saves; the same generation does not reopen the prompt.
+The source itself remains untouched by Reload. An explicit Reload first protects
+the current draft in recovery, a pre-destructive snapshot and a safety revision,
+then protects the prepared adopted version and syncs/revalidates the reviewed disk.
+An exact native receipt re-anchors persistence only after the editor imports those
+bytes as one Undo-able transaction. Undo needs its own later save receipt.
+Stale reviews and protection/ownership/encoding failures retain both generations.
+Missing or unreadable files leave recovery and separate-copy routes available.
+[ADR 0041](decisions/0041-protected-external-reload.md),
+[brief](tasks/AUDIT-D08A.md),
+[evidence](test-evidence/AUDIT.md#audit-d08a--protected-external-reload).

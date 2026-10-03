@@ -204,3 +204,10 @@ M6-01 Save As/IME operation findings, C1/F2 and Local v1 admission remain open;
 this additional coverage does not replace those requirements' final acceptance.
 
 AUDIT-D01 → EDIT-02/03/05: separator Enter, speech continuation, hard-break and explicit dual-toggle codec wiring; [evidence](test-evidence/AUDIT.md#audit-d01--portable-enter-separators-and-explicit-speechbreak-authoring) is mocked/JSDOM plus browser smoke. D-07 retains the independent native scene/PDF oracle; historical native gates are unchanged.
+
+AUDIT-D08A maps SAVE-05 (SPEC S10.7/S10.8) to handle-only focus/periodic source
+checks, receipt-free identical-byte metadata re-anchoring, comparison and protected
+explicit Reload/Keep editing/separate-copy routes. Ordinary source guards and
+independent recovery remain authoritative. [Brief](tasks/AUDIT-D08A.md) and
+[evidence](test-evidence/AUDIT.md#audit-d08a--protected-external-reload) define the
+bounded Linux coverage; target/storage/sync-product acceptance remains M6.

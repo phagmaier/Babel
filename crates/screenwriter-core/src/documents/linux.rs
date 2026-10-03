@@ -23,6 +23,8 @@ mod pdf_store;
 mod recent_store;
 #[path = "recovery_store.rs"]
 mod recovery_store;
+#[path = "reload_store.rs"]
+mod reload_store;
 #[path = "save_as_store.rs"]
 mod save_as_store;
 #[path = "snapshot_store.rs"]
@@ -732,21 +734,10 @@ impl DocumentService {
         declared_sha256: &str,
         draft_metadata: serde_json::Value,
     ) -> Result<CheckpointReceipt, DocumentError> {
-        let record = self.registered(request)?;
-        let base = if record.last_save.as_ref().is_some_and(|(saved, metadata)| {
-            saved.version == version
-                && saved.source_sha256 == declared_sha256
-                && *metadata == draft_metadata
-        }) {
-            // Confirmation advances the disk baseline, not an already immutable recovery frame.
-            // Re-flushing that same saved version must verify its original base rather than conflict.
-            self.inspect_recovery(request)?
-                .latest
-                .filter(|c| c.metadata.version == version)
-                .map_or_else(|| record.baseline.clone(), |c| c.metadata.base_fingerprint)
-        } else {
-            record.baseline.clone()
-        };
+        // An immutable exact-version frame retains its original disk baseline,
+        // including after a receipt-free metadata re-anchor. Source save credit
+        // still requires a separate fresh native flush/receipt.
+        let base = self.exact_checkpoint_base(request, version, source, &draft_metadata)?;
         self.checkpoint_with_base(
             request,
             version,
@@ -755,6 +746,29 @@ impl DocumentService {
             draft_metadata,
             base,
         )
+    }
+
+    fn exact_checkpoint_base(
+        &self,
+        identity: &DocumentRequest,
+        version: u64,
+        source: &[u8],
+        metadata: &serde_json::Value,
+    ) -> Result<Option<DiskFingerprint>, DocumentError> {
+        let record = self.registered(identity)?;
+        Ok(self
+            .inspect_recovery(identity)?
+            .latest
+            .filter(|entry| {
+                entry.metadata.session_id == identity.session_id
+                    && entry.metadata.version == version
+                    && entry.source == source
+                    && entry.metadata.draft_metadata == *metadata
+            })
+            .map_or_else(
+                || record.baseline.clone(),
+                |entry| entry.metadata.base_fingerprint,
+            ))
     }
 
     /// Path-free raw protection. The caller's disk fingerprint is a hint, not authority;

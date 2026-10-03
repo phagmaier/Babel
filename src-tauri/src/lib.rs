@@ -29,6 +29,8 @@ use recent_projects_host::{
 mod save_as_host;
 use save_as_host::{save_as_copy, select_save_destination};
 mod persistence_host;
+mod reload_host;
+use reload_host::{check_source_document, reload_source_document};
 mod publication_host;
 mod recovery_choices_host;
 mod snapshot_host;
@@ -235,6 +237,9 @@ pub fn run() {
         .manage(publication)
         .manage(RecoveryHost::default())
         .on_window_event(|window, event| {
+            if matches!(event, tauri::WindowEvent::Focused(true)) {
+                let _ = window.emit("source-recheck-requested", ());
+            }
             if let tauri::WindowEvent::CloseRequested { api, .. } = event {
                 handle_close_request(
                     &window.state::<DocumentHost>(),
@@ -339,6 +344,8 @@ pub fn run() {
         #[cfg(target_os = "linux")]
         spellcheck,
         read_open_document,
+        check_source_document,
+        reload_source_document,
         create_unsaved_draft,
         open_source_via_picker,
         #[cfg(target_os = "linux")]
@@ -397,6 +404,8 @@ pub fn run() {
         #[cfg(target_os = "linux")]
         spellcheck,
         read_open_document,
+        check_source_document,
+        reload_source_document,
         create_unsaved_draft,
         open_source_via_picker,
         #[cfg(target_os = "linux")]
@@ -451,6 +460,8 @@ pub fn run() {
         #[cfg(target_os = "linux")]
         spellcheck,
         read_open_document,
+        check_source_document,
+        reload_source_document,
         create_unsaved_draft,
         open_source_via_picker,
         #[cfg(target_os = "linux")]

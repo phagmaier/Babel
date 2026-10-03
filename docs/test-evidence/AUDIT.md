@@ -176,3 +176,74 @@ Date: 2026-10-03. Base `bc1476e`, clean main at claim; no push. [Brief](../tasks
 - Final `python3 tools/check-links.py` — static, pass 245 changed links; `/tmp/babel-audit-d01-final-links.log`.
 - Final `sh tools/lint-py.sh` — static, pass 80 files; `/tmp/babel-audit-d01-final-python.log`.
 - Final `git diff --check` — static, pass; frozen `AUDIT.md` diff empty; handoff 85 lines / 7,265 bytes.
+
+## AUDIT-D08A — protected external Reload
+
+Date: 2026-10-03. Base `2bc2311`, clean main at claim; owner permits a warranted
+push. Same pinned toolchains/host as above, unrestricted environment. [Brief](../tasks/AUDIT-D08A.md).
+Tier 3: native IPC, metadata/ownership/baseline behavior and protected disk adoption.
+All fixtures synthetic/disposable; frozen AUDIT.md unchanged. Editor/JSDOM tests
+remain mocked; source-store/IPC tests use actual files, IPC uses MockRuntime.
+
+### Checks and retained failures
+
+- `cargo test -p screenwriter-core reload_store --locked --offline` — native tmpfs, first implementation pass 4/4; `/tmp/babel-d08-native-first.log`.
+- `pnpm typecheck` first implementation — fail: missing export `isDiskFingerprint`; existing validator exported/reused; `/tmp/babel-d08-type-first.log`; second run pass `/tmp/babel-d08-type-second.log`.
+- Focused writing-session/controller/WritingView/command-dispatch Vitest — mocked/JSDOM, first run fail 1 / pass 81; Undo assertion ran before Reload thaw, corrected to wait for Save availability; `/tmp/babel-d08-focused-first.log`.
+- Focused Undo rerun — mocked/JSDOM, pass 1/1 (30 skipped); `/tmp/babel-d08-undo-second.log`.
+- `cargo test -p babel-desktop document_ipc --locked --offline` — actual tmpfs files + MockRuntime, pass 8/8; `/tmp/babel-d08-ipc-first.log`.
+- First default `pnpm tauri build --no-bundle` — fail before native build: new UI-test mock literal/narrowing TypeScript errors; corrected without changing product behavior; `/tmp/babel-d08-release-first.log`, `/tmp/babel-d08-type-final.log`.
+- First `pnpm lint` — pass; `/tmp/babel-d08-lint-first.log`.
+
+### Scope and limits
+
+- Source checks are serialized with frontend/native saves, never grant a saved version, and never import content automatically. Native window focus plus five-second polling are hints; existing pre-write guards remain authoritative. Comparison decoding is lazy on explicit expansion.
+- Reload binds old live capture, exact reviewed disk fingerprint and prepared adopted capture; protects the old draft in checkpoint/snapshot/safety revision, then checkpoints/syncs/rechecks and acknowledges the adopted generation without source replacement. A new inode lease is acquired before adoption; ordinary history ownership checks remain unchanged.
+- Native tests cover metadata-only atomic replacement, content replacement, subsequent Undo-version save, stale review/race and missing/unsafe/invalid-UTF8/history/identity refusal. Full target/platform/sync-product/power-loss and C1/F2 acceptance remain open.
+
+- First `pnpm test` — mocked/JSDOM, pass 842/842 (34.66s), before lazy-comparison/version-reservation changes; `/tmp/babel-d08-shared-first.log`.
+- Second focused Vitest — fail 1 / pass 81: test used unavailable `fireEvent.toggle`; fixed to dispatch the actual toggle event; third typecheck reported the same test API error; `/tmp/babel-d08-focused-second.log`, `/tmp/babel-d08-type-third.log`.
+- Third focused Vitest — fail 1 / pass 81: existing recovered-outline availability assertion timed out during concurrent release/static builds; new Reload tests pass; no product/test expectation weakened, rerun below; `/tmp/babel-d08-focused-third.log`.
+- First `pnpm test:browser` — fail at `page.goto` 30-second load timeout during concurrent builds; cause unconfirmed, rerun below; `/tmp/babel-d08-browser.log`.
+- Second `pnpm tauri build --no-bundle` — default release build pass (native compile 3m03s), before final version-reservation/native race changes; `/tmp/babel-d08-release-second.log`.
+- `cargo clippy --workspace --all-targets --locked --offline -- -D warnings` — pass (1m40s), before final version-reservation/native race changes; `/tmp/babel-d08-clippy.log`.
+- Final-design focused `cargo test -p screenwriter-core reload_store --locked --offline` — native tmpfs pass 5/5, including post-adopted-checkpoint race and newer retained-draft recovery; `/tmp/babel-d08-native-final.log`.
+- Latest static `pnpm lint` — fail: caught-error rule requires `cause` on Reload/protection AggregateError; cause retained, rerun below; `/tmp/babel-d08-lint-final.log`.
+- Latest `pnpm typecheck` — pass; `/tmp/babel-d08-type-checked.log`.
+
+- Latest focused six-file Vitest — mocked/JSDOM pass 129/129; `/tmp/babel-d08-focused-final.log`.
+- Final `pnpm test` — mocked/JSDOM pass 843/843 (43.06s); `/tmp/babel-d08-shared-final.log`.
+- `pnpm test:browser` rerun — Chromium + offline helper pass; `/tmp/babel-d08-browser-second.log`; generic smoke, not native Reload proof.
+- First workspace matrix — actual tmpfs/Btrfs + MockRuntime pass 274/274 each (66.346s / 132.064s); `/tmp/babel-d08-matrix-first.log`, `target/audit-d08a/matrix/`; before the native-drill retry correction below.
+- Final-design default release build — pass (native 44.89s); `/tmp/babel-d08-release-final.log`; before native-drill retry correction.
+- Final-design Rust fmt/clippy — pass (clippy 9.98s); `/tmp/babel-d08-fmt-final.log`, `/tmp/babel-d08-clippy-final.log`; before native-drill retry correction.
+- Lint rerun — fail: nested AggregateError must retain the inner caught protection error as cause; both errors remain in its array, cause corrected; `/tmp/babel-d08-lint-checked.log`; next `pnpm lint` pass `/tmp/babel-d08-lint-last.log`.
+- `sh tools/lint-py.sh` — pass 80 files; `/tmp/babel-d08-python.log`.
+- First actual default-WebKit Reload drill via `integrated_exit.py /tmp target --modes external-reload` — **0/2 strict**, retained `target/audit-d08a/native-first/`; tmpfs 41.44s `/tmp/babel-writing-4239ocuw`, Btrfs 29.30s `target/babel-writing-6rmeux7r`. Identical-byte re-anchor passed, clean Reload refused `checkpointConflict`; immutable same-version recovery base was lost after metadata re-anchoring. Retained draft was independently checkpointed at a skipped newer version. Cleanup ordinary-close precondition also failed because the writing session remained open; fallback owned teardown retained, crash audit clean on both, no gate credited.
+- Corrected native exact-version retry regression `cargo test -p screenwriter-core reload_store --locked --offline` — actual tmpfs pass 6/6; `/tmp/babel-d08-native-retry.log`; exact existing frame reuses its original baseline, later versions use the rechecked baseline; save credit still needs a fresh receipt.
+
+- Workspace rerun during `tauri build` — tmpfs desktop fail 5 / pass 53: publication `Internal`/`RendererUnavailable`; `/tmp/babel-d08-matrix-final.log`, `target/audit-d08a/matrix-final/`; build concurrently replaced `target/pdf-helper/runtime` (`build.py` deletes then renames it), so the stable-artifact precondition was not met. This orchestration error is retained; subsequent builds/matrix are sequenced, no test disabled.
+- Corrected-retry default `pnpm tauri build --no-bundle` — pass (native 35.16s); `/tmp/babel-d08-release-retry.log`; bundled helper tree `c805d61692438d7ce7a8e5cd4fb0918b492296e41343be4a2847da7ad88748a8`.
+- Corrected-retry Rust fmt/clippy — pass (clippy 4.55s); `/tmp/babel-d08-fmt-retry.log`, `/tmp/babel-d08-clippy-retry.log`.
+- Second actual WebKit drill — **0/2 strict**, `target/audit-d08a/native-second/`: native identical-byte re-anchor and clean Reload/literal snapshot/revision/disk-inode assertions pass; harness clicked the hidden Undo button and WebDriver refused interaction. Replaced that harness step with the existing trusted Ctrl+Z route. Tmpfs 15.51s `/tmp/babel-writing-xfmzp6yp`, Btrfs 14.80s `target/babel-writing-5f6gvgc2`; failed ordinary-close precondition/fallback teardown retained, crash audit clean on both; no full native gate credited.
+
+- Stable-runtime workspace matrix after build — native tmpfs/Btrfs + MockRuntime **pass 275/275 each**, 55.919s / 144.390s; `/tmp/babel-d08-matrix-after-build.log`, `target/audit-d08a/matrix-after-build/`; all root selectors bound, no check disabled.
+- Final actual default-WebKit Reload drill — **2/2 strict**, tmpfs 25.09s `/tmp/babel-writing-y9xsmdo1`, Btrfs 26.41s `target/babel-writing-2x7dpxvg`; `/tmp/babel-d08-native-drill-third.log`, `target/audit-d08a/native-third/results.json`. Exact identical-byte re-anchor/clean and dirty Reload/snapshot and Git revision bytes/unchanged disk inode/Undo/later Save/Keep editing/protected close pass; continuous owned PID/start ledger, ordinary-close phases, bounded crash journal and no survivors retained.
+- `audit_process_watch.py target/audit-d08a/native-third/results.json --output target/audit-d08a/native-third-replay` — read-only independent exact journal-window replay pass 2/2, zero owned crash events; `/tmp/babel-d08-crash-replay.log`; bounded clean samples do not resolve earlier C1/F2.
+- Final `pnpm lint` / `pnpm typecheck` — static pass; `/tmp/babel-d08-lint-complete.log`, `/tmp/babel-d08-type-complete.log`.
+- Final `sh tools/lint-py.sh` — pass 80 files; `/tmp/babel-d08-python-final.log`.
+
+Native UI proof covers periodic detection and actual Reload/input/copy protection. Window-focus handler is wired through Tauri and JSDOM focus routing is tested; no independent timing-isolated native-focus-only gate is claimed. Full storage interruption/sync-product/platform acceptance remains separate.
+
+- Final shared frontend after double-failure regression — `pnpm test`, mocked/JSDOM **pass 844/844** (33.43s); `/tmp/babel-d08-shared-complete.log`; added regression confirms both original Reload/protection failures, retained draft and visible copy route.
+- Touched-file `prettier --check` — pass; `/tmp/babel-d08-format-check.log`; final doc refresh rerun below.
+- `python3 tools/check-links.py` — pass 226 changed links; `/tmp/babel-d08-links-final.log`; final doc refresh rerun below.
+- `git diff --check` — pass; final precommit rerun below. Frozen `AUDIT.md` remains untouched.
+
+Push to existing `origin/main` is owner-authorized; CI is unrun until the completed
+commit is pushed. Local checks/native samples do not imply GitHub CI success or
+close the older C1/F2 failures. Final push/CI state is reported in the owner handoff.
+
+- Final double-failure focused Vitest — mocked/JSDOM pass 1/1 (37 skipped); `/tmp/babel-d08-double-failure.log`.
+- `python3 -m py_compile` new external Reload drill and changed drill/integrated runner — pass; actual native imports also exercised the new mode.
+- Final touched prettier/local-link check and `git diff --check` — pass; `/tmp/babel-d08-format-precommit.log`, `/tmp/babel-d08-links-precommit.log`; no fixture source bytes formatted.

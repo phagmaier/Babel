@@ -17,6 +17,7 @@ import {
   MAX_SOURCE_BYTES,
   rejected,
   sameIdentity,
+  isDiskFingerprint,
   validHash,
   type Operation,
   type PersistenceState,
@@ -159,6 +160,69 @@ export class PersistenceController {
       externalChange: false,
       failure: null,
     };
+  }
+
+  /** Share the save FIFO: queued successors dispatch against the observed native baseline. */
+  checkSource(
+    port: import('./documents').ExternalSourcePort,
+  ): Promise<import('./documents').SourceCheck | null> {
+    const run = async () => {
+      const expected = this.current.fingerprint;
+      if (!expected) return null;
+      const observed = await port.check({
+        identity: this.current.identity,
+        expectedFingerprint: expected,
+      });
+      return this.observeSource(expected, observed) ? observed : null;
+    };
+    const result = this.tail.then(run);
+    this.tail = result.then(
+      () => undefined,
+      () => undefined,
+    );
+    return result;
+  }
+
+  /** Observation grants no saved-version credit. Stale self-write observations are ignored. */
+  observeSource(
+    expected: import('./documents').DiskFingerprint,
+    observed: import('./documents').SourceCheck,
+  ): boolean {
+    const state = this.current;
+    if (JSON.stringify(state.fingerprint) !== JSON.stringify(expected))
+      return false;
+    if (
+      !sameIdentity(state.identity, observed.identity) ||
+      !isDiskFingerprint(observed.fingerprint)
+    )
+      throw new Error('Invalid source observation');
+    if (observed.status === 'metadataOnly') {
+      if (
+        observed.fingerprint.sha256 !== expected.sha256 ||
+        observed.fingerprint.byteLength !== expected.byteLength
+      )
+        throw new Error('Metadata observation changed source bytes');
+      this.current = {
+        ...state,
+        fingerprint: { ...observed.fingerprint },
+        externalChange: false,
+        fileBlocked: false,
+        failure: null,
+      };
+    } else if (observed.status === 'changed') {
+      this.current = { ...state, externalChange: true, fileBlocked: true };
+    } else if (observed.status === 'unchanged') {
+      if (JSON.stringify(observed.fingerprint) !== JSON.stringify(expected))
+        throw new Error('Unchanged observation has a different generation');
+      if (state.externalChange)
+        this.current = {
+          ...state,
+          externalChange: false,
+          fileBlocked: false,
+          failure: null,
+        };
+    } else throw new Error('Invalid source observation');
+    return true;
   }
 
   async settle(): Promise<void> {

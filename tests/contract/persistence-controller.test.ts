@@ -205,3 +205,60 @@ it('bounds queued operations and rejects non-JSON draft metadata without normali
     }),
   ).toThrow('Invalid captured snapshot');
 });
+
+it('orders a metadata observation before queued saves without minting file-save credit', async () => {
+  const native = port();
+  const controller = new PersistenceController(opened(), native);
+  controller.changed(snapshot(21, true));
+  const observed =
+    deferred<import('../../src/application/documents').SourceCheck>();
+  const metadata = { ...opened().fingerprint!, inode: '999', changedNanos: 44 };
+  const portCheck = { check: vi.fn(() => observed.promise), reload: vi.fn() };
+  const checking = controller.checkSource(portCheck);
+  await Promise.resolve();
+  native.save = vi.fn(async (request) => ({
+    ...receiptFor(request.version, true),
+    fingerprint: { ...metadata, sha256: B },
+  }));
+  const saving = controller.save(snapshot(21, true));
+  expect(native.save).not.toHaveBeenCalled();
+  observed.resolve({
+    identity,
+    status: 'metadataOnly',
+    fingerprint: metadata,
+    source: null,
+  });
+  await checking;
+  expect(controller.state.fileSavedVersion).toBe(0);
+  await saving;
+  expect(vi.mocked(native.save).mock.calls[0]![0].expectedFingerprint).toEqual(
+    metadata,
+  );
+});
+
+it('rejects stale/foreign/false metadata observations and blocks a real external generation', async () => {
+  const controller = new PersistenceController(opened(), port());
+  controller.changed(snapshot(21, true));
+  const base = opened().fingerprint!;
+  const change = {
+    identity,
+    status: 'changed' as const,
+    fingerprint: receiptFor(22, true).fingerprint,
+    source: [98],
+  };
+  expect(controller.observeSource({ ...base, inode: '999' }, change)).toBe(
+    false,
+  );
+  expect(() =>
+    controller.observeSource(base, {
+      ...change,
+      identity: { ...identity, handle: 'foreign' },
+    }),
+  ).toThrow();
+  expect(() =>
+    controller.observeSource(base, { ...change, status: 'metadataOnly' }),
+  ).toThrow();
+  expect(controller.observeSource(base, change)).toBe(true);
+  expect(controller.state.externalChange).toBe(true);
+  expect(controller.state.fileSavedVersion).toBe(0);
+});

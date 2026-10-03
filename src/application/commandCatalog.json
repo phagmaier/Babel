@@ -184,6 +184,22 @@
     "group": "Screenplay"
   },
   {
+    "id": "checkExternal",
+    "label": "Check external changes",
+    "scope": "application",
+    "binding": null,
+    "unavailable": null,
+    "group": "Screenplay"
+  },
+  {
+    "id": "reloadSource",
+    "label": "Reload source",
+    "scope": "application",
+    "binding": null,
+    "unavailable": null,
+    "group": "Screenplay"
+  },
+  {
     "id": "saveAs",
     "label": "Save As",
     "scope": "application",

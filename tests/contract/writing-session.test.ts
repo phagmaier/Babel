@@ -63,6 +63,9 @@ class FakeEditor implements SessionEditor {
     this.current = before;
     return { snapshot, apply: () => this.applySource(source, version) };
   }
+  advanceVersion(version: number) {
+    this.current = { ...this.current, version };
+  }
   getVersion() {
     return this.current.version;
   }
@@ -955,4 +958,120 @@ describe('M4-02 selected native entry', () => {
     expect(load).not.toHaveBeenCalled();
     session.dispose();
   });
+});
+
+describe('external source Reload', () => {
+  it.each([false, true])(
+    'preserves the %s dirty choice until explicit protected Reload',
+    async (dirty) => {
+      const editor = new FakeEditor();
+      const external = {
+        check: vi.fn(async () => ({
+          identity: opened().identity,
+          status: 'changed' as const,
+          fingerprint: fingerprint(2, B),
+          source: [98],
+        })),
+        reload: vi.fn(
+          async (request: {
+            adopted: import('../../src/application/documents').CheckpointRequest;
+          }) => receiptFor(request.adopted.version, true),
+        ),
+      };
+      const f = ports({ externalSource: external });
+      f.entry.picked = opened();
+      const session = new WritingSession(f.ports, editor, fakeClock());
+      await session.openPicked();
+      if (dirty) {
+        editor.sourceWas([98], 2);
+        await session.noteEdit();
+      }
+      const before = editor.current;
+      await session.checkExternalSource();
+      expect(session.externalDirty).toBe(dirty);
+      expect(editor.current).toBe(before);
+      expect(external.reload).not.toHaveBeenCalled();
+      await session.reloadExternalSource();
+      expect(editor.current.source).toEqual([98]);
+      expect(external.reload.mock.calls[0]![0]).toMatchObject({
+        current: { source: before.source },
+        adopted: { version: before.version + 1, source: [98] },
+      });
+      expect(session.externalChange).toBeNull();
+      expect(session.cadenceStatus.status).toBe('Saved locally');
+      expect(editor.frozen).toBe(false);
+      session.dispose();
+    },
+  );
+  it('refuses failed native protection without changing source/selection, then thaws', async () => {
+    const editor = new FakeEditor();
+    const f = ports({
+      externalSource: {
+        check: async () => ({
+          identity: opened().identity,
+          status: 'changed',
+          fingerprint: fingerprint(2, B),
+          source: [98],
+        }),
+        reload: async () => {
+          throw new Error('Safety snapshot refused');
+        },
+      },
+    });
+    f.entry.picked = opened();
+    const session = new WritingSession(f.ports, editor, fakeClock());
+    await session.openPicked();
+    await session.checkExternalSource();
+    const before = editor.current;
+    await expect(session.reloadExternalSource()).rejects.toThrow(
+      'Safety snapshot',
+    );
+    expect(editor.current.source).toEqual(before.source);
+    expect(editor.current.version).toBe(before.version + 2);
+    expect(editor.applied).toHaveLength(0);
+    expect(session.externalChange).not.toBeNull();
+    expect(editor.frozen).toBe(false);
+    session.dispose();
+  });
+});
+
+it('retains the draft and copy route when both Reload and fresh recovery fail', async () => {
+  const editor = new FakeEditor();
+  const nativeFailure = new Error('Disk changed after review');
+  const recoveryFailure = new Error('Recovery storage unavailable');
+  const f = ports({
+    externalSource: {
+      check: async () => ({
+        identity: opened().identity,
+        status: 'changed',
+        fingerprint: fingerprint(2, B),
+        source: [98],
+      }),
+      reload: async () => {
+        throw nativeFailure;
+      },
+    },
+  });
+  f.ports.documents.checkpoint = async () => {
+    throw recoveryFailure;
+  };
+  f.entry.picked = opened();
+  const session = new WritingSession(f.ports, editor, fakeClock());
+  await session.openPicked();
+  await session.checkExternalSource();
+  const failed = await session
+    .reloadExternalSource()
+    .catch((error: unknown) => error);
+  expect(failed).toBeInstanceOf(AggregateError);
+  expect((failed as AggregateError).errors).toEqual([
+    nativeFailure,
+    recoveryFailure,
+  ]);
+  expect((failed as AggregateError).cause).toBe(recoveryFailure);
+  expect((failed as Error).message).toContain('save a separate copy');
+  expect(editor.current.source).toEqual([97]);
+  expect(editor.applied).toHaveLength(0);
+  expect(editor.frozen).toBe(false);
+  expect(session.externalChange).not.toBeNull();
+  session.dispose();
 });

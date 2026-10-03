@@ -70,6 +70,7 @@ export interface SessionEditor {
   ): Promise<{ snapshot: CapturedSnapshot; apply(): void }>;
   retain(): () => void;
   getVersion(): number;
+  advanceVersion(version: number): void;
   freeze(): () => void;
   getSelection(): SessionSelection | null;
   setSelection(selection: SessionSelection | null): void;
@@ -78,6 +79,7 @@ export interface SessionEditor {
 export interface SessionPorts {
   entry: DocumentEntryPort;
   documents: DocumentPort;
+  externalSource?: import('./documents').ExternalSourcePort;
   saveAs: SaveAsPort;
   snapshots: SnapshotPort;
   recovery?: import('./startupRecovery').RecoveryPort;
@@ -129,6 +131,100 @@ export class WritingSession {
   private cadence: SaveCadence | null = null;
   private closer: ProtectedClose | null = null;
   private workflowBusy = false;
+  private sourceCheckBusy = false;
+  private externalReview: import('./documents').SourceCheck | null = null;
+
+  get externalChange() {
+    return this.externalReview;
+  }
+  get externalDirty() {
+    const state = this.controller?.state;
+    return !!state && state.liveSha256 !== state.fingerprint?.sha256;
+  }
+
+  /** Advisory check: at most one buffer; ordinary saves keep their native pre-write guard. */
+  async checkExternalSource(): Promise<void> {
+    const controller = this.controller,
+      active = this.active,
+      port = this.ports.externalSource;
+    if (
+      !controller ||
+      !active?.fingerprint ||
+      active.readOnly ||
+      !port ||
+      this.sourceCheckBusy
+    )
+      return;
+    this.sourceCheckBusy = true;
+    try {
+      const observed = await controller.checkSource(port);
+      if (controller !== this.controller || !observed) return;
+      if (observed.status === 'changed') {
+        if (
+          !observed.source ||
+          (await sha256(Uint8Array.from(observed.source))) !==
+            observed.fingerprint.sha256
+        )
+          throw new Error('External source comparison could not be verified');
+        if (
+          JSON.stringify(this.externalReview?.fingerprint) !==
+          JSON.stringify(observed.fingerprint)
+        )
+          this.externalReview = observed;
+      } else this.externalReview = null;
+      this.onChange();
+    } finally {
+      this.sourceCheckBusy = false;
+    }
+  }
+
+  async reloadExternalSource(): Promise<SaveReceipt> {
+    const review = this.externalReview,
+      port = this.ports.externalSource;
+    if (!review?.source || !port)
+      throw new Error('Check external changes before Reload');
+    if (this.requireActive().readOnly)
+      throw new Error('Read-only sessions cannot Reload');
+    return this.withFrozen(async (snapshot) => {
+      const prepared = await this.editor.prepareSource(
+        review.source!,
+        snapshot.version + 1,
+      );
+      if (prepared.snapshot.sourceSha256 !== review.fingerprint.sha256)
+        throw new Error(
+          'External source cannot be captured faithfully; Save As a separate copy',
+        );
+      try {
+        const result = await port.reload({
+          current: this.checkpoint(snapshot),
+          adopted: {
+            ...this.checkpoint(prepared.snapshot),
+            expectedFingerprint: review.fingerprint,
+          },
+        });
+        await this.adoptExternalBytes(review.source!, result, prepared);
+        this.externalReview = null;
+        return result;
+      } catch (error) {
+        // A reply may be lost after the adopted version was journaled. Skip that
+        // reservation while preserving the current bytes/selection/Undo, then protect
+        // the retained draft independently. No source receipt or baseline is invented.
+        this.editor.advanceVersion(
+          Math.max(this.editor.getVersion(), prepared.snapshot.version) + 1,
+        );
+        try {
+          await this.controller!.checkpoint(await this.synchronize());
+        } catch (protection) {
+          throw new AggregateError(
+            [error, protection],
+            'Reload stopped; draft protection needs attention. Keep this session open and save a separate copy.',
+            { cause: protection },
+          );
+        }
+        throw error;
+      }
+    });
+  }
 
   constructor(
     private readonly ports: SessionPorts,
@@ -718,6 +814,7 @@ export class WritingSession {
         },
       },
     );
+    this.externalReview = null;
     this.opened = opened;
     this.controller = controller;
     this.cadence = cadence;
@@ -792,6 +889,7 @@ export class WritingSession {
     } catch {
       // Disposal must not hide the adopting session's errors.
     }
+    this.externalReview = null;
     this.opened = null;
     this.controller = null;
     this.cadence = null;

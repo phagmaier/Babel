@@ -81,7 +81,7 @@ function identity(value: unknown): value is DocumentIdentity {
     )
   );
 }
-function fingerprint(value: unknown): value is DiskFingerprint {
+export function isDiskFingerprint(value: unknown): value is DiskFingerprint {
   return (
     object(value) &&
     ['device', 'inode'].every(
@@ -132,7 +132,7 @@ export function isSaveReceipt(value: unknown): value is SaveReceipt {
     identity(value.identity) &&
     validVersion(value.version) &&
     validHash(value.sourceSha256) &&
-    fingerprint(value.fingerprint) &&
+    isDiskFingerprint(value.fingerprint) &&
     value.fingerprint.sha256 === value.sourceSha256 &&
     isCheckpointReceipt(value.recovery) &&
     sameIdentity(value.identity, value.recovery.identity) &&

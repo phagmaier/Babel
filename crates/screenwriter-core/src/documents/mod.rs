@@ -7,6 +7,7 @@ pub mod pdf;
 pub mod persistence;
 pub mod recents;
 pub mod recovery;
+pub mod reload;
 pub mod save_as;
 pub mod saving;
 pub mod snapshots;

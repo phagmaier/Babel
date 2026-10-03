@@ -277,6 +277,10 @@ try:
       fetch('http://localhost:5173/__babel_audit_probe').catch(()=>{});""")
     wait(lambda:script("return window.auditBlocked.some(e=>e.uri.startsWith('http://localhost:5173') && e.directive==='connect-src');"),'Release CSP blocks development-server connections')
     print('PASS native release CSP excludes the development server',flush=True)
+    if '--external-reload' in sys.argv:
+        from external_reload import run as run_reload
+        run_reload(sys.modules[__name__])
+        sys.exit(0)
     if '--persistence-paths' in sys.argv:
         from persistence_paths import run as run_paths
         run_paths(sys.modules[__name__])

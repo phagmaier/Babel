@@ -123,3 +123,22 @@ export interface SaveReceipt {
   recovery: CheckpointReceipt;
   protection: 'sourceFile';
 }
+
+/** Handle-only source reads; no path or arbitrary write authority. */
+export interface SourceCheckRequest {
+  identity: DocumentIdentity;
+  expectedFingerprint: DiskFingerprint;
+}
+export interface SourceCheck {
+  identity: DocumentIdentity;
+  status: 'unchanged' | 'metadataOnly' | 'changed';
+  fingerprint: DiskFingerprint;
+  source: readonly number[] | null;
+}
+export interface ExternalSourcePort {
+  check(request: SourceCheckRequest): Promise<SourceCheck>;
+  reload(request: {
+    current: CheckpointRequest;
+    adopted: CheckpointRequest;
+  }): Promise<SaveReceipt>;
+}

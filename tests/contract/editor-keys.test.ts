@@ -503,3 +503,18 @@ describe('M3-05 structural key matrix (production state and codec)', () => {
     host.remove();
   });
 });
+
+it('skips a reserved native version without changing manuscript, selection or Undo', async () => {
+  const { advanceEditorVersion } = await import('../../src/editor/state');
+  const { undoDepth } = await import('prosemirror-history');
+  const state = createEditorState(bytes('!Retained draft.\r\n'));
+  const next = applyEditorTransaction(
+    state,
+    advanceEditorVersion(state, 9),
+  ).state;
+  expect(editorVersion(next)).toBe(9);
+  expect(next.doc).toBe(state.doc);
+  expect(next.selection.eq(state.selection)).toBe(true);
+  expect(undoDepth(next)).toBe(undoDepth(state));
+  expect(source(next)).toBe('!Retained draft.\r\n');
+});

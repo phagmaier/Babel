@@ -50,6 +50,9 @@ async function setup(readOnly = false) {
     composing = false,
     unavailable = false;
   const editor: SessionEditor = {
+    advanceVersion() {
+      throw new Error('Reload unavailable in workflow fixture');
+    },
     loadInitial() {},
     applySource() {},
     prepareSource: async () => {

@@ -1,3 +1,4 @@
+import { SourceComparison } from './SourceComparison';
 import { PublicationPreview } from './PublicationPreview';
 import { ExportPdfPanel } from './ExportPdfPanel';
 import { ExportPdfController } from '../application/exportPdf';
@@ -87,7 +88,7 @@ import {
 } from '../application/editorMetadata';
 import { mountScreenplayEditor } from '../editor/view';
 import { executeEditorCommand } from '../editor/shortcuts';
-import { sourceImportTransaction } from '../editor/state';
+import { sourceImportTransaction, advanceEditorVersion } from '../editor/state';
 import { dispatchIsolated } from '../editor/formatting';
 import { createCompletionPopup } from './CompletionPopup';
 import { EditorControls } from './EditorControls';
@@ -119,6 +120,7 @@ import type {
 export interface WritingPorts {
   entry: DocumentEntryPort;
   documents: DocumentPort;
+  externalSource?: import('../application/documents').ExternalSourcePort;
   saveAs: SaveAsPort;
   snapshots: SnapshotPort;
   choices: RecoveryChoicesPort;
@@ -208,6 +210,9 @@ export function WritingView({
   const [error, setError] = useState('');
   const [active, setActive] = useState<ActiveInfo | null>(null);
   const [status, setStatus] = useState('');
+  const [showExternal, setShowExternal] = useState(false);
+  const [externalNotice, setExternalNotice] = useState('');
+  const externalSeenRef = useRef('');
   const [live, setLive] = useState<CapturedSnapshot | null>(null);
   const [showClose, setShowClose] = useState(false);
   const [paletteRequested, requestPalette] = useState(0);
@@ -908,6 +913,16 @@ export function WritingView({
           }
         };
       },
+      advanceVersion(version) {
+        const view = viewRef.current;
+        if (!view) throw new Error('Editor unavailable');
+        adoptingRef.current = true;
+        try {
+          dispatchIsolated(view, advanceEditorVersion(view.state, version));
+        } finally {
+          adoptingRef.current = false;
+        }
+      },
       workflowState() {
         const view = viewRef.current;
         return view && !view.isDestroyed
@@ -949,6 +964,7 @@ export function WritingView({
       {
         entry: ports.entry,
         documents: ports.documents,
+        externalSource: ports.externalSource,
         saveAs: ports.saveAs,
         snapshots: ports.snapshots,
         recovery: ports.recovery,
@@ -1125,6 +1141,62 @@ export function WritingView({
   }, []);
 
   useEffect(() => {
+    if (phase !== 'active' || !ports.externalSource) return;
+    let alive = true;
+    const check = () => {
+      if (
+        operationRef.current ||
+        frozenRef.current ||
+        window.document.visibilityState === 'hidden'
+      )
+        return;
+      void sessionRef.current?.checkExternalSource().then(
+        () => {
+          if (!alive) return;
+          setExternalNotice('');
+          const review = sessionRef.current?.externalChange;
+          const key = review
+            ? JSON.stringify([review.identity, review.fingerprint])
+            : '';
+          if (key && key !== externalSeenRef.current) setShowExternal(true);
+          externalSeenRef.current = key;
+          refresh();
+        },
+        () => {
+          if (alive)
+            setExternalNotice(
+              'Source recheck unavailable. Keep editing; recovery and separate copies remain available. Retry Check external changes.',
+            );
+        },
+      );
+    };
+    let stopNative: (() => void) | undefined;
+    if ('__TAURI_INTERNALS__' in window) {
+      void listen('source-recheck-requested', check).then(
+        (stop) => {
+          if (alive) stopNative = stop;
+          else stop();
+        },
+        () => {
+          if (alive)
+            setExternalNotice(
+              'Window focus recheck unavailable; periodic checks remain active.',
+            );
+        },
+      );
+    }
+    window.addEventListener('focus', check);
+    const timer = window.setInterval(check, 5000);
+    check();
+    return () => {
+      alive = false;
+      window.removeEventListener('focus', check);
+      stopNative?.();
+      window.clearInterval(timer);
+    };
+  }, [phase, ports.externalSource]);
+
+  useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (
         event.isComposing ||
@@ -1218,7 +1290,7 @@ export function WritingView({
       );
       return;
     }
-    if (operationRef.current) {
+    if (operationRef.current || frozenRef.current) {
       setError(
         'Another writing action is pending. Try again when it finishes.',
       );
@@ -1403,6 +1475,8 @@ export function WritingView({
         findRef.current.state.phase === 'current',
       exporting: exportRef.current?.busy ?? false,
       pdfAvailable: !!exportRef.current,
+      sourceCheckAvailable:
+        !!ports.externalSource && !!sessionRef.current?.active?.fingerprint,
     };
   };
   const commandUnavailable = (id: string) => {
@@ -1420,6 +1494,26 @@ export function WritingView({
         case 'commandPalette':
           popupRef.current?.controller.dismiss();
           requestPalette((n) => n + 1);
+          break;
+        case 'checkExternal':
+          void run(async () => {
+            await currentSession.checkExternalSource();
+            setShowExternal(!!currentSession.externalChange);
+            setExternalNotice(
+              currentSession.externalChange
+                ? ''
+                : 'No external content change detected.',
+            );
+            refresh();
+          });
+          break;
+        case 'reloadSource':
+          if (currentSession.externalChange) setShowExternal(true);
+          else
+            void run(async () => {
+              await currentSession.checkExternalSource();
+              setShowExternal(!!currentSession.externalChange);
+            });
           break;
         case 'save':
           void run(() => currentSession.save().then(() => refresh()), true);
@@ -1759,7 +1853,76 @@ export function WritingView({
           changing this source.
         </p>
       )}
+      {externalNotice && <p role="status">{externalNotice}</p>}
+      {session?.externalChange && showExternal && (
+        <section aria-label="External source change">
+          <h2>External source change</h2>
+          <p>
+            {session.externalDirty
+              ? 'Your draft and the source file differ.'
+              : 'The source file changed outside Babel.'}{' '}
+            Reload keeps a safety snapshot and revision of your draft before
+            adopting the reviewed file. You can Undo Reload.
+          </p>
+          <SourceComparison
+            draft={live?.source ?? []}
+            disk={session.externalChange.source ?? []}
+          />
+          <button
+            type="button"
+            disabled={modeDisabled || !!commandUnavailable('reloadSource')}
+            onClick={() =>
+              void run(async () => {
+                await session.reloadExternalSource();
+                setShowExternal(false);
+                refresh();
+              })
+            }
+          >
+            Reload reviewed source
+          </button>
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => setShowExternal(false)}
+          >
+            Keep editing
+          </button>
+          <button
+            type="button"
+            disabled={!!commandUnavailable('saveAs')}
+            onClick={() => executeCommand('saveAs')}
+          >
+            Save draft as a separate copy
+          </button>
+          <p>
+            Source saves stay blocked until Reload or Save As. The outside file
+            is kept intact.
+          </p>
+        </section>
+      )}
       <div className="actions" aria-label="Screenplay actions">
+        <button
+          type="button"
+          disabled={
+            !!commandUnavailable('checkExternal') ||
+            !ports.externalSource ||
+            active?.kind === 'unsaved' ||
+            active?.readOnly
+          }
+          onClick={() => executeCommand('checkExternal')}
+        >
+          Check external changes
+        </button>
+        <button
+          type="button"
+          disabled={
+            !!commandUnavailable('reloadSource') || !session?.externalChange
+          }
+          onClick={() => executeCommand('reloadSource')}
+        >
+          Reload source
+        </button>
         <button
           id="writing-save"
           type="button"

@@ -48,6 +48,8 @@ fn dispatch_is_path_free_session_bound_byte_exact_and_release_revokes_handle() {
         .manage(host)
         .invoke_handler(tauri::generate_handler![
             read_open_document,
+            check_source_document,
+            reload_source_document,
             release_open_document
         ])
         .build(mock_context(noop_assets()))
@@ -95,6 +97,8 @@ fn production_default_cannot_open_a_frontend_path_or_claim_native_readiness() {
         .manage(DocumentHost::default())
         .invoke_handler(tauri::generate_handler![
             read_open_document,
+            check_source_document,
+            reload_source_document,
             release_open_document
         ])
         .build(mock_context(noop_assets()))
@@ -170,6 +174,8 @@ fn persistence_app(host: DocumentHost) -> tauri::App<tauri::test::MockRuntime> {
         .manage(host)
         .invoke_handler(tauri::generate_handler![
             read_open_document,
+            check_source_document,
+            reload_source_document,
             release_open_document,
             checkpoint_document,
             save_document
@@ -419,6 +425,53 @@ fn default_host_returns_structured_unavailable_without_frontend_initialization()
         assert_eq!(failure["error"]["code"], "nativeUnavailable");
     }
     assert_eq!(f.bytes(), opened.source);
+    drop(webview);
+    drop(app);
+}
+
+#[test]
+fn reload_dispatch_is_handle_only_protected_and_does_not_replace_source() {
+    use screenwriter_core::documents::{reload::SourceCheck, saving::SaveReceipt};
+    use std::os::unix::fs::MetadataExt;
+    let f = PersistenceFixture::new();
+    let (service, opened) = f.service();
+    let app = persistence_app(DocumentHost {
+        service: Arc::new(Mutex::new(Some(service))),
+        ..Default::default()
+    });
+    let webview = tauri::WebviewWindowBuilder::new(&app, "main", Default::default())
+        .build()
+        .unwrap();
+    std::fs::write(f.0.join("source.fountain"), b"outside\r\n").unwrap();
+    assert!(invoke(&webview, "check_source_document", json!({"request":{"identity":opened.identity,"expectedFingerprint":opened.fingerprint,"path":"arbitrary"}})).is_err());
+    let check = invoke(
+        &webview,
+        "check_source_document",
+        json!({"request":{"identity":opened.identity,"expectedFingerprint":opened.fingerprint}}),
+    )
+    .unwrap()
+    .deserialize::<SourceCheck>()
+    .unwrap();
+    let before = std::fs::metadata(f.0.join("source.fountain")).unwrap();
+    let current = snapshot_body(&opened, 1, b"local draft")["request"].clone();
+    let mut adopted = snapshot_body(&opened, 2, b"outside\r\n")["request"].clone();
+    adopted["expectedFingerprint"] = serde_json::to_value(check.fingerprint).unwrap();
+    let receipt = invoke(
+        &webview,
+        "reload_source_document",
+        json!({"request":{"current":current,"adopted":adopted}}),
+    )
+    .unwrap()
+    .deserialize::<SaveReceipt>()
+    .unwrap();
+    assert_eq!(receipt.version, 2);
+    assert_eq!(f.bytes(), b"outside\r\n");
+    assert_eq!(
+        std::fs::metadata(f.0.join("source.fountain"))
+            .unwrap()
+            .ino(),
+        before.ino()
+    );
     drop(webview);
     drop(app);
 }

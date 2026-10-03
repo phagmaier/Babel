@@ -1778,3 +1778,89 @@ it('restores current outline and counts after Save As rollback without losing so
   expect([...captureEditor(restored.state).source]).toEqual(expected);
   expect(undoDepth(restored.state)).toBe(depth);
 });
+
+it('offers source comparison, keeps editing, explicitly Reloads and preserves Undo', async () => {
+  const { ports } = fixturePorts({ picked: opened() });
+  ports.externalSource = {
+    check: vi.fn(async () => ({
+      identity,
+      status: 'changed' as const,
+      fingerprint: fingerprint(2, B),
+      source: [98],
+    })),
+    reload: vi.fn(async ({ adopted }) => receiptFor(adopted.version, true)),
+  };
+  render(
+    <WritingView
+      ports={ports}
+      open={{ kind: 'picked' }}
+      onSessionClosed={vi.fn()}
+    />,
+  );
+  const panel = await screen.findByRole('region', {
+    name: 'External source change',
+  });
+  const comparison = within(panel).getByText('Compare draft and source file')
+    .parentElement as HTMLDetailsElement;
+  comparison.open = true;
+  fireEvent(comparison, new Event('toggle'));
+  expect(await within(panel).findByText('a')).toBeTruthy();
+  expect(within(panel).getByText('b')).toBeTruthy();
+  expect(ports.externalSource!.reload).not.toHaveBeenCalled();
+  fireEvent.click(within(panel).getByRole('button', { name: 'Keep editing' }));
+  expect(
+    screen.queryByRole('region', { name: 'External source change' }),
+  ).toBeNull();
+  fireEvent.click(screen.getByRole('button', { name: 'Reload source' }));
+  fireEvent.click(
+    await screen.findByRole('button', { name: 'Reload reviewed source' }),
+  );
+  await waitFor(() =>
+    expect(document.querySelector('.ProseMirror')!.textContent).toBe('b'),
+  );
+  const editor = document.querySelector<HTMLElement>('.ProseMirror')!;
+  await waitFor(() =>
+    expect(
+      screen
+        .getByRole('button', { name: 'Reload source' })
+        .hasAttribute('disabled'),
+    ).toBe(true),
+  );
+  await waitFor(() =>
+    expect(
+      screen.getByRole('button', { name: 'Save' }).hasAttribute('disabled'),
+    ).toBe(false),
+  );
+  fireEvent.keyDown(editor, { key: 'z', ctrlKey: true });
+  await waitFor(() => expect(editor.textContent).toBe('a'));
+});
+
+it('checks on focus without adopting bytes and reports unavailable sources', async () => {
+  const { ports } = fixturePorts({ picked: opened() });
+  ports.externalSource = {
+    check: vi.fn(async () => ({
+      identity,
+      status: 'unchanged' as const,
+      fingerprint: opened().fingerprint!,
+      source: null,
+    })),
+    reload: vi.fn(),
+  };
+  render(
+    <WritingView
+      ports={ports}
+      open={{ kind: 'picked' }}
+      onSessionClosed={vi.fn()}
+    />,
+  );
+  await waitFor(() =>
+    expect(ports.externalSource!.check).toHaveBeenCalledTimes(1),
+  );
+  ports.externalSource!.check = vi.fn(async () => {
+    throw new Error('missingSource');
+  });
+  fireEvent(window, new Event('focus'));
+  expect(await screen.findByText(/Source recheck unavailable/)).toBeTruthy();
+  expect(document.querySelector('.ProseMirror')!.textContent).toBe('a');
+  expect(ports.externalSource!.reload).not.toHaveBeenCalled();
+});

@@ -56,6 +56,19 @@ export function editorOrigin(state: EditorState): SourceOrigin {
 export function editorVersion(state: EditorState): number {
   return editorOrigin(state).version;
 }
+/** Skip a native-reserved version after an uncertain Reload; content, selection and Undo stay intact. */
+export function advanceEditorVersion(
+  state: EditorState,
+  version: number,
+): Transaction {
+  if (!Number.isSafeInteger(version) || version <= editorVersion(state))
+    throw new RangeError('Reserved version must advance the live sequence');
+  const transaction = state.tr
+    .setSelection(state.selection)
+    .setMeta('addToHistory', false);
+  adoptedVersions.set(transaction, version);
+  return transaction;
+}
 export function nodeRuns(node: EditorNode): StyledText[] {
   const runs: StyledText[] = [];
   node.forEach((child) => {

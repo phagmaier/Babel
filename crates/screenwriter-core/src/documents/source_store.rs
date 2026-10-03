@@ -265,7 +265,12 @@ impl DocumentService {
                 }
                 latest.metadata.base_fingerprint
             } else {
-                record.baseline.clone()
+                self.exact_checkpoint_base(
+                    identity,
+                    request.version,
+                    &request.source,
+                    &request.draft_metadata,
+                )?
             };
             let receipt = self.checkpoint_with_base(
                 identity,

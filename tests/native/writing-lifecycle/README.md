@@ -807,3 +807,13 @@ Refusal/readiness snapshots retain old editor/recovery checks and trusted
 composition events. A copied file or current outline is not adoption/close
 success. The independent auditor separates bytes/heads from functional/crash
 verdicts. Keep every failed root, process/journal scan and owned core.
+
+## AUDIT-D08A focused external Reload
+
+`python3 tests/native/writing-lifecycle/drill.py <tmpfs-or-btrfs-root> --external-reload`
+uses the default release app and synthetic loose source. It asserts identical-byte
+metadata re-anchoring, periodic clean Reload detection, unchanged external disk
+inode/bytes, exact old-draft snapshot and safety-revision bytes, one-step Undo and
+later Save, dirty Keep editing and explicit protected Reload, then protected close.
+Set `BABEL_SHUTDOWN_MODE=ordinary` to retain owned process/phase/exit observations;
+content checks alone do not clear the retained C1/F2 shutdown gate.
