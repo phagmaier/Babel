@@ -18,7 +18,8 @@ system `libenchant-2` ABI, selects Hunspell and verifies the loaded provider/tag
 Broker lifetimes are serialized process-wide: concurrent initialization/teardown
 failed during actual native tests before serialization. Pointers remain on one
 worker, with dictionaries/lists freed before their broker. There is no new
-Cargo/npm dependency or lockfile change. System dictionaries remain installation
+Cargo/npm runtime dependency. The build-only version check is described below.
+System dictionaries remain installation
 prerequisites, with visible unavailable-language/resource states.
 
 Request dictionaries with an explicit empty `/dev/null` personal wordlist.
@@ -29,6 +30,17 @@ and their implicit directory creation. No native Learn/add/replacement-writing
 API is used. No process environment mutation after toolkit/thread startup or
 ordinary global personal dictionary modification is needed. Provider ordering
 may be read by Enchant, but a loaded provider other than Hunspell is refused.
+
+Build prerequisite clarified 2026-10-03 ([AUDIT-W0-R1](../tasks/AUDIT-W0-R1.md)):
+the explicit-PWL API was introduced in Enchant **2.4.0**, per
+[upstream NEWS](https://github.com/rrthomas/enchant/blob/v2.8.21/NEWS).
+Linux builds now check that minimum with pinned `pkg-config` 0.3.34 (build-only,
+MIT OR Apache-2.0). Ubuntu 24.04 CI's Enchant 2.3.3 cannot provide the required
+isolation API. CI builds the same 2.8.21 as the verified host from a SHA-256-pinned
+release into a temporary prefix with Hunspell and probes its actual empty-PWL
+behavior before the workspace suite. This clarifies the existing system ABI
+contract; it does not introduce an older-API fallback, app environment mutation,
+additional engine, or an installed/runtime distribution acceptance claim.
 
 ## Ownership and durability
 

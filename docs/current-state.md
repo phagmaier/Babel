@@ -1,59 +1,44 @@
-# Current state — AUDIT-D08A done; M6-02 disposition open
+# Current state — AUDIT-W0-R1 in progress; D08A done
 
 Date: 2026-10-03. Application: **babel**. Main; owner authorized warranted push.
-Base `ccf9fb5`, clean main/19 ahead at claim. M0–M5 and bounded M6-01
+Current task base `e284a33`, clean main/origin at claim. M0–M5 and bounded M6-01
 investigation remain recorded complete. **M6-02 stays unchecked; retained
 operation findings, C1/F2 and Local v1 admission remain open.**
 
 ## Task and work
 
-Owner continuation authorized M6-02 on current Linux x86_64 host, with future
-portability retained. No additional target/installed promise; M6-13/14 still
-need exact release-target confirmation. [ADR 0040](decisions/0040-local-v1-platform-scope.md).
+**AUDIT-W0-R1 claimed** at clean `e284a33`, owner continuation after the pushed
+D08A CI failure. [Brief](tasks/AUDIT-W0-R1.md). Deliverable: require Enchant >=2.4,
+provision pinned 2.8.21/Hunspell in CI's temporary prefix, preserve explicit empty
+PWL isolation, and verify the actual workflow. Build script/manifests, CI script
+and workflow, existing ADR/development prerequisites; no application ABI fallback.
+Checks: old 2.3.3 metadata refusal, real contaminated-profile/empty-PWL controls,
+focused native spelling 3/3 and clippy/fmt pass; frontend full rerun 844/844,
+browser pass; workspace 275/275 each tmpfs/Btrfs. Initial frontend focus failure
+retained, focused rerun 4/4. Default release/package and named offline spelling
+drill 2/2 strict pass; actual pushed CI pending. Native harness now performs the
+missing final protected document close; failed launches/manual-input-era
+attempt/Home teardown failures remain in evidence and raw artifacts. No native
+assertion relaxed. [Evidence](test-evidence/AUDIT.md#audit-w0-r1--enchant-ci-abi-prerequisite).
+Stop at W0-R1; C356 remains unstarted.
 
-Added stage-qualified Save As refusal and identity/source/selection/Undo rollback
-regressions. Successful native Save As now proves adoption through later copied-
-file edits and Undo, while the divergent original stays intact. Readiness/refusal
-snapshots preserve trusted composition, Save/editability and outline facts.
-No demonstrated cause/correction for the untouched M6-01 operations is claimed.
-
-Extended real source/recovery child-kill boundaries; added actual local-restore
-child SIGKILL after live/disk protection, before replacement and after replacement.
-Private existing stage closure passes through request/restore with production
-no-op. No receipt/schema/capability/dependency/ownership-policy change. New
-opt-in native path-loss and two-app drills plus independent literal/head auditor;
-initial harness identity/log-path errors corrected with failures retained.
-
-Paths: `writingSession.ts`, source/recovery/snapshot stores/tests, existing native
-writing-lifecycle runners/new `persistence_paths.py`/`audit_persistence_paths.py`.
+Prior M6-02 bounded Linux hardening: stage-qualified Save As refusal/identity and
+Undo rollback; extended real child-kill source/recovery/local-restore boundaries;
+actual path-loss/shared-store two-app drills and independent literal/head auditor.
+No demonstrated cause/correction for untouched M6-01 operations is claimed.
 [Brief](tasks/M6-02.md), [S15.2 matrix](test-evidence/M6-02-matrix.md),
 [review](reviews/2026-10-03-m6-02-persistence-review.md),
-[exact commands/artifacts/failures](test-evidence/M6.md#m6-02--persistence-interruption-and-operation-investigation).
+[checks/failures/artifacts](test-evidence/M6.md#m6-02--persistence-interruption-and-operation-investigation).
 
-## Checks and retained failures
-
-Shared frontend 774/774, lint/typecheck/build; Chromium smoke; final Rust fmt/
-clippy and workspace 265/265 each tmpfs/Btrfs; default release build pass.
-Mocked editor/session focused 62/62; actual restore child-kill checks pass.
-Final corrected native path-loss/shared-store two-app 4/4 strict; ordinary
-restart/read-only controls 4/4; final real-IME presentation 2/2. Independent
-literal/source/copy/journal-head and crash-verdict audits are in M6 evidence.
-These are bounded Linux groups, not universal durability or full admission.
-
-First default-teardown matrix was 5/8 strict: two unrelated-store read-only
-expectations fail under ADR 0012's pre-existing shared-store lease limit; one
-Btrfs restart root completes content checks but records owned WebKit SIGABRT
-following parent SIGKILL before stale-session DELETE. PID `274428`/start `2737907`,
-compressed core/provenance/logs retained under `target/m6-02/`; no event filtered.
-First ordinary replay 7/8 due to a secondary-log-path harness error; corrected
-named reruns pass. Neither later clean samples nor intact bytes resolves C1/F2.
-
-The separate-store diagnostic actually shows writable second-app state, source
-unchanged; normal shared-store control passes. [ADR 0012](decisions/0012-native-document-identity.md)
-still scopes cooperating advisory leases. Parent rename is path-loss simulation,
-not actual unmount/power/controller/antivirus/sync-product acceptance.
-All M6-01 failed roots/binaries/cores remain untouched. Save As refusal and stress
-IME readiness were not reproduced in stronger-oracle samples; causes stay open.
+Retained M6-02 failures: separate-store read-only expectations conflict with
+ADR 0012's cooperating shared-store lease scope; a Btrfs restart completed
+content checks but recorded an owned WebKit SIGABRT following parent SIGKILL.
+PID `274428`/start `2737907` and cores/provenance remain under `target/m6-02/`.
+Harness-log-path errors and named corrected reruns are preserved in evidence.
+Neither intact bytes nor later clean samples closes C1/F2. Rename path-loss is
+not actual unmount/power/controller/antivirus/sync-product acceptance. M6-01
+failed roots/binaries/cores remain untouched; stronger Save As/IME samples did
+not reproduce their symptoms, so causes stay open.
 
 ## Docs maintenance (2026-10-03, Tier 1, no behavior change)
 
@@ -63,7 +48,7 @@ Owner-authorized Tier 1 debloat (`433c150`): tracker collapse, index stub, stale
 
 Tracker: `TODO.md` `## Audit execution`; [audit evidence](test-evidence/AUDIT.md).
 
-[AUDIT-W0](tasks/AUDIT-W0.md) done (`004bd6d`): CI dependencies/helper, rlib-only desktop and S-13 cleanup. Local Tier 2 pass; **CI unrun**, Hunspell dictionary on runner unverified until owner-authorized push.
+[AUDIT-W0](tasks/AUDIT-W0.md) done (`004bd6d`): CI dependencies/helper, rlib-only desktop and S-13 cleanup. Original local Tier 2 pass; first pushed D08A CI fails on Ubuntu's Enchant 2.3.3 missing empty-PWL symbol. W0-R1 above owns correction and actual workflow verification.
 
 [AUDIT-C01](tasks/AUDIT-C01.md) done (`fe103bf`): unforced-neighbour capture, split/join refusals and edge-space emphasis. Tier 2, mocked/JSDOM only. D01 now covers its mid-speech Enter exclusion; arbitrary dual regroup/protected-neighbour shapes and the draft-bundle fallback remain outside that fix.
 
@@ -77,7 +62,7 @@ Paths: `reload.rs`/`reload_store.rs`, source/recovery retry base helper, `reload
 
 ## Next action and blockers
 
-Next agent-executable task: draft and execute `docs/tasks/AUDIT-C356.md` (next unchecked Wave 1 cluster); **stop here at AUDIT-D08A**. D-06 remains a later separate brief. Owner permits a warranted push to existing origin/main so CI can run; CI status must be read from its pushed run, never inferred from local results. Capture-failure draft-bundle fallback remains an owner decision (ADR + Tier 3). [M6-02-R1](tasks/M6-02-R1.md) remains behind audit Waves 0–1; C1/F2 unchanged.
+Current task: `AUDIT-W0-R1`, then stop. Next Wave 1 cluster remains `AUDIT-C356` (draft brief first). D-06 remains a later separate brief. Owner permits a warranted push to existing origin/main so CI can run; CI status must be read from its pushed run, never inferred from local results. Capture-failure draft-bundle fallback remains an owner decision (ADR + Tier 3). [M6-02-R1](tasks/M6-02-R1.md) remains behind audit Waves 0–1; C1/F2 unchanged.
 
 [Supported-runtime M6-01-R1](tasks/M6-01-R1.md) remains gated by an available
 identified supported correction. C1/F2 release gate C remains open before

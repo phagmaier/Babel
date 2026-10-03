@@ -185,6 +185,9 @@ def run(d):
     urls = d.script("return [...new Set([...performance.getEntriesByType('resource').map(e=>e.name),...document.scripts].map(e=>typeof e==='string'?e:e.src).concat([...document.querySelectorAll('link[rel=stylesheet]')].map(e=>e.href)))].filter(Boolean);")
     assert len(urls) >= 2 and any('/assets/' in url and url.endswith('.js') for url in urls) and any('/assets/' in url and url.endswith('.css') for url in urls), urls
     assert all(url.startswith(('http://tauri.localhost/','https://tauri.localhost/','tauri://','http://ipc.localhost/')) for url in urls), urls
+    # Ordinary process exit starts only after the protected document close.
+    d.close_session(); d.audit(target, SOURCE)
+    assert pending.read_bytes() == b'synthetic interrupted dictionary write'
     result = {'checks':report,'bytes':len(SOURCE),'sha256':hashlib.sha256(SOURCE).hexdigest(),'resources':urls,'networkNamespace':network_namespace,'networkDevices':devices}
     (d.ROOT/'spellcheck-result.json').write_text(json.dumps(result,indent=2))
     print('PASS production offline spellcheck',json.dumps(result),flush=True); print('ARTIFACTS',d.ROOT,flush=True)

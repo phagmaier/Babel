@@ -87,6 +87,7 @@ name = "babel-desktop"
 version = "0.0.1"
 dependencies = [
  "libc",
+ "pkg-config",
  "rfd",
  "screenwriter-core",
  "serde",

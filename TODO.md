@@ -58,7 +58,8 @@ How to pick work: the next unchecked `[ ]` box below is the task. Read its brief
 
 - [x] **Tier 1 debloat** (S-14 stale refs, `docs/index.md` stub, TODO collapse, tracked link/matrix tools, `target/` prune) — Evidence: Tier 1 commit `433c150`.
 - [x] **T-08 (half)** — canonical matrix runner + link checker now tracked (`tools/run-workspace-matrix.py`, `tools/check-links.py`).
-- [x] **AUDIT-W0** (T-02 CI red, S-15 crate types, S-13 dead symbols) — [Brief](docs/tasks/AUDIT-W0.md). [Evidence](docs/test-evidence/AUDIT.md#audit-w0--ci-gate-desktop-crate-types-dead-symbols): Tier 2 local pass; CI itself unverified until an owner-authorized push (Hunspell-dict question open).
+- [x] **AUDIT-W0** (T-02 CI red, S-15 crate types, S-13 dead symbols) — [Brief](docs/tasks/AUDIT-W0.md). [Evidence](docs/test-evidence/AUDIT.md#audit-w0--ci-gate-desktop-crate-types-dead-symbols): original Tier 2 local pass; first pushed native CI exposed the Enchant 2.3.3 ABI prerequisite, tracked in W0-R1 below.
+- [ ] **AUDIT-W0-R1 — claimed** — [Brief](docs/tasks/AUDIT-W0-R1.md): pushed D08A CI exposed Enchant 2.3.3's missing empty-PWL ABI; provision the verified dependency without weakening spelling isolation, then verify the actual workflow.
 
 ### Wave 1 — safety (approved 2026-10-03; working agent drafts one brief at a time, in table order, same shape as AUDIT-W0)
 

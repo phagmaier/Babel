@@ -14,6 +14,7 @@ native-editor-proof = []
 editor-composition-proof = []
 
 [build-dependencies]
+pkg-config = "=0.3.34"
 tauri-build = { version = "=2.7.0", features = [] }
 
 [dependencies]

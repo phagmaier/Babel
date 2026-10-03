@@ -247,3 +247,52 @@ close the older C1/F2 failures. Final push/CI state is reported in the owner han
 - Final double-failure focused Vitest — mocked/JSDOM pass 1/1 (37 skipped); `/tmp/babel-d08-double-failure.log`.
 - `python3 -m py_compile` new external Reload drill and changed drill/integrated runner — pass; actual native imports also exercised the new mode.
 - Final touched prettier/local-link check and `git diff --check` — pass; `/tmp/babel-d08-format-precommit.log`, `/tmp/babel-d08-links-precommit.log`; no fixture source bytes formatted.
+
+## AUDIT-W0-R1 — Enchant CI ABI prerequisite
+
+Date: 2026-10-03. Base `e284a33`, main, owner continuation. Same pinned Linux
+x86_64 host/toolchains as D08A; `RUSTUP_TOOLCHAIN=1.97.1`,
+`CARGO_HOME=/tmp/babel-cargo`. [Brief](../tasks/AUDIT-W0-R1.md).
+
+Tier 3: dependency/build cross-boundary failure, temporary-prefix native linking
+and packaging checks. Application Enchant adapter/PWL/ownership behavior is
+unchanged. CI uses upstream 2.8.21 (LGPL-2.1-or-later, existing dependency),
+SHA-256 `dd2a762697c463148a8f59867089a5ebf2dd1449d869f93764b76c12bcf8acc0`;
+Hunspell build headers and English resources are explicit runner prerequisites.
+`pkg-config` 0.3.34 (MIT OR Apache-2.0, already transitive) is now a pinned direct
+build-only dependency. No new application engine or runtime environment mutation.
+
+### Checks and retained failures
+
+- `gh run view 37124370824 --json status,conclusion,headSha,url,jobs` / `--log-failed` — actual pushed `e284a33` CI **fail**: frontend/core pass; `native-linux` linker cannot find `enchant_broker_request_dict_with_pwl`, desktop tests never start and release build skipped; Ubuntu installs `libenchant-2-dev` 2.3.3-2build2. Full log `/tmp/babel-audit-w0-r1-ci-failure.log`, [run](https://github.com/phagmaier/Babel/actions/runs/37124370824).
+- Context7 Enchant/rrthomas and Rust pkg-config lookups — no matching C/crate documentation; verified [upstream NEWS](https://github.com/rrthomas/enchant/blob/v2.8.21/NEWS), release source/header/build options and [pkg-config 0.3.34 API](https://docs.rs/pkg-config/0.3.34/pkg_config/struct.Config.html) directly. The API was introduced in 2.4.0.
+- First timing-wrapper command — **fail** before source build: `/usr/bin/time` absent (exit 127); corrected to shell `time`, no prerequisite bypass.
+- `bash tools/ci-enchant.sh /tmp/babel-w0-r1-enchant` — actual native source build/English empty-PWL probe **pass**, 26.910s; `/tmp/babel-w0-r1-enchant-build.log`.
+- Final builder `bash tools/ci-enchant.sh /tmp/babel-w0-r1-enchant-final` — actual native **pass**, 43.640s; positive ordinary-PWL control reads the seeded learned word and exclusion; explicit `/dev/null` ignores both; exact profile-tree comparison unchanged. `/tmp/babel-w0-r1-enchant-final.log`, source/install/probe/profile artifacts retained in that disposable root.
+- Ubuntu dev `.deb` extracted to `/tmp/babel-w0-r1-old-enchant`; `PKG_CONFIG_PATH=<old>/usr/lib/x86_64-linux-gnu/pkgconfig cargo check -p babel-desktop --offline` — expected negative **pass** (exit 101): build script refuses actual 2.3.3 metadata with Enchant >=2.4 diagnostic before desktop link; `/tmp/babel-w0-r1-old-refusal.log`.
+- `PKG_CONFIG_PATH=<prefix>/lib/pkgconfig LD_LIBRARY_PATH=<prefix>/lib cargo test -p babel-desktop spellcheck --locked --offline` — actual native **pass 3/3**, 1m34s compile + 0.75s tests; prefix is `/tmp/babel-w0-r1-enchant-final/install`; `/tmp/babel-w0-r1-spellcheck.log`.
+- First `ldd` verification — **fail**, mistakenly used CI binary's hash in local path; corrected read-only lookup extracts local test binary from its log and proves `libenchant-2.so.2` loaded from the tested prefix; `/tmp/babel-w0-r1-loader.txt`.
+- `pnpm check` first — mocked/JSDOM **fail**, 843/844, 91.91s overall: `Spellcheck.test.tsx` effective-language refresh focus expected SELECT, got BODY; during source/Rust builds, cause unproved. Full output `/tmp/babel-w0-r1-pnpm-check.log`; no frontend code/test changed or check disabled.
+- `pnpm exec vitest run tests/ui/Spellcheck.test.tsx` — mocked/JSDOM focused rerun **pass 4/4**, 2.01s; `/tmp/babel-w0-r1-focus-rerun.log`; does not erase initial failure.
+- `cargo fmt --all -- --check` — **pass**.
+- Prefix-selected `cargo clippy --workspace --all-targets --locked --offline -- -D warnings` — static/native build **pass**, 37.08s; `/tmp/babel-w0-r1-clippy.log`.
+- `shellcheck tools/ci-enchant.sh`, `bash -n tools/ci-enchant.sh` — **pass**.
+- Final `pnpm check` — mocked/JSDOM/static/build **pass 844/844**, 73.18s overall (35.10s Vitest); formatting/lint/typecheck/build pass; `/tmp/babel-w0-r1-pnpm-check-final.log`. Existing bundle-size warning retained; initial focus failure not erased.
+- `pnpm test:browser` — generic Chromium smoke **pass**; `/tmp/babel-w0-r1-browser.log`; no native IPC claim.
+- Prefix-selected `python3 tools/run-workspace-matrix.py /tmp /home/phagmaier/Code/Babel/target --output target/audit-w0-r1/matrix -- cargo test --workspace --locked --offline` — actual native/filesystem + MockRuntime **pass 275/275 each**, tmpfs 70.047s / Btrfs 158.528s; every root selector bound; `/tmp/babel-w0-r1-matrix.log`, structured reports/raw logs under `target/audit-w0-r1/matrix/`. No PDF-helper build overlapped the matrix.
+- Prefix-selected `XDG_CACHE_HOME=/tmp/babel-cache pnpm tauri build` — default release/package **pass**, Rust optimized build 2m28s, AppImage 119.73 MiB; `/tmp/babel-w0-r1-release.log`. Frozen binary SHA-256 `a6e57a4aff5258a1db6707b3c8d35d578c78952820517b73ca8e5ca3d1bfb18a`, loader/provenance `target/audit-w0-r1/bin/provenance.json`; no installed-AppImage claim.
+- First native spelling launch — harness **fail 0/2**, wrong frozen-binary path (nonexistent basename); no app launched, zero recorded crash events/survivors; `/tmp/babel-w0-r1-native.log`, `target/audit-w0-r1/native/`.
+- Correct-path spelling attempt — actual native **fail 0/2**, tmpfs 39.58s file-picker-close timeout, Btrfs 15.50s expected `babel-desktop` window-ownership assertion after correction/Undo byte checks; secondary teardown-at-Home assertions fail, no owned recorded crash/survivor. Owner reports concurrent manual input/interruption; the frozen executable also had a changed basename. Attribution is not established. `/tmp/babel-w0-r1-native-final.log`, `target/audit-w0-r1/native-final/`; both roots retained. Rerun preserves original executable basename in a hash directory; no harness assertion relaxed.
+
+Completed raw logs are also copied to `target/audit-w0-r1/logs/` for retention.
+
+- Original-basename offline spelling rerun — actual native content checks **pass 2/2**, strict **fail 0/2** (23.48s tmpfs / 27.67s Btrfs): scenario prints PASS but never closes the document, so ordinary teardown's Home assertion fails; zero recorded owned crashes/survivors. `target/audit-w0-r1/native-rerun/`, `/tmp/babel-w0-r1-native-rerun.log`. Original-basename client identity independently observed as `babel-desktop`; `target/audit-w0-r1/frozen-clients.json`. Add the missing protected close + independent source/fault audits; no assertion or check weakened.
+
+- Protected-close spelling rerun — actual default-WebKit offline/native **pass 2/2 strict**, tmpfs 24.51s / Btrfs 29.71s; same frozen binary and tested Enchant prefix. Trusted correction, literal BOM/CRLF/marks/Unicode/Undo, Ignore/Add/restart, language/resource states, dictionary-only fault/source-save independence and protected close pass; literal source/fault bytes remain intact after close, bounded owned crash scans empty, zero survivors. `/tmp/babel-w0-r1-native-close.log`, `target/audit-w0-r1/native-close/results.json`, per-case ledgers/journals/phases and roots retained.
+- `python3 -m py_compile tests/native/writing-lifecycle/spellcheck_workflows.py` — **pass**; later three-line harness-only protected-close correction is covered by the named real two-filesystem rerun against the unchanged binary; shared app gates were not unnecessarily repeated.
+- Final touched prettier / changed local links (177) / shellcheck / shell syntax / `git diff --check` — **pass**; no author-content fixtures formatted.
+
+Local acceptance complete; actual corrected pushed CI result remains pending.
+Implementation push is warranted under the owner's recorded origin/main permission.
+C1/F2 unchanged; no
+installed-distribution acceptance or full integrated/native-editor claim.
