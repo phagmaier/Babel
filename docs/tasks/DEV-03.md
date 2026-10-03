@@ -159,6 +159,39 @@ PASS in real WebKit/GTK; no blocked sections.
 
 Evidence: [M5](../test-evidence/M5.md#dev-03--writingview-decomposition-slice-6).
 
+## Slice 7 (landed)
+
+Outline/character/position session → `src/app/outlineSession.ts`
+(`useOutlineSession`): projection and character state, the
+recent-position store and its refs, the highlight/restore effects and
+both navigation callbacks (outline navigate moved from its memoized
+slot, character navigate named from the inline panel callback; bodies
+byte-identical). The component keeps the mount-once lifecycle's
+position machinery and all reads go through the hook's returned
+handles (same identities) — verified safe because the lifecycle never
+reads hook-owned values, only stable handles. Net component effect:
+session block gone, one hook call + import in its place
+(`WritingView.tsx` 2,055 → 1,977 lines).
+
+Checks: `tsc` clean (proves the dependency boundary is exact),
+focused suites 65/65 (manuscript-index/projection, character-counts,
+recent-position contracts, Outline, CharacterPanel, WritingView incl.
+focus regressions), full `pnpm test` 772/772, `lint`, `typecheck`,
+`build`, `cargo` fmt/clippy/workspace (Rust untouched), `prettier`,
+`git diff --check`. Native drills on a fresh release: `--outline`
+completed all pre-IME workflows in real WebKit/GTK (collapse/expand,
+pointer and keyboard navigation with sub-200 ms timing asserts,
+filter, trusted-key clear, edit invalidation, Undo rebuild, exact
+Save) with no assertion failure; abort exactly at
+`outline_workflows.py:112`, pinyin IME section BLOCKED
+(`fcitx5-remote` not installed — same landmine as slice 5).
+`--characters` fully PASS with no blocked sections: character
+controls/navigation/focus/highlights plus the moved position
+machinery (restart hints, Save As caret, corrupt hints, checkpoint
+precedence) with exact bytes.
+
+Evidence: [M5](../test-evidence/M5.md#dev-03--writingview-decomposition-slice-7).
+
 ## Later slices (proposed, not started)
 
 - Feature-hook sections (find/replace/check/spelling/palette) as custom

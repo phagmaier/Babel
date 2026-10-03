@@ -51,7 +51,13 @@ bytes, pinyin IME section blocked (no Fcitx5 on this host). Slice 6
 landed: move session → `useMoveSession` (memoized preview, async
 apply, named cancel; teardown aborts and outline navigation stay);
 `WritingView.tsx` 2,148 → 2,055 lines, focused 49/49, full suite green,
-native `--scene-moves` drill PASS with no blocked sections.
+native `--scene-moves` drill PASS with no blocked sections. Slice 7
+landed: outline/character/position session → `useOutlineSession`
+(state, position store/refs, highlight/restore effects, both
+navigation callbacks; lifecycle threads through stable handles);
+`WritingView.tsx` 2,055 → 1,977 lines, focused 65/65, full suite
+green, `--outline` pre-IME workflows green with pinyin blocked (no
+Fcitx5), `--characters` fully PASS.
 [Brief](tasks/DEV-02.md), [evidence](test-evidence/M5.md#dev-02--second-machine-smoothness-tooling-slice).
 Tier 1: `bash -n`/`shellcheck`, doctor/host green, `cargo fmt`/`cargo check
 -p babel-desktop`, `tsc`, one vitest file, `prettier`, `git diff --check`.

@@ -31,7 +31,7 @@ import { nativeSpellcheck } from '../infrastructure/nativeSpellcheck';
  * snapshots/emergency copies and protected close all act on the current
  * editor through the session — never around it.
  */
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { listen } from '@tauri-apps/api/event';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import './writing.css';
@@ -43,24 +43,14 @@ import { PresentationControls, usePresentation } from './PresentationControls';
 import { TypewriterScroll } from '../editor/presentation';
 import type { EditorView } from 'prosemirror-view';
 import { EditorCaptureBoundary } from '../application/editorCapture';
-import {
-  ManuscriptProjectionController,
-  type ProjectionState,
-} from '../application/manuscriptProjection';
+import { ManuscriptProjectionController } from '../application/manuscriptProjection';
 import { MovePreview } from './MovePreview';
 import { Outline } from './Outline';
 import { CharacterPanel } from './CharacterPanel';
-import { highlightCharacter } from '../editor/characterFocus';
-import {
-  localRecentPositions,
-  type RecentPosition,
-} from '../application/recentPosition';
 import {
   captureRecentPosition,
   recentSelection,
-  restoreRecentViewport,
 } from '../editor/recentPosition';
-import type { OutlineItem } from '../domain/manuscriptIndex';
 import { TitlePagePanel } from './TitlePagePanel';
 import { FindPanel } from './FindPanel';
 import { FindController } from '../application/find';
@@ -116,6 +106,7 @@ import { useCheckSession } from './checkSession';
 import { useSpellingSession } from './spellingSession';
 import { useTitleSession } from './titleSession';
 import { useMoveSession } from './moveSession';
+import { useOutlineSession } from './outlineSession';
 import {
   clampedSelection,
   toSessionSelection,
@@ -318,26 +309,33 @@ export function WritingView({
       button.focus();
     }
   });
-  const [outline, setOutline] = useState<ProjectionState>({
-    phase: 'pending',
-    projection: null,
-    message: 'Preparing outline…',
+  const {
+    outline,
+    setOutline,
+    character,
+    setCharacter,
+    characterHighlight,
+    setCharacterHighlight,
+    positions,
+    positionError,
+    setPositionError,
+    positionRemember,
+    positionClosing,
+    positionCloseHint,
+    positionRestore,
+    retainClosingPosition,
+    onOutlineNavigate,
+    navigateCharacter,
+  } = useOutlineSession({
+    viewRef,
+    readyRef,
+    frozenRef,
+    operationRef,
+    titleDraftRef,
+    titleComposingRef,
+    phase,
+    setError,
   });
-  const [character, setCharacter] = useState<string | null>(null);
-  const [characterHighlight, setCharacterHighlight] = useState(false);
-  const positions = useMemo(() => localRecentPositions(), []);
-  const [positionError, setPositionError] = useState('');
-  const positionRemember = useRef<(closing?: boolean) => void>(() => {});
-  const positionClosing = useRef(false);
-  const positionCloseHint = useRef<RecentPosition | null>(null);
-  const retainClosingPosition = () => {
-    positionRemember.current();
-    positionClosing.current = true;
-  };
-  const positionRestore = useRef<{
-    hint: RecentPosition;
-    state: import('prosemirror-state').EditorState;
-  } | null>(null);
 
   useEffect(() => {
     // Moving the retained editor host from Opening to Writing can clear WebKit's
@@ -354,45 +352,6 @@ export function WritingView({
       view.focus();
     }
   }, [phase]);
-
-  useEffect(() => {
-    const view = viewRef.current;
-    if (view)
-      highlightCharacter(
-        view,
-        outline.phase === 'current' ? outline.projection : null,
-        characterHighlight
-          ? (outline.projection?.facts.characters.find(
-              (entry) => entry.name === character,
-            ) ?? null)
-          : null,
-      );
-  }, [outline, character, characterHighlight]);
-
-  useEffect(() => {
-    const pending = positionRestore.current,
-      view = viewRef.current;
-    if (phase !== 'active' || outline.phase !== 'current' || !pending || !view)
-      return;
-    let second = 0;
-    const first = requestAnimationFrame(() => {
-      second = requestAnimationFrame(() => {
-        if (
-          positionRestore.current !== pending ||
-          view.isDestroyed ||
-          view.state.doc !== pending.state.doc ||
-          !view.state.selection.eq(pending.state.selection)
-        )
-          return;
-        positionRestore.current = null;
-        restoreRecentViewport(view, pending.hint);
-      });
-    });
-    return () => {
-      cancelAnimationFrame(first);
-      cancelAnimationFrame(second);
-    };
-  }, [phase, outline]);
 
   useEffect(() => {
     const header = editorHost.current
@@ -1425,23 +1384,6 @@ export function WritingView({
     };
   }, [ports]);
 
-  const onOutlineNavigate = useCallback(
-    (item: OutlineItem) => {
-      const current = viewRef.current;
-      const captured = outline.projection;
-      if (
-        !current ||
-        !captured ||
-        !readyRef.current ||
-        frozenRef.current ||
-        !navigateOutline(current, captured, item.row)
-      )
-        setError(
-          'Outline navigation is unavailable for this version. Your selection and text are retained.',
-        );
-    },
-    [outline.projection],
-  );
   // The editor and import hosts are keyed so React preserves their DOM across
   // phase changes. Unkeyed conditional trees unmounted ProseMirror's DOM out
   // from under the live view, silently detaching the editor.
@@ -1734,27 +1676,7 @@ export function WritingView({
           }
           onSelect={setCharacter}
           onHighlight={setCharacterHighlight}
-          onNavigate={(entry) => {
-            const view = viewRef.current,
-              captured = outline.projection;
-            const row = view?.state.selection.$head.index(0) ?? -1;
-            const next = entry.cues.find((cue) => cue > row) ?? entry.cues[0];
-            if (
-              !view ||
-              !captured ||
-              !captured.facts.characters.includes(entry) ||
-              next === undefined ||
-              !readyRef.current ||
-              frozenRef.current ||
-              operationRef.current ||
-              titleDraftRef.current ||
-              titleComposingRef.current ||
-              !navigateOutline(view, captured, next)
-            )
-              setError(
-                'Character navigation is unavailable for this version. Text and selection are retained.',
-              );
-          }}
+          onNavigate={navigateCharacter}
         />
       )}
       {positionError && <p role="status">{positionError}</p>}
