@@ -189,6 +189,115 @@ fn exact_duplicate_freshly_verifies_without_replacement_and_conflicts_are_reject
 }
 
 #[test]
+fn later_version_with_identical_bytes_is_acknowledged_without_replacement() {
+    let f = Fixture::new();
+    let (mut service, opened) = f.open();
+    let id = &opened.identity;
+    let source = f.0.join("source.fountain");
+    let stamp = |path: &Path| {
+        let m = std::fs::metadata(path).unwrap();
+        (m.ino(), m.mtime(), m.mtime_nsec(), m.mode())
+    };
+    let untouched = stamp(&source);
+    let stages = std::cell::RefCell::new(Vec::new());
+    let gate = |stage| {
+        stages.borrow_mut().push(stage);
+        Ok(())
+    };
+
+    // A never-edited file: the first caret-only version writes no transaction at all.
+    service
+        .enqueue_save(request(&service, id, 5, ORIGINAL))
+        .unwrap();
+    let caret = service.save_next_with(id, gate).unwrap().unwrap();
+    assert_eq!(*stages.borrow(), [Stage::RecoveryProtected]);
+    assert_eq!(caret.version, 5);
+    assert_eq!(caret.protection, SaveProtection::SourceFile);
+    assert_eq!(caret.source_sha256, source_hash(ORIGINAL));
+    assert_eq!(Some(&caret.fingerprint), opened.fingerprint.as_ref());
+    assert_eq!(caret.recovery.version, 5);
+    assert_eq!((f.bytes(), stamp(&source)), (ORIGINAL.to_vec(), untouched));
+    assert!(!f.artifacts(&id.document_id).join("previous").exists());
+    assert_eq!(
+        service.inspect_source_save(id).unwrap().observation,
+        SaveObservation::NoTransaction
+    );
+    let journaled = service.inspect_recovery(id).unwrap().latest.unwrap();
+    assert_eq!(journaled.metadata.version, 5);
+    assert_eq!(journaled.source, ORIGINAL);
+    // An exact retry of that version is a duplicate, not a second acknowledgement.
+    assert_eq!(save(&mut service, id, 5, ORIGINAL), caret);
+    service.validate_owner(id).unwrap();
+
+    // After a real edit, caret-only versions keep the distinct earlier generation.
+    let edited = save(&mut service, id, 6, NEW);
+    let installed = stamp(&source);
+    assert_ne!(installed.0, untouched.0);
+    let artifacts = f.artifacts(&id.document_id);
+    let confirmed = std::fs::read(artifacts.join("confirmed")).unwrap();
+    for version in 7..10 {
+        let moved = save(&mut service, id, version, NEW);
+        assert_eq!(moved.version, version);
+        assert_eq!(moved.fingerprint, edited.fingerprint);
+        assert_eq!(moved.recovery.version, version);
+    }
+    assert_eq!((f.bytes(), stamp(&source)), (NEW.to_vec(), installed));
+    assert_eq!(std::fs::read(artifacts.join("previous")).unwrap(), ORIGINAL);
+    assert_eq!(
+        std::fs::read(artifacts.join("confirmed")).unwrap(),
+        confirmed
+    );
+    let state = service.inspect_source_save(id).unwrap();
+    assert_eq!(
+        state.observation,
+        SaveObservation::ConfirmedRecordMatchesSource
+    );
+    assert!(state.intent.is_none() && state.candidate.is_none());
+    assert_eq!(
+        service
+            .enqueue_save(request(&service, id, 8, NEW))
+            .unwrap_err()
+            .code,
+        ErrorCode::StaleSaveVersion
+    );
+
+    // The next real edit still replaces and retains the generation it replaced.
+    let next = save(&mut service, id, 10, OLD);
+    assert_ne!(next.fingerprint.inode, edited.fingerprint.inode);
+    assert_eq!(f.bytes(), OLD);
+    assert_eq!(std::fs::read(artifacts.join("previous")).unwrap(), NEW);
+    service.validate_owner(id).unwrap();
+}
+
+#[test]
+fn identical_bytes_over_an_external_edit_are_refused_without_acknowledgement() {
+    let f = Fixture::new();
+    let (mut service, opened) = f.open();
+    let id = &opened.identity;
+    save(&mut service, id, 21, NEW);
+    let artifacts = f.artifacts(&id.document_id);
+    // Same length and content class, different generation: not our baseline.
+    std::fs::write(f.0.join("source.fountain"), NEW).unwrap();
+    let rewritten = std::fs::metadata(f.0.join("source.fountain")).unwrap();
+    let mut external = NEW.to_vec();
+    external.reverse();
+    std::fs::write(f.0.join("source.fountain"), &external).unwrap();
+    enqueue(&mut service, id, 22, &external);
+    let failed = service.save_next(id).unwrap_err();
+    assert_eq!(failed.error.code, ErrorCode::SourceChanged);
+    assert_eq!(failed.replacement, ReplacementState::SourceUnchanged);
+    assert_eq!(failed.recovery.as_ref().unwrap().version, 22);
+    assert_eq!(f.bytes(), external);
+    assert_eq!(std::fs::read(artifacts.join("previous")).unwrap(), ORIGINAL);
+    assert_eq!(
+        std::fs::metadata(f.0.join("source.fountain"))
+            .unwrap()
+            .ino(),
+        rewritten.ino()
+    );
+}
+
+#[test]
 fn fault_matrix_preserves_whole_generations_recovery_and_truthful_failure() {
     for failed in [
         Stage::RecoveryProtected,

@@ -2,7 +2,7 @@
 
 Status: **done 2026-10-03; first Wave 1 brief** ([evidence](../test-evidence/AUDIT.md#audit-c01--capture-stays-possible-on-standard-fountain-edits-and-edge-space-emphasis))
 Dependencies: AUDIT-W0 (done)
-Requirements: INV-06 (content protection), `SPEC.md` S358 (forced markers when needed to prevent misinterpretation). Frontend codec/editor only; no native, IPC, persistence-format or recovery-format change.
+Requirements: INV-06 (content protection), `SPEC.md:358` (forced markers when needed to prevent misinterpretation). Frontend codec/editor only; no native, IPC, persistence-format or recovery-format change.
 
 Covers [C-01](../../AUDIT.md#c-01--on-a-standard-fountain-file-typing-under-a-heading-or-above-a-character-cue-makes-the-draft-uncapturable-nothing-is-journaled-or-saved-until-that-edit-is-reverted-high-m-for-the-seven-cases-l-to-close-the-whole-class), [C-02](../../AUDIT.md#c-02--a-space-at-the-edge-of-bolditalicunderline-text-makes-the-draft-uncapturable-one-common-sequence-leaves-it-stuck-high-m) and [T-01](../../AUDIT.md#t-01--no-test-deletes-a-blank-row-next-to-unforced-fountain-syntax-and-checks-what-is-saved-high-m). Scope is the M-sized fix (the seven audited cases, their blank-row siblings and the edge-space class), not the L-sized closure of every uncapturable shape.
 

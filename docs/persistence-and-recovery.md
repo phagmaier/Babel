@@ -98,6 +98,12 @@ and exact installed-byte verification. Ordinary owner/group/mode survive; ACLs
 and xattrs are conservatively rejected rather than discarded. Confirmed metadata
 is synced/reverified before the exact `sourceFile` receipt and disk baseline
 advance. Exact duplicates perform fresh sync/verification without replacement.
+A later version whose bytes equal the current source (a caret- or
+metadata-only version) is acknowledged the same way after its recovery
+checkpoint: fresh sync, ownership recheck and a `sourceFile` receipt carrying
+the unchanged fingerprint. Nothing else is written — no intent, candidate,
+`previous`, `confirmed`, lease or recents change — so the retained previous
+generation keeps its distinct earlier content ([AUDIT-C04](tasks/AUDIT-C04.md)).
 
 Errors distinguish source unchanged by this operation from replaced but
 unconfirmed. The latter blocks further replacement and bare release while

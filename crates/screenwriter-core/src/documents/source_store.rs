@@ -312,6 +312,29 @@ impl DocumentService {
             {
                 return Err(error(ErrorCode::SourceChanged));
             }
+            if old == request.source {
+                // The file already holds these bytes (a caret or metadata-only version).
+                // Acknowledge the version against the unchanged generation after a fresh
+                // flush; a replacement would overwrite `previous` with identical content.
+                read_file(&anchor.parent, &anchor.name)?
+                    .sync_all()
+                    .map_err(io_error)?;
+                anchor.parent.sync_all().map_err(io_error)?;
+                self.validate_owner(identity)?;
+                let saved = SaveReceipt {
+                    identity: identity.clone(),
+                    version: request.version,
+                    source_sha256: source_hash(&old),
+                    fingerprint: baseline,
+                    recovery: receipt,
+                    protection: SaveProtection::SourceFile,
+                };
+                self.documents
+                    .get_mut(&identity.handle)
+                    .ok_or_else(|| error(ErrorCode::Io))?
+                    .last_save = Some((saved.clone(), request.draft_metadata.clone()));
+                return Ok(saved);
+            }
             let candidate_name = format!(".babel-save-{}", uuid());
             let mut intent = Checkpoint::capture(
                 identity,

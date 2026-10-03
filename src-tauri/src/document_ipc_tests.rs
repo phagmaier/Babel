@@ -256,6 +256,63 @@ fn checkpoint_and_source_dispatch_return_exact_distinct_receipts_and_duplicate_f
 }
 
 #[test]
+fn save_dispatch_acknowledges_caret_only_versions_without_replacing_the_source() {
+    use screenwriter_core::documents::{recovery::*, saving::*};
+    use std::os::unix::fs::MetadataExt;
+    let f = PersistenceFixture::new();
+    let (service, opened) = f.service();
+    let app = persistence_app(DocumentHost {
+        service: Arc::new(Mutex::new(Some(service))),
+        ..Default::default()
+    });
+    let webview = tauri::WebviewWindowBuilder::new(&app, "main", Default::default())
+        .build()
+        .unwrap();
+    let stamp = || {
+        let m = std::fs::metadata(f.0.join("source.fountain")).unwrap();
+        (m.ino(), m.mtime(), m.mtime_nsec())
+    };
+    let save = |current: &OpenDocument, version: u64, source: &[u8]| {
+        invoke(
+            &webview,
+            "save_document",
+            snapshot_body(current, version, source),
+        )
+        .unwrap()
+        .deserialize::<SaveReceipt>()
+        .unwrap()
+    };
+    // Browsing a never-edited file: each caret pause is acknowledged, nothing is rewritten.
+    let untouched = stamp();
+    for version in 1..4 {
+        let moved = save(&opened, version, &opened.source);
+        assert_eq!(moved.version, version);
+        assert_eq!(moved.recovery.version, version);
+        assert_eq!(moved.protection, SaveProtection::SourceFile);
+        assert_eq!(Some(&moved.fingerprint), opened.fingerprint.as_ref());
+        assert_eq!(moved.source_sha256, source_hash(&opened.source));
+    }
+    assert_eq!((f.bytes(), stamp()), (opened.source.clone(), untouched));
+    let previous =
+        f.0.join("app-data/source-save")
+            .join(&opened.identity.document_id)
+            .join("previous");
+    assert!(!previous.exists());
+    // A real edit replaces once; later caret pauses keep the earlier generation distinct.
+    let edited = save(&opened, 4, b"edited\r\n  ");
+    let installed = stamp();
+    assert_ne!(installed.0, untouched.0);
+    let mut current = opened.clone();
+    current.fingerprint = Some(edited.fingerprint.clone());
+    let moved = save(&current, 5, b"edited\r\n  ");
+    assert_eq!(moved.fingerprint, edited.fingerprint);
+    assert_eq!((f.bytes(), stamp()), (b"edited\r\n  ".to_vec(), installed));
+    assert_eq!(std::fs::read(&previous).unwrap(), opened.source);
+    drop(webview);
+    drop(app);
+}
+
+#[test]
 fn persistence_dispatch_rejects_paths_sessions_hashes_and_versions_without_writing_source() {
     let f = PersistenceFixture::new();
     let (service, opened) = f.service();

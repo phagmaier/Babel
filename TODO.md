@@ -71,8 +71,8 @@ How to pick work: the next unchecked `[ ]` box below is the task. Read its brief
 | AUDIT-C356 | C-03 (escape encoder + renderer), C-05 (SELinux xattr names), C-06 (find/check decoration sets)                               | S–M    | —                     |
 
 - [x] **AUDIT-C01** — [Brief](docs/tasks/AUDIT-C01.md). [Evidence](docs/test-evidence/AUDIT.md#audit-c01--capture-stays-possible-on-standard-fountain-edits-and-edge-space-emphasis): Tier 2, mocked/JSDOM only; remaining uncapturable shapes listed there.
-- [ ] **AUDIT-C04 — NEXT** (draft the brief first; Tier 3)
-- [ ] **AUDIT-D01** (inherits the mid-speech Enter shape left by AUDIT-C01)
+- [x] **AUDIT-C04** — [Brief](docs/tasks/AUDIT-C04.md). [Evidence](docs/test-evidence/AUDIT.md#audit-c04--a-caret-move-no-longer-rewrites-the-manuscript): Tier 3, tmpfs/Btrfs matrix 268/268 and native lifecycle drill on both; one unreproduced Btrfs publication-cache failure retained there.
+- [ ] **AUDIT-D01 — NEXT** (draft the brief first; inherits the mid-speech Enter shape left by AUDIT-C01)
 - [ ] **AUDIT-D08A**
 - [ ] **AUDIT-C356**
 

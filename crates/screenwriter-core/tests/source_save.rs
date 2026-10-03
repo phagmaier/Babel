@@ -68,12 +68,12 @@ fn no_op_save_preserves_bom_crlf_spaces_and_unknown_fountain_bytes() {
     assert_eq!(f.bytes(), ORIGINAL);
     assert_eq!(service.read_initial(&opened.identity).unwrap(), opened);
     service.validate_owner(&opened.identity).unwrap();
+    // SPEC S06.1 no-op fidelity: identical bytes are acknowledged without a rewrite,
+    // so no transaction or previous-generation copy is published (AUDIT-C04).
+    assert_eq!(Some(&saved.fingerprint), opened.fingerprint.as_ref());
     let inspection = service.inspect_source_save(&opened.identity).unwrap();
-    assert_eq!(inspection.previous.unwrap(), ORIGINAL);
-    assert_eq!(
-        inspection.observation,
-        SaveObservation::ConfirmedRecordMatchesSource
-    );
+    assert!(inspection.previous.is_none() && inspection.confirmed.is_none());
+    assert_eq!(inspection.observation, SaveObservation::NoTransaction);
     let duplicate_recovery = service
         .checkpoint(
             &opened.identity,

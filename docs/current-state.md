@@ -1,4 +1,4 @@
-# Current state — AUDIT-W0/C01 done; M6-02 disposition open
+# Current state — AUDIT-W0/C01/C04 done; M6-02 disposition open
 
 Date: 2026-10-03. Application: **babel**. Main; no push/tag/branch.
 Base `ccf9fb5`, clean main/19 ahead at claim. M0–M5 and bounded M6-01
@@ -69,9 +69,11 @@ Tracker: `TODO.md` `## Audit execution`; evidence: [`docs/test-evidence/AUDIT.md
 
 [AUDIT-C01](tasks/AUDIT-C01.md) done (C-01, C-02, T-01; frontend only): deferred capture now owns a drifting unforced neighbour and inserts only its forcing marker; Enter at the start of a speech row and joins that strand text after a parenthetical refuse; a split heading's tail becomes Action; typed edge whitespace in emphasis is captured unstyled; the capture alert clears on the next good capture. Paths: `fountainCodec.ts`, `fountainInline.ts`, `sourceBridge.ts`, `commands.ts`, `WritingView.tsx`, new `tests/contract/editor-unforced.test.ts`, `docs/editor-behavior.md`. Checks: frontend 813/813 (39 new, red before the fix), lint/typecheck/build; Rust fmt/clippy, workspace 265/265; prettier, links, `git diff --check`. **Mocked/JSDOM only — no native WebView run.** Remaining uncapturable shapes (mid-speech Enter then typing, dual regrouping, edits beside protected rows) and the unbuilt draft-bundle fallback are listed in the evidence.
 
+[AUDIT-C04](tasks/AUDIT-C04.md) done (C-04; native): `source_store.rs` acknowledges a later version whose bytes equal the source with a fresh flush and an unchanged-fingerprint `sourceFile` receipt instead of a replacement, so caret pauses no longer rewrite the file or clobber `previous`. One deliberate expectation change in `tests/source_save.rs` (no-op save now publishes no transaction). Checks: Tier 3 — tmpfs/Btrfs matrix 268/268 each, browser smoke, release build, native lifecycle drill 7/7 on tmpfs and Btrfs, shared frontend/Rust gates. Retained: one Btrfs `publication_cache_lease_restart…` `CacheUnavailable` failure, not reproduced in 7 reruns, cause unknown; no drill asserts the WebView click case end to end.
+
 ## Next action and blockers
 
-Next agent-executable task: draft and execute `docs/tasks/AUDIT-C04.md` (C-04, caret move rewrites the file; Rust + Tier 3 matrix), then AUDIT-D01, which inherits the mid-speech Enter shape. Wave 1 order in the TODO tracker is binding. Owner actions, non-blocking: push when ready so `native-linux` runs (record the result and any missing Hunspell package in the AUDIT evidence); decide whether to brief the capture-failure draft-bundle fallback (ADR, Tier 3). Check off in the TODO tracker, never in `AUDIT.md`. [M6-02-R1](tasks/M6-02-R1.md) queued behind audit Waves 0–1; C1/F2 gate unchanged.
+Next agent-executable task: draft and execute `docs/tasks/AUDIT-D01.md` (D-01 separator-row Enter + S-08 keep-set wiring; inherits the mid-speech Enter shape from AUDIT-C01). Wave 1 order in the TODO tracker is binding; D-06 is now unblocked by C-04 but stays in its own later brief. Owner actions, non-blocking: push when ready so `native-linux` runs (record the result and any missing Hunspell package in the AUDIT evidence); decide whether to brief the capture-failure draft-bundle fallback (ADR, Tier 3). Check off in the TODO tracker, never in `AUDIT.md`. [M6-02-R1](tasks/M6-02-R1.md) queued behind audit Waves 0–1; C1/F2 gate unchanged.
 
 [Supported-runtime M6-01-R1](tasks/M6-01-R1.md) remains gated by an available
 identified supported correction. C1/F2 release gate C remains open before
