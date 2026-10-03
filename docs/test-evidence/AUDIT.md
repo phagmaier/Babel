@@ -300,3 +300,49 @@ installed-distribution acceptance or full integrated/native-editor claim.
 - Implementation commit `7d45253` pushed to existing `origin/main`; [first corrected CI](https://github.com/phagmaier/Babel/actions/runs/37157414707) **fail** in source-build prerequisite: `groff: fatal error: cannot load 'DESC' description file for device 'html'`, upstream `make enchant.html` exit 2 before Rust gates. Full log `/tmp/babel-w0-r1-ci-source-failure.log` (also retained under `target/audit-w0-r1/logs/`); add exactly `groff` to the runner's apt prerequisites, preserving upstream build/checks.
 - `49129df` groff prerequisite follow-up pushed; `gh run view 37157598075 --json status,conclusion,headSha,url,jobs` / `--log` — [actual corrected CI **pass**](https://github.com/phagmaier/Babel/actions/runs/37157598075), completed success at exact `49129df390d8ad39593dc2d1b152b6676161fb7e`; frontend/core job 105s (frontend 844/844, Rust fmt/core suites), native job 631s (pinned source build/ordinary-PWL control/empty-PWL probe, clippy, PDF helper, native workspace **275/275**, default package build). Full metadata `target/audit-w0-r1/ci-final.json`, raw log `target/audit-w0-r1/logs/ci-final.log`; initial corrected-run metadata `ci-first.json`. Runner is Ubuntu 24.04; no installed/native-UI distribution support claim.
 - Final evidence/handoff-only update: touched prettier, changed local-link checks and `git diff --check` pass; no additional executable change or repeated expensive gate. Implementation/prerequisite commits are pushed; completion evidence is committed locally for review.
+
+## AUDIT-C356 — Literal escapes, SELinux metadata and advisory highlights
+
+Date: 2026-10-03. Base `08986eb`, clean main at claim; owner authorizes warranted
+push. [Brief](../tasks/AUDIT-C356.md). Same pinned host toolchains; Tier 3 for
+native metadata. Frozen audit and all prior failed roots/logs/cores preserved.
+
+- `gh run view 37158997960 --json status,conclusion,headSha,url,jobs` — actual CI **pass** on `08986eb`, both frontend/core and native-linux jobs successful; no prior expensive suite rerun for the documentation commit.
+- `pnpm exec vitest run tests/contract/fountain-complex.test.ts tests/ui/FindPanel.test.tsx` — JSDOM/codec expected **red**, 2 failed/54 passed, unnecessary bracket/path escaping and Find erased by clearing check; `/tmp/babel-c356-red-frontend.log`.
+- `python3 tools/pdf-helper/test_helper.py HelperTest.test_frozen_profile_literal_escapes` — actual frozen-helper + independent Poppler expected **red**, escaped brackets/backslashes printed and escaped underscores misstyled; `/tmp/babel-c356-red-renderer.log`.
+- `cargo test -p screenwriter-core selinux_xattr_name --locked --offline` — prerequisite **blocked** in sandbox temporary cache (missing rfd); network retry failed DNS, `/tmp/babel-c356-red-metadata.log`, `/tmp/babel-c356-red-metadata-retry.log`; unrestricted retry resolved prerequisites and produced expected **red** exact SELinux-name refusal, `/tmp/babel-c356-red-metadata-unrestricted.log`.
+- `pnpm exec vitest run tests/ui/WritingView.test.tsx -t AUDIT-C356` — initial harness **fail** (no scene/outline target); corrected synthetic scene fixture retained, then expected **red 2/2** on Next match, with/without retained Script Check; `/tmp/babel-c356-red-integration.log`, `/tmp/babel-c356-red-integration-retry.log`.
+- Initial focused 7-file frontend run — **fail 1/168** only the deliberately obsolete blanket backslash expectation; independent literal review updates that one spelling to a single ordinary backslash, keeps round-trip/no-op/style/neighbor assertions; `/tmp/babel-c356-focused-full.log`.
+- Final focused `vitest` codec/editor-bridge/find/script-check/FindPanel/ScriptCheckPanel/WritingView — JSDOM/codec **pass 168/168**, 11.92s; independent plugin clearing, retained-report Next/Previous/caret, state identity/source/Undo, existing stale/composition/frozen gates; `/tmp/babel-c356-focused-final.log`.
+- `cargo test -p screenwriter-core metadata --locked --offline` — unrestricted native/injected-name tests **pass**; exact label exemption, bounded single-call read and read-failure refusal, existing metadata safety checks; `/tmp/babel-c356-metadata-full.log`.
+- `python3 tools/pdf-helper/build.py --offline` — actual pinned helper **pass**, final tree `808d2276543fce73967f8c66166d5e61a676282e094716da3e42b7831454086a`; native pin/review identity advance together, profile/dependency/font versions unchanged; `/tmp/babel-c356-helper-build-final.log`.
+- `python3 tools/pdf-helper/test_helper.py` — actual helper/Poppler/native offline namespace **pass 13/13**, 3.648s, including literal PDF escapes/title and direct AST style assertions; `/tmp/babel-c356-helper-tests.log`.
+- `target/dev-python/bin/python tools/pdf-helper/test_profile.py --output target/audit-c356/profile-final` — actual helper/pypdf/Poppler **pass**, 13 corpus cases/22 unchanged accepted raster pages/13 boundaries; all golden/fixture bytes preserved, fresh outputs retained; `/tmp/babel-c356-profile.log`.
+- Initial `pnpm check` — **fail** at lint, redundant bracket regex escape (`no-useless-escape`); removed the redundant escape without changing matching, `/tmp/babel-c356-check.log`; timed rerun below.
+- Initial `cargo clippy --workspace --all-targets --locked --offline -- -D warnings` — prerequisite **blocked**, missing cached adler2; `/tmp/babel-c356-clippy.log`, online unrestricted retry required.
+- `python3 -m py_compile tools/pdf-helper/frozen_profile.py tools/pdf-helper/test_helper.py` — **pass**. Initial changed-link check — **fail**, new evidence heading not yet appended plus draft C-03 anchor typo; `/tmp/babel-c356-links-initial.log`; corrected final checks below.
+
+- `pnpm check` final timed rerun — JSDOM/shared static/build **pass 848/848** across 65 files, 72.116s; formatting/lint/typecheck/production build pass, existing chunk-size advisory retained; `/tmp/babel-c356-check-final.{log,json}`.
+- `cargo fmt --all -- --check` — unrestricted **pass**; `cargo clippy --workspace --all-targets --locked -- -D warnings` — unrestricted **pass**, 39.51s; `/tmp/babel-c356-clippy-retry.log`.
+- `python3 tools/check-links.py` — **pass 205 changed links** after heading/anchor completion; unsupported `--help` was interpreted as a file in an initial CLI probe, no source change; `/tmp/babel-c356-links-final.log`. `git diff --check` — **pass** at this stage; final rerun after handoff.
+
+- `RUSTUP_TOOLCHAIN=1.97.1 CARGO_HOME=/tmp/babel-cargo python3 tools/run-workspace-matrix.py /tmp/babel-c356-matrix $PWD/target/audit-c356/matrix-root --output target/audit-c356/workspace -- cargo test --workspace --locked --offline` — unrestricted actual native **pass 277/277 each**, tmpfs 109.538s/Btrfs 155.014s; canonical complete selector list, native metadata/source save/Save As/PDF/snapshot/recovery/history/lease/IPC and publication integrity regressions; logs/reports retained under `target/audit-c356/workspace/`. No generated-runtime build overlapped either run.
+- `pnpm test:browser` — sandbox **blocked**, Vite exited 1 before launch; `/tmp/babel-c356-browser.{log,json}`. Unrestricted headless Chromium rerun **pass**, 36.408s; `/tmp/babel-c356-browser-unrestricted.{log,json}`. No shared keyboard/mouse input.
+- Host metadata coverage — `/sys/fs/selinux/enforce` absent; exact SELinux-name injected test **pass 1/1** (`/tmp/babel-c356-focused-metadata.log`). Real ACL/user-xattr refusal uses existing source-save tests in both matrix runs; no fabricated enforcing-label success.
+
+- `RUSTUP_TOOLCHAIN=1.97.1 CARGO_HOME=/tmp/babel-cargo XDG_CACHE_HOME=/tmp/babel-cache pnpm tauri build` — unrestricted default release/AppImage **pass**, 142.378s; `/tmp/babel-c356-package.{log,json}`. Build ran after matrix completion; deterministic helper tree stays `808d2276…`.
+- AppImage `--appimage-extract` into fresh `target/audit-c356/package/`, then `python3 tools/pdf-helper/verify_runtime.py <extracted>/usr/lib/babel/pdf-helper` — actual packaged integrity **pass**, no problems and exact expected tree; `/tmp/babel-c356-extract.log`, `/tmp/babel-c356-packaged-integrity.log`.
+- `BABEL_PDF_HELPER_RUNTIME=<extracted>/usr/lib/babel/pdf-helper unshare --user --net python3 tools/pdf-helper/test_helper.py HelperTest.test_frozen_profile_literal_escapes HelperTest.test_frozen_escape_styles_and_title` — actual packaged helper, offline namespace/Poppler **pass 2/2**, 1.061s; `/tmp/babel-c356-packaged-escapes.log`. No GUI or shared input.
+- Retained check logs/reports copied from `/tmp/babel-c356-*` files into `target/audit-c356/logs/`; prior audit/M6 failed roots/logs/cores untouched. Frozen `AUDIT.md`, Fountain fixture bytes and accepted goldens have no Git diff.
+
+- Final `pnpm format:check`, changed-link checker and `git diff --check` — **pass** after completion/handoff; final logs `/tmp/babel-c356-final-format-check.log`, `/tmp/babel-c356-final-links.log`.
+
+Coverage limits: SELinux names/syscall failures are injected unit evidence; actual
+Arch tmpfs/Btrfs descriptors, ACL/user-xattr refusal and publication safety use
+real syscalls. No enforcing SELinux/Fedora host is available; label transition
+policy and target-host acceptance remain unverified. Unknown metadata retains
+the existing typed refusal, with no IPC/error-shape change. Frontend highlights
+are JSDOM/browser evidence; no native WebKit/editor/input timing claim. Direct
+helper tests and native publication resource checks cover rendering/integrity;
+no shared-keyboard GUI drill/full integrated matrix for this cluster. C1/F2,
+M6-02 disposition and Local v1 admission remain open. Stop after C356.

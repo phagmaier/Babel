@@ -11,6 +11,8 @@ import {
   TextSelection,
   type Transaction,
 } from 'prosemirror-state';
+import { findHighlightPlugin } from './find';
+import { checkHighlightPlugin } from './scriptCheck';
 import { spellcheckPlugin } from './spellcheck';
 import { characterFocusPlugin } from './characterFocus';
 import { parseFountain } from '../domain/fountainCodec';
@@ -312,7 +314,14 @@ export function createEditorState(
   return EditorState.create({
     doc,
     selection: TextSelection.create(doc, first),
-    plugins: [sourcePlugin, history(), spellcheckPlugin, characterFocusPlugin],
+    plugins: [
+      sourcePlugin,
+      history(),
+      spellcheckPlugin,
+      findHighlightPlugin,
+      checkHighlightPlugin,
+      characterFocusPlugin,
+    ],
   });
 }
 

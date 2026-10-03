@@ -20,6 +20,8 @@ import {
 } from '../../src/editor/state';
 import { mountScreenplayEditor } from '../../src/editor/view';
 import { captureEditor } from '../../src/editor/sourceBridge';
+import { highlightCheckIssues } from '../../src/editor/scriptCheck';
+import { evaluateScriptCheck } from '../../src/domain/scriptCheck';
 import { highlightFind, navigateFind } from '../../src/editor/find';
 import { defaultFindOptions, findSlices } from '../../src/domain/find';
 import { buildManuscriptIndex } from '../../src/domain/manuscriptIndex';
@@ -373,5 +375,24 @@ it('search navigation leaves an authored edit undoable in one step', async () =>
   expect(Array.from(captureEditor(f.view.state).source)).toEqual(
     Array.from(new TextEncoder().encode('!moon')),
   );
+  f.controller.dispose();
+});
+
+it('AUDIT-C356 keeps independently cleared check and find sets without state or Undo writes', async () => {
+  const f = await fixture('!moon moon moon\n\n@ORPHAN');
+  const before = f.view.state;
+  const issues = evaluateScriptCheck(
+    f.projection.snapshot.capture.document,
+  ).issues;
+  highlightFind(f.view, f.projection, f.controller.state.matches, 0);
+  highlightCheckIssues(f.view, null, []);
+  expect(document.querySelectorAll('.find-highlight')).toHaveLength(3);
+  highlightCheckIssues(f.view, f.projection, issues);
+  const checks = document.querySelectorAll('.check-highlight').length;
+  expect(checks).toBeGreaterThan(0);
+  highlightFind(f.view, null, [], -1);
+  expect(document.querySelectorAll('.check-highlight')).toHaveLength(checks);
+  expect(f.view.state).toBe(before);
+  expect(undoDepth(f.view.state)).toBe(0);
   f.controller.dispose();
 });

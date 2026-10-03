@@ -76,8 +76,7 @@ export function useCheckSession(deps: CheckSessionDeps): CheckSession {
     )
       return;
     popupRef.current?.controller.dismiss();
-    // One panel owns the shared view-only decoration channel at a time;
-    // closing find clears its highlights before check paints its own.
+    // Panels remain mutually exclusive; each clears only its own plugin highlights.
     findRef.current?.configure(findRef.current.state.options, false);
     setShowCheck(true);
   };

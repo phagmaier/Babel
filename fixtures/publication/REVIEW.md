@@ -55,3 +55,9 @@ terminal parentheticals, repeated cues, literal lyric markers, asymmetric dual
 leading parentheticals, and declared
 refusals for impossible cue/parenthetical/scene-number geometry and unpaired dual. The source
 bytes, save/recovery state and live editor are outside renderer authority.
+
+AUDIT-C356 corrects literal escape decoding in the existing frozen renderer.
+The runtime tree and native integrity pin advance together; profile geometry,
+upstream versions, fixture bytes and accepted golden identities remain unchanged.
+[Audit evidence](../../docs/test-evidence/AUDIT.md#audit-c356--literal-escapes-selinux-metadata-and-advisory-highlights)
+records literal PDF/style assertions and the full unchanged-golden check.

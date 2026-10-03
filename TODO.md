@@ -75,7 +75,7 @@ How to pick work: the next unchecked `[ ]` box below is the task. Read its brief
 - [x] **AUDIT-C04** — [Brief](docs/tasks/AUDIT-C04.md). [Evidence](docs/test-evidence/AUDIT.md#audit-c04--a-caret-move-no-longer-rewrites-the-manuscript): Tier 3, tmpfs/Btrfs matrix 268/268 and native lifecycle drill on both; one unreproduced Btrfs publication-cache failure retained there.
 - [x] **AUDIT-D01** — [Brief](docs/tasks/AUDIT-D01.md). [Evidence](docs/test-evidence/AUDIT.md#audit-d01--portable-enter-separators-and-explicit-speechbreak-authoring): Tier 2, separator Enter and inherited speech continuation, Shift+Enter/dual codec wiring; mocked/JSDOM + browser smoke, no native scene/PDF oracle.
 - [x] **AUDIT-D08A** — [Brief](docs/tasks/AUDIT-D08A.md). [Evidence](docs/test-evidence/AUDIT.md#audit-d08a--protected-external-reload): protected explicit Reload, focus/periodic checks, metadata re-anchor; workspace 275/275 each and actual WebKit 2/2 strict on tmpfs/Btrfs; retained failures, C1/F2 unchanged.
-- [ ] **AUDIT-C356 — NEXT** (draft the brief first)
+- [x] **AUDIT-C356** — [Brief](docs/tasks/AUDIT-C356.md). [Evidence](docs/test-evidence/AUDIT.md#audit-c356--literal-escapes-selinux-metadata-and-advisory-highlights): literal escape encoder/frozen renderer, exact SELinux xattr-name exemption and independent Find/check highlights; frontend 848/848, workspace 277/277 each tmpfs/Btrfs, helper 13/13 and offline packaged escapes 2/2, unchanged 22 golden pages, default package/browser/static pass. Enforcing SELinux/Fedora unverified; C1/F2 unchanged. Stop here; Wave 2 unstarted.
 
 ### Wave 2 — test gaps (approved as AUDIT-TEST; draft when Wave 1 completes)
 

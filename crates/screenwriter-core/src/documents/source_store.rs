@@ -651,12 +651,31 @@ impl DocumentService {
     }
 }
 
-// Do not silently discard ACLs or extended attributes that this adapter cannot preserve.
+// SELinux labels replacement inodes; do not copy privileged labels. Every
+// other attribute still refuses publication rather than silently losing metadata.
 pub(super) fn plain_metadata(file: &File) -> Result<(), DocumentError> {
-    if fs::flistxattr(file, &mut [] as &mut [u8]).map_err(syscall_error)? != 0 {
+    plain_metadata_with(|names| fs::flistxattr(file, names))
+}
+
+fn plain_metadata_with(
+    mut list: impl FnMut(&mut [u8]) -> Result<usize, Errno>,
+) -> Result<(), DocumentError> {
+    // Linux bounds the xattr name list at 64 KiB. Read into the full bounded
+    // buffer in one syscall, avoiding a size/read race (including empty->nonempty).
+    let mut names = vec![0; 64 * 1024];
+    let length = list(&mut names).map_err(|_| error(ErrorCode::SaveNeedsAttention))?;
+    if length > names.len() || !plain_xattr_names(&names[..length]) {
         return Err(error(ErrorCode::SaveNeedsAttention));
     }
     Ok(())
+}
+
+pub(super) fn plain_xattr_names(names: &[u8]) -> bool {
+    names.is_empty()
+        || (names.ends_with(&[0])
+            && names[..names.len() - 1]
+                .split(|byte| *byte == 0)
+                .all(|name| name == b"security.selinux"))
 }
 
 fn private_directory(parent: &File, name: &str, create: bool) -> Result<File, DocumentError> {

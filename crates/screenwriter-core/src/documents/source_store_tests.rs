@@ -735,3 +735,58 @@ fn failed_request_keeps_session_version_order_and_exact_retry_identity() {
     assert_eq!(saved.version, 21);
     assert_eq!(f.bytes(), NEW);
 }
+
+#[test]
+fn selinux_xattr_name_exemption_is_exact_and_fail_closed() {
+    use super::source_store::plain_xattr_names;
+    assert!(plain_xattr_names(b""));
+    assert!(plain_xattr_names(b"security.selinux\0"));
+    for names in [
+        &b"user.babel-test\0"[..],
+        &b"system.posix_acl_access\0"[..],
+        &b"security.selinux\0user.babel-test\0"[..],
+        &b"security.selinux.extra\0"[..],
+        &b"security.selinux"[..],
+        &b"security.selinux\0\0"[..],
+        &b"\0"[..],
+        &b"security.ima\0"[..],
+    ] {
+        assert!(!plain_xattr_names(names), "{names:?}");
+    }
+}
+
+#[test]
+fn metadata_list_read_is_bounded_and_refuses_errors_or_invalid_lengths() {
+    // Inject only the OS list result; actual descriptor/ACL tests remain separate.
+    assert!(
+        plain_metadata_with(|buffer| {
+            assert_eq!(buffer.len(), 64 * 1024);
+            let names = b"security.selinux\0";
+            buffer[..names.len()].copy_from_slice(names);
+            Ok(names.len())
+        })
+        .is_ok()
+    );
+    assert!(plain_metadata_with(|_| Ok(0)).is_ok());
+    for errno in [Errno::RANGE, Errno::IO, Errno::ACCESS] {
+        assert_eq!(
+            plain_metadata_with(|_| Err(errno)).unwrap_err().code,
+            ErrorCode::SaveNeedsAttention
+        );
+    }
+    assert_eq!(
+        plain_metadata_with(|buffer| Ok(buffer.len() + 1))
+            .unwrap_err()
+            .code,
+        ErrorCode::SaveNeedsAttention
+    );
+    assert_eq!(
+        plain_metadata_with(|buffer| {
+            buffer[..4].copy_from_slice(b"bad\0");
+            Ok(4)
+        })
+        .unwrap_err()
+        .code,
+        ErrorCode::SaveNeedsAttention
+    );
+}

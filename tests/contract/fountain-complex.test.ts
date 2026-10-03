@@ -663,7 +663,7 @@ describe('inline formatting/literals and intentional physical breaks', () => {
     ];
     const after = replaceInline(before, 1, runs);
     expect(source(after)).toBe(
-      '\ufeff\n!A _low *gentle* bell_ \\*literal\\* \\_plain\\_ \\\\ end.\r\n\r\n!Tail.',
+      '\ufeff\n!A _low *gentle* bell_ \\*literal\\* \\_plain\\_ \\ end.\r\n\r\n!Tail.',
     );
     expect(richView(after.lines[1]!.inline!.runs)).toEqual(richView(runs));
     expect(replaceInline(after, 1, runs)).toBe(after);
@@ -895,4 +895,22 @@ describe('inline formatting/literals and intentional physical breaks', () => {
       expect(source(before)).toBe('\n!Body.\n\n!Tail.');
     }
   });
+});
+
+it('AUDIT-C356 emits ordinary brackets and paths literally while protecting note pairs', () => {
+  const before = parse('\ufeff\n!Before.\r\n\r\n!Tail.');
+  for (const [text, spelling] of [
+    [
+      'He reads [the sign] aloud. to_do a\\b',
+      'He reads [the sign] aloud. to\\_do a\\b',
+    ],
+    ['[[note]]', '\\[\\[note\\]\\]'],
+    ['a\\_b', 'a\\\\\\_b'],
+    ['a\\[b]', 'a\\\\[b]'],
+  ]) {
+    const after = replaceInline(before, 1, [{ text: text!, styles: [] }]);
+    expect(source(after)).toBe(`\ufeff\n!${spelling}\r\n\r\n!Tail.`);
+    expect(after.lines[1]!.inline!.text).toBe(text);
+    expect(source(before)).toBe('\ufeff\n!Before.\r\n\r\n!Tail.');
+  }
 });

@@ -240,6 +240,31 @@ def parse(text):
     from screenplain.parsers import fountain
     title_parser = fountain.parse_title_page
     action_parser = fountain.InputParagraph.append_action
+    emphasis_parser = fountain.parse_emphasis
+    def emphasis(source):
+        # Protect literal escapes before upstream emphasis parsing, then restore
+        # each segment's exact text/styles. Tokens are absent from this input;
+        # no authored private-use character can be mistaken for a placeholder.
+        literals = {}
+        tokens = {}
+        occupied = set(source)
+        next_token = 0xF0000
+        def escape(match):
+            nonlocal next_token
+            value = match.group(1)
+            if value in tokens:
+                return tokens[value]
+            while chr(next_token) in occupied:
+                next_token += 1
+            token = chr(next_token)
+            next_token += 1
+            literals[token] = value
+            tokens[value] = token
+            return token
+        protected = re.sub(r'\\([\\*_\[\]])', escape, source)
+        rich = emphasis_parser(protected)
+        return RichString(*(Segment(''.join(literals.get(char, char) for char in segment.text),
+                                    segment.styles) for segment in rich.segments))
     def title(lines):
         # An explicit Fountain force marker cannot start a title-field key.
         if lines and lines[0].startswith(('!', '@', '~', '.', '>', '#', '=')):
@@ -250,11 +275,19 @@ def parse(text):
         paragraphs[-1].lyric_indices = [index for index, line in enumerate(self.lines)
                                        if line.startswith('~')]
         return result
+    fountain.parse_emphasis = emphasis
     fountain.parse_title_page = title
     fountain.InputParagraph.append_action = action
     try:
-        return fountain.parse(io.StringIO(text, newline=None))
+        screenplay = fountain.parse(io.StringIO(text, newline=None))
+        # Upstream title values are lazily parsed after this temporary patch has
+        # been restored. Capture their rich values with the same escape policy.
+        attributes = {key: [emphasis(line) for line in lines]
+                      for key, lines in screenplay.title_page.items()}
+        screenplay.get_rich_attribute = lambda name, default=(): attributes.get(name, default)
+        return screenplay
     finally:
+        fountain.parse_emphasis = emphasis_parser
         fountain.parse_title_page = title_parser
         fountain.InputParagraph.append_action = action_parser
 

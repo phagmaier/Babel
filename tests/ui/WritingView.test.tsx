@@ -1864,3 +1864,76 @@ it('checks on focus without adopting bytes and reports unavailable sources', asy
   expect(document.querySelector('.ProseMirror')!.textContent).toBe('a');
   expect(ports.externalSource!.reload).not.toHaveBeenCalled();
 });
+
+it.each([false, true])(
+  'AUDIT-C356 keeps Find highlights through navigation and caret updates (retained check %s)',
+  async (checked) => {
+    const source = '.INT. ROOM - DAY\n\n!moon moon moon\n\n@ORPHAN\n';
+    const fixture = fixturePorts({
+      picked: {
+        ...opened(),
+        source: Array.from(new TextEncoder().encode(source)),
+        fingerprint: {
+          ...opened().fingerprint!,
+          sha256: createHash('sha256').update(source).digest('hex'),
+        },
+      },
+    });
+    const mounted = vi.spyOn(editorMount, 'mountScreenplayEditor');
+    render(
+      <WritingView
+        ports={fixture.ports}
+        open={{ kind: 'picked' }}
+        onSessionClosed={vi.fn()}
+      />,
+    );
+    const actions = await screen.findByLabelText('Screenplay actions');
+    const view = mounted.mock.results.at(-1)!.value as ReturnType<
+      typeof editorMount.mountScreenplayEditor
+    >;
+    await waitFor(() =>
+      expect(
+        document.querySelector('.outline-target:not(:disabled)'),
+      ).toBeTruthy(),
+    );
+    if (checked) {
+      fireEvent.click(
+        within(actions).getByRole('button', { name: 'Script Check' }),
+      );
+      await waitFor(() =>
+        expect(
+          document.querySelectorAll('.check-highlight').length,
+        ).toBeGreaterThan(0),
+      );
+    }
+    fireEvent.keyDown(view.dom, { key: 'f', ctrlKey: true });
+    fireEvent.change(await screen.findByLabelText('Find text'), {
+      target: { value: 'moon' },
+    });
+    await waitFor(() =>
+      expect(document.querySelectorAll('.find-highlight')).toHaveLength(3),
+    );
+    expect(document.querySelectorAll('.check-highlight')).toHaveLength(0);
+    const original = captureEditor(view.state).source;
+    const depth = undoDepth(view.state);
+    for (const name of ['Next match', 'Previous match']) {
+      fireEvent.click(screen.getByRole('button', { name }));
+      await waitFor(() =>
+        expect(document.querySelectorAll('.find-highlight')).toHaveLength(3),
+      );
+      expect(document.querySelectorAll('.find-active')).toHaveLength(1);
+      expect(document.querySelectorAll('.check-highlight')).toHaveLength(0);
+    }
+    view.dispatch(
+      view.state.tr.setSelection(TextSelection.create(view.state.doc, 2)),
+    );
+    await waitFor(() =>
+      expect(document.querySelectorAll('.find-highlight')).toHaveLength(3),
+    );
+    expect(document.querySelectorAll('.check-highlight')).toHaveLength(0);
+    expect(captureEditor(view.state).source).toEqual(original);
+    expect(undoDepth(view.state)).toBe(depth);
+    fireEvent.click(screen.getByText('Close find'));
+    expect(document.querySelectorAll('.find-highlight')).toHaveLength(0);
+  },
+);

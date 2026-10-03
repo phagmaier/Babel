@@ -1,10 +1,27 @@
-import { TextSelection } from 'prosemirror-state';
+import { Plugin, TextSelection } from 'prosemirror-state';
 import { Decoration, DecorationSet, type EditorView } from 'prosemirror-view';
 import type { ManuscriptProjection } from '../application/manuscriptProjection';
 import type { FindMatch } from '../domain/find';
 import { editorOrigin, editorVersion } from './state';
 import { logicalEditorOffset } from './outlineNavigation';
 export const FIND_HIGHLIGHT_LIMIT = 500;
+const highlights = new WeakMap<
+  ManuscriptProjection['doc'],
+  { projection: ManuscriptProjection; set: DecorationSet }
+>();
+export const findHighlightPlugin = new Plugin({
+  props: {
+    decorations(state) {
+      const entry = highlights.get(state.doc);
+      return entry &&
+        editorOrigin(state).session === entry.projection.session &&
+        editorVersion(state) === entry.projection.version
+        ? entry.set
+        : DecorationSet.empty;
+    },
+  },
+});
+
 function current(view: EditorView, projection: ManuscriptProjection) {
   return (
     !view.isDestroyed &&
@@ -51,17 +68,14 @@ export function highlightFind(
       }
     }
   }
-  if (!decorations.length) {
-    if (view.props.decorations) view.setProps({ decorations: undefined });
-    return;
-  }
-  const set = DecorationSet.create(view.state.doc, decorations);
-  // View-only decorations preserve EditorState identity for staged/frozen workflows.
-  // Every editor update checks the captured stamp, so edits/selection clear stale marks.
-  view.setProps({
-    decorations: () =>
-      projection && current(view, projection) ? set : DecorationSet.empty,
-  });
+  highlights.delete(view.state.doc);
+  if (projection && decorations.length && current(view, projection))
+    highlights.set(view.state.doc, {
+      projection,
+      set: DecorationSet.create(view.state.doc, decorations),
+    });
+  // Redraw plugin props without a transaction or EditorState identity change.
+  view.setProps({});
 }
 export function navigateFind(
   view: EditorView,

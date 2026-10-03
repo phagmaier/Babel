@@ -1,10 +1,27 @@
 import { Decoration, DecorationSet, type EditorView } from 'prosemirror-view';
-import { TextSelection } from 'prosemirror-state';
+import { Plugin, TextSelection } from 'prosemirror-state';
 import type { ManuscriptProjection } from '../application/manuscriptProjection';
 import type { CheckIssue } from '../domain/scriptCheck';
 import { editorOrigin, editorVersion } from './state';
 
 export const CHECK_HIGHLIGHT_LIMIT = 500;
+const highlights = new WeakMap<
+  ManuscriptProjection['doc'],
+  { projection: ManuscriptProjection; set: DecorationSet }
+>();
+export const checkHighlightPlugin = new Plugin({
+  props: {
+    decorations(state) {
+      const entry = highlights.get(state.doc);
+      return entry &&
+        editorOrigin(state).session === entry.projection.session &&
+        editorVersion(state) === entry.projection.version
+        ? entry.set
+        : DecorationSet.empty;
+    },
+  },
+});
+
 function current(view: EditorView, projection: ManuscriptProjection) {
   return (
     !view.isDestroyed &&
@@ -64,15 +81,14 @@ export function highlightCheckIssues(
       );
     }
   }
-  if (!decorations.length) {
-    if (view.props.decorations) view.setProps({ decorations: undefined });
-    return;
-  }
-  const set = DecorationSet.create(view.state.doc, decorations);
-  view.setProps({
-    decorations: () =>
-      projection && current(view, projection) ? set : DecorationSet.empty,
-  });
+  highlights.delete(view.state.doc);
+  if (projection && decorations.length && current(view, projection))
+    highlights.set(view.state.doc, {
+      projection,
+      set: DecorationSet.create(view.state.doc, decorations),
+    });
+  // Redraw plugin props without a transaction or EditorState identity change.
+  view.setProps({});
 }
 
 /** Editor range covering the affected rows, derived through stable ids. */

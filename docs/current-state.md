@@ -1,29 +1,39 @@
-# Current state — AUDIT-W0-R1 done; AUDIT-C356 next
+# Current state — AUDIT-C356 complete; stopped
 
 Date: 2026-10-03. Application: **babel**. Main; owner authorized warranted push.
-Current task base `e284a33`, clean main/origin at claim. M0–M5 and bounded M6-01
+Current task base `08986eb`, clean main/origin at claim. M0–M5 and bounded M6-01
 investigation remain recorded complete. **M6-02 stays unchecked; retained
 operation findings, C1/F2 and Local v1 admission remain open.**
 
 ## Task and work
 
-**AUDIT-W0-R1 done**, base clean `e284a33`, owner continuation after the pushed
-D08A CI failure. [Brief](tasks/AUDIT-W0-R1.md). Deliverable: require Enchant >=2.4,
-provision pinned 2.8.21/Hunspell in CI's temporary prefix, preserve explicit empty
-PWL isolation, and verify the actual workflow. Build script/manifests, CI script
-and workflow, existing ADR/development prerequisites; no application ABI fallback.
-Checks: old 2.3.3 metadata refusal, real contaminated-profile/empty-PWL controls,
-focused native spelling 3/3 and clippy/fmt pass; frontend full rerun 844/844,
-browser pass; workspace 275/275 each tmpfs/Btrfs. Initial frontend focus failure
-retained, focused rerun 4/4. Default release/package and named offline spelling
-drill 2/2 strict pass. Native harness now performs the missing final protected
-close. Failed launches/interrupted-input-era attempt/Home teardown failures are
-retained; no native assertion relaxed. Implementation `7d45253` and groff
-prerequisite correction `49129df` pushed. [Actual corrected CI green](https://github.com/phagmaier/Babel/actions/runs/37157598075)
-at `49129df`: frontend/core, native workspace 275/275 and package build pass.
-[Evidence](test-evidence/AUDIT.md#audit-w0-r1--enchant-ci-abi-prerequisite).
-Completion evidence/handoff committed locally for review; no further push.
-Stop at W0-R1; C356 remains unstarted.
+**AUDIT-C356 complete**, base `08986eb`, main. [Brief](tasks/AUDIT-C356.md).
+C-03: ordinary literal brackets/backslashes no longer gain redundant escapes;
+frozen helper decodes protected escapes before emphasis, including title values.
+New helper tree `808d2276…` and native/review pin advance together; profile,
+fixtures and all accepted goldens stay intact. C-05: bounded descriptor xattr
+list permits only exact `security.selinux`, never copies labels; unknown
+metadata/ACLs and failed/malformed reads still refuse. C-06: separate stamped
+Find/check plugin sets and closed-report visibility guard preserve navigation
+highlights without state/source/Undo changes.
+Paths: `fountainInline.ts`, `frozen_profile.py`, native publication integrity pin,
+`source_store.rs`, editor Find/check/state and WritingView/check session; focused
+regressions and owning metadata/editor/model/profile docs.
+Checks: frontend 848/848; workspace 277/277 each tmpfs/Btrfs; helper 13/13,
+frozen corpus 22 unchanged raster pages and layout goldens, offline extracted
+package escapes 2/2/integrity; default release/package, browser, static/links/diff
+pass. [Commands, elapsed times, retained red/prerequisite failures and limits](test-evidence/AUDIT.md#audit-c356--literal-escapes-selinux-metadata-and-advisory-highlights).
+SELinux names/read failures are injected evidence; enforcing SELinux/Fedora
+remains unverified. Native metadata uses real descriptors/files on both
+filesystems; no shared-keyboard GUI drill or native highlight-input claim.
+Completed work is ready for owner-authorized warranted push; pushed CI must be
+read from its actual run. Stop after C356; no Wave 2.
+
+**AUDIT-W0-R1 done** (`7d45253`, groff prerequisite `49129df`): Enchant >=2.4,
+pinned 2.8.21/Hunspell CI prefix and empty personal-wordlist isolation, native
+spellcheck harness final protected close. [Implementation CI passed](https://github.com/phagmaier/Babel/actions/runs/37157598075);
+owner documentation completion `08986eb` [CI passed](https://github.com/phagmaier/Babel/actions/runs/37158997960).
+[Brief](tasks/AUDIT-W0-R1.md), [checks/retained failures](test-evidence/AUDIT.md#audit-w0-r1--enchant-ci-abi-prerequisite).
 
 Prior M6-02 bounded Linux hardening: stage-qualified Save As refusal/identity and
 Undo rollback; extended real child-kill source/recovery/local-restore boundaries;
@@ -61,11 +71,15 @@ Tracker: `TODO.md` `## Audit execution`; [audit evidence](test-evidence/AUDIT.md
 
 [AUDIT-D08A](tasks/AUDIT-D08A.md) done (base `2bc2311`, main): native focus/five-second source checks, receipt-free identical-byte metadata re-anchoring, lazy draft/disk comparison, Keep editing and separate-copy routes, explicit protected Reload as one Undo-able import. Native handle-only adoption protects the old draft in checkpoint/snapshot/safety revision, journals the adopted version and syncs/rechecks disk without replacing it. Failed Reload skips its reserved version and independently protects the retained draft; exact-version retries retain their immutable recovery base. [ADR 0041](decisions/0041-protected-external-reload.md).
 
-Paths: `reload.rs`/`reload_store.rs`, source/recovery retry base helper, `reload_host.rs`, session/controller, native adapter, WritingView/SourceComparison, commands and tests; focused production `external_reload.py` mode. Tier 3: final workspace 275/275 each tmpfs/Btrfs; actual default-WebKit Reload 2/2 strict plus exact journal-window crash replay 2/2. Clean/dirty adoption, literal safety copies/revisions, disk inode, Undo/later Save, Keep editing and protected close verified. Shared frontend/static/default release/browser checks and failures are linked in [audit evidence](test-evidence/AUDIT.md#audit-d08a--protected-external-reload). First native recovery-base bug and hidden-Undo harness failure retained; build/matrix helper-runtime overlap failure retained. These clean samples do not close prior C1/F2 or universal target/storage/sync-folder acceptance.
+D08A evidence: workspace 275/275 each tmpfs/Btrfs, actual default-WebKit Reload
+2/2 strict and journal-window crash replay 2/2; shared/default release/browser
+checks pass. [Commands, failed Reload/recovery-base/Undo harness runs and helper-build overlap](test-evidence/AUDIT.md#audit-d08a--protected-external-reload)
+remain retained. Clean samples do not close C1/F2 or universal storage/sync-folder
+acceptance; exact-version retries retain their original recovery base.
 
 ## Next action and blockers
 
-Completed `AUDIT-W0-R1`; stopped here. Next Wave 1 cluster is `AUDIT-C356` (draft brief first). D-06 remains a later separate brief. Owner permits a warranted push to existing origin/main so CI can run; CI status must be read from its pushed run, never inferred from local results. Capture-failure draft-bundle fallback remains an owner decision (ADR + Tier 3). [M6-02-R1](tasks/M6-02-R1.md) remains behind audit Waves 0–1; C1/F2 unchanged.
+Completed `AUDIT-C356`; stopped at the requested boundary. Wave 2 `AUDIT-TEST` is next in tracker order but remains unstarted; draft its brief only on a later authorized continuation. D-06 remains a later separate brief. Owner permits a warranted push to existing origin/main so CI can run; CI status must be read from its pushed run, never inferred from local results. Capture-failure draft-bundle fallback remains an owner decision (ADR + Tier 3). [M6-02-R1](tasks/M6-02-R1.md) remains behind audit Waves 0–1; C1/F2 unchanged.
 
 [Supported-runtime M6-01-R1](tasks/M6-01-R1.md) remains gated by an available
 identified supported correction. C1/F2 release gate C remains open before

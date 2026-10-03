@@ -111,6 +111,41 @@ class HelperTest(unittest.TestCase):
             self.assertIn('CourierPrime', fonts)
         self.assertEqual(len(result['fonts']), 4)
 
+    def test_frozen_profile_literal_escapes(self):
+        source = (r'!He walks. \[O.S.\] to\_do a\\b \_this\_ \*stars\* '
+                  r'\[\[note\]\] [beat] a\b **bold** _under_ *italic*' + '\n').encode()
+        output = self.out_dir / 'escapes.pdf'
+        code, result, stderr = run(request(output, profile='us-letter-draft-v1'), source)
+        self.assertEqual(code, 0, stderr)
+        self.assertTrue(result['profileFrozen'])
+        text = subprocess.run(['pdftotext', '-raw', str(output), '-'], capture_output=True,
+                              text=True, check=True).stdout
+        self.assertIn(r'He walks. [O.S.] to_do a\b _this_ *stars* [[note]] [beat] a\b',
+                      text.replace('\n', ' '))
+        self.assertIn('bold under italic', text.replace('\n', ' '))
+
+    def test_frozen_escape_styles_and_title(self):
+        source = (r'Title: \_Literal\_ [title] a\\b' + '\n\n' +
+                  r'!\_this\_ _under_ **bold** *italic* \*stars\*' + '\n').encode()
+        output = self.out_dir / 'escape-title.pdf'
+        code, _, stderr = run(request(output, profile='us-letter-draft-v1'), source)
+        self.assertEqual(code, 0, stderr)
+        text = subprocess.run(['pdftotext', '-raw', str(output), '-'], capture_output=True,
+                              text=True, check=True).stdout
+        self.assertIn(r'_Literal_ [title] a\b', text)
+        self.assertIn('_this_ under bold italic *stars*', text)
+        program = ("import sys,json; sys.path[:0]=[sys.argv[1],sys.argv[2]]; "
+                   "import frozen_profile as f; "
+                   "s=f.parse(sys.stdin.read()); "
+                   "print(json.dumps([(x.text, sorted(t.__name__ for t in x.styles)) "
+                   "for x in s.paragraphs[0].lines[0].segments]))")
+        result = subprocess.run([str(PYTHON), '-I', '-S', '-B', '-c', program,
+                                 str(RUNTIME / 'app'), str(RUNTIME / 'app/lib')],
+                                input=source, capture_output=True, check=True)
+        self.assertEqual(json.loads(result.stdout), [
+            ['_this_ ', []], ['under', ['Underline']], [' ', []],
+            ['bold', ['Bold']], [' ', []], ['italic', ['Italic']], [' *stars*', []]])
+
     def test_scene_headings_keep_source_order(self):
         for name in M1_PAGES:
             source = (CORPUS / name).read_bytes()

@@ -189,7 +189,12 @@ export function WritingView({
   const titleDraftRef = useRef(false);
   const titleComposingRef = useRef(false);
   const titleApplyingRef = useRef(false);
-  const [showCheck, setShowCheck] = useState(false);
+  const checkVisibleRef = useRef(false);
+  const [showCheck, updateShowCheck] = useState(false);
+  const setShowCheck = (show: boolean) => {
+    checkVisibleRef.current = show;
+    updateShowCheck(show);
+  };
   const importHost = useRef<HTMLDivElement | null>(null);
   const viewRef = useRef<EditorView | null>(null);
   const popupRef = useRef<ReturnType<typeof createCompletionPopup> | null>(
@@ -555,7 +560,9 @@ export function WritingView({
         )
           highlightCheckIssues(
             view,
-            state.phase === 'current' ? state.projection : null,
+            checkVisibleRef.current && state.phase === 'current'
+              ? state.projection
+              : null,
             visibleIssues(state),
           );
       },

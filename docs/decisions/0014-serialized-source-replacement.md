@@ -90,8 +90,14 @@ Backpressure blocks accumulation rather than deleting unresolved writing.
 
 No new engine/dependency/permission capability is introduced. Existing recovery
 framing avoids a second transaction codec; a raw previous source keeps the safety
-copy portable. Ordinary owner/group/mode preservation is supported; any listed
-source/candidate ACL or xattr is rejected to avoid silent metadata loss. Current
+copy portable. Ordinary owner/group/mode preservation is supported. AUDIT-C356 reads the bounded
+descriptor xattr-name list and exempts only exact `security.selinux`: the kernel
+labels new inodes, and Babel never copies this privileged attribute. Every ACL,
+user/unknown attribute and failed or malformed list read still refuses publication
+to avoid silent metadata loss. This shared gate also applies to Save As, PDF
+export, snapshots and choices. [Audit evidence](../test-evidence/AUDIT.md#audit-c356--literal-escapes-selinux-metadata-and-advisory-highlights)
+distinguishes injected label-name tests from actual Arch tmpfs/Btrfs metadata;
+enforcing SELinux/Fedora acceptance remains unverified. Current
 rustix `openat`, `renameat`, `fchown`, `fchmod` and `flistxattr` APIs were checked
 using Context7's [primary source](https://github.com/bytecodealliance/rustix/blob/main/src/fs/at.rs)
 and pinned local 1.1.4 source. No in-place overwrite/delete-and-rename fallback.

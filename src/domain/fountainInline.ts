@@ -327,7 +327,20 @@ export function sourceForInline(
     }
     return result;
   };
-  const encoded = render(expected, 0);
+  // Keep single brackets portable; only adjacent same brackets need escaping
+  // to avoid Fountain note delimiters. Inspect the completed spelling so style
+  // boundaries and neighboring runs are included in the decision.
+  const brackets = render(expected, 0).replace(
+    /\\([[\]])/g,
+    (escape, bracket: string, at: number, text: string) =>
+      text.slice(Math.max(0, at - 2), at).endsWith(`\\${bracket}`) ||
+      text.slice(at + 2).startsWith(`\\${bracket}`)
+        ? escape
+        : bracket,
+  );
+  // A literal backslash only needs doubling before an escapable character
+  // (including a generated style delimiter). A terminal backslash stays literal.
+  const encoded = brackets.replace(/\\\\(?=[^\\*_[\]]|$)/g, '\\');
   const parsed = parseInline(encoded);
   // Parsing escapes is faithful even when literal markers remain visibly incomplete.
   if (

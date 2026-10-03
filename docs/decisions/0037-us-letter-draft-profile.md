@@ -19,7 +19,12 @@ modules and ReportLab's `ttfonts.py` before rendering. It retains Screenplain's
 AST and `to_pdf` dispatch and ReportLab's Paragraph wrapping/splitting and
 BaseDocTemplate frame/page breaker. It replaces the dialogue and dual flowables,
 numbered-heading wrapper, page-template numbering and initial canvas font;
-it adds narrow forced-title/lyric parser guards. There is no second paginator.
+it adds narrow forced-title/lyric parser guards. AUDIT-C356 adds literal-escape
+protection before emphasis parsing and restoration of segment text/styles,
+including lazily parsed title values. This bug correction advances the helper
+tree/native integrity pin; profile geometry, fonts, renderer dependency versions
+and accepted layout/raster goldens remain unchanged. [Audit evidence](../test-evidence/AUDIT.md#audit-c356--literal-escapes-selinux-metadata-and-advisory-highlights)
+records independent PDF text/style checks and unchanged-golden comparison. There is no second paginator.
 
 ReportLab's ToUnicode mappings are retained in order but partitioned into
 `beginbfchar` blocks of at most 100 entries. This resolves the Ghostscript

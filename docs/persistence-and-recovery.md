@@ -95,7 +95,10 @@ name before any candidate exists. An independently synced/verified previous
 source and its directory entry precede candidate write/sync/verification, inode
 lease acquisition, final source/ownership recheck, atomic rename, directory sync
 and exact installed-byte verification. Ordinary owner/group/mode survive; ACLs
-and xattrs are conservatively rejected rather than discarded. Confirmed metadata
+and unknown xattrs are conservatively rejected rather than discarded. Only
+`security.selinux` is exempt from the descriptor name-list gate: the kernel
+labels replacement inodes; Babel does not copy labels. [ADR 0014](decisions/0014-serialized-source-replacement.md)
+records the policy and enforcing-SELinux evidence limit. Confirmed metadata
 is synced/reverified before the exact `sourceFile` receipt and disk baseline
 advance. Exact duplicates perform fresh sync/verification without replacement.
 A later version whose bytes equal the current source (a caret- or

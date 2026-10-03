@@ -16,7 +16,7 @@ use std::{
     },
     time::{Duration, Instant},
 };
-const TREE: &str = "c805d61692438d7ce7a8e5cd4fb0918b492296e41343be4a2847da7ad88748a8";
+const TREE: &str = "808d2276543fce73967f8c66166d5e61a676282e094716da3e42b7831454086a";
 const MAX_STDOUT: u64 = 64 * 1024;
 const MAX_PDF: u64 = 256 * 1024 * 1024;
 const MAX_ID: u64 = 9_007_199_254_740_991;
