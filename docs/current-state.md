@@ -1,4 +1,4 @@
-# Current state — M6-02 hardening recorded; disposition open
+# Current state — AUDIT-W0 done; M6-02 disposition open
 
 Date: 2026-10-03. Application: **babel**. Main; no push/tag/branch.
 Base `ccf9fb5`, clean main/19 ahead at claim. M0–M5 and bounded M6-01
@@ -61,15 +61,15 @@ Owner-authorized repo-debloat pass; `AUDIT.md` untouched. `TODO.md` 167→~60 li
 
 Checks (Tier 1; docs-only, no Tier 2/3 matrix): `prettier --check` touched files pass; `python3 tools/check-links.py` 172/172 changed links pass (`--all` shows only 5 known frozen M4.md `../src/...` links, intentionally untouched); `git diff --check` pass; `sh tools/lint-py.sh` 78 files compile. Next agent-executable task unchanged: [M6-02-R1](tasks/M6-02-R1.md).
 
-## Audit execution layer (2026-10-03, Tier 1, `AUDIT.md` frozen)
+## AUDIT-W0 (2026-10-03, Tier 2, `AUDIT.md` frozen)
 
-Owner-authorized setup for audit implementation. Added `## Audit execution` tracker to `TODO.md` (all 48 findings mapped to ~12 proposed cluster briefs in Waves 0–3 + DESIGN triage table with recommendations, decisions blank for owner + confirm-first parking list). New [AUDIT-W0 brief](tasks/AUDIT-W0.md): T-02 (CI `libenchant-2-dev` + helper ordering), S-15 (`crate-type → rlib`), S-13 (verified delete table with 3 reclassifications: `navigateLogicalText`, `unavailablePublication`, `inspect_local_recovery`); Tier 2 gate, `docs/test-evidence/AUDIT.md` as the shared evidence file. Hardened `tools/check-links.py` (GitHub-accurate slugs incl. em-dash `--`, cross-file anchor checks, explicit-path mode) and restored collapsed-section anchors in TODO via `<a id>` tags — `--all` sweep now shows only the 5 known frozen M4.md links.
+Base `d7e700f`. Audit execution tracker lives in `TODO.md` `## Audit execution`; evidence in [`docs/test-evidence/AUDIT.md`](test-evidence/AUDIT.md). [AUDIT-W0](tasks/AUDIT-W0.md) done: T-02 (`check.yml` gains `libenchant-2-dev` and `pnpm pdf-helper` before `cargo test`), S-15 (`src-tauri/Cargo.toml` `crate-type = ["rlib"]`), S-13 (dead TS symbols deleted, `sameIdentity`/SHA-256 deduplicated onto `persistenceState.ts`/`editorCapture.ts`, `Outline.test.tsx` moved onto `navigateOutline` + `logicalEditorOffset`, `inspect_local_recovery` now `#[cfg(test)]` with its restart test moved from `tests/recovery.rs` to `recovery_store_tests.rs`). No behavior, persistence or IPC change.
 
-Checks (Tier 1; docs/tooling only, no behavior change): `prettier --check` TODO/AUDIT-W0 pass; `check-links` changed-scope 56/56 pass; `--all` 1379 links with only the 5 frozen M4.md `../src/...` items (intentionally untouched); `git diff --check` pass. Pending: owner DESIGN triage votes + approval of proposed Wave 1–3 cluster titles before those briefs are written; AUDIT-W0 is ready to execute.
+Checks: frontend 774/774, lint/typecheck/build; Rust fmt/clippy, workspace 265/265 (tmpfs, single filesystem); prettier, check-links, `git diff --check` pass. No Tier 3 matrix, `tauri build` or native run. **CI not run** — the workflow is the gate at the next owner-authorized push; Hunspell dictionary on the runner is unverified.
 
 ## Next action and blockers
 
-Next agent-executable task: [AUDIT-W0](tasks/AUDIT-W0.md) — CI gate, crate types, dead symbols (Tier 2, ready brief). Owner-authorized audit track: DESIGN triage decided 2026-10-03 (all rows in the TODO tracker), Waves 1–3 cluster titles approved. Evidence to `docs/test-evidence/AUDIT.md`; check off in the TODO tracker, never in `AUDIT.md`. [M6-02-R1](tasks/M6-02-R1.md) queued behind audit Waves 0–1; C1/F2 gate unchanged.
+Next agent-executable task: draft and execute the first Wave 1 brief, `docs/tasks/AUDIT-C01.md` (C-01 + C-02 + T-01), same shape as AUDIT-W0; Wave 1 table order in the TODO tracker is binding. Owner action: push when ready so `native-linux` runs; record the result (and any missing Hunspell package) in the AUDIT evidence. Check off in the TODO tracker, never in `AUDIT.md`. [M6-02-R1](tasks/M6-02-R1.md) queued behind audit Waves 0–1; C1/F2 gate unchanged.
 
 [Supported-runtime M6-01-R1](tasks/M6-01-R1.md) remains gated by an available
 identified supported correction. C1/F2 release gate C remains open before

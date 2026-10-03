@@ -1,8 +1,7 @@
 /** Exact pre-operation protection; never a source-save acknowledgement. */
 import type { CheckpointRequest } from './documents';
 import type { ImportProtectionReceipt } from './fountainImport';
-import { sameIdentity } from './snapshots';
-import { validHash } from './persistenceState';
+import { sameIdentity, validHash } from './persistenceState';
 
 export type WorkflowOperation = 'fountainImport' | 'sceneMove' | 'sectionMove';
 export interface WorkflowProtectionRequest {

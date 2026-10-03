@@ -96,11 +96,6 @@ button:disabled {
   cursor: not-allowed;
   opacity: 0.8;
 }
-.footer {
-  margin-top: 24px;
-  color: var(--muted);
-  font-size: 0.86rem;
-}
 
 .recovery {
   margin-top: 24px;

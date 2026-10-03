@@ -7,7 +7,7 @@ license = "UNLICENSED"
 
 [lib]
 name = "babel_desktop_lib"
-crate-type = ["staticlib", "cdylib", "rlib"]
+crate-type = ["rlib"]
 
 [features]
 native-editor-proof = []

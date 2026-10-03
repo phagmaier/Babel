@@ -335,6 +335,43 @@ fn sigkill_at_native_publication_boundaries_preserves_acknowledged_generation() 
     }
 }
 
+/// Service-level restart oracle; lives here because `inspect_local_recovery` is test-only.
+#[test]
+fn unsaved_draft_reopens_by_recovery_identity_after_service_restart() {
+    let f = Fixture::new();
+    let app_data = f.0.join("app-data");
+    let mut service = DocumentService::new(&app_data).unwrap();
+    let draft = service.register_unsaved().unwrap();
+    assert!(
+        service
+            .inspect_recovery(&draft.identity)
+            .unwrap()
+            .latest
+            .is_none()
+    );
+    let source = b"unsaved raw source\r\n  ";
+    let receipt = service
+        .checkpoint(
+            &draft.identity,
+            3,
+            source,
+            &source_hash(source),
+            serde_json::json!({"emptyBlock":"character","caret":3}),
+        )
+        .unwrap();
+    drop(service);
+    let reopened = DocumentService::new(&app_data)
+        .unwrap()
+        .inspect_local_recovery(&draft.identity.document_id)
+        .unwrap()
+        .latest
+        .unwrap();
+    assert_eq!(reopened.metadata.version, receipt.version);
+    assert_eq!(reopened.metadata.session_id, draft.identity.session_id);
+    assert_eq!(reopened.source, source);
+    assert!(!f.0.join(".screenwriter").exists());
+}
+
 #[test]
 fn crash_child() {
     let Some(root) = std::env::var_os("BABEL_RECOVERY_CHILD_DIR") else {

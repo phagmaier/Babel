@@ -54,7 +54,6 @@ const EMPTY_SHA256 =
   'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855';
 export const MAX_SOURCE_BYTES = 16 * 1024 * 1024;
 export const MAX_DRAFT_METADATA_BYTES = 64 * 1024 - 2048;
-export const MAX_VERSION = Number.MAX_SAFE_INTEGER;
 export function validHash(value: unknown): value is string {
   return typeof value === 'string' && /^[0-9a-f]{64}$/.test(value);
 }

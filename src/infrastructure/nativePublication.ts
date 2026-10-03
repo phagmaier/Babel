@@ -26,10 +26,6 @@ export const nativePublication: PublicationPort = {
       );
     }),
 };
-export const unavailablePublication: PublicationPort = {
-  render: () => Promise.reject(new PublicationFailure('renderer-unavailable')),
-  cancel: () => Promise.resolve(),
-};
 
 export const nativeExportAssessment: import('../application/exportAssessment').ExportAssessmentPort =
   {

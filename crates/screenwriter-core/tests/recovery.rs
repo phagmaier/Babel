@@ -92,37 +92,6 @@ fn named_checkpoint_receipt_is_exact_and_source_file_is_untouched() {
 }
 
 #[test]
-fn unsaved_draft_reopens_by_recovery_identity_after_service_restart() {
-    let f = Fixture::new();
-    let mut service = f.service();
-    let draft = service.register_unsaved().unwrap();
-    assert!(
-        service
-            .inspect_recovery(&draft.identity)
-            .unwrap()
-            .latest
-            .is_none()
-    );
-    let receipt = save(
-        &mut service,
-        &draft.identity,
-        3,
-        b"unsaved raw source\r\n  ",
-    );
-    drop(service);
-    let reopened = f
-        .service()
-        .inspect_local_recovery(&draft.identity.document_id)
-        .unwrap()
-        .latest
-        .unwrap();
-    assert_eq!(reopened.metadata.version, receipt.version);
-    assert_eq!(reopened.metadata.session_id, draft.identity.session_id);
-    assert_eq!(reopened.source, b"unsaved raw source\r\n  ");
-    assert!(!f.0.join(".screenwriter").exists());
-}
-
-#[test]
 fn managed_recovery_uses_project_auxiliary_folder_and_preserves_metadata() {
     let f = Fixture::new();
     let path = f.source();

@@ -75,16 +75,6 @@ export interface SnapshotPort {
     format?: 'draftBundle';
   }): Promise<ExternalCopyReceipt>;
 }
-export function sameIdentity(
-  a: DocumentIdentity,
-  b: DocumentIdentity,
-): boolean {
-  return (
-    a.handle === b.handle &&
-    a.documentId === b.documentId &&
-    a.sessionId === b.sessionId
-  );
-}
 export const snapshotPolicy =
   'Snapshots keep changed five-minute copies for one hour, hourly copies for 48 hours and daily copies for 30 days. Named and pre-destructive versions stay protected. The limit is 256 records and 256 MiB of source bytes per document; reaching it stops new snapshots without deleting protected versions.';
 export function destinationExplanation(destination: CopyDestination): string {

@@ -94,21 +94,3 @@ export function logicalEditorOffset(
   if (atByte !== byte) throw new RangeError('Unmapped logical boundary');
   return sourceOffset - extractedContentStart(line);
 }
-/** Source-to-editor adapter for title/hidden/raw and rich Unicode text locations. */
-export function navigateLogicalText(
-  view: EditorView,
-  projection: ManuscriptProjection,
-  location: LogicalText,
-  offset: number,
-): boolean {
-  try {
-    return navigateOutline(
-      view,
-      projection,
-      location.row,
-      logicalEditorOffset(projection, location, offset),
-    );
-  } catch {
-    return false;
-  }
-}

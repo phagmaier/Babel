@@ -123,14 +123,3 @@ export interface SaveReceipt {
   recovery: CheckpointReceipt;
   protection: 'sourceFile';
 }
-
-export interface CheckpointFailure {
-  identity: DocumentIdentity;
-  version: number;
-  error: DocumentError;
-}
-
-export interface SaveFailure extends CheckpointFailure {
-  replacement: 'sourceUnchanged' | 'replacedButUnconfirmed' | 'outcomeUnknown';
-  recovery: CheckpointReceipt | null;
-}

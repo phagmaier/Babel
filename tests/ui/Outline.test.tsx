@@ -26,7 +26,7 @@ import { mountScreenplayEditor } from '../../src/editor/view';
 import { captureEditor } from '../../src/editor/sourceBridge';
 import {
   navigateOutline,
-  navigateLogicalText,
+  logicalEditorOffset,
 } from '../../src/editor/outlineNavigation';
 let view: EditorView | undefined;
 afterEach(() => {
@@ -260,36 +260,52 @@ it('changes selection and focus only, keeps exact bytes and undo/redo depths, th
 it('maps rich Unicode, title, hidden and unknown logical locations exactly and rejects split scalars and stale anchors', async () => {
   const f = await fixture('Title: Title\n\n!é🚀 **bold**\n[[秘密🚀]]\n');
   const title = f.projection.index.texts.find((t) => t.scope === 'title')!;
-  expect(navigateLogicalText(f.view, f.projection, title, 5)).toBe(true);
+  expect(
+    navigateOutline(
+      f.view,
+      f.projection,
+      title.row,
+      logicalEditorOffset(f.projection, title, 5),
+    ),
+  ).toBe(true);
   expect(captureEditor(f.view.state).selection!.head.utf16Offset).toBe(5);
   // Restore original immutable frame purely for testing other anchors; navigation itself increments the version.
   const initial = createEditorState(
     new TextEncoder().encode('Title: Title\n\n!é🚀 **bold**\n[[秘密🚀]]\n'),
   );
   f.view.updateState(initial);
-  expect(navigateLogicalText(f.view, f.projection, title, 0)).toBe(false);
+  expect(
+    navigateOutline(
+      f.view,
+      f.projection,
+      title.row,
+      logicalEditorOffset(f.projection, title, 0),
+    ),
+  ).toBe(false);
   f.view.destroy();
   view = undefined;
   const rich = await fixture('!é🚀 **bold**\n');
   expect(navigateOutline(rich.view, rich.projection, 0, 2)).toBe(false);
+  const richText = rich.projection.index.texts[0]!;
   expect(
-    navigateLogicalText(
+    navigateOutline(
       rich.view,
       rich.projection,
-      rich.projection.index.texts[0]!,
-      3,
+      richText.row,
+      logicalEditorOffset(rich.projection, richText, 3),
     ),
   ).toBe(true);
   expect(captureEditor(rich.view.state).selection!.head.utf16Offset).toBe(3);
   rich.view.destroy();
   view = undefined;
   const hidden = await fixture('!Before [[秘密🚀]] after\n');
+  const note = hidden.projection.index.texts.find((t) => t.scope === 'note')!;
   expect(
-    navigateLogicalText(
+    navigateOutline(
       hidden.view,
       hidden.projection,
-      hidden.projection.index.texts.find((t) => t.scope === 'note')!,
-      4,
+      note.row,
+      logicalEditorOffset(hidden.projection, note, 4),
     ),
   ).toBe(true);
   expect(hidden.view.state.selection.head).toBe(1 + '!Before [[秘密🚀'.length);

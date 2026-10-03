@@ -20,7 +20,7 @@ export interface CaptureResult {
   readonly snapshot: CapturedEditorSnapshot;
 }
 type Hasher = (source: Uint8Array) => Promise<string>;
-async function sha256(source: Uint8Array): Promise<string> {
+export async function sha256(source: Uint8Array): Promise<string> {
   const digest = await crypto.subtle.digest(
     'SHA-256',
     Uint8Array.from(source).buffer,

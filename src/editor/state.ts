@@ -303,16 +303,6 @@ export function createEditorState(
   });
 }
 
-/** Only editor commands may authorize row changes; the counter survives undo. */
-export function applyStructuralEditorTransaction(
-  state: EditorState,
-  transaction: Transaction,
-  nextId = editorOrigin(state).nextId,
-) {
-  structuralTransactions.set(transaction, nextId);
-  return applyEditorTransaction(state, transaction);
-}
-
 export function applyEditorTransaction(
   state: EditorState,
   transaction: Transaction,

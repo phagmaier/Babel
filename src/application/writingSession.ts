@@ -15,6 +15,7 @@ import type {
   PersistenceController,
 } from './persistenceController';
 import { PersistenceController as Controller } from './persistenceController';
+import { sameIdentity } from './persistenceState';
 import type {
   DiskFingerprint,
   DocumentIdentity,
@@ -27,7 +28,8 @@ import { ProtectedClose } from './protectedClose';
 import type { CadenceClock, FlushSummary } from './saveCadence';
 import { realClock, SaveCadence } from './saveCadence';
 import type { SaveAsPort, SaveStorageRelation } from './saveAs';
-import { sameIdentity, type SnapshotPort } from './snapshots';
+import type { SnapshotPort } from './snapshots';
+import { sha256 } from './editorCapture';
 import { verifiedEditorMetadata } from './editorMetadata';
 import {
   validateWorkflowReceipt,
@@ -460,13 +462,7 @@ export class WritingSession {
     matchLive(controller.state, current, 'external adoption');
     if (receipt.version <= current.version)
       throw new Error('Adopted version must advance the live sequence');
-    const sourceSha256 = [
-      ...new Uint8Array(
-        await crypto.subtle.digest('SHA-256', Uint8Array.from(source).buffer),
-      ),
-    ]
-      .map((byte) => byte.toString(16).padStart(2, '0'))
-      .join('');
+    const sourceSha256 = await sha256(Uint8Array.from(source));
     controller.validateAdoption(
       {
         ...current,

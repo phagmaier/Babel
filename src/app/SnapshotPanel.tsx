@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import './snapshots.css';
 import type { CheckpointRequest, SaveReceipt } from '../application/documents';
+import { sameIdentity } from '../application/persistenceState';
 import {
   destinationExplanation,
-  sameIdentity,
   snapshotPolicy,
   type CopyDestination,
   type SnapshotCatalog,

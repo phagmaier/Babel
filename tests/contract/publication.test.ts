@@ -9,10 +9,7 @@ import {
   type PublicationRequest,
   type PublicationResult,
 } from '../../src/application/publication';
-import {
-  nativePublication,
-  unavailablePublication,
-} from '../../src/infrastructure/nativePublication';
+import { nativePublication } from '../../src/infrastructure/nativePublication';
 vi.mock('@tauri-apps/api/core', () => ({ invoke: vi.fn() }));
 const identity = {
   handle: 'handle',
@@ -191,9 +188,6 @@ describe('captured publication contract', () => {
     ).rejects.toThrow('invalid-request');
     await controller.close();
     await expect(controller.render(snapshot(3))).rejects.toThrow('cancelled');
-    await expect(
-      unavailablePublication.render({} as PublicationRequest),
-    ).rejects.toThrow('renderer-unavailable');
   });
 });
 

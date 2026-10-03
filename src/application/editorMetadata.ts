@@ -3,6 +3,7 @@ import { TextSelection, type EditorState } from 'prosemirror-state';
 import { parseFountain } from '../domain/fountainCodec';
 import type { DraftKind, FountainRecovery } from '../domain/fountainModel';
 import type { JsonValue } from './documents';
+import { sha256 } from './editorCapture';
 
 function record(
   value: JsonValue | undefined,
@@ -16,13 +17,7 @@ export async function verifiedEditorMetadata(
 ): Promise<JsonValue | undefined> {
   if (!record(metadata) || metadata.schema !== 'babel-editor-capture-v1')
     return undefined;
-  const digest = await crypto.subtle.digest(
-    'SHA-256',
-    Uint8Array.from(source).buffer,
-  );
-  const hash = [...new Uint8Array(digest)]
-    .map((b) => b.toString(16).padStart(2, '0'))
-    .join('');
+  const hash = await sha256(Uint8Array.from(source));
   return metadata.sourceSha256 === hash ? metadata : undefined;
 }
 

@@ -826,8 +826,9 @@ impl DocumentService {
         )
     }
 
-    /// Native restart lookup for loose/unsaved identities; no frontend path or disk write.
-    pub fn inspect_local_recovery(
+    /// Test-only restart oracle for loose/unsaved identities; no frontend path or disk write.
+    #[cfg(test)]
+    pub(crate) fn inspect_local_recovery(
         &self,
         document_id: &str,
     ) -> Result<RecoveryInspection, DocumentError> {

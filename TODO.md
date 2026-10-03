@@ -58,7 +58,7 @@ How to pick work: the next unchecked `[ ]` box below is the task. Read its brief
 
 - [x] **Tier 1 debloat** (S-14 stale refs, `docs/index.md` stub, TODO collapse, tracked link/matrix tools, `target/` prune) — Evidence: Tier 1 commit `433c150`.
 - [x] **T-08 (half)** — canonical matrix runner + link checker now tracked (`tools/run-workspace-matrix.py`, `tools/check-links.py`).
-- [ ] **AUDIT-W0 — NEXT** (T-02 CI red, S-15 crate types, S-13 dead symbols) — [Brief](docs/tasks/AUDIT-W0.md). Ready brief; unblocks CI-dependent gates.
+- [x] **AUDIT-W0** (T-02 CI red, S-15 crate types, S-13 dead symbols) — [Brief](docs/tasks/AUDIT-W0.md). [Evidence](docs/test-evidence/AUDIT.md#audit-w0--ci-gate-desktop-crate-types-dead-symbols): Tier 2 local pass; CI itself unverified until an owner-authorized push (Hunspell-dict question open).
 
 ### Wave 1 — safety (approved 2026-10-03; working agent drafts one brief at a time, in table order, same shape as AUDIT-W0)
 
