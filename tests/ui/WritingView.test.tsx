@@ -16,6 +16,7 @@ import { captureEditor } from '../../src/editor/sourceBridge';
 import { editorVersion } from '../../src/editor/state';
 import { undoDepth } from 'prosemirror-history';
 import type { OpenDocument } from '../../src/application/documents';
+import { deferred, publicationResult } from '../publicationFixture';
 import {
   A,
   B,
@@ -62,6 +63,54 @@ function unsaved(): OpenDocument {
     source: [],
   };
 }
+
+it.each([false, true])(
+  'returns deferred preview focus unless the writer chooses newer focus (%s)',
+  async (newerFocus) => {
+    const { ports } = fixturePorts({ picked: opened() });
+    const pending = deferred<void>();
+    ports.documents.save = vi.fn(async (request) => {
+      await pending.promise;
+      return receiptFor(request.version, request.sourceSha256 === B);
+    });
+    ports.publication = {
+      render: async (request) => publicationResult(request),
+      read: async () => new Uint8Array(),
+      cancel: async () => {},
+    };
+    render(
+      <WritingView
+        ports={ports}
+        open={{ kind: 'picked' }}
+        onSessionClosed={vi.fn()}
+      />,
+    );
+    const actions = await screen.findByLabelText('Screenplay actions');
+    const preview = within(actions).getByRole('button', {
+      name: 'PDF preview',
+    });
+    await waitFor(() => expect(preview.hasAttribute('disabled')).toBe(false));
+    fireEvent.click(preview);
+    const close = await screen.findByRole('button', {
+      name: 'Close PDF preview',
+    });
+    fireEvent.click(within(actions).getByRole('button', { name: 'Save' }));
+    await waitFor(() => expect(ports.documents.save).toHaveBeenCalled());
+    expect(preview.hasAttribute('disabled')).toBe(true);
+    close.focus();
+    fireEvent.click(close);
+    expect(
+      screen.queryByRole('button', { name: 'Close PDF preview' }),
+    ).toBeNull();
+    const editor = document.querySelector<HTMLElement>('.ProseMirror')!;
+    if (newerFocus) editor.focus();
+    pending.resolve();
+    await waitFor(() => expect(preview.hasAttribute('disabled')).toBe(false));
+    await waitFor(() =>
+      expect(document.activeElement).toBe(newerFocus ? editor : preview),
+    );
+  },
+);
 
 function fixturePorts(options: {
   picked?: OpenDocument | null;

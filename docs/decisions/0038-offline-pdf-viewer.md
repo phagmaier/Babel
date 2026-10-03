@@ -30,11 +30,13 @@ PDF.js displays the renderer's bytes without making screenplay layout choices.
 Consequences: worker/script/font CSP allows only local worker assets and generated
 font blobs. No PDF scripting, annotations, remote resources, system font fallback
 or imported arbitrary PDF surface. The renderer/profile/font pipeline is unchanged.
-PDF.js adds bundle weight; full transitive notices, other-platform WebKit support,
-installed/offline package and integrated preview/export agreement remain M6/M5-07.
+PDF.js adds bundle weight; full transitive notices, other-platform WebKit support
+and installed-package adoption remain M6. M5-07 verifies extracted AppRun offline.
 
 Evidence: [M5-05](../test-evidence/M5.md#m5-05--authoritative-preview-and-page-count-freshness)
 passes bounded Linux races/shared/browser and actual WebKit/tmpfs/Btrfs display,
 count, failure/Save and measured rAF typing gates; direct license retained.
-Evidence still needed: M5-07 packaged-offline preview/export agreement; M6 full
-transitive notices, other platforms, compositor paint and long-session scaling.
+[M5-07](../test-evidence/M5.md#m5-07--integrated-publication-exit-and-separate-review)
+passes packaged-offline preview/export agreement on tmpfs/Btrfs.
+Evidence still needed: M6 full transitive notices, other platforms, installed
+adoption, compositor paint and long-session scaling.

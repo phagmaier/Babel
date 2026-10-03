@@ -20,6 +20,7 @@ def run(d):
     };window.previewEvents=[];const callbacks=window.__TAURI_INTERNALS__.callbacks;
     window.originalCallbackSet=callbacks.set;
     callbacks.set=function(id,callback){return window.originalCallbackSet.call(this,id,data=>{
+      if(data?.protection==='sourceFile'&&window.holdPreviewSave){window.holdPreviewSave=false;window.releasePreviewSave=()=>callback(data);return;}
       if(data?.artifact&&data?.pageCount){window.previewEvents.push(data);
         if(window.holdPreview){window.holdPreview=false;window.releasePreview=()=>callback(data);return;}}
       callback(data);});};""")
@@ -76,12 +77,16 @@ def run(d):
     d.script('window.releasePreview();')
     time.sleep(.5)
     assert status() == current and newer['requestId'] > result['requestId'], 'Stale response changed current display'
+    d.script('window.holdPreviewSave=true;')
     d.click('Save', actions=True)
+    d.wait(lambda: d.script("return typeof window.releasePreviewSave==='function';"), 'Actual Save receipt held for preview-close race', timeout=60)
     expected = source.replace(b'A lamp', b'XA lamp')
     d.audit(target, expected)
     assert d.editor() == editor
     # Close returns focus to the actual toolbar; open/close does not destroy editor.
     d.click('Close PDF preview')
+    assert d.script("return !document.querySelector('.publication-preview') && document.querySelector('#writing-preview').disabled;")
+    d.script('window.releasePreviewSave();')
     d.wait(lambda: d.script("return !document.querySelector('.publication-preview') && document.activeElement?.id==='writing-preview';"), 'Close restores toolbar focus')
     assert status() == 'Pages: open PDF preview'
     assert d.editor() == editor

@@ -1,64 +1,67 @@
-# Current state — M5-06 complete
+# Current state — M5-07 complete
 
-Date: 2026-10-02. Application: **babel**. Admission `e6e6f1d` on clean main.
-Work directly on main; no push. M5-05 remains complete at `e6e6f1d`.
+Date: 2026-10-02. Application: **babel**. Admission `be92b96` on main.
+Work directly on main; no push. M5-06 remains complete at `be92b96`.
 
 ## Task and work
 
-**M5-06 Export PDF workflow — complete, bounded Linux gate.** Export PDF now
-uses the shared palette/native menu/remappable command registry. A brief freeze
-protects an exact source capture in recovery and mints a native capture token.
-Review reports that version, structural warnings and verified SC005/SC008 targets.
-Explicit acknowledgment permits known omissions; unavailable/truncated assessment
-and actual glyph/shaping/layout refusal cannot earn success. Typing and Save
-continue while review/rendering use immutable captured bytes.
+**M5-07 Integrated publication exit and separate review — complete, bounded
+Linux gate.** The integrated native scenario compares preview/export from the
+same protected version: source/profile/font identities, actual pages, Poppler
+word boxes and full page rasters. It then runs real GTK cancellation, protected
+atomic replacement, source/app-data refusal, permission/glyph failures, typing/
+Save, latest preview resumption and delayed actual native replies. Exact
+BOM/CRLF source bytes remain preserved. No renderer/font/profile change.
 
-Preview and export share one request sequence, native queue and pinned pipeline.
-Preview is explicitly stale during export and resumes the latest projection
-afterward. Late render/picker/cancel replies cannot authorize publication.
-Cleanup completes before another export may start. Native destination selection
-returns a separate single-use token; no frontend path/output-byte authority.
-Source/app-data/history/open-document aliases, unsafe metadata and changed
-directory/destination generations are refused. Atomic NOREPLACE/EXCHANGE follows
-verified candidate and prior-PDF protection; exact read-back receipts report
-captured version/hash, actual pages, PDF hash and destination filename.
-Uncertain rollback retains generations and reports attention. Cancel writes
-nothing before publication; the final atomic phase explicitly disables Cancel.
+Review found and corrected a preview-close focus race during Save: focus now
+waits for the toolbar's enabled DOM commit and respects a newer writer choice.
+Two UI regressions and a native held-real-Save-receipt oracle verify it.
+The full frozen corpus retains all 22 accepted goldens. Poppler/Ghostscript
+layout/text/font/raster and visual reviews pass; no golden adopted or rewritten.
 
-Paths: core `documents/pdf*`, native `pdf_export_host.rs` and artifact registry,
-`exportPdf.ts`, shared publication/preview/session controllers, export panel,
-command/native ports and writing wiring; contract/UI/native filesystem/GTK drills.
-[Brief](tasks/M5-06.md), [ADR 0039](decisions/0039-pdf-export-publication.md),
-[contract](pdf-and-formatting.md#captured-pdf-export-m5-06),
-[evidence](test-evidence/M5.md#m5-06--captured-pdf-export).
+The rebuilt AppImage's extracted AppRun passes the full scenario offline on
+both tmpfs/Btrfs with home/temp toolchains hidden and system Python masked.
+App/driver share only loopback; namespace/route and runtime witnesses pass.
+Continuous descendant ledgers and bounded crash-journal scans pass ordinary
+window close before stale-session teardown, with no observed crashes/survivors.
+Initial invalid-isolation JSC/GTK crashes and focus/cancellation failures remain
+retained; no crash filtering, sandbox bypass or system policy change.
+
+Paths: `src/app/WritingView.tsx`, UI focus regressions; native
+`publication_exit.py`, `offline_publication.py` and existing lifecycle/preview/
+export runners; `tools/pdf-helper/audit_viewers.py`; publication contract,
+trace, task/evidence and separate review docs.
+[Brief](tasks/M5-07.md), [contract](pdf-and-formatting.md#authoritative-preview-m5-05),
+[review](reviews/2026-10-02-m5-07-publication-review.md),
+[evidence](test-evidence/M5.md#m5-07--integrated-publication-exit-and-separate-review).
 
 ## Checks and limits
 
-`pnpm check` passes 765 frontend tests and formatting/lint/typecheck/build.
-Rust fmt/clippy and all 257 workspace tests pass on tmpfs and Btrfs. Chromium
-smoke uses real frozen-helper bytes/local PDF.js worker. Default-release native
-WebKit/GTK/Poppler drills pass on both filesystems: palette/toolbar export,
-informed omissions, strict glyph refusal, cancellation, capture during typing/
-Save, fresh preview resumption, previous PDF retention, source/app-data refusal,
-permission failure, exact BOM/CRLF Save and protected close. Actual PDF body and
-review screenshots visually checked. Logs/timings/roots in `target/m5-06/` and
-the linked evidence; initial failed gates and corrections are retained honestly.
+`pnpm check` passes 767 frontend tests plus formatting/lint/typecheck/build.
+Rust fmt/clippy and all 257 unchanged Rust tests pass on tmpfs/Btrfs; browser
+smoke passes. Final default release/AppImage build passes. Native offline
+package gates pass in 105.681/115.413 s; full corpus/two-viewer checks and
+package runtime identity verifier pass. Syntax, final formatting/local links
+and `git diff --check` are recorded in the linked evidence. Detailed logs,
+commands, roots and final binary/package hashes live in `target/m5-07/`.
 
-Owner initially prohibited desktop takeover, then explicitly resumed testing.
-All interactive drills started after that authorization. Python notifications
-were intentional SIGABRT from a synthetic helper-crash test. Only that child
-now disables dump generation; real crash/error coverage still passes. No system
-notification/core policy or production-helper setting changed, no new Python
-core journal records after correction. No user manuscript or credentials used.
+Actual test host: Linux 7.2.7-arch1-1, Intel i5-9400, about 11.5 GiB RAM,
+GTK 3.24.52/WebKitGTK 2.52.6. This differs from the prior laptop; no cross-host
+performance claim. The unchanged 2,400-row/120-trusted-key workload preserves
+exact source and produces 89 actual preview pages at version 122. rAF proxy
+p95 60/59 ms exceeds the 50 ms target; full compositor/S13/long-session/scaling
+work remains M6. No full performance acceptance.
 
-Previous PDFs/crash candidates are retained, never auto-promoted/pruned. No
-new dependencies, renderer/font/profile change, source-file/Undo/history mutation
-or upload. Other-platform, integrated/offline-package/two-viewer, full compositor/
-long-session, license/adoption and broader retention/power-loss work remain open.
-M5-05 host timing variability and existing M4/M6 limits remain unchanged.
+M5 is accepted only for this bounded Linux publication gate. Other platforms,
+Tier 1 declaration, FUSE/desktop registration and installed adoption, A4,
+editor page markers, full transitive notices/runtime trust, retention UX,
+broader interruption/power loss, backup/migration and Local v1 remain open.
+Existing M4 C1/F2 forced-kill/automation-shutdown hardening remains M6.
+No real manuscript, credentials or upload; no push. Existing owner edits in
+`mise.toml` and `docs/development.md` remain untouched and uncommitted by this task.
 
 ## Next action
 
-**M5-07 Integrated publication exit and separate review** is dependency-ready.
-Read its brief before work; perform the full integrated/offline-package and
-independent review gates. Stop after M5-06. No push is authorized.
+Stop at M5. **M6-00 decomposition** is the next bounded task when authorized;
+declare Tier 1 OS/architecture targets before M6 implementation. Review the
+retained M4/M5 limits and decompose M6-G before starting production work.

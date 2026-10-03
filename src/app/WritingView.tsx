@@ -307,6 +307,7 @@ export function WritingView({
   const exportRef = useRef<ExportPdfController | null>(null);
   const [exportState, setExportState] = useState<ExportPdfState | null>(null);
   const previewButton = useRef<HTMLButtonElement | null>(null);
+  const previewFocusPending = useRef(false);
   const [previewState, setPreviewState] =
     useState<PublicationPreviewState | null>(null);
   const [live, setLive] = useState<CapturedSnapshot | null>(null);
@@ -328,6 +329,21 @@ export function WritingView({
     useState<CopyDestination | null>(null);
   const [candidates, setCandidates] = useState<RecoveryCandidate[]>([]);
   const [busy, setBusy] = useState(false);
+  useEffect(() => {
+    if (!previewFocusPending.current || previewState?.enabled) return;
+    const button = previewButton.current;
+    // Closing during Save can remove the focused panel while the toolbar is
+    // disabled. Wait for its next enabled commit, respecting any newer focus.
+    if (
+      document.activeElement !== document.body &&
+      document.activeElement !== button
+    ) {
+      previewFocusPending.current = false;
+    } else if (button && !button.disabled) {
+      previewFocusPending.current = false;
+      button.focus();
+    }
+  });
   const [move, setMove] = useState<PreparedMove | null>(null);
   const [moveMessage, setMoveMessage] = useState('');
   const [moveBusy, setMoveBusy] = useState(false);
@@ -2025,8 +2041,8 @@ export function WritingView({
           controller={previewRef.current}
           state={previewState}
           onClose={() => {
+            previewFocusPending.current = true;
             previewRef.current?.close();
-            previewButton.current?.focus();
           }}
         />
       )}

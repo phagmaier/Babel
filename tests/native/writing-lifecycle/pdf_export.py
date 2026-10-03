@@ -7,6 +7,7 @@ import time
 
 def run(d):
     report = []
+    existing_pdfs = {p.name: p.read_bytes() for p in (d.ROOT/'files').glob('*.pdf')}
     source = b'\xef\xbb\xbfTitle: Export study\r\n\r\nINT. ROOM - DAY\r\n\r\n!A lamp glows.\r\n'
     target = d.ROOT / 'files/export.fountain'; target.write_bytes(source)
     d.click('Open Fountain', actions=True); d.picker(target)
@@ -47,10 +48,10 @@ def run(d):
     assert not d.script("return !!document.querySelector('.export-pdf-panel input[type=checkbox]');")
     d.screenshot('export-review')
     d.click('Cancel export'); ready()
-    assert 'cancelled' in panel() and not list((d.ROOT/'files').glob('*.pdf'))
+    assert 'cancelled' in panel() and {p.name: p.read_bytes() for p in (d.ROOT/'files').glob('*.pdf')} == existing_pdfs
     review(); d.click('Choose PDF destination'); d.picker()
     d.wait(lambda: 'cancelled' in panel(), 'GTK picker cancellation writes nothing')
-    assert not list((d.ROOT/'files').glob('*.pdf'))
+    assert {p.name: p.read_bytes() for p in (d.ROOT/'files').glob('*.pdf')} == existing_pdfs
     review(); d.script('window.holdExport=true;')
     capture_version=max(metadata['version'] for metadata,content in d.journal_records() if content == source)
     d.click('Choose PDF destination'); destination = d.ROOT/'files/Captured.pdf'; d.picker(destination)

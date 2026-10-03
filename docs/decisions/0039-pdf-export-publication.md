@@ -42,5 +42,7 @@ drift. Other-platform publication and cleanup/retention UX remain later work.
 Evidence: [M5-06](../test-evidence/M5.md#m5-06--captured-pdf-export) passes headless
 fault/matrix/contracts and default-release native picker/review/cancel/failure
 drills on tmpfs/Btrfs. The owner resumed desktop testing before those drills.
-Evidence still needed: integrated/offline-package and other-platform gates;
-retention/cleanup UX and broader interruption/power-loss hardening remain later work.
+[M5-07](../test-evidence/M5.md#m5-07--integrated-publication-exit-and-separate-review)
+passes integrated/offline extracted-AppRun native tmpfs/Btrfs publication gates.
+Evidence still needed: other platforms and installed adoption; retention/cleanup
+UX and broader interruption/power-loss hardening remain later work.

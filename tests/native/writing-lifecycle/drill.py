@@ -322,6 +322,10 @@ try:
         from publication_preview import run as run_preview
         run_preview(sys.modules[__name__])
         sys.exit(0)
+    if '--publication-exit' in sys.argv:
+        from publication_exit import run as run_publication_exit
+        run_publication_exit(sys.modules[__name__])
+        sys.exit(0)
     if '--pdf-export' in sys.argv:
         from pdf_export import run as run_export
         run_export(sys.modules[__name__])

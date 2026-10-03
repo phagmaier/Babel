@@ -45,6 +45,9 @@ read and display callbacks cannot announce current pages. During updates the
 previous captured PDF may remain visible with its version and a stale label;
 page count is not advertised as current. Closing clears count, cancels work and
 destroys viewer workers. Save/recovery/Undo remain independently owned.
+Closing returns focus to the preview toolbar button after its enabled DOM commit;
+if Save temporarily disables it, focus return waits for Save. A newer explicit
+focus choice by the writer takes precedence ([M5-07](tasks/M5-07.md)).
 Renderer warnings stay visible; support limitations, helper/resource/viewer
 failure and count disagreement earn no fresh-preview/export success. No page
 markers or Script Check page targets exist without a supported source map.

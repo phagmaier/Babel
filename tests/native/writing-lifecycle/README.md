@@ -68,6 +68,55 @@ permission failure. A delayed real render callback tests capture freshness; no
 mock renderer/destination or feature flag is used. Poppler checks actual pages
 and text. Each run retains its report and app-only screenshots.
 
+## M5-07 integrated publication gate
+
+After `mise exec -- pnpm tauri build` and the keyboard-helper build, use the
+existing continuous descendant ledger/crash-journal runner with the new mode:
+
+```sh
+BABEL_SHUTDOWN_MODE=ordinary GTK_IM_MODULE=gtk-im-context-simple python3 tests/native/writing-lifecycle/integrated_exit.py /tmp "$PWD/target" --modes publication-exit --output target/publication-matrix-new
+```
+
+Run from the live graphical session, or pass its Wayland/Hyprland/display
+environment to these test processes. The original 19-mode M4 default is
+unchanged. The new scenario checks same-version preview/export source, profile,
+fonts, actual count, Poppler word boxes and full page rasters, exact BOM/CRLF
+Save, then the M5-06 failure/cancellation/typing drill and M5-05 delayed real
+reply/preview-open typing drill. Each run owns fresh profiles and files; ordinary
+app-window shutdown precedes stale WebDriver cleanup. The runner retains failed
+workloads, runtime crash lines, PID/start identities, survivors and journal scans.
+Polling and bounded journal delivery do not establish lossless crash tracing.
+
+Extract the freshly built AppImage in a new directory with
+`--appimage-extract`. Repeat against `squashfs-root`:
+
+```sh
+BABEL_SHUTDOWN_MODE=ordinary GTK_IM_MODULE=gtk-im-context-simple python3 tests/native/writing-lifecycle/offline_publication.py target/package-new/squashfs-root /tmp
+BABEL_SHUTDOWN_MODE=ordinary GTK_IM_MODULE=gtk-im-context-simple python3 tests/native/writing-lifecycle/offline_publication.py target/package-new/squashfs-root "$PWD/target"
+```
+
+`unshare` isolates the driver/app network with only loopback enabled for WebKit
+automation. `bwrap` hides home/temp development toolchains and masks system
+Python/Node/Rust executables and Python libraries only in the owned AppRun/app.
+Host input and independent inspection tools remain outside that mount namespace.
+Retained namespace/route witnesses and launcher inventory make
+the scope reviewable. This tests the extracted package's actual AppRun and GTK
+hooks; FUSE launch, desktop registration and other platforms stay separate.
+Never run the two interactive commands concurrently.
+
+Full corpus and two-viewer checks (inspection-only venv from the PDF helper guide):
+
+```sh
+BABEL_PDF_HELPER_RUNTIME="$PWD/target/package-new/squashfs-root/usr/lib/babel/pdf-helper" unshare --user --net target/dev-python/bin/python tools/pdf-helper/test_profile.py --output target/corpus-new
+python3 tools/pdf-helper/audit_viewers.py target/corpus-new --output target/viewers-new
+```
+
+Output directories must be new. Poppler layout/text/fonts/22 goldens and
+Ghostscript raster/selectable-text checks are independent of the renderer;
+visually inspect all pages in both viewers before acceptance. No golden is
+regenerated or adopted by this gate. Shared frontend/browser/Rust, tmpfs/Btrfs,
+package runtime verifier, syntax, formatting and local-link checks still apply.
+
 ## M4-15 standalone WebKit shutdown control
 
 On the existing GTK3/WebKitGTK/Hyprland desktop, run installed libraries first:
