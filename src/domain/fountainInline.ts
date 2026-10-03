@@ -205,8 +205,59 @@ export function richView(runs: readonly StyledText[]): StyledText[] {
   return output;
 }
 
-/** Caller validates grammar context as well as these inline semantics before publishing. */
-export function sourceForInline(runs: readonly StyledText[]): string {
+/**
+ * Fountain emphasis cannot open or close against whitespace. The edge
+ * whitespace of each styled span is written unstyled, so `Fast ` in bold is
+ * `**Fast** `; a whitespace-only span loses the style entirely.
+ */
+function unstyledEdges(runs: readonly StyledText[]): StyledText[] {
+  let items: StyledText[] = runs.filter((run) => run.text);
+  for (const style of styleOrder) {
+    const output: StyledText[] = [];
+    for (let from = 0; from < items.length;) {
+      if (!items[from]!.styles.includes(style)) {
+        output.push(items[from++]!);
+        continue;
+      }
+      let end = from;
+      while (end < items.length && items[end]!.styles.includes(style)) end++;
+      const text = items
+        .slice(from, end)
+        .map((item) => item.text)
+        .join('');
+      const keepFrom = /^\s*/.exec(text)![0].length;
+      const keepTo = Math.max(
+        keepFrom,
+        text.length - /\s*$/.exec(text)![0].length,
+      );
+      for (let at = 0; from < end; from++) {
+        const item = items[from]!;
+        const without = item.styles.filter((other) => other !== style);
+        const cut = (position: number) =>
+          Math.min(Math.max(position - at, 0), item.text.length);
+        for (const [text, styles] of [
+          [item.text.slice(0, cut(keepFrom)), without],
+          [item.text.slice(cut(keepFrom), cut(keepTo)), item.styles],
+          [item.text.slice(cut(keepTo)), without],
+        ] as const)
+          if (text) output.push({ text, styles });
+        at += item.text.length;
+      }
+    }
+    items = output;
+  }
+  return items;
+}
+
+/**
+ * Caller validates grammar context as well as these inline semantics before publishing.
+ * Deferred capture passes `unstyleEdges` so typed edge whitespace never makes a
+ * draft uncapturable; explicit formatting requests keep the exact refusal.
+ */
+export function sourceForInline(
+  runs: readonly StyledText[],
+  unstyleEdges = false,
+): string {
   for (const run of runs) {
     if (
       typeof run.text !== 'string' ||
@@ -220,7 +271,7 @@ export function sourceForInline(runs: readonly StyledText[]): string {
         'Invalid inline text/style; use a source copy or an explicit break transaction',
       );
   }
-  const expected = richView(runs);
+  const expected = richView(unstyleEdges ? unstyledEdges(runs) : runs);
   const render = (items: readonly StyledText[], depth: number): string => {
     if (depth > 8) throw new Error('Unsupported style nesting');
     if (!items.length) return '';

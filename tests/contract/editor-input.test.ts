@@ -236,6 +236,43 @@ describe('inline emphasis and whole-source import provenance', () => {
     const raw = createEditorState(bytes('[[unclosed\n'));
     expect(toggleEditorMark(raw, 'italic').transaction).toBeUndefined();
   });
+  it('AUDIT-C02: whitespace at the edge of emphasis stays capturable and is saved unstyled', () => {
+    const typing = (state: EditorState, text: string) => {
+      for (const character of text)
+        state = apply(state, state.tr.insertText(character));
+      return state;
+    };
+    const bold = (state: EditorState) =>
+      apply(state, toggleEditorMark(state, 'bold').transaction);
+    const start = () => select(createEditorState(bytes('!X\n')), 0, 1);
+    // Every keystroke of a multi-word bold phrase captures.
+    let state = bold(start());
+    for (const [typed, expected] of [
+      ['Fast', '!X**Fast**\n'],
+      [' ', '!X**Fast** \n'],
+      ['car', '!X**Fast car**\n'],
+    ] as const) {
+      state = typing(state, typed);
+      expect(source(state)).toBe(expected);
+    }
+    // Bold switched off after the space no longer leaves the draft stuck.
+    state = typing(bold(typing(bold(start()), 'Fast ')), 'then on');
+    expect(source(state)).toBe('!X**Fast** then on\n');
+    // A leading space under bold heals as soon as text follows, and stays healed.
+    state = typing(bold(start()), ' ');
+    expect(source(state)).toBe('!X \n');
+    state = typing(state, 'big dog');
+    expect(source(state)).toBe('!X **big dog**\n');
+    expect(
+      createEditorState(captureEditor(state).source).doc.child(0).textContent,
+    ).toBe('X big dog');
+    // Underline follows the same rule; an explicit selection toggle still refuses.
+    state = start();
+    state = apply(state, toggleEditorMark(state, 'underline').transaction);
+    expect(source(typing(state, 'a '))).toBe('!X_a_ \n');
+    state = select(createEditorState(bytes('!Hello there\n')), 0, 0, 6);
+    expect(toggleEditorMark(state, 'underline').transaction).toBeUndefined();
+  });
   it.each([
     '\ufeffTitle: Imported\r\nOdd field: retained\r\n\r\nINT. LAB - DAY\r\n!  space  \r\n/* secret */\r\n',
     '',

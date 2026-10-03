@@ -1610,6 +1610,52 @@ it('M4-14 palette navigation rechecks its frame and preserves source/Undo, while
   ).toBe(true);
 });
 
+it('AUDIT-C02: a capture-failure alert clears once the draft captures again', async () => {
+  const source = '\n@MAYA\n(softly)\nHello.\n';
+  const raw = [...new TextEncoder().encode(source)];
+  const f = fixturePorts({
+    picked: {
+      ...opened(),
+      source: raw,
+      fingerprint: {
+        ...fingerprint(),
+        byteLength: raw.length,
+        sha256: createHash('sha256').update(source).digest('hex'),
+      },
+    },
+  });
+  const views: ReturnType<typeof editorMount.mountScreenplayEditor>[] = [];
+  const mount = editorMount.mountScreenplayEditor;
+  vi.spyOn(editorMount, 'mountScreenplayEditor').mockImplementation(
+    (...args) => {
+      const view = mount(...args);
+      views.push(view);
+      return view;
+    },
+  );
+  render(
+    <WritingView
+      ports={f.ports}
+      open={{ kind: 'picked' }}
+      onSessionClosed={vi.fn()}
+    />,
+  );
+  await screen.findByLabelText('Screenplay actions');
+  const view = views[0]!;
+  // Text before a Parenthetical's opening bracket has no Fountain spelling.
+  const start =
+    view.state.doc.child(0).nodeSize + view.state.doc.child(1).nodeSize + 1;
+  view.dispatch(view.state.tr.insertText('x', start));
+  expect((await screen.findByRole('alert')).textContent).toContain(
+    'Parenthetical must be wrapped',
+  );
+  view.dispatch(view.state.tr.delete(start, start + 1));
+  await waitFor(() => expect(screen.queryByRole('alert')).toBeNull());
+  expect(new TextDecoder().decode(captureEditor(view.state).source)).toBe(
+    source,
+  );
+});
+
 it('restores current outline and counts after Save As rollback without losing source, selection or Undo', async () => {
   const source = '.INT. ROOM - DAY\n!Alpha.\n\n.EXT. GARDEN - DAY\n!Beta.\n';
   const raw = [...new TextEncoder().encode(source)];

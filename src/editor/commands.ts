@@ -198,6 +198,11 @@ function enter(state: EditorState): EditorCommandResult {
     return replaceRows(state, start.index, 1, [action], 0, 0, nextId);
   }
   if (start.offset === 0 && left.textContent) {
+    // Dialogue has no forcing marker: a row above it would detach the speech.
+    if (left.attrs.speechOf)
+      return refused(
+        'A dialogue line stays with its speaker; press Enter at the end of a line instead',
+      );
     const created = newNode('action', left, allocate());
     const before =
       left.attrs.actionSubtype === 'shot'
@@ -209,14 +214,13 @@ function enter(state: EditorState): EditorCommandResult {
     if (left.attrs.dualWith)
       return refused('Split the complete dual-dialogue group explicitly');
     const first = newNode(left.type.name, left, String(left.attrs.id), prefix);
-    const created = newNode(left.type.name, left, allocate(), suffix);
-    const second =
-      left.type.name === 'sceneHeading'
-        ? created.type.create(
-            { ...created.attrs, sceneNumber: null },
-            created.content,
-          )
-        : created;
+    // The tail of a split heading is not a heading; it continues as Action.
+    const second = newNode(
+      left.type.name === 'sceneHeading' ? 'action' : left.type.name,
+      left,
+      allocate(),
+      suffix,
+    );
     return replaceRows(state, start.index, 1, [first, second], 1, 0, nextId);
   }
   const following =
@@ -353,6 +357,9 @@ function join(
         ? 'dialogue'
         : 'action';
   const content = left.content.append(right.content);
+  // Text after a closed parenthetical has no Fountain row of its own.
+  if (/^\s*\([^)]*\)\s*\S/.test(left.textContent + right.textContent))
+    return refused('A parenthetical stays on its own line');
   const merged = newNode(kind, left, String(left.attrs.id), content);
   return replaceRows(
     state,

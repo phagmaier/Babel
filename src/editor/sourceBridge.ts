@@ -104,7 +104,7 @@ function editForNode(node: EditorNode, prior?: FountainLine): LineEdit {
       ? prior.text
       : node.attrs.literal
         ? node.textContent
-        : sourceForInline(runs),
+        : sourceForInline(runs, true),
     ...(node.attrs.sceneNumber
       ? { sceneNumber: node.attrs.sceneNumber as string }
       : {}),
@@ -325,7 +325,18 @@ export function captureEditor(
             error.code !== 'neighbor-drift'
           )
             throw error;
-          if (oldEnd < upper.old && newEnd < upper.next) {
+          // Own the drifting row too. Rows between it and the edit are
+          // unchanged, so old and new bounds move together; a protected
+          // anchor is never crossed.
+          const drift = error.line;
+          if (drift !== undefined && drift >= oldEnd && drift < upper.old) {
+            newEnd += drift + 1 - oldEnd;
+            oldEnd = drift + 1;
+          } else if (drift !== undefined && drift < from && drift > lower.old) {
+            newFrom -= from - drift;
+            from = drift;
+          } else if (drift !== undefined) throw error;
+          else if (oldEnd < upper.old && newEnd < upper.next) {
             oldEnd++;
             newEnd++;
           } else if (from > lower.old + 1 && newFrom > lower.next + 1) {
@@ -344,23 +355,49 @@ export function captureEditor(
       if (sameNodeContent(node, prior)) return;
       edits.push({ index, edit: editForNode(node, prior) });
     });
+    const changed = new Map(edits.map(({ index, edit }) => [index, edit]));
     // Adjacent changed rows own one grammar context. Separate ranges cannot silently own protected text.
     for (let at = 0; at < edits.length;) {
-      const first = at;
-      while (
-        at + 1 < edits.length &&
-        edits[at + 1]!.index === edits[at]!.index + 1
-      )
-        at++;
-      const from = edits[first]!.index;
-      const replacements = edits.slice(first, at + 1).map(({ edit }) => edit);
-      document = replaceLines(
-        document,
-        from,
-        base.lines.length ? replacements.length : 0,
-        replacements,
-      );
-      at++;
+      let from = edits[at]!.index;
+      let to = from;
+      while (changed.has(to + 1)) to++;
+      for (;;) {
+        const replacements: LineEdit[] = [];
+        for (let index = from; index <= to; index++)
+          replacements.push(
+            changed.get(index) ??
+              editForNode(state.doc.child(index), base.lines[index]),
+          );
+        try {
+          document = replaceLines(
+            document,
+            from,
+            base.lines.length ? replacements.length : 0,
+            replacements,
+          );
+          break;
+        } catch (error) {
+          // Typing changed a neighbour's grammar context: own that unchanged
+          // row as well so the codec may keep its meaning with a forcing marker.
+          const drift =
+            error instanceof FountainEditError &&
+            error.code === 'neighbor-drift'
+              ? error.line
+              : undefined;
+          if (drift === undefined) throw error;
+          const lower = Math.min(from, drift);
+          const upper = Math.max(to, drift);
+          for (let index = lower; index <= upper; index++)
+            if (
+              (index < from || index > to) &&
+              state.doc.child(index).attrs.protected
+            )
+              throw error;
+          from = lower;
+          to = upper;
+        }
+      }
+      while (at < edits.length && edits[at]!.index <= to) at++;
     }
   }
   const bytes = serializeFountain(document);

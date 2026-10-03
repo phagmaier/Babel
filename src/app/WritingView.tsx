@@ -400,6 +400,7 @@ export function WritingView({
     let alive = true;
     let capturing = false;
     let captureAgain = false;
+    let captureAlert: string | undefined;
     let initialPositionEligible = true;
     let positionCapture:
       | (import('../application/manuscriptProjection').ManuscriptStamp & {
@@ -614,13 +615,19 @@ export function WritingView({
             captureAgain = false;
             try {
               await sessionRef.current?.noteEdit();
+              // The draft is capturable again: retire only our own alert.
+              const stale = captureAlert;
+              captureAlert = undefined;
+              if (stale !== undefined && alive)
+                setError((current) => (current === stale ? '' : current));
             } catch (failure) {
-              if (!captureAgain && alive)
-                setError(
+              if (!captureAgain && alive) {
+                captureAlert =
                   failure instanceof Error
                     ? failure.message
-                    : 'Edit could not be recorded',
-                );
+                    : 'Edit could not be recorded';
+                setError(captureAlert);
+              }
             }
           } while (captureAgain && alive);
           if (alive) refresh();

@@ -40,9 +40,12 @@ export class FountainEditError extends Error {
     | 'neighbor-drift'
     | 'unrepresentable'
     | 'stale-conversion';
-  constructor(code: FountainEditError['code'], message: string) {
+  /** For `neighbor-drift`: the unowned line (pre-edit index) whose interpretation would change. */
+  readonly line: number | undefined;
+  constructor(code: FountainEditError['code'], message: string, line?: number) {
     super(message);
     this.code = code;
+    this.line = line;
     this.name = 'FountainEditError';
   }
 }
@@ -765,10 +768,14 @@ export function replaceLines(
   const priorById = retainedIds
     ? new Map(document.lines.map((line) => [line.id, line]))
     : undefined;
-  const sources = edits.map((edit, index) => {
-    const prior = retainedIds
-      ? priorById!.get(retainedIds[index]!)
-      : owned[index];
+  // An unchanged row keeps its authored spelling. When the edit changed its
+  // grammar context, the forcing marker goes into that spelling before the
+  // generated form is tried; only rows this edit owns are ever re-spelled.
+  const priors = edits.map((_, index) =>
+    retainedIds ? priorById!.get(retainedIds[index]!) : owned[index],
+  );
+  const spellings = edits.map((edit, index) => {
+    const prior = priors[index];
     const generated = sourceFor(edit, prior);
     if (
       prior &&
@@ -780,9 +787,70 @@ export function replaceLines(
         edit.sectionLevel === prior.sectionLevel) &&
       edit.dualWith === undefined
     )
-      return prior.sourceText;
-    return generated;
+      return [
+        ...new Set([prior.sourceText, forcedSpelling(prior), generated]),
+      ].filter((spelling) => spelling !== undefined);
+    return [generated];
   });
+  const choice = spellings.map(() => 0);
+  for (;;) {
+    let mismatch: number | undefined;
+    try {
+      return replaceSpelled(
+        document,
+        from,
+        count,
+        edits,
+        retainedIds,
+        priors,
+        spellings.map((candidates, index) => candidates[choice[index]!]!),
+        (offset) => {
+          mismatch = offset;
+        },
+      );
+    } catch (error) {
+      if (
+        mismatch === undefined ||
+        !(error instanceof FountainEditError) ||
+        error.code !== 'round-trip' ||
+        choice[mismatch]! + 1 >= spellings[mismatch]!.length
+      )
+        throw error;
+      choice[mismatch]!++;
+    }
+  }
+}
+
+const forcingMarkers: Partial<Record<FountainLine['kind'], string>> = {
+  action: '!',
+  sceneHeading: '.',
+  character: '@',
+  transition: '>',
+};
+/** The authored row with only a forcing marker added; indentation and suffix bytes stay. */
+function forcedSpelling(prior: FountainLine): string | undefined {
+  const marker = forcingMarkers[prior.kind];
+  if (!marker || prior.marker) return undefined;
+  // Action text owns its indentation; other kinds are read after it.
+  const indent =
+    prior.kind === 'action'
+      ? 0
+      : prior.sourceText.length - prior.sourceText.trimStart().length;
+  return (
+    prior.sourceText.slice(0, indent) + marker + prior.sourceText.slice(indent)
+  );
+}
+
+function replaceSpelled(
+  document: FountainDocument,
+  from: number,
+  count: number,
+  edits: readonly LineEdit[],
+  retainedIds: readonly string[] | undefined,
+  priors: readonly (FountainLine | undefined)[],
+  sources: readonly string[],
+  mismatched: (offset: number) => void,
+): FountainDocument {
   return transactSource(
     document,
     from,
@@ -799,12 +867,14 @@ export function replaceLines(
           (!recoverableDraft && line.kind !== edit.kind) ||
           line.text !== edit.text ||
           !line.editable
-        )
+        ) {
+          mismatched(offset);
           throw new FountainEditError(
             'round-trip',
             'Requested element cannot round-trip unambiguously; source remains unchanged',
           );
-        const prior = owned[offset];
+        }
+        const prior = priors[offset];
         const expectedNumber =
           edit.kind === 'sceneHeading'
             ? edit.sceneNumber === undefined
@@ -1016,6 +1086,7 @@ function transactSource(
       throw new FountainEditError(
         'neighbor-drift',
         'Edit would change neighboring Fountain interpretation; include affected lines explicitly',
+        index,
       );
   }
 

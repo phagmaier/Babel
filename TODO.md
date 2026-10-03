@@ -70,6 +70,12 @@ How to pick work: the next unchecked `[ ]` box below is the task. Read its brief
 | AUDIT-D08A | D-08(A) Reload on external change (SPEC S10.7 already requires it)                                                            | M      | accepted (below)      |
 | AUDIT-C356 | C-03 (escape encoder + renderer), C-05 (SELinux xattr names), C-06 (find/check decoration sets)                               | S–M    | —                     |
 
+- [x] **AUDIT-C01** — [Brief](docs/tasks/AUDIT-C01.md). [Evidence](docs/test-evidence/AUDIT.md#audit-c01--capture-stays-possible-on-standard-fountain-edits-and-edge-space-emphasis): Tier 2, mocked/JSDOM only; remaining uncapturable shapes listed there.
+- [ ] **AUDIT-C04 — NEXT** (draft the brief first; Tier 3)
+- [ ] **AUDIT-D01** (inherits the mid-speech Enter shape left by AUDIT-C01)
+- [ ] **AUDIT-D08A**
+- [ ] **AUDIT-C356**
+
 ### Wave 2 — test gaps (approved as AUDIT-TEST; draft when Wave 1 completes)
 
 T-03 (resume path, ~20-line composition), T-04 (8 `WritingSession` guard tests), T-05 (persistence-controller receipt validation), T-09 (structured-paste prefix/suffix), T-06 (replace/check sessions), T-07 (restore/resolve via WritingView), T-10 (SC002/SC004 mappings). All S; batch in dependency order. T-08 remainder (link checker is tracked; matrix-runner selector fix is in the tool) closes with first Tier 3 run.
