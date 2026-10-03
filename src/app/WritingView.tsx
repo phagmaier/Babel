@@ -107,6 +107,7 @@ import { useSpellingSession } from './spellingSession';
 import { useTitleSession } from './titleSession';
 import { useMoveSession } from './moveSession';
 import { useOutlineSession } from './outlineSession';
+import { usePaletteSession } from './paletteSession';
 import {
   clampedSelection,
   toSessionSelection,
@@ -1524,34 +1525,12 @@ export function WritingView({
           refresh();
       }
     });
-  const paletteNavigation = () =>
-    outline.phase === 'current' && outline.projection
-      ? outline.projection.index.items.map((item) => {
-          const captured = outline.projection!;
-          return {
-            id: `navigation.${item.id}`,
-            label: `${item.kind === 'scene' ? 'Scene ' + item.ordinal : 'Section'}: ${item.label.slice(0, 300)}`,
-            hint: item.sceneNumber
-              ? `Authored number ${item.sceneNumber}`
-              : 'Navigate without editing',
-            activate: () => {
-              const current = viewRef.current;
-              const facts = commandContext();
-              if (
-                !current ||
-                facts.blocked ||
-                facts.composing ||
-                facts.staged ||
-                !facts.ready ||
-                !navigateOutline(current, captured, item.row)
-              )
-                setError(
-                  'Palette navigation is stale or unavailable. Text and selection are retained.',
-                );
-            },
-          };
-        })
-      : [];
+  const { paletteNavigation } = usePaletteSession({
+    outline,
+    viewRef,
+    getFacts: commandContext,
+    setError,
+  });
 
   const hosts = (
     <div key="writing-hosts">

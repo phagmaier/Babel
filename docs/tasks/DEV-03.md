@@ -1,6 +1,6 @@
 # DEV-03 — WritingView decomposition
 
-Status: in progress (slice 1 landed).
+Status: in progress (slices 1–8 landed; slice 9 remains).
 Dependencies: M5-07 (focus-race correction must keep passing). No behavior,
 IPC, persistence, PDF, history or remote change — pure code moves only.
 
@@ -192,15 +192,28 @@ precedence) with exact bytes.
 
 Evidence: [M5](../test-evidence/M5.md#dev-03--writingview-decomposition-slice-7).
 
-## Later slices (proposed, not started)
+## Slice 8 (landed)
 
-- Feature-hook sections (find/replace/check/spelling/palette) as custom
-  hooks with the component keeping composition only. Each needs the same
-  pure-move proof; hook-order sensitivity makes these riskier than slice 1.
-- Panel JSX wiring last — entangled with the most closures; prop-drilling
-  surface must be designed, not improvised.
+Palette navigation → `src/app/paletteSession.ts` (`usePaletteSession`):
+the callback moves verbatim except `commandContext()` becomes the typed
+`getFacts()` dependency. Render values (`outline`), editor ref and
+error setter pass from the component; captured projection, labels and
+activation guards retain their semantics. No React primitives,
+memoization or effects added; the call appends unconditionally after
+the existing hooks and before all phase returns. Dispatch switch and
+`CommandSurface` props stay composed. `WritingView.tsx` 1,977 → 1,956 lines.
 
-## Panel phase — designed, not started
+Checks: focused 42/42 (command dispatch, CommandPalette, WritingView
+including stale navigation/source/Undo and M5-07 focus regressions),
+full 772/772, lint/typecheck/build, Rust fmt/clippy/workspace tests,
+formatting/local links/diff all pass. Fresh-release native `--commands`
+passes completely on tmpfs, including GTK simple IME; no blocked sections.
+Native menu/light/dark-scaled screenshots reviewed. Browser smoke and
+second-filesystem run skipped with the pure-move rationale in evidence.
+
+Evidence: [M5](../test-evidence/M5.md#dev-03--writingview-decomposition-slice-8).
+
+## Panel phase — approved design (slices 5–8 landed; slice 9 next)
 
 Slices 1–4 proved the pattern: session hooks own state machines plus
 their effects; the component keeps controller creation/disposal,

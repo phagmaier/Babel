@@ -1,6 +1,6 @@
-# Current state — M5-07 complete, DEV-02 tooling in progress
+# Current state — M5 complete, DEV-03 slice 8 complete
 
-Date: 2026-10-03. Application: **babel**. Admission `bfdbdbb` on main.
+Date: 2026-10-02. Application: **babel**. Admission `bfdbdbb` on main.
 Work directly on main; no push. M5-07 remains complete at `bfdbdbb`.
 
 ## Task and work
@@ -20,50 +20,25 @@ measurement (proofs cost 5.3 s; exclusion breaks more than it saves);
 Python lint gate added (`tools/lint-py.sh`, 75 files green); harness
 repackaging deferred until after M6-00.
 
-**DEV-03 WritingView decomposition — slice 1 claimed.** Pure helpers
-(`toSessionSelection`, `writingFailureMessage`, `clampedSelection`) moved
-to `src/app/writingHelpers.ts` with new contract tests; component diff is
-removal + import only (2,483 → 2,438 lines), no behavior change.
-[Brief](tasks/DEV-03.md), [evidence](test-evidence/M5.md#dev-03--writingview-decomposition-slice-1).
-Tier 2: new tests 5/5, `WritingView.test.tsx` 28/28 (focus regressions
-green), full `pnpm test` 772/772, lint/typecheck/build, `cargo`
-fmt/clippy/workspace-test, `prettier`, `git diff --check`. Slice 2 landed:
-find/replace session → `useFindSession` (verbatim move, `tsc`-exact
-boundary); focused 64/64, full suite green, native `--find` drill PASS
-except pinyin IME (no Fcitx5 on this host — blocked, laptop can cover).
-Slice 3 landed: script-check session → `useCheckSession` (verbatim move;
-`closeCheck`/`showCheck` stay composed since the find hook consumes
-`closeCheck`); `WritingView.tsx` 2,226 → 2,158 lines, focused 57/57,
-full suite green, native `--script-check` drill PASS with exact bytes
-and no blocked sections. Slice 4 landed: spellcheck session →
-`useSpellingSession` (open/close pair from inline sites,
-bodies byte-identical); `WritingView.tsx` 2,158 → 2,157 lines,
-focused 41/41, full suite green, native `--spellcheck` drill PASS;
-palette stays for the designed panel-JSX phase. Panel-phase design
-recorded in the brief: title → move → outline/positions → palette
-navigation → preview/export (last, M5-07 focus race), with a permanent
-composition core; no code changed. Slice 5 landed: title-page session →
-`useTitleSession` (visibility, button/return-focus refs, return-focus
-effect, open/close pair; shared draft/composing/applying refs stay);
-`WritingView.tsx` 2,157 → 2,148 lines, focused 49/49, full suite green,
-native `--title-page` drill completed all pre-IME actions with exact
-bytes, pinyin IME section blocked (no Fcitx5 on this host). Slice 6
-landed: move session → `useMoveSession` (memoized preview, async
-apply, named cancel; teardown aborts and outline navigation stay);
-`WritingView.tsx` 2,148 → 2,055 lines, focused 49/49, full suite green,
-native `--scene-moves` drill PASS with no blocked sections. Slice 7
-landed: outline/character/position session → `useOutlineSession`
-(state, position store/refs, highlight/restore effects, both
-navigation callbacks; lifecycle threads through stable handles);
-`WritingView.tsx` 2,055 → 1,977 lines, focused 65/65, full suite
-green, `--outline` pre-IME workflows green with pinyin blocked (no
-Fcitx5), `--characters` fully PASS.
-[Brief](tasks/DEV-02.md), [evidence](test-evidence/M5.md#dev-02--second-machine-smoothness-tooling-slice).
-Tier 1: `bash -n`/`shellcheck`, doctor/host green, `cargo fmt`/`cargo check
--p babel-desktop`, `tsc`, one vitest file, `prettier`, `git diff --check`.
-Full shared gates not rerun (no behavior paths). Owner `mise.toml` /
-`docs/development.md` edits preserved and excluded from this task's commit.
-`clean.sh --apply` not run: `target/m5-07` is linked evidence.
+**DEV-03 WritingView decomposition — slice 8 complete.** Slices 1–8
+landed: helpers, find/replace, check, spelling, title, move,
+outline/characters/position and now palette navigation sessions.
+Slice 8 moves the callback verbatim to `src/app/paletteSession.ts`
+(`usePaletteSession`), with typed `outline`/`viewRef`/`getFacts`/`setError`
+deps. Captured projection and activation guards retain exact semantics;
+dispatch switch and `CommandSurface` props stay composed. No behavior change.
+`WritingView.tsx` 1,977 → 1,956 lines. Existing stale-navigation/source/Undo
+and M5-07 preview-focus regressions pass.
+Tier 2 shared gates and the fresh-release native `--commands` drill pass;
+no blocked sections. Native menu/light/dark-scaled screenshots reviewed,
+helper tree unchanged (`c805d6…`). Commands/timings, paths and omissions:
+[brief](tasks/DEV-03.md),
+[evidence](test-evidence/M5.md#dev-03--writingview-decomposition-slice-8).
+Slice 9 preview/export is next and explicitly last; panel JSX and permanent
+composition core stay in the component. DEV-03 remains open until slice 9.
+DEV-02 tooling is landed; second-host acceptance is owner-only.
+[DEV-02 brief](tasks/DEV-02.md),
+[evidence](test-evidence/M5.md#dev-02--second-machine-smoothness-tooling-slice).
 
 **M5-07 Integrated publication exit and separate review — complete, bounded
 Linux gate.** The integrated native scenario compares preview/export from the
@@ -117,11 +92,14 @@ Tier 1 declaration, FUSE/desktop registration and installed adoption, A4,
 editor page markers, full transitive notices/runtime trust, retention UX,
 broader interruption/power loss, backup/migration and Local v1 remain open.
 Existing M4 C1/F2 forced-kill/automation-shutdown hardening remains M6.
-No real manuscript, credentials or upload; no push. Existing owner edits in
-`mise.toml` and `docs/development.md` remain untouched and uncommitted by this task.
+No real manuscript, credentials or upload; no push. This slice began with a
+clean tree at `eac8d1f`; `mise.toml` and `docs/development.md` are untouched.
 
 ## Next action
 
-Stop at M5. **M6-00 decomposition** is the next bounded task when authorized;
-declare Tier 1 OS/architecture targets before M6 implementation. Review the
-retained M4/M5 limits and decompose M6-G before starting production work.
+DEV-03 slice 9: move the preview/export session, preserve M5-07 focus-race
+regressions, verify Tier 2 plus native `--publication-preview` and
+`--pdf-export`, then commit. This tooling/pure-move track is owner-authorized.
+Stop production work at M5. M6-00 decomposition needs separate authorization
+and the owner's Tier 1 OS/architecture declaration. Development-doc splitting
+needs a design; harness repackaging remains deferred until after M6-00.
