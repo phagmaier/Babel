@@ -1,6 +1,6 @@
 # Development and toolchain
 
-Status: M3-12 default native writing lifecycle over the M2 Linux safety foundation and M3 production editor/input/native-entry/cadence/Save As services; audit corrections and the bounded Linux M3-13 integrated exit passed. Full performance, packaging/platform hardening and Local v1 adoption remain open. See [SPEC S13-S15](../SPEC.md#s13), [S17](../SPEC.md#s17), [APP-01, QA-01, QA-02](requirements.md), [M1 evidence](test-evidence/M1.md), [M2 evidence](test-evidence/M2.md).
+Status: M0–M5 and the bounded M6-01 investigation recorded complete (bounded Linux gates); M6-02 hardening recorded with disposition open. Full performance, packaging/platform hardening and Local v1 adoption remain open. See [SPEC S13-S15](../SPEC.md#s13), [S17](../SPEC.md#s17), [APP-01, QA-01, QA-02](requirements.md), [M5 evidence](test-evidence/M5.md), [M6 evidence](test-evidence/M6.md).
 
 ## Recorded host and pins
 
@@ -80,24 +80,26 @@ and retained limitations: [DEV-01 evidence](test-evidence/M5.md#dev-01--laptop-d
 
 ## Commands
 
-| Goal                | Command                                                 | Scope                                             |
-| ------------------- | ------------------------------------------------------- | ------------------------------------------------- |
-| Install             | `pnpm install --frozen-lockfile`                        | Dependencies only                                 |
-| Browser preview     | `pnpm dev`                                              | Vite; native services absent                      |
-| Desktop development | `pnpm tauri dev`                                        | Real Tauri/WebKit runtime                         |
-| Format              | `pnpm format:check`                                     | Source/docs except excluded byte-sensitive inputs |
-| Lint                | `pnpm lint`                                             | Frontend/tool JS/TS                               |
-| Typecheck           | `pnpm typecheck`                                        | Strict TypeScript                                 |
-| Unit/UI             | `pnpm test`                                             | Vitest/JSDOM; native port injected                |
-| Browser smoke       | `pnpm test:browser`                                     | System Chromium + Playwright core                 |
-| Frontend build      | `pnpm build`                                            | Typecheck + Vite                                  |
-| Aggregate           | `pnpm check`                                            | Format, lint, typecheck, tests, build             |
-| Rust format         | `cargo fmt --all -- --check`                            | Workspace                                         |
-| Rust lint           | `cargo clippy --workspace --all-targets -- -D warnings` | Workspace/native libs required                    |
-| Rust unit           | `cargo test --workspace`                                | Includes host command wiring                      |
-| Core unit           | `cargo test -p screenwriter-core`                       | No WebView                                        |
-| Desktop package     | `pnpm tauri build`                                      | Native package; platform prerequisite gate        |
-| PDF helper          | `pnpm pdf-helper`; `pnpm test:pdf-helper`               | M5-01 bundled renderer build/self-test            |
+| Goal                | Command                                                 | Scope                                               |
+| ------------------- | ------------------------------------------------------- | --------------------------------------------------- |
+| Install             | `pnpm install --frozen-lockfile`                        | Dependencies only                                   |
+| Browser preview     | `pnpm dev`                                              | Vite; native services absent                        |
+| Desktop development | `pnpm tauri dev`                                        | Real Tauri/WebKit runtime                           |
+| Format              | `pnpm format:check`                                     | Source/docs except excluded byte-sensitive inputs   |
+| Lint                | `pnpm lint`                                             | Frontend/tool JS/TS                                 |
+| Typecheck           | `pnpm typecheck`                                        | Strict TypeScript                                   |
+| Unit/UI             | `pnpm test`                                             | Vitest/JSDOM; native port injected                  |
+| Browser smoke       | `pnpm test:browser`                                     | System Chromium + Playwright core                   |
+| Frontend build      | `pnpm build`                                            | Typecheck + Vite                                    |
+| Aggregate           | `pnpm check`                                            | Format, lint, typecheck, tests, build               |
+| Rust format         | `cargo fmt --all -- --check`                            | Workspace                                           |
+| Rust lint           | `cargo clippy --workspace --all-targets -- -D warnings` | Workspace/native libs required                      |
+| Rust unit           | `cargo test --workspace`                                | Includes host command wiring                        |
+| Core unit           | `cargo test -p screenwriter-core`                       | No WebView                                          |
+| Desktop package     | `pnpm tauri build`                                      | Native package; platform prerequisite gate          |
+| PDF helper          | `pnpm pdf-helper`; `pnpm test:pdf-helper`               | M5-01 bundled renderer build/self-test              |
+| Link check          | `python3 tools/check-links.py`                          | Tracked Markdown relative-link check (Tier 1 gate)  |
+| Workspace matrix    | `python3 tools/run-workspace-matrix.py <tmpfs> <btrfs>` | Tier 3 `cargo test --workspace` on both filesystems |
 
 M1-02 isolated native editor proof: `CARGO_HOME=/tmp/babel-cargo pnpm tauri dev --features native-editor-proof --config src-tauri/tauri.native-proof.conf.json`. This feature-gated diagnostic run logs synthetic metrics, without changing the production app route. [Proof instructions](../prototypes/native-editor/README.md) include input sequences.
 
@@ -109,9 +111,9 @@ Tiers reduce repeat runs for small changes; they never weaken SPEC S15/S18 gates
 
 | Tier                   | Use when                                                                                                                                                 | Required checks                                                                                                                                                                                                        |
 | ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Tier 1 — fast          | Docs/comment-only, or UI text-only with no logic, persistence, IPC, or native change                                                                     | `pnpm format:check` on touched files, changed local-link check, `git diff --check`. Add `pnpm lint`/`pnpm typecheck` if JS/TS was touched.                                                                             |
+| Tier 1 — fast          | Docs/comment-only, or UI text-only with no logic, persistence, IPC, or native change                                                                     | `pnpm format:check` on touched files, changed local-link check (`python3 tools/check-links.py`), `git diff --check`. Add `pnpm lint`/`pnpm typecheck` if JS/TS was touched.                                            |
 | Tier 2 — shared        | Frontend-only logic (codec, editor, UI state) or Rust-only unit change that does not touch the filesystem matrix paths below                             | Tier 1 plus focused `vitest`/`cargo test` paths from the task table, then full `pnpm test`, `pnpm lint`, `pnpm typecheck`, `pnpm build`, `cargo fmt --check`, `cargo clippy -- -D warnings`, `cargo test --workspace`. |
-| Tier 3 — native/matrix | Change touches filesystem matrix paths, native IPC/commands, packaging, or a milestone/release gate; or prior Tier 2 run showed a cross-boundary failure | Tier 2 plus `pnpm test:browser`, relevant `pnpm tauri build`/`dev` native drill from the task table, and the tmpfs/Btrfs matrix.                                                                                       |
+| Tier 3 — native/matrix | Change touches filesystem matrix paths, native IPC/commands, packaging, or a milestone/release gate; or prior Tier 2 run showed a cross-boundary failure | Tier 2 plus `pnpm test:browser`, relevant `pnpm tauri build`/`dev` native drill from the task table, and the tmpfs/Btrfs matrix (`python3 tools/run-workspace-matrix.py`).                                             |
 
 Filesystem-matrix triggers (Tier 3 required): `crates/screenwriter-core/src/` save/replacement/recovery/journal/snapshot/history/identity/lease paths, `src-tauri/src/` command/IPC/file-dialogue paths, sync/interruption handling, native metadata/path behavior, or packaging changes. Pure codec/envelope/state/view-preference/palette-label changes stay Tier 2 (single filesystem for shared Rust gates is enough); record why no second-filesystem run was needed.
 
@@ -129,7 +131,7 @@ Registry metadata checked during M0: React/React DOM and Vite use MIT; Tauri API
 
 M1-02 registry metadata checked all six direct ProseMirror proof packages (`commands`, `history`, `keymap`, `schema-basic`, `state`, `view`) at their pinned versions as MIT. The lockfile adds transitive `model` and `transform`; their exact distribution notices still require release review. M3-04 promotes four selected packages; [exact runtime notices](third-party/editor-runtime.md) cover those and their existing transitive dependencies.
 
-M5-01 bundled PDF helper: `python3 tools/pdf-helper/build.py` assembles
+M5-01 bundled PDF helper (a separate executable artifact, not a linked JS/Rust runtime dependency): `python3 tools/pdf-helper/build.py` assembles
 `target/pdf-helper/runtime` from SHA-256-pinned python-build-standalone CPython
 3.13.16, Screenplain 0.12.0 (MIT, Courier Prime OFL-1.1), ReportLab 4.4.7
 (BSD-3-Clause) and charset-normalizer 3.5.1 (MIT), with a refusing Pillow stub.

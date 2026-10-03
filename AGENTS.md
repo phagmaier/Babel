@@ -4,8 +4,6 @@
 
 Build the local-first screenwriting application in `SPEC.md`. Protect author content first. The repository is project memory.
 
-**Fresh repository:** follow `BOOTSTRAP_PROMPT.md`, complete M0 and stop. No editor, persistence engine, PDF, history or remote transfer during bootstrap.
-
 ## Start every session
 
 1. Read applicable instructions; inspect `git status` and preserve existing work.

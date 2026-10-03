@@ -1,8 +1,8 @@
 # babel
 
-babel is a local-first desktop screenwriting application in development. The default Linux app connects a Fountain editor to native New/Open, versioned recovery and source saving, Save As, snapshots, and protected close. Audit corrections and the bounded Linux M3 integrated exit have passed verification; see [current state](docs/current-state.md) for the evidence and remaining gates. PDF, production history workflows, remote operations, other platforms and installed/offline adoption remain future work. **Do not use this build for important manuscripts.**
+babel is a local-first desktop screenwriting application in development. The default Linux app connects a Fountain editor to native New/Open, versioned recovery and source saving, Save As, snapshots, protected close, and a bundled offline PDF pipeline. M0–M5 and the bounded M6-01 investigation have passed their bounded Linux gates; see [current state](docs/current-state.md) for the evidence and remaining gates. Installed/offline adoption, production history workflows, remote operations, and other platforms remain future work. **Do not use this build for important manuscripts.**
 
-`SPEC.md` is the product contract. [Documentation](docs/index.md), [tasks](TODO.md), and [current state](docs/current-state.md) contain the implementation map and exact verification status. The app name **babel** was chosen by the owner; the starter spec's "Screenwriter" label was a placeholder. The npm package is `babel-screenwriter`; the Rust crate `screenwriter-core` keeps its technical name (see [naming map](docs/architecture.md)).
+`SPEC.md` is the product contract. [Repo map](map.md), [tasks](TODO.md), and [current state](docs/current-state.md) contain the implementation map and exact verification status. The app name **babel** was chosen by the owner; the starter spec's "Screenwriter" label was a placeholder. The npm package is `babel-screenwriter`; the Rust crate `screenwriter-core` keeps its technical name (see [naming map](docs/architecture.md)).
 
 ## Start and check
 

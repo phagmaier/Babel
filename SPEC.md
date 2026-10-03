@@ -1055,10 +1055,9 @@ This is the **application source repository**, not a screenplay project's storag
 
 ```text
 screenwriter/
-  SPEC.md
-  AGENTS.md
-  BOOTSTRAP_PROMPT.md
-  README.md
+   SPEC.md
+   AGENTS.md
+   README.md
   TODO.md
   package.json
   pnpm-lock.yaml
@@ -1297,3 +1296,4 @@ and Git fetch at https://git-scm.com/docs/git-fetch.
 ## Change log
 
 - 1.0: Initial standalone specification, incorporating the agreed writing workflow, staged local/remote delivery, and explicit evidence/safety gates. No application implementation is included in this starter package.
+- 1.1 (2026-10-03): Removed the deleted `BOOTSTRAP_PROMPT.md` from the S17.1 structure listing. No requirement, invariant, or gate changed.

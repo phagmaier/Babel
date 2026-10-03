@@ -8,5 +8,4 @@ fixtures
 prototypes/pdf/corpus
 prototypes/pdf/out
 SPEC.md
-BOOTSTRAP_PROMPT.md
 AGENTS.md

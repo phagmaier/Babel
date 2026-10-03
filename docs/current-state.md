@@ -55,6 +55,12 @@ not actual unmount/power/controller/antivirus/sync-product acceptance.
 All M6-01 failed roots/binaries/cores remain untouched. Save As refusal and stress
 IME readiness were not reproduced in stronger-oracle samples; causes stay open.
 
+## Docs maintenance (2026-10-03, Tier 1, no behavior change)
+
+Owner-authorized repo-debloat pass; `AUDIT.md` untouched. `TODO.md` 167→~60 lines (completed M0–M6-01 frozen to summary, all evidence links kept; open M6-02–16/M6-G/DEV-02/M7-G/M8 intact). `docs/index.md` demoted to stub pointing at `map.md`. Applied AUDIT S-14 stale one-liners (README status, `BOOTSTRAP_PROMPT.md` refs in AGENTS/SPEC S17.1/`.prettierignore`, `index.html` title, development/testing status to M6, `map.md` prototypes row, `.env.example` load note). Tracked `tools/check-links.py` (changed-scope link gate) and `tools/run-workspace-matrix.py` (16-selector canonical matrix, incl. `BABEL_OPEN/M2_EXIT_TEST_ROOT`); `tools/clean.sh --apply` pruned unreferenced run roots (target 31→30 GiB, evidence/caches kept).
+
+Checks (Tier 1; docs-only, no Tier 2/3 matrix): `prettier --check` touched files pass; `python3 tools/check-links.py` 172/172 changed links pass (`--all` shows only 5 known frozen M4.md `../src/...` links, intentionally untouched); `git diff --check` pass; `sh tools/lint-py.sh` 78 files compile. Next agent-executable task unchanged: [M6-02-R1](tasks/M6-02-R1.md).
+
 ## Next action and blockers
 
 Next agent-executable task: [M6-02-R1](tasks/M6-02-R1.md), retained operation

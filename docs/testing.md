@@ -1,6 +1,6 @@
 # Test strategy and coverage
 
-Status: M0/M1 proofs, M2-01–06 bounded Linux headless gates, and the corrected M3-01–13 bounded Linux core-editor exit recorded. The [fresh M3-13 gate](test-evidence/M3.md#m3-13--corrected-integrated-exit-re-review) includes full default-app input/IME and a separate source re-review. Local v1 and full performance/platform/adoption gates remain open. [SPEC S15/S20](../SPEC.md#s15); QA-01–03, INV-18.
+Status: M0–M5 and the bounded M6-01 investigation recorded complete (bounded Linux gates); M6-02 hardening recorded with disposition open. The corrected M3-13 gate includes full default-app input/IME and a separate source re-review; M4 adds daily-workflow native gates, M5 the publication pipeline, M6-01 shutdown hardening. Local v1 and full performance/platform/adoption gates remain open. [SPEC S15/S20](../SPEC.md#s15); QA-01–03, INV-18.
 
 ## Test layers
 
@@ -35,6 +35,9 @@ Detailed per-task coverage lives in [development](development.md) (commands) and
 - **M1 proofs**: Fountain round-trip, native editor input, PDF renderer, durable replacement, history store, bounded composition
 - **M2 headless**: Safe open, recovery checkpoints, serialized source replacement, versioned IPC, startup review, recovery choices, snapshots, protected close, curated history
 - **M3 codec/editor**: Independent conformance corpus, production primary codec, complex Fountain regions, editor state/source captures, structural keys, picker/shortcut routing/remapping, local completion source/caret/ranking/key/pointer acceptance and undo; M3-08 clipboard/emphasis/protected import and real IME commit/cancel/Enter; corrected M3-13 default-app corpus/input/lifecycle matrix and separate safety re-review passed on tmpfs/Btrfs
+- **M4 daily workflows**: recents/Home, manuscript index/outline, workflow protection, scene/section moves, title page, find/replace, Script Check, presentation, offline spellcheck, characters/counts/position, palette/menus/accessibility; M4-15 integrated exit (19-mode tmpfs/Btrfs matrix + separate post-integration review)
+- **M5 publication**: bundled offline renderer helper, native render jobs, frozen US Letter profile + regression goldens, SC005/SC008 assessment, authoritative preview/page-count freshness, protected exact-version PDF export; M5-07 integrated publication exit + separate review
+- **M6 hardening (bounded, Linux)**: M6-01 shutdown/retained-crash disposition; M6-02 interruption/restart matrix recorded, disposition open ([M6-02-R1](tasks/M6-02-R1.md))
 
 Each area's exact commands, host, outcomes, and limitations are recorded in the linked evidence files.
 
