@@ -61,6 +61,12 @@ Owner-authorized repo-debloat pass; `AUDIT.md` untouched. `TODO.md` 167→~60 li
 
 Checks (Tier 1; docs-only, no Tier 2/3 matrix): `prettier --check` touched files pass; `python3 tools/check-links.py` 172/172 changed links pass (`--all` shows only 5 known frozen M4.md `../src/...` links, intentionally untouched); `git diff --check` pass; `sh tools/lint-py.sh` 78 files compile. Next agent-executable task unchanged: [M6-02-R1](tasks/M6-02-R1.md).
 
+## Audit execution layer (2026-10-03, Tier 1, `AUDIT.md` frozen)
+
+Owner-authorized setup for audit implementation. Added `## Audit execution` tracker to `TODO.md` (all 48 findings mapped to ~12 proposed cluster briefs in Waves 0–3 + DESIGN triage table with recommendations, decisions blank for owner + confirm-first parking list). New [AUDIT-W0 brief](tasks/AUDIT-W0.md): T-02 (CI `libenchant-2-dev` + helper ordering), S-15 (`crate-type → rlib`), S-13 (verified delete table with 3 reclassifications: `navigateLogicalText`, `unavailablePublication`, `inspect_local_recovery`); Tier 2 gate, `docs/test-evidence/AUDIT.md` as the shared evidence file. Hardened `tools/check-links.py` (GitHub-accurate slugs incl. em-dash `--`, cross-file anchor checks, explicit-path mode) and restored collapsed-section anchors in TODO via `<a id>` tags — `--all` sweep now shows only the 5 known frozen M4.md links.
+
+Checks (Tier 1; docs/tooling only, no behavior change): `prettier --check` TODO/AUDIT-W0 pass; `check-links` changed-scope 56/56 pass; `--all` 1379 links with only the 5 frozen M4.md `../src/...` items (intentionally untouched); `git diff --check` pass. Pending: owner DESIGN triage votes + approval of proposed Wave 1–3 cluster titles before those briefs are written; AUDIT-W0 is ready to execute.
+
 ## Next action and blockers
 
 Next agent-executable task: [M6-02-R1](tasks/M6-02-R1.md), retained operation

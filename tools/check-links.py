@@ -9,9 +9,9 @@ whole-repo sweep, or explicit paths to check only those files.
 
 Inline `[text](target)` / `![alt](target)` links are checked. External URLs
 (`http:`, `https:`, `mailto:`) are skipped. For relative targets the file
-must exist; same-file `#anchor` links must match a heading slug or an
-explicit `<a id>` / `id=` / `name=` anchor in that file. Cross-file anchors
-are not validated (listed as-is when their file exists).
+must exist; `#anchor` links (same-file or cross-file into a tracked
+`.md` target) must match a heading slug or an explicit `<a id>` / `id=` /
+`name=` anchor in that file.
 
 Read-only; exit 1 with a list when anything is broken.
 Usage: python3 tools/check-links.py [--all] [--] [path ...]
@@ -30,9 +30,13 @@ EXTERNAL = ("http://", "https://", "mailto:", "ftp://", "data:")
 
 
 def slugify(heading: str) -> str:
+    # GitHub heading anchors: strip tags, lowercase, drop punctuation
+    # (anything that is not a word char, whitespace, or hyphen), then turn
+    # each remaining whitespace character into one hyphen (no collapsing,
+    # so "M4-01 — Native" becomes "m4-01--native").
     slug = re.sub(r"<[^>]+>", "", heading).strip().lower()
     slug = re.sub(r"[^\w\s-]", "", slug, flags=re.UNICODE)
-    return re.sub(r"[\s]+", "-", slug).strip("-")
+    return re.sub(r"\s", "-", slug).strip("-")
 
 
 def anchors_of(path: Path) -> set[str]:
@@ -114,6 +118,10 @@ def main() -> int:
                 continue
             if not dest.exists():
                 broken.append(f"{md}: {raw} (missing file)")
+                continue
+            if anchor and dest.suffix == ".md":
+                if anchor not in anchors_of(dest):
+                    broken.append(f"{md}: {raw} (no such heading in target)")
     print(f"check-links [{scope}]: {checked} links checked.")
     if broken:
         print(f"check-links: {len(broken)} BROKEN:")
