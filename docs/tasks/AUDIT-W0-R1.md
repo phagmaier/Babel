@@ -19,7 +19,10 @@ process environment in the application.
 2. Build SHA-256-pinned upstream Enchant 2.8.21 in a fresh CI temporary prefix,
    using its release tarball's generated C; enable only the verified Hunspell
    provider. Require `libhunspell-dev` to build it and `hunspell-en-us` for the
-   actual existing English backend tests. No host-global install or new app engine.
+   actual existing English backend tests. The first corrected CI run also proves
+   the full `groff` package is needed for upstream HTML manual generation (the
+   runner's `groff-base` lacks the HTML device files). No host-global install or
+   new app engine.
 3. Use that prefix for CI link/runtime lookup. Probe the exact ABI and English
    resources before the workspace suite, with a disposable contaminated personal
    dictionary; the explicit `/dev/null` request must ignore it and leave it intact.

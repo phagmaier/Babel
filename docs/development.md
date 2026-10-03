@@ -18,6 +18,8 @@ with only Hunspell into a runner-temporary prefix using
 and `LD_LIBRARY_PATH` for subsequent steps. `libhunspell-dev` supplies the provider
 build headers; `hunspell-en-us` supplies the English resource used by actual
 backend tests. This CI prefix is no installed-distribution support claim.
+The runner also needs the full `groff` package for upstream HTML manuals;
+`groff-base` alone is insufficient, as the first corrected CI run demonstrated.
 [`pkg-config` 0.3.34](https://docs.rs/pkg-config/0.3.34/pkg_config/) is a pinned
 MIT OR Apache-2.0 build dependency already present in the lockfile. See
 [ADR 0033](decisions/0033-production-spellcheck-boundary.md) and

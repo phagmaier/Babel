@@ -19,7 +19,10 @@ retained, focused rerun 4/4. Default release/package and named offline spelling
 drill 2/2 strict pass; actual pushed CI pending. Native harness now performs the
 missing final protected document close; failed launches/manual-input-era
 attempt/Home teardown failures remain in evidence and raw artifacts. No native
-assertion relaxed. [Evidence](test-evidence/AUDIT.md#audit-w0-r1--enchant-ci-abi-prerequisite).
+assertion relaxed. Implementation `7d45253` pushed; first corrected CI finds missing
+groff HTML device files during Enchant's manual build. Add the full runner `groff`
+package and verify the next actual run; no app source changed by that follow-up.
+[Evidence](test-evidence/AUDIT.md#audit-w0-r1--enchant-ci-abi-prerequisite).
 Stop at W0-R1; C356 remains unstarted.
 
 Prior M6-02 bounded Linux hardening: stage-qualified Save As refusal/identity and

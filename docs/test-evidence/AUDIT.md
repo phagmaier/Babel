@@ -296,3 +296,5 @@ Local acceptance complete; actual corrected pushed CI result remains pending.
 Implementation push is warranted under the owner's recorded origin/main permission.
 C1/F2 unchanged; no
 installed-distribution acceptance or full integrated/native-editor claim.
+
+- Implementation commit `7d45253` pushed to existing `origin/main`; [first corrected CI](https://github.com/phagmaier/Babel/actions/runs/37157414707) **fail** in source-build prerequisite: `groff: fatal error: cannot load 'DESC' description file for device 'html'`, upstream `make enchant.html` exit 2 before Rust gates. Full log `/tmp/babel-w0-r1-ci-source-failure.log` (also retained under `target/audit-w0-r1/logs/`); add exactly `groff` to the runner's apt prerequisites, preserving upstream build/checks.
