@@ -331,7 +331,7 @@ describe('M3-12 writing session lifecycle', () => {
     expect(fakes.documents.saved).toEqual([]);
     session.dispose();
   });
-  it.each(['load', 'release'] as const)(
+  it.each(['load', 'capture', 'release', 'native-release'] as const)(
     'retains the original editor and identity after Save As %s failure',
     async (failure) => {
       const fakes = ports();
@@ -352,12 +352,25 @@ describe('M3-12 writing session lifecycle', () => {
           editor.sourceWas([98], 55);
           throw new Error('adoption failed');
         });
-      else
+      else if (failure === 'capture') {
+        const capture = editor.capture.bind(editor);
+        vi.spyOn(editor, 'capture')
+          .mockImplementationOnce(capture)
+          .mockRejectedValueOnce(new Error('capture failed'));
+      } else
         vi.mocked(fakes.ports.documents.release).mockRejectedValueOnce(
-          new Error('release failed'),
+          failure === 'native-release'
+            ? { code: 'saveNeedsAttention' }
+            : new Error('release failed'),
         );
       await expect(session.saveAs()).rejects.toThrow(
-        'original session remains open',
+        failure === 'load'
+          ? 'fresh-session adoption (adoption failed)'
+          : failure === 'capture'
+            ? 'fresh-session adoption (capture failed)'
+            : failure === 'native-release'
+              ? 'original-registration release (saveNeedsAttention)'
+              : 'original-registration release (release failed)',
       );
       expect(session.active!.identity).toEqual(identity);
       expect(editor.current).toBe(snapshot);
@@ -365,6 +378,9 @@ describe('M3-12 writing session lifecycle', () => {
       expect(editor.frozen).toBe(false);
       expect(fakes.saveAs.published).toBe(true);
       await session.save();
+      expect(fakes.ports.documents.save).toHaveBeenLastCalledWith(
+        expect.objectContaining({ identity }),
+      );
       session.dispose();
     },
   );

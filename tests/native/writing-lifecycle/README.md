@@ -769,3 +769,41 @@ Focused tooling: `python3 tests/native/writing-lifecycle/test_isolated_ime.py`,
 The bind-view tests prove structure and source preservation, not mount isolation
 or real composition. Native drills retain those separate obligations. No failed
 crash, journal event or owned survivor is waived by a successful byte audit.
+
+## M6-02 PERSISTENCE-PATHS and PERSISTENCE-TWO-INSTANCES
+
+Freeze the default release and set `BABEL_NATIVE_BINARY`; use the task-local
+display and owned picker helpers described above. Execute sequentially:
+
+```sh
+GTK_IM_MODULE=gtk-im-context-simple BABEL_SHUTDOWN_MODE=ordinary \
+  python3 tests/native/writing-lifecycle/integrated_exit.py /tmp "$PWD/target" \
+  --modes persistence-paths persistence-two-instances-shared recovery-shutdown audit-fixes \
+  --output target/m6-02/persistence-ordinary
+python3 tests/native/writing-lifecycle/audit_persistence_paths.py \
+  target/m6-02/persistence-ordinary/results.json --output target/m6-02/persistence-bytes.json
+python3 tests/native/writing-lifecycle/audit_process_watch.py \
+  target/m6-02/persistence-ordinary/results.json --output target/m6-02/persistence-journal-replay
+```
+
+`persistence-paths` exercises deletion/rename, acknowledged recovery, failed
+close retry/emergency copy and Save As followed by a later edit to the adopted
+copy. Parent-directory rename simulates an unavailable drive path; it is not
+a real unmount. `persistence-two-instances-shared` starts two owned default
+apps with separate UI caches/configuration and the same disposable app-data
+store. The second must remain read-only; its ordinary close cannot release the
+first writer's ownership. Its stderr joins the tracked primary driver log.
+
+`persistence-two-instances` uses separate app-data stores as a diagnostic of
+[ADR 0012](../../../docs/decisions/0012-native-document-identity.md)'s shared-store
+lease limitation. It retains its failed read-only expectation and ownership/UI
+snapshots, never claims two-writer protection across unrelated stores, and
+never substitutes for the shared-store control. Failed secondary cleanup is
+marked forced and receives no ordinary-close credit.
+
+The presentation Save As oracle now requires a subsequent edit saved to the
+copy, Undo to its original literal bytes, and an untouched divergent original.
+Refusal/readiness snapshots retain old editor/recovery checks and trusted
+composition events. A copied file or current outline is not adoption/close
+success. The independent auditor separates bytes/heads from functional/crash
+verdicts. Keep every failed root, process/journal scan and owned core.

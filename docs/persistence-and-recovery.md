@@ -404,3 +404,27 @@ failure is logged and earns no source/recovery success credit; ordinary teardown
 may still encounter the retained upstream crash. Focused tests use real native
 registrations/files and injected effects. Actual GTK/forced-kill/restart evidence
 and unresolved C1/F2 disposition stay in [M6 evidence](test-evidence/M6.md).
+
+## M6-02 interruption and operation diagnostics
+
+Save As refusal now identifies fresh-session adoption versus original-registration
+release and preserves the underlying bounded error message/code. The rollback
+contract and receipts are unchanged. A published standalone copy is insufficient
+to claim adoption: the native oracle saves a later edit to the copy, then Undoes
+it, while independently preserving the divergent original. Initial checkpoint
+failures remain visible in the active session's version-bound protection status.
+
+The existing production source-stage gate is threaded through private
+save-request/restore helpers with no-op production closures. Actual restore
+child-kill tests verify all three literal disk/live/selected generations after
+protection, before replacement and immediately after replacement. No IPC or
+runtime environment variable exposes these fault hooks.
+
+[Current S15.2 matrix](test-evidence/M6-02-matrix.md) separates injected errors,
+real adapter SIGKILL, native path-loss/restart and shared-store two-app controls.
+[ADR 0012](decisions/0012-native-document-identity.md) still requires a shared
+app-data store for advisory cooperating leases; unrelated app-data roots do not
+share them. Parent rename is an unavailable-path simulation, not real unmount
+or controller/power-loss proof. [M6 evidence](test-evidence/M6.md#m6-02--persistence-interruption-and-operation-investigation)
+retains all failures; clean samples cannot resolve retained M6-01 Save As/IME
+operation findings or C1/F2.

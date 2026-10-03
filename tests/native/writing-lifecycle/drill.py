@@ -277,6 +277,14 @@ try:
       fetch('http://localhost:5173/__babel_audit_probe').catch(()=>{});""")
     wait(lambda:script("return window.auditBlocked.some(e=>e.uri.startsWith('http://localhost:5173') && e.directive==='connect-src');"),'Release CSP blocks development-server connections')
     print('PASS native release CSP excludes the development server',flush=True)
+    if '--persistence-paths' in sys.argv:
+        from persistence_paths import run as run_paths
+        run_paths(sys.modules[__name__])
+        sys.exit(0)
+    if '--persistence-two-instances' in sys.argv or '--persistence-two-instances-shared' in sys.argv:
+        from persistence_paths import two_instances
+        two_instances(sys.modules[__name__], shared_data='--persistence-two-instances-shared' in sys.argv)
+        sys.exit(0)
     if '--daily-session' in sys.argv:
         from integrated_workflows import run as run_daily
         run_daily(sys.modules[__name__])

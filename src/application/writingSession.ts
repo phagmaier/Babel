@@ -358,6 +358,7 @@ export class WritingSession {
         cadence: this.cadence,
         closer: this.closer,
       };
+      let stage = 'fresh-session adoption';
       try {
         await this.adoptFresh(
           published.document,
@@ -365,6 +366,7 @@ export class WritingSession {
           selection,
           snapshot.draftMetadata,
         );
+        stage = 'original-registration release';
         await this.ports.documents.release(state.identity);
       } catch (error) {
         this.retire();
@@ -376,8 +378,13 @@ export class WritingSession {
         this.cadence = previous.cadence;
         this.closer = previous.closer;
         rollbackEditor();
+        const code = error as { code?: string; error?: { code?: string } };
+        const detail =
+          error instanceof Error
+            ? error.message
+            : (code?.error?.code ?? code?.code ?? 'unconfirmed operation');
         throw new Error(
-          `Save As adoption failed; the original session remains open and the new file ${published.fileName} stands alone`,
+          `Save As adoption failed during ${stage} (${detail}); the original session remains open and the new file ${published.fileName} stands alone`,
           { cause: error },
         );
       }

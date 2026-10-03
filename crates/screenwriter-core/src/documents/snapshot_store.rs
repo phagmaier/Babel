@@ -632,6 +632,14 @@ impl DocumentService {
         &mut self,
         request: &RestoreSnapshotRequest,
     ) -> Result<SaveReceipt, Box<SaveFailure>> {
+        self.restore_snapshot_with(request, |_| Ok(()))
+    }
+
+    fn restore_snapshot_with(
+        &mut self,
+        request: &RestoreSnapshotRequest,
+        gate: impl FnMut(source_store::Stage) -> Result<(), DocumentError>,
+    ) -> Result<SaveReceipt, Box<SaveFailure>> {
         let identity = &request.current.identity;
         let failure = |error| {
             Box::new(SaveFailure {
@@ -701,17 +709,20 @@ impl DocumentService {
             true,
         )
         .map_err(failure)?;
-        self.save_request(SaveRequest {
-            identity: identity.clone(),
-            version: request.new_version,
-            source_sha256: hash(&preview.source),
-            source: preview.source,
-            expected_fingerprint: request.expected_fingerprint.clone(),
-            draft_metadata: request
-                .replacement_metadata
-                .clone()
-                .unwrap_or(serde_json::Value::Null),
-        })
+        self.save_request_with(
+            SaveRequest {
+                identity: identity.clone(),
+                version: request.new_version,
+                source_sha256: hash(&preview.source),
+                source: preview.source,
+                expected_fingerprint: request.expected_fingerprint.clone(),
+                draft_metadata: request
+                    .replacement_metadata
+                    .clone()
+                    .unwrap_or(serde_json::Value::Null),
+            },
+            gate,
+        )
     }
     /// Called only after explicit native folder selection. No IPC accepts a path.
     pub fn select_copy_destination(

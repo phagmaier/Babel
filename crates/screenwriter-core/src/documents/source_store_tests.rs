@@ -428,11 +428,13 @@ fn recovery_failure_stops_save_and_original_source_remains_intact() {
 #[test]
 fn sigkill_boundaries_leave_whole_source_prior_copy_and_discoverable_transaction() {
     for stage in [
+        Stage::RecoveryProtected,
         Stage::IntentPartialWrite,
         Stage::PreviousPartialWrite,
         Stage::PreviousPublished,
         Stage::CandidatePartialWrite,
         Stage::CandidateSynced,
+        Stage::BeforeReplace,
         Stage::Replaced,
         Stage::DirectorySynced,
         Stage::Confirmed,
@@ -474,6 +476,10 @@ fn sigkill_boundaries_leave_whole_source_prior_copy_and_discoverable_transaction
         );
         assert_eq!(opened.source, if after { NEW } else { ORIGINAL });
         assert_eq!(
+            opened.fingerprint.as_ref().unwrap().sha256,
+            source_hash(if after { NEW } else { ORIGINAL })
+        );
+        assert_eq!(
             service.inspect_recovery(id).unwrap().latest.unwrap().source,
             NEW
         );
@@ -486,6 +492,14 @@ fn sigkill_boundaries_leave_whole_source_prior_copy_and_discoverable_transaction
         }
         if stage == Stage::CandidatePartialWrite {
             assert_ne!(state.candidate.as_deref(), Some(NEW));
+        }
+        if stage == Stage::BeforeReplace {
+            assert_eq!(state.previous.as_deref(), Some(ORIGINAL));
+            assert_eq!(state.candidate.as_deref(), Some(NEW));
+            assert_eq!(
+                source_hash(state.candidate.as_ref().unwrap()),
+                source_hash(NEW)
+            );
         }
     }
 }

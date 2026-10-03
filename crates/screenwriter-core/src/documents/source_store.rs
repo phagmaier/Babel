@@ -169,6 +169,15 @@ impl DocumentService {
 
     /// Atomic IPC admission+execution. Do not consume a different native controller's queue entry.
     pub fn save_request(&mut self, request: SaveRequest) -> Result<SaveReceipt, Box<SaveFailure>> {
+        self.save_request_with(request, |_| Ok(()))
+    }
+
+    /// Private deterministic fault stages; production callers supply a no-op.
+    pub(super) fn save_request_with(
+        &mut self,
+        request: SaveRequest,
+        gate: impl FnMut(Stage) -> Result<(), DocumentError>,
+    ) -> Result<SaveReceipt, Box<SaveFailure>> {
         let failure = |error| {
             Box::new(SaveFailure {
                 identity: request.identity.clone(),
@@ -193,7 +202,7 @@ impl DocumentService {
             f.error = error;
             f
         })?;
-        self.save_next(&identity)?.ok_or(empty_failure)
+        self.save_next_with(&identity, gate)?.ok_or(empty_failure)
     }
 
     /// Executes one document's oldest admitted request. Must run on a native worker, not a key handler.

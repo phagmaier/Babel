@@ -275,10 +275,12 @@ fn conflicting_overlap_and_unknown_schema_are_preserved_without_winner() {
 #[test]
 fn sigkill_at_native_publication_boundaries_preserves_acknowledged_generation() {
     for stage in [
+        Stage::BeforeWrite,
         Stage::PartialWrite,
         Stage::CandidateSynced,
         Stage::PreviousPartialWrite,
         Stage::PreviousPublished,
+        Stage::BeforePublish,
         Stage::Published,
         Stage::DirectorySynced,
     ] {

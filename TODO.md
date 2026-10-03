@@ -120,16 +120,16 @@ Local v1 admission retain their explicit gates.
 - [ ] **M6-G Local history, hardening, adoption** — Deps: M2 history and M4/M5 bounded gates; M6-01–16 and all Local v1 evidence. Reqs: HIST-01/02, SAVE-04/05, QA-01–03, SEC-01/02, APP-01. Remains open.
 
 Owner declared Linux for now on 2026-10-02; the observed x86_64 target and
-future portability are recorded in `docs/development.md` (ADR 0040). M6-01
+future portability are recorded in `docs/development.md` (ADR 0040). M6-01/02
 implementation is authorized; other target admission remains a future decision.
 M1-02 remains the performance reference. Numeric order prioritizes shutdown/recovery safety, history workflows,
 then performance and installed adoption; exact dependencies and unresolved gates
 are in M6-00. C1/F2 failures remain retained; ordinary-close passes do not resolve
 them. M6-00 admitted no implementation; later owner direction authorized this
-bounded M6-01 continuation. Exact release-target confirmation remains M6-13/14.
+bounded M6-01 continuation and subsequent M6-02 assignment. Exact release-target confirmation remains M6-13/14.
 
 - [x] **M6-01 Shutdown hardening and retained crash disposition** — Bounded investigation/review complete on current Linux host; close-guard regressions/shared checks pass. Candidate paired matrix 7/8 functional, 6/8 strict; fresh F2 core retained, C1/F2 release gate C remains open. [Brief](docs/tasks/M6-01.md), [evidence](docs/test-evidence/M6.md#m6-01--linux-scope-and-shutdown-hardening), [review](docs/reviews/2026-10-02-m6-01-shutdown-review.md), [gated runtime follow-up](docs/tasks/M6-01-R1.md). No crash resolution/admission.
-- [ ] **M6-02 Persistence interruption and restart hardening** — Deps: M6-01; platform/authorization gate P. [Brief](docs/tasks/M6-02.md).
+- [ ] **M6-02 Persistence interruption and restart hardening** — Bounded Linux fault/kill/restore and native path/ownership hardening recorded; retained Save As/IME operation disposition remains open. [Brief](docs/tasks/M6-02.md), [follow-up](docs/tasks/M6-02-R1.md), [evidence](docs/test-evidence/M6.md#m6-02--persistence-interruption-and-operation-investigation). C1/F2 retained.
 - [ ] **M6-03 Independent snapshot and retention workflow** — Deps: M6-02; platform/authorization gate P. [Brief](docs/tasks/M6-03.md).
 - [ ] **M6-04 Configured external backup destination** — Deps: M6-03; platform/authorization gate P. [Brief](docs/tasks/M6-04.md).
 - [ ] **M6-05 Bounded native history inspection and selection** — Deps: M6-02/04; platform/authorization gate P. [Brief](docs/tasks/M6-05.md).
@@ -148,10 +148,10 @@ bounded M6-01 continuation. Exact release-target confirmation remains M6-13/14.
 M6-02 needs the M6-01 review artifact; an unresolved C1/F2 release gate may remain
 while independent safety work proceeds. M6-12 requires a measured scope addendum
 before correction; M6-13 needs new bounded briefs for missing target adapters.
-Next agent-executable task: **M6-02**, current Linux scope, beginning with the
-retained Save As/refusal and stress IME Undo/readiness investigation addendum.
+Next agent-executable task: **M6-02-R1**, retained Save As/refusal and stress
+IME readiness disposition. M6-02 remains unchecked; M6-03 has not started.
 The supported-runtime M6-01-R1 follow-up remains gated by actual availability;
-C stays open before M6-14/16. Stop after the M6-01 commit.
+C stays open before M6-14/16. Stop at M6-02; no M6-03 or Local v1 admission.
 DEV-02 second-host acceptance remains owner-only and outside M6 work.
 
 ## M7 — explicit remote extension (gated)

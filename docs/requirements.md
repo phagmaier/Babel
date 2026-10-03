@@ -190,3 +190,15 @@ strict gate. Test callbacks, actual GTK ordinary close, C1 parent kill and F2 se
 claims. [Evidence](test-evidence/M6.md) retains every failure; C1/F2, full S13 and
 Local v1 admission remain open. Existing trace owner sets and historical M0–M5
 acceptance are unchanged.
+
+## M6-02 bounded Linux interruption coverage
+
+SAVE-01–05, QA-01 and SEC-02 gain stage-specific refusal/rollback checks,
+extended actual source/recovery child-kill boundaries and a real local-restore
+child-kill matrix. Opt-in native path-loss, shared-store two-app, restart and
+read-only drills supplement the existing adapter matrix.
+[Matrix and claim limits](test-evidence/M6-02-matrix.md),
+[commands/results/failures](test-evidence/M6.md#m6-02--persistence-interruption-and-operation-investigation).
+No new receipt/format/capability/adapter policy or universal storage claim.
+M6-01 Save As/IME operation findings, C1/F2 and Local v1 admission remain open;
+this additional coverage does not replace those requirements' final acceptance.

@@ -371,3 +371,14 @@ audits and opt-in `recovery-shutdown`. Use signed private IME packages with the
 read-only bind view; no kernel overlayfs, system install or global change.
 [M6 evidence](test-evidence/M6.md) retains failures and supported-stack limits;
 clean ordinary exits never close C1/F2 alone.
+
+M6-02 native opt-in drills: `persistence-paths` and
+`persistence-two-instances-shared` through the existing `integrated_exit.py`
+runner; pair with `recovery-shutdown`/`audit-fixes` and select
+`BABEL_SHUTDOWN_MODE=ordinary` explicitly. The
+[native guide](../tests/native/writing-lifecycle/README.md#m6-02-persistence-paths-and-persistence-two-instances)
+owns exact invocations, shared-store ownership scope and independent literal
+byte/head auditor. `persistence-two-instances` is the deliberately separate-
+store diagnostic of ADR 0012's existing lease limitation, not a passing
+shared-store concurrency gate. Real restore SIGKILL checks run in
+`snapshot_store_tests` with `BABEL_SNAPSHOT_TEST_ROOT` on tmpfs/Btrfs.

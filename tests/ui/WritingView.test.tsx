@@ -1703,7 +1703,7 @@ it('restores current outline and counts after Save As rollback without losing so
     }),
   );
   await screen.findByText(
-    /Save As adoption failed; the original session remains open/,
+    /Save As adoption failed during original-registration release .*original session remains open/,
   );
   await waitFor(() => expect(views).toHaveLength(3));
   const restored = views[2]!;

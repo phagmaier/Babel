@@ -1,57 +1,70 @@
-# Current state — M6-01 bounded shutdown review complete
+# Current state — M6-02 hardening recorded; disposition open
 
-Date: 2026-10-02. Application: **babel**. Main; no push/tag/branch.
-Base `4c4df9a`, 18 ahead before this task's commit. M0–M5 remain complete
-under recorded bounded Linux acceptance; M6-00 planning and the bounded M6-01
-investigation/review are complete. **C1/F2 and Local v1 admission remain open.**
+Date: 2026-10-03. Application: **babel**. Main; no push/tag/branch.
+Base `ccf9fb5`, clean main/19 ahead at claim. M0–M5 and bounded M6-01
+investigation remain recorded complete. **M6-02 stays unchecked; retained
+operation findings, C1/F2 and Local v1 admission remain open.**
 
 ## Task and work
 
-Owner declares Linux for now and requests future portability; the observed
-x86_64 host scopes this authorized implementation/test run. It is not a separate
-owner architecture/distribution support promise. M6-13/14 still need exact
-release-target confirmation. [ADR 0040](decisions/0040-local-v1-platform-scope.md),
-[development](development.md#declared-local-v1-targets-m6).
+Owner continuation authorized M6-02 on current Linux x86_64 host, with future
+portability retained. No additional target/installed promise; M6-13/14 still
+need exact release-target confirmation. [ADR 0040](decisions/0040-local-v1-platform-scope.md).
 
-M6-01 extracted the existing close guard/effects for real native registration/
-lease and injected-effect regressions. No save/acknowledgement/format/capability/
-frontend/dependency-version change. Added opt-in existing base recovery-shutdown
-workload to strict process/journal accounting. Corrected private IME readiness
-with read-only package/system bind view after kernel overlay refusal; signed
-packages reverified/freshly extracted, no system install/global settings.
-[Brief](tasks/M6-01.md), [separate review](reviews/2026-10-02-m6-01-shutdown-review.md),
-[exact commands/artifacts/failures](test-evidence/M6.md#m6-01--linux-scope-and-shutdown-hardening).
+Added stage-qualified Save As refusal and identity/source/selection/Undo rollback
+regressions. Successful native Save As now proves adoption through later copied-
+file edits and Undo, while the divergent original stays intact. Readiness/refusal
+snapshots preserve trusted composition, Save/editability and outline facts.
+No demonstrated cause/correction for the untouched M6-01 operations is claimed.
+
+Extended real source/recovery child-kill boundaries; added actual local-restore
+child SIGKILL after live/disk protection, before replacement and after replacement.
+Private existing stage closure passes through request/restore with production
+no-op. No receipt/schema/capability/dependency/ownership-policy change. New
+opt-in native path-loss and two-app drills plus independent literal/head auditor;
+initial harness identity/log-path errors corrected with failures retained.
+
+Paths: `writingSession.ts`, source/recovery/snapshot stores/tests, existing native
+writing-lifecycle runners/new `persistence_paths.py`/`audit_persistence_paths.py`.
+[Brief](tasks/M6-02.md), [S15.2 matrix](test-evidence/M6-02-matrix.md),
+[review](reviews/2026-10-03-m6-02-persistence-review.md),
+[exact commands/artifacts/failures](test-evidence/M6.md#m6-02--persistence-interruption-and-operation-investigation).
 
 ## Checks and retained failures
 
-Shared frontend 772/772, lint/typecheck/build; browser smoke; Rust fmt/clippy and
-workspace 263/263 each tmpfs/Btrfs; six close regressions on both; default release
-build pass. Focused protected-close/session, tooling, final format/link/diff
-results are in M6 evidence. Injected effects are not GTK termination proof.
+Shared frontend 774/774, lint/typecheck/build; Chromium smoke; final Rust fmt/
+clippy and workspace 265/265 each tmpfs/Btrfs; default release build pass.
+Mocked editor/session focused 62/62; actual restore child-kill checks pass.
+Final corrected native path-loss/shared-store two-app 4/4 strict; ordinary
+restart/read-only controls 4/4; final real-IME presentation 2/2. Independent
+literal/source/copy/journal-head and crash-verdict audits are in M6 evidence.
+These are bounded Linux groups, not universal durability or full admission.
 
-Full real-IME baseline 3/4 strict; candidate 7/8 functional, 6/8 strict. All four
-candidate ordinary cases pass. One candidate pre-shutdown readiness failure
-followed by forced fallback DELETE records owned WebKit SIGSEGV/core; its delayed
-report fails the next strict case too, not a second independent crash. Completed
-workload and stage-specific failed-root byte audits pass; no false exit credit.
-C1 parent-kill/recovery 2/2 and narrower non-WebDriver control 2/2 pass; neither
-resolves retained forced-shutdown findings. Frozen binaries/maps/cores/logs and
-all failed roots remain retained under `target/m6-01/` and linked private roots.
+First default-teardown matrix was 5/8 strict: two unrelated-store read-only
+expectations fail under ADR 0012's pre-existing shared-store lease limit; one
+Btrfs restart root completes content checks but records owned WebKit SIGABRT
+following parent SIGKILL before stale-session DELETE. PID `274428`/start `2737907`,
+compressed core/provenance/logs retained under `target/m6-02/`; no event filtered.
+First ordinary replay 7/8 due to a secondary-log-path harness error; corrected
+named reruns pass. Neither later clean samples nor intact bytes resolves C1/F2.
 
-Pre-change Save As adoption refusal and stress IME Undo/readiness stalls remain
-unresolved operation findings. Independent literal source/copy/acknowledged
-recovery bytes survive; causes are not inferred from wrapper messages.
+The separate-store diagnostic actually shows writable second-app state, source
+unchanged; normal shared-store control passes. [ADR 0012](decisions/0012-native-document-identity.md)
+still scopes cooperating advisory leases. Parent rename is path-loss simulation,
+not actual unmount/power/controller/antivirus/sync-product acceptance.
+All M6-01 failed roots/binaries/cores remain untouched. Save As refusal and stress
+IME readiness were not reproduced in stronger-oracle samples; causes stay open.
 
 ## Next action and blockers
 
-Stop at M6-01. Next agent-executable task: [M6-02](tasks/M6-02.md), beginning with
-its narrowed Save As/refusal and readiness investigation before wider S15.2
-fault/restart hardening. No M6-02 implementation began in this task.
-[Supported-runtime follow-up M6-01-R1](tasks/M6-01-R1.md) waits for an actually
-available, identified supported corrected runtime and explicit bounded change
-scope. C1/F2 release gate C stays open before M6-14/16.
+Next agent-executable task: [M6-02-R1](tasks/M6-02-R1.md), retained operation
+investigation/disposition before checking M6-02 or starting M6-03. Use the new
+stage/readiness evidence on a fresh reproduced failure; no guard/receipt weakening
+or speculative editor/index/global-lock change. Stop at this task-scoped commit.
 
-Full S13, security/notices, target-native/screenreader/installed/manual update,
-independent backup/migration/owner pilot and Local v1 admission remain later
-gates. DEV-02 second-host acceptance remains owner-only. No M7/history/adoption,
+[Supported-runtime M6-01-R1](tasks/M6-01-R1.md) remains gated by an available
+identified supported correction. C1/F2 release gate C remains open before
+M6-14/16. Real storage interruption limits, full S13, security/notices,
+target-native/screenreader/installed/manual update, backup/migration/owner pilot
+and Local v1 admission remain later gates. DEV-02 is owner-only. No M7,
 private-engine shipping, personal manuscript/credential/upload work.

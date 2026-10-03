@@ -793,6 +793,108 @@ fn native_sigkill_publication_and_prune_keep_valid_paths() {
     }
 }
 #[test]
+fn sigkill_during_local_restore_retains_disk_live_and_selected_generations() {
+    for stage in [
+        source_store::Stage::RecoveryProtected,
+        source_store::Stage::BeforeReplace,
+        source_store::Stage::Replaced,
+    ] {
+        let f = Fixture::new();
+        let mut child = Command::new(std::env::current_exe().unwrap())
+            .args([
+                "--exact",
+                "documents::linux::snapshot_store::tests::restore_crash_child",
+                "--nocapture",
+            ])
+            .env("BABEL_RESTORE_CHILD_ROOT", &f.0)
+            .env("BABEL_RESTORE_CHILD_STAGE", format!("{stage:?}"))
+            .stdin(Stdio::piped())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped())
+            .spawn()
+            .unwrap();
+        let mut output = BufReader::new(child.stdout.take().unwrap());
+        let mut line = String::new();
+        loop {
+            line.clear();
+            assert_ne!(
+                output.read_line(&mut line).unwrap(),
+                0,
+                "child exited before {stage:?}"
+            );
+            if line.contains("BABEL_RESTORE_BARRIER") {
+                break;
+            }
+        }
+        child.kill().unwrap();
+        assert!(!child.wait().unwrap().success());
+        let (service, open) = f.open();
+        let expected = if stage == source_store::Stage::Replaced {
+            NEW
+        } else {
+            ORIGINAL
+        };
+        assert_eq!(open.source, expected, "{stage:?}");
+        assert_eq!(open.fingerprint.as_ref().unwrap().sha256, hash(expected));
+        let entries = service.list_snapshots(&open.identity).unwrap().entries;
+        for literal in [ORIGINAL, NEW, b"unsaved live before restore\r\n"] {
+            let entry = entries
+                .iter()
+                .find(|e| e.record.source_sha256 == hash(literal))
+                .unwrap();
+            let preview = service
+                .read_snapshot(&SnapshotReadRequest {
+                    identity: open.identity.clone(),
+                    selection: entry.selection.clone(),
+                })
+                .unwrap();
+            assert_eq!(preview.source, literal, "{stage:?}");
+            assert_eq!(preview.entry.record.source_sha256, hash(literal));
+        }
+        let recovery = service.inspect_recovery(&open.identity).unwrap();
+        assert_eq!(recovery.latest.unwrap().source, NEW);
+        let transaction = service.inspect_source_save(&open.identity).unwrap();
+        if stage != source_store::Stage::RecoveryProtected {
+            assert_eq!(transaction.previous.as_deref(), Some(ORIGINAL));
+        }
+        if stage == source_store::Stage::BeforeReplace {
+            assert_eq!(transaction.candidate.as_deref(), Some(NEW));
+        }
+    }
+}
+
+#[test]
+fn restore_crash_child() {
+    let Some(root) = std::env::var_os("BABEL_RESTORE_CHILD_ROOT") else {
+        return;
+    };
+    let f = Fixture(PathBuf::from(root));
+    let (mut service, open) = f.open();
+    let selected = service
+        .create_snapshot(&named(&open, 1, NEW))
+        .unwrap()
+        .unwrap();
+    let request = RestoreSnapshotRequest {
+        replacement_metadata: None,
+        current: checkpoint(&open, 21, b"unsaved live before restore\r\n"),
+        selection: selected.selection,
+        new_version: 22,
+        expected_fingerprint: open.fingerprint.clone().unwrap(),
+    };
+    let target = std::env::var("BABEL_RESTORE_CHILD_STAGE").unwrap();
+    let _ = service.restore_snapshot_with(&request, |stage| {
+        if format!("{stage:?}") == target {
+            println!("BABEL_RESTORE_BARRIER");
+            std::io::stdout().flush().unwrap();
+            let mut byte = [0];
+            std::io::stdin().read_exact(&mut byte).unwrap();
+        }
+        Ok(())
+    });
+    std::mem::forget(f);
+}
+
+#[test]
 fn crash_child() {
     let Some(root) = std::env::var_os("BABEL_SNAPSHOT_CHILD_ROOT") else {
         return;
