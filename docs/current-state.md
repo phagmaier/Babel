@@ -14,7 +14,9 @@ Follow-up sweep replaced 41 hardcoded `/home/phagmaier/Code/...` paths in
 live docs with `$PWD`; evidence logs keep their originals. Retention policy
 decided and executed: 162 unreferenced run roots pruned (`target/` 31 →
 30 GiB), docs-named evidence kept; two `clean.sh` robustness bugs found and
-fixed by the first real `--apply`.
+fixed by the first real `--apply`. Workspace exclusion rejected by
+measurement (proofs cost 5.3 s; exclusion breaks more than it saves);
+`src/` duplicates audited as clean per-layer splits, no code changed.
 [Brief](tasks/DEV-02.md), [evidence](test-evidence/M5.md#dev-02--second-machine-smoothness-tooling-slice).
 Tier 1: `bash -n`/`shellcheck`, doctor/host green, `cargo fmt`/`cargo check
 -p babel-desktop`, `tsc`, one vitest file, `prettier`, `git diff --check`.

@@ -60,12 +60,24 @@ Evidence: [M5](../test-evidence/M5.md#dev-02--second-machine-smoothness-tooling-
 
 1. Second-host acceptance: run `bootstrap.sh` + `doctor.sh` + `check-host.sh`
    on machine 2 and record it. Nothing here is accepted until then.
-2. Workspace exclusion for `prototypes/durable-replacement` and
-   `prototypes/history-store` (still built by every `--workspace` gate).
-3. `src/` layer duplication audit (9 duplicate basenames across
-   domain/application/editor/infrastructure) and `WritingView.tsx` split.
-4. Native harness packaging (`tests/native/writing-lifecycle`, ~50 modules)
+2. `src/` follow-ups (audit done, no code changed): the 9 duplicate
+   basenames are disciplined per-layer splits, not copy-paste — `domain`
+   imports nothing outward, and the `find` trio shows the pattern (pure
+   matcher / session state machine / ProseMirror decorations). Two softer
+   findings remain: `application` and `editor` import values from each other
+   (acyclic per file, but one logical layer in two names), and
+   same-basename triplication hides ownership (which `find` do I edit?).
+   Proposed next step is a naming/colocation convention, not a refactor;
+   `WritingView.tsx` (2,467 lines) still the split candidate.
+3. Native harness packaging (`tests/native/writing-lifecycle`, ~50 modules)
    - Python lint gate; `development.md` split.
+
+Workspace exclusion DECIDED against: both proof suites run in 5.3 s total
+(26/257 tests) against ~45 s+ gates, `history-store-proof` shares
+`screenwriter-core`'s exact git2/serde pins so the vendored-libgit2 build
+happens anyway, and exclusion would break `edition.workspace`
+inheritance, churn `Cargo.lock`, narrow CI's `--workspace` coverage and
+orphan the documented `-p` proof commands. Membership kept.
 
 Retention policy is decided and executed: any run root named in `docs/`
 is linked evidence and kept (16 such roots plus all `m*-evidence` dirs);
