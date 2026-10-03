@@ -47,7 +47,11 @@ composition core; no code changed. Slice 5 landed: title-page session →
 effect, open/close pair; shared draft/composing/applying refs stay);
 `WritingView.tsx` 2,157 → 2,148 lines, focused 49/49, full suite green,
 native `--title-page` drill completed all pre-IME actions with exact
-bytes, pinyin IME section blocked (no Fcitx5 on this host).
+bytes, pinyin IME section blocked (no Fcitx5 on this host). Slice 6
+landed: move session → `useMoveSession` (memoized preview, async
+apply, named cancel; teardown aborts and outline navigation stay);
+`WritingView.tsx` 2,148 → 2,055 lines, focused 49/49, full suite green,
+native `--scene-moves` drill PASS with no blocked sections.
 [Brief](tasks/DEV-02.md), [evidence](test-evidence/M5.md#dev-02--second-machine-smoothness-tooling-slice).
 Tier 1: `bash -n`/`shellcheck`, doctor/host green, `cargo fmt`/`cargo check
 -p babel-desktop`, `tsc`, one vitest file, `prettier`, `git diff --check`.

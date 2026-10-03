@@ -133,6 +133,32 @@ step: Fcitx5 per DEV-01 IME notes, or run on the laptop).
 
 Evidence: [M5](../test-evidence/M5.md#dev-03--writingview-decomposition-slice-5).
 
+## Slice 6 (landed)
+
+Move session → `src/app/moveSession.ts` (`useMoveSession`): the
+prepared-move state, abort ref, memoized `previewMove`, async
+`applyMove` and the cancel callback, moved verbatim (cancel named from
+the inline panel callback; bodies byte-identical). The component keeps
+teardown aborts, `onOutlineNavigate` (slice 7 owns outline navigation)
+and all reads through the hook's returned handles (same identities).
+The hook call sits after `refresh` and before the session lifecycle
+effect because `applyMove` closes over `refresh` — same
+runs-only-on-action reasoning as slice 2's `closeCheck` reorder, and
+the call order is unconditional so it stays stable. Net component
+effect: session block gone, one hook call + import in its place
+(`WritingView.tsx` 2,148 → 2,055 lines).
+
+Checks: `tsc` clean (proves the dependency boundary is exact), focused
+suites 49/49 (scene-moves contract, Outline, WritingView incl. focus
+regressions), full `pnpm test` 772/772, `lint`, `typecheck`, `build`,
+`cargo` fmt/clippy/workspace (Rust untouched), `prettier`, `git diff
+--check`. Native `--scene-moves` drill on a fresh release:
+scene/section moves, trusted keyboard+drag, backward selection, exact
+Save+Undo+reopen, protected large move+failure and EOF review copies
+PASS in real WebKit/GTK; no blocked sections.
+
+Evidence: [M5](../test-evidence/M5.md#dev-03--writingview-decomposition-slice-6).
+
 ## Later slices (proposed, not started)
 
 - Feature-hook sections (find/replace/check/spelling/palette) as custom

@@ -48,12 +48,6 @@ import {
   type ProjectionState,
 } from '../application/manuscriptProjection';
 import { MovePreview } from './MovePreview';
-import {
-  prepareEditorMove,
-  applyPreparedMove,
-  type PreparedMove,
-} from '../editor/sceneMoves';
-import type { MoveRequest } from '../domain/sceneMoves';
 import { Outline } from './Outline';
 import { CharacterPanel } from './CharacterPanel';
 import { highlightCharacter } from '../editor/characterFocus';
@@ -121,6 +115,7 @@ import { useFindSession } from './findSession';
 import { useCheckSession } from './checkSession';
 import { useSpellingSession } from './spellingSession';
 import { useTitleSession } from './titleSession';
+import { useMoveSession } from './moveSession';
 import {
   clampedSelection,
   toSessionSelection,
@@ -323,10 +318,6 @@ export function WritingView({
       button.focus();
     }
   });
-  const [move, setMove] = useState<PreparedMove | null>(null);
-  const [moveMessage, setMoveMessage] = useState('');
-  const [moveBusy, setMoveBusy] = useState(false);
-  const moveAbortRef = useRef<AbortController | null>(null);
   const [outline, setOutline] = useState<ProjectionState>({
     phase: 'pending',
     projection: null,
@@ -448,6 +439,27 @@ export function WritingView({
     }
   };
 
+  const {
+    move,
+    moveMessage,
+    moveBusy,
+    moveAbortRef,
+    previewMove,
+    applyMove,
+    cancelMove,
+  } = useMoveSession({
+    viewRef,
+    operationRef,
+    frozenRef,
+    readyRef,
+    writableRef,
+    sessionRef,
+    outline,
+    busy,
+    setBusy,
+    refresh,
+    setError,
+  });
   useEffect(() => {
     let alive = true;
     let capturing = false;
@@ -1413,38 +1425,6 @@ export function WritingView({
     };
   }, [ports]);
 
-  const previewMove = useCallback(
-    (request: MoveRequest) => {
-      const view = viewRef.current;
-      const projection = outline.projection;
-      if (
-        !view ||
-        !projection ||
-        busy ||
-        operationRef.current ||
-        frozenRef.current ||
-        !readyRef.current ||
-        !writableRef.current ||
-        view.composing
-      ) {
-        setError(
-          'Move is unavailable while read-only, composing or protecting a draft. Source retained.',
-        );
-        return;
-      }
-      try {
-        setMove(prepareEditorMove(view.state, projection, request));
-        setMoveMessage('');
-      } catch (failure) {
-        setError(
-          failure instanceof Error
-            ? failure.message
-            : 'Move preview failed; source retained.',
-        );
-      }
-    },
-    [outline.projection, busy],
-  );
   const onOutlineNavigate = useCallback(
     (item: OutlineItem) => {
       const current = viewRef.current;
@@ -1462,68 +1442,6 @@ export function WritingView({
     },
     [outline.projection],
   );
-  const applyMove = async () => {
-    const view = viewRef.current;
-    const session = sessionRef.current;
-    if (
-      !move ||
-      !view ||
-      !session ||
-      view.state !== move.state ||
-      view.composing ||
-      busy ||
-      operationRef.current ||
-      frozenRef.current ||
-      !writableRef.current ||
-      !readyRef.current
-    ) {
-      setMoveMessage(
-        'Move refused for this version. Source and review copies retained.',
-      );
-      return;
-    }
-    operationRef.current = true;
-    setBusy(true);
-    setMoveBusy(true);
-    const abort = new AbortController();
-    moveAbortRef.current = abort;
-    try {
-      if (move.large) {
-        setMoveMessage('Protecting the exact current draft before moving…');
-        const result = await session.runProtectedWorkflow(
-          move.review.kind === 'scene' ? 'sceneMove' : 'sectionMove',
-          () => applyPreparedMove(view, move),
-          abort.signal,
-        );
-        if (result.status === 'refused') {
-          setMoveMessage(result.reason);
-          return;
-        }
-      } else if (!applyPreparedMove(view, move)) {
-        setMoveMessage(
-          'Editor refused the move. Source and review copies retained.',
-        );
-        return;
-      }
-      setMove(null);
-      setError(
-        'Move applied. Undo restores the complete source and previous selection.',
-      );
-    } catch (failure) {
-      setMoveMessage(
-        failure instanceof Error
-          ? failure.message
-          : 'Move failed; source and review copies retained.',
-      );
-    } finally {
-      moveAbortRef.current = null;
-      operationRef.current = false;
-      setBusy(false);
-      setMoveBusy(false);
-      refresh();
-    }
-  };
-
   // The editor and import hosts are keyed so React preserves their DOM across
   // phase changes. Unkeyed conditional trees unmounted ProseMirror's DOM out
   // from under the live view, silently detaching the editor.
@@ -1856,17 +1774,7 @@ export function WritingView({
           busy={moveBusy}
           message={moveMessage}
           onApply={() => void applyMove()}
-          onCancel={() => {
-            if (moveBusy) {
-              moveAbortRef.current?.abort();
-              setMoveMessage(
-                'Cancellation requested; waiting for native protection to settle.',
-              );
-            } else {
-              setMove(null);
-              setMoveMessage('');
-            }
-          }}
+          onCancel={cancelMove}
         />
       )}
       <div
