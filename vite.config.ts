@@ -10,5 +10,9 @@ export default defineConfig({
     host: process.env.TAURI_DEV_HOST || false,
   },
   // Leave CPU/memory headroom for native compilation on development laptops.
-  test: { environment: 'jsdom', maxWorkers: 2 },
+  // Override per host: VITEST_WORKERS=8 on a many-core desktop, default 2.
+  test: {
+    environment: 'jsdom',
+    maxWorkers: Number(process.env.VITEST_WORKERS ?? 2),
+  },
 });

@@ -1,9 +1,21 @@
-# Current state — M5-07 complete
+# Current state — M5-07 complete, DEV-02 tooling in progress
 
-Date: 2026-10-02. Application: **babel**. Admission `be92b96` on main.
-Work directly on main; no push. M5-06 remains complete at `be92b96`.
+Date: 2026-10-03. Application: **babel**. Admission `bfdbdbb` on main.
+Work directly on main; no push. M5-07 remains complete at `bfdbdbb`.
 
 ## Task and work
+
+**DEV-02 Second-machine smoothness — tooling slice claimed.** One-command
+`tools/bootstrap.sh`, `tools/doctor.sh` (pin agreement), `tools/check-host.sh`
+(native prerequisites, Arch/Ubuntu hints), `tools/clean.sh` (dry-run prune of
+regenerable `target/` roots, cache never touched), plus `VITEST_WORKERS`,
+`CARGO_TARGET_DIR`-aware `build.rs` placeholder and `.env.example`.
+[Brief](tasks/DEV-02.md), [evidence](test-evidence/M5.md#dev-02--second-machine-smoothness-tooling-slice).
+Tier 1: `bash -n`/`shellcheck`, doctor/host green, `cargo fmt`/`cargo check
+-p babel-desktop`, `tsc`, one vitest file, `prettier`, `git diff --check`.
+Full shared gates not rerun (no behavior paths). Owner `mise.toml` /
+`docs/development.md` edits preserved and excluded from this task's commit.
+`clean.sh --apply` not run: `target/m5-07` is linked evidence.
 
 **M5-07 Integrated publication exit and separate review — complete, bounded
 Linux gate.** The integrated native scenario compares preview/export from the
