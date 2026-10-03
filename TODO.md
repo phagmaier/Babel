@@ -50,53 +50,55 @@ DEV-02 second-host acceptance remains owner-only and outside M6 work.
 
 ## Audit execution (AUDIT.md frozen; check off here, never in AUDIT.md)
 
-`AUDIT.md` (2026-10-03, base `1ef9515`, 48 findings + skeptic verdicts) is the frozen audit record — read-only. Each cluster below gets one brief in `docs/tasks/AUDIT-*.md`; evidence lands in `docs/test-evidence/AUDIT.md`. Briefs link to audit sections instead of copying them, and cite the [dropped/refuted list](AUDIT.md#dropped-or-refuted) for what must NOT be built. DESIGN implementations need owner triage first (table below); nothing there is agent-executable until decided.
+`AUDIT.md` (2026-10-03, base `1ef9515`, 48 findings + skeptic verdicts) is the frozen audit record — read-only. Each cluster below gets one brief in `docs/tasks/AUDIT-*.md`; evidence lands in `docs/test-evidence/AUDIT.md`. Briefs link to audit sections instead of copying them, and cite the [dropped/refuted list](AUDIT.md#dropped-or-refuted) for what must NOT be built. DESIGN implementations need owner triage first (table below); nothing there is agent-executable until decided. Triage decided 2026-10-03 — all DESIGN rows below are now executable in wave order.
+
+How to pick work: the next unchecked `[ ]` box below is the task. Read its brief, implement, record evidence in `docs/test-evidence/AUDIT.md`, check the box. Wave order is binding; table order within a wave is priority order; per-row prerequisites (D-06 after C-04, S-02 before S-01) are hard.
 
 ### Wave 0 — unblockers
 
 - [x] **Tier 1 debloat** (S-14 stale refs, `docs/index.md` stub, TODO collapse, tracked link/matrix tools, `target/` prune) — Evidence: Tier 1 commit `433c150`.
 - [x] **T-08 (half)** — canonical matrix runner + link checker now tracked (`tools/run-workspace-matrix.py`, `tools/check-links.py`).
-- [ ] **AUDIT-W0** (T-02 CI red, S-15 crate types, S-13 dead symbols) — [Brief](docs/tasks/AUDIT-W0.md). First; unblocks CI-dependent gates.
+- [ ] **AUDIT-W0 — NEXT** (T-02 CI red, S-15 crate types, S-13 dead symbols) — [Brief](docs/tasks/AUDIT-W0.md). Ready brief; unblocks CI-dependent gates.
 
-### Wave 1 — safety (briefs proposed, need approval)
+### Wave 1 — safety (approved 2026-10-03; working agent drafts one brief at a time, in table order, same shape as AUDIT-W0)
 
-| Cluster    | Findings                                                                                                                      | Effort | Depends on                   |
-| ---------- | ----------------------------------------------------------------------------------------------------------------------------- | ------ | ---------------------------- |
-| AUDIT-C01  | C-01 + C-02 (capture failure stops journaling) + T-01 (tests stay red until C-01 fixed — same brief)                          | M–L    | —                            |
-| AUDIT-C04  | C-04 (caret move rewrites file; native no-replace receipt, ~20 lines Rust + Tier 3)                                           | M      | —                            |
-| AUDIT-D01  | D-01 smallest fix (Enter inserts separator row, 1–3 days) + S-08 keep-set wiring (`setDualDialogue`, `replaceLineWithBreaks`) | M      | owner accepts D-01 small fix |
-| AUDIT-D08A | D-08(A) Reload on external change (SPEC S10.7 already requires it)                                                            | M      | owner accepts                |
-| AUDIT-C356 | C-03 (escape encoder + renderer), C-05 (SELinux xattr names), C-06 (find/check decoration sets)                               | S–M    | —                            |
+| Cluster    | Findings                                                                                                                      | Effort | Depends on            |
+| ---------- | ----------------------------------------------------------------------------------------------------------------------------- | ------ | --------------------- |
+| AUDIT-C01  | C-01 + C-02 (capture failure stops journaling) + T-01 (tests stay red until C-01 fixed — same brief)                          | M–L    | —                     |
+| AUDIT-C04  | C-04 (caret move rewrites file; native no-replace receipt, ~20 lines Rust + Tier 3)                                           | M      | —                     |
+| AUDIT-D01  | D-01 smallest fix (Enter inserts separator row, 1–3 days) + S-08 keep-set wiring (`setDualDialogue`, `replaceLineWithBreaks`) | M      | D-01 accepted (below) |
+| AUDIT-D08A | D-08(A) Reload on external change (SPEC S10.7 already requires it)                                                            | M      | accepted (below)      |
+| AUDIT-C356 | C-03 (escape encoder + renderer), C-05 (SELinux xattr names), C-06 (find/check decoration sets)                               | S–M    | —                     |
 
-### Wave 2 — test gaps (proposed AUDIT-TEST)
+### Wave 2 — test gaps (approved as AUDIT-TEST; draft when Wave 1 completes)
 
 T-03 (resume path, ~20-line composition), T-04 (8 `WritingSession` guard tests), T-05 (persistence-controller receipt validation), T-09 (structured-paste prefix/suffix), T-06 (replace/check sessions), T-07 (restore/resolve via WritingView), T-10 (SC002/SC004 mappings). All S; batch in dependency order. T-08 remainder (link checker is tracked; matrix-runner selector fix is in the tool) closes with first Tier 3 run.
 
-### Wave 3 — deletions (proposed)
+### Wave 3 — deletions (approved 2026-10-03)
 
 | Cluster      | Findings                                                                                                                                                           | Order constraint                                     |
 | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------- |
-| AUDIT-SLP-A  | S-06 (legacy import path), S-07 (`readInitial`), S-09 (`relink_selected`: owner delete-vs-keep decision), S-10 (SaveStatus mount)                                  | S-09 needs owner call                                |
+| AUDIT-SLP-A  | S-06 (legacy import path), S-07 (`readInitial`), S-09 (`relink_selected`: DELETE decided), S-10 (SaveStatus mount)                                                 | S-09 deletes with this cluster                       |
 | AUDIT-SLP-B  | S-02 → S-01 (codec-independent ports first), S-03 + S-04 (with S-02), S-11 (`durable-replacement` only after porting candidate-tamper test; `history-store` stays) | strict order                                         |
 | AUDIT-SLP-C  | S-08 deletes (`replaceInline`, `replaceHiddenContent`, conversion pair)                                                                                            | keep-set rides with AUDIT-D01                        |
 | AUDIT-SIMP-N | X-01 (worker helper), X-05 (one handler list), X-02 (test fixtures), X-03 (store primitives)                                                                       | Tier 3 matrix; X- portions refuted in audit stay out |
 | AUDIT-SIMP-F | X-04 (WritingView cleanup hoist + lock helper), X-06 (stamp helpers), X-08 (error-code const), X-07 (drill MODES table)                                            | Tier 1/2; no DEV-03 fold-back without owner call     |
 
-### DESIGN triage — owner decision, no code (accept / reject / defer + rationale)
+### DESIGN triage — decided 2026-10-03, executable (accept / reject / defer + rationale)
 
-| ID      | Proposal                                                                                      | Recommendation                                            | Decision |
-| ------- | --------------------------------------------------------------------------------------------- | --------------------------------------------------------- | -------- |
-| D-01    | Enter separator fix now; element-level schema post-V1                                         | accept small fix, defer schema                            | _blank_  |
-| D-02    | Auto-reconcile byte-identical journals; plain-language prompt on divergence (amends ADR 0017) | accept 1+3, reject auto-adopt + retirement (per skeptics) | _blank_  |
-| D-03    | Screenplay element styling (S) + layout shell (M) before pilot                                | accept                                                    | _blank_  |
-| D-04    | Non-printing elements → non-blocking summary; inline-note `raw` fix                           | accept                                                    | _blank_  |
-| D-05    | Snapshots as single Versions; cut Git history UI (or freeze git2 + snapshot safety ref)       | decide: full cut vs cheap variant                         | _blank_  |
-| D-06    | Plain status + failure-only close prompts (after C-04)                                        | accept after AUDIT-C04                                    | _blank_  |
-| D-07    | Type-a-scene oracle (vitest + Screenplain + native) + early owner session                     | accept                                                    | _blank_  |
-| D-08(A) | Reload on external change                                                                     | accept (SPEC-required)                                    | _blank_  |
-| D-08(B) | Synced folder instead of M7                                                                   | reject (refuted in audit)                                 | _blank_  |
-| D-09    | Page count without open preview (quiet-period job)                                            | accept                                                    | _blank_  |
-| S-09    | Delete `relink_selected` vs keep as native-only API                                           | decide                                                    | _blank_  |
+| ID      | Proposal                                                                                      | Decision                                                                                                                                                                                                                               |
+| ------- | --------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| D-01    | Enter separator fix now; element-level schema post-V1                                         | **Accept small fix; defer schema post-V1.** Skeptic-verified 1–3d fix; full rewrite unneeded for V1.                                                                                                                                   |
+| D-02    | Auto-reconcile byte-identical journals; plain-language prompt on divergence (amends ADR 0017) | **Accept rules 1+3; reject auto-adopt + retirement.** Skeptics showed loss paths (Save-As redirect; retirement can delete the sole copy).                                                                                              |
+| D-03    | Screenplay element styling (S) + layout shell (M) before pilot                                | **Accept both slices before pilot.** No spec conflict; piloting on identical-lines surface wastes M6-16.                                                                                                                               |
+| D-04    | Non-printing elements → non-blocking summary; inline-note `raw` fix                           | **Accept.** Current ack decides nothing (profile cannot print them); inline-note `raw` fix required or the change is hollow.                                                                                                           |
+| D-05    | Snapshots as single Versions; cut Git history UI (or freeze git2 + snapshot safety ref)       | **Cheap variant now; defer full cut post-V1.** Freeze git2, add verified PreDestructive snapshot, downgrade Git failure to warning. Keeps M2-06/M4 evidence valid; harden the 256-record cap in the same brief (latent blocker today). |
+| D-06    | Plain status + failure-only close prompts (after C-04)                                        | **Accept after AUDIT-C04 (hard order).** One-word status flickers on every caret move until C-04 lands.                                                                                                                                |
+| D-07    | Type-a-scene oracle (vitest + Screenplain + native) + early owner session                     | **Accept oracle; owner session requested non-blocking.** Oracle is cheap regression value; session needs owner time, do not stall on it.                                                                                               |
+| D-08(A) | Reload on external change                                                                     | **Accept.** SPEC S10.7 already requires it — no spec fight.                                                                                                                                                                            |
+| D-08(B) | Synced folder instead of M7                                                                   | **Reject.** Refuted in audit (check-to-rename race, candidate/sidecar sync, path-hash identity); M7 out of V1 scope regardless.                                                                                                        |
+| D-09    | Page count without open preview (quiet-period job)                                            | **Accept.** Measured cost (130 ms + 4.6 ms/page) kills the objection; brief decides receipt-trust vs headless parse.                                                                                                                   |
+| S-09    | Delete `relink_selected` vs keep as native-only API                                           | **Delete with AUDIT-SLP-A.** Unexposed, superseded by M4-01 locate, carries a lease-order bug if ever exposed; reimplement later only if in-session re-anchoring becomes a requirement.                                                |
 
 ### Confirm-first parking (unverified observations, NOT findings — reproduce before tracking)
 

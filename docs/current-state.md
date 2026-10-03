@@ -69,10 +69,7 @@ Checks (Tier 1; docs/tooling only, no behavior change): `prettier --check` TODO/
 
 ## Next action and blockers
 
-Next agent-executable task: [M6-02-R1](tasks/M6-02-R1.md), retained operation
-investigation/disposition before checking M6-02 or starting M6-03. Use the new
-stage/readiness evidence on a fresh reproduced failure; no guard/receipt weakening
-or speculative editor/index/global-lock change. Stop at this task-scoped commit.
+Next agent-executable task: [AUDIT-W0](tasks/AUDIT-W0.md) — CI gate, crate types, dead symbols (Tier 2, ready brief). Owner-authorized audit track: DESIGN triage decided 2026-10-03 (all rows in the TODO tracker), Waves 1–3 cluster titles approved. Evidence to `docs/test-evidence/AUDIT.md`; check off in the TODO tracker, never in `AUDIT.md`. [M6-02-R1](tasks/M6-02-R1.md) queued behind audit Waves 0–1; C1/F2 gate unchanged.
 
 [Supported-runtime M6-01-R1](tasks/M6-01-R1.md) remains gated by an available
 identified supported correction. C1/F2 release gate C remains open before

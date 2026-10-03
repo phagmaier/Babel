@@ -10,7 +10,7 @@ Purpose: get an agent productive in this repo fast. `SPEC.md` owns requirements/
 4. Task brief first, then read only the files you will edit. Do NOT re-read SPEC/ADRs/subsystem docs unless the brief references them AND you need the detail.
 5. Fast path (change < ~50 lines, contract already known, no filesystem/native behavior change): skip steps 2–4, implement, still run required checks + `git diff --check`.
 
-Current snapshot (2026-10-03, see `docs/current-state.md`): app name **babel**. M0–M5 + bounded M6-01 investigation recorded complete (bounded Linux gates). **M6-02 stays unchecked**; C1/F2 + Local v1 admission open. Next agent-executable task: `M6-02-R1` (retained operation investigation/disposition). Stop at task boundary. DEV-02 second-host run is owner-only.
+Current snapshot (2026-10-03, see `docs/current-state.md`): app name **babel**. M0–M5 + bounded M6-01 investigation recorded complete (bounded Linux gates). **M6-02 stays unchecked**; C1/F2 + Local v1 admission open. Active track: audit execution (owner-authorized). Next agent-executable task: `AUDIT-W0` ([brief](docs/tasks/AUDIT-W0.md); `M6-02-R1` queued behind audit Waves 0–1). Stop at task boundary. DEV-02 second-host run is owner-only.
 
 Key roots: `SPEC.md` (authority), `AGENTS.md` (workflow), `TODO.md` + `docs/current-state.md` (progress), `docs/requirements.md` (ID→task trace). This file is the agent navigation guide; `docs/index.md` is a stub that points here.
 
