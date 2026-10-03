@@ -17,6 +17,8 @@ decided and executed: 162 unreferenced run roots pruned (`target/` 31 →
 fixed by the first real `--apply`. Workspace exclusion rejected by
 measurement (proofs cost 5.3 s; exclusion breaks more than it saves);
 `src/` duplicates audited as clean per-layer splits, no code changed.
+Python lint gate added (`tools/lint-py.sh`, 75 files green); harness
+repackaging deferred until after M6-00.
 [Brief](tasks/DEV-02.md), [evidence](test-evidence/M5.md#dev-02--second-machine-smoothness-tooling-slice).
 Tier 1: `bash -n`/`shellcheck`, doctor/host green, `cargo fmt`/`cargo check
 -p babel-desktop`, `tsc`, one vitest file, `prettier`, `git diff --check`.

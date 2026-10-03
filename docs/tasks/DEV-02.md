@@ -70,7 +70,13 @@ Evidence: [M5](../test-evidence/M5.md#dev-02--second-machine-smoothness-tooling-
    Proposed next step is a naming/colocation convention, not a refactor;
    `WritingView.tsx` (2,467 lines) still the split candidate.
 3. Native harness packaging (`tests/native/writing-lifecycle`, ~50 modules)
-   - Python lint gate; `development.md` split.
+   - `development.md` split. Python lint gate LANDED as `tools/lint-py.sh`
+     (stdlib `py_compile` over all tracked `.py`, 75 files green) — the cheap
+     half. Full harness repackaging DEFERRED: the drill modules are under
+     active development and refactoring them now risks conflicts; revisit
+     after M6-00. Side finding closed: `src-tauri/src/assessment_probe.py`
+     only looks misplaced — it is embedded via `include_str!` in
+     `publication_assessment.rs`, so colocation is intentional.
 
 Workspace exclusion DECIDED against: both proof suites run in 5.3 s total
 (26/257 tests) against ~45 s+ gates, `history-store-proof` shares
