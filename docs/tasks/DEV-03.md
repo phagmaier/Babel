@@ -78,6 +78,35 @@ exact source bytes; no blocked sections.
 
 Evidence: [M5](../test-evidence/M5.md#dev-03--writingview-decomposition-slice-3).
 
+## Slice 4 (landed)
+
+Spellcheck session → `src/app/spellingSession.ts`
+(`useSpellingSession`): the controller ref, panel visibility and the
+open/close pair, moved from the inline dispatch/panel sites (bodies
+byte-identical). The component keeps controller creation (panel
+`onController`), lifecycle invalidation, the `blocked`/`readOnly`
+composition closures and all reads through the hook's returned handles
+(same identities). The palette section stays out: its navigation
+callback depends on the component's `commandContext` closure and the
+`CommandSurface` prop surface, so it moves with the designed panel-JSX
+phase rather than as an improvised hook. Net component effect: session
+block gone, one hook call + import in its place (`WritingView.tsx`
+2,158 → 2,157 lines).
+
+Checks: `tsc` clean (proves the dependency boundary is exact), focused
+suites 41/41 (spellcheck contract, SpellcheckPanel, WritingView incl.
+focus regressions), full `pnpm test` 772/772, `lint`, `typecheck`,
+`build`, `cargo` fmt/clippy/workspace (Rust untouched), `prettier`,
+`git diff --check`. Native `--spellcheck` drill on a fresh release:
+language/suggestions/keyboard correction/marks/Undo/names/Ignore/Add,
+GTK simple IME commit/cancel, restart and dictionary-fault isolation
+PASS in real WebKit/GTK with exact source bytes; no blocked sections.
+First drill attempt failed honestly on the reboot-lost `/tmp` pointer
+helper; rebuilt per the drill README (plus the pinned `/tmp/wtype`)
+and reran green.
+
+Evidence: [M5](../test-evidence/M5.md#dev-03--writingview-decomposition-slice-4).
+
 ## Later slices (proposed, not started)
 
 - Feature-hook sections (find/replace/check/spelling/palette) as custom

@@ -35,7 +35,11 @@ Slice 3 landed: script-check session → `useCheckSession` (verbatim move;
 `closeCheck`/`showCheck` stay composed since the find hook consumes
 `closeCheck`); `WritingView.tsx` 2,226 → 2,158 lines, focused 57/57,
 full suite green, native `--script-check` drill PASS with exact bytes
-and no blocked sections.
+and no blocked sections. Slice 4 landed: spellcheck session →
+`useSpellingSession` (open/close pair from inline sites,
+bodies byte-identical); `WritingView.tsx` 2,158 → 2,157 lines,
+focused 41/41, full suite green, native `--spellcheck` drill PASS;
+palette stays for the designed panel-JSX phase.
 [Brief](tasks/DEV-02.md), [evidence](test-evidence/M5.md#dev-02--second-machine-smoothness-tooling-slice).
 Tier 1: `bash -n`/`shellcheck`, doctor/host green, `cargo fmt`/`cargo check
 -p babel-desktop`, `tsc`, one vitest file, `prettier`, `git diff --check`.

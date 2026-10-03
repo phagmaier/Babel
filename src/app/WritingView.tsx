@@ -21,7 +21,6 @@ import {
 } from '../application/shortcuts';
 import { SpellcheckPanel } from './SpellcheckPanel';
 import {
-  type SpellcheckController,
   type SpellcheckPort,
   unavailableSpellcheck,
 } from '../application/spellcheck';
@@ -120,6 +119,7 @@ import { SnapshotPanel } from './SnapshotPanel';
 import { createFountainImportPanel } from './FountainImportPanel';
 import { useFindSession } from './findSession';
 import { useCheckSession } from './checkSession';
+import { useSpellingSession } from './spellingSession';
 import {
   clampedSelection,
   toSessionSelection,
@@ -206,8 +206,6 @@ export function WritingView({
   const titleApplyingRef = useRef(false);
   const [showTitle, setShowTitle] = useState(false);
   const [showCheck, setShowCheck] = useState(false);
-  const spellingRef = useRef<SpellcheckController | null>(null);
-  const [showSpelling, setShowSpelling] = useState(false);
   const titleButtonRef = useRef<HTMLButtonElement | null>(null);
   const titleReturnFocusRef = useRef(false);
   const importHost = useRef<HTMLDivElement | null>(null);
@@ -303,6 +301,11 @@ export function WritingView({
       titleComposingRef,
       setShowCheck,
       setError,
+    });
+  const { spellingRef, showSpelling, openSpelling, closeSpelling } =
+    useSpellingSession({
+      viewRef,
+      popupRef,
     });
   useEffect(() => {
     if (!previewFocusPending.current || previewState?.enabled) return;
@@ -1616,8 +1619,7 @@ export function WritingView({
           openCheck();
           break;
         case 'spellcheck':
-          popupRef.current?.controller.dismiss();
-          setShowSpelling(true);
+          openSpelling();
           break;
         case 'titlePage':
           popupRef.current?.controller.dismiss();
@@ -1737,10 +1739,7 @@ export function WritingView({
           onController={(controller) => {
             spellingRef.current = controller;
           }}
-          onClose={() => {
-            setShowSpelling(false);
-            viewRef.current?.focus();
-          }}
+          onClose={closeSpelling}
         />
       )}
       {phase === 'active' && showCheck && checkRef.current && checkState && (
