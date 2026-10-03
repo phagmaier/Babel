@@ -53,6 +53,31 @@ the signature from `/run/user/1000/hypr/` or session creation times out.
 
 Evidence: [M5](../test-evidence/M5.md#dev-03--writingview-decomposition-slice-2).
 
+## Slice 3 (landed)
+
+Script-check session → `src/app/checkSession.ts` (`useCheckSession`):
+the scroll ref, controller ref, panel state, the issue-scroll effect and
+both session callbacks (`openCheck`, `navigateIssue`), moved verbatim.
+The component keeps controller creation/disposal, teardown nulls, panel
+visibility (`showCheck`/`closeCheck`) and all other reads through the
+hook's returned handles (same identities). `closeCheck` stays composed
+because the find session consumes it — moving it would reopen slice 2's
+landed hook — and `showCheck` pairs with it, so all its read sites are
+untouched and `findSession.ts` is unchanged. Net component effect:
+session block gone, one hook call + import in its place (`WritingView.tsx`
+2,226 → 2,158 lines).
+
+Checks: `tsc` clean (proves the dependency boundary is exact), focused
+suites 57/57 (helpers, script-check/export-assessment contracts,
+ScriptCheckPanel, WritingView incl. focus regressions), full `pnpm test`
+772/772, `lint`, `typecheck`, `build`, `cargo` fmt/clippy/workspace
+(Rust untouched), `prettier`, `git diff --check`. Native
+`--script-check` drill on a fresh release: CSP, panel/filter/dismiss/
+navigation/refresh/Escape/Save-with-warning PASS in real WebKit/GTK with
+exact source bytes; no blocked sections.
+
+Evidence: [M5](../test-evidence/M5.md#dev-03--writingview-decomposition-slice-3).
+
 ## Later slices (proposed, not started)
 
 - Feature-hook sections (find/replace/check/spelling/palette) as custom

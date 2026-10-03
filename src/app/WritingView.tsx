@@ -76,13 +76,8 @@ import { ScriptCheckPanel } from './ScriptCheckPanel';
 import {
   ScriptCheckController,
   visibleIssues,
-  type CheckState,
 } from '../application/scriptCheck';
-import {
-  highlightCheckIssues,
-  navigateCheckIssue,
-} from '../editor/scriptCheck';
-import type { CheckIssue } from '../domain/scriptCheck';
+import { highlightCheckIssues } from '../editor/scriptCheck';
 import { navigateOutline } from '../editor/outlineNavigation';
 import type { CapturedSnapshot } from '../application/persistenceController';
 import type { DocumentEntryPort } from '../application/documentEntry';
@@ -124,6 +119,7 @@ import { RecoveryChoicePanel } from './RecoveryChoicePanel';
 import { SnapshotPanel } from './SnapshotPanel';
 import { createFountainImportPanel } from './FountainImportPanel';
 import { useFindSession } from './findSession';
+import { useCheckSession } from './checkSession';
 import {
   clampedSelection,
   toSessionSelection,
@@ -209,16 +205,7 @@ export function WritingView({
   const titleComposingRef = useRef(false);
   const titleApplyingRef = useRef(false);
   const [showTitle, setShowTitle] = useState(false);
-  const checkScrollRef = useRef<{
-    view: EditorView;
-    session: object;
-    version: number;
-    doc: import('prosemirror-model').Node;
-    selection: import('prosemirror-state').Selection;
-  } | null>(null);
-  const [checkState, setCheckState] = useState<CheckState | null>(null);
   const [showCheck, setShowCheck] = useState(false);
-  const checkRef = useRef<ScriptCheckController | null>(null);
   const spellingRef = useRef<SpellcheckController | null>(null);
   const [showSpelling, setShowSpelling] = useState(false);
   const titleButtonRef = useRef<HTMLButtonElement | null>(null);
@@ -303,6 +290,20 @@ export function WritingView({
     setError,
     closeCheck,
   });
+  const { checkRef, checkState, setCheckState, openCheck, navigateIssue } =
+    useCheckSession({
+      findRef,
+      viewRef,
+      popupRef,
+      operationRef,
+      frozenRef,
+      readyRef,
+      showClose,
+      titleDraftRef,
+      titleComposingRef,
+      setShowCheck,
+      setError,
+    });
   useEffect(() => {
     if (!previewFocusPending.current || previewState?.enabled) return;
     const button = previewButton.current;
@@ -1526,75 +1527,6 @@ export function WritingView({
     }
   };
 
-  const openCheck = () => {
-    if (
-      !checkRef.current ||
-      viewRef.current?.composing ||
-      titleDraftRef.current ||
-      titleComposingRef.current
-    )
-      return;
-    popupRef.current?.controller.dismiss();
-    // One panel owns the shared view-only decoration channel at a time;
-    // closing find clears its highlights before check paints its own.
-    findRef.current?.configure(findRef.current.state.options, false);
-    setShowCheck(true);
-  };
-  const navigateIssue = (issue: CheckIssue) => {
-    const view = viewRef.current;
-    const projection = checkRef.current?.state.projection;
-    if (
-      !view ||
-      !projection ||
-      view.composing ||
-      operationRef.current ||
-      frozenRef.current ||
-      !readyRef.current ||
-      showClose ||
-      titleDraftRef.current ||
-      titleComposingRef.current
-    )
-      return;
-    popupRef.current?.controller.dismiss();
-    if (!navigateCheckIssue(view, projection, issue)) {
-      setError(
-        'Issue navigation is unavailable for this version. Text and selection are retained.',
-      );
-      return;
-    }
-    checkScrollRef.current = {
-      view,
-      session: editorOrigin(view.state).session,
-      version: editorVersion(view.state),
-      doc: view.state.doc,
-      selection: view.state.selection,
-    };
-  };
-  useEffect(() => {
-    // Scroll once after the issue panel commits, mirroring find navigation.
-    const target = checkScrollRef.current;
-    const view = viewRef.current;
-    if (!target || !view || view.isDestroyed || target.view !== view) return;
-    checkScrollRef.current = null;
-    requestAnimationFrame(() => {
-      const current = target.view;
-      if (
-        current.isDestroyed ||
-        current.composing ||
-        operationRef.current ||
-        frozenRef.current ||
-        !current.hasFocus() ||
-        editorOrigin(current.state).session !== target.session ||
-        editorVersion(current.state) !== target.version ||
-        current.state.doc !== target.doc ||
-        !current.state.selection.eq(target.selection)
-      )
-        return;
-      current.dispatch(
-        current.state.tr.setMeta('addToHistory', false).scrollIntoView(),
-      );
-    });
-  }, [checkState]);
   // The editor and import hosts are keyed so React preserves their DOM across
   // phase changes. Unkeyed conditional trees unmounted ProseMirror's DOM out
   // from under the live view, silently detaching the editor.

@@ -31,6 +31,11 @@ fmt/clippy/workspace-test, `prettier`, `git diff --check`. Slice 2 landed:
 find/replace session → `useFindSession` (verbatim move, `tsc`-exact
 boundary); focused 64/64, full suite green, native `--find` drill PASS
 except pinyin IME (no Fcitx5 on this host — blocked, laptop can cover).
+Slice 3 landed: script-check session → `useCheckSession` (verbatim move;
+`closeCheck`/`showCheck` stay composed since the find hook consumes
+`closeCheck`); `WritingView.tsx` 2,226 → 2,158 lines, focused 57/57,
+full suite green, native `--script-check` drill PASS with exact bytes
+and no blocked sections.
 [Brief](tasks/DEV-02.md), [evidence](test-evidence/M5.md#dev-02--second-machine-smoothness-tooling-slice).
 Tier 1: `bash -n`/`shellcheck`, doctor/host green, `cargo fmt`/`cargo check
 -p babel-desktop`, `tsc`, one vitest file, `prettier`, `git diff --check`.

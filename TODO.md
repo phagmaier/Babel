@@ -108,7 +108,7 @@ Prerequisite: [M4 bounded Linux exit](docs/test-evidence/M4.md#continuation-from
 
 - [ ] **DEV-02 Second-machine smoothness** — One-command bootstrap, pin/host/doctor checks, safe `target/` pruning, per-host test workers and target-dir fix. Tooling slice landed; second-host bootstrap run still open. [Brief](docs/tasks/DEV-02.md); [evidence](docs/test-evidence/M5.md#dev-02--second-machine-smoothness-tooling-slice).
 
-- [ ] **DEV-03 WritingView decomposition** — Slice-by-slice pure-move breakdown of the 2,483-line god component. Slice 1 (pure helpers + contract tests) landed with full gates green. [Brief](docs/tasks/DEV-03.md); [evidence](docs/test-evidence/M5.md#dev-03--writingview-decomposition-slice-1).
+- [ ] **DEV-03 WritingView decomposition** — Slice-by-slice pure-move breakdown of the 2,483-line god component. Slices 1–3 landed with full gates green: pure helpers + contract tests, find/replace session hook, script-check session hook (2,158 lines). [Brief](docs/tasks/DEV-03.md); [evidence](docs/test-evidence/M5.md#dev-03--writingview-decomposition-slice-3).
 
 M5 bounded Linux publication gate complete. Recommended next, when authorized:
 **M6-00** decomposition. Declare Tier 1 targets before M6 implementation; stop at M5 here.
