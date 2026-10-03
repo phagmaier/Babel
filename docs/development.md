@@ -10,6 +10,25 @@ All direct npm and Rust versions are pinned in manifests; `pnpm-lock.yaml` and `
 
 M1-02 reference input host: AMD Ryzen 7 7840U (8 cores/16 threads), 14 GiB RAM, Hyprland 0.56.2, WebKitGTK 4.1 2.52.6, GTK 3.24.52, debug Tauri build. Deterministic synthetic workload hashes and timings are in [M1 evidence](test-evidence/M1.md); the workload labels do not assert actual PDF pages.
 
+## Declared Local v1 targets (M6)
+
+Owner declaration on 2026-10-02: **Linux for now**, with future portability.
+This authorized implementation/verification uses the observed Linux x86_64
+build/target host. The architecture is an inference for this bounded work, not
+a separate owner declaration of architecture or distribution support. M6-13/14
+must record the exact owner-confirmed release targets before admission. Initial
+verification remains the recorded Arch/Hyprland host; support for another Linux distribution/runtime is earned by its actual
+native and installed checks. Linux target selection is not broad Linux
+acceptance. [ADR 0040](decisions/0040-local-v1-platform-scope.md).
+
+Keep domain/IPC/source contracts portable and isolate Linux filesystem,
+WebKit/GTK and packaging details behind native adapters. Windows, macOS and
+other architectures remain future targets, requiring a later owner declaration,
+bounded adapter tasks and actual native/installed acceptance. Do not introduce
+new Linux coupling into portable layers or claim those future platforms work.
+M1-02 remains the performance hardware baseline. The owner authorized
+[M6-01](tasks/M6-01.md) after declaration; Local v1 admission remains open.
+
 ## Laptop setup (DEV-01)
 
 On Omarchy/Arch x86_64, install missing native prerequisites with
@@ -336,3 +355,19 @@ Syntax-check `publication_preview.py`, `editor_exit.py` and `drill.py`; full
 frontend/browser/Rust checks and tmpfs/Btrfs workspace/native matrix apply.
 [Evidence](test-evidence/M5.md#m5-05--authoritative-preview-and-page-count-freshness),
 [direct license/packaging](third-party/pdf-viewer.md).
+
+M6-01 focused close-boundary checks: `cargo test -p babel-desktop close_lifecycle --locked`,
+repeated with `BABEL_IPC_TEST_ROOT=$PWD/target`. These use real native registrations,
+leases/files and injected close effects; they do not verify actual GTK termination.
+Run `python3 tests/native/writing-lifecycle/test_isolated_ime.py`,
+`python3 tests/native/writing-lifecycle/test_process_watch.py` and
+`python3 tests/native/writing-lifecycle/test_shutdown_observer.py`.
+Shared frontend/browser/Rust checks and full tmpfs/Btrfs workspace matrix remain
+required. After `pnpm tauri build --no-bundle`, freeze the binary/stack and run
+[SHUTDOWN-RETAINED](../tests/native/writing-lifecycle/README.md#m6-01-shutdown-retained)
+for ordinary/restart, forced WebDriver DELETE, parent SIGKILL/recovery and the
+bounded non-automation control. The guide registers exact existing runners,
+audits and opt-in `recovery-shutdown`. Use signed private IME packages with the
+read-only bind view; no kernel overlayfs, system install or global change.
+[M6 evidence](test-evidence/M6.md) retains failures and supported-stack limits;
+clean ordinary exits never close C1/F2 alone.

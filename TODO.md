@@ -111,21 +111,24 @@ Prerequisite: [M4 bounded Linux exit](docs/test-evidence/M4.md#continuation-from
 - [x] **DEV-03 WritingView decomposition** — Slices 1–9 complete: helpers plus find/check/spelling/title/move/outline/palette/publication sessions; component 2,483 → 1,939 lines. Verbatim bodies and typed boundaries; lifecycle/protection/dispatch/JSX and original focus-effect order stay composed. Shared gates and named native drills pass; slices 8–9 have no blocked sections. [Brief](docs/tasks/DEV-03.md); [evidence](docs/test-evidence/M5.md#dev-03--writingview-decomposition-slice-9).
 
 M5 bounded Linux publication gate and DEV-03 are complete. M6-00 planning is
-complete; implementation and Local v1 admission remain gated.
+complete; M6-01 bounded investigation/review is complete. Further tasks and
+Local v1 admission retain their explicit gates.
 
 ## M6 — local history, hardening and adoption (planned)
 
 - [x] **M6-00 Planning and decomposition** — Documentation acceptance only; [proposal](docs/tasks/M6-00.md), [planning evidence](docs/test-evidence/M6.md#m6-00--decomposition), [trace](docs/requirements.md#m6-decomposition-coverage-planned). No implementation or milestone admission.
 - [ ] **M6-G Local history, hardening, adoption** — Deps: M2 history and M4/M5 bounded gates; M6-01–16 and all Local v1 evidence. Reqs: HIST-01/02, SAVE-04/05, QA-01–03, SEC-01/02, APP-01. Remains open.
 
-Owner must declare Tier 1 OS/arch targets in `docs/development.md` before any
-M6 implementation, then authorize implementation. M1-02 remains the performance
-reference. Numeric order prioritizes shutdown/recovery safety, history workflows,
+Owner declared Linux for now on 2026-10-02; the observed x86_64 target and
+future portability are recorded in `docs/development.md` (ADR 0040). M6-01
+implementation is authorized; other target admission remains a future decision.
+M1-02 remains the performance reference. Numeric order prioritizes shutdown/recovery safety, history workflows,
 then performance and installed adoption; exact dependencies and unresolved gates
 are in M6-00. C1/F2 failures remain retained; ordinary-close passes do not resolve
-them. No implementation task below is admitted by this planning commit.
+them. M6-00 admitted no implementation; later owner direction authorized this
+bounded M6-01 continuation. Exact release-target confirmation remains M6-13/14.
 
-- [ ] **M6-01 Shutdown hardening and retained crash disposition** — Deps: M6-00 and bounded M2/M4/M5 gates; platform/authorization gate P. [Brief](docs/tasks/M6-01.md).
+- [x] **M6-01 Shutdown hardening and retained crash disposition** — Bounded investigation/review complete on current Linux host; close-guard regressions/shared checks pass. Candidate paired matrix 7/8 functional, 6/8 strict; fresh F2 core retained, C1/F2 release gate C remains open. [Brief](docs/tasks/M6-01.md), [evidence](docs/test-evidence/M6.md#m6-01--linux-scope-and-shutdown-hardening), [review](docs/reviews/2026-10-02-m6-01-shutdown-review.md), [gated runtime follow-up](docs/tasks/M6-01-R1.md). No crash resolution/admission.
 - [ ] **M6-02 Persistence interruption and restart hardening** — Deps: M6-01; platform/authorization gate P. [Brief](docs/tasks/M6-02.md).
 - [ ] **M6-03 Independent snapshot and retention workflow** — Deps: M6-02; platform/authorization gate P. [Brief](docs/tasks/M6-03.md).
 - [ ] **M6-04 Configured external backup destination** — Deps: M6-03; platform/authorization gate P. [Brief](docs/tasks/M6-04.md).
@@ -145,7 +148,10 @@ them. No implementation task below is admitted by this planning commit.
 M6-02 needs the M6-01 review artifact; an unresolved C1/F2 release gate may remain
 while independent safety work proceeds. M6-12 requires a measured scope addendum
 before correction; M6-13 needs new bounded briefs for missing target adapters.
-First future agent task: **M6-01**, once P and native prerequisites are satisfied.
+Next agent-executable task: **M6-02**, current Linux scope, beginning with the
+retained Save As/refusal and stress IME Undo/readiness investigation addendum.
+The supported-runtime M6-01-R1 follow-up remains gated by actual availability;
+C stays open before M6-14/16. Stop after the M6-01 commit.
 DEV-02 second-host acceptance remains owner-only and outside M6 work.
 
 ## M7 — explicit remote extension (gated)

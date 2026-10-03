@@ -13,6 +13,28 @@ import tempfile
 import time
 
 
+def build_usr_view(system_usr, package_usr, system_alias, view):
+    """Read-only namespace union without kernel overlayfs or host mutation.
+
+    Only package-intersecting directories are materialized. Other system
+    entries link through a separately bound /usr, so links cannot loop through
+    the replacement /usr. Package precedence matches the former overlay.
+    """
+    view.mkdir()
+    names = {p.name for p in system_usr.iterdir()} if system_usr.is_dir() and not system_usr.is_symlink() else set()
+    names.update(p.name for p in package_usr.iterdir())
+    for name in sorted(names):
+        package = package_usr / name
+        system = system_usr / name
+        destination = view / name
+        if package.is_dir() and not package.is_symlink():
+            build_usr_view(system, package, system_alias / name, destination)
+        elif package.exists() or package.is_symlink():
+            destination.symlink_to(package)
+        else:
+            destination.symlink_to(system_alias / name)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('prefix', type=Path)
@@ -57,13 +79,17 @@ def main():
     daemon_env = env.copy()
     daemon_env.update(XDG_CONFIG_HOME=str(root / 'config'),
                       XDG_DATA_HOME=str(root / 'data'), XDG_CACHE_HOME=str(root / 'cache'))
+    system_alias = root / 'system-usr'
+    system_alias.mkdir()
+    usr_view = root / 'usr-view'
+    build_usr_view(Path('/usr'), prefix / 'usr', system_alias, usr_view)
     daemon_cmd = ['bwrap', '--die-with-parent', '--unshare-pid',
         '--ro-bind', '/', '/', '--proc', '/proc', '--bind', str(root), str(root),
-        '--overlay-src', '/usr', '--overlay-src', str(prefix / 'usr'),
-        '--ro-overlay', '/usr', '/usr/bin/fcitx5', '-D', '-k', '--disable', 'all',
+        '--ro-bind', '/usr', str(system_alias),
+        '--ro-bind', str(usr_view), '/usr', '/usr/bin/fcitx5', '-D', '-k', '--disable', 'all',
         '--enable', 'keyboard,dbus,dbusfrontend,pinyin,punctuation,mozc,classicui,wayland',
         '--ui', 'classicui']
-    # Read-only prefix/system overlay makes compiled engine paths available.
+    # Read-only bind view makes compiled engine paths available without overlayfs.
     # No xcb/waylandim/global keyboard frontend, cloud engine or autostart.
     (root / 'command.json').write_text(json.dumps({
         'prefix': str(prefix), 'daemon': daemon_cmd, 'drill': command}, indent=2) + '\n')

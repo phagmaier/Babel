@@ -59,3 +59,17 @@ across 84 mitigated PIDs; Tier 2 shared gates pass.
 Evidence still needed: other Linux distributions/GPU drivers, packaged/installed
 builds and long sessions. The [M4-15 integrated exit](../test-evidence/M4.md#continuation-from-a97a577--full-native-matrix-and-post-integration-review)
 passed bounded Linux: 38/38 functional, with no ordinary-close abort.
+
+## M6-01 regression coverage and retained limit
+
+The close event now delegates its existing guard/effects to a testable boundary.
+Real native registration/lease tests cover open and closing ownership, an
+in-flight registration holding the service mutex, poisoned-lock refusal and
+notification/termination errors. Effects are injected; this is not native GTK
+termination verification. A worker not yet admitted owns no accepted editor
+content, and this change adds no admission fence.
+
+C1 parent SIGKILL and F2 active WebDriver deletion still bypass this close
+request. Both remain M6 release gate C until supported-resolution evidence or
+explicit reviewed residual-risk disposition. Ordinary-close regression passes
+and preserved bytes do not resolve them. [M6 evidence](../test-evidence/M6.md).

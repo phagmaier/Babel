@@ -22,7 +22,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('roots', nargs='+', type=Path)
     parser.add_argument('--output', required=True, type=Path)
-    parser.add_argument('--modes', nargs='+', choices=MODES + ['publication-exit'], default=MODES)
+    parser.add_argument('--modes', nargs='+', choices=MODES + ['publication-exit', 'recovery-shutdown'], default=MODES)
     parser.add_argument('--presentation-no-restart', action='store_true',
                         help='diagnostic only: skip presentation preference restart')
     parser.add_argument('--presentation-control', choices=['baseline', 'preedit-disabled', 'no-ime', 'typical-only', 'no-zoom', 'cleanup-probes'], default='baseline', help='diagnostic workload control; never integrated acceptance')
@@ -42,7 +42,9 @@ def main():
         for mode in args.modes:
             label = f'{len(reports):02d}-{filesystem}-{mode}'
             log = args.output / (label + '.log')
-            cmd = [sys.executable, str(driver), str(root), '--' + mode]
+            cmd = [sys.executable, str(driver), str(root)]
+            if mode != 'recovery-shutdown':
+                cmd.append('--' + mode)
             if mode == 'presentation':
                 cmd.extend(['--presentation-control', args.presentation_control])
             if mode == 'presentation' and args.presentation_no_restart:
@@ -85,7 +87,7 @@ def main():
                       'runtimeCrashLines': crash_lines,
                       'presentationRestart': not args.presentation_no_restart if mode == 'presentation' else None,
                       'presentationControl': args.presentation_control if mode == 'presentation' else None,
-                      'intentionalKillScenario': mode in ['editor-exit', 'audit-fixes']}
+                      'intentionalKillScenario': mode in ['editor-exit', 'audit-fixes', 'recovery-shutdown']}
             live_native = [p for p in ledger['processes'] if
                            not p.get('firstMissing') and p['state'] != 'Z' and
                            re.search(r'WebKit|babel-desktop', p['name'])]
@@ -97,7 +99,8 @@ def main():
             print(json.dumps(report), flush=True)
     failed = [r for r in reports if r['exitCode'] or
               r['runtimeCrashLines'] or not r.get('crashAuditPassed', True)]
-    gate = 'M5-07' if args.modes == ['publication-exit'] else 'M4-15'
+    gate = ('M5-07' if args.modes == ['publication-exit'] else
+            'M6-01' if args.modes == ['recovery-shutdown'] else 'M4-15')
     print(f'{gate} MATRIX: {len(reports)-len(failed)}/{len(reports)} successful; crash lines require source review', flush=True)
     return 1 if failed else 0
 

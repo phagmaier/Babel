@@ -387,3 +387,20 @@ must match before a bounded selection/viewport hint is applied; checkpoints win.
 Failure/corruption retains the old UI bytes, reports auxiliary attention and leaves
 native saving/close available. Source replacement, Locate and Save As never reuse
 an old hint by session ID or equal-content comparison alone.
+
+## M6-01 native close guard
+
+The window close routes through the native document registration guard. An open
+registration or poisoned guard prevents close before the protected-close event
+is emitted; notification failure cannot authorize web-process termination.
+Closing remains protected until native release. A registration already holding
+the service mutex is observed before close can inspect it; an operation not yet
+admitted has no accepted editor content. This is the existing registration
+contract, not a new admission fence or source-save receipt.
+
+When no registration remains, the existing publication cancellation and Linux
+[ADR 0035](decisions/0035-linux-web-process-close.md) termination run. Termination
+failure is logged and earns no source/recovery success credit; ordinary teardown
+may still encounter the retained upstream crash. Focused tests use real native
+registrations/files and injected effects. Actual GTK/forced-kill/restart evidence
+and unresolved C1/F2 disposition stay in [M6 evidence](test-evidence/M6.md).

@@ -173,3 +173,20 @@ owner pilot. Gate P and unresolved gates C/R/S/H/T/A are defined in M6-00.
 M6-12 corrections and missing target adapters require scoped follow-up briefs;
 none is an implicit blanket implementation authorization. DEV-02 owner-only
 second-host tooling acceptance and M7 remote work are excluded.
+
+## M6-01 bounded Linux continuation
+
+Owner declares Linux for now and authorizes continuation; the current x86_64
+host is the bounded implementation/test target, with future portability retained.
+[ADR 0040](decisions/0040-local-v1-platform-scope.md) records the inferred
+architecture and remaining release-target confirmation. M6-13/14 cannot infer
+other architectures/distributions or installed acceptance from this declaration.
+
+SAVE-03/05, QA-01/02 and SEC-02 gain native close-guard/error/race regressions and
+fresh SHUTDOWN-RETAINED evidence under the completed bounded [M6-01](tasks/M6-01.md)
+investigation/review. Its candidate matrix remains 6/8 strict, with the fresh F2
+core and operation refusals retained; this is not acceptance of the failing
+strict gate. Test callbacks, actual GTK ordinary close, C1 parent kill and F2 session deletion have separate
+claims. [Evidence](test-evidence/M6.md) retains every failure; C1/F2, full S13 and
+Local v1 admission remain open. Existing trace owner sets and historical M0–M5
+acceptance are unchanged.

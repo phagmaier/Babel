@@ -188,20 +188,41 @@ fn record_native_editor_proof(report: String) -> Result<(), &'static str> {
     Ok(())
 }
 
+/// Route the native close through the actual registration guard. Preventing
+/// close precedes notification, so a lost frontend event cannot destroy a draft.
+/// An unprotected termination failure logs attention but earns no persistence
+/// credit; all document protection has already completed before that branch.
+fn handle_close_request(
+    documents: &DocumentHost,
+    prevent_close: impl FnOnce(),
+    notify_protected: impl FnOnce() -> tauri::Result<()>,
+    end_web_content: impl FnOnce() -> tauri::Result<()>,
+) {
+    if documents.has_open_documents() {
+        prevent_close();
+        if let Err(error) = notify_protected() {
+            eprintln!("protected close event unavailable: {error}");
+        }
+    } else {
+        let _ = documents.publication.cancel(None, true);
+        if let Err(error) = end_web_content() {
+            eprintln!("web content shutdown unavailable: {error}");
+        }
+    }
+}
+
 /// WebKitGTK 2.52 can abort while its web process runs exit-time EGL/GBM
 /// teardown after the window closes (M4-15; upstream WebKit 305909/315577).
 /// This close is unprotected: no document remains open and the web process
 /// owns no author state, so end it before the window and app go away instead
 /// of letting it run that teardown. Runs synchronously on the main thread.
 #[cfg(target_os = "linux")]
-fn end_web_content_before_close<R: tauri::Runtime>(window: &tauri::Window<R>) {
+fn end_web_content_before_close<R: tauri::Runtime>(window: &tauri::Window<R>) -> tauri::Result<()> {
     use webkit2gtk::WebViewExt;
     let Some(webview) = window.app_handle().get_webview_window(window.label()) else {
-        return;
+        return Ok(());
     };
-    if let Err(error) = webview.with_webview(|platform| platform.inner().terminate_web_process()) {
-        eprintln!("web content shutdown unavailable: {error}");
-    }
+    webview.with_webview(|platform| platform.inner().terminate_web_process())
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -215,16 +236,17 @@ pub fn run() {
         .manage(RecoveryHost::default())
         .on_window_event(|window, event| {
             if let tauri::WindowEvent::CloseRequested { api, .. } = event {
-                if window.state::<DocumentHost>().has_open_documents() {
-                    api.prevent_close();
-                    if let Err(error) = window.emit("protected-close-requested", ()) {
-                        eprintln!("protected close event unavailable: {error}");
-                    }
-                } else {
-                    let _ = window.state::<PublicationHost>().cancel(None, true);
-                    #[cfg(target_os = "linux")]
-                    end_web_content_before_close(window);
-                }
+                handle_close_request(
+                    &window.state::<DocumentHost>(),
+                    || api.prevent_close(),
+                    || window.emit("protected-close-requested", ()),
+                    || {
+                        #[cfg(target_os = "linux")]
+                        return end_web_content_before_close(window);
+                        #[cfg(not(target_os = "linux"))]
+                        Ok(())
+                    },
+                );
             }
         })
         .setup(|app| {
@@ -525,3 +547,6 @@ mod workflow_protection_ipc_tests;
 
 #[cfg(all(test, target_os = "linux"))]
 mod publication_ipc_tests;
+
+#[cfg(all(test, target_os = "linux"))]
+mod close_lifecycle_tests;

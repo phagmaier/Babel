@@ -505,9 +505,12 @@ Synthetic tooling checks: `python3 tests/native/writing-lifecycle/test_stack_pro
 `isolated_ime.py <verified-prefix> -- <drill-command...>` runs real Fcitx GTK3,
 pinyin and Mozc from signed, unpacked host packages. It refuses an existing
 Fcitx service or personal legacy `~/.mozc` profile. It uses a private XDG profile,
-a read-only package/system overlay and an owned PID namespace; cleanup stops
-only that namespace, including its Mozc server. The host needs `bwrap` with
-read-only overlay/PID-namespace support, `gtk-query-immodules-3.0`, `gdbus`,
+a read-only package/system bind view and an owned PID namespace; cleanup stops
+only that namespace, including its Mozc server. The view materializes only
+package-intersecting directories, with other entries pointing to a separately
+read-only-bound system `/usr`. This preserves package precedence without kernel
+overlayfs. The host needs `bwrap` with read-only bind/PID-namespace support,
+`gtk-query-immodules-3.0`, `gdbus`,
 the existing keyboard helpers and native GUI. No system installation, autostart,
 global settings, xcb/waylandim keyboard frontend or cloud-pinyin addon. The
 existing accessibility/session bus remains available for owned GTK pickers.
@@ -721,3 +724,48 @@ strict stderr/journal failures, command/binary/tooling provenance and failed
 setup cases. Failed-probe forced cleanup is never ordinary-close evidence.
 The independent auditor reports byte coverage separately from strict results;
 an audit completing successfully does not relabel a crashed run as passing.
+
+## M6-01 SHUTDOWN-RETAINED
+
+Build and freeze the default release for each candidate; run its paired arms
+against that same immutable binary. Set `BABEL_NATIVE_BINARY` to that frozen binary and provide task-local GUI/compositor
+environment and the existing owned input helpers. Do not run builds or other
+input drills concurrently. Use fresh output/profile roots; preserve failures.
+
+```sh
+python3 tests/native/writing-lifecycle/isolated_ime.py /path/to/verified-prefix -- \
+  python3 tests/native/writing-lifecycle/shutdown_isolation.py /tmp "$PWD/target" \
+  --repeats 2 --output target/m6-01/shutdown-paired
+python3 tests/native/writing-lifecycle/audit_shutdown.py \
+  target/m6-01/shutdown-paired/results.json --output target/m6-01/shutdown-bytes.json
+python3 tests/native/writing-lifecycle/audit_process_watch.py \
+  target/m6-01/shutdown-paired/results.json --output target/m6-01/shutdown-journal-replay
+GTK_IM_MODULE=gtk-im-context-simple BABEL_SHUTDOWN_MODE=ordinary \
+  python3 tests/native/writing-lifecycle/integrated_exit.py \
+  /tmp "$PWD/target" --modes recovery-shutdown --output target/m6-01/recovery-shutdown
+python3 tests/native/writing-lifecycle/audit_process_watch.py \
+  target/m6-01/recovery-shutdown/results.json --output target/m6-01/recovery-journal-replay
+python3 tests/native/writing-lifecycle/isolated_ime.py /path/to/verified-prefix -- \
+  python3 tests/native/writing-lifecycle/plain_presentation.py /tmp "$PWD/target" \
+  --repeats 1 --output target/m6-01/plain-presentation
+python3 tests/native/writing-lifecycle/audit_plain_presentation.py \
+  target/m6-01/plain-presentation/results.json --output target/m6-01/plain-byte-audit
+```
+
+`recovery-shutdown` is opt-in and invokes the existing base `drill.py` workload,
+including save failure, independently checked acknowledged journal bytes,
+intentional owned parent SIGKILL, restart/adoption, external divergence and
+emergency copy. `BABEL_SHUTDOWN_MODE=ordinary` applies only to final cleanup;
+the deliberate mid-workload kill remains C1. The paired presentation arms
+separate ordinary accepted close/restart from active WebDriver DELETE (F2).
+`plain_presentation.py` omits IME, completion, Find, divergence, geometry probes
+and preference restart; its non-automation result cannot resolve C1/F2.
+The existing `audit_shutdown.py` reports pre-phase failures without a byte
+claim; independently inspect their retained source/copy/journal generations too.
+`audit_retained.py` still audits successful roots only.
+
+Focused tooling: `python3 tests/native/writing-lifecycle/test_isolated_ime.py`,
+`test_process_watch.py` and `test_shutdown_observer.py` in the same directory.
+The bind-view tests prove structure and source preservation, not mount isolation
+or real composition. Native drills retain those separate obligations. No failed
+crash, journal event or owned survivor is waived by a successful byte audit.
