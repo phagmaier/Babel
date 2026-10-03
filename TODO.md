@@ -108,7 +108,7 @@ Prerequisite: [M4 bounded Linux exit](docs/test-evidence/M4.md#continuation-from
 
 - [ ] **DEV-02 Second-machine smoothness** — One-command bootstrap, pin/host/doctor checks, safe `target/` pruning, per-host test workers and target-dir fix. Tooling slice landed; second-host bootstrap run still open. [Brief](docs/tasks/DEV-02.md); [evidence](docs/test-evidence/M5.md#dev-02--second-machine-smoothness-tooling-slice).
 
-- [ ] **DEV-03 WritingView decomposition** — Slices 1–8 landed with shared gates green: helpers plus find/check/spelling/title/move/outline/palette sessions; component 2,483 → 1,956 lines. Slice 8 native `--commands` passed fully; slice 9 preview/export is next and explicitly last. Panel JSX and composition core stay. [Brief](docs/tasks/DEV-03.md); [evidence](docs/test-evidence/M5.md#dev-03--writingview-decomposition-slice-8).
+- [x] **DEV-03 WritingView decomposition** — Slices 1–9 complete: helpers plus find/check/spelling/title/move/outline/palette/publication sessions; component 2,483 → 1,939 lines. Verbatim bodies and typed boundaries; lifecycle/protection/dispatch/JSX and original focus-effect order stay composed. Shared gates and named native drills pass; slices 8–9 have no blocked sections. [Brief](docs/tasks/DEV-03.md); [evidence](docs/test-evidence/M5.md#dev-03--writingview-decomposition-slice-9).
 
 M5 bounded Linux publication gate complete. Recommended next, when authorized:
 **M6-00** decomposition. Declare Tier 1 targets before M6 implementation; stop at M5 here.

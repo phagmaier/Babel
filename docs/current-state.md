@@ -1,4 +1,4 @@
-# Current state — M5 complete, DEV-03 slice 8 complete
+# Current state — M5 complete, DEV-03 complete
 
 Date: 2026-10-02. Application: **babel**. Admission `bfdbdbb` on main.
 Work directly on main; no push. M5-07 remains complete at `bfdbdbb`.
@@ -20,22 +20,24 @@ measurement (proofs cost 5.3 s; exclusion breaks more than it saves);
 Python lint gate added (`tools/lint-py.sh`, 75 files green); harness
 repackaging deferred until after M6-00.
 
-**DEV-03 WritingView decomposition — slice 8 complete.** Slices 1–8
-landed: helpers, find/replace, check, spelling, title, move,
-outline/characters/position and now palette navigation sessions.
-Slice 8 moves the callback verbatim to `src/app/paletteSession.ts`
-(`usePaletteSession`), with typed `outline`/`viewRef`/`getFacts`/`setError`
-deps. Captured projection and activation guards retain exact semantics;
-dispatch switch and `CommandSurface` props stay composed. No behavior change.
-`WritingView.tsx` 1,977 → 1,956 lines. Existing stale-navigation/source/Undo
-and M5-07 preview-focus regressions pass.
-Tier 2 shared gates and the fresh-release native `--commands` drill pass;
-no blocked sections. Native menu/light/dark-scaled screenshots reviewed,
-helper tree unchanged (`c805d6…`). Commands/timings, paths and omissions:
-[brief](tasks/DEV-03.md),
-[evidence](test-evidence/M5.md#dev-03--writingview-decomposition-slice-8).
-Slice 9 preview/export is next and explicitly last; panel JSX and permanent
-composition core stay in the component. DEV-03 remains open until slice 9.
+**DEV-03 WritingView decomposition — complete, slices 1–9 landed.**
+Helpers and find/check/spelling/title/move/outline/palette/publication sessions
+are extracted; `WritingView.tsx` 2,483 → 1,939 lines. Slice 8 (`4e18c58`)
+moved palette navigation; slice 9 moves preview/export state/refs and
+focus/open/close/dismiss bodies to `src/app/publicationSession.ts`
+(`usePublicationSession`). Original no-deps focus-effect registration stays
+in place and calls the moved body synchronously; effect order, M5-07 toolbar
+wait/newer-focus refusal and stable lifecycle handles remain exact.
+Controllers/lifecycle/dispatch/protection/JSX stay composed. No behavior change.
+Slice 9 strict TypeScript, focused 82/82 (both M5-07 focus regressions), full
+772/772, shared frontend/Rust and final formatting/link/diff checks pass.
+Fresh-release native `--publication-preview` and `--pdf-export` pass on tmpfs,
+including the held-real-Save-receipt focus race, exact bytes and refusal/
+cancellation paths. Ordinary close completed before stale-session deletion
+in both; no matching driver crash/error lines and no blocked sections.
+Helper tree unchanged (`c805d6…`); existing M6 performance limits remain.
+Commands/timings, paths and omissions: [brief](tasks/DEV-03.md),
+[evidence](test-evidence/M5.md#dev-03--writingview-decomposition-slice-9).
 DEV-02 tooling is landed; second-host acceptance is owner-only.
 [DEV-02 brief](tasks/DEV-02.md),
 [evidence](test-evidence/M5.md#dev-02--second-machine-smoothness-tooling-slice).
@@ -93,13 +95,11 @@ editor page markers, full transitive notices/runtime trust, retention UX,
 broader interruption/power loss, backup/migration and Local v1 remain open.
 Existing M4 C1/F2 forced-kill/automation-shutdown hardening remains M6.
 No real manuscript, credentials or upload; no push. This slice began with a
-clean tree at `eac8d1f`; `mise.toml` and `docs/development.md` are untouched.
+clean tree at `4e18c58`; `mise.toml` and `docs/development.md` are untouched.
 
 ## Next action
 
-DEV-03 slice 9: move the preview/export session, preserve M5-07 focus-race
-regressions, verify Tier 2 plus native `--publication-preview` and
-`--pdf-export`, then commit. This tooling/pure-move track is owner-authorized.
-Stop production work at M5. M6-00 decomposition needs separate authorization
-and the owner's Tier 1 OS/architecture declaration. Development-doc splitting
-needs a design; harness repackaging remains deferred until after M6-00.
+STOP: DEV-03 is complete. The authorized slices 8–9 are finished; no other
+track started. DEV-02 second-host acceptance remains owner-only. Production
+work stops at M5; M6-00, development-doc splitting and harness repackaging
+remain outside this task and need their separate decisions/authorization.

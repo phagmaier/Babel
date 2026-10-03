@@ -1,6 +1,6 @@
 # DEV-03 — WritingView decomposition
 
-Status: in progress (slices 1–8 landed; slice 9 remains).
+Status: complete (slices 1–9 landed; bounded Linux verification).
 Dependencies: M5-07 (focus-race correction must keep passing). No behavior,
 IPC, persistence, PDF, history or remote change — pure code moves only.
 
@@ -213,12 +213,42 @@ second-filesystem run skipped with the pure-move rationale in evidence.
 
 Evidence: [M5](../test-evidence/M5.md#dev-03--writingview-decomposition-slice-8).
 
-## Panel phase — approved design (slices 5–8 landed; slice 9 next)
+## Slice 9 (landed; DEV-03 complete)
+
+Preview/export session → `src/app/publicationSession.ts`
+(`usePublicationSession`): preview/export refs and state, toolbar button
+and pending-focus ref, focus body and open/close/dismiss callbacks move
+verbatim. Its only render dependency is `outline`. Controller construction,
+accept/invalidate/dispose, capture/dispatch, protection and JSX stay composed;
+lifecycle reads the same stable returned refs/setters. The hook appends
+unconditionally after palette and before hosts/phase returns.
+
+The no-deps focus-effect registration stays at its original position and
+calls `restorePreviewFocus` synchronously. This keeps effect order exact
+while the body reads the hook-owned state/refs; neither the M5-07 wait for
+the enabled toolbar nor newer-focus refusal changes. No memoization,
+new timing, prop shape or rendered output. `WritingView.tsx` 1,956 → 1,939 lines
+(2,483 → 1,939 across DEV-03); session hooks plus permanent composition core.
+
+Checks: strict TypeScript, focused 82/82 (publication/freshness/export
+contracts, preview/export panels, WritingView including both M5-07
+focus regressions), full 772/772, lint/typecheck/build, Rust
+fmt/clippy/workspace tests and formatting/local links/diff all pass.
+Fresh-release native `--publication-preview` and `--pdf-export` pass on
+tmpfs, including the held-real-Save-receipt focus race and delayed-real-reply
+freshness. Both ordinary closes complete before stale-session deletion;
+no blocked sections. Helper tree remains `c805d6…`. No behavior change;
+no new tests needed for these verbatim bodies, which have existing
+failure/focus/source-isolation regressions.
+
+Evidence: [M5](../test-evidence/M5.md#dev-03--writingview-decomposition-slice-9).
+
+## Panel phase — approved design (completed; recorded after slice 4)
 
 Slices 1–4 proved the pattern: session hooks own state machines plus
 their effects; the component keeps controller creation/disposal,
-cross-panel coordination and render. What remains in `WritingView.tsx`
-(2,157 lines) falls into extractable sessions plus a permanent
+cross-panel coordination and render. At design time, `WritingView.tsx`
+(2,157 lines) contained extractable sessions plus a permanent
 composition core. Panel JSX itself does not move: every panel's props
 mix hook handles with composition flags (`busy`, `showClose`,
 `operationRef`, `active`), so relocating JSX without its prop surface
@@ -230,7 +260,7 @@ title draft/composing, `showClose`) stay component-owned and pass down
 as hook deps. No hook-to-hook imports — that cycle is what forced
 `closeCheck` to stay composed.
 
-Proposed extraction order, one slice each with the same proof as
+Approved extraction order, now completed, one slice each with the same proof as
 slices 1–4 (`tsc`-exact boundary, focused plus full suite with the
 M5-07 focus regressions green, named native drill):
 
@@ -262,7 +292,9 @@ wiring (`run`, `requestClose`, `reportOutcome`, snapshot/choice
 ports, close/recovery/snapshot panels), the Escape handler, the
 Fountain import boundary, the three phase branches, toolbar and
 `presentationBlocked`/`modeDisabled`/`checkpoint` memos. New hook
-calls append after the existing session hooks, never conditionally.
+calls append after the existing session hooks, never conditionally. Slice 9
+keeps the original focus-effect registration in composition to preserve
+effect order, with its body owned by the publication session hook.
 
 ## Excludes
 

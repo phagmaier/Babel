@@ -1,13 +1,7 @@
 import { PublicationPreview } from './PublicationPreview';
 import { ExportPdfPanel } from './ExportPdfPanel';
-import {
-  ExportPdfController,
-  type ExportPdfState,
-} from '../application/exportPdf';
-import {
-  PublicationPreviewController,
-  type PublicationPreviewState,
-} from '../application/publicationPreview';
+import { ExportPdfController } from '../application/exportPdf';
+import { PublicationPreviewController } from '../application/publicationPreview';
 import { undoDepth, redoDepth } from 'prosemirror-history';
 import { CommandSurface } from './CommandSurface';
 import {
@@ -108,6 +102,7 @@ import { useTitleSession } from './titleSession';
 import { useMoveSession } from './moveSession';
 import { useOutlineSession } from './outlineSession';
 import { usePaletteSession } from './paletteSession';
+import { usePublicationSession } from './publicationSession';
 import {
   clampedSelection,
   toSessionSelection,
@@ -213,13 +208,6 @@ export function WritingView({
   const [error, setError] = useState('');
   const [active, setActive] = useState<ActiveInfo | null>(null);
   const [status, setStatus] = useState('');
-  const previewRef = useRef<PublicationPreviewController | null>(null);
-  const exportRef = useRef<ExportPdfController | null>(null);
-  const [exportState, setExportState] = useState<ExportPdfState | null>(null);
-  const previewButton = useRef<HTMLButtonElement | null>(null);
-  const previewFocusPending = useRef(false);
-  const [previewState, setPreviewState] =
-    useState<PublicationPreviewState | null>(null);
   const [live, setLive] = useState<CapturedSnapshot | null>(null);
   const [showClose, setShowClose] = useState(false);
   const [paletteRequested, requestPalette] = useState(0);
@@ -296,19 +284,7 @@ export function WritingView({
     popupRef,
   });
   useEffect(() => {
-    if (!previewFocusPending.current || previewState?.enabled) return;
-    const button = previewButton.current;
-    // Closing during Save can remove the focused panel while the toolbar is
-    // disabled. Wait for its next enabled commit, respecting any newer focus.
-    if (
-      document.activeElement !== document.body &&
-      document.activeElement !== button
-    ) {
-      previewFocusPending.current = false;
-    } else if (button && !button.disabled) {
-      previewFocusPending.current = false;
-      button.focus();
-    }
+    restorePreviewFocus();
   });
   const {
     outline,
@@ -1531,6 +1507,19 @@ export function WritingView({
     getFacts: commandContext,
     setError,
   });
+  const {
+    previewRef,
+    exportRef,
+    exportState,
+    setExportState,
+    previewButton,
+    previewState,
+    setPreviewState,
+    restorePreviewFocus,
+    openPreview,
+    closePreview,
+    dismissExport,
+  } = usePublicationSession({ outline });
 
   const hosts = (
     <div key="writing-hosts">
@@ -1542,17 +1531,14 @@ export function WritingView({
             key={exportState.version ?? 'capture'}
             controller={exportRef.current}
             state={exportState}
-            onDismiss={() => setExportState(null)}
+            onDismiss={dismissExport}
           />
         )}
       {phase === 'active' && previewState?.enabled && previewRef.current && (
         <PublicationPreview
           controller={previewRef.current}
           state={previewState}
-          onClose={() => {
-            previewFocusPending.current = true;
-            previewRef.current?.close();
-          }}
+          onClose={closePreview}
         />
       )}
       {phase === 'active' && showSpelling && (
@@ -1846,10 +1832,7 @@ export function WritingView({
             titleComposingRef.current ||
             commandComposing
           }
-          onClick={() => {
-            previewRef.current?.accept(outline);
-            previewRef.current?.open();
-          }}
+          onClick={openPreview}
         >
           PDF preview
         </button>
