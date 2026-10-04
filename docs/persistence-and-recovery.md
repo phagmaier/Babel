@@ -324,6 +324,8 @@ records the default-app filesystem/failure drill and remaining limits.
 
 The [separate review](reviews/2026-09-29-m3-13-review.md) records the original failures. [M3-12-R1](tasks/M3-12-R1.md) corrects live-version status and emergency preservation. [M3-09-R1](tasks/M3-09-R1.md) adds explicit “Resume as new draft”: native code revalidates and checkpoints the full selected bytes under a fresh identity before returning them; the original checkpoint stays intact. The frontend restores verified producer metadata, allocates above the new journal and confirms fresh protection. Invalid encoding stays view-only and copyable. A display preview never reconstructs author content.
 
+If the opening view is disposed while resume, inspection or initial capture is pending, the returned registration is released without flushing a retired session. If fresh protection fails, abandonment retains the original protection error; a failed release is reported alongside it, without claiming native cleanup succeeded. [AUDIT-TEST evidence](test-evidence/AUDIT.md#audit-test--wave-2-regression-gaps).
+
 [M3-11-R1](tasks/M3-11-R1.md) enables read-only Save As. [M3-10-R1](tasks/M3-10-R1.md) drains newer edits after an older in-flight operation even when their timers expired, without retrying the same failed version. [M3-12-R2](tasks/M3-12-R2.md) covers selected recovery, replacement metadata, failed-open release and destination retirement. Only one selected destination per registration remains valid for each copy/Save As operation; invalid selection retains the last valid capability. Acceptance requires linked shared/native tmpfs/Btrfs evidence; historical gates remain bounded.
 
 Recovery panels serialize their advisory comparisons. Each native read reserves

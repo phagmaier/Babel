@@ -1,35 +1,36 @@
-# Current state — AUDIT-C356 complete; stopped
+# Current state — AUDIT-TEST complete; stopped
 
 Date: 2026-10-03. Application: **babel**. Main; owner authorized warranted push.
-Current task base `08986eb`, clean main/origin at claim. M0–M5 and bounded M6-01
+Current task base `fb7d6bd`, clean main/origin at claim. M0–M5 and bounded M6-01
 investigation remain recorded complete. **M6-02 stays unchecked; retained
 operation findings, C1/F2 and Local v1 admission remain open.**
 
 ## Task and work
 
-**AUDIT-C356 complete**, base `08986eb`, main. [Brief](tasks/AUDIT-C356.md).
-C-03: ordinary literal brackets/backslashes no longer gain redundant escapes;
-frozen helper decodes protected escapes before emphasis, including title values.
-New helper tree `808d2276…` and native/review pin advance together; profile,
-fixtures and all accepted goldens stay intact. C-05: bounded descriptor xattr
-list permits only exact `security.selinux`, never copies labels; unknown
-metadata/ACLs and failed/malformed reads still refuse. C-06: separate stamped
-Find/check plugin sets and closed-report visibility guard preserve navigation
-highlights without state/source/Undo changes.
-Paths: `fountainInline.ts`, `frozen_profile.py`, native publication integrity pin,
-`source_store.rs`, editor Find/check/state and WritingView/check session; focused
-regressions and owning metadata/editor/model/profile docs.
-Checks: frontend 848/848; workspace 277/277 each tmpfs/Btrfs; helper 13/13,
-frozen corpus 22 unchanged raster pages and layout goldens, offline extracted
-package escapes 2/2/integrity; default release/package, browser, static/links/diff
-pass. [Commands, elapsed times, retained red/prerequisite failures and limits](test-evidence/AUDIT.md#audit-c356--literal-escapes-selinux-metadata-and-advisory-highlights).
-SELinux names/read failures are injected evidence; enforcing SELinux/Fedora
-remains unverified. Native metadata uses real descriptors/files on both
-filesystems; no shared-keyboard GUI drill or native highlight-input claim.
-Implementation `614cb8d` pushed; [actual implementation CI passed](https://github.com/phagmaier/Babel/actions/runs/37161598998)
-(frontend/core and native workspace/package). Completion evidence is a
-documentation-only follow-up; no expensive local suite rerun. Stop after C356;
-no Wave 2.
+**AUDIT-TEST complete**, base `fb7d6bd`, main. [Brief](tasks/AUDIT-TEST.md).
+66 regressions cover resume, session/controller guards, structured-paste tails,
+replace/check hooks, prepared Restore/Resolve and SC002/SC004. Reproduced parked
+resume defects first: disposed initial opens now skip retired cadence; failed
+release retains the protection error and both failure causes. Native code stays
+unchanged. Paths: `writingSession.ts`, seven contract/UI test files, tracked
+`tools/audit-test-mutations.py`, owning recovery docs, brief/tracker/evidence.
+Tier 2: frontend 914/914; focused/control 188/188; 25/25 in-memory faults detected;
+workspace 277/277; format/lint/types/build/Clippy/browser/Python/links/diff pass.
+[Commands, failures, timing and retained artifacts](test-evidence/AUDIT.md#audit-test--wave-2-regression-gaps).
+Injected-port/JSDOM and generic Chromium evidence; no native resume/restore
+cleanup, trusted input, packaging or second-filesystem claim. T-08's first full
+selector matrix already passed in C356. Completed work committed locally for
+review; no new push or CI claim. Stop after Wave 2; Wave 3 unstarted.
+
+**AUDIT-C356 complete** (`614cb8d` implementation, `fb7d6bd` completion, pushed;
+both CI runs passed). [Brief](tasks/AUDIT-C356.md). Literal escapes render
+correctly, exact SELinux xattr-name exemption preserves metadata refusal, and
+Find/check highlights are independent. Helper/native integrity pins advanced;
+profile, fixtures and goldens unchanged. Frontend 848/848, workspace 277/277
+on tmpfs/Btrfs, helper 13/13, packaged escapes 2/2, 22 unchanged golden pages;
+package/browser/static pass. [Commands, failures and limits](test-evidence/AUDIT.md#audit-c356--literal-escapes-selinux-metadata-and-advisory-highlights).
+Injected SELinux names/syscall failures; enforcing SELinux/Fedora and native
+highlight input remain unverified. Wave 1 boundary respected before continuation.
 
 **AUDIT-W0-R1 done** (`7d45253`, groff prerequisite `49129df`): Enchant >=2.4,
 pinned 2.8.21/Hunspell CI prefix and empty personal-wordlist isolation, native
@@ -81,7 +82,7 @@ acceptance; exact-version retries retain their original recovery base.
 
 ## Next action and blockers
 
-Completed `AUDIT-C356`; stopped at the requested boundary. Wave 2 `AUDIT-TEST` is next in tracker order but remains unstarted; draft its brief only on a later authorized continuation. D-06 remains a later separate brief. Capture-failure draft-bundle fallback remains an owner decision (ADR + Tier 3). [M6-02-R1](tasks/M6-02-R1.md) remains a separate follow-up; C1/F2 unchanged.
+Completed `AUDIT-TEST`; stopped before Wave 3. `AUDIT-SLP-A` is next in tracker order; draft its bounded brief on a later continuation. D-06 remains a later separate brief. Capture-failure draft-bundle fallback remains an owner decision (ADR + Tier 3). [M6-02-R1](tasks/M6-02-R1.md) remains a separate follow-up; C1/F2 unchanged.
 
 [Supported-runtime M6-01-R1](tasks/M6-01-R1.md) remains gated by an available
 identified supported correction. C1/F2 release gate C remains open before

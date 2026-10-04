@@ -225,3 +225,43 @@ it('keeps scene-number and spacing advice advisory, bounded and dismissible-shap
   expect(codes('!A.\n\n!B.\n')).toEqual([]);
   expect(MAX_CHECK_ISSUES).toBeGreaterThan(0);
 });
+
+it('AUDIT-TEST maps an unclosed parenthetical diagnostic to advisory SC002 without changing bytes', () => {
+  const original = bytes('\n@ALICE\n(unclosed\nHello.\n');
+  const document = parseFountain(original);
+  expect(document.diagnostics).toContainEqual(
+    expect.objectContaining({ code: 'malformed-parenthetical', line: 2 }),
+  );
+  const report = evaluateScriptCheck(document);
+  expect(report.issues).toEqual([
+    expect.objectContaining({
+      code: 'SC002',
+      severity: 'warning',
+      line: 2,
+      endLine: 2,
+      hasFix: false,
+    }),
+  ]);
+  expect(Array.from(serializeFountain(document))).toEqual(Array.from(original));
+});
+
+it('AUDIT-TEST maps preserved invalid UTF-8 through editor capture to advisory SC004', () => {
+  const original = Uint8Array.from([0xff, 0x0d, 0x0a]);
+  const state = createEditorState(original);
+  const capture = captureEditor(state);
+  const report = evaluateScriptCheck(capture.document);
+  expect(report.issues).toContainEqual(
+    expect.objectContaining({
+      code: 'SC004',
+      severity: 'warning',
+      line: null,
+      hasFix: false,
+      message:
+        'Unreadable bytes are preserved verbatim; review the original source outside the editor.',
+    }),
+  );
+  expect(Array.from(capture.source)).toEqual(Array.from(original));
+  expect(Array.from(serializeFountain(capture.document))).toEqual(
+    Array.from(original),
+  );
+});

@@ -301,12 +301,29 @@ export class WritingSession {
         null,
         resumed.draftMetadata,
       );
-      if (!this.active?.readOnly && !(await this.cadence!.flush()).recovered)
+      // A stale mount has already released the resumed registration. It must
+      // not flush a retired cadence or turn cancellation into an open error.
+      if (this.disposed) return;
+      const protection = this.active?.readOnly
+        ? null
+        : await this.cadence!.flush();
+      if (this.disposed) return;
+      if (protection && !protection.recovered)
         throw new Error(
           'Resumed draft protection could not be confirmed; the original checkpoint remains preserved',
         );
     } catch (error) {
-      if (this.opened) await this.abandon();
+      if (this.opened) {
+        try {
+          await this.abandon();
+        } catch (cleanup) {
+          throw new AggregateError(
+            [error, cleanup],
+            `${error instanceof Error ? error.message : 'Resume failed; the original checkpoint remains preserved'}; native release could not be confirmed`,
+            { cause: cleanup },
+          );
+        }
+      }
       throw error;
     }
   }

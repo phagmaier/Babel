@@ -1075,3 +1075,432 @@ it('retains the draft and copy route when both Reload and fresh recovery fail', 
   expect(session.externalChange).not.toBeNull();
   session.dispose();
 });
+
+// AUDIT-TEST: guard failures must stop publication/adoption, not merely throw later.
+describe('AUDIT-TEST session boundaries', () => {
+  async function active() {
+    const fakes = ports(),
+      editor = new FakeEditor();
+    fakes.entry.picked = opened();
+    const session = new WritingSession(fakes.ports, editor, fakeClock());
+    await session.openPicked();
+    return { fakes, editor, session };
+  }
+
+  it.each(['version', 'hash', 'length'] as const)(
+    'refuses a stale %s capture before export',
+    async (field) => {
+      const { fakes, editor, session } = await active();
+      fakes.entry.destination = {
+        token: 'd',
+        storageRelation: 'sameFilesystem',
+      };
+      const before = editor.current;
+      editor.current = {
+        ...before,
+        ...(field === 'version'
+          ? { version: 0 }
+          : field === 'hash'
+            ? { sourceSha256: B }
+            : { source: [97, 97] }),
+      };
+      await expect(session.exportCopy()).rejects.toThrow(
+        'Editor changed during capture',
+      );
+      expect(fakes.ports.snapshots.copy).not.toHaveBeenCalled();
+      expect(session.active?.identity).toEqual(opened().identity);
+      session.dispose();
+    },
+  );
+
+  it.each(['version', 'hash', 'identity', 'bytes', 'fingerprint'] as const)(
+    'refuses mismatched Save As %s before adoption',
+    async (field) => {
+      const { fakes, editor, session } = await active();
+      fakes.saveAs.target = {
+        token: 't',
+        fileName: 'copy.fountain',
+        storageRelation: 'sameFilesystem',
+      };
+      const publish = fakes.ports.saveAs.saveAs;
+      fakes.ports.saveAs.saveAs = async (request) => {
+        const result = await publish(request);
+        if (field === 'version') result.version++;
+        if (field === 'hash') result.sourceSha256 = B;
+        if (field === 'identity') result.document.identity = opened().identity;
+        if (field === 'bytes') result.document.source = [98];
+        if (field === 'fingerprint')
+          result.document.fingerprint = fingerprint(1, B);
+        return result;
+      };
+      const before = editor.current;
+      await expect(session.saveAs()).rejects.toThrow(
+        'Save As registration does not match published bytes',
+      );
+      expect(editor.current).toBe(before);
+      expect(editor.loaded).toHaveLength(1);
+      expect(fakes.documents.released).toEqual([]);
+      expect(session.active?.identity).toEqual(opened().identity);
+      expect(editor.frozen).toBe(false);
+      session.dispose();
+    },
+  );
+
+  it.each(['identity', 'version', 'hash', 'length', 'name'] as const)(
+    'refuses mismatched export-copy %s without altering the session',
+    async (field) => {
+      const { fakes, editor, session } = await active();
+      fakes.entry.destination = {
+        token: 'd',
+        storageRelation: 'sameFilesystem',
+      };
+      const copy = fakes.ports.snapshots.copy;
+      fakes.ports.snapshots.copy = async (request) => {
+        const result = await copy(request);
+        if (field === 'identity') result.identity = freshIdentity();
+        if (field === 'version') result.version++;
+        if (field === 'hash') result.sourceSha256 = B;
+        if (field === 'length') result.byteLength++;
+        if (field === 'name') result.fileName = '';
+        return result;
+      };
+      const before = editor.current;
+      await expect(session.exportCopy()).rejects.toThrow(
+        'Export copy receipt does not match latest version',
+      );
+      expect(editor.current).toBe(before);
+      expect(session.cadenceStatus.fileSavedVersion).toBe(0);
+      expect(fakes.documents.released).toEqual([]);
+      session.dispose();
+    },
+  );
+
+  it.each(['version', 'hash'] as const)(
+    'refuses a mismatched prepared adoption %s before applying',
+    async (field) => {
+      const { editor, session } = await active();
+      const apply = vi.fn();
+      const before = editor.current;
+      await expect(
+        session.adoptExternalBytes([98], receiptFor(2, true), {
+          snapshot: {
+            ...before,
+            version: field === 'version' ? 3 : 2,
+            source: [98],
+            sourceSha256: field === 'hash' ? A : B,
+          },
+          apply,
+        }),
+      ).rejects.toThrow('Prepared replacement does not match the receipt');
+      expect(apply).not.toHaveBeenCalled();
+      expect(editor.current).toBe(before);
+      expect(session.cadenceStatus.fileSavedVersion).toBe(0);
+      session.dispose();
+    },
+  );
+
+  it.each(['version', 'hash'] as const)(
+    'refuses an editor that applies the wrong adoption %s',
+    async (field) => {
+      const { editor, session } = await active();
+      const applied = vi
+        .spyOn(editor, 'applySource')
+        .mockImplementation((source, version) =>
+          editor.sourceWas(
+            field === 'hash' ? [97] : source,
+            field === 'version' ? version + 1 : version,
+          ),
+        );
+      await expect(
+        session.adoptExternalBytes([98], receiptFor(2, true)),
+      ).rejects.toThrow(
+        'Adopted bytes did not land as the acknowledged live version',
+      );
+      expect(applied).toHaveBeenCalledTimes(1);
+      expect(session.cadenceStatus.fileSavedVersion).toBe(0);
+      expect(session.active?.fingerprint).toEqual(opened().fingerprint);
+      session.dispose();
+    },
+  );
+
+  it.each([
+    'null',
+    'documentId',
+    'sessionId',
+    'version',
+    'hash',
+    'length',
+    'kind',
+  ] as const)(
+    'refuses %s pre-destructive protection before calling replacement',
+    async (field) => {
+      const { fakes, editor, session } = await active();
+      fakes.ports.snapshots.create = async ({ checkpoint }) => {
+        if (field === 'null') return null;
+        const record = {
+          schemaVersion: 1 as const,
+          snapshotId: 'snapshot',
+          documentId: checkpoint.identity.documentId,
+          sessionId: checkpoint.identity.sessionId,
+          version: checkpoint.version,
+          sourceSha256: checkpoint.sourceSha256,
+          byteLength: checkpoint.source.length,
+          createdSeconds: 1,
+          kind: 'preDestructive' as const,
+          name: null,
+        };
+        return {
+          selection: { snapshotId: 'snapshot', recordSha256: A },
+          record: {
+            ...record,
+            ...(field === 'documentId'
+              ? { documentId: 'foreign' }
+              : field === 'sessionId'
+                ? { sessionId: 'foreign' }
+                : field === 'version'
+                  ? { version: 0 }
+                  : field === 'hash'
+                    ? { sourceSha256: B }
+                    : field === 'length'
+                      ? { byteLength: 2 }
+                      : { kind: 'rolling' as const }),
+          },
+        };
+      };
+      const replace = vi.fn(),
+        before = editor.current;
+      await expect(session.replaceFromNative(replace)).rejects.toThrow(
+        'Latest editor draft was not protected; replacement stopped',
+      );
+      expect(replace).not.toHaveBeenCalled();
+      expect(editor.current).toBe(before);
+      expect(editor.frozen).toBe(false);
+      session.dispose();
+    },
+  );
+
+  it.each([
+    'identity',
+    'version',
+    'hash',
+    'checkpointVersion',
+    'checkpointHash',
+    'token',
+  ] as const)('refuses a mismatched protected PDF %s', async (field) => {
+    const { fakes, editor, session } = await active();
+    const before = editor.current;
+    await expect(
+      session.captureForPdf(async (cp) => ({
+        identity: field === 'identity' ? freshIdentity() : cp.identity,
+        version: field === 'version' ? 2 : cp.version,
+        sourceSha256: field === 'hash' ? B : cp.sourceSha256,
+        captureToken: field === 'token' ? '' : 'capture',
+        checkpoint: {
+          identity: cp.identity,
+          version: field === 'checkpointVersion' ? 2 : cp.version,
+          sourceSha256: field === 'checkpointHash' ? B : cp.sourceSha256,
+          generation: 1,
+          protection: 'recoveryCheckpoint',
+        },
+      })),
+    ).rejects.toThrow('PDF capture does not match the protected version');
+    expect(fakes.ports.documents.checkpoint).toHaveBeenCalledTimes(1);
+    expect(editor.current).toBe(before);
+    expect(editor.frozen).toBe(false);
+    expect(session.cadenceStatus.fileSavedVersion).toBe(0);
+    session.dispose();
+  });
+
+  it('rejects foreign resolution identity before receipt adoption and thaws', async () => {
+    const { editor, session } = await active();
+    await expect(
+      session.resolveNative(async () => ({
+        identity: freshIdentity(),
+        observation: 'confirmedRecordMatchesSource' as const,
+        completed: receiptFor(1),
+        previousPreserved: true,
+      })),
+    ).rejects.toThrow('Resolution identity does not match the active session');
+    expect(editor.current.source).toEqual([97]);
+    expect(editor.frozen).toBe(false);
+    expect(session.cadenceStatus.fileSavedVersion).toBe(0);
+    session.dispose();
+  });
+});
+
+describe('AUDIT-TEST recovery composition', () => {
+  const selection = {
+    documentId: opened().identity.documentId,
+    origin: 'current' as const,
+    recordSha256: A,
+  };
+  async function recovering() {
+    const { unavailableRecovery } =
+      await import('../../src/application/startupRecovery');
+    const recovered = {
+      ...opened(),
+      identity: freshIdentity(),
+      kind: 'unsaved' as const,
+      persistentIdentity: false,
+      fingerprint: null,
+    };
+    const recovery: import('../../src/application/startupRecovery').RecoveryPort =
+      {
+        ...unavailableRecovery,
+        resume: vi.fn(async () => ({ document: recovered, draftMetadata: {} })),
+        inspect: vi.fn(async (identity) => ({
+          documentId: identity.documentId,
+          candidates: [
+            {
+              selection: { ...selection, documentId: identity.documentId },
+              sessionId: identity.sessionId,
+              version: 1,
+              generation: 1,
+              sourceSha256: A,
+              byteLength: 1,
+              encoding: 'utf8' as const,
+            },
+          ],
+          notices: [],
+          error: null,
+        })),
+      };
+    const fakes = ports({ recovery }),
+      editor = new FakeEditor();
+    return {
+      fakes,
+      editor,
+      recovery,
+      recovered,
+      session: new WritingSession(fakes.ports, editor, fakeClock()),
+    };
+  }
+
+  it('resumes with fresh identity at version 2 and confirms raw protection without touching the original', async () => {
+    const { fakes, editor, recovery, recovered, session } = await recovering();
+    await session.openRecovery(selection);
+    expect(recovery.resume).toHaveBeenCalledExactlyOnceWith(selection);
+    expect(session.active).toMatchObject({
+      identity: recovered.identity,
+      kind: 'unsaved',
+      liveVersion: 2,
+    });
+    expect(editor.current.source).toEqual([97]);
+    expect(fakes.ports.documents.checkpoint).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({
+        identity: recovered.identity,
+        version: 2,
+        source: [97],
+        expectedFingerprint: null,
+      }),
+    );
+    expect(session.cadenceStatus.journaledVersion).toBe(2);
+    expect(session.cadenceStatus.fileSavedVersion).toBe(0);
+    expect(fakes.ports.documents.save).not.toHaveBeenCalled();
+    expect(fakes.documents.released).toEqual([]);
+    session.dispose();
+  });
+
+  it.each([false, true])(
+    'preserves the resume protection failure when release fails: %s',
+    async (releaseFails) => {
+      const { fakes, editor, recovered, session } = await recovering();
+      vi.mocked(fakes.ports.documents.checkpoint).mockRejectedValueOnce(
+        new Error('checkpoint unavailable'),
+      );
+      if (releaseFails)
+        vi.mocked(fakes.ports.documents.release).mockRejectedValueOnce(
+          new Error('release unavailable'),
+        );
+      const opening = session.openRecovery(selection);
+      await expect(opening).rejects.toThrow(
+        'Resumed draft protection could not be confirmed; the original checkpoint remains preserved',
+      );
+      if (releaseFails) {
+        const failure = await opening.catch((error: unknown) => error);
+        expect(failure).toBeInstanceOf(AggregateError);
+        const aggregate = failure as AggregateError;
+        expect(aggregate.errors).toEqual([
+          expect.objectContaining({
+            message:
+              'Resumed draft protection could not be confirmed; the original checkpoint remains preserved',
+          }),
+          expect.objectContaining({ message: 'release unavailable' }),
+        ]);
+        expect(aggregate.cause).toBe(aggregate.errors[1]);
+      }
+      expect(fakes.ports.documents.release).toHaveBeenCalledExactlyOnceWith(
+        recovered.identity,
+      );
+      expect(fakes.ports.documents.save).not.toHaveBeenCalled();
+      expect(session.active).toBeNull();
+      expect(editor.current.source).toEqual([97]);
+      session.dispose();
+    },
+  );
+
+  it.each(['resume', 'inspect', 'capture'] as const)(
+    'releases a resumed registration disposed during %s without flushing',
+    async (stage) => {
+      const { fakes, editor, recovery, recovered, session } =
+        await recovering();
+      let finish!: () => void;
+      const pending = new Promise<void>((resolve) => {
+        finish = resolve;
+      });
+      const reached = vi.fn();
+      if (stage === 'resume') {
+        recovery.resume = async () => {
+          reached();
+          await pending;
+          return { document: recovered, draftMetadata: {} };
+        };
+      } else if (stage === 'inspect') {
+        const inspect = recovery.inspect;
+        recovery.inspect = async (identity) => {
+          reached();
+          await pending;
+          return inspect(identity);
+        };
+      } else {
+        editor.capture = async () => {
+          reached();
+          await pending;
+          return editor.current;
+        };
+      }
+      const opening = session.openRecovery(selection);
+      await vi.waitFor(() => expect(reached).toHaveBeenCalled());
+      session.dispose();
+      finish();
+      await expect(opening).resolves.toBeUndefined();
+      expect(session.active).toBeNull();
+      expect(fakes.ports.documents.release).toHaveBeenCalledExactlyOnceWith(
+        recovered.identity,
+      );
+      expect(fakes.ports.documents.checkpoint).not.toHaveBeenCalled();
+      expect(fakes.ports.documents.save).not.toHaveBeenCalled();
+      expect(editor.loaded).toHaveLength(stage === 'capture' ? 1 : 0);
+    },
+  );
+
+  it('rejects foreign recovery inspection before loading and releases only that registration', async () => {
+    const { fakes, editor, recovery, recovered, session } = await recovering();
+    recovery.inspect = async () => ({
+      documentId: selection.documentId,
+      candidates: [],
+      notices: [],
+      error: null,
+    });
+    await expect(session.openRecovery(selection)).rejects.toThrow(
+      'Recovery identity does not match the selected document',
+    );
+    expect(editor.loaded).toEqual([]);
+    expect(session.active).toBeNull();
+    expect(fakes.ports.documents.release).toHaveBeenCalledExactlyOnceWith(
+      recovered.identity,
+    );
+    expect(fakes.ports.documents.checkpoint).not.toHaveBeenCalled();
+    session.dispose();
+  });
+});

@@ -1,4 +1,5 @@
 import { expect, it, vi } from 'vitest';
+import { createHash } from 'node:crypto';
 import type {
   CheckpointReceipt,
   CheckpointRequest,
@@ -261,4 +262,162 @@ it('rejects stale/foreign/false metadata observations and blocks a real external
   expect(controller.observeSource(base, change)).toBe(true);
   expect(controller.state.externalChange).toBe(true);
   expect(controller.state.fileSavedVersion).toBe(0);
+});
+
+// AUDIT-TEST: out-of-band receipts must not clear a blocked baseline on faith.
+it.each([
+  'foreign',
+  'malformed',
+  'readOnly',
+  'pending',
+  'live',
+  'older',
+] as const)(
+  'refuses %s resolved baseline without changing protection state',
+  async (kind) => {
+    const native = port(),
+      hold = deferred<SaveReceipt>();
+    native.save = vi.fn(() => hold.promise);
+    const initial =
+      kind === 'readOnly'
+        ? {
+            ...opened(),
+            ownership: {
+              status: 'viewOnly' as const,
+              reasons: ['alreadyOwned' as const],
+            },
+          }
+        : opened();
+    const controller = new PersistenceController(initial, native);
+    controller.changed(snapshot(21));
+    if (kind === 'older') controller.adoptReceipt(snapshot(21), receiptFor(21));
+    controller.changed(snapshot(22, true));
+    let saving: Promise<SaveReceipt> | undefined;
+    if (kind === 'pending') saving = controller.save(snapshot(22, true));
+    else
+      controller.observeSource(controller.state.fingerprint!, {
+        identity,
+        status: 'changed',
+        fingerprint: fingerprintForChange(),
+        source: [98],
+      });
+    const value = {
+      ...receiptFor(kind === 'live' ? 22 : kind === 'older' ? 20 : 21),
+      ...(kind === 'foreign'
+        ? { identity: { ...identity, handle: 'foreign' } }
+        : kind === 'malformed'
+          ? { protection: 'wrong' }
+          : {}),
+    };
+    const before = controller.state;
+    expect(() =>
+      controller.adoptResolvedBaseline(value as SaveReceipt),
+    ).toThrow('Invalid resolved baseline receipt');
+    expect(controller.state).toBe(before);
+    if (saving) {
+      hold.resolve(receiptFor(22, true));
+      await saving;
+    }
+  },
+);
+function fingerprintForChange() {
+  return receiptFor(22, true).fingerprint;
+}
+
+it.each(['version', 'hash', 'length'] as const)(
+  'rejects %s mismatch in an adoption snapshot without save credit',
+  (field) => {
+    const controller = new PersistenceController(opened(), port());
+    controller.changed(snapshot(21));
+    const before = controller.state;
+    expect(() =>
+      controller.adoptReceipt(
+        {
+          ...snapshot(21),
+          ...(field === 'version'
+            ? { version: 20 }
+            : field === 'hash'
+              ? { sourceSha256: B }
+              : { source: [97, 97] }),
+        },
+        receiptFor(21),
+      ),
+    ).toThrow('Snapshot does not match current document version');
+    expect(controller.state).toBe(before);
+  },
+);
+
+it('rejects an otherwise matching adoption while a native save is pending', async () => {
+  const native = port(),
+    hold = deferred<SaveReceipt>();
+  native.save = vi.fn(() => hold.promise);
+  const controller = new PersistenceController(opened(), native);
+  controller.changed(snapshot(21));
+  const saving = controller.save(snapshot(21)),
+    before = controller.state;
+  expect(() => controller.adoptReceipt(snapshot(21), receiptFor(21))).toThrow(
+    'Persistence operations still pending',
+  );
+  expect(controller.state).toBe(before);
+  expect(controller.state.fileSavedVersion).toBe(0);
+  hold.resolve(receiptFor(21));
+  await saving;
+});
+
+it.each(['version', 'hash', 'length'] as const)(
+  'refuses %s stale submissions without dispatch or queue state',
+  async (field) => {
+    const native = port(),
+      controller = new PersistenceController(opened(), native);
+    controller.changed(snapshot(21));
+    const before = controller.state;
+    await expect(
+      controller.save({
+        ...snapshot(21),
+        ...(field === 'version'
+          ? { version: 20 }
+          : field === 'hash'
+            ? { sourceSha256: B }
+            : { source: [97, 97] }),
+      }),
+    ).rejects.toThrow('Snapshot does not match current document version');
+    expect(controller.state).toBe(before);
+    expect(native.save).not.toHaveBeenCalled();
+    expect(native.checkpoint).not.toHaveBeenCalled();
+  },
+);
+
+it('bounds queued bytes independently of the job count, then frees the budget', async () => {
+  const native = port(),
+    hold = deferred<CheckpointReceipt>();
+  native.checkpoint = vi.fn(() => hold.promise);
+  const controller = new PersistenceController(opened(), native);
+  // Each source is half the budget; JSON metadata makes two queued jobs overflow.
+  const large = {
+    ...snapshot(21),
+    source: Array<number>(16 * 1024 * 1024).fill(0),
+    sourceSha256: createHash('sha256')
+      .update(new Uint8Array(16 * 1024 * 1024))
+      .digest('hex'),
+    draftMetadata: {},
+  };
+  controller.changed(large);
+  const first = controller.checkpoint(large),
+    before = controller.state;
+  await expect(controller.checkpoint(large)).rejects.toThrow(
+    'Persistence queue full',
+  );
+  expect(controller.state).toBe(before);
+  await Promise.resolve();
+  expect(native.checkpoint).toHaveBeenCalledTimes(1);
+  hold.resolve({
+    identity,
+    version: 21,
+    sourceSha256: large.sourceSha256,
+    generation: 1,
+    protection: 'recoveryCheckpoint',
+  });
+  await first;
+  await controller.checkpoint(large);
+  expect(native.checkpoint).toHaveBeenCalledTimes(2);
 });

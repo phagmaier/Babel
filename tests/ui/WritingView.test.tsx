@@ -1937,3 +1937,395 @@ it.each([false, true])(
     expect(document.querySelectorAll('.find-highlight')).toHaveLength(0);
   },
 );
+
+// AUDIT-TEST: real view/editor glue, with explicit injected native receipts.
+function auditDocument(source: string): OpenDocument {
+  const bytes = Array.from(new TextEncoder().encode(source));
+  return {
+    ...opened(),
+    source: bytes,
+    fingerprint: {
+      ...fingerprint(),
+      sha256: createHash('sha256').update(source).digest('hex'),
+      byteLength: bytes.length,
+    },
+  };
+}
+function auditReceipt(
+  version: number,
+  source: readonly number[],
+  id = identity,
+) {
+  const hash = createHash('sha256')
+    .update(Uint8Array.from(source))
+    .digest('hex');
+  return {
+    ...receiptFor(version),
+    identity: id,
+    sourceSha256: hash,
+    fingerprint: { ...fingerprint(version, hash), byteLength: source.length },
+    recovery: {
+      ...receiptFor(version).recovery,
+      identity: id,
+      sourceSha256: hash,
+    },
+  };
+}
+async function auditView(
+  ports: WritingPorts,
+  open: Parameters<typeof WritingView>[0]['open'] = { kind: 'picked' },
+) {
+  const mount = vi.spyOn(editorMount, 'mountScreenplayEditor');
+  render(<WritingView ports={ports} open={open} onSessionClosed={vi.fn()} />);
+  await screen.findByLabelText('Screenplay actions');
+  await waitFor(() =>
+    expect(
+      screen.getByRole('button', { name: 'Find' }).hasAttribute('disabled'),
+    ).toBe(false),
+  );
+  return mount.mock.results.at(-1)!
+    .value as import('prosemirror-view').EditorView;
+}
+
+it('AUDIT-TEST WritingView opens a resumed draft at version 2 and protects the fresh identity', async () => {
+  const { ports } = fixturePorts({});
+  const selected = {
+    documentId: identity.documentId,
+    origin: 'current' as const,
+    recordSha256: A,
+  };
+  const fresh = {
+    ...identity,
+    handle: '44444444-4444-4444-8444-444444444444',
+    documentId: '55555555-5555-4555-8555-555555555555',
+  };
+  const document = {
+    ...auditDocument('!Resumed\n'),
+    identity: fresh,
+    kind: 'unsaved' as const,
+    persistentIdentity: false,
+    fingerprint: null,
+  };
+  ports.recovery.resume = vi.fn(async () => ({ document, draftMetadata: {} }));
+  ports.recovery.inspect = async (id) => ({
+    documentId: id.documentId,
+    candidates: [
+      {
+        selection: { ...selected, documentId: id.documentId },
+        sessionId: id.sessionId,
+        version: 1,
+        generation: 1,
+        sourceSha256: createHash('sha256')
+          .update(Uint8Array.from(document.source))
+          .digest('hex'),
+        byteLength: document.source.length,
+        encoding: 'utf8',
+      },
+    ],
+    notices: [],
+    error: null,
+  });
+  const checkpoint = vi.spyOn(ports.documents, 'checkpoint'),
+    save = vi.spyOn(ports.documents, 'save');
+  const view = await auditView(ports, {
+    kind: 'recovered',
+    selection: selected,
+  });
+  expect(ports.recovery.resume).toHaveBeenCalledExactlyOnceWith(selected);
+  expect(editorVersion(view.state)).toBe(2);
+  expect([...captureEditor(view.state).source]).toEqual(document.source);
+  expect(checkpoint).toHaveBeenCalledWith(
+    expect.objectContaining({
+      identity: fresh,
+      version: 2,
+      source: document.source,
+      expectedFingerprint: null,
+    }),
+  );
+  expect(save).not.toHaveBeenCalled();
+});
+
+it('AUDIT-TEST WritingView replace-one advances, replace-all is one Undo step, composition refuses', async () => {
+  const original = '.INT. ROOM - DAY\n\n!moon **moon** moon\n';
+  const { ports } = fixturePorts({ picked: auditDocument(original) });
+  const view = await auditView(ports);
+  fireEvent.click(screen.getByRole('button', { name: 'Find' }));
+  fireEvent.change(await screen.findByLabelText('Find text'), {
+    target: { value: 'moon' },
+  });
+  await screen.findByText('3 matches.');
+  fireEvent.click(screen.getByRole('button', { name: 'Next match' }));
+  fireEvent.change(screen.getByLabelText('Replace with'), {
+    target: { value: 'sun' },
+  });
+  const match = screen.getByRole('button', { name: 'Replace match' });
+  await waitFor(() => expect(match.hasAttribute('disabled')).toBe(false));
+  const before = view.state;
+  Object.defineProperty(view, 'composing', { configurable: true, value: true });
+  fireEvent.click(match);
+  expect(view.state).toBe(before);
+  expect(
+    screen.getByText(/Replacement is unavailable for this version/),
+  ).toBeTruthy();
+  Reflect.deleteProperty(view, 'composing');
+  fireEvent.click(match);
+  await screen.findByText(/2 matches/);
+  expect(new TextDecoder().decode(captureEditor(view.state).source)).toBe(
+    '.INT. ROOM - DAY\n\n!sun **moon** moon\n',
+  );
+  await waitFor(() =>
+    expect(
+      view.state.selection.$head.parent.textContent.slice(
+        view.state.selection.$head.parentOffset,
+      ),
+    ).toContain('moon'),
+  );
+  const one = view.state,
+    oneSource = [...captureEditor(one).source];
+  const all = screen.getByRole('button', { name: 'Replace all' });
+  await waitFor(() => expect(all.hasAttribute('disabled')).toBe(false));
+  fireEvent.click(all);
+  await waitFor(() =>
+    expect(new TextDecoder().decode(captureEditor(view.state).source)).toBe(
+      '.INT. ROOM - DAY\n\n!sun **sun** sun\n',
+    ),
+  );
+  expect(new TextDecoder().decode(captureEditor(view.state).source)).toBe(
+    '.INT. ROOM - DAY\n\n!sun **sun** sun\n',
+  );
+  expect(undoDepth(view.state)).toBe(undoDepth(one) + 1);
+  fireEvent.keyDown(view.dom, { key: 'z', ctrlKey: true });
+  await waitFor(() =>
+    expect([...captureEditor(view.state).source]).toEqual(oneSource),
+  );
+  expect(view.state.selection.eq(one.selection)).toBe(true);
+  fireEvent.keyDown(view.dom, { key: 'z', ctrlKey: true });
+  await waitFor(() =>
+    expect(new TextDecoder().decode(captureEditor(view.state).source)).toBe(
+      original,
+    ),
+  );
+});
+
+it('AUDIT-TEST WritingView Check script navigates without edits, refuses composition and refreshes after an edit', async () => {
+  const original = '.INT. ROOM - DAY\n\n@ORPHAN\n';
+  const { ports } = fixturePorts({ picked: auditDocument(original) });
+  const view = await auditView(ports);
+  fireEvent.click(screen.getByRole('button', { name: 'Script Check' }));
+  const go = await screen.findByRole('button', { name: 'Go to issue' });
+  await waitFor(() => expect(go.hasAttribute('disabled')).toBe(false));
+  const before = view.state,
+    depth = undoDepth(before);
+  Object.defineProperty(view, 'composing', { configurable: true, value: true });
+  fireEvent.click(go);
+  expect(view.state).toBe(before);
+  Reflect.deleteProperty(view, 'composing');
+  fireEvent.click(go);
+  expect(view.state.selection.$head.parent.type.name).toBe('character');
+  expect(document.activeElement).toBe(view.dom);
+  expect([...captureEditor(view.state).source]).toEqual([
+    ...captureEditor(before).source,
+  ]);
+  // Selection is draft metadata and may advance its version; source and Undo stay intact.
+  expect(view.state.doc).toBe(before.doc);
+  expect(undoDepth(view.state)).toBe(depth);
+  view.dispatch(
+    view.state.tr.insertText(
+      'NEW',
+      view.state.selection.$head.start(),
+      view.state.selection.$head.end(),
+    ),
+  );
+  await screen.findByText(/stale, refresh to recompute/);
+  expect(
+    screen
+      .getByRole('button', { name: 'Go to issue' })
+      .hasAttribute('disabled'),
+  ).toBe(true);
+  fireEvent.click(screen.getByRole('button', { name: 'Refresh check' }));
+  await screen.findByText('Cue “NEW” has no dialogue.');
+  expect(
+    screen
+      .getByRole('button', { name: 'Go to issue' })
+      .hasAttribute('disabled'),
+  ).toBe(false);
+  fireEvent.click(screen.getByRole('button', { name: 'Go to issue' }));
+  expect(view.state.selection.$head.parent.textContent).toBe('NEW');
+  fireEvent.keyDown(view.dom, { key: 'z', ctrlKey: true });
+  await waitFor(() =>
+    expect(new TextDecoder().decode(captureEditor(view.state).source)).toBe(
+      original,
+    ),
+  );
+});
+
+it.each([false, true])(
+  'AUDIT-TEST WritingView prepared Restore protects first and handles adoption failure: %s',
+  async (adoptionFails) => {
+    const original = '.INT. ROOM - DAY\n\n!Draft\n',
+      restored = Array.from(
+        new TextEncoder().encode('.EXT. NEW - NIGHT\n\n!Snapshot\n'),
+      );
+    const { ports } = fixturePorts({
+      picked: auditDocument(original),
+      candidates: true,
+    });
+    const entry = await ports.snapshots.create({
+      checkpoint: {
+        identity,
+        version: 1,
+        source: restored,
+        sourceSha256: auditReceipt(1, restored).sourceSha256,
+        expectedFingerprint: fingerprint(),
+        draftMetadata: {},
+      },
+      kind: 'named',
+      name: 'Saved version',
+    });
+    ports.snapshots.list = async () => ({
+      entries: [entry!],
+      sourceBytes: restored.length,
+      needsAttention: false,
+      unresolvedArtifacts: 0,
+      orphanBlobs: 0,
+      atLimit: false,
+    });
+    const order: string[] = [],
+      create = ports.snapshots.create;
+    ports.snapshots.create = vi.fn(async (request) => {
+      order.push('protect');
+      return create(request);
+    });
+    ports.snapshots.read = vi.fn(async () => {
+      order.push('read');
+      return { entry: entry!, source: restored };
+    });
+    const pending = deferred<void>();
+    let restoreRequest:
+      Parameters<typeof ports.snapshots.restore>[0] | undefined;
+    ports.snapshots.restore = vi.fn(async (request) => {
+      order.push('restore');
+      restoreRequest = request;
+      await pending.promise;
+      return auditReceipt(request.newVersion, restored);
+    });
+    const resolve = vi.spyOn(ports.choices, 'resolve');
+    ports.documents.save = vi.fn(async (request) =>
+      auditReceipt(request.version, request.source),
+    );
+    const view = await auditView(ports),
+      before = view.state;
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Restore previous version' }),
+    );
+    await waitFor(() =>
+      expect(ports.snapshots.restore).toHaveBeenCalledTimes(1),
+    );
+    expect(order).toEqual(['protect', 'read', 'restore']);
+    expect(ports.snapshots.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        kind: 'preDestructive',
+        checkpoint: expect.objectContaining({
+          source: [...captureEditor(before).source],
+          version: editorVersion(before),
+        }),
+      }),
+    );
+    expect(restoreRequest!.replacementMetadata).toBeDefined();
+    // An independently mounted recovery choice must not enter native resolve while restore owns the lock.
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Resolve Interrupted Save' }),
+    );
+    await screen.findByText(/Resolve did not complete/);
+    expect(resolve).not.toHaveBeenCalled();
+    if (adoptionFails)
+      view.updateState(
+        view.state.apply(
+          view.state.tr.setSelection(TextSelection.create(view.state.doc, 2)),
+        ),
+      );
+    pending.resolve();
+    if (adoptionFails) {
+      await screen.findByText(
+        /Protection failed or its result could not be confirmed/,
+      );
+      expect([...captureEditor(view.state).source]).toEqual([
+        ...captureEditor(before).source,
+      ]);
+      expect(undoDepth(view.state)).toBe(undoDepth(before));
+      expect(screen.queryByText(/Restored as new version/)).toBeNull();
+      // Simulate the native conflict after installation; no new baseline is invented.
+      ports.documents.save = vi.fn(async (request) => {
+        throw {
+          identity: request.identity,
+          version: request.version,
+          error: { code: 'sourceChanged', action: 'reopenOrSaveCopy' },
+          replacement: 'sourceUnchanged',
+          recovery: null,
+        };
+      });
+      fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+      await waitFor(() => expect(ports.documents.save).toHaveBeenCalled());
+      expect(
+        vi.mocked(ports.documents.save).mock.calls[0]![0].expectedFingerprint,
+      ).toEqual(auditDocument(original).fingerprint);
+      await waitFor(() =>
+        expect(
+          screen.getByRole('region', { name: 'Protection status' }).textContent,
+        ).toContain('External change detected'),
+      );
+    } else {
+      await screen.findByText(/Restored as new version/);
+      expect([...captureEditor(view.state).source]).toEqual(restored);
+      expect(editorVersion(view.state)).toBe(restoreRequest!.newVersion);
+      expect(undoDepth(view.state)).toBe(undoDepth(before) + 1);
+      fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+      await waitFor(() => expect(ports.documents.save).toHaveBeenCalled());
+      expect(
+        vi.mocked(ports.documents.save).mock.calls[0]![0].expectedFingerprint,
+      ).toEqual(auditReceipt(restoreRequest!.newVersion, restored).fingerprint);
+      await waitFor(() =>
+        expect(
+          screen.getByRole('button', { name: 'Save' }).hasAttribute('disabled'),
+        ).toBe(false),
+      );
+      fireEvent.keyDown(view.dom, { key: 'z', ctrlKey: true });
+      await waitFor(() =>
+        expect([...captureEditor(view.state).source]).toEqual([
+          ...captureEditor(before).source,
+        ]),
+      );
+      expect(view.state.selection.eq(before.selection)).toBe(true);
+    }
+  },
+);
+
+it.each([false, true])(
+  'AUDIT-TEST WritingView resolves exact native receipts, refusing foreign identity: %s',
+  async (foreign) => {
+    const { ports } = fixturePorts({ picked: opened(), candidates: true });
+    ports.choices.resolve = vi.fn(async () => ({
+      identity: foreign ? { ...identity, handle: 'foreign' } : identity,
+      observation: 'confirmedRecordMatchesSource' as const,
+      completed: receiptFor(2),
+      previousPreserved: true,
+    }));
+    const save = vi.spyOn(ports.documents, 'save');
+    const view = await auditView(ports),
+      before = view.state;
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Resolve Interrupted Save' }),
+    );
+    if (foreign) await screen.findByText(/Resolve did not complete/);
+    else await screen.findByText(/An interrupted save was confirmed/);
+    expect(view.state.doc).toBe(before.doc);
+    expect(view.state.selection.eq(before.selection)).toBe(true);
+    expect(undoDepth(view.state)).toBe(undoDepth(before));
+    expect(ports.choices.resolve).toHaveBeenCalledExactlyOnceWith(identity);
+    fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await waitFor(() => expect(save).toHaveBeenCalled());
+    expect(save.mock.calls[0]![0].expectedFingerprint).toEqual(
+      foreign ? opened().fingerprint : receiptFor(2).fingerprint,
+    );
+  },
+);

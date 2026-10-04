@@ -204,3 +204,19 @@ describe('read-only startup recovery review', () => {
     ).toBeTruthy();
   });
 });
+
+it('AUDIT-TEST resumes the exact reviewed selection as a new draft without adopting preview bytes', async () => {
+  const onResume = vi.fn(),
+    preview = vi.fn(async () => result());
+  render(
+    <RecoveryReview
+      port={{ list: async () => catalog, preview }}
+      onResume={onResume}
+    />,
+  );
+  fireEvent.click(
+    await screen.findByRole('button', { name: /Resume as new draft/ }),
+  );
+  expect(onResume).toHaveBeenCalledExactlyOnceWith(candidate.selection);
+  expect(preview).not.toHaveBeenCalled();
+});

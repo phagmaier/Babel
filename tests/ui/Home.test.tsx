@@ -254,3 +254,52 @@ describe('M4-02 Home (injected native ports)', () => {
     await waitFor(() => expect(screen.queryByText(entry.fileName)).toBeNull());
   });
 });
+
+it('AUDIT-TEST Home routes Resume as new draft with the exact recovery selection', async () => {
+  const selected = {
+    documentId: 'draft',
+    origin: 'previous' as const,
+    recordSha256: 'a'.repeat(64),
+  };
+  const onOpen = vi.fn();
+  render(
+    <Home
+      native
+      result={null}
+      recents={port()}
+      recovery={{
+        ...unavailableRecovery,
+        list: async () => ({
+          entries: [
+            {
+              documentId: selected.documentId,
+              candidates: [
+                {
+                  selection: selected,
+                  sessionId: 'session',
+                  version: 1,
+                  generation: 1,
+                  sourceSha256: 'b'.repeat(64),
+                  byteLength: 1,
+                  encoding: 'utf8',
+                },
+              ],
+              notices: [],
+              error: null,
+            },
+          ],
+          truncated: false,
+          unrecognizedArtifacts: 0,
+        }),
+      }}
+      onOpen={onOpen}
+    />,
+  );
+  fireEvent.click(
+    await screen.findByRole('button', { name: /Resume as new draft/ }),
+  );
+  expect(onOpen).toHaveBeenCalledExactlyOnceWith({
+    kind: 'recovered',
+    selection: selected,
+  });
+});

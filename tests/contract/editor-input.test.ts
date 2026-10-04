@@ -324,3 +324,56 @@ describe('inline emphasis and whole-source import provenance', () => {
     expect(source(state)).toBe('!old\n');
   });
 });
+
+it.each([
+  {
+    name: 'mid-row caret',
+    original: '!Alpha Omega\n',
+    row: 0,
+    start: 6,
+    endRow: 0,
+    end: 6,
+    expected: '!Alpha \n!one\n!two\n!Omega\n',
+  },
+  {
+    name: 'row start',
+    original: '!Alpha Omega\n',
+    row: 0,
+    start: 0,
+    endRow: 0,
+    end: 0,
+    expected: '!one\n!two\n!Alpha Omega\n',
+  },
+  {
+    name: 'partial cross-row selection',
+    original: '!Alpha tail\n!head Omega\n',
+    row: 0,
+    start: 6,
+    endRow: 1,
+    end: 5,
+    expected: '!Alpha \n!one\n!two\n!Omega\n',
+  },
+])(
+  'AUDIT-TEST structured paste retains text at $name with exact Undo/Redo',
+  ({ original, row, start, endRow, end, expected }) => {
+    const from = createEditorState(bytes('!one\n!two\n'));
+    const copied = copyEditorSelection(select(from, 0, 0, 3, 1));
+    const before = select(
+      createEditorState(bytes(original)),
+      row,
+      start,
+      end,
+      endRow,
+    );
+    const pasted = apply(
+      before,
+      pasteEditorContent(before, copied).transaction,
+    );
+    expect(source(pasted)).toBe(expected);
+    const undone = hist(pasted);
+    expect(source(undone)).toBe(original);
+    expect(undone.selection.eq(before.selection)).toBe(true);
+    expect(source(hist(undone, redo))).toBe(expected);
+    expect(source(before)).toBe(original);
+  },
+);

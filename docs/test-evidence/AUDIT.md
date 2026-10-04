@@ -349,3 +349,53 @@ are JSDOM/browser evidence; no native WebKit/editor/input timing claim. Direct
 helper tests and native publication resource checks cover rendering/integrity;
 no shared-keyboard GUI drill/full integrated matrix for this cluster. C1/F2,
 M6-02 disposition and Local v1 admission remain open. Stop after C356.
+
+## AUDIT-TEST — Wave 2 regression gaps
+
+Date: 2026-10-03. Base `fb7d6bd`, clean main at claim. Authorized continuation
+from Wave 1; [brief](../tasks/AUDIT-TEST.md). Node 26.7.0, pnpm 11.22.0,
+Rust 1.97.1 and host Enchant 2.8.21 verified. Tier 2 frontend/session change;
+frozen audit, earlier failures/cores, fixtures and PDF goldens preserved.
+
+- Initial `pnpm exec vitest run tests/contract/writing-session.test.ts tests/contract/persistence-controller.test.ts` — injected-port/JSDOM expected **red 4/100**, 4.21s: disposed resume/inspect/capture dereferences null cadence; release rejection replaces protection error. `/tmp/babel-audit-test-initial.log`. Both parked T-03 observations reproduced before production edit; no native loss finding inferred.
+- Initial editor-input/Script Check focused run — test-harness **fail 1/32**, same-byte cross-realm Uint8Array comparison; corrected to explicit byte arrays, no expected-byte change. `/tmp/babel-audit-test-input-initial.log`.
+- Initial WritingView focused runs — test-harness **fail**, incorrect mount return shape/button/status labels, click before replace freshness, automatic check refresh expectation and assumption selection cannot advance draft metadata. Corrected to real view API, fresh enabled controls, explicit Refresh check and unchanged doc/source/Undo assertions. `/tmp/babel-audit-test-view-{initial,rerun,rerun2,final-focus,focus-corrected}.log`; `/tmp/babel-audit-test-replace-rerun.log`.
+- Initial/final-in-progress typecheck — test-fixture **fail**, used route kind `recovered` as native document kind and widened literal types. Corrected to actual native resumed `unsaved` registration and typed literals; `/tmp/babel-audit-test-types.log`; corrected typecheck **pass**, `/tmp/babel-audit-test-types-final.log`.
+- `pnpm exec vitest run tests/contract/writing-session.test.ts tests/contract/persistence-controller.test.ts tests/contract/editor-input.test.ts tests/contract/script-check.test.ts tests/ui/Home.test.tsx tests/ui/RecoveryReview.test.tsx` — injected-port/JSDOM/codec **pass 148/148**, 3.21s, before fixture type corrections; `/tmp/babel-audit-test-contracts.log`.
+- `pnpm exec vitest run tests/ui/WritingView.test.tsx -t AUDIT-TEST` — injected-port/JSDOM **pass 7/7**, 4.73s: recovered route, replace-one/all and composition refusal, Check/Go to/stale Refresh, prepared restore/lock/Undo/adoption failure, resolve identity/baseline; `/tmp/babel-audit-test-view-focus-final.log`. Later strengthened adoption-failure next Save to inject sourceChanged instead of fake success; final full focused check below.
+- `python3 tools/audit-test-mutations.py target/audit-test/mutations` — in-memory fault injection **pass 25/25 detected**, 71.193s summed child elapsed: eight named session guards plus resolution identity, five controller guards, paste prefix/suffix, SC002/SC004, prepared restore/resolve adoption, replace-one/all/check navigation, Resume button/Home routing. Each fresh process records transformed-module load and real failed test assertions; import/compile errors do not count. Production files never written; JSON/config/raw logs under `target/audit-test/mutations/`, `/tmp/babel-audit-test-mutations.log`.
+- First full seven-file focused rerun — test-fixture **fail 1/188**, 14.68s: one stale expected `recovered` native kind remained after typing corrected it to `unsaved`; assertion corrected to the native contract, `/tmp/babel-audit-test-focused.log`.
+
+T-08 remainder: the existing tracked canonical runner was already exercised by
+[AUDIT-C356's full-selector tmpfs/Btrfs matrix](#audit-c356--literal-escapes-selinux-metadata-and-advisory-highlights),
+277/277 each; this closes the tracker condition "first Tier 3 run". No older M6
+selector claim is rewritten and no new two-filesystem run is claimed here.
+Coverage remains injected-port/JSDOM/codec, with generic browser smoke below;
+no trusted IME, real native restore failure/cleanup, package or target-host gate.
+Native disk/IPC/packaging code is unchanged, so no Tier 3/native drill or repeated
+PDF corpus/package run is required. The original recovery stays preserved;
+native release retries and duplicate persisted draft entries remain outside this
+frontend task. C1/F2, enforcing SELinux, M6-02 and Local v1 admission remain open.
+
+- `pnpm exec vitest run` with the seven focused files above — injected-port/JSDOM/codec **pass 188/188**, 15.17s; `/tmp/babel-audit-test-focused-final.log`. Includes strengthened post-restore sourceChanged refusal after editor adoption failure; this is simulated native behavior, not a real filesystem/crash claim.
+- First `pnpm check` — **fail** at lint, 12.914s: `preserve-caught-error` requires nested cleanup as the AggregateError cause. Corrected cause chain, retaining both errors and the original protection message; `/tmp/babel-audit-test-check.{log,json}`. No rule disabled.
+- Final `pnpm check` — JSDOM/shared static/build **pass 914/914** across 65 files, 64.194s, **66 added tests**; formatting/lint/typecheck/production Vite build pass. Existing JSDOM scrollBy notices and bundle-size advisory retained; `/tmp/babel-audit-test-check-final.{log,json}`.
+- `CARGO_HOME=/tmp/babel-cargo RUSTUP_TOOLCHAIN=1.97.1 cargo fmt --all -- --check` — **pass**, 0.472s; `cargo clippy --workspace --all-targets --locked --offline -- -D warnings` — native/static **pass**, 5.365s; `/tmp/babel-audit-test-{rust-format,clippy}.{log,json}`.
+- Same environment `cargo test --workspace --locked --offline` — actual native/filesystem + MockRuntime shared **pass 277/277**, 61.553s, single default filesystem; `/tmp/babel-audit-test-workspace.{log,json}`. Native publication/recovery/restore/lease suites unchanged; no helper build overlapped it, no second-filesystem claim.
+- `gh run view 37162233268 --json status,conclusion,headSha,url` — actual prior documentation CI **pass** at exact `fb7d6bd5bf034458afd950d5f9632382b6d5b99b`; [run](https://github.com/phagmaier/Babel/actions/runs/37162233268), `/tmp/babel-audit-test-prior-ci.json`. This is the pre-task checkout, not CI for AUDIT-TEST.
+- Read-only inspection of `target/audit-c356/workspace/workspace-{tmpfs,btrfs}.json` — **pass**, exit 0 and all 16 selectors (including open and M2 exit) retained, tmpfs 109.538s/Btrfs 155.014s; validates T-08's prior completed runner evidence, not a new run.
+
+- Final `python3 tools/audit-test-mutations.py target/audit-test/mutations-final` — unmodified injected-port/JSDOM **control pass 188/188**, 16.206s, then **25/25 faults detected**, 70.998s summed child elapsed. Strengthened runner requires the passing control before mutation; each mutant is an in-memory transform, production files remain unchanged. Complete control/config/load-marker/report/raw-log artifacts retained in the new root; `/tmp/babel-audit-test-mutations-final.log`.
+- `pnpm test:browser` — generic headless Chromium smoke **pass**, 12.187s; `/tmp/babel-audit-test-browser.{log,json}`. No shared mouse/keyboard, native IPC or trusted composition claim.
+- `python3 -m py_compile tools/audit-test-mutations.py` — **pass**; runner executable path also verified by both recorded runs.
+
+Acceptance complete: **66 added tests** and the two directly reproduced frontend
+resume corrections. All eight named session guards and the controller/structured
+paste/report mappings are covered; the mutation tool is tracked and repeatable.
+No existing assertions were weakened and no production mutation was persisted.
+Work remains local on main for review; no new CI result or push claimed.
+Stop after AUDIT-TEST; Wave 3 is unstarted. Native release retries and duplicate
+persisted draft entries remain separate follow-ups; enforcing SELinux, C1/F2,
+M6-02 and Local v1 admission stay open.
+
+- Completion `pnpm format:check`, `python3 tools/check-links.py` (**165 changed links; final handoff compression rerun 164**) and `git diff --check` — **pass**; `/tmp/babel-audit-test-final-format-check.log`, `/tmp/babel-audit-test-final-links.log`, final reruns `/tmp/babel-audit-test-last-{format-check,links}.log`. Handoff stays bounded (92 lines / 8,116 bytes); frozen audit, byte-sensitive fixtures, accepted goldens, native sources and dependency files have no diff.

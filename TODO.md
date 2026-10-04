@@ -57,7 +57,7 @@ How to pick work: the next unchecked `[ ]` box below is the task. Read its brief
 ### Wave 0 — unblockers
 
 - [x] **Tier 1 debloat** (S-14 stale refs, `docs/index.md` stub, TODO collapse, tracked link/matrix tools, `target/` prune) — Evidence: Tier 1 commit `433c150`.
-- [x] **T-08 (half)** — canonical matrix runner + link checker now tracked (`tools/run-workspace-matrix.py`, `tools/check-links.py`).
+- [x] **T-08** — canonical matrix runner + link checker tracked (`tools/run-workspace-matrix.py`, `tools/check-links.py`); first full-selector Tier 3 matrix completed in AUDIT-C356, closure recorded in [AUDIT-TEST evidence](docs/test-evidence/AUDIT.md#audit-test--wave-2-regression-gaps).
 - [x] **AUDIT-W0** (T-02 CI red, S-15 crate types, S-13 dead symbols) — [Brief](docs/tasks/AUDIT-W0.md). [Evidence](docs/test-evidence/AUDIT.md#audit-w0--ci-gate-desktop-crate-types-dead-symbols): original Tier 2 local pass; first pushed native CI exposed the Enchant 2.3.3 ABI prerequisite, tracked in W0-R1 below.
 - [x] **AUDIT-W0-R1** — [Brief](docs/tasks/AUDIT-W0-R1.md). [Evidence](docs/test-evidence/AUDIT.md#audit-w0-r1--enchant-ci-abi-prerequisite): Enchant >=2.4 build guard, pinned 2.8.21/Hunspell CI prefix and groff prerequisite; [actual CI green](https://github.com/phagmaier/Babel/actions/runs/37157598075) at `49129df`, native workspace 275/275 and package build. Local frontend 844/844, matrix 275/275 each and offline spellcheck 2/2 strict; failures retained, C1/F2 unchanged.
 
@@ -75,9 +75,11 @@ How to pick work: the next unchecked `[ ]` box below is the task. Read its brief
 - [x] **AUDIT-C04** — [Brief](docs/tasks/AUDIT-C04.md). [Evidence](docs/test-evidence/AUDIT.md#audit-c04--a-caret-move-no-longer-rewrites-the-manuscript): Tier 3, tmpfs/Btrfs matrix 268/268 and native lifecycle drill on both; one unreproduced Btrfs publication-cache failure retained there.
 - [x] **AUDIT-D01** — [Brief](docs/tasks/AUDIT-D01.md). [Evidence](docs/test-evidence/AUDIT.md#audit-d01--portable-enter-separators-and-explicit-speechbreak-authoring): Tier 2, separator Enter and inherited speech continuation, Shift+Enter/dual codec wiring; mocked/JSDOM + browser smoke, no native scene/PDF oracle.
 - [x] **AUDIT-D08A** — [Brief](docs/tasks/AUDIT-D08A.md). [Evidence](docs/test-evidence/AUDIT.md#audit-d08a--protected-external-reload): protected explicit Reload, focus/periodic checks, metadata re-anchor; workspace 275/275 each and actual WebKit 2/2 strict on tmpfs/Btrfs; retained failures, C1/F2 unchanged.
-- [x] **AUDIT-C356** — [Brief](docs/tasks/AUDIT-C356.md). [Evidence](docs/test-evidence/AUDIT.md#audit-c356--literal-escapes-selinux-metadata-and-advisory-highlights): literal escape encoder/frozen renderer, exact SELinux xattr-name exemption and independent Find/check highlights; frontend 848/848, workspace 277/277 each tmpfs/Btrfs, helper 13/13 and offline packaged escapes 2/2, unchanged 22 golden pages, default package/browser/static pass. Enforcing SELinux/Fedora unverified; C1/F2 unchanged. Stop here; Wave 2 unstarted.
+- [x] **AUDIT-C356** — [Brief](docs/tasks/AUDIT-C356.md). [Evidence](docs/test-evidence/AUDIT.md#audit-c356--literal-escapes-selinux-metadata-and-advisory-highlights): literal escape encoder/frozen renderer, exact SELinux xattr-name exemption and independent Find/check highlights; frontend 848/848, workspace 277/277 each tmpfs/Btrfs, helper 13/13 and offline packaged escapes 2/2, unchanged 22 golden pages, default package/browser/static pass. Enforcing SELinux/Fedora unverified; C1/F2 unchanged. Wave 1 completion boundary satisfied.
 
-### Wave 2 — test gaps (approved as AUDIT-TEST; draft when Wave 1 completes)
+### Wave 2 — test gaps (approved as AUDIT-TEST)
+
+- [x] **AUDIT-TEST** — [Brief](docs/tasks/AUDIT-TEST.md). [Evidence](docs/test-evidence/AUDIT.md#audit-test--wave-2-regression-gaps): 66 added regressions, disposed-resume cancellation and preserved protection/cleanup errors; frontend 914/914, focused 188/188, mutation faults 25/25 detected, workspace 277/277, shared static/build/browser pass. Injected-port/JSDOM; native safety gates unchanged. Stop here; Wave 3 unstarted.
 
 T-03 (resume path, ~20-line composition), T-04 (8 `WritingSession` guard tests), T-05 (persistence-controller receipt validation), T-09 (structured-paste prefix/suffix), T-06 (replace/check sessions), T-07 (restore/resolve via WritingView), T-10 (SC002/SC004 mappings). All S; batch in dependency order. T-08 remainder (link checker is tracked; matrix-runner selector fix is in the tool) closes with first Tier 3 run.
 
