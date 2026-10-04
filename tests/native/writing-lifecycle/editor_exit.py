@@ -324,7 +324,7 @@ def audit_fixes(d):
     resume = d.find(f"//li[./h3[normalize-space(.)='Draft {record['documentId']}']]/ul/li[p[contains(.,'generation {record['generation']} ·')]]//button[normalize-space(.)='Resume as new draft']")
     d.command('POST', f'/element/{resume}/click', {})
     d.wait(lambda: d.editor_text() == 'Unsaved checkpoint survives.', 'Full selected checkpoint resumed')
-    d.wait(lambda: 'Recovery: journaled version 0.' not in d.body() and 'Protect draft' in d.body(), 'Fresh resumed draft protection acknowledged')
+    d.wait(lambda: d.recovery_ready() and 'Protect draft' in d.body(), 'Fresh resumed draft exact positive protection acknowledged')
     saved = d.ROOT / 'files/resumed.fountain'
     d.click('Save As',actions=True);d.picker(saved);d.audit(saved,expected)
     d.close_session();d.click('Open Fountain',actions=True);d.picker(saved)
@@ -386,7 +386,7 @@ def review_capture(d):
     assert facts['rows'][1]['text'] == '(sof' and facts['rows'][2]['text'] == 'tly)', facts
     assert 'Changes pending' in facts['protection'] and 'only in memory' in facts['protection'], facts
     assert target.read_bytes() == original
-    d.click('Close session', actions=True); d.click('Retry save and close')
+    d.click('Close session', actions=True)
     d.wait(lambda: 'Close stopped.' in d.body(), 'Uncapturable draft prevents close')
     d.click('Select copy destination', actions=True); d.picker(d.ROOT / 'copies')
     d.wait(lambda: d.script("return [...document.querySelectorAll('button')].find(b=>b.textContent.trim()==='Save Emergency Copy and close')?.disabled === false;"), 'Copy destination selected')

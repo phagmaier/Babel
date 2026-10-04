@@ -108,7 +108,7 @@ def run(d):
             d.audit(retained, original)
         assert d.editor_text() == 'Live.Original path-loss source.'
         if case == 'deleted':
-            d.click('Close session', actions=True); d.click('Retry save and close')
+            d.click('Close session', actions=True)
             d.wait(lambda: 'Close stopped.' in d.body(), 'Path-loss close retry remains stopped')
             d.click('Select copy destination', actions=True); d.picker(d.ROOT / 'copies')
             d.wait(lambda: d.script("return [...document.querySelectorAll('button')].find(b=>b.textContent.trim()==='Save Emergency Copy and close')?.disabled===false;"), 'Emergency destination selected')

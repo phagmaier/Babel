@@ -114,6 +114,11 @@ Opening controls wait for initial capture/protection to settle. Source-ownership
 refusal opens read-only and points to Save As for a writable copy.
 
 Home in the writing actions invokes existing protected close and lease release.
+The header shows the receipt-derived save status, with version/recovery/source/
+snapshot facts under Save details. Snapshot attention and changes only in memory
+remain visible alerts. File-backed/read-only Close session, Home/Open and native
+window close automatically attempt the protected close. Untitled drafts ask
+before recovery-only close; Keep writing dismisses the prompt and allows Save As.
 Only completed release returns to Home; source/recovery/lease failure preserves
 the editor and retry/copy/risk controls. Open while writing keeps the same close
 gate. Home entry choices are serialized by the mounted route; stale native opens

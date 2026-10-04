@@ -1,6 +1,7 @@
 import { TextSelection } from 'prosemirror-state';
 /** M3-12 writing surface: open/edit/save/close flows with injected ports. */
 import {
+  act,
   cleanup,
   fireEvent,
   render,
@@ -29,6 +30,9 @@ import {
   receipt,
 } from '../contract/persistence-fixtures';
 
+vi.mock('@tauri-apps/api/event', () => ({ listen: vi.fn() }));
+vi.mock('@tauri-apps/api/window', () => ({ getCurrentWindow: vi.fn() }));
+
 const originalRangeLayout = ['getClientRects', 'getBoundingClientRect'].map(
   (name) =>
     [name, Object.getOwnPropertyDescriptor(Range.prototype, name)] as const,
@@ -48,6 +52,7 @@ beforeEach(() => {
 });
 afterEach(() => {
   cleanup();
+  Reflect.deleteProperty(window, '__TAURI_INTERNALS__');
   window.localStorage.removeItem('babel.positions.v1');
   vi.restoreAllMocks();
   for (const [name, descriptor] of originalRangeLayout) {
@@ -378,7 +383,7 @@ describe('M3-12 writing surface', () => {
     },
   );
 
-  it('opens a draft, protects it explicitly, and reports four distinct protection facts', async () => {
+  it('opens a draft, protects it explicitly, and exposes separate protection facts', async () => {
     const { ports, calls } = fixturePorts({});
     const closed = vi.fn();
     render(
@@ -396,12 +401,7 @@ describe('M3-12 writing surface', () => {
     );
     const status = await screen.findByText(/Recovery: journaled/);
     const section = status.closest('section')!;
-    for (const label of [
-      'Recovery:',
-      'Source file:',
-      'Snapshots:',
-      'History',
-    ]) {
+    for (const label of ['Recovery:', 'Source file:', 'Snapshots:']) {
       expect(section.textContent).toContain(label);
     }
     fireEvent.click(protect);
@@ -470,7 +470,7 @@ describe('M3-12 writing surface', () => {
       within(actions).getByRole('button', { name: 'Close session' }),
     );
     fireEvent.click(
-      await screen.findByRole('button', { name: 'Retry save and close' }),
+      await screen.findByRole('button', { name: 'Close and keep recovery' }),
     );
     await waitFor(() => expect(closed).toHaveBeenCalled());
     expect(calls.checkpoint).toBeGreaterThan(0);
@@ -616,7 +616,7 @@ describe('M3-12 writing surface', () => {
     );
     fireEvent.click(screen.getByRole('button', { name: 'Close session' }));
     expect(document.activeElement).toBe(
-      await screen.findByRole('button', { name: 'Retry save and close' }),
+      await screen.findByRole('button', { name: 'Close and keep recovery' }),
     );
   });
 
@@ -690,9 +690,10 @@ describe('M3-12 writing surface', () => {
     });
     await waitFor(
       () =>
-        expect(screen.getByText(/Recovery: journaled/).textContent).toContain(
-          'Saved locally',
-        ),
+        expect(
+          within(screen.getByLabelText('Protection status')).getByRole('status')
+            .textContent,
+        ).toBe('Saved locally'),
       { timeout: 4000 },
     );
     expect(screen.getByLabelText('Fountain screenplay to import')).toBe(staged);
@@ -758,7 +759,7 @@ describe('M4-02 Home entry and switching', () => {
     };
     fireEvent.click(screen.getByRole('button', { name: 'Home' }));
     fireEvent.click(
-      await screen.findByRole('button', { name: 'Retry save and close' }),
+      await screen.findByRole('button', { name: 'Close and keep recovery' }),
     );
     await screen.findByText(/Close stopped\./);
     expect(closed).not.toHaveBeenCalled();
@@ -1305,8 +1306,8 @@ it('M4-10 toggles presentation without remounting or saving; failure retains set
     target: { value: 'light' },
   });
   expect(document.documentElement.dataset.theme).toBe('dark');
-  expect(screen.getByRole('alert').textContent).toContain(
-    'could not be stored',
+  expect(screen.getByText(/could not be stored/).getAttribute('role')).toBe(
+    'alert',
   );
   fireEvent.click(screen.getByRole('button', { name: 'Exit focus mode' }));
   expect(document.querySelector('.writing-focus')).toBeTruthy();
@@ -1411,8 +1412,6 @@ it('restores a hash/identity-bound UI selection, clears unrelated hints after ex
   );
   await waitFor(() => expect(f.calls.saved.length).toBeGreaterThan(0));
   fireEvent.click(screen.getByRole('button', { name: 'Close session' }));
-  await screen.findByRole('button', { name: 'Retry save and close' });
-  fireEvent.click(screen.getByRole('button', { name: 'Retry save and close' }));
   await waitFor(() => expect(closed).toHaveBeenCalled());
   expect(window.localStorage.getItem(positionStorageKey)).toBe(
     'corrupt retained hints',
@@ -1587,6 +1586,9 @@ it('M4-14 palette navigation rechecks its frame and preserves source/Undo, while
   );
   expect(view.state.selection.eq(selection)).toBe(true);
   expect(f.calls.saved).toHaveLength(0);
+  f.ports.documents.save = async () => {
+    throw { code: 'io' };
+  };
   fireEvent.click(screen.getByRole('button', { name: 'Home' }));
   await screen.findByRole('button', { name: 'Retry save and close' });
   expect(
@@ -1642,11 +1644,15 @@ it('AUDIT-C02: a capture-failure alert clears once the draft captures again', as
   const start =
     view.state.doc.child(0).nodeSize + view.state.doc.child(1).nodeSize + 1;
   view.dispatch(view.state.tr.insertText('x', start));
-  expect((await screen.findByRole('alert')).textContent).toContain(
-    'Parenthetical must be wrapped',
-  );
+  expect(
+    (await screen.findByText(/Parenthetical must be wrapped/)).getAttribute(
+      'role',
+    ),
+  ).toBe('alert');
   view.dispatch(view.state.tr.delete(start, start + 1));
-  await waitFor(() => expect(screen.queryByRole('alert')).toBeNull());
+  await waitFor(() =>
+    expect(screen.queryByText(/Parenthetical must be wrapped/)).toBeNull(),
+  );
   expect(new TextDecoder().decode(captureEditor(view.state).source)).toBe(
     source,
   );
@@ -2396,7 +2402,10 @@ it.each([
     await waitFor(() =>
       expect(region.textContent).toContain('Live version 21.'),
     );
-    const text = within(region).getByRole('status').textContent!;
+    expect(within(region).getByRole('status').textContent).toBe(sample.status);
+    const details = region.querySelector('details')!;
+    expect(details.open).toBe(false);
+    const text = details.textContent!;
     expect(text).toContain(
       `Recovery: journaled version ${sample.journaledVersion}.`,
     );
@@ -2412,9 +2421,285 @@ it.each([
         : `last rolling version ${sample.lastRollingVersion}`,
     );
     expect(
-      text.includes(
-        'Newer changes exist only in memory until protection is confirmed.',
-      ),
+      within(region)
+        .queryAllByRole('alert')
+        .some(
+          (alert) =>
+            alert.textContent ===
+            'Newer changes exist only in memory until protection is confirmed.',
+        ),
     ).toBe(sample.onlyInMemory);
   },
 );
+
+// AUDIT-D06: mounted routing must preserve the coordinator's exact protection gate.
+it('AUDIT-D06 automatically closes a file only after exact save and release, rejecting duplicate requests', async () => {
+  const f = fixturePorts({ picked: opened() });
+  const saved = deferred<void>(),
+    released = deferred<void>();
+  f.ports.documents.save = vi.fn(async (request) => {
+    await saved.promise;
+    return receiptFor(request.version, request.sourceSha256 === B);
+  });
+  f.ports.documents.release = vi.fn(() => released.promise);
+  const closed = vi.fn(),
+    next = vi.fn();
+  render(
+    <WritingView
+      ports={f.ports}
+      open={{ kind: 'picked' }}
+      onSessionClosed={closed}
+      onOpenRequested={next}
+    />,
+  );
+  const actions = await screen.findByLabelText('Screenplay actions');
+  const editor = document.querySelector<HTMLElement>('.ProseMirror')!;
+  fireEvent.click(
+    within(actions).getByRole('button', { name: 'Close session' }),
+  );
+  fireEvent.click(within(actions).getByRole('button', { name: 'Home' }));
+  await waitFor(() => expect(f.ports.documents.save).toHaveBeenCalledOnce());
+  expect(
+    screen.queryByRole('button', { name: 'Retry save and close' }),
+  ).toBeNull();
+  expect(editor.getAttribute('contenteditable')).toBe('false');
+  expect(f.ports.documents.release).not.toHaveBeenCalled();
+  expect(closed).not.toHaveBeenCalled();
+  saved.resolve();
+  await waitFor(() => expect(f.ports.documents.release).toHaveBeenCalledOnce());
+  expect(closed).not.toHaveBeenCalled();
+  released.resolve();
+  await waitFor(() => expect(closed).toHaveBeenCalledOnce());
+  expect(next).not.toHaveBeenCalled();
+});
+
+it.each(['stale receipt', 'release failure'] as const)(
+  'AUDIT-D06 retains the editor on automatic close %s and Keep writing permits edits',
+  async (failure) => {
+    const f = fixturePorts({ picked: opened() });
+    if (failure === 'stale receipt')
+      f.ports.documents.save = vi.fn(async () => receiptFor(0));
+    else
+      f.ports.documents.release = vi.fn(async () => {
+        throw { code: 'io' };
+      });
+    const closed = vi.fn();
+    render(
+      <WritingView
+        ports={f.ports}
+        open={{ kind: 'picked' }}
+        onSessionClosed={closed}
+      />,
+    );
+    await screen.findByLabelText('Screenplay actions');
+    const editor = document.querySelector<HTMLElement>('.ProseMirror')!;
+    fireEvent.click(screen.getByRole('button', { name: 'Close session' }));
+    await screen.findByText(/Close stopped\./);
+    expect(
+      screen.getByRole('button', { name: 'Retry save and close' }),
+    ).toBeTruthy();
+    expect(closed).not.toHaveBeenCalled();
+    expect(document.querySelector('.ProseMirror')).toBe(editor);
+    expect(editor.getAttribute('contenteditable')).toBe('true');
+    fireEvent.click(
+      within(
+        screen.getByRole('region', { name: 'Close document safely' }),
+      ).getByRole('checkbox'),
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Keep writing' }));
+    expect(
+      screen.queryByRole('button', { name: 'Close with this risk' }),
+    ).toBeNull();
+    expect(
+      (screen.getByRole('button', { name: 'Save' }) as HTMLButtonElement)
+        .disabled,
+    ).toBe(false);
+    fireEvent.paste(editor, {
+      clipboardData: {
+        getData: (type: string) => (type === 'text/plain' ? 'retained ' : ''),
+      },
+    });
+    await waitFor(() => expect(editor.textContent).toContain('retained '));
+    expect(document.activeElement).toBe(editor);
+  },
+);
+
+it('AUDIT-D06 untitled close requires a choice and cancellation clears an Open request', async () => {
+  const f = fixturePorts({}),
+    closed = vi.fn(),
+    next = vi.fn();
+  render(
+    <WritingView
+      ports={f.ports}
+      open={{ kind: 'new' }}
+      onSessionClosed={closed}
+      onOpenRequested={next}
+    />,
+  );
+  await screen.findByRole('button', { name: 'Protect draft' });
+  const before = f.calls.checkpoint;
+  fireEvent.click(screen.getByRole('button', { name: 'Run Open' }));
+  const keep = await screen.findByRole('button', { name: 'Keep writing' });
+  expect(screen.getByText(/This draft has no Fountain file/)).toBeTruthy();
+  expect(f.calls.checkpoint).toBe(before);
+  expect(f.calls.released).toBe(0);
+  fireEvent.click(keep);
+  fireEvent.click(screen.getByRole('button', { name: 'Close session' }));
+  fireEvent.click(
+    await screen.findByRole('button', { name: 'Close and keep recovery' }),
+  );
+  await waitFor(() => expect(closed).toHaveBeenCalledOnce());
+  expect(next).not.toHaveBeenCalled();
+  expect(f.calls.released).toBe(1);
+  expect(f.calls.checkpoint).toBeGreaterThan(before);
+});
+
+it('AUDIT-D06 read-only close releases automatically without a source save', async () => {
+  const f = fixturePorts({
+    picked: {
+      ...opened(),
+      ownership: { status: 'viewOnly', reasons: ['alreadyOwned'] },
+    },
+  });
+  const closed = vi.fn();
+  render(
+    <WritingView
+      ports={f.ports}
+      open={{ kind: 'picked' }}
+      onSessionClosed={closed}
+    />,
+  );
+  await screen.findByLabelText('Screenplay actions');
+  fireEvent.click(screen.getByRole('button', { name: 'Home' }));
+  await waitFor(() => expect(closed).toHaveBeenCalledOnce());
+  expect(f.calls.saved).toHaveLength(0);
+  expect(f.calls.released).toBe(1);
+  expect(
+    screen.queryByRole('button', { name: 'Retry save and close' }),
+  ).toBeNull();
+});
+
+it('AUDIT-D06 presents a plain status, closed save details and separate protection alerts', async () => {
+  const f = fixturePorts({ picked: opened() });
+  vi.spyOn(SaveCadence.prototype, 'describe').mockReturnValue({
+    liveVersion: 21,
+    status: 'Saved locally',
+    journaledVersion: 21,
+    fileSavedVersion: 21,
+    snapshotAttention: true,
+    lastRollingVersion: 19,
+  });
+  vi.spyOn(ProtectedClose.prototype, 'assessment', 'get').mockReturnValue({
+    phase: 'editing',
+    liveVersion: 21,
+    sourceProtected: false,
+    recoveryProtected: false,
+    onlyInMemory: true,
+    message: '',
+  });
+  render(
+    <WritingView
+      ports={f.ports}
+      open={{ kind: 'picked' }}
+      onSessionClosed={vi.fn()}
+    />,
+  );
+  await screen.findByLabelText('Screenplay actions');
+  const region = screen.getByRole('region', { name: 'Protection status' });
+  expect(within(region).getByRole('status').textContent).toBe('Saved locally');
+  const details = region.querySelector('details')!;
+  expect(details.open).toBe(false);
+  expect(details.textContent).toContain('Recovery: journaled version 21.');
+  expect(details.textContent).toContain('saved version 21');
+  expect(
+    within(region)
+      .getAllByRole('alert')
+      .map((el) => el.textContent),
+  ).toEqual(
+    expect.arrayContaining([
+      'Snapshots need attention.',
+      'Newer changes exist only in memory until protection is confirmed.',
+    ]),
+  );
+});
+
+async function nativeCloseRequest() {
+  const events = await import('@tauri-apps/api/event');
+  const windows = await import('@tauri-apps/api/window');
+  const { nativeCommands } =
+    await import('../../src/infrastructure/nativeCommands');
+  Object.defineProperty(window, '__TAURI_INTERNALS__', {
+    configurable: true,
+    value: {},
+  });
+  let request: (() => void) | undefined;
+  vi.mocked(events.listen).mockImplementation(async (name, callback) => {
+    if (name === 'protected-close-requested')
+      request = () => callback({ event: name, id: 1, payload: null as never });
+    return vi.fn<() => void>();
+  });
+  vi.spyOn(nativeCommands, 'listen').mockResolvedValue(vi.fn<() => void>());
+  vi.spyOn(nativeCommands, 'publish').mockResolvedValue();
+  const closeWindow = vi.fn(async () => {});
+  vi.mocked(windows.getCurrentWindow).mockReturnValue({
+    close: closeWindow,
+  } as unknown as ReturnType<typeof windows.getCurrentWindow>);
+  return {
+    request: async () => {
+      await waitFor(() => expect(request).toBeDefined());
+      await act(async () => request!());
+    },
+    closeWindow,
+  };
+}
+
+it('AUDIT-D06 native window requests wait for source and release once, without redirecting Home', async () => {
+  const native = await nativeCloseRequest(),
+    f = fixturePorts({ picked: opened() });
+  const pending = deferred<void>();
+  f.ports.documents.save = vi.fn(async (request) => {
+    await pending.promise;
+    return receiptFor(request.version, request.sourceSha256 === B);
+  });
+  const closed = vi.fn();
+  render(
+    <WritingView
+      ports={f.ports}
+      open={{ kind: 'picked' }}
+      onSessionClosed={closed}
+    />,
+  );
+  await screen.findByLabelText('Screenplay actions');
+  await native.request();
+  await native.request();
+  await waitFor(() => expect(f.ports.documents.save).toHaveBeenCalledOnce());
+  expect(f.calls.released).toBe(0);
+  expect(native.closeWindow).not.toHaveBeenCalled();
+  await act(async () => pending.resolve());
+  await waitFor(() => expect(native.closeWindow).toHaveBeenCalledOnce());
+  expect(f.calls.released).toBe(1);
+  expect(closed).not.toHaveBeenCalled();
+});
+
+it('AUDIT-D06 cancelled untitled window close clears its destination before Home close', async () => {
+  const native = await nativeCloseRequest(),
+    f = fixturePorts({}),
+    closed = vi.fn();
+  render(
+    <WritingView
+      ports={f.ports}
+      open={{ kind: 'new' }}
+      onSessionClosed={closed}
+    />,
+  );
+  await screen.findByRole('button', { name: 'Protect draft' });
+  await native.request();
+  expect(f.calls.released).toBe(0);
+  fireEvent.click(await screen.findByRole('button', { name: 'Keep writing' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Home' }));
+  fireEvent.click(
+    await screen.findByRole('button', { name: 'Close and keep recovery' }),
+  );
+  await waitFor(() => expect(closed).toHaveBeenCalledOnce());
+  expect(native.closeWindow).not.toHaveBeenCalled();
+});

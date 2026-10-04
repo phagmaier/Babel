@@ -208,6 +208,7 @@ export function WritingView({
   const readyRef = useRef(false);
   const adoptingRef = useRef(false);
   const windowCloseRef = useRef(false);
+  const closeRequestedRef = useRef(false);
   const operationRef = useRef(false);
   const pendingSwitchRef = useRef(false);
   const sessionRef = useRef<WritingSession | null>(null);
@@ -217,11 +218,15 @@ export function WritingView({
   const [error, setError] = useState('');
   const [active, setActive] = useState<ActiveInfo | null>(null);
   const [status, setStatus] = useState('');
+  const [saveDetails, setSaveDetails] = useState('');
+  const [snapshotAttention, setSnapshotAttention] = useState(false);
+  const [onlyInMemory, setOnlyInMemory] = useState(false);
   const [showExternal, setShowExternal] = useState(false);
   const [externalNotice, setExternalNotice] = useState('');
   const externalSeenRef = useRef('');
   const [live, setLive] = useState<CapturedSnapshot | null>(null);
   const [showClose, setShowClose] = useState(false);
+  const [closeWorking, setCloseWorking] = useState(false);
   const [paletteRequested, requestPalette] = useState(0);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [commandComposing, setCommandComposing] = useState(false);
@@ -370,17 +375,17 @@ export function WritingView({
     try {
       setActive(session.active);
       const described = session.cadenceStatus;
-      setStatus(
+      setStatus(described.status);
+      setSnapshotAttention(described.snapshotAttention);
+      setOnlyInMemory(session.close.assessment.onlyInMemory);
+      setSaveDetails(
         `Live version ${described.liveVersion}. Recovery: journaled version ${described.journaledVersion}. ` +
           `Source file: ${described.status} (saved version ${described.fileSavedVersion}). ` +
           `Snapshots: ${described.snapshotAttention ? 'need attention' : 'healthy'}` +
           (described.lastRollingVersion !== null
             ? `, last rolling version ${described.lastRollingVersion}`
             : ', no rolling snapshot yet') +
-          '. History: timeline is not available yet.' +
-          (session.close.assessment.onlyInMemory
-            ? ' Newer changes exist only in memory until protection is confirmed.'
-            : ''),
+          '.',
       );
     } catch {
       // Session retired; the closing path owns the UI from here.
@@ -1082,21 +1087,7 @@ export function WritingView({
     let stop: (() => void) | undefined;
     if ('__TAURI_INTERNALS__' in window) {
       void listen('protected-close-requested', () => {
-        if (alive) {
-          if (exportRef.current?.busy) {
-            setError('Finish or cancel PDF export before closing the window.');
-            return;
-          }
-          if (titleDraftRef.current || titleComposingRef.current) {
-            setError(
-              'Apply or Discard the uncommitted title input before closing the window.',
-            );
-            return;
-          }
-          windowCloseRef.current = true;
-          retainClosingPosition();
-          setShowClose(true);
-        }
+        if (alive) requestClose(false, true);
       }).then(
         (stopListening) => {
           if (alive) stop = stopListening;
@@ -1290,7 +1281,31 @@ export function WritingView({
     }
   };
 
-  const requestClose = (switching = false) => {
+  const finishClose = (session: WritingSession) => {
+    if (sessionRef.current !== session || !session.active) return;
+    positionRemember.current(true);
+    session.finishClose();
+    setShowClose(false);
+    closeRequestedRef.current = false;
+    if (windowCloseRef.current) {
+      void getCurrentWindow()
+        .close()
+        .catch(() =>
+          setError(
+            'The document is protected, but the window could not close. Try closing again.',
+          ),
+        );
+    } else if (pendingSwitchRef.current && onOpenRequested) onOpenRequested();
+    else onSessionClosed();
+  };
+
+  const requestClose = (switching = false, windowClose = false) => {
+    const session = sessionRef.current;
+    if (closeRequestedRef.current) return;
+    if (!readyRef.current || !session?.active || operationRef.current) {
+      setError('Close waits until the current writing action finishes.');
+      return;
+    }
     if (exportRef.current?.busy) {
       setError('Finish or cancel PDF export before leaving this screenplay.');
       return;
@@ -1301,9 +1316,28 @@ export function WritingView({
       );
       return;
     }
+    closeRequestedRef.current = true;
+    windowCloseRef.current = windowClose;
     pendingSwitchRef.current = switching;
     retainClosingPosition();
     setShowClose(true);
+    if (!session.active.fingerprint && !session.active.readOnly) return;
+    operationRef.current = true;
+    setCloseWorking(true);
+    setBusy(true);
+    void session.close
+      .retry()
+      .then(() => finishClose(session))
+      .catch(() => {
+        // ProtectedClose owns the persistent exact-protection assessment.
+        // Its failure path thaws the retained editor; no automatic risk choice.
+      })
+      .finally(() => {
+        operationRef.current = false;
+        setBusy(false);
+        setCloseWorking(false);
+        refresh();
+      });
   };
 
   const reportOutcome = (outcome: { status: string; fileName?: string }) => {
@@ -1799,8 +1833,22 @@ export function WritingView({
           }
         />
         <section aria-label="Protection status">
-          <p role="status">{status || 'Protection status unavailable.'}</p>
+          <p role="status">
+            {closeWorking
+              ? 'Closing safely…'
+              : status || 'Protection status unavailable.'}
+          </p>
+          {snapshotAttention && <p role="alert">Snapshots need attention.</p>}
+          {onlyInMemory && (
+            <p role="alert">
+              Newer changes exist only in memory until protection is confirmed.
+            </p>
+          )}
           {error && <p role="alert">{error}</p>}
+          <details>
+            <summary>Save details</summary>
+            <p>{saveDetails}</p>
+          </details>
         </section>
       </div>
       <CommandSurface
@@ -2023,27 +2071,20 @@ export function WritingView({
       )}
       {hosts}
 
-      {session && session.active && showClose && (
+      {session && session.active && showClose && !closeWorking && (
         <ProtectedClosePanel
           close={session.close}
-          statusToken={`${active?.liveVersion}:${status}`}
+          untitled={!session.active.fingerprint && !session.active.readOnly}
+          statusToken={`${active?.liveVersion}:${saveDetails}:${onlyInMemory}`}
           destination={copyDestination ?? undefined}
-          onClosed={() => {
+          onCancel={() => {
+            closeRequestedRef.current = false;
+            windowCloseRef.current = false;
+            pendingSwitchRef.current = false;
             setShowClose(false);
-            positionRemember.current(true);
-            session.finishClose();
-            if (windowCloseRef.current) {
-              void getCurrentWindow()
-                .close()
-                .catch(() =>
-                  setError(
-                    'The document is protected, but the window could not close. Try closing again.',
-                  ),
-                );
-            } else if (pendingSwitchRef.current && onOpenRequested)
-              onOpenRequested();
-            else onSessionClosed();
+            viewRef.current?.focus();
           }}
+          onClosed={() => finishClose(session)}
         />
       )}
       {active && !active.readOnly && checkpoint && (

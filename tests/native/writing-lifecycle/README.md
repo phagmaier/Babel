@@ -817,3 +817,23 @@ inode/bytes, exact old-draft snapshot and safety-revision bytes, one-step Undo a
 later Save, dirty Keep editing and explicit protected Reload, then protected close.
 Set `BABEL_SHUTDOWN_MODE=ordinary` to retain owned process/phase/exit observations;
 content checks alone do not clear the retained C1/F2 shutdown gate.
+
+## AUDIT-D06 plain status and protected close
+
+The default lifecycle (`integrated_exit.py --modes recovery-shutdown`) now also
+runs `status_close.py`: genuine owned compositor window-close requests over an
+untitled draft and a file-backed source, Keep writing cancellation, explicit
+recovery-only close, a plain receipt-derived status, closed Save details,
+ordinary protected window exit, writable reopen and independent BOM/CRLF/draft
+byte oracles. No mocked native port or new production command is introduced.
+The existing corpus/Undo/selection/copy/risk and shutdown oracles remain intact.
+
+```sh
+BABEL_SHUTDOWN_MODE=ordinary python3 tests/native/writing-lifecycle/integrated_exit.py /tmp "$PWD/target" --output target/audit-d06/native --modes recovery-shutdown home characters editor-exit capture-review commands persistence-paths
+```
+
+Use the existing isolated IME launcher for editor-exit. Commands/F6 has a retained
+frozen-baseline failure; failed roots/ordinary-close attempts and fallback forced
+teardown must remain visible. The separate plain-presentation runner covers its
+AT-SPI protected-close expectation; it is not full IME/geometry acceptance.
+See [D-06 evidence](../../../docs/test-evidence/AUDIT.md#audit-d06--plain-status-and-failure-only-close-prompts).

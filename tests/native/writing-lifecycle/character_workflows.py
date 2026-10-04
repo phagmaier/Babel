@@ -48,7 +48,7 @@ def run(d):
         # Programmatic production close activation avoids WebDriver scrolling
         # the offscreen Close session button before viewport capture.
         d.script("[...document.querySelectorAll('[aria-label=\"Screenplay actions\"] button')].find(b=>b.textContent==='Close session').click();")
-        d.wait(lambda:'Close document safely' in d.body(),'Protection panel');d.click('Retry save and close');d.wait(lambda:'Start writing' in d.body(),'Protected close completed')
+        d.wait(lambda:'Start writing' in d.body(),'Automatic protected close completed');assert 'Close document safely' not in d.body()
         print('CLOSE HINTS',stored(),flush=True)
         d.command('DELETE',''); d.SESSION=None; d.new_session(); d.script("window.positionScrolls=[];const base=window.scrollBy.bind(window);window.scrollBy=(...args)=>{window.positionScrolls.push({args,header:document.querySelector('.writing-presentation')?.getBoundingClientRect().bottom,scroll:scrollY,row:document.querySelectorAll('.ProseMirror > p')[184]?.getBoundingClientRect().top});return base(...args);};"); open_file(target,False)
 

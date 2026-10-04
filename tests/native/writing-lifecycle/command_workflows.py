@@ -126,9 +126,9 @@ def run(d):
     # Programmatic existing Close control simulates an application interruption
     # while inert; native protection/release still run through production IPC.
     d.script("[...document.querySelectorAll('[aria-label=\"Screenplay actions\"] button')].find(b=>b.textContent==='Close session').click();")
-    d.wait(lambda:d.script("return !document.querySelector('.command-palette') && document.activeElement?.textContent==='Retry save and close';"),'Protection review retires palette and owns focus')
-    d.click('Retry save and close'); d.wait(lambda:'Start writing' in d.body(),'Protected native close to Home')
-    report.append('programmatic production Close interrupts modal; current protection Retry owns focus; native protection/release keeps exact bytes')
+    d.wait(lambda:'Start writing' in d.body(),'Automatic protected native close to Home')
+    assert d.script("return !document.querySelector('.command-palette') && !document.querySelector('#close-heading');"), 'Successful file-backed close retires palette without a prompt'
+    report.append('programmatic production Close interrupts modal; successful protection closes without a prompt; native protection/release keeps exact bytes')
     d.script("document.documentElement.style.zoom='1';")
     readonly=d.ROOT/'files'/'readonly-palette.fountain'; readonly.write_bytes(source); readonly.chmod(0o400)
     palette('Open'); d.picker(readonly)

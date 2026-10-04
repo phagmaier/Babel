@@ -11,11 +11,15 @@ export function ProtectedClosePanel({
   destination,
   onClosed,
   statusToken,
+  untitled = false,
+  onCancel,
 }: {
   close: ProtectedClose;
   destination?: CopyDestination;
   onClosed: () => void;
   statusToken?: string;
+  untitled?: boolean;
+  onCancel?: () => void;
 }) {
   const retryRef = useRef<HTMLButtonElement>(null);
   const [assessment, setAssessment] = useState(close.assessment);
@@ -46,6 +50,12 @@ export function ProtectedClosePanel({
   return (
     <section className="card" aria-labelledby="close-heading">
       <h2 id="close-heading">Close document safely</h2>
+      {untitled && (
+        <p>
+          This draft has no Fountain file. Keep writing to use Save As, or close
+          and keep its recovery draft. Recovery is not a separate backup.
+        </p>
+      )}
       <p role="status">
         {assessment.message ||
           'The latest version will be protected before close.'}
@@ -65,8 +75,19 @@ export function ProtectedClosePanel({
         disabled={busy || assessment.phase === 'closed'}
         onClick={() => void run(() => close.retry())}
       >
-        Retry save and close
+        {untitled && assessment.phase === 'editing'
+          ? 'Close and keep recovery'
+          : 'Retry save and close'}
       </button>
+      {onCancel && (
+        <button
+          type="button"
+          disabled={busy || assessment.phase === 'closed'}
+          onClick={onCancel}
+        >
+          Keep writing
+        </button>
+      )}
       <button
         type="button"
         disabled={busy || !destination || assessment.phase === 'closed'}

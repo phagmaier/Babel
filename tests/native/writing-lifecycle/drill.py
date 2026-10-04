@@ -247,13 +247,23 @@ def audit(path, expected):
     print(json.dumps({'file': str(path), 'length': len(expected), 'sha256': digest}), flush=True)
 
 
+def recovery_ready():
+    return script("return /Recovery: journaled version [1-9][0-9]*\\./.test(document.querySelector('[aria-label=\"Protection status\"] details')?.textContent ?? '');")
+
+
 def close_session():
     wait(lambda: script("return [...document.querySelectorAll('[aria-label=\"Screenplay actions\"] button')].some(b=>b.textContent==='Close session'&&!b.disabled);"), 'Adopted session ready for protected close', timeout=60)
+    untitled = script("return document.querySelector('#writing-save')?.textContent === 'Protect draft' && document.querySelector('.ProseMirror')?.getAttribute('aria-readonly') !== 'true';")
+    script("window.closePromptSeen=false;window.closeObserver=new MutationObserver(()=>{if(document.querySelector('#close-heading'))window.closePromptSeen=true;});window.closeObserver.observe(document.body,{childList:true,subtree:true});")
     click('Close session', actions=True)
-    wait(lambda: 'Close document safely' in body(), 'Close panel')
-    assert script("return document.activeElement?.innerText;") == 'Retry save and close'
-    click('Retry save and close')
+    if untitled:
+        wait(lambda: 'Close document safely' in body(), 'Untitled close choice')
+        assert script("return document.activeElement?.innerText;") == 'Close and keep recovery'
+        assert 'This draft has no Fountain file' in body()
+        click('Close and keep recovery')
     wait(lambda: 'Start writing' in body(), 'Protected close completes')
+    seen = script("window.closeObserver.disconnect();return window.closePromptSeen;")
+    assert seen == untitled, 'Only untitled drafts prompt on successful close'
 
 
 def set_input(label, value):
@@ -339,12 +349,14 @@ try:
     if '--editor-exit' in sys.argv:
         from editor_exit import run
         run(sys.modules[__name__])
+    from status_close import run as run_status_close
+    run_status_close(sys.modules[__name__])
     click('New screenplay', actions=True)
     wait(lambda: 'Protect draft' in body(), 'New draft opens')
     type_text('Mist curls.')
     wait(lambda: editor_text() == 'Mist curls.', 'New text visible')
     click('Protect draft', actions=True)
-    wait(lambda: 'Recovery: journaled version 0.' not in body(), 'Draft checkpoint acknowledged')
+    wait(recovery_ready, 'Exact positive draft checkpoint acknowledged in Save details')
     screenshot('new-draft')
     click('Save As', actions=True)
     picker()
@@ -459,7 +471,6 @@ try:
     wait(lambda: any(source == diverged for _, source in journal_records()), 'Diverged live draft retained in recovery')
     assert target.read_bytes() == outside
     click('Close session', actions=True)
-    click('Retry save and close')
     wait(lambda: 'Close stopped.' in body(), 'Failed close remains visible')
     assert editor_text() == 'Despite history Local Recovered  Later.Mist curls. More.'
     click('Select copy destination', actions=True)

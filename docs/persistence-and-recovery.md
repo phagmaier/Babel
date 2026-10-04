@@ -256,6 +256,16 @@ wording. A source failure can still yield an independent recovery receipt, but
 does not close. Diverged/uncertain source state is not retried against a guessed
 fingerprint; raw recovery remains available.
 
+AUDIT-D06 routes file-backed/read-only session, Home/Open and native window
+requests directly into this coordinator, with duplicate requests suppressed.
+Untitled drafts still require an explicit recovery-only close choice. A pending
+automatic close waits for exact protection and release; failure exposes the
+persistent choices below. Keep writing cancels only the UI close request and its
+pending Home/Open/window destination, allowing edits/Save As without granting
+protection or discarding any native artifact. The ordinary save status remains
+receipt-derived, including the editor-ahead override; Save details retains exact
+version facts, and memory-only/snapshot attention are separate visible alerts.
+
 After failure the editor stays editable with Retry, native-selected Emergency
 Copy and explicit risk choices. A copy receipt must match the latest
 identity/session/version/hash/length, and never grants source/recovery credit.

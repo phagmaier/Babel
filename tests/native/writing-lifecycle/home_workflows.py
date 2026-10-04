@@ -52,7 +52,7 @@ def run(h):
     h.wait(lambda: any(source == expected_draft for _, source in h.journal_records()), 'New draft exact recovery')
     before = time.monotonic()
     click_action('Home')
-    h.click('Retry save and close')
+    h.click('Close and keep recovery')
     h.wait(home_ready, 'Protected Home return')
     home_ms = (time.monotonic() - before) * 1000
     assert 'No recent screenplays yet' in h.body()
@@ -197,7 +197,6 @@ def run(h):
     h.type_text('LOCAL ')
     local_text = h.editor_text()
     click_action('Home')
-    h.click('Retry save and close')
     h.wait(lambda: 'Close stopped.' in h.body(), 'Failed switch stays in writing session')
     assert h.editor_text() == local_text
     h.audit(long_source, outside)

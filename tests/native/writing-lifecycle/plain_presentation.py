@@ -112,7 +112,7 @@ def workload(a, root, names):
         a.act('Save'); audit(copy, source); audit(path, source)
         assert a.choose('Theme', 2, 'Dark') == 'Dark'
         assert a.choose('Writing zoom', 2, '100%') == '100%'
-        a.act('Close session'); a.act('Retry save and close')
+        a.act('Close session')
         a.find('Start writing', 83)
         report.append({'workload': name, 'source': audit(path, source), 'copy': audit(copy, source)})
         print('WORKLOAD COMPLETE', name, flush=True)
