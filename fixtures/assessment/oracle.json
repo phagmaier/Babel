@@ -1312,6 +1312,26 @@
         "sections": 0,
         "synopses": 0
       }
+    },
+    {
+      "name": "FADE IN: as the first line is printed as action",
+      "source": "FADE IN:\n\nINT. LAB - DAY\n\nA lamp glows.\n",
+      "prints": [
+        "FADE IN:",
+        "INT. LAB - DAY",
+        "A lamp glows."
+      ],
+      "omits": [],
+      "clean": false,
+      "blockingLines": [
+        0
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
     }
   ]
 }

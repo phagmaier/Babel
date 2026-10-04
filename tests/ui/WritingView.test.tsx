@@ -3018,3 +3018,41 @@ it('AUDIT-D03B places the navigator and tool panels in shell regions without reo
     document.documentElement.style.getPropertyValue('--writing-header'),
   ).toBe('');
 });
+
+// AUDIT-PARK: D-05 observation "replace-all has no pre-destructive protection
+// and relies on Undo". Confirmed as current behavior; SPEC S07 asks only for one
+// Undo step and a count, so any protection belongs to the D-05 brief.
+it('AUDIT-PARK replace-all takes no snapshot or workflow protection; one Undo restores it', async () => {
+  const original = '.INT. ROOM - DAY\n\n!moon moon\n\n!moon\n';
+  const { ports } = fixturePorts({ picked: auditDocument(original) });
+  const create = vi.spyOn(ports.snapshots, 'create');
+  const protect = vi.spyOn(ports.workflows, 'protect');
+  const view = await auditView(ports);
+  fireEvent.click(screen.getByRole('button', { name: 'Find' }));
+  fireEvent.change(await screen.findByLabelText('Find text'), {
+    target: { value: 'moon' },
+  });
+  await screen.findByText('3 matches.');
+  fireEvent.change(screen.getByLabelText('Replace with'), {
+    target: { value: 'sun' },
+  });
+  const all = screen.getByRole('button', { name: 'Replace all' });
+  await waitFor(() => expect(all.hasAttribute('disabled')).toBe(false));
+  const depth = undoDepth(view.state);
+  fireEvent.click(all);
+  await screen.findByText(/Replaced 3 matches in one step/);
+  expect(new TextDecoder().decode(captureEditor(view.state).source)).toBe(
+    '.INT. ROOM - DAY\n\n!sun sun\n\n!sun\n',
+  );
+  expect(
+    create.mock.calls.filter(([request]) => request.kind !== 'rolling'),
+  ).toEqual([]);
+  expect(protect).not.toHaveBeenCalled();
+  expect(undoDepth(view.state)).toBe(depth + 1);
+  fireEvent.keyDown(view.dom, { key: 'z', ctrlKey: true });
+  await waitFor(() =>
+    expect(new TextDecoder().decode(captureEditor(view.state).source)).toBe(
+      original,
+    ),
+  );
+});

@@ -370,3 +370,31 @@ it('resumes recovery/source cadence after cancelled protection without resetting
   expect(p.saves.map((r) => r.version)).toContain(2);
   cadence.dispose();
 });
+
+// AUDIT-PARK: D-05 observation "256-record snapshot cap with manual-only
+// pruning". The cap and SnapshotLimit are Rust-tested in
+// snapshot_store_tests.rs; this confirms the frontend side: at the limit every
+// rolling attempt fails, saving continues, and nothing prunes automatically.
+it('AUDIT-PARK at the snapshot limit rolling snapshots stop and nothing prunes automatically', async () => {
+  const { t, p, scheduler } = cadence({ rollingIntervalMs: 300_000 });
+  const limit = { code: 'snapshotLimit', action: 'retry' };
+  const create = vi.fn(async () => {
+    throw limit;
+  });
+  const prune = vi.spyOn(p.snapshots, 'prune');
+  p.snapshots.create = create;
+  for (let version = 21; version <= 23; version++) {
+    scheduler.noteEdit(snapshot(version, version % 2 === 0));
+    const summary = await scheduler.flush();
+    expect(summary.saved).toBe(true);
+    expect(summary.snapshotAttention).toBe(true);
+    await t.advance(300_001);
+  }
+  expect(create).toHaveBeenCalledTimes(3);
+  expect(prune).not.toHaveBeenCalled();
+  expect(scheduler.describe()).toMatchObject({
+    status: 'Saved locally',
+    snapshotAttention: true,
+    lastRollingVersion: null,
+  });
+});

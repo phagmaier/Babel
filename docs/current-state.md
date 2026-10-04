@@ -26,6 +26,13 @@ Queue: AUDIT-D07 → AUDIT-D04-R2 → AUDIT-PARK → AUDIT-D04-R1 (owner-approve
   Corpus 27 → 68 cases; 18 clean-but-different cases now blocking SC005 in
   `src/domain/exportAssessment.ts` (assessment only). Capitals in headings and
   forced transitions are reported per SPEC S09.2; owner may relax that guard.
+- **AUDIT-PARK complete.** [Brief](tasks/AUDIT-PARK.md),
+  [evidence](test-evidence/AUDIT.md#audit-park--confirm-first-parking-verdicts).
+  Every parked item has a test and verdict; confirmed save/recovery/snapshot
+  items are tracked as **AUDIT-PARK-T** (D-05 protection and snapshot cap;
+  duplicate draft after a failed resume). T-05 not reproduced in 40 runs; D02's
+  retained Replace-All test failure reproduced once in 10 loaded runs, cause
+  not isolated, no text lost.
 
 ## Needs native rerun (owner, with a display)
 
@@ -79,7 +86,7 @@ M6-03 independent copy/prune and capture-failure bundle policy remain open.
 
 ## Next action and stopping point
 
-Continue the session queue with AUDIT-PARK. Remaining accepted DESIGN items
+Continue the session queue with AUDIT-D04-R1. Remaining accepted DESIGN items
 without a brief: D-05 cheap variant and D-09 page count. Run
 publication-dependent native modes with `target/release` in place or a
 helper-capable frozen layout. Never substitute injected composition for
