@@ -1,6 +1,6 @@
 //! Path-free recovery-choice commands. Blocking workers with bounded logical
-//! budgets; cancellation never interrupts a started choice. Relinking stays
-//! native-only: no IPC path exists, mirroring `open_selected`.
+//! budgets; cancellation never interrupts a started choice. Moved sources use
+//! the native recent-project location confirmation, not in-session relinking.
 use super::*;
 use screenwriter_core::documents::{
     MAX_SOURCE_BYTES,

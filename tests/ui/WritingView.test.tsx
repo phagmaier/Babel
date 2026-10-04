@@ -14,6 +14,8 @@ import { WritingView, type WritingPorts } from '../../src/app/WritingView';
 import * as editorMount from '../../src/editor/view';
 import { captureEditor } from '../../src/editor/sourceBridge';
 import { editorVersion } from '../../src/editor/state';
+import { SaveCadence } from '../../src/application/saveCadence';
+import { ProtectedClose } from '../../src/application/protectedClose';
 import { undoDepth } from 'prosemirror-history';
 import type { OpenDocument } from '../../src/application/documents';
 import { deferred, publicationResult } from '../publicationFixture';
@@ -129,7 +131,6 @@ function fixturePorts(options: {
       selectDestination: async () => null,
     },
     documents: {
-      readInitial: async (id) => ({ ...opened(), identity: { ...id } }),
       release: async () => {
         calls.released += 1;
       },
@@ -318,7 +319,7 @@ function fixturePorts(options: {
         source: [98],
       }),
     },
-    fountainImport: {
+    workflows: {
       protect: async () => {
         throw new Error('unreachable');
       },
@@ -919,7 +920,7 @@ describe('M4-05 coordinated moves', () => {
         .digest('hex'),
     };
     const { ports, calls } = fixturePorts({ picked });
-    ports.workflows = workflows;
+    if (workflows) ports.workflows = workflows;
     const saved: (readonly number[])[] = [];
     ports.documents.save = async (request) => {
       saved.push(request.source);
@@ -1107,11 +1108,6 @@ it('title input blocks Save, Home and application shortcuts until explicit Apply
     '\ufeffTitle:\t**Old**\r\nAuthor: A\r\nAuthor: B\r\nX-Custom: retain  \r\n\r\n!Body.  ';
   const { ports, calls } = fixturePorts({
     picked: { ...opened(), source: [...new TextEncoder().encode(literal)] },
-  });
-  ports.documents.readInitial = async (id) => ({
-    ...opened(),
-    identity: id,
-    source: [...new TextEncoder().encode(literal)],
   });
   const saved: string[] = [];
   ports.documents.save = async (request) => {
@@ -2327,5 +2323,98 @@ it.each([false, true])(
     expect(save.mock.calls[0]![0].expectedFingerprint).toEqual(
       foreign ? opened().fingerprint : receiptFor(2).fingerprint,
     );
+  },
+);
+
+// AUDIT-SLP-A: assert the mounted safety surface, rather than an unused component.
+it.each([
+  {
+    label: 'saved',
+    status: 'Saved locally' as const,
+    journaledVersion: 21,
+    fileSavedVersion: 21,
+    snapshotAttention: false,
+    lastRollingVersion: 21,
+    onlyInMemory: false,
+  },
+  {
+    label: 'snapshot attention',
+    status: 'Saved locally' as const,
+    journaledVersion: 21,
+    fileSavedVersion: 21,
+    snapshotAttention: true,
+    lastRollingVersion: null,
+    onlyInMemory: false,
+  },
+  {
+    label: 'failure',
+    status: 'Save failed' as const,
+    journaledVersion: 20,
+    fileSavedVersion: 19,
+    snapshotAttention: true,
+    lastRollingVersion: null,
+    onlyInMemory: true,
+  },
+  {
+    label: 'divergence',
+    status: 'External change detected' as const,
+    journaledVersion: 21,
+    fileSavedVersion: 19,
+    snapshotAttention: false,
+    lastRollingVersion: 20,
+    onlyInMemory: false,
+  },
+])(
+  'mounted Protection status reports exact facts for $label',
+  async (sample) => {
+    vi.spyOn(SaveCadence.prototype, 'describe').mockReturnValue({
+      liveVersion: 21,
+      status: sample.status,
+      journaledVersion: sample.journaledVersion,
+      fileSavedVersion: sample.fileSavedVersion,
+      snapshotAttention: sample.snapshotAttention,
+      lastRollingVersion: sample.lastRollingVersion,
+    });
+    vi.spyOn(ProtectedClose.prototype, 'assessment', 'get').mockReturnValue({
+      phase: 'editing',
+      liveVersion: 21,
+      sourceProtected: !sample.onlyInMemory,
+      recoveryProtected: !sample.onlyInMemory,
+      onlyInMemory: sample.onlyInMemory,
+      message: '',
+    });
+    const { ports } = fixturePorts({});
+    render(
+      <WritingView
+        ports={ports}
+        open={{ kind: 'new' }}
+        onSessionClosed={vi.fn()}
+      />,
+    );
+    await screen.findByLabelText('Screenplay actions');
+    const region = screen.getByRole('region', { name: 'Protection status' });
+    await waitFor(() =>
+      expect(region.textContent).toContain('Live version 21.'),
+    );
+    const text = within(region).getByRole('status').textContent!;
+    expect(text).toContain(
+      `Recovery: journaled version ${sample.journaledVersion}.`,
+    );
+    expect(text).toContain(
+      `Source file: ${sample.status} (saved version ${sample.fileSavedVersion}).`,
+    );
+    expect(text).toContain(
+      `Snapshots: ${sample.snapshotAttention ? 'need attention' : 'healthy'}`,
+    );
+    expect(text).toContain(
+      sample.lastRollingVersion === null
+        ? 'no rolling snapshot yet'
+        : `last rolling version ${sample.lastRollingVersion}`,
+    );
+    expect(
+      text.includes(
+        'Newer changes exist only in memory until protection is confirmed.',
+      ),
+    ).toBe(sample.onlyInMemory);
   },
 );

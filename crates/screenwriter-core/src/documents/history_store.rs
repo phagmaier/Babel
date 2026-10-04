@@ -1,8 +1,7 @@
 //! Linux native local history. No checkout, shell Git, transport or frontend path.
 use super::*;
 use crate::documents::history::{
-    HistoryHealth, ImportProtectionReceipt, RevisionReceipt, WorkflowOperation,
-    WorkflowProtectionReceipt, WorkflowProtectionRequest,
+    HistoryHealth, RevisionReceipt, WorkflowProtectionReceipt, WorkflowProtectionRequest,
 };
 use git2::{
     Config, ErrorCode as GitErrorCode, Oid, Repository, RepositoryInitOptions, Signature, Time,
@@ -464,22 +463,6 @@ impl DocumentService {
             record.history_attention = result.is_err();
         }
         result
-    }
-
-    /// Protect a live draft before an explicit editor import. A history failure refuses import,
-    /// while the completed recovery checkpoint remains available. No source file is replaced.
-    pub fn protect_editor_import(
-        &mut self,
-        request: persistence::CheckpointRequest,
-    ) -> Result<ImportProtectionReceipt, DocumentError> {
-        let receipt = self.protect_editor_workflow(WorkflowProtectionRequest {
-            operation: WorkflowOperation::FountainImport,
-            checkpoint: request,
-        })?;
-        Ok(ImportProtectionReceipt {
-            checkpoint: receipt.checkpoint,
-            revision: receipt.revision,
-        })
     }
 
     /// Serialize with native document ownership. Checkpoint survives a history failure;

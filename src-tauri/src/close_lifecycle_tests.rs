@@ -103,7 +103,17 @@ fn open_registration_prevents_close_before_even_failed_notification() {
         .open_selected(&fixture.0.join("source.fountain"))
         .unwrap();
     assert_eq!(close_attempt(&host, true, true), ["prevent", "notify"]);
-    assert_eq!(host.read(&opened.identity).unwrap().source, opened.source);
+    assert_eq!(
+        host.service
+            .lock()
+            .unwrap()
+            .as_ref()
+            .unwrap()
+            .read_initial(&opened.identity)
+            .unwrap()
+            .source,
+        opened.source
+    );
     assert!(host.has_open_documents());
     fixture.assert_source();
 }
@@ -194,6 +204,16 @@ fn close_waits_for_in_flight_registration_and_observes_published_owner() {
         ["prevent", "notify"]
     );
     close.join().unwrap();
-    assert_eq!(host.read(&opened.identity).unwrap().source, opened.source);
+    assert_eq!(
+        host.service
+            .lock()
+            .unwrap()
+            .as_ref()
+            .unwrap()
+            .read_initial(&opened.identity)
+            .unwrap()
+            .source,
+        opened.source
+    );
     fixture.assert_source();
 }

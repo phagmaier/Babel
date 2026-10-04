@@ -1,36 +1,44 @@
-# Current state — AUDIT-TEST complete; stopped
+# Current state — AUDIT-SLP-A complete; stopped
 
-Date: 2026-10-03. Application: **babel**. Main; owner authorized warranted push.
-Current task base `fb7d6bd`, clean main/origin at claim. M0–M5 and bounded M6-01
+Date: 2026-10-03. Application: **babel**. Main; local commit only, no push.
+Current task base `09d496f`, clean main, one local commit ahead at claim. M0–M5 and bounded M6-01
 investigation remain recorded complete. **M6-02 stays unchecked; retained
 operation findings, C1/F2 and Local v1 admission remain open.**
 
 ## Task and work
 
-**AUDIT-TEST complete**, base `fb7d6bd`, main. [Brief](tasks/AUDIT-TEST.md).
-66 regressions cover resume, session/controller guards, structured-paste tails,
-replace/check hooks, prepared Restore/Resolve and SC002/SC004. Reproduced parked
-resume defects first: disposed initial opens now skip retired cadence; failed
-release retains the protection error and both failure causes. Native code stays
-unchanged. Paths: `writingSession.ts`, seven contract/UI test files, tracked
-`tools/audit-test-mutations.py`, owning recovery docs, brief/tracker/evidence.
-Tier 2: frontend 914/914; focused/control 188/188; 25/25 in-memory faults detected;
-workspace 277/277; format/lint/types/build/Clippy/browser/Python/links/diff pass.
-[Commands, failures, timing and retained artifacts](test-evidence/AUDIT.md#audit-test--wave-2-regression-gaps).
-Injected-port/JSDOM and generic Chromium evidence; no native resume/restore
-cleanup, trusted input, packaging or second-filesystem claim. T-08's first full
-selector matrix already passed in C356. Completed work committed locally for
-review; no new push or CI claim. Stop after Wave 2; Wave 3 unstarted.
+**AUDIT-SLP-A complete**, base `09d496f`, main. [Brief](tasks/AUDIT-SLP-A.md).
+S-06 requires the frozen workflow coordinator and removes the legacy adapter,
+receipt/command/core wrapper. S-07 removes readInitial/read IPC/host workers;
+entry/release dispatch and internal registration checks retain coverage. S-09
+removes the approved native-only relink capability; M4-01 locate/confirm remains.
+S-10 removes unmounted SaveStatus and checks mounted WritingView facts instead.
+Paths: application/view/native/core surfaces, ported tests, native input/workflow
+harnesses, tracked mutation runner --slp-a, affected owning docs/ADRs/map.
+Tier 3: frontend 919/919; workspace 273/273 each tmpfs/Btrfs; focused 84/84 then
+final 60/60 mutation control; 7/7 selected faults detected; shared static/build,
+default release/helper, browser, Python, links/diff pass. Default native workflow
+2/2, migrated feature import fixture 1/1; bounded native vs injected/JSDOM claims
+and retained failures are in [audit evidence](test-evidence/AUDIT.md#audit-slp-a--unused-import-read-relink-and-status-paths).
+Native workflow initially omitted its final protected session close; corrected
+reruns have ordinary-close attribution. Feature fixture SIGTERM is forced
+teardown. No new package/IME/S13/CI, C1/F2, SELinux or admission claim.
+Committed locally; stopped before AUDIT-SLP-B.
 
-**AUDIT-C356 complete** (`614cb8d` implementation, `fb7d6bd` completion, pushed;
-both CI runs passed). [Brief](tasks/AUDIT-C356.md). Literal escapes render
-correctly, exact SELinux xattr-name exemption preserves metadata refusal, and
-Find/check highlights are independent. Helper/native integrity pins advanced;
-profile, fixtures and goldens unchanged. Frontend 848/848, workspace 277/277
-on tmpfs/Btrfs, helper 13/13, packaged escapes 2/2, 22 unchanged golden pages;
-package/browser/static pass. [Commands, failures and limits](test-evidence/AUDIT.md#audit-c356--literal-escapes-selinux-metadata-and-advisory-highlights).
-Injected SELinux names/syscall failures; enforcing SELinux/Fedora and native
-highlight input remain unverified. Wave 1 boundary respected before continuation.
+**AUDIT-TEST complete** (`09d496f`, local; base `fb7d6bd`). [Brief](tasks/AUDIT-TEST.md).
+66 regressions and frontend resume cancellation/error preservation; frontend
+914/914, focused/control 188/188, 25/25 faults detected, workspace 277/277 and
+shared checks passed. Injected-port/JSDOM; no native cleanup/IME/package claim.
+[Checks and retained failures](test-evidence/AUDIT.md#audit-test--wave-2-regression-gaps).
+Native release retries/duplicate persisted drafts remain separate; Wave 2
+boundary preceded SLP-A. No new push/CI claim.
+
+**AUDIT-C356 complete** (`614cb8d`, `fb7d6bd`, pushed; both CI runs passed).
+[Brief](tasks/AUDIT-C356.md), [checks/failures/limits](test-evidence/AUDIT.md#audit-c356--literal-escapes-selinux-metadata-and-advisory-highlights).
+Literal escapes, exact SELinux xattr exemption and independent highlights;
+frontend 848/848, matrix 277/277 each, helper 13/13, package escapes 2/2 and
+22 unchanged golden pages. Injected SELinux only; enforcing Fedora and native
+highlight input remain unverified. Wave 1 boundary respected.
 
 **AUDIT-W0-R1 done** (`7d45253`, groff prerequisite `49129df`): Enchant >=2.4,
 pinned 2.8.21/Hunspell CI prefix and empty personal-wordlist isolation, native
@@ -72,17 +80,17 @@ Tracker: `TODO.md` `## Audit execution`; [audit evidence](test-evidence/AUDIT.md
 
 [AUDIT-D01](tasks/AUDIT-D01.md) done (`2bc2311`): portable Enter separators and attached continuing speech, Shift+Enter/dual deferred codec capture, empty virtual cues, boundary Undo; SPEC S07.2 and tests updated together. C01 speech exclusion removed; other protected/dual shapes and schema rewrite remain deferred. [Evidence](test-evidence/AUDIT.md#audit-d01--portable-enter-separators-and-explicit-speechbreak-authoring): focused 262/262, frontend 835/835, Rust 268/268, shared static/build/browser checks pass. Editor evidence remains mocked/JSDOM, generic Chromium smoke; no native editor/independent scene/PDF oracle or frontend-only Tier 3 matrix. Failures/reruns retained in evidence.
 
-[AUDIT-D08A](tasks/AUDIT-D08A.md) done (base `2bc2311`, main): native focus/five-second source checks, receipt-free identical-byte metadata re-anchoring, lazy draft/disk comparison, Keep editing and separate-copy routes, explicit protected Reload as one Undo-able import. Native handle-only adoption protects the old draft in checkpoint/snapshot/safety revision, journals the adopted version and syncs/rechecks disk without replacing it. Failed Reload skips its reserved version and independently protects the retained draft; exact-version retries retain their immutable recovery base. [ADR 0041](decisions/0041-protected-external-reload.md).
-
-D08A evidence: workspace 275/275 each tmpfs/Btrfs, actual default-WebKit Reload
-2/2 strict and journal-window crash replay 2/2; shared/default release/browser
-checks pass. [Commands, failed Reload/recovery-base/Undo harness runs and helper-build overlap](test-evidence/AUDIT.md#audit-d08a--protected-external-reload)
-remain retained. Clean samples do not close C1/F2 or universal storage/sync-folder
-acceptance; exact-version retries retain their original recovery base.
+[AUDIT-D08A](tasks/AUDIT-D08A.md) done (base `2bc2311`): handle-only external
+checks, receipt-free metadata re-anchoring, protected one-Undo Reload and separate
+copy routes. Failed Reload protects the retained draft with a newer version;
+exact retries retain the immutable original recovery base. [ADR 0041](decisions/0041-protected-external-reload.md).
+Workspace 275/275 each, native Reload 2/2 and crash replay 2/2;
+[checks/retained failures](test-evidence/AUDIT.md#audit-d08a--protected-external-reload).
+Clean samples do not close C1/F2 or universal storage/sync-folder acceptance.
 
 ## Next action and blockers
 
-Completed `AUDIT-TEST`; stopped before Wave 3. `AUDIT-SLP-A` is next in tracker order; draft its bounded brief on a later continuation. D-06 remains a later separate brief. Capture-failure draft-bundle fallback remains an owner decision (ADR + Tier 3). [M6-02-R1](tasks/M6-02-R1.md) remains a separate follow-up; C1/F2 unchanged.
+Completed `AUDIT-SLP-A`; stopped before `AUDIT-SLP-B`. Draft its bounded brief on a later continuation: S-02 before S-01, S-03/S-04 with S-02, S-11 only after porting candidate-tamper coverage; keep history-store. D-06 remains a later separate brief. Capture-failure draft-bundle fallback remains an owner decision (ADR + Tier 3). [M6-02-R1](tasks/M6-02-R1.md) remains a separate follow-up; C1/F2 unchanged.
 
 [Supported-runtime M6-01-R1](tasks/M6-01-R1.md) remains gated by an available
 identified supported correction. C1/F2 release gate C remains open before

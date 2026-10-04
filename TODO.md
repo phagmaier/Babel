@@ -79,11 +79,13 @@ How to pick work: the next unchecked `[ ]` box below is the task. Read its brief
 
 ### Wave 2 — test gaps (approved as AUDIT-TEST)
 
-- [x] **AUDIT-TEST** — [Brief](docs/tasks/AUDIT-TEST.md). [Evidence](docs/test-evidence/AUDIT.md#audit-test--wave-2-regression-gaps): 66 added regressions, disposed-resume cancellation and preserved protection/cleanup errors; frontend 914/914, focused 188/188, mutation faults 25/25 detected, workspace 277/277, shared static/build/browser pass. Injected-port/JSDOM; native safety gates unchanged. Stop here; Wave 3 unstarted.
+- [x] **AUDIT-TEST** — [Brief](docs/tasks/AUDIT-TEST.md). [Evidence](docs/test-evidence/AUDIT.md#audit-test--wave-2-regression-gaps): 66 added regressions, disposed-resume cancellation and preserved protection/cleanup errors; frontend 914/914, focused 188/188, mutation faults 25/25 detected, workspace 277/277, shared static/build/browser pass. Injected-port/JSDOM; native safety gates unchanged. Wave 2 stopping point respected before the authorized SLP-A continuation.
 
 T-03 (resume path, ~20-line composition), T-04 (8 `WritingSession` guard tests), T-05 (persistence-controller receipt validation), T-09 (structured-paste prefix/suffix), T-06 (replace/check sessions), T-07 (restore/resolve via WritingView), T-10 (SC002/SC004 mappings). All S; batch in dependency order. T-08 remainder (link checker is tracked; matrix-runner selector fix is in the tool) closes with first Tier 3 run.
 
 ### Wave 3 — deletions (approved 2026-10-03)
+
+- [x] **AUDIT-SLP-A** — [Brief](docs/tasks/AUDIT-SLP-A.md). [Evidence](docs/test-evidence/AUDIT.md#audit-slp-a--unused-import-read-relink-and-status-paths): removed unused legacy import/read/relink/status surfaces; ported live contracts; frontend 919/919, workspace 273/273 each tmpfs/Btrfs, 7/7 selected faults detected, default native workflow 2/2 and migrated input fixture pass. Stopped before SLP-B; C1/F2 and other native admission gates unchanged.
 
 | Cluster      | Findings                                                                                                                                                           | Order constraint                                     |
 | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------- |

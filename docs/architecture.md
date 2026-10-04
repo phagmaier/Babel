@@ -33,10 +33,9 @@ are not IPC arguments. Production `DocumentHost` initializes from the OS app-dat
 setup (M3-09); entry stays path-free through picker/unsaved/destination
 commands. M3-12 enables native New/Open and coordinates the active writing session.
 
-| IPC command             | Request                                      | Response                                                   |
-| ----------------------- | -------------------------------------------- | ---------------------------------------------------------- |
-| `read_open_document`    | `request: { handle, documentId, sessionId }` | Exact initial `OpenDocument` or structured `DocumentError` |
-| `release_open_document` | Same strict identity envelope                | Unit or structured error; revokes registration             |
+| IPC command             | Request                                      | Response                                       |
+| ----------------------- | -------------------------------------------- | ---------------------------------------------- |
+| `release_open_document` | `request: { handle, documentId, sessionId }` | Unit or structured error; revokes registration |
 
 `OpenDocument` includes the random identity, managed/loose/unsaved kind,
 persistent-identity flag, exclusive/view-only ownership with reasons,
@@ -128,7 +127,8 @@ M2-05B-R1 corrects the two [independent review](reviews/2026-09-28-m2-05b-review
 `documents/choices.rs` owns strict path-free choice envelopes;
 Linux `documents/choices_store.rs` owns comparison, protected adoption through
 the M2-03 transaction, explicit keep, sibling emergency copy, post-replacement
-finalize and native-only relinking on `open_selected` anchors. The
+finalize on `open_selected` anchors. Moved-source continuity uses M4-01 locate/confirm;
+the unused in-session native relink API was removed in AUDIT-SLP-A. The
 older-session journal gate gains an in-memory, per-registration reconciliation
 set only by an explicit choice. Five writer-host commands
 (`compare_recovery`, `recover_checkpoint_as_current`, `keep_current_source`,
@@ -227,7 +227,7 @@ or content authority is introduced.
 
 ## M4-04 destructive workflow boundary
 
-`WorkflowProtectionPort` invokes the strict native `protect_workflow` envelope: closed operation enum plus owned checkpoint, without labels, paths or source parsing. One bounded blocking worker serializes checkpoint/safety publication under existing native document ownership. The compatibility import operation reuses the same core implementation. `WritingSession.runProtectedWorkflow` owns freeze/pause/settle/capture and receipt/frame/cancel validation; a separately owned synchronous callback performs the editor transaction after the final check. The view permits only that callback while frozen. Production import uses the coordinator, retaining staged text and Undo; it exposes cancellation and restores cadence on thaw. Neither history nor recovery receipt has source-save credit. The writing status identifies the unavailable timeline without claiming safety revisions are absent. [ADR 0030](decisions/0030-version-bound-workflow-protection.md).
+`WorkflowProtectionPort` invokes the strict native `protect_workflow` envelope: closed operation enum plus owned checkpoint, without labels, paths or source parsing. One bounded blocking worker serializes checkpoint/safety publication under existing native document ownership. This sole protection command also owns Fountain import; WritingView requires the workflow port. `WritingSession.runProtectedWorkflow` owns freeze/pause/settle/capture and receipt/frame/cancel validation; a separately owned synchronous callback performs the editor transaction after the final check. The view permits only that callback while frozen. Production import uses the coordinator, retaining staged text and Undo; it exposes cancellation and restores cadence on thaw. Neither history nor recovery receipt has source-save credit. The writing status identifies the unavailable timeline without claiming safety revisions are absent. [ADR 0030](decisions/0030-version-bound-workflow-protection.md).
 
 ## M5-02 publication workers
 

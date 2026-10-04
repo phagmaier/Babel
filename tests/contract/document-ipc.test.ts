@@ -3,6 +3,7 @@ import type {
   DocumentError,
   OpenDocument,
 } from '../../src/application/documents';
+import { nativeDocumentEntry } from '../../src/infrastructure/nativeDocumentEntry';
 import { nativeDocuments } from '../../src/infrastructure/nativeDocuments';
 
 const invoke = vi.hoisted(() => vi.fn());
@@ -12,7 +13,7 @@ beforeEach(() => {
   invoke.mockReset();
 });
 
-it('passes only opaque identity and returns raw bytes without decoding', async () => {
+it('native entry requests no path and returns raw bytes without decoding', async () => {
   const snapshot: OpenDocument = {
     identity: {
       handle: 'handle',
@@ -27,9 +28,9 @@ it('passes only opaque identity and returns raw bytes without decoding', async (
     fingerprint: null,
   };
   invoke.mockResolvedValue(snapshot);
-  expect(await nativeDocuments.readInitial(snapshot.identity)).toBe(snapshot);
-  expect(invoke).toHaveBeenCalledExactlyOnceWith('read_open_document', {
-    request: snapshot.identity,
+  expect(await nativeDocumentEntry.openViaPicker()).toBe(snapshot);
+  expect(invoke).toHaveBeenCalledExactlyOnceWith('open_source_via_picker', {
+    request: {},
   });
 });
 
@@ -39,13 +40,7 @@ it('propagates structured native failure without inventing a source or success',
     action: 'retry',
   };
   invoke.mockRejectedValue(failure);
-  await expect(
-    nativeDocuments.readInitial({
-      handle: 'h',
-      documentId: 'd',
-      sessionId: 's',
-    }),
-  ).rejects.toBe(failure);
+  await expect(nativeDocumentEntry.openViaPicker()).rejects.toBe(failure);
 });
 
 it('relinquishes the exact session and preserves release failure', async () => {

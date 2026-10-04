@@ -6,7 +6,13 @@ import {
   FountainImportBoundary,
   type ImportResult,
 } from '../../../src/application/fountainImport';
-import { nativeFountainImport } from '../../../src/infrastructure/nativeFountainImport';
+import { WritingSession } from '../../../src/application/writingSession';
+import { nativeDocuments } from '../../../src/infrastructure/nativeDocuments';
+import { nativeDocumentEntry } from '../../../src/infrastructure/nativeDocumentEntry';
+import { nativeSnapshots } from '../../../src/infrastructure/nativeSnapshots';
+import { nativeSaveAs } from '../../../src/infrastructure/nativeSaveAs';
+import { nativeWorkflowProtection } from '../../../src/infrastructure/nativeWorkflowProtection';
+import { workflowView } from '../../workflowView';
 import { createFountainImportPanel } from '../../../src/app/FountainImportPanel';
 import { createEditorState, editorVersion } from '../../../src/editor/state';
 import { mountScreenplayEditor } from '../../../src/editor/view';
@@ -36,6 +42,37 @@ const opened: OpenDocument | null =
     ? await invoke('open_composition_fixture', { fixture: 'lf' })
     : null;
 let panel: ReturnType<typeof createFountainImportPanel> | undefined;
+function importBoundary() {
+  return new FountainImportBoundary(
+    () => view,
+    async (apply, signal) => {
+      if (!opened)
+        return { status: 'refused', reason: 'Native fixture unavailable' };
+      // This fixture retains one native registration across resets. Each import
+      // owns/disposes its cadence; default-app drills own native close/release.
+      const session = new WritingSession(
+        {
+          entry: nativeDocumentEntry,
+          documents: nativeDocuments,
+          saveAs: nativeSaveAs,
+          snapshots: nativeSnapshots,
+          workflows: nativeWorkflowProtection,
+        },
+        workflowView(() => view),
+      );
+      try {
+        await session.openSelected(async () => opened);
+        return await session.runProtectedWorkflow(
+          'fountainImport',
+          apply,
+          signal,
+        );
+      } finally {
+        session.dispose();
+      }
+    },
+  );
+}
 function open(text = original) {
   view?.destroy();
   panel?.destroy();
@@ -105,12 +142,7 @@ function open(text = original) {
   if (opened)
     panel = createFountainImportPanel(
       document.querySelector<HTMLElement>('#import')!,
-      new FountainImportBoundary(
-        () => view,
-        opened.identity,
-        opened.fingerprint,
-        nativeFountainImport,
-      ),
+      importBoundary(),
     );
   caret(rows - 1);
   view.focus();
@@ -247,12 +279,7 @@ document.addEventListener('keydown', (event) => {
     }
     if (event.key === 'F4') {
       if (!opened) throw new Error('Native import host unavailable');
-      const boundary = new FountainImportBoundary(
-        () => view,
-        opened.identity,
-        opened.fingerprint,
-        nativeFountainImport,
-      );
+      const boundary = importBoundary();
       pending = boundary
         .import(
           encoder.encode(

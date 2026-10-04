@@ -33,7 +33,6 @@ fn app(host: DocumentHost) -> tauri::App<tauri::test::MockRuntime> {
             remove_recent_project,
             locate_recent_project,
             confirm_recent_location,
-            read_open_document,
             release_open_document,
         ])
         .build(mock_context(noop_assets()))

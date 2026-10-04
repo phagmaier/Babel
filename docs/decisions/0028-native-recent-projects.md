@@ -5,9 +5,11 @@ Authority: [SPEC S05.2–3/S08.1/S10.7/S14](../../SPEC.md#s05); APP-02, SAVE-05,
 Related: [0012](0012-native-document-identity.md), [0017](0017-explicit-recovery-choices.md), [0024](0024-native-document-entry.md), [0025](0025-save-as-identity.md).
 Evidence: [M4-01](../test-evidence/M4.md#m4-01--native-recents-and-missing-file-selection).
 
+Amended 2026-10-03 by [AUDIT-SLP-A](../tasks/AUDIT-SLP-A.md) to remove unused surfaces; historical acceptance evidence remains retained.
+
 ## Decision
 
-The Linux DocumentService owns a private, rebuildable app-data registry. Successful native opens, confirmed source saves, successful native relinks and the final validated Save As registration update auxiliary recent metadata. Unsaved drafts and ephemeral identities do not register. Save As gets its fresh identity/location only after exact publication succeeds; the previous recent remains independently selectable. Intermediate destination opens, cancellations and rollback do not register.
+The Linux DocumentService owns a private, rebuildable app-data registry. Successful native opens, confirmed source saves, explicit location confirmations and the final validated Save As registration update auxiliary recent metadata. Unsaved drafts and ephemeral identities do not register. Save As gets its fresh identity/location only after exact publication succeeds; the previous recent remains independently selectable. Intermediate destination opens, cancellations and rollback do not register.
 
 Deduplicate normalized native paths. A known path retains its recent-entry UUID when reopened; its document identity comes from the existing managed UUID or loose path mapping. Duplicate managed UUIDs at different paths remain separate observable entries with conservative writer leases. A moved entry retains its recent UUID only after explicit link confirmation. Equal titles, timestamps and bytes do not establish identity.
 

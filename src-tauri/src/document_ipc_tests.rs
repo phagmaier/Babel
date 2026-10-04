@@ -26,7 +26,7 @@ fn invoke(
 }
 
 #[test]
-fn dispatch_is_path_free_session_bound_byte_exact_and_release_revokes_handle() {
+fn release_dispatch_is_path_free_session_bound_and_revokes_handle() {
     let root = std::env::temp_dir().join(format!(
         "babel-ipc-{}-{}",
         std::process::id(),
@@ -47,7 +47,6 @@ fn dispatch_is_path_free_session_bound_byte_exact_and_release_revokes_handle() {
     let app = mock_builder()
         .manage(host)
         .invoke_handler(tauri::generate_handler![
-            read_open_document,
             check_source_document,
             reload_source_document,
             release_open_document
@@ -58,20 +57,19 @@ fn dispatch_is_path_free_session_bound_byte_exact_and_release_revokes_handle() {
         .build()
         .unwrap();
     let body = json!({ "request": opened.identity });
-    let received = invoke(&webview, "read_open_document", body.clone())
-        .unwrap()
-        .deserialize::<OpenDocument>()
-        .unwrap();
-    assert_eq!(received, opened);
+    assert_eq!(opened.source, b"\xef\xbb\xbfunknown\r\n  \xff");
+    for removed in ["read_open_document", "protect_fountain_import"] {
+        assert!(invoke(&webview, removed, body.clone()).is_err());
+    }
     let mut wrong_session = body.clone();
     wrong_session["request"]["sessionId"] = json!("00000000-0000-4000-8000-000000000000");
     assert_eq!(
-        invoke(&webview, "read_open_document", wrong_session).unwrap_err(),
+        invoke(&webview, "release_open_document", wrong_session).unwrap_err(),
         json!({"code": "identityMismatch", "action": "retry"})
     );
     let mut path_injection = body.clone();
     path_injection["request"]["path"] = json!("/arbitrary/source.fountain");
-    assert!(invoke(&webview, "read_open_document", path_injection).is_err());
+    assert!(invoke(&webview, "release_open_document", path_injection).is_err());
     assert!(
         invoke(
             &webview,
@@ -82,7 +80,7 @@ fn dispatch_is_path_free_session_bound_byte_exact_and_release_revokes_handle() {
     );
     invoke(&webview, "release_open_document", body.clone()).unwrap();
     assert_eq!(
-        invoke(&webview, "read_open_document", body).unwrap_err(),
+        invoke(&webview, "release_open_document", body).unwrap_err(),
         json!({"code": "invalidHandle", "action": "retry"})
     );
     assert_eq!(std::fs::read(&source).unwrap(), opened.source);
@@ -96,7 +94,6 @@ fn production_default_cannot_open_a_frontend_path_or_claim_native_readiness() {
     let app = mock_builder()
         .manage(DocumentHost::default())
         .invoke_handler(tauri::generate_handler![
-            read_open_document,
             check_source_document,
             reload_source_document,
             release_open_document
@@ -108,7 +105,12 @@ fn production_default_cannot_open_a_frontend_path_or_claim_native_readiness() {
         .unwrap();
     let identity = json!({"handle": "h", "documentId": "d", "sessionId": "s"});
     assert_eq!(
-        invoke(&webview, "read_open_document", json!({"request": identity})).unwrap_err(),
+        invoke(
+            &webview,
+            "release_open_document",
+            json!({"request": identity})
+        )
+        .unwrap_err(),
         json!({"code": "nativeUnavailable", "action": "retry"})
     );
     assert!(
@@ -173,7 +175,6 @@ fn persistence_app(host: DocumentHost) -> tauri::App<tauri::test::MockRuntime> {
     mock_builder()
         .manage(host)
         .invoke_handler(tauri::generate_handler![
-            read_open_document,
             check_source_document,
             reload_source_document,
             release_open_document,

@@ -4,12 +4,14 @@ Status: Accepted direction. Date: 2026-09-28. Task: M2-01.
 Authority: SPEC S03/S04.4/S05/S10/S14; DOC-01/03, SAVE-05, SEC-02.
 Evidence: [M2 report](../test-evidence/M2.md).
 
+Amended 2026-10-03 by [AUDIT-SLP-A](../tasks/AUDIT-SLP-A.md) to remove unused surfaces; historical acceptance evidence remains retained.
+
 ## Decision
 
 The headless native `DocumentService` owns opaque random UUID handles, document
 IDs and per-open session IDs. Native selection calls `open_selected`; it takes
-an absolute path only inside Rust. Frontend IPC exposes `read_open_document`
-and `release_open_document`, with a strict identity envelope and no path or
+an absolute path only inside Rust. Native entry returns the initial raw snapshot directly; frontend IPC exposes
+`release_open_document`, with a strict identity envelope and no path or
 write endpoint. The production host stays uninitialized until native selection
 is integrated; New/Open remain disabled. Release is relinquishment of a
 headless registration, not the future editor's protected close flow.
@@ -65,7 +67,7 @@ checks do not establish ACL/xattr, network-filesystem or power-loss semantics.
 Advisory leases require a shared app-data store and cooperating writers;
 arbitrary external writers can still race a check. An unsaved registration
 allocates identity immediately but has no recovery checkpoint yet. Save As,
-loose-file moves/relinking, persistent duplicate-project resolution, managed
+loose-file location confirmation, persistent duplicate-project resolution, managed
 metadata creation/upgrades and native picker UI remain later tasks.
 
 Direct runtime pins reuse serde/JSON/SHA-256/UUID; rustix 1.1.4 is a small

@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""Prove AUDIT-TEST regressions detect faults using an in-memory Vite transform.
+"""Prove bounded audit regressions detect faults using an in-memory Vite transform.
 
-Usage: python3 tools/audit-test-mutations.py <new-output-directory>
+Usage: python3 tools/audit-test-mutations.py <new-output-directory> [--slp-a]
+--slp-a checks removed surfaces and runs the ported import/status fault suite.
 Run with pnpm dependencies installed. An unmodified focused control must pass
 before any mutant runs. Production files are never written. Each independent mutant gets a fresh Vitest process, JSON report,
 raw log and a transform-loaded marker; a nonzero test assertion failure is the
@@ -78,14 +79,54 @@ def cases():
         re.escape("(selection) => onOpen({ kind: 'recovered', selection })"), "(_selection) => undefined")
 
 
+def slp_cases():
+    """Ported live-surface assertions; the busy checks are deliberately redundant."""
+    view = "src/app/WritingView.tsx"
+    name = "mounted Protection status reports exact facts"
+    for label, original, replacement in [
+        ("mounted-status", "{status || 'Protection status unavailable.'}", "{'Saved locally'}"),
+        ("memory-warning", "session.close.assessment.onlyInMemory", "false"),
+        ("snapshot-attention", "described.snapshotAttention ? 'need attention' : 'healthy'", "'healthy'"),
+        ("rolling-version", "described.lastRollingVersion !== null", "false"),
+    ]:
+        yield label, view, VIEW_TEST, name, (re.escape(original), replacement)
+    imports = "tests/ui/EditorInput.test.ts"
+    for label, guard in [("operation", "receipt.operation !== request.operation ||"),
+                         ("length", "receipt.byteLength !== expected.source.length ||")]:
+        yield label + "-binding", "src/application/workflowProtection.ts", imports, "refuses wrong " + label, (re.escape(guard), "false ||")
+    yield "import-bytes", "src/application/fountainImport.ts", imports, "acknowledges exact pre-import capture", (
+        re.escape("sourceImportTransaction(state, immutable)"), "sourceImportTransaction(state, new Uint8Array())")
+
+
+def check_removed(repo):
+    removed = {
+        "src-tauri/src/lib.rs": ["read_open_document", "protect_fountain_import"],
+        "src/application/documents.ts": ["readInitial"],
+        "src/application/fountainImport.ts": ["FountainImportPort", "ImportProtectionReceipt"],
+        "crates/screenwriter-core/src/documents/choices_store.rs": ["pub fn relink_selected"],
+        "crates/screenwriter-core/src/documents/recent_store.rs": ["fn note_recent_relink"],
+    }
+    failures = [f"{path}: {symbol}" for path, symbols in removed.items()
+                for symbol in symbols if symbol in (repo / path).read_text()]
+    failures += [path for path in ["src/infrastructure/nativeFountainImport.ts",
+                                  "src/app/SaveStatus.tsx", "tests/ui/SaveStatus.test.tsx"]
+                 if (repo / path).exists()]
+    if failures:
+        raise ValueError("Unused audit surfaces remain: " + "; ".join(failures))
+    print("removed surfaces: passed", flush=True)
+
+
 def main():
-    if len(sys.argv) != 2:
+    if len(sys.argv) not in [2, 3] or (len(sys.argv) == 3 and sys.argv[2] != "--slp-a"):
         print(__doc__)
         return 2
     repo = Path(__file__).resolve().parent.parent
+    suite = slp_cases if len(sys.argv) == 3 else cases
+    if suite is slp_cases:
+        check_removed(repo)
     output = Path(sys.argv[1]).resolve()
     output.mkdir(parents=True, exist_ok=False)
-    baseline = sorted({case[2] for case in cases()})
+    baseline = sorted({case[2] for case in suite()})
     control_command = ["pnpm", "exec", "vitest", "run", *baseline,
                        "--reporter=json", "--outputFile", str(output / "control.json")]
     start = time.monotonic()
@@ -98,7 +139,7 @@ def main():
     if control.returncode:
         return 1
     results = []
-    for label, source_path, test_path, test_name, (pattern, replacement) in cases():
+    for label, source_path, test_path, test_name, (pattern, replacement) in suite():
         source_file = repo / source_path
         original = source_file.read_text()
         mutant, hits = re.subn(pattern, lambda _: replacement, original)

@@ -40,9 +40,7 @@ use publication_host::{
     render_publication, select_pdf_destination,
 };
 mod startup_host;
-use persistence_host::{
-    Budget, checkpoint_document, protect_fountain_import, protect_workflow, save_document,
-};
+use persistence_host::{Budget, checkpoint_document, protect_workflow, save_document};
 use recovery_choices_host::{
     compare_recovery, keep_current_source, recover_checkpoint_as_current, resolve_save_transaction,
     save_recovered_copy,
@@ -78,23 +76,6 @@ impl DocumentHost {
         #[cfg(not(target_os = "linux"))]
         {
             false
-        }
-    }
-
-    fn read(&self, request: &DocumentRequest) -> Result<OpenDocument, DocumentError> {
-        let service = self
-            .service
-            .lock()
-            .map_err(|_| DocumentError::new(ErrorCode::NativeUnavailable))?;
-        #[cfg(target_os = "linux")]
-        return service
-            .as_ref()
-            .ok_or_else(|| DocumentError::new(ErrorCode::NativeUnavailable))?
-            .read_initial(request);
-        #[cfg(not(target_os = "linux"))]
-        {
-            let _ = (service, request);
-            Err(DocumentError::new(ErrorCode::NativeUnavailable))
         }
     }
 
@@ -149,14 +130,6 @@ impl DocumentHost {
             Err(DocumentError::new(ErrorCode::NativeUnavailable))
         }
     }
-}
-
-#[tauri::command]
-async fn read_open_document(
-    request: DocumentRequest,
-    state: tauri::State<'_, DocumentHost>,
-) -> Result<OpenDocument, DocumentError> {
-    state.read_worker(request).await
 }
 
 #[tauri::command]
@@ -343,7 +316,6 @@ pub fn run() {
         cancel_publication,
         #[cfg(target_os = "linux")]
         spellcheck,
-        read_open_document,
         check_source_document,
         reload_source_document,
         create_unsaved_draft,
@@ -369,7 +341,6 @@ pub fn run() {
         read_document_recovery,
         resume_local_recovery,
         checkpoint_document,
-        protect_fountain_import,
         protect_workflow,
         save_document,
         compare_recovery,
@@ -403,7 +374,6 @@ pub fn run() {
         cancel_publication,
         #[cfg(target_os = "linux")]
         spellcheck,
-        read_open_document,
         check_source_document,
         reload_source_document,
         create_unsaved_draft,
@@ -429,7 +399,6 @@ pub fn run() {
         read_document_recovery,
         resume_local_recovery,
         checkpoint_document,
-        protect_fountain_import,
         protect_workflow,
         save_document,
         compare_recovery,
@@ -459,7 +428,6 @@ pub fn run() {
         cancel_publication,
         #[cfg(target_os = "linux")]
         spellcheck,
-        read_open_document,
         check_source_document,
         reload_source_document,
         create_unsaved_draft,
@@ -485,7 +453,6 @@ pub fn run() {
         read_document_recovery,
         resume_local_recovery,
         checkpoint_document,
-        protect_fountain_import,
         protect_workflow,
         save_document,
         compare_recovery,

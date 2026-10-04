@@ -79,7 +79,6 @@ export interface DocumentError {
 
 /** Native selection is intentionally absent: UI cannot supply a filesystem path. */
 export interface DocumentPort {
-  readInitial(identity: DocumentIdentity): Promise<OpenDocument>;
   release(identity: DocumentIdentity): Promise<void>;
   releaseAtRisk(identity: DocumentIdentity): Promise<void>;
   checkpoint(request: CheckpointRequest): Promise<CheckpointReceipt>;

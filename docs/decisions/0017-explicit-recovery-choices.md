@@ -6,13 +6,15 @@ Authority: [SPEC S10.4/10.5/10.7](../../SPEC.md#s10), SAVE-03/05, INV-07;
 [UX](../ux.md), [ADRs 0012–0016](0016-read-only-startup-recovery-review.md).
 Evidence: [M2 report](../test-evidence/M2-05B.md).
 
+Amended 2026-10-03 by [AUDIT-SLP-A](../tasks/AUDIT-SLP-A.md) to remove unused surfaces; historical acceptance evidence remains retained.
+
 ## Context and decision
 
 M2-05A exposed loose/unsaved recovery read-only without selecting a source or
 choosing a winner. M2-05B adds explicit choices over a **natively opened**
 source: compare a selected recovery checkpoint against the registered anchor,
 then Recover as Current, Keep Current File, Save Recovered Copy, or resolve an
-interrupted transaction. Safe relinking covers a moved or missing source.
+interrupted transaction. M4-01 recent-project location confirmation covers a moved or missing source.
 Retention, pruning, Save As and protected close remain M2-05C/D.
 
 Comparison reports facts about both generations — recovery version/generation/
@@ -48,13 +50,10 @@ unchanged with no receipt; prepared-intent cleanup is M2-05C pruning, not an
 automatic delete here. A second unresolved corruption still blocks, exactly as
 in M2-02/M2-03.
 
-Relinking is native-only, like `open_selected`: the caller supplies the new
-location inside Rust and no IPC path exists. Managed continuity requires the
-same project identity, loose moves link the same document ID (conflicting
-records fail with `SaveConflict`), and the target must support exclusive
-ownership. A rename preserves the inode, so the held source lease is verified
-rather than re-acquired against itself. The old file is never deleted.
-Unsaved Save As belongs to M2-05C, not relinking.
+The unused native-only in-session relink capability was removed in AUDIT-SLP-A.
+Moved-source continuity uses M4-01 explicit locate/confirm on a new registration;
+live registrations cannot be re-anchored. Managed/loose identity, ownership,
+recovery and stale-token guards remain in that path. Unsaved Save As is separate.
 
 ## IPC, UI and alternatives
 
@@ -81,8 +80,8 @@ An automatic winner, timestamp ordering, silent retry of a stuck transaction,
 or deleting prepared/quarantined material to look healthy would violate the
 recovery/conflict contract and are rejected. Requiring a writable
 registration before inspection would have prevented review of old sessions;
-comparison therefore also works on view-only registrations, while adoption,
-finalize and relink require exclusive ownership.
+comparison therefore also works on view-only registrations, while adoption
+and finalize require exclusive ownership.
 
 Evidence still needed: M2-05C snapshots/retention/prepared cleanup/external
 backup destination and Save As; M2-05D protected close; production picker and

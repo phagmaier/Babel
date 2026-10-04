@@ -89,7 +89,6 @@ async function setup(readOnly = false) {
     defer: async () => {},
   });
   const documents = {
-    readInitial: vi.fn(async () => opened()),
     release: vi.fn(async () => {}),
     releaseAtRisk: vi.fn(async () => {}),
     checkpoint: vi.fn(

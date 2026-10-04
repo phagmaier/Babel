@@ -60,7 +60,6 @@ function ports(): {
   const saves: SaveRequest[] = [];
   const created: unknown[] = [];
   const native: DocumentPort = {
-    readInitial: async () => opened(),
     release: async () => undefined,
     releaseAtRisk: async () => undefined,
     checkpoint: async (req) => {

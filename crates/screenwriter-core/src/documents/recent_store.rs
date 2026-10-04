@@ -474,24 +474,6 @@ impl DocumentService {
         }
     }
 
-    pub(super) fn note_recent_relink(&mut self, identity: &DocumentRequest, old_path: &Path) {
-        let entry_id = (|| {
-            let lease = self.lease("recent-projects")?;
-            let r = self.read_recents()?;
-            self.verify_lease(&lease)?;
-            Ok::<_, DocumentError>(
-                r.entries
-                    .into_iter()
-                    .find(|e| e.document_id == identity.document_id && e.path() == old_path)
-                    .map(|e| e.entry_id),
-            )
-        })();
-        match entry_id {
-            Ok(id) => self.note_recent(identity, id.as_deref()),
-            Err(_) => self.recent_attention = true,
-        }
-    }
-
     fn recent_entry(&self, request: &RecentRequest) -> Result<StoredEntry, DocumentError> {
         let lease = self.lease("recent-projects")?;
         let r = self.read_recents()?;

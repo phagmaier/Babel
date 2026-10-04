@@ -18,9 +18,6 @@ use std::{
     path::{Path, PathBuf},
 };
 
-const PROJECT_A: &str = "11111111-1111-4111-8111-111111111111";
-const PROJECT_B: &str = "22222222-2222-4222-8222-222222222222";
-
 struct Fixture(PathBuf);
 impl Fixture {
     fn new() -> Self {
@@ -51,31 +48,6 @@ impl Fixture {
     fn source(&self, name: &str, bytes: &[u8]) -> PathBuf {
         let path = self.0.join(name);
         fs::write(&path, bytes).unwrap();
-        fs::set_permissions(&path, fs::Permissions::from_mode(0o600)).unwrap();
-        path
-    }
-
-    fn managed_project(&self, dir: &str, file: &str, project_id: &str) -> PathBuf {
-        let root = self.0.join(dir);
-        fs::create_dir(&root).unwrap();
-        fs::set_permissions(&root, fs::Permissions::from_mode(0o700)).unwrap();
-        let aux = root.join(".screenwriter");
-        fs::create_dir(&aux).unwrap();
-        fs::set_permissions(&aux, fs::Permissions::from_mode(0o700)).unwrap();
-        fs::write(
-            aux.join("project.json"),
-            json!({
-                "schemaVersion": 1,
-                "projectId": project_id,
-                "sourceFilename": file,
-                "pdfProfile": "us-letter-draft",
-            })
-            .to_string(),
-        )
-        .unwrap();
-        fs::set_permissions(aux.join("project.json"), fs::Permissions::from_mode(0o600)).unwrap();
-        let path = root.join(file);
-        fs::write(&path, b"managed original").unwrap();
         fs::set_permissions(&path, fs::Permissions::from_mode(0o600)).unwrap();
         path
     }
@@ -749,82 +721,6 @@ fn second_instance_may_compare_but_never_adopt() {
 }
 
 #[test]
-fn relink_follows_loose_moves_and_managed_renames_safely() {
-    let fixture = Fixture::new();
-    let mut service = fixture.service();
-    let path = fixture.source("story.fountain", b"original");
-    let opened = service.open_selected(&path).unwrap();
-    checkpoint(&mut service, &opened, 21, b"edited");
-
-    let moved = fixture.0.join("moved.fountain");
-    fs::rename(&path, &moved).unwrap();
-    assert!(service.validate_owner(&opened.identity).is_err());
-    let relinked = service.relink_selected(&opened.identity, &moved).unwrap();
-    assert_eq!(relinked.identity.document_id, opened.identity.document_id);
-    assert_eq!(relinked.source, b"original");
-    service.validate_owner(&opened.identity).unwrap();
-    // Recovery association survives the move; adoption still works.
-    let selection = latest_selection(&service, &opened);
-    let receipt = service
-        .recover_checkpoint_as_current(&RecoverRequest {
-            replacement_metadata: None,
-            identity: opened.identity.clone(),
-            selection,
-            new_version: 22,
-            expected_fingerprint: relinked.fingerprint.clone().unwrap(),
-        })
-        .unwrap();
-    assert_eq!(receipt.version, 22);
-    assert_eq!(fs::read(&moved).unwrap(), b"edited");
-
-    // A managed project renamed as a whole relinks with its identity.
-    let managed = fixture.managed_project("project", "script.fountain", PROJECT_A);
-    let mopened = service.open_selected(&managed).unwrap();
-    assert_eq!(mopened.identity.document_id, PROJECT_A);
-    assert!(matches!(
-        mopened.ownership,
-        screenwriter_core::documents::Ownership::Exclusive
-    ));
-    let renamed_dir = fixture.0.join("project-renamed");
-    fs::rename(fixture.0.join("project"), &renamed_dir).unwrap();
-    let relinked = service
-        .relink_selected(&mopened.identity, &renamed_dir.join("script.fountain"))
-        .unwrap();
-    assert_eq!(relinked.identity.document_id, PROJECT_A);
-
-    // An unrelated managed project is never adopted as the same document.
-    let other = fixture.managed_project("other", "script.fountain", PROJECT_B);
-    assert_eq!(
-        service
-            .relink_selected(&mopened.identity, &other)
-            .unwrap_err()
-            .code,
-        ErrorCode::IdentityMismatch
-    );
-    // A loose file cannot be relinked onto a managed identity either.
-    let loose = fixture.source("loose.fountain", b"loose");
-    assert_eq!(
-        service
-            .relink_selected(&mopened.identity, &loose)
-            .unwrap_err()
-            .code,
-        ErrorCode::IdentityMismatch
-    );
-    // A read-only target cannot re-establish exclusive authority.
-    let moved_back = fixture.0.join("back.fountain");
-    fs::write(&moved_back, b"back").unwrap();
-    fs::set_permissions(&moved_back, fs::Permissions::from_mode(0o400)).unwrap();
-    assert_eq!(
-        service
-            .relink_selected(&opened.identity, &moved_back)
-            .unwrap_err()
-            .code,
-        ErrorCode::OwnershipRequired
-    );
-    fs::set_permissions(&moved_back, fs::Permissions::from_mode(0o600)).unwrap();
-}
-
-#[test]
 fn resolve_reports_no_transaction_without_writing() {
     let fixture = Fixture::new();
     let mut service = fixture.service();
@@ -840,83 +736,4 @@ fn resolve_reports_no_transaction_without_writing() {
     assert!(resolution.completed.is_none());
     assert!(!resolution.previous_preserved);
     assert_eq!(disk_state(&fixture.0), before);
-}
-
-#[test]
-fn view_only_caller_cannot_relink_and_leaves_disk_identical() {
-    // R2: a second service holds the source view-only while the owner keeps
-    // exclusive leases. Relinking from the view-only registration must refuse
-    // before any identity/lease mutation.
-    let fixture = Fixture::new();
-    let mut owner = fixture.service();
-    let path = fixture.source("story.fountain", b"original");
-    let owned = owner.open_selected(&path).unwrap();
-    assert_eq!(
-        owned.ownership,
-        screenwriter_core::documents::Ownership::Exclusive
-    );
-    let mut other = fixture.service();
-    let viewed = other.open_selected(&path).unwrap();
-    assert!(matches!(
-        viewed.ownership,
-        screenwriter_core::documents::Ownership::ViewOnly { .. }
-    ));
-    let target = fixture.source("unrelated.fountain", b"unrelated");
-    let before = disk_state(&fixture.0);
-    assert_eq!(
-        other
-            .relink_selected(&viewed.identity, &target)
-            .unwrap_err()
-            .code,
-        ErrorCode::OwnershipRequired
-    );
-    assert_eq!(disk_state(&fixture.0), before);
-    assert_eq!(fs::read(&path).unwrap(), b"original");
-    assert_eq!(fs::read(&target).unwrap(), b"unrelated");
-    // The exclusive owner still relinks a genuine move.
-    let moved = fixture.0.join("moved.fountain");
-    fs::rename(&path, &moved).unwrap();
-    let relinked = owner.relink_selected(&owned.identity, &moved).unwrap();
-    assert_eq!(relinked.identity.document_id, owned.identity.document_id);
-    assert_eq!(fs::read(&moved).unwrap(), b"original");
-}
-
-#[test]
-fn invalidated_leases_refuse_relink_without_disk_change() {
-    let fixture = Fixture::new();
-    let mut service = fixture.service();
-    let path = fixture.source("story.fountain", b"original");
-    let opened = service.open_selected(&path).unwrap();
-    assert_eq!(
-        opened.ownership,
-        screenwriter_core::documents::Ownership::Exclusive
-    );
-    // Replace held lock inodes so held leases no longer verify.
-    let held_locks: Vec<_> = fs::read_dir(fixture.store())
-        .unwrap()
-        .map(|entry| entry.unwrap().path())
-        .filter(|path| path.extension().is_some_and(|ext| ext == "lock"))
-        .collect();
-    assert!(!held_locks.is_empty());
-    for lock in held_locks {
-        fs::remove_file(&lock).unwrap();
-        fs::write(&lock, b"").unwrap();
-    }
-    let target = fixture.source("moved.fountain", b"original");
-    let before = disk_state(&fixture.0);
-    let code = service
-        .relink_selected(&opened.identity, &target)
-        .unwrap_err()
-        .code;
-    assert!(
-        matches!(
-            code,
-            ErrorCode::OwnershipLost
-                | ErrorCode::OwnershipRequired
-                | ErrorCode::IdentityStoreUnavailable
-        ),
-        "unexpected relink error {code:?}"
-    );
-    assert_eq!(disk_state(&fixture.0), before);
-    assert_eq!(fs::read(&path).unwrap(), b"original");
 }

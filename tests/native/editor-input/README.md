@@ -1,6 +1,6 @@
 # M3-08 synthetic native input diagnostic
 
-This mounts the production editor, clipboard/formatting registry and explicit Fountain import panel on synthetic text. A native feature-only handle selects only an existing marked M1 fixture; import protects the current live draft, not just the source file. Default writing remains inactive.
+This mounts the production editor, clipboard/formatting registry and explicit Fountain import panel on synthetic text. A native feature-only handle selects only an existing marked M1 fixture; import protects the current live draft, not just the source file. The fixture uses WritingSession with the live workflow port; each import disposes its fixture cadence while retaining the feature-owned native registration. Default writing remains inactive. `--import-only` checks just the changed protection/Undo path; it makes no IME/clipboard/performance or close-cleanup claim.
 
 Create a private root with `python3 prototypes/editor-composition/seed.py /tmp`. Substitute its path:
 
@@ -15,6 +15,7 @@ env CARGO_HOME=/tmp/babel-cargo \
 python3 tests/native/editor-input/build-keyboard.py
 python3 tests/native/editor-input/native-input.py /tmp/babel-m3-08-native.log
 python3 tests/native/editor-input/native-input.py /tmp/babel-m3-08-native.log --selection-only
+python3 tests/native/editor-input/native-input.py /tmp/babel-m3-08-native.log --import-only
 python3 tests/native/editor-input/verify-protection.py /tmp/babel-m3-08-native.log /tmp/babel-editor-composition-REPLACE
 node tests/native/editor-input/browser-security.mjs
 ```

@@ -1,10 +1,7 @@
 //! Bounded blocking jobs. No guard crosses await; cancellation never interrupts a started write.
 use super::*;
 use screenwriter_core::documents::{
-    history::{
-        ImportProtectionReceipt, WorkflowOperation, WorkflowProtectionReceipt,
-        WorkflowProtectionRequest,
-    },
+    history::{WorkflowProtectionReceipt, WorkflowProtectionRequest},
     persistence::{CheckpointFailure, CheckpointRequest, payload_cost},
     recovery::CheckpointReceipt,
     saving::{
@@ -50,20 +47,6 @@ impl DocumentHost {
             budget: self.budget.clone(),
             bytes,
         })
-    }
-
-    pub(super) async fn read_worker(
-        &self,
-        request: DocumentRequest,
-    ) -> Result<OpenDocument, DocumentError> {
-        let permit = self.reserve(0)?;
-        let host = self.clone();
-        tauri::async_runtime::spawn_blocking(move || {
-            let _permit = permit;
-            host.read(&request)
-        })
-        .await
-        .map_err(|_| DocumentError::new(ErrorCode::NativeUnavailable))?
     }
 
     pub(super) async fn release_worker(
@@ -136,22 +119,6 @@ impl DocumentHost {
         })
         .await
         .map_err(|_| join_failure)?
-    }
-
-    async fn protect_import(
-        &self,
-        request: CheckpointRequest,
-    ) -> Result<ImportProtectionReceipt, DocumentError> {
-        let receipt = self
-            .protect_workflow(WorkflowProtectionRequest {
-                operation: WorkflowOperation::FountainImport,
-                checkpoint: request,
-            })
-            .await?;
-        Ok(ImportProtectionReceipt {
-            checkpoint: receipt.checkpoint,
-            revision: receipt.revision,
-        })
     }
 
     async fn protect_workflow(
@@ -248,14 +215,6 @@ pub(super) async fn save_document(
     state: tauri::State<'_, DocumentHost>,
 ) -> Result<SaveReceipt, Box<SaveFailure>> {
     state.save(request).await
-}
-
-#[tauri::command]
-pub(super) async fn protect_fountain_import(
-    request: CheckpointRequest,
-    state: tauri::State<'_, DocumentHost>,
-) -> Result<ImportProtectionReceipt, DocumentError> {
-    state.protect_import(request).await
 }
 
 #[tauri::command]
@@ -367,7 +326,13 @@ mod tests {
         assert_eq!(saved.version, 21);
         assert_eq!(host.budget.lock().unwrap().jobs, 0);
         assert_eq!(
-            tauri::async_runtime::block_on(host.read_worker(opened.identity.clone())).unwrap(),
+            host.service
+                .lock()
+                .unwrap()
+                .as_ref()
+                .unwrap()
+                .read_initial(&opened.identity)
+                .unwrap(),
             opened
         );
     }
@@ -503,7 +468,12 @@ mod tests {
         tauri::async_runtime::block_on(host.release_at_risk_worker(opened.identity.clone()))
             .unwrap();
         assert_eq!(
-            tauri::async_runtime::block_on(host.read_worker(opened.identity.clone()))
+            host.service
+                .lock()
+                .unwrap()
+                .as_ref()
+                .unwrap()
+                .read_initial(&opened.identity)
                 .unwrap_err()
                 .code,
             ErrorCode::InvalidHandle

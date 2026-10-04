@@ -3,9 +3,11 @@
 Status: Accepted direction. Date: 2026-09-30. Task: M4-04.
 Authority: [SPEC S08.3/S10.2/S11.1/S14.1](../../SPEC.md#s08), NAV-01, HIST-01, SAVE-01–03, SEC-02, QA-01; [ADR 0020](0020-native-curated-history.md), [ADR 0023](0023-protected-fountain-import.md).
 
+Amended 2026-10-03 by [AUDIT-SLP-A](../tasks/AUDIT-SLP-A.md) to remove unused surfaces; historical acceptance evidence remains retained.
+
 ## Decision
 
-Extend the existing owned checkpoint and curated history machinery with `protect_workflow`. Its strict request contains only a closed operation (`fountainImport`, `sceneMove`, `sectionMove`) and the existing path-free checkpoint envelope. Rust chooses the history label and native profile. It checkpoints the exact bytes and publishes/readbacks their safety ref under the document service mutex in one admitted blocking worker. The receipt binds operation, byte length, checkpoint identity/session/version/hash/generation and the verified revision/ref. The compatibility import command delegates to the same core primitive. Neither receipt saves or replaces the source; Rust does not parse source or apply editor operations.
+Extend the existing owned checkpoint and curated history machinery with `protect_workflow`. Its strict request contains only a closed operation (`fountainImport`, `sceneMove`, `sectionMove`) and the existing path-free checkpoint envelope. Rust chooses the history label and native profile. It checkpoints the exact bytes and publishes/readbacks their safety ref under the document service mutex in one admitted blocking worker. The receipt binds operation, byte length, checkpoint identity/session/version/hash/generation and the verified revision/ref. This is the sole import protection command; the unused compatibility command and receipt were removed in AUDIT-SLP-A. Neither receipt saves or replaces the source; Rust does not parse source or apply editor operations.
 
 A scene or section move is large at **50 or more physical source rows OR 16,384 or more source bytes** in the complete moved span, including attachments, hidden regions and newline bytes. Section subtrees count their entire moved span. Below both thresholds the move still needs exact live-frame validation and coherent Undo; uncertainty about dimensions requires protection rather than a size guess. This task defines and tests the policy; M4-05 owns planning, dimensions, preview and dispatch.
 

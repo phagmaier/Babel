@@ -70,7 +70,6 @@ fn entry_app(host: DocumentHost) -> tauri::App<tauri::test::MockRuntime> {
     mock_builder()
         .manage(host)
         .invoke_handler(tauri::generate_handler![
-            read_open_document,
             create_unsaved_draft,
             open_source_via_picker,
             select_destination,
@@ -130,13 +129,15 @@ fn unsaved_draft_allocates_immediate_identity_without_touching_sources() {
         .deserialize_open();
     assert_ne!(first.identity, second.identity);
     // The pre-existing registration is untouched and still readable.
-    let reread = invoke(
-        &webview,
-        "read_open_document",
-        json!({"request": opened.identity}),
-    )
-    .unwrap()
-    .deserialize_open();
+    let reread = app
+        .state::<DocumentHost>()
+        .service
+        .lock()
+        .unwrap()
+        .as_ref()
+        .unwrap()
+        .read_initial(&opened.identity)
+        .unwrap();
     assert_eq!(reread, opened);
     // An unsaved identity is immediately recoverable: first checkpoint succeeds.
     let receipt = invoke(
@@ -186,13 +187,15 @@ fn picker_cancel_preserves_registration_recovery_and_tokens() {
         Value::Null
     );
     // Registration, recovery and the earlier token all survive cancellation.
-    let reread = invoke(
-        &webview,
-        "read_open_document",
-        json!({"request": opened.identity}),
-    )
-    .unwrap()
-    .deserialize_open();
+    let reread = app
+        .state::<DocumentHost>()
+        .service
+        .lock()
+        .unwrap()
+        .as_ref()
+        .unwrap()
+        .read_initial(&opened.identity)
+        .unwrap();
     assert_eq!(reread, opened);
     let checkpoint = CheckpointRequest {
         identity: opened.identity.clone(),

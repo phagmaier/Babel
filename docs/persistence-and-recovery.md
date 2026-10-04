@@ -168,7 +168,7 @@ disk with the source and are not a separate backup.
 
 This task covers loose/unsaved private-store recovery only; the source has not
 been selected or compared. Headless managed/loose/unsaved comparison and
-protected recovery/copy/keep/finalize/relink choices are M2-05B;
+protected recovery/copy/keep/finalize choices are M2-05B;
 snapshots/retention/copies are owned by M2-05C; protected close by M2-05D.
 Those subsequent bounded gates and the M2-06 headless exit passed. [ADR 0016](decisions/0016-read-only-startup-recovery-review.md)
 and [M2 evidence](test-evidence/M2-05A.md)
@@ -178,8 +178,7 @@ record the contract and native/mocked verification boundary.
 
 M2-05B-R1 corrects the two [independent review](reviews/2026-09-28-m2-05b-review.md) gaps: finalization now finishes source file/directory durability and revalidates before any receipt, and relink requires exclusive caller ownership with held-lease verification. The owner [accepted R1](test-evidence/M2-05B-R1.md) at `5e84879` on 2026-09-28, closing M2-05B acceptance within its recorded Linux/native and mocked coverage.
 
-Comparison, adoption, keep, sibling copy, transaction finalize and safe
-relinking operate on a natively opened (`open_selected`) registration anchor;
+Comparison, adoption, keep, sibling copy and transaction finalize operate on a natively opened (`open_selected`) registration anchor;
 no IPC path exists and no choice deletes material. The older-session journal
 gate stays closed for ordinary checkpoints/saves; only an explicit choice
 reconciles it in memory for the current registration, and a restart requires
@@ -188,8 +187,9 @@ version through the M2-03 recovery-first transaction with an exact source
 receipt; Keep verifies both unchanged and writes nothing; Save Recovered Copy
 writes exact bytes (including malformed UTF-8) to a synced sibling and
 reports only the file name; finalize completes only the two safe
-post-replacement states; relinking is native-only with managed/loose
-continuity checks. Timestamps never select a winner; a second unresolved
+post-replacement states. The unused native-only in-session relink API was removed
+in AUDIT-SLP-A; M4-01 explicit locate/confirm retains managed/loose identity,
+recovery and ownership checks. Timestamps never select a winner; a second unresolved
 corruption still blocks. Retention/pruning, Save As, external backup
 destinations and protected close remain M2-05C/D. [ADR 0017](decisions/0017-explicit-recovery-choices.md)
 and [M2 evidence](test-evidence/M2-05B.md)
@@ -286,9 +286,9 @@ re-arms itself — the failure stays visible in persistence state and only a
 newer edit or an explicit flush retries. After each confirmed save, a rolling
 snapshot is requested when the existing five-minute retention interval has
 elapsed and content changed; snapshot/copy errors set a separate attention
-flag and never touch save state. `src/app/SaveStatus.tsx` renders the
-resulting live/recovery/file-saved versions and snapshot attention as literal
-text. M3-11/12 connect editor wiring, Save As identity switching and protected
+flag and never touch save state. The mounted `WritingView` Protection status renders live/recovery/file-saved
+versions, snapshot attention/rolling version and the only-in-memory warning as
+literal text; AUDIT-SLP-A ports the unused SaveStatus assertions to this surface. M3-11/12 connect editor wiring, Save As identity switching and protected
 close integration. [M3 evidence](test-evidence/M3.md#m3-10--recoverysource-cadence-and-visible-protection-state)
 owns checks and measured native latency.
 

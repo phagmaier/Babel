@@ -61,6 +61,18 @@ def native_selection():
     formatted=key('-M','ctrl','-k','b','-m','ctrl');assert src(formatted)==b'\n@MAYA\n**Hello world.**\n',formatted
     restored=undo();assert src(restored)==original and restored['selection']==selected['selection'],restored
     print('Native physical Shift+Home backward selection, Unicode replacement, formatting and exact selection/source undo passed.',flush=True)
+def native_import():
+    key('-k','F1');protected=key('-k','F4')
+    assert any(e.get('key')=='F4' and e['trusted'] for e in protected['inputEvents']),protected
+    imported=b'\xef\xbb\xbfTitle: Imported\r\n\r\n!New screenplay\r\n/* retained unknown */\r\n'
+    assert protected['imported']['status']=='imported' and src(protected)==imported,protected
+    receipt=protected['imported']['protection'];assert receipt['checkpoint']['sourceSha256']==hashlib.sha256(original).hexdigest()
+    assert receipt['revision']['safetyRef']=='refs/safety/'+receipt['revision']['commitId']
+    assert src(undo())==original;assert src(redo())==imported
+    print('PASS native coordinated import / exact checkpoint / safety ref / BOM-CRLF / Undo-Redo', flush=True)
+
+if '--import-only' in sys.argv:
+    native_import();sys.exit(0)
 if '--selection-only' in sys.argv:
     native_selection();sys.exit(0)
 native_selection()
@@ -143,12 +155,7 @@ assert src(undo())==original
 ime_switch('keyboard-us')
 print('Real pinyin commit/cancel and mozc commit with trusted composition and exact undo passed.',flush=True)
 # Exact native protection before whole-source import, followed by source-origin undo/redo.
-key('-k','F1');protected=key('-k','F4')
-imported=b'\xef\xbb\xbfTitle: Imported\r\n\r\n!New screenplay\r\n/* retained unknown */\r\n'
-assert protected['imported']['status']=='imported' and src(protected)==imported,protected
-receipt=protected['imported']['protection'];assert receipt['checkpoint']['sourceSha256']==hashlib.sha256(original).hexdigest()
-assert receipt['revision']['safetyRef']=='refs/safety/'+receipt['revision']['commitId']
-assert src(undo())==original;assert src(redo())==imported
+native_import()
 # Synthetic large-row workloads, not guessed screenplay page counts. Real ASCII typing.
 metrics=[]
 for function,count in [('F9',2400),('F10',6000),('F11',12000)]:

@@ -6,15 +6,21 @@ import { createEditorState } from '../../src/editor/state';
 import { mountScreenplayEditor } from '../../src/editor/view';
 import { captureEditor } from '../../src/editor/sourceBridge';
 import { localShortcutRegistry } from '../../src/application/shortcuts';
-import {
-  FountainImportBoundary,
-  type ImportProtectionReceipt,
-  type FountainImportPort,
-} from '../../src/application/fountainImport';
+import { FountainImportBoundary } from '../../src/application/fountainImport';
 import { EditorCaptureBoundary } from '../../src/application/editorCapture';
 import { createFountainImportPanel } from '../../src/app/FountainImportPanel';
 import { clipboardMime } from '../../src/editor/clipboard';
 const original = '\n@MAYA\nHello world.\n';
+import type {
+  WorkflowProtectionPort,
+  WorkflowProtectionReceipt,
+} from '../../src/application/workflowProtection';
+import {
+  WritingSession,
+  type SessionPorts,
+} from '../../src/application/writingSession';
+import { workflowView } from '../workflowView';
+const sessions: WritingSession[] = [];
 const identity = {
   handle: 'synthetic',
   documentId: 'document',
@@ -23,6 +29,8 @@ const identity = {
 const encoder = new TextEncoder();
 let view: EditorView;
 afterEach(() => {
+  for (const session of sessions.splice(0)) session.dispose();
+  vi.restoreAllMocks();
   view?.destroy();
   document.body.replaceChildren();
 });
@@ -73,7 +81,12 @@ function capture() {
     hash: async (bytes) => createHash('sha256').update(bytes).digest('hex'),
   });
 }
-const protect: FountainImportPort['protect'] = async (req) => ({
+const protect: WorkflowProtectionPort['protect'] = async ({
+  operation,
+  checkpoint: req,
+}) => ({
+  operation,
+  byteLength: req.source.length,
   checkpoint: {
     identity: req.identity,
     version: req.version,
@@ -91,13 +104,55 @@ const protect: FountainImportPort['protect'] = async (req) => ({
     safetyRef: `refs/safety/${'b'.repeat(40)}`,
   },
 });
-function boundary(port: FountainImportPort = { protect }) {
+function boundary(port: WorkflowProtectionPort = { protect }) {
+  const unavailable = async () => {
+    throw new Error('unused fixture operation');
+  };
+  const ports: SessionPorts = {
+    workflows: port,
+    documents: {
+      release: unavailable,
+      releaseAtRisk: unavailable,
+      checkpoint: async (request) =>
+        (await protect({ operation: 'fountainImport', checkpoint: request }))
+          .checkpoint,
+      save: unavailable,
+    },
+    entry: {
+      createUnsaved: unavailable,
+      openViaPicker: unavailable,
+      selectDestination: unavailable,
+    },
+    saveAs: { selectDestination: unavailable, saveAs: unavailable },
+    snapshots: {
+      list: unavailable,
+      read: unavailable,
+      create: unavailable,
+      prune: unavailable,
+      restore: unavailable,
+      copy: unavailable,
+    },
+  };
+  const session = new WritingSession(
+    ports,
+    workflowView(() => view, capture()),
+  );
+  sessions.push(session);
+  const ready = session.openSelected(async () => ({
+    identity,
+    kind: 'unsaved',
+    persistentIdentity: false,
+    ownership: { status: 'exclusive', reasons: [] },
+    encoding: 'utf8',
+    source: [...encoder.encode(original)],
+    fingerprint: null,
+  }));
   return new FountainImportBoundary(
     () => view,
-    identity,
-    null,
-    port,
-    capture(),
+    async (apply, signal) => {
+      await ready;
+      return session.runProtectedWorkflow('fountainImport', apply, signal);
+    },
   );
 }
 
@@ -175,7 +230,12 @@ describe('explicit protected Fountain import (mocked port)', () => {
     );
     expect(result.status).toBe('imported');
     expect(port.protect).toHaveBeenCalledWith(
-      expect.objectContaining({ source: [...encoder.encode(original)] }),
+      expect.objectContaining({
+        operation: 'fountainImport',
+        checkpoint: expect.objectContaining({
+          source: [...encoder.encode(original)],
+        }),
+      }),
     );
     expect(read()).toBe('Title: Import\r\n\r\n!New\r\n');
     key('z');
@@ -184,7 +244,7 @@ describe('explicit protected Fountain import (mocked port)', () => {
     key('z', true);
     expect(read()).toContain('!New\r\n');
   });
-  it.each(['checkpoint', 'revision', 'history'])(
+  it.each(['checkpoint', 'revision', 'history', 'operation', 'length'])(
     'refuses wrong %s protection and keeps both manuscripts',
     async (field) => {
       mount();
@@ -193,16 +253,18 @@ describe('explicit protected Fountain import (mocked port)', () => {
           if (field === 'history') throw new Error('history unavailable');
           const r = await protect(req);
           if (field === 'checkpoint') r.checkpoint.version++;
+          else if (field === 'operation') r.operation = 'sceneMove';
+          else if (field === 'length') r.byteLength++;
           else r.revision.safetyRef = null;
           return r;
         },
-      } satisfies FountainImportPort;
+      } satisfies WorkflowProtectionPort;
       const result = await boundary(port).import(encoder.encode('!New\n'));
       expect(result.status).toBe('refused');
       expect(read()).toBe(original);
     },
   );
-  it('keeps native transport errors behind a fixed message', async () => {
+  it('preserves the live coordinator failure message and both manuscripts', async () => {
     mount();
     const result = await boundary({
       protect: async () => {
@@ -211,30 +273,42 @@ describe('explicit protected Fountain import (mocked port)', () => {
     }).import(encoder.encode('!New\n'));
     expect(result).toEqual({
       status: 'refused',
-      reason: 'Import protection failed; current and imported content retained',
+      reason: 'private path: untrusted transport details',
     });
     expect(read()).toBe(original);
   });
-  it('refuses stale editor or composition after native protection and bounded concurrent imports', async () => {
-    mount();
-    let finish!: (r: ImportProtectionReceipt) => void;
-    let request!: Parameters<FountainImportPort['protect']>[0];
-    const b = boundary({
-      protect: async (r) => {
-        request = r;
-        return new Promise((resolve) => {
-          finish = resolve;
-        });
-      },
-    });
-    const pending = b.import(encoder.encode('!New\n'));
-    await vi.waitFor(() => expect(finish).toBeDefined());
-    expect((await b.import(encoder.encode('!Else\n'))).status).toBe('refused');
-    view.dispatch(view.state.tr.insertText('changed'));
-    finish(await protect(request));
-    expect((await pending).status).toBe('refused');
-    expect(read()).toBe('\n@MAYA\nHello changed.\n');
-  });
+  it.each(['text', 'selection', 'composition'])(
+    'refuses %s changes after protection and concurrent imports',
+    async (change) => {
+      mount();
+      let finish!: (r: WorkflowProtectionReceipt) => void;
+      let request!: Parameters<WorkflowProtectionPort['protect']>[0];
+      const b = boundary({
+        protect: async (r) => {
+          request = r;
+          return new Promise((resolve) => {
+            finish = resolve;
+          });
+        },
+      });
+      const pending = b.import(encoder.encode('!New\n'));
+      await vi.waitFor(() => expect(finish).toBeDefined());
+      expect((await b.import(encoder.encode('!Else\n'))).status).toBe(
+        'refused',
+      );
+      if (change === 'text') view.dispatch(view.state.tr.insertText('changed'));
+      else if (change === 'selection')
+        view.dispatch(
+          view.state.tr.setSelection(TextSelection.create(view.state.doc, 1)),
+        );
+      else vi.spyOn(view, 'composing', 'get').mockReturnValue(true);
+      finish(await protect(request));
+      expect((await pending).status).toBe('refused');
+      expect(read()).toBe(
+        change === 'text' ? '\n@MAYA\nHello changed.\n' : original,
+      );
+    },
+  );
   it('keeps staged panel content after failures and success; explicit action states whole replacement', async () => {
     mount();
     const panel = createFountainImportPanel(document.body, boundary());

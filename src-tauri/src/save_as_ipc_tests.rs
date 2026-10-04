@@ -62,7 +62,6 @@ fn save_as_app(host: DocumentHost) -> tauri::App<tauri::test::MockRuntime> {
     mock_builder()
         .manage(host)
         .invoke_handler(tauri::generate_handler![
-            read_open_document,
             select_save_destination,
             save_as_copy,
             release_open_document,
@@ -114,13 +113,16 @@ fn save_as_spends_a_native_token_once_and_mints_a_new_identity() {
     assert_eq!(receipt["document"]["kind"], "loose");
     assert_eq!(fs::read(f.0.join("Copy.fountain")).unwrap(), edited);
     // The source registration is untouched; the token is spent.
-    let reread = invoke(
-        &webview,
-        "read_open_document",
-        json!({"request": opened.identity}),
-    )
-    .unwrap();
-    assert_eq!(reread["source"], json!(opened.source));
+    let reread = app
+        .state::<DocumentHost>()
+        .service
+        .lock()
+        .unwrap()
+        .as_ref()
+        .unwrap()
+        .read_initial(&opened.identity)
+        .unwrap();
+    assert_eq!(reread.source, opened.source);
     assert_eq!(
         invoke(
             &webview,
@@ -160,13 +162,16 @@ fn save_dialog_cancel_preserves_everything_and_commands_reject_paths() {
         Value::Null
     );
     assert_eq!(
-        invoke(
-            &webview,
-            "read_open_document",
-            json!({"request": opened.identity}),
-        )
-        .unwrap()["source"],
-        json!(opened.source)
+        app.state::<DocumentHost>()
+            .service
+            .lock()
+            .unwrap()
+            .as_ref()
+            .unwrap()
+            .read_initial(&opened.identity)
+            .unwrap()
+            .source,
+        opened.source
     );
     // No frontend-supplied path reaches either command.
     assert!(

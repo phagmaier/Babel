@@ -1,6 +1,5 @@
 /** Exact pre-operation protection; never a source-save acknowledgement. */
-import type { CheckpointRequest } from './documents';
-import type { ImportProtectionReceipt } from './fountainImport';
+import type { CheckpointReceipt, CheckpointRequest } from './documents';
 import { sameIdentity, validHash } from './persistenceState';
 
 export type WorkflowOperation = 'fountainImport' | 'sceneMove' | 'sectionMove';
@@ -8,7 +7,18 @@ export interface WorkflowProtectionRequest {
   operation: WorkflowOperation;
   checkpoint: CheckpointRequest;
 }
-export interface WorkflowProtectionReceipt extends ImportProtectionReceipt {
+export interface WorkflowProtectionReceipt {
+  checkpoint: CheckpointReceipt;
+  revision: {
+    documentId: string;
+    version: number | null;
+    sourceSha256: string;
+    profileSha256: string;
+    commitId: string;
+    changed: boolean;
+    safetyRef: string | null;
+  };
+
   operation: WorkflowOperation;
   byteLength: number;
 }

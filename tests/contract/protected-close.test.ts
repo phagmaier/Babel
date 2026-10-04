@@ -22,7 +22,6 @@ function fixture(unsaved = false) {
     fingerprint: unsaved ? null : opened().fingerprint,
   };
   const documents: DocumentPort = {
-    readInitial: vi.fn(async () => initial),
     release: vi.fn(async () => undefined),
     releaseAtRisk: vi.fn(async () => undefined),
     checkpoint: vi.fn(async (request) => ({

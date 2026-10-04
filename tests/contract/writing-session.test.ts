@@ -176,7 +176,6 @@ function ports(overrides: Partial<SessionPorts> = {}): {
   };
   const snapshots = { createFails: false };
   const documentPort: DocumentPort = {
-    readInitial: vi.fn(async (id) => ({ ...opened(), identity: { ...id } })),
     release: vi.fn(async (id) => {
       documents.released.push({ ...id });
     }),

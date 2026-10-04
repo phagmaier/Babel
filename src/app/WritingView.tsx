@@ -60,7 +60,6 @@ import { navigateOutline } from '../editor/outlineNavigation';
 import type { CapturedSnapshot } from '../application/persistenceController';
 import type { DocumentEntryPort } from '../application/documentEntry';
 import type { DocumentPort } from '../application/documents';
-import type { FountainImportPort } from '../application/fountainImport';
 import { FountainImportBoundary } from '../application/fountainImport';
 import type { RecoveryChoicesPort } from '../application/recoveryChoices';
 import type {
@@ -125,11 +124,10 @@ export interface WritingPorts {
   snapshots: SnapshotPort;
   choices: RecoveryChoicesPort;
   recovery: RecoveryPort;
-  fountainImport: FountainImportPort;
   publication?: import('../application/publication').PublicationPreviewPort;
   exportPdf?: import('../application/exportPdf').ExportPdfPort;
   exportAssessment?: import('../application/exportAssessment').ExportAssessmentPort;
-  workflows?: import('../application/workflowProtection').WorkflowProtectionPort;
+  workflows: import('../application/workflowProtection').WorkflowProtectionPort;
 }
 
 export type OpenRequest =
@@ -1257,18 +1255,12 @@ export function WritingView({
     if (!view) return;
     const boundary = new FountainImportBoundary(
       () => view,
-      active.identity,
-      () => sessionRef.current?.active?.fingerprint ?? null,
-      ports.fountainImport,
-      undefined,
-      ports.workflows
-        ? (apply, signal) =>
-            sessionRef.current!.runProtectedWorkflow(
-              'fountainImport',
-              apply,
-              signal,
-            )
-        : undefined,
+      (apply, signal) =>
+        sessionRef.current!.runProtectedWorkflow(
+          'fountainImport',
+          apply,
+          signal,
+        ),
     );
     const panel = createFountainImportPanel(importHost.current, boundary);
     panel.input.value = stagedImportRef.current;
@@ -1277,7 +1269,6 @@ export function WritingView({
       panel.destroy();
     };
   }, [
-    ports.fountainImport,
     ports.workflows,
     active?.identity.documentId,
     active?.identity.handle,

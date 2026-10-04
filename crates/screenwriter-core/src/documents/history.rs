@@ -20,14 +20,6 @@ pub enum HistoryHealth {
     NeedsAttention,
 }
 
-/// Both protections refer to the exact pre-import editor bytes. Neither saves the source file.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase", deny_unknown_fields)]
-pub struct ImportProtectionReceipt {
-    pub checkpoint: super::recovery::CheckpointReceipt,
-    pub revision: RevisionReceipt,
-}
-
 /// Closed set of app-owned workflows: no caller-supplied history labels or paths.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]

@@ -1,4 +1,5 @@
 use super::*;
+use crate::documents::history::WorkflowOperation;
 use crate::documents::saving::{SaveProtection, SaveRequest};
 use std::os::unix::fs::PermissionsExt;
 
@@ -292,7 +293,10 @@ fn editor_import_protects_exact_live_draft_with_safety_revision_without_replacin
     let fixture = Fixture::new();
     let (mut service, opened) = fixture.open();
     let receipt = service
-        .protect_editor_import(import_request(&opened, 17, NEW))
+        .protect_editor_workflow(WorkflowProtectionRequest {
+            operation: WorkflowOperation::FountainImport,
+            checkpoint: import_request(&opened, 17, NEW),
+        })
         .unwrap();
     assert_eq!(receipt.checkpoint.version, 17);
     assert_eq!(receipt.revision.version, Some(17));
@@ -315,7 +319,10 @@ fn editor_import_protects_exact_live_draft_with_safety_revision_without_replacin
         NEW
     );
     let repeated = service
-        .protect_editor_import(import_request(&opened, 17, NEW))
+        .protect_editor_workflow(WorkflowProtectionRequest {
+            operation: WorkflowOperation::FountainImport,
+            checkpoint: import_request(&opened, 17, NEW),
+        })
         .unwrap();
     assert_eq!(repeated.revision.commit_id, receipt.revision.commit_id);
     assert!(!repeated.revision.changed);
@@ -326,24 +333,39 @@ fn editor_import_rejects_stale_conflicting_or_forged_capture() {
     let fixture = Fixture::new();
     let (mut service, opened) = fixture.open();
     service
-        .protect_editor_import(import_request(&opened, 17, NEW))
+        .protect_editor_workflow(WorkflowProtectionRequest {
+            operation: WorkflowOperation::FountainImport,
+            checkpoint: import_request(&opened, 17, NEW),
+        })
         .unwrap();
     let mut request = import_request(&opened, 18, NEW);
     request.source_sha256 = hash(OLD);
     assert_eq!(
-        service.protect_editor_import(request).unwrap_err().code,
+        service
+            .protect_editor_workflow(WorkflowProtectionRequest {
+                operation: WorkflowOperation::FountainImport,
+                checkpoint: request
+            })
+            .unwrap_err()
+            .code,
         ErrorCode::InvalidCheckpoint
     );
     assert_eq!(
         service
-            .protect_editor_import(import_request(&opened, 16, NEW))
+            .protect_editor_workflow(WorkflowProtectionRequest {
+                operation: WorkflowOperation::FountainImport,
+                checkpoint: import_request(&opened, 16, NEW)
+            })
             .unwrap_err()
             .code,
         ErrorCode::StaleRecoveryVersion
     );
     assert_eq!(
         service
-            .protect_editor_import(import_request(&opened, 17, OLD))
+            .protect_editor_workflow(WorkflowProtectionRequest {
+                operation: WorkflowOperation::FountainImport,
+                checkpoint: import_request(&opened, 17, OLD)
+            })
             .unwrap_err()
             .code,
         ErrorCode::CheckpointConflict
@@ -351,7 +373,13 @@ fn editor_import_rejects_stale_conflicting_or_forged_capture() {
     let mut request = import_request(&opened, 18, NEW);
     request.identity.session_id = uuid();
     assert_eq!(
-        service.protect_editor_import(request).unwrap_err().code,
+        service
+            .protect_editor_workflow(WorkflowProtectionRequest {
+                operation: WorkflowOperation::FountainImport,
+                checkpoint: request
+            })
+            .unwrap_err()
+            .code,
         ErrorCode::IdentityMismatch
     );
     assert_eq!(
@@ -365,7 +393,10 @@ fn editor_import_history_failure_keeps_exact_checkpoint_and_source() {
     let fixture = Fixture::new();
     let (mut service, opened) = fixture.open();
     service
-        .protect_editor_import(import_request(&opened, 17, OLD))
+        .protect_editor_workflow(WorkflowProtectionRequest {
+            operation: WorkflowOperation::FountainImport,
+            checkpoint: import_request(&opened, 17, OLD),
+        })
         .unwrap();
     // An unsafe permissions change to the disposable repository fails closed.
     std::fs::set_permissions(
@@ -375,7 +406,10 @@ fn editor_import_history_failure_keeps_exact_checkpoint_and_source() {
     .unwrap();
     assert!(
         service
-            .protect_editor_import(import_request(&opened, 18, NEW))
+            .protect_editor_workflow(WorkflowProtectionRequest {
+                operation: WorkflowOperation::FountainImport,
+                checkpoint: import_request(&opened, 18, NEW)
+            })
             .is_err()
     );
     let latest = service

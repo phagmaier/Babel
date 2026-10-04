@@ -703,22 +703,6 @@ fn replaced_registry_lock_refuses_publication_without_overwriting_previous() {
 }
 
 #[test]
-fn existing_native_relink_updates_recents_without_recovery_identity_change() {
-    let f = Fixture::new();
-    let mut s = f.service();
-    let o = f.open(&mut s);
-    let request = f.request(&s);
-    let moved = f.0.join("native-move.fountain");
-    disk::rename(f.0.join("first.fountain"), &moved).unwrap();
-    let linked = s.relink_selected(&o.identity, &moved).unwrap();
-    assert_eq!(linked.identity, o.identity);
-    let list = s.list_recent_projects().unwrap();
-    assert_eq!(list.entries.len(), 1);
-    assert_eq!(list.entries[0].entry_id, request.entry_id);
-    assert_eq!(list.entries[0].file_name, "native-move.fountain");
-}
-
-#[test]
 fn source_save_publication_updates_last_known_native_generation() {
     let f = Fixture::new();
     let mut s = f.service();

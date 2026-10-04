@@ -98,5 +98,8 @@ def run(d):
     assert d.script('return document.querySelector("textarea").value;')=='!Do not discard the split draft.'
     ready();d.script("document.querySelector('section[aria-label=\"Import Fountain\"]').scrollIntoView({block:'center'});");d.screenshot('workflow-uncapturable');undo();ready()
     d.click('Save',actions=True);d.audit(draft,uncapturable)
+    # Leave the final protected source session at Home before the shared
+    # ordinary-close observer runs; successful import assertions alone do not exit.
+    d.close_session()
     print('PASS native uncapturable import refusal retains accepted live split draft / source / staged input / Undo',flush=True)
     print('PASS default native exact protection / frozen trusted cancel / verified safety bytes / Undo / history failure / independent Save',flush=True)
