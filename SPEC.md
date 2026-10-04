@@ -149,6 +149,7 @@ The bootstrap agent must map these IDs to tasks and tests. Keep IDs stable when 
 | EDIT-04 | Character, location, heading-prefix, and time-of-day autocomplete | Local v1 |
 | EDIT-05 | Undo/redo for all content and structural edits, including replace-all | Local v1 |
 | EDIT-06 | Safe paste, multiline input, Unicode, and IME composition | Local v1 |
+| EDIT-07 | On-screen screenplay element layout in the print profile's proportions; presentation only, no page fidelity | Local v1 |
 | NAV-01 | Scene/section sidebar, synopses, jump-to-scene, reversible reordering | Local v1 |
 | NAV-02 | Search/find/replace with case and whole-word controls; scene/document scopes | Local v1 |
 | NAV-03 | Command palette and keyboard navigation | Local v1 |
@@ -412,6 +413,8 @@ If the old service lacks a useful Fountain export, create a separate bounded mig
 ### 07.1 Editing principles
 
 The editor displays screenplay elements rather than raw markup in ordinary use. All element types are reachable by keyboard and a visible element picker. A command changes the current block or an explicit multi-block selection; it must not unexpectedly rewrite neighboring content.
+
+The writing surface lays out elements like a screenplay (EDIT-07): character cues, dialogue, parentheticals, transitions and centered text take the print profile's proportions inside a column of at most 60 characters, and indents shrink proportionally when zoom or window width narrows that column. This layout is presentation only. It never changes, hides, uppercases or adds text relative to the source, and it does not claim the PDF's wrapping, line count or page breaks; the read-only PDF preview remains the printed-page authority.
 
 Use continuous editing by default. Layout work must not shift the caret unpredictably. Soft visual wrapping does not insert source newlines. Distinguish a visual wrap, an intentional hard break within an element, and a new element.
 

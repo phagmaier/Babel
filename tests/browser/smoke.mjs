@@ -5,6 +5,7 @@ import { resolve, join } from 'node:path';
 import { spawn, spawnSync } from 'node:child_process';
 import process from 'node:process';
 import console from 'node:console';
+import { checkElementLayout } from './element-layout.mjs';
 
 const server = spawn('pnpm', ['dev', '--host', '127.0.0.1'], { stdio: 'pipe' });
 let browser;
@@ -94,6 +95,8 @@ try {
     throw new Error(
       'Frozen PDF viewer smoke failed: ' + JSON.stringify(display),
     );
+  const layouts = await checkElementLayout(page);
+  console.log('Element layout passed: ' + layouts.join(', '));
   await page.screenshot({ path: '/tmp/babel-m0-browser.png', fullPage: true });
   console.log('Browser smoke passed; screenshot: /tmp/babel-m0-browser.png');
 } finally {

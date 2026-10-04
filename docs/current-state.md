@@ -1,4 +1,4 @@
-# Current state — AUDIT-D02 complete
+# Current state — AUDIT-D03A complete
 
 Date: 2026-10-04. Application: **babel**. Main; local commit only, no push.
 M0–M5 and bounded M6-01 work remain recorded complete. **M6-02, C1/F2 and
@@ -6,33 +6,40 @@ Local v1 admission remain open.**
 
 ## Task and work
 
-**AUDIT-D02 complete**, base `e595393`: accepted rules 1+3.
-[Brief](tasks/AUDIT-D02.md),
-[evidence](test-evidence/AUDIT.md#audit-d02--safe-reopen-reconciliation-and-recovery-choice).
-Native open admits only a clean latest identical journal under strict source/
-transaction/ownership checks, or an exact hash-bound persisted explicit Keep.
-Prior confirmed-source divergence permits reviewed Keep only without an unresolved
-intent/candidate. Current-session checkpoints require no older-session choice.
-No source receipt is inferred; no journal is automatically adopted, retired or deleted.
-Paths: [native admission](../crates/screenwriter-core/src/documents/reconciliation_store.rs),
-[writing gate](../src/app/WritingView.tsx), [choice panel](../src/app/RecoveryChoicePanel.tsx).
+**AUDIT-D03A complete**, base `ffede1d`: first slice of accepted D-03.
+[Brief](tasks/AUDIT-D03.md),
+[evidence](test-evidence/AUDIT.md#audit-d03a--on-screen-screenplay-element-styling).
+New EDIT-07 (SPEC S06/S07.1): the writing column is at most 60 characters,
+centred, with cue/dialogue/parenthetical indents as fractions of the column,
+right-aligned transitions and centred centered text. CSS over `data-kind` only;
+no schema, capture, persistence or native change; no `text-transform`, generated
+text, wrap or page-fidelity claim. The red check also found the writing shell
+was 680px, not 920px (rule order); `.shell.writing` now applies 920px.
+Paths: [styles](../src/app/writing.css),
+[layout check](../tests/browser/element-layout.mjs), [UX](ux.md#screenplay-element-layout-audit-d03a).
 
-The editor waits for discovery. Unresolved recovery gets a plain primary choice
-before typing; Inspect later stays read-only. Failed choices/discovery retain
-review/copy/Home. Exporting a copy does not unlock review; successful Save As
-adoption switches to a fresh identity. Native New-with-destination regression
-and failed-A-save/Save-As-B/reopen-A protection have dedicated checks.
+Tier 2: Chromium geometry check red then pass (100%/200%/narrow); frontend
+**885/885**; Rust **273/273** one filesystem; shared format/lint/typecheck/build,
+clippy and default embedded release pass. Native WebKit **9/10 content, 10/10
+crash audits clean** over presentation/editor-exit/outline/find/characters on
+tmpfs/Btrfs. Artifacts: `target/audit-d03/`.
 
-Tier 3: current frontend **885/885**, Rust **273/273 each tmpfs/Btrfs**;
-shared format/lint/typecheck/build, clippy, browser and default embedded release
-pass. Final native **20/20 content, 19/20 strict** across ten affected modes on
-both filesystems, including genuine editor/IME and character/focus checks.
-Earlier failures and the interrupted sample remain retained.
-Artifacts: `target/audit-d02/`, including frozen candidates, ledgers/journals,
-raw owned cores, original roots and checksummed tmpfs mirrors. Tests use synthetic
-files/private IME; fixtures, locks/pins, frozen AUDIT and prior evidence stay intact.
+**Open finding (pre-existing):** Btrfs presentation fails its Find-navigation
+viewport assertion (match centre 5px below the viewport) at 16s, before zoom/IME
+steps. The unchanged D02 binary fails identically; tmpfs passes for both. The
+full presentation mode had not run since D06 changed the header. No cause or
+correction claimed; unverified lead is the sticky header growing by one alert
+line after the scroll. Btrfs 200% zoom/IME geometry under the new layout is
+therefore unverified natively (tmpfs passed).
 
 ## Retained findings and limits
+
+**AUDIT-D02 complete** (`ffede1d`): strict identical-latest reopen, hash-bound
+explicit Keep, plain review before editing; no source receipt inferred and no
+journal automatically adopted, retired or deleted.
+[Brief](tasks/AUDIT-D02.md),
+[evidence](test-evidence/AUDIT.md#audit-d02--safe-reopen-reconciliation-and-recovery-choice).
+Final native 20/20 content, 19/20 strict; artifacts `target/audit-d02/`.
 
 D02's first broad candidate found and corrected the fresh-New review gate.
 Native character external-source review and title-page read-only predicates were
@@ -81,13 +88,15 @@ copy/prune and capture-failure bundle policy remain separate open work.
 
 ## Next action and stopping point
 
-D02 work, evidence and handoff are committed locally on main; no push.
-**Stopped after D-02 before D-03.** The next fresh agent should read this handoff,
-TODO's accepted D-03 row and prepare a bounded brief for screenplay styling and
-layout slices before pilot. Preserve the row schema/deferred rewrite, native
-crash findings and initial assessment failure. Never substitute injected
-composition for genuine IME. No full native/a11y/keyboard, SELinux, M6-02, C1/F2
-or Local v1 admission closure.
+D03A work, evidence and handoff are committed locally on main; no push.
+**Stopped after D03A before D03B.** Next: AUDIT-D03B layout shell (sticky
+outline sidebar, side drawer, window scroll kept) per the brief. Start by
+reproducing the Btrfs presentation Find-viewport failure, since the shell
+changes the same header/scroll geometry; record red mounted tests before
+editing. Preserve the row schema/deferred rewrite, native crash findings and
+initial assessment failure. Never substitute injected composition for genuine
+IME. Unset `FORCE_COLOR` for `pnpm test:browser`. No full native/a11y/keyboard,
+SELinux, M6-02, C1/F2 or Local v1 admission closure.
 
 [M6-02-R1](tasks/M6-02-R1.md) and supported-runtime
 [M6-01-R1](tasks/M6-01-R1.md) remain separate. Crash follow-up starts from retained

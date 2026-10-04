@@ -1,6 +1,6 @@
-.writing {
+/* styles.css loads after this file; a bare .writing rule loses to .shell. */
+.shell.writing {
   max-width: 920px;
-  margin-top: 24px;
 }
 .writing h1 {
   font-size: 2rem;
@@ -9,7 +9,13 @@
 .focus-help {
   font-size: 0.85rem;
 }
+/* EDIT-07: a 60-character column in the print profile's proportions. Indents
+   are fractions of the column, so they shrink with it at high zoom or in a
+   narrow window. Presentation only: no wrap, line or page fidelity. */
 .writing .ProseMirror {
+  box-sizing: content-box;
+  max-width: 60ch;
+  margin-inline: auto;
   min-height: 280px;
   padding: 28px;
   border: 1px solid var(--border);
@@ -22,6 +28,23 @@
 .writing .ProseMirror p {
   margin: 0;
   min-height: 1.5em;
+}
+.writing .ProseMirror p[data-kind='character'] {
+  margin-left: calc(100% * 22 / 60);
+}
+.writing .ProseMirror p[data-kind='dialogue'] {
+  margin-left: calc(100% * 10 / 60);
+  margin-right: calc(100% * 15 / 60);
+}
+.writing .ProseMirror p[data-kind='parenthetical'] {
+  margin-left: calc(100% * 16 / 60);
+  margin-right: calc(100% * 14 / 60);
+}
+.writing .ProseMirror p[data-kind='transition'] {
+  text-align: right;
+}
+.writing .ProseMirror p[data-kind='centered'] {
+  text-align: center;
 }
 .writing .ProseMirror:focus {
   outline: 2px solid var(--focus);
