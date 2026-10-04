@@ -68,6 +68,9 @@ section headings and synopses are one non-blocking summary line, and a capture
 with no blocking limitation and no warning skips review and opens the
 destination picker directly; see
 [validation](screenplay-validation.md#audit-d04-omission-summary-and-inline-hidden-text).
+The profile prints scene headings and forced transitions in capitals and reads
+forcing markers and page breaks only at the start of a line; since
+AUDIT-D04-R2 assessment reports each such difference as a limitation.
 
 Preview and export share one render controller, sequence and native queue.
 Preview admission pauses during export. Typing marks preview stale while export

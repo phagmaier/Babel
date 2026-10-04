@@ -101,6 +101,18 @@ become blocking SC005, each confirmed against the pinned renderer:
   field, which it removes. Escaping each bracket separately (`\[\[`) is honoured
   by both and is not reported.
 
+AUDIT-D04-R2 adds line-level guards where the codec's reading and the pinned
+renderer's differ (assessment only; codec classification is unchanged):
+
+- a forcing marker (`.` `!` `@` `>` `~`) after leading spaces or tabs, which
+  the renderer prints as text, and an indented scene heading, which it prints
+  as action;
+- a page break with spaces or tabs around its `=` signs, printed as text;
+- a bare `@` cue, and a cue paragraph whose cue ends with two spaces, which the
+  renderer prints with its speech as action;
+- a lowercase letter in a scene heading (including its number) or a forced
+  transition: the renderer prints both in capitals.
+
 [Shared corpus](../fixtures/assessment/oracle.json): the helper's Python tests
 check what the rendered PDF prints and omits; vitest checks the assessment for
 the same cases. [Evidence](test-evidence/AUDIT.md#audit-d04--non-blocking-omissions-and-inline-note-assessment).

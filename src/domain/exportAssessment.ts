@@ -5,6 +5,7 @@ import coverage from './publicationCoverage.json';
 import type {
   StyledText,
   FountainDocument,
+  FountainLine,
   HiddenRegion,
 } from './fountainModel';
 import type { CheckIssue } from './scriptCheck';
@@ -356,6 +357,48 @@ function rendererOnlyHidden(
   return found;
 }
 
+// AUDIT-D04-R2. The codec reads forcing markers after indentation, page breaks
+// with surrounding whitespace and cues ending in two spaces; the pinned
+// renderer does not, and it prints headings and forced transitions in capitals.
+const forcedMarkers: Partial<Record<FountainLine['kind'], [string, string]>> = {
+  action: ['!', 'as text'],
+  sceneHeading: ['.', 'and this heading as action'],
+  character: ['@', 'as text and may print this speech as action'],
+  transition: ['>', 'and this transition as action'],
+  lyrics: ['~', 'and this lyric without italics'],
+};
+/** What the pinned renderer would print differently from the codec's reading. */
+function rendererLineReading(
+  row: FountainLine,
+  paragraph: readonly number[],
+): string | null {
+  const text = row.sourceText;
+  if (text !== text.trimStart()) {
+    const forced = forcedMarkers[row.kind];
+    if (forced && row.marker === forced[0])
+      return `The profile reads the “${forced[0]}” marker only at the start of a line; after leading spaces or tabs it would print “${forced[0]}” ${forced[1]}.`;
+    if (row.kind === 'sceneHeading')
+      return 'The profile reads a scene heading only at the start of a line; it would print this indented heading as action.';
+  }
+  if (row.kind === 'pageBreak' && text !== text.trim())
+    return 'The profile breaks the page only on a line of “=” signs with no spaces or tabs around them; it would print this line as text.';
+  if (row.kind === 'character' && row.marker === '@' && text === '@')
+    return 'The profile does not read an empty “@” cue; it would print “@” and any speech below it as action.';
+  if (row.kind === 'character' && text.endsWith('  ') && paragraph.length > 1)
+    return 'The profile does not read a cue that ends with two spaces; it would print this cue, with any “@” marker, and its speech as action.';
+  if (paragraph.length !== 1) return null;
+  const capitals = (value?: string) =>
+    value !== undefined && value !== value.toUpperCase();
+  if (
+    row.kind === 'sceneHeading' &&
+    (capitals(row.text) || capitals(row.sceneNumber))
+  )
+    return 'The profile prints scene headings in capitals; this heading would not print as written.';
+  if (row.kind === 'transition' && row.marker === '>' && capitals(row.text))
+    return 'The profile prints forced transitions in capitals; this transition would not print as written.';
+  return null;
+}
+
 /** Mirrors the pinned renderer's section rule: 1–6 `#` at the line start. */
 const rendererSection = /^(#{1,6})\s*([^#].*)$/;
 const blankSource = (text: string) => text === '' || text === ' ';
@@ -607,6 +650,8 @@ export function evaluateExportAssessment(
         'The profile cannot represent this scene-number syntax.',
         line,
       );
+    const reading = rendererLineReading(row, rows);
+    if (reading) add('SC005', reading, line);
   });
   const sourceBytes = document.hiddenRegions.length ? document.bytes : null;
   document.lines.forEach((row, line) => {

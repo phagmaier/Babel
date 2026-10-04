@@ -525,6 +525,793 @@
         "sections": 0,
         "synopses": 0
       }
+    },
+    {
+      "name": "forced heading with trailing spaces",
+      "source": ".FLASHBACK  \n\nA lamp.\n",
+      "prints": [
+        "FLASHBACK",
+        "A lamp."
+      ],
+      "omits": [
+        ".FLASHBACK"
+      ],
+      "clean": true,
+      "blockingLines": [],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "indented unforced transition stays a transition",
+      "source": "INT. LAB - DAY\n\nA lamp.\n\n   CUT TO:\n\nEXT. YARD - DAY\n",
+      "prints": [
+        "A lamp.",
+        "CUT TO:",
+        "EXT. YARD - DAY"
+      ],
+      "omits": [],
+      "clean": true,
+      "blockingLines": [],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "transition with trailing spaces is action on both sides",
+      "source": "INT. LAB - DAY\n\nA lamp.\n\nCUT TO:   \n\nEXT. YARD - DAY\n",
+      "prints": [
+        "CUT TO:",
+        "EXT. YARD - DAY"
+      ],
+      "omits": [],
+      "clean": true,
+      "blockingLines": [],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "forced transition with trailing spaces",
+      "source": "INT. LAB - DAY\n\nA lamp.\n\n>FADE OUT.  \n",
+      "prints": [
+        "FADE OUT."
+      ],
+      "omits": [
+        ">"
+      ],
+      "clean": true,
+      "blockingLines": [],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "note line inside an action paragraph",
+      "source": "INT. LAB - DAY\n\nA lamp.\n[[aside]]\nIt glows.\n",
+      "prints": [
+        "A lamp.",
+        "It glows."
+      ],
+      "omits": [
+        "aside"
+      ],
+      "clean": true,
+      "blockingLines": [],
+      "omissions": {
+        "notes": 1,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "boneyard line inside an action paragraph",
+      "source": "INT. LAB - DAY\n\nA lamp.\n/* cut */\nIt glows.\n",
+      "prints": [
+        "A lamp.",
+        "It glows."
+      ],
+      "omits": [
+        "cut"
+      ],
+      "clean": true,
+      "blockingLines": [],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 1,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "note after a parenthetical",
+      "source": "MAYA\n(beat) [[tone]]\nHi.\n",
+      "prints": [
+        "MAYA",
+        "(beat)",
+        "Hi."
+      ],
+      "omits": [
+        "tone"
+      ],
+      "clean": true,
+      "blockingLines": [],
+      "omissions": {
+        "notes": 1,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "dual dialogue with spaces before the caret",
+      "source": "MAYA\nHi.\n\nJON  ^\nHey.\n",
+      "prints": [
+        "MAYA",
+        "JON",
+        "Hi.",
+        "Hey."
+      ],
+      "omits": [
+        "^"
+      ],
+      "clean": true,
+      "blockingLines": [],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "dual dialogue with parentheticals",
+      "source": "MAYA\n(softly)\nHi.\n\nJON ^\n(loud)\nHey.\n",
+      "prints": [
+        "MAYA",
+        "JON",
+        "(softly)",
+        "(loud)",
+        "Hi.",
+        "Hey."
+      ],
+      "omits": [
+        "^"
+      ],
+      "clean": true,
+      "blockingLines": [],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "lyrics after action without a blank line",
+      "source": "INT. LAB - DAY\n\nA lamp.\n~La la\n",
+      "prints": [
+        "A lamp.",
+        "La la"
+      ],
+      "omits": [
+        "~"
+      ],
+      "clean": true,
+      "blockingLines": [],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "centered text with inner and outer spaces",
+      "source": "  > THE END < \n",
+      "prints": [
+        "THE END"
+      ],
+      "omits": [
+        ">",
+        "<"
+      ],
+      "clean": true,
+      "blockingLines": [],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "lowercase centered text prints as written",
+      "source": ">the end<\n",
+      "prints": [
+        "the end"
+      ],
+      "omits": [],
+      "clean": true,
+      "blockingLines": [],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "lowercase forced cue prints as written",
+      "source": "INT. LAB - DAY\n\n@maya\nHello.\n",
+      "prints": [
+        "maya",
+        "Hello."
+      ],
+      "omits": [
+        "@"
+      ],
+      "clean": true,
+      "blockingLines": [],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "cue with one trailing space",
+      "source": "INT. LAB - DAY\n\nMAYA \nHello.\n",
+      "prints": [
+        "MAYA",
+        "Hello."
+      ],
+      "omits": [],
+      "clean": true,
+      "blockingLines": [],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "indented unforced cue",
+      "source": "INT. LAB - DAY\n\n  MAYA\nHello.\n",
+      "prints": [
+        "MAYA",
+        "Hello."
+      ],
+      "omits": [],
+      "clean": true,
+      "blockingLines": [],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "page break of five equals signs",
+      "source": "INT. LAB - DAY\n\nA lamp.\n\n=====\n\nIt glows.\n",
+      "prints": [
+        "A lamp.",
+        "It glows."
+      ],
+      "omits": [
+        "="
+      ],
+      "clean": true,
+      "blockingLines": [],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "forced action with spaces after the marker",
+      "source": "INT. LAB - DAY\n\n!  Indented action.\n",
+      "prints": [
+        "Indented action."
+      ],
+      "omits": [
+        "!"
+      ],
+      "clean": true,
+      "blockingLines": [],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "note line inside a speech splits it",
+      "source": "MAYA\n[[aside]]\nHello.\n",
+      "prints": [
+        "MAYA",
+        "Hello."
+      ],
+      "omits": [
+        "aside"
+      ],
+      "clean": false,
+      "blockingLines": [
+        0,
+        2
+      ],
+      "omissions": {
+        "notes": 1,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "lyrics inside a speech",
+      "source": "MAYA\n~La la\n",
+      "prints": [
+        "MAYA",
+        "~La la"
+      ],
+      "omits": [],
+      "clean": false,
+      "blockingLines": [
+        1
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "page break without a blank line after it",
+      "source": "INT. LAB - DAY\n\nA lamp.\n\n===\nIt glows.\n",
+      "prints": [
+        "===",
+        "It glows."
+      ],
+      "omits": [],
+      "clean": false,
+      "blockingLines": [
+        4
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "indented forced heading prints its marker",
+      "source": "  .FLASHBACK\n\nA lamp.\n",
+      "prints": [
+        ".FLASHBACK",
+        "A lamp."
+      ],
+      "omits": [],
+      "clean": false,
+      "blockingLines": [
+        0
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "indented scene heading prints as action",
+      "source": "  INT. LAB - DAY\n\nA lamp.\n",
+      "prints": [
+        "INT. LAB - DAY",
+        "A lamp."
+      ],
+      "omits": [],
+      "clean": false,
+      "blockingLines": [
+        0
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "tab-led scene heading prints as action",
+      "source": "\tINT. LAB - DAY\n\nA lamp.\n",
+      "prints": [
+        "INT. LAB - DAY",
+        "A lamp."
+      ],
+      "omits": [],
+      "clean": false,
+      "blockingLines": [
+        0
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "indented forced transition prints its marker",
+      "source": "INT. LAB - DAY\n\nA lamp.\n\n  >FADE OUT.\n",
+      "prints": [
+        ">FADE OUT."
+      ],
+      "omits": [],
+      "clean": false,
+      "blockingLines": [
+        4
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "indented forced action prints its marker",
+      "source": "INT. LAB - DAY\n\n  !Indented forced.\n",
+      "prints": [
+        "!Indented forced."
+      ],
+      "omits": [],
+      "clean": false,
+      "blockingLines": [
+        2
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "indented forced mixed-case cue prints its marker and the speech as action",
+      "source": "INT. LAB - DAY\n\n  @McCLANE\nYippee.\n",
+      "prints": [
+        "@McCLANE",
+        "Yippee."
+      ],
+      "omits": [],
+      "clean": false,
+      "blockingLines": [
+        2
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "indented forced uppercase cue prints its marker",
+      "source": "INT. LAB - DAY\n\n  @MAYA\nHello.\n",
+      "prints": [
+        "@MAYA",
+        "Hello."
+      ],
+      "omits": [],
+      "clean": false,
+      "blockingLines": [
+        2
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "indented lyric prints its tilde",
+      "source": "INT. LAB - DAY\n\n  ~La la\n",
+      "prints": [
+        "~La la"
+      ],
+      "omits": [],
+      "clean": false,
+      "blockingLines": [
+        2
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "page break with a leading space prints as text",
+      "source": "INT. LAB - DAY\n\nA lamp.\n\n ===\n\nIt glows.\n",
+      "prints": [
+        "A lamp.",
+        "===",
+        "It glows."
+      ],
+      "omits": [],
+      "clean": false,
+      "blockingLines": [
+        4
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "page break with a trailing space prints as text",
+      "source": "INT. LAB - DAY\n\nA lamp.\n\n=== \n\nIt glows.\n",
+      "prints": [
+        "A lamp.",
+        "===",
+        "It glows."
+      ],
+      "omits": [],
+      "clean": false,
+      "blockingLines": [
+        4
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "page break with a trailing tab prints as text",
+      "source": "INT. LAB - DAY\n\nA lamp.\n\n===\t\n\nIt glows.\n",
+      "prints": [
+        "A lamp.",
+        "===",
+        "It glows."
+      ],
+      "omits": [],
+      "clean": false,
+      "blockingLines": [
+        4
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "cue ending in two spaces prints the speech as action",
+      "source": "INT. LAB - DAY\n\nMAYA  \nHello.\n",
+      "prints": [
+        "MAYA",
+        "Hello."
+      ],
+      "omits": [],
+      "clean": false,
+      "blockingLines": [
+        2
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "forced cue ending in two spaces prints its marker",
+      "source": "INT. LAB - DAY\n\n@MAYA  \nHello.\n",
+      "prints": [
+        "@MAYA",
+        "Hello."
+      ],
+      "omits": [],
+      "clean": false,
+      "blockingLines": [
+        2
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "bare forced cue prints its marker",
+      "source": "INT. LAB - DAY\n\n@\nHello.\n",
+      "prints": [
+        "@",
+        "Hello."
+      ],
+      "omits": [],
+      "clean": false,
+      "blockingLines": [
+        2
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "lowercase scene heading prints in capitals",
+      "source": "int. lab - day\n\nA lamp.\n",
+      "prints": [
+        "INT. LAB - DAY",
+        "A lamp."
+      ],
+      "omits": [
+        "int. lab"
+      ],
+      "clean": false,
+      "blockingLines": [
+        0
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "lowercase forced heading prints in capitals",
+      "source": ".flashback\n\nA lamp.\n",
+      "prints": [
+        "FLASHBACK",
+        "A lamp."
+      ],
+      "omits": [
+        "flashback"
+      ],
+      "clean": false,
+      "blockingLines": [
+        0
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "lowercase scene number prints in capitals",
+      "source": "INT. LAB - DAY #1a#\n\nA lamp.\n",
+      "prints": [
+        "1A",
+        "INT. LAB - DAY",
+        "A lamp."
+      ],
+      "omits": [
+        "1a"
+      ],
+      "clean": false,
+      "blockingLines": [
+        0
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "mixed-case forced transition prints in capitals",
+      "source": "INT. LAB - DAY\n\nA lamp.\n\n>Cut to black.\n",
+      "prints": [
+        "CUT TO BLACK."
+      ],
+      "omits": [
+        "Cut to black"
+      ],
+      "clean": false,
+      "blockingLines": [
+        4
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "sentence starting with Est. is a heading on both sides and prints in capitals",
+      "source": "INT. LAB - DAY\n\nEst. 1990, the firm grew.\n\nA lamp.\n",
+      "prints": [
+        "EST. 1990, THE FIRM GREW.",
+        "A lamp."
+      ],
+      "omits": [
+        "the firm grew"
+      ],
+      "clean": false,
+      "blockingLines": [
+        2
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "lone bare forced cue prints its marker",
+      "source": "INT. LAB - DAY\n\n@\n\nA lamp.\n",
+      "prints": [
+        "@",
+        "A lamp."
+      ],
+      "omits": [],
+      "clean": false,
+      "blockingLines": [
+        2
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "byte order mark and CRLF before a forced heading",
+      "source": "﻿.FLASHBACK\r\n\r\nA lamp.\r\n",
+      "prints": [
+        "FLASHBACK",
+        "A lamp."
+      ],
+      "omits": [
+        ".FLASHBACK"
+      ],
+      "clean": true,
+      "blockingLines": [],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
     }
   ]
 }

@@ -881,3 +881,25 @@ Findings, each pinned as found in `tests/contract/typed-scene.test.ts` and track
 - **D07-F3** Choosing Page Break on an empty row leaves the caret before `===`; Enter then inserts above it and typing gives `!x\n===\n`, which prints `===` as text (blocking SC005). `editor-shortcuts.test.ts` pins the caret offset; S07.2 says "position the caret after the nontext break node".
 - **D07-F4** On an empty cue the completion popup opens with every known name selected, so the second Tab of the S07.4 cycle (Action → Character → Scene Heading) accepts a name (S07.6) and leaves a stray cue (blocking SC005). Owner decision on the S07.4/S07.6 order.
 - Observations, not findings: Enter after a fully typed heading time (`DAY`, `NIGHT`) accepts the identical suggestion and needs a second Enter (S07.6 as written); the frozen profile's dual-column parenthetical wraps `(quietly)` as `(quietly` / `)` (layout only, profile frozen).
+
+## AUDIT-D04-R2 — renderer/codec disagreement sweep
+
+[Brief](../tasks/AUDIT-D04-R2.md), base `30f05d8`. Tier 2: frontend domain
+assessment, corpus and docs; no codec, Rust, IPC, helper, profile or pin change.
+The helper's rendered PDF text is the authority; vitest is the assessment side.
+
+- Scratch probes (session scratch, not retained) over 97 hand-written sources: the pinned runtime's own `frozen_profile.parse` paragraph types plus `pdftotext`, against the codec's line kinds and the assessment. Renderer rules then read from the pinned `screenplain/parsers/fountain.py`: forcing markers and `===` only at column 0; a cue ending in two spaces or a bare `@` is not a cue; headings and forced transitions are uppercased.
+- Corpus `fixtures/assessment/oracle.json` **27 → 68 cases**, appended only (existing 12,123 bytes are the unchanged prefix): 17 agreeing guards, 3 already-gated, 18 findings, then 3 guards added after the fix (Est.-led heading, lone `@`, BOM+CRLF forced heading).
+- `python3 tools/pdf-helper/test_helper.py HelperTest.test_assessment_oracle_printed_text` — **pass first run** on all 65 then 68 cases: the hand-written prints/omits matched the rendered PDFs.
+- Red: `pnpm exec vitest run tests/contract/export-assessment.test.ts` — **fail 18/79**, exactly the 18 finding cases; every agreeing and already-gated case passed. Green after the guard: **82/82**.
+- Findings (clean assessment, PDF prints something else), now blocking SC005 with the renderer's reason: indented `.` heading prints `.FLASHBACK` as action; indented or tab-led heading prints as action; indented `>`, `!`, `@`, `~` print the marker (`~` also loses italics; mixed-case `@` cue becomes action); ` ===`, `=== `, `===\t` print `===` and do not break the page; a cue ending in two spaces (forced or not) prints with its speech as action; a bare `@` prints `@` and its speech as action; lowercase in a heading or its scene number (`int. lab`, `.flashback`, `#1a#`, `Est. 1990, the firm grew.`) and in a forced transition (`>Cut to black.`) prints in capitals.
+- Agreeing, no change: indented unforced transition; trailing spaces on headings, forced headings/transitions, lyrics and action; notes or boneyards on their own line inside an action paragraph; a note after a parenthetical; `JON  ^`; dual with parentheticals; lyric after action without a blank; centered with spaces or lowercase; one trailing space on a cue; indented unforced cue; `=====`; `!` with spaces after it. Already gated and correct: notes, boneyards and lyrics inside a speech; a page break sharing a paragraph.
+- Not in the corpus: `JON ^ ` (space after the caret) and three-way dual are refused by the frozen helper (`unpaired-dual-dialogue`); the native layout probe of that cue group reports it before export. Not runnable here (native).
+- Injected faults, one per guard, against `tests/contract/export-assessment.test.ts` (scratch script, source restored by SHA-256) — **7/7 detected** (1–5 failing cases each).
+- Fixture scan of all 48 tracked `.fountain` files: one newly reported line, `fixtures/fountain/elements.fountain:37` `>Dissolve slowly.` (prints `DISSOLVE SLOWLY.`); that file feeds only a codec test. No publication fixture or native-drill input changes.
+- `pnpm check` **pass**, 973/973 in 63 files (41 new corpus cases); `pnpm test:pdf-helper` **15/15 pass**, 96 helper runs; `env -u FORCE_COLOR pnpm test:browser` assertions **pass** (orphaned Vite stopped as in the baseline). Rust gates as in the session baseline (no Rust change).
+- Native pdf-export, script-check and publication-exit drills — **BLOCKED** (no display).
+
+Capitalisation is reported because SPEC S09.2 asks for a decision on "any text
+the renderer would … print differently from what the script shows". If the owner
+treats capitals as print style, it is one guard to remove.

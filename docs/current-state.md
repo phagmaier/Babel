@@ -21,11 +21,18 @@ Queue: AUDIT-D07 → AUDIT-D04-R2 → AUDIT-PARK → AUDIT-D04-R1 (owner-approve
   `fixtures/assessment/typed-scene.json` +
   `test_helper.py::test_typed_scene_oracle`. Four findings pinned and tracked as
   **AUDIT-D07-F** in TODO (owner decisions; none fixed).
+- **AUDIT-D04-R2 complete.** [Brief](tasks/AUDIT-D04-R2.md),
+  [evidence](test-evidence/AUDIT.md#audit-d04-r2--renderercodec-disagreement-sweep).
+  Corpus 27 → 68 cases; 18 clean-but-different cases now blocking SC005 in
+  `src/domain/exportAssessment.ts` (assessment only). Capitals in headings and
+  forced transitions are reported per SPEC S09.2; owner may relax that guard.
 
 ## Needs native rerun (owner, with a display)
 
 - D-07 typed-export case: no drill mode exists; write one (type the fixture
   scene, Export PDF, `pdftotext`) and run it on tmpfs/Btrfs.
+- D04-R2 assessment change: `pdf-export`, `script-check` and
+  `publication-exit` modes (binary in place beside its helper), tmpfs/Btrfs.
 - Rust `cargo test --workspace` as a non-root user (baseline root failure).
 
 ## Retained findings and limits (detail in linked evidence)
@@ -72,7 +79,7 @@ M6-03 independent copy/prune and capture-failure bundle policy remain open.
 
 ## Next action and stopping point
 
-Continue the session queue with AUDIT-D04-R2. Remaining accepted DESIGN items
+Continue the session queue with AUDIT-PARK. Remaining accepted DESIGN items
 without a brief: D-05 cheap variant and D-09 page count. Run
 publication-dependent native modes with `target/release` in place or a
 helper-capable frozen layout. Never substitute injected composition for
