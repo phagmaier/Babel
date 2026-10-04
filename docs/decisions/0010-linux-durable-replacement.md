@@ -1,10 +1,15 @@
 # ADR 0010 — Linux durable replacement adapter plan
 
+AUDIT-SLP-B (2026-10-03) retired superseded proof programs; linked deleted
+sources use the last pushed pre-deletion snapshot. Historical observations and
+failures below remain unchanged. [Retirement scope](../tasks/AUDIT-SLP-B.md) and ported production
+coverage are recorded separately; no new admission claim.
+
 Status: Accepted direction. Date: 2026-09-27. Task: M1-04.
 Authority: [SPEC S10/S15](../../SPEC.md#s10), SAVE-01–03, INV-04/05;
 [persistence](../persistence-and-recovery.md), [ADR 0005](0005-layered-safety.md).
 Evidence: [M1 report](../test-evidence/M1.md),
-[disposable harness](../../prototypes/durable-replacement/README.md).
+[disposable harness](https://github.com/phagmaier/Babel/blob/fb7d6bd5bf034458afd950d5f9632382b6d5b99b/prototypes/durable-replacement/README.md).
 
 ## Decision and tested boundaries
 

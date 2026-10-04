@@ -1,12 +1,16 @@
 # M1-06 — Bounded codec/editor/native composition proof
 
-Status: **bounded investigation passed on the reference Linux/WebKit host**, with [evidence and reviewed conclusion](test-evidence/M1.md#m1-06--bounded-codeceditornative-composition-proof) and a [runnable diagnostic](../prototypes/editor-composition/README.md). Implementation base `d64f3ab` contains the owner-accepted writer `5e84879`; starting tree was clean. This resolves the declared subset of the M1 composition question under [SPEC S16/S19.2](../SPEC.md#s16). Full grammar, structural editing, IME and production M2/M3 exit remain open.
+Status: **bounded investigation passed on the reference Linux/WebKit host**, with [evidence and reviewed conclusion](test-evidence/M1.md#m1-06--bounded-codeceditornative-composition-proof) and a [retained fixture guide](../prototypes/editor-composition/README.md). Implementation base `d64f3ab` contains the owner-accepted writer `5e84879`; starting tree was clean. This resolves the declared subset of the M1 composition question under [SPEC S16/S19.2](../SPEC.md#s16). Full grammar, structural editing, IME and production M2/M3 exit remain open.
 
 ## Question and ownership
 
 Can one structured editor transaction state preserve the codec's source ranges while selection, undo/redo, serialization and the real native writer agree through open → edit → save → reopen?
 
-Claim M1-06 in current-state and work on main with the task ID in the commit message. Use a short-lived worktree branch only for concurrent editing. Own only `prototypes/editor-composition/`, dedicated synthetic fixtures beneath that directory, `tests/contract/editor-composition.test.ts`, proof-only `src-tauri/src/editor_composition_proof.rs`, `src-tauri/tauri.editor-composition-proof.conf.json`, and narrowly gated registration in `src-tauri/src/lib.rs`/`src-tauri/Cargo.toml`. `package.json`/`pnpm-lock.yaml` may add a proof script or pinned dev dependency if the existing packages cannot expose the needed types. No runtime dependency promotion. The coordinator owns task/trace/current-state/evidence changes. Start from the corrected, reviewed writer commit and record exact base/prior dirty paths. Production route/writer initialization and native capabilities stay unchanged.
+Historical M1-06 ownership included the prototype page/model/drivers and contract
+suite. AUDIT-SLP-B retired these superseded pieces and their dedicated config.
+Fixtures, seed.py, fixture ignore rule and the Rust editor-composition-proof
+backend remain for production native drills. Reproducing the original proof
+requires the pre-deletion Git snapshot; no current task should revive its page.
 
 Read the relevant source-fidelity and editor contracts in SPEC S05–S07, success boundary S10.4 and proof rules S19.2; `docs/document-model.md`, `docs/editor-behavior.md`, ADRs 0003/0007/0008/0014/0015, the codec/input prototypes and existing writer/controller APIs. Fetch current library documentation via Context7 when implementing library-specific APIs. Do not reread the whole specification or historical milestone transcripts.
 

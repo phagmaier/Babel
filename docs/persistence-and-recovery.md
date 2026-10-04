@@ -238,9 +238,11 @@ backing disk; a different filesystem does not prove a different physical disk.
 
 The injected `SnapshotPanel` displays retention/cap/attention facts, explicit
 named/restore/copy actions and these storage distinctions. M3-09–12 now connect production source/destination pickers, editor, cadence,
-Save As and the same snapshot services. Configured recurring backup remains M6. The [synthetic diagnostic](../prototypes/snapshot-review/README.md)
-exercises real WebKit/native commands; [M2 evidence](test-evidence/M2-05C.md)
-separates native files/interruptions, mocked dispatch, UI injection and limits.
+Save As and the same snapshot services. Configured recurring backup remains M6. AUDIT-SLP-B retired the synthetic
+snapshot/composition pages and the fixed snapshot destination command, retaining
+fixtures/seed/backend for production native drills. [M2 evidence](test-evidence/M2-05C.md)
+preserves historical native copy/prune audits; M6-03 must add independent
+production-native copy/prune evidence. Removal grants no retention acceptance.
 The bounded M2 headless Linux exit passed; Local v1 remains open. See
 [M2-06 evidence](test-evidence/M2-06.md).
 

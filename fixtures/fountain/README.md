@@ -9,7 +9,7 @@ All content here was written for this repository. No private manuscript or third
 | `windows-bom.fountain` | Unicode, BOM, CRLF, intentional blank lines and no final newline. No-op is byte-identical; an action edit keeps BOM/CRLF and untouched lines. | DOC-01/02, INV-03 | UTF-8 BOM, CRLF, no final newline |
 | `invalid-utf8.fountain` | Invalid byte sequence remains available as exact source copy and opens read-only. | DOC-03, INV-03 | Invalid UTF-8 |
 
-Expected kinds and edited outcomes are asserted independently in `tests/contract/fountain.test.ts`; the implementation does not generate expected files.
+The M1 proof assertions are historical; `tests/contract/production-fountain.test.ts` now retains all original no-op bytes and the independent M3 corpus semantics/edits. The implementation does not generate expected files.
 
 ## M3-01 corpus
 

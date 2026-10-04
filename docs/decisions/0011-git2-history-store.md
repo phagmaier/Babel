@@ -68,3 +68,7 @@ M6 installed/offline packaging, notices and declared Tier 1 platforms;
 M7 authenticated transport, limits/cancellation/concurrent-server race tests
 and explicit destination/privacy approval. Local proof transport does not
 verify SSH/HTTPS or any provider.
+
+AUDIT-SLP-B retains history-store workspace membership and its unique malformed-tree,
+ref-contention, hooks and no-force-push/ancestry tests; only the separate
+durable-replacement proof was retired.

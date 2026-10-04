@@ -790,3 +790,73 @@ fn metadata_list_read_is_bounded_and_refuses_errors_or_invalid_lengths() {
         ErrorCode::SaveNeedsAttention
     );
 }
+
+// Ported before deleting the M1 durable-replacement proof. These are real
+// disposable candidate files; the injected hook does not replace the IO adapter.
+#[test]
+fn candidate_tamper_and_silent_truncation_refuse_without_losing_safety_copies() {
+    for stage in [Stage::CandidateBeforeSync, Stage::BeforeReplace] {
+        for truncate in [false, true] {
+            let f = Fixture::new();
+            let (mut service, opened) = f.open();
+            let id = &opened.identity;
+            enqueue(&mut service, id, 21, NEW);
+            let mut changed = false;
+            let damaged = if truncate {
+                NEW[..7].to_vec()
+            } else {
+                vec![b'X'; NEW.len()]
+            };
+            let failure = service
+                .save_next_with(id, |current| {
+                    if current == stage {
+                        let candidates: Vec<_> = std::fs::read_dir(&f.0)
+                            .unwrap()
+                            .map(|entry| entry.unwrap().path())
+                            .filter(|path| {
+                                path.file_name()
+                                    .unwrap()
+                                    .to_string_lossy()
+                                    .starts_with(".babel-save-")
+                            })
+                            .collect();
+                        assert_eq!(candidates.len(), 1);
+                        std::fs::write(&candidates[0], &damaged).unwrap();
+                        changed = true;
+                    }
+                    Ok(())
+                })
+                .unwrap_err();
+            assert!(changed);
+            assert_eq!(failure.replacement, ReplacementState::SourceUnchanged);
+            assert_eq!(
+                failure.error.code,
+                if stage == Stage::BeforeReplace {
+                    ErrorCode::SourceChanged
+                } else {
+                    ErrorCode::Io
+                }
+            );
+            let receipt = failure.recovery.unwrap();
+            assert_eq!(receipt.version, 21);
+            assert_eq!(receipt.source_sha256, source_hash(NEW));
+            assert_eq!(f.bytes(), ORIGINAL);
+            assert_eq!(
+                std::fs::read(f.artifacts(&id.document_id).join("previous")).unwrap(),
+                ORIGINAL
+            );
+            let recovered = service.inspect_recovery(id).unwrap().latest.unwrap();
+            assert_eq!(recovered.source, NEW);
+            assert_eq!(recovered.metadata.version, 21);
+            let inspection = service.inspect_source_save(id).unwrap();
+            assert!(inspection.intent.is_some());
+            assert!(inspection.confirmed.is_none());
+            assert_eq!(inspection.candidate.unwrap(), damaged);
+            // Prepared describes the unchanged source plus retained intent;
+            // inspection does not endorse or promote these damaged candidate bytes.
+            assert_eq!(inspection.observation, SaveObservation::Prepared);
+            assert!(service.registered(id).unwrap().last_save.is_none());
+            service.validate_owner(id).unwrap();
+        }
+    }
+}

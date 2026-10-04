@@ -2,7 +2,7 @@
 # lint-py.sh — syntax-gate every tracked Python file in the repo.
 #
 # Zero dependencies beyond python3 itself: compiles each git-tracked *.py
-# (75 files: native drill harness, pdf-helper, prototypes, the embedded
+# (native drill harness, pdf-helper, retained proof tooling, the embedded
 # assessment probe) with the stdlib compiler. Catches syntax breakage when
 # switching machines/toolchains before the slower drills run.
 # Read-only apart from __pycache__ bytecode the compiler writes next to

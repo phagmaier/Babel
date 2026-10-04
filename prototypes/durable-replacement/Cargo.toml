@@ -1,9 +1,0 @@
-[package]
-name = "durable-replacement-proof"
-version = "0.0.1"
-edition.workspace = true
-rust-version.workspace = true
-license = "UNLICENSED"
-publish = false
-
-[dependencies]

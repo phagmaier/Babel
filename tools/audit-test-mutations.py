@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Prove bounded audit regressions detect faults using an in-memory Vite transform.
 
-Usage: python3 tools/audit-test-mutations.py <new-output-directory> [--slp-a]
+Usage: python3 tools/audit-test-mutations.py <new-output-directory> [--slp-a|--slp-b]
 --slp-a checks removed surfaces and runs the ported import/status fault suite.
+--slp-b runs the ported independent corpus hash/literal/path guards.
 Run with pnpm dependencies installed. An unmodified focused control must pass
 before any mutant runs. Production files are never written. Each independent mutant gets a fresh Vitest process, JSON report,
 raw log and a transform-loaded marker; a nonzero test assertion failure is the
@@ -116,12 +117,25 @@ def check_removed(repo):
     print("removed surfaces: passed", flush=True)
 
 
+def slp_b_cases():
+    source = "prototypes/fountain-conformance/corpus.ts"
+    test = "tests/contract/production-fountain.test.ts"
+    name = "detects a corrupted byte oracle and requires explicit exclusions"
+    for label, original, replacement in [
+        ("corpus-hash", "digest(bytes) !== oracle.sha256", "false"),
+        ("corpus-literal", "!Buffer.from(bytes).equals(Buffer.from(oracle.sourceLiteral, 'utf8'))", "false"),
+        ("corpus-path", "throw new Error('Unexpected corpus filename');", "void 0;"),
+    ]:
+        yield label, source, test, name, (re.escape(original), replacement)
+
+
 def main():
-    if len(sys.argv) not in [2, 3] or (len(sys.argv) == 3 and sys.argv[2] != "--slp-a"):
+    if len(sys.argv) not in [2, 3] or (len(sys.argv) == 3 and sys.argv[2] not in ["--slp-a", "--slp-b"]):
         print(__doc__)
         return 2
     repo = Path(__file__).resolve().parent.parent
-    suite = slp_cases if len(sys.argv) == 3 else cases
+    suite = {"--slp-a": slp_cases, "--slp-b": slp_b_cases}.get(
+        sys.argv[2] if len(sys.argv) == 3 else "", cases)
     if suite is slp_cases:
         check_removed(repo)
     output = Path(sys.argv[1]).resolve()

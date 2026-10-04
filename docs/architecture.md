@@ -150,9 +150,9 @@ preview, maintenance, restore and external-copy commands run on bounded blocking
 workers; they do not run on typing or mutate a live editor. The native controller
 alone selects an external destination and obtains a document/session-bound token;
 IPC contains no path. Production folder selection is available through the
-M3-09 `select_destination` command; the existing
-composition-proof feature additionally exposes only a fixed marked synthetic
-copy folder for the [M2-05C diagnostic](../prototypes/snapshot-review/README.md).
+M3-09 `select_destination` command. AUDIT-SLP-B removed the superseded
+snapshot-proof destination command/page; production picker and receipt checks
+remain. The composition-proof fixture backend stays for production native drills.
 
 Snapshot/copy results are independent of file/recovery acknowledgements. Restore
 uses the existing recovery-first writer after protecting current live/disk bytes;

@@ -2,10 +2,10 @@
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import type { Document, Kind } from '../fountain/codec.ts';
+import type { FountainKind } from '../../src/domain/fountainModel.ts';
 
 export interface Atom {
-  kind: Kind;
+  kind: FountainKind;
   text: string;
   titleKey?: string;
   sectionLevel?: number;
@@ -34,7 +34,7 @@ export interface CorpusCase extends SourceOracle {
   shared: boolean;
   gaps: string[];
   required: string[];
-  edit?: SourceOracle & { line: number; kind: Kind; text: string };
+  edit?: SourceOracle & { line: number; kind: FountainKind; text: string };
 }
 export interface Corpus {
   schema: number;
@@ -76,36 +76,4 @@ export function loadCorpus(): Corpus {
       throw new Error(`Undeclared comparison exclusion: ${entry.id}`);
   }
   return corpus;
-}
-
-/** Full nonseparator line semantics of the M1 proof; inline syntax stays literal.
- * Source/blank/line-ending completeness is asserted separately against exact bytes.
- * dualWith references the original physical source line, not a guessed speaker name.
- */
-export function proofAtoms(document: Document): Atom[] {
-  return document.lines
-    .filter((line) => line.kind !== 'blank')
-    .map(({ kind, text, titleKey, sectionLevel, sceneNumber, dualWith }) => ({
-      kind,
-      text,
-      ...(titleKey === undefined ? {} : { titleKey }),
-      ...(sectionLevel === undefined ? {} : { sectionLevel }),
-      ...(sceneNumber === undefined ? {} : { sceneNumber }),
-      ...(dualWith === undefined ? {} : { dualWith }),
-    }));
-}
-
-/** Shared comparison uses ordered atom indices for the dual relationship. */
-export function sharedAtoms(document: Document): Atom[] {
-  const physicalToAtom = new Map<number, number>();
-  let atomIndex = 0;
-  document.lines.forEach((line, index) => {
-    if (line.kind !== 'blank') physicalToAtom.set(index, atomIndex++);
-  });
-  return proofAtoms(document).map((atom) => {
-    if (atom.dualWith === undefined) return atom;
-    const dualWith = physicalToAtom.get(atom.dualWith);
-    if (dualWith === undefined) throw new Error('Dangling dual relationship');
-    return { ...atom, dualWith };
-  });
 }

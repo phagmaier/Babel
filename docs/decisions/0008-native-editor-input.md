@@ -1,6 +1,11 @@
 # ADR 0008 — Native ProseMirror input proof
 
-Status: Accepted direction. Date: 2026-09-27. Task: M1-02. Sources: [SPEC S04/S07/S13–S15](../../SPEC.md#s07), EDIT-01/02/06, QA-02, INV-12/14; [ProseMirror guide](https://prosemirror.net/docs/guide/), [Tauri configuration](https://v2.tauri.app/develop/configuration-files/). Evidence: [M1 report](../test-evidence/M1.md), [proof harness](../../prototypes/native-editor/README.md).
+AUDIT-SLP-B (2026-10-03) retired superseded proof programs; linked deleted
+sources use the last pushed pre-deletion snapshot. Historical observations and
+failures below remain unchanged. [Retirement scope](../tasks/AUDIT-SLP-B.md) and ported production
+coverage are recorded separately; no new admission claim.
+
+Status: Accepted direction. Date: 2026-09-27. Task: M1-02. Sources: [SPEC S04/S07/S13–S15](../../SPEC.md#s07), EDIT-01/02/06, QA-02, INV-12/14; [ProseMirror guide](https://prosemirror.net/docs/guide/), [Tauri configuration](https://v2.tauri.app/develop/configuration-files/). Evidence: [M1 report](../test-evidence/M1.md), [proof harness](https://github.com/phagmaier/Babel/blob/fb7d6bd5bf034458afd950d5f9632382b6d5b99b/prototypes/native-editor/README.md).
 
 ## Decision
 

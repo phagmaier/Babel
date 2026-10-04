@@ -10,7 +10,6 @@ name = "babel_desktop_lib"
 crate-type = ["rlib"]
 
 [features]
-native-editor-proof = []
 editor-composition-proof = []
 
 [build-dependencies]

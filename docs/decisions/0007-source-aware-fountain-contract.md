@@ -1,6 +1,11 @@
 # ADR 0007 — Source-aware Fountain contract after M1-01
 
-Status: Accepted direction. Date: 2026-09-27. Task: M1-01. Sources: [SPEC S05–S07](../../SPEC.md#s05), [official Fountain syntax](https://fountain.io/syntax/), DOC-01–04, EDIT-01, INV-02/03/11. Evidence: [M1 report](../test-evidence/M1.md), [fixtures](../../fixtures/fountain/README.md), [disposable prototype](../../prototypes/fountain/codec.ts).
+AUDIT-SLP-B (2026-10-03) retired superseded proof programs; linked deleted
+sources use the last pushed pre-deletion snapshot. Historical observations and
+failures below remain unchanged. [Retirement scope](../tasks/AUDIT-SLP-B.md) and ported production
+coverage are recorded separately; no new admission claim.
+
+Status: Accepted direction. Date: 2026-09-27. Task: M1-01. Sources: [SPEC S05–S07](../../SPEC.md#s05), [official Fountain syntax](https://fountain.io/syntax/), DOC-01–04, EDIT-01, INV-02/03/11. Evidence: [M1 report](../test-evidence/M1.md), [fixtures](../../fixtures/fountain/README.md), [disposable prototype](https://github.com/phagmaier/Babel/blob/fb7d6bd5bf034458afd950d5f9632382b6d5b99b/prototypes/fountain/codec.ts).
 
 ## Context and decision
 

@@ -28,7 +28,6 @@ import time
 from pathlib import Path
 
 SELECTORS = [
-    "BABEL_PROOF_ROOT",
     "BABEL_HISTORY_PROOF_ROOT",
     "BABEL_SAVE_TEST_ROOT",
     "BABEL_RECOVERY_TEST_ROOT",

@@ -43,10 +43,10 @@ versions and ordinary source/recovery status.
 Copies require an explicit native-selected destination token. Same-filesystem
 wording states that losing the backing disk loses the copy; different-filesystem
 wording says the physical disk is unverified. No automatic backup success or
-alternate location is inferred. The native picker/controller is still absent in
-the production shell; this panel is mounted only by the marked synthetic native
-[diagnostic](../prototypes/snapshot-review/README.md) or injected tests. M2-06 owns
-curated history protection.
+alternate location is inferred. Production WritingView mounts the snapshot panel and native picker through the
+protected writing session. AUDIT-SLP-B retired the old snapshot proof page;
+M6-03 still owns independent production-native copy/prune retention audits.
+M2-06 owns curated history protection.
 
 M2-05D adds an injected `ProtectedClosePanel` and a synthetic native editor
 close flow. Close failure remains visible with Retry, Save Emergency Copy and

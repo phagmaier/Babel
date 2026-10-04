@@ -53,6 +53,68 @@ const expectFailure = (
 };
 
 describe('M3-02 production codec against unchanged independent M3-01 oracles', () => {
+  it('detects a corrupted byte oracle and requires explicit exclusions', () => {
+    const entry = corpus.cases[0]!;
+    expect(() => fixtureBytes({ ...entry, sha256: '0'.repeat(64) })).toThrow(
+      'Literal/hash mismatch',
+    );
+    expect(() =>
+      fixtureBytes({ ...entry, sourceLiteral: entry.sourceLiteral.trim() }),
+    ).toThrow('Literal/hash mismatch');
+    expect(() =>
+      fixtureBytes({ ...entry, file: '../outside.fountain' }),
+    ).toThrow('Unexpected corpus filename');
+    for (const excluded of corpus.cases.filter(
+      (candidate) => !candidate.shared,
+    )) {
+      expect(excluded.gaps.length).toBeGreaterThan(0);
+    }
+    const topics = new Set(corpus.cases.flatMap((entry) => entry.topics));
+    for (const required of [
+      'forced-heading',
+      'mixed-case-cue',
+      'scene-number',
+      'uppercase-action',
+      'transition-like-prose',
+      'title-continuation',
+      'unknown-title-field',
+      'multiple-dialogue-paragraphs',
+      'dual-dialogue',
+      'nested-sections',
+      'multiline-note',
+      'multiline-boneyard',
+      'italic',
+      'bold',
+      'underline',
+      'escaped-literal-markers',
+      'page-break',
+      'unicode',
+      'bom',
+      'mixed-newlines',
+      'no-final-newline',
+      'unknown-region',
+      'incomplete-cue',
+    ]) {
+      expect(topics.has(required), required).toBe(true);
+    }
+  });
+
+  it.each(['elements.fountain', 'ambiguity.fountain', 'windows-bom.fountain'])(
+    'AUDIT-SLP-B %s preserves exact no-op bytes and isolated snapshots',
+    (name) => {
+      const input = new Uint8Array(readFileSync(`fixtures/fountain/${name}`));
+      const original = input.slice();
+      const document = parseFountain(input);
+      const captured = serializeFountain(document);
+      expect(captured).toEqual(input);
+      expect(captured).not.toBe(input);
+      captured.fill(0);
+      expect(serializeFountain(document)).toEqual(input);
+      input.fill(0);
+      expect(serializeFountain(document)).toEqual(original);
+    },
+  );
+
   it.each(corpus.cases)(
     '$id preserves bytes, semantic order and every physical span',
     (entry) => {

@@ -8,9 +8,7 @@ use std::sync::{Arc, Mutex};
 #[cfg(all(feature = "editor-composition-proof", target_os = "linux"))]
 mod editor_composition_proof;
 #[cfg(all(feature = "editor-composition-proof", target_os = "linux"))]
-use editor_composition_proof::{
-    open_composition_fixture, record_composition_proof, select_snapshot_proof_destination,
-};
+use editor_composition_proof::{open_composition_fixture, record_composition_proof};
 #[cfg(target_os = "linux")]
 mod enchant;
 #[cfg(target_os = "linux")]
@@ -153,16 +151,6 @@ fn app_info() -> AppInfo {
     screenwriter_core::app_info()
 }
 
-#[cfg(feature = "native-editor-proof")]
-#[tauri::command]
-fn record_native_editor_proof(report: String) -> Result<(), &'static str> {
-    if report.len() > 16_384 {
-        return Err("proof report exceeds limit");
-    }
-    eprintln!("M1_NATIVE_EDITOR_PROOF {report}");
-    Ok(())
-}
-
 /// Route the native close through the actual registration guard. Preventing
 /// close precedes notification, so a lost frontend event cannot destroy a draft.
 /// An unprotected termination failure logs attention but earns no persistence
@@ -298,68 +286,7 @@ pub fn run() {
         });
     #[cfg(target_os = "linux")]
     let builder = builder.manage(SpellcheckHost::default());
-    #[cfg(all(
-        feature = "native-editor-proof",
-        not(all(feature = "editor-composition-proof", target_os = "linux"))
-    ))]
-    let builder = builder.invoke_handler(tauri::generate_handler![
-        app_info,
-        update_command_menu,
-        render_publication,
-        prepare_pdf_capture,
-        select_pdf_destination,
-        render_pdf_export,
-        publish_pdf_export,
-        cancel_pdf_export,
-        read_publication,
-        assess_publication,
-        cancel_publication,
-        #[cfg(target_os = "linux")]
-        spellcheck,
-        check_source_document,
-        reload_source_document,
-        create_unsaved_draft,
-        open_source_via_picker,
-        #[cfg(target_os = "linux")]
-        list_recent_projects,
-        #[cfg(target_os = "linux")]
-        remove_recent_project,
-        #[cfg(target_os = "linux")]
-        open_recent_project,
-        #[cfg(target_os = "linux")]
-        locate_recent_project,
-        #[cfg(target_os = "linux")]
-        confirm_recent_location,
-        select_destination,
-        select_save_destination,
-        save_as_copy,
-        release_open_document,
-        release_open_document_at_risk,
-        list_local_recovery,
-        read_local_recovery,
-        list_document_recovery,
-        read_document_recovery,
-        resume_local_recovery,
-        checkpoint_document,
-        protect_workflow,
-        save_document,
-        compare_recovery,
-        recover_checkpoint_as_current,
-        keep_current_source,
-        save_recovered_copy,
-        list_snapshots,
-        read_snapshot,
-        create_snapshot,
-        prune_snapshots,
-        restore_snapshot,
-        save_external_copy,
-        resolve_save_transaction,
-        record_native_editor_proof
-    ]);
-    #[cfg(not(any(
-        feature = "native-editor-proof",
-        all(feature = "editor-composition-proof", target_os = "linux")
-    )))]
+    #[cfg(not(all(feature = "editor-composition-proof", target_os = "linux")))]
     let builder = builder.invoke_handler(tauri::generate_handler![
         app_info,
         update_command_menu,
@@ -467,10 +394,7 @@ pub fn run() {
         save_external_copy,
         resolve_save_transaction,
         open_composition_fixture,
-        select_snapshot_proof_destination,
-        record_composition_proof,
-        #[cfg(feature = "native-editor-proof")]
-        record_native_editor_proof
+        record_composition_proof
     ]);
     builder
         .run(tauri::generate_context!())
@@ -484,15 +408,6 @@ mod tests {
     #[test]
     fn command_exposes_core_build_information() {
         assert_eq!(app_info(), screenwriter_core::app_info());
-    }
-
-    #[cfg(feature = "native-editor-proof")]
-    #[test]
-    fn native_proof_report_has_a_size_limit() {
-        assert_eq!(
-            record_native_editor_proof("x".repeat(16_385)),
-            Err("proof report exceeds limit")
-        );
     }
 }
 
