@@ -8,6 +8,9 @@ Evidence: [M2 report](../test-evidence/M2-05B.md).
 
 Amended 2026-10-03 by [AUDIT-SLP-A](../tasks/AUDIT-SLP-A.md) to remove unused surfaces; historical acceptance evidence remains retained.
 
+Amended 2026-10-04 by [AUDIT-D02](../tasks/AUDIT-D02.md): safe identical-byte
+reopen admission and persisted explicit Keep; historical evidence remains retained.
+
 ## Context and decision
 
 M2-05A exposed loose/unsaved recovery read-only without selecting a source or
@@ -28,12 +31,35 @@ protection, independent previous copy, exclusive candidate, verified atomic
 replacement and exact `sourceFile` receipt. The previous source copy and the
 recovery journal are both retained; nothing is deleted to resolve.
 
-The M2-02 older-session journal gate stays closed for ordinary checkpoints and
-saves. Only an explicit choice reconciles it, and only in memory for the
-current registration: Recover adopts with a newer version, Keep verifies both
-generations unchanged and records the choice without writing. A restart
-requires a fresh choice; reconciliation is never persisted. Keep writes
-nothing, so its disk state is byte-identical before and after.
+The older-session journal gate reconciles at native open only with exclusive
+ownership, a clean latest published generation, identical source bytes and
+NoTransaction or ConfirmedRecordMatchesSource. Pending/quarantined/damaged
+journals, interrupted save intents, uncertain saves and lost ownership refuse
+the fast path. Source/recovery/leases are revalidated before admission; no file
+receipt is inferred. Content hashes, rather than inode/ctime, define divergence.
+
+Recover remains an explicit newer-version transaction. Keep preserves source
+and journal bytes and publishes private decision metadata: schema, document UUID,
+canonical latest-record hash and source hash. Its unique candidate is exclusively
+created, synced, verified and atomically published; directory/source/recovery and
+ownership are rechecked before success. Reopen accepts that exact decision only
+under fresh clean journal/ownership and transaction inspection. Changed source or latest record
+invalidates it. Failures leave this registration unresolved; pending marker bytes
+are retained. No journal retirement, descendant auto-adoption or timestamp winner.
+
+AUDIT-D02 distinguishes a prior confirmed record whose source later changed
+from an unresolved replacement: only an explicit reviewed Keep may bind that
+source when no intent, previous-pending copy or candidate remains. Identical-byte
+automatic admission still requires NoTransaction or ConfirmedRecordMatchesSource.
+A verified latest checkpoint from the current registration needs no older-session
+choice. Exporting a standalone copy does not resolve a pending review; successful
+Save As adoption switches to a fresh identity without carrying the old gate.
+
+The writing surface waits for discovery before enabling editing. True divergence
+gets one primary latest-generation plain choice; older candidates remain behind
+Inspect. Inspect Later permits read-only navigation; emergency copying remains
+available for malformed recovery or a missing source. Successful choices unlock
+editing; resolving an older save alone cannot choose a newer divergent journal.
 
 Save Recovered Copy writes the exact recovery bytes — including malformed
 UTF-8 that adoption correctly refuses — to an exclusively created,

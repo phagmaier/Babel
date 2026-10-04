@@ -19,6 +19,7 @@ import urllib.request
 MODES = (
     (
         ('--external-reload', 'external_reload', 'run'),
+        ('--recovery-reopen', 'recovery_reopen', 'run'),
         ('--persistence-paths', 'persistence_paths', 'run'),
     ),
     (
@@ -48,6 +49,11 @@ MODES = (
         ('--capture-review', 'editor_exit', 'review_capture'),
     ),
 )
+
+
+def assert_identical_reopen():
+    from recovery_reopen import assert_identical_reopen as verify
+    verify(sys.modules[__name__])
 
 
 def dispatch_modes(modes):
@@ -378,13 +384,8 @@ try:
     picker(target)
     wait(lambda: editor_text() == 'Mist curls. More.', 'Native picker reopens saved text')
     screenshot('reopened')
-    # Reopening older-session recovery needs an explicit content choice. Keep
-    # the byte-identical current source; the monotonically higher live epoch
-    # can then checkpoint without erasing any prior recovery material.
-    wait(lambda: 'Both generations hold identical content.' in body(), 'Matching previous-session recovery is discoverable')
-    same = find("//section[.//h2[normalize-space(.)='Recovery choice']][.//p[normalize-space(.)='Both generations hold identical content.']]//button[normalize-space(.)='Keep Current File']")
-    command('POST', f'/element/{same}/click', {})
-    wait(lambda: 'The current file was kept.' in body(), 'Explicit Keep Current File reconciles the old session')
+    assert_identical_reopen()
+    assert any(source == b'!Mist curls. More.\n' for _, source in journal_records())
     # A named snapshot protects exactly the selected version, and a restore
     # protects the newer live editor before replacing disk. Undo re-saves it.
     set_input('Snapshot name', 'First retained draft')
@@ -412,13 +413,7 @@ try:
     click('Open Fountain', actions=True)
     picker(target)
     wait(lambda: editor_text() == ' Later.Mist curls. More.', 'Open before recovery failure')
-    wait(lambda: 'Both generations hold identical content.' in body(), 'Source/recovery comparison before fault')
-    same = find("//section[.//h2[normalize-space(.)='Recovery choice']][.//p[normalize-space(.)='Both generations hold identical content.']]//button[normalize-space(.)='Keep Current File']")
-    command('POST', f'/element/{same}/click', {})
-    wait(lambda: 'The current file was kept.' in body(), 'Reconcile before deliberate source failure')
-    if 'A confirmed replacement matches the file.' in body():
-        click('Resolve Interrupted Save')
-        wait(lambda: 'An interrupted save was confirmed' in body() or 'No interrupted save needed completion.' in body(), 'Confirmed save reconciled before source fault')
+    assert_identical_reopen()
     (ROOT / 'files').chmod(0o500)
     editor_home()
     type_text('Recovered ')
@@ -444,7 +439,7 @@ try:
     picker(target)
     wait(lambda: 'Recovery choice' in body(), 'Recovery connected after native open')
     latest = max(metadata['version'] for metadata, source in journal_records() if source == recovered)
-    button = wait(lambda: find(f"//section[.//h2[normalize-space(.)='Recovery choice']][.//p[contains(.,'Recovery version {latest},')]]//button[normalize-space(.)='Recover as Current']"), "Latest recovery comparison loaded")
+    button = wait(lambda: find(f"//section[.//h2[normalize-space(.)='Recovery choice']][.//p[contains(.,'Recovery version {latest},')]]//button[normalize-space(.)='Restore recovered draft']"), "Latest recovery comparison loaded")
     command('POST', f'/element/{button}/click', {})
     audit(target, recovered)
     wait(lambda: editor_text() == 'Recovered  Later.Mist curls. More.', 'Recovered bytes adopted into editor')

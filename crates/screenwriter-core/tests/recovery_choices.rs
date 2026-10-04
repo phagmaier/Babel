@@ -109,6 +109,16 @@ fn compare_reports_identical_then_divergence_then_missing_without_choosing() {
     assert_eq!(compared.transaction, ChoiceTransaction::NoTransaction);
     assert_eq!(compared.source.status, ChoiceSourceStatus::Current);
 
+    fs::write(&path, b"original").unwrap();
+    let metadata_only = service
+        .compare_recovery(&compare_request(&opened, &selection))
+        .unwrap();
+    assert!(metadata_only.identical);
+    assert!(
+        !metadata_only.external_divergence,
+        "metadata does not define content divergence"
+    );
+
     fs::write(&path, b"external edit").unwrap();
     let compared = service
         .compare_recovery(&compare_request(&opened, &selection))
@@ -242,40 +252,13 @@ fn recover_as_current_preserves_previous_and_recovery_across_restart() {
         Some(b"original".as_slice()),
         "the replaced generation stays readable beside the adopted one"
     );
-    // The new session must still make one explicit choice: admission alone is
-    // not a receipt, and its first execution stays blocked on the older
-    // journal until it chooses.
-    restarted
-        .enqueue_save(screenwriter_core::documents::saving::SaveRequest {
-            identity: reopened.identity.clone(),
-            version: 23,
-            source: b"edited once more".to_vec(),
-            source_sha256: source_hash(b"edited once more"),
-            expected_fingerprint: reopened.fingerprint.clone().unwrap(),
-            draft_metadata: json!({"draft": true}),
-        })
-        .unwrap();
-    let failure = restarted.save_next(&reopened.identity).unwrap_err();
-    assert_eq!(failure.error.code, ErrorCode::RecoveryNeedsAttention);
-    assert_eq!(
-        failure.replacement,
-        screenwriter_core::documents::saving::ReplacementState::SourceUnchanged
+    // Identical latest content with a confirmed transaction reconciles at open.
+    assert!(
+        restarted
+            .list_document_recovery(&reopened.identity)
+            .unwrap()
+            .reconciled
     );
-    // Comparing shows identical generations; keeping reconciles this session,
-    // and ordinary saves continue on the adopted baseline.
-    let selection = latest_selection(&restarted, &reopened);
-    let compared = restarted
-        .compare_recovery(&compare_request(&reopened, &selection))
-        .unwrap();
-    assert!(compared.identical);
-    assert!(!compared.external_divergence);
-    restarted
-        .keep_current_source(&KeepRequest {
-            identity: reopened.identity.clone(),
-            selection,
-            expected_fingerprint: reopened.fingerprint.clone().unwrap(),
-        })
-        .unwrap();
     restarted
         .enqueue_save(screenwriter_core::documents::saving::SaveRequest {
             identity: reopened.identity.clone(),
@@ -286,7 +269,9 @@ fn recover_as_current_preserves_previous_and_recovery_across_restart() {
             draft_metadata: json!({"draft": true}),
         })
         .unwrap();
-    restarted.save_next(&reopened.identity).unwrap().unwrap();
+    let saved = restarted.save_next(&reopened.identity).unwrap().unwrap();
+    assert_eq!(saved.version, 23);
+    assert_eq!(saved.source_sha256, source_hash(b"edited once more"));
     assert_eq!(fs::read(&path).unwrap(), b"edited once more");
 }
 
@@ -364,7 +349,7 @@ fn older_session_blocks_checkpoints_until_explicit_recover_or_keep() {
             .code,
         ErrorCode::RecoveryNeedsAttention
     );
-    // Explicit keep preserves both and unblocks this session only.
+    // Explicit Keep preserves author bytes and publishes only a decision marker.
     let before = disk_state(&fixture.0);
     let compared = second
         .keep_current_source(&KeepRequest {
@@ -374,7 +359,16 @@ fn older_session_blocks_checkpoints_until_explicit_recover_or_keep() {
         })
         .unwrap();
     assert!(!compared.identical);
-    assert_eq!(disk_state(&fixture.0), before);
+    let mut after = disk_state(&fixture.0);
+    let marker_path = fixture
+        .store()
+        .join("recovery")
+        .join(format!("{}.keep", reopened.identity.document_id));
+    let decision: serde_json::Value =
+        serde_json::from_slice(&after.remove(&marker_path).unwrap()).unwrap();
+    assert_eq!(decision["recordSha256"], selection.record_sha256);
+    assert_eq!(decision["sourceSha256"], source_hash(b"original"));
+    assert_eq!(after, before);
     second
         .checkpoint(
             &reopened.identity,
@@ -721,4 +715,321 @@ fn resolve_reports_no_transaction_without_writing() {
     assert!(resolution.completed.is_none());
     assert!(!resolution.previous_preserved);
     assert_eq!(disk_state(&fixture.0), before);
+}
+
+#[test]
+fn identical_latest_reopen_allows_checkpoint_without_keep_or_source_rewrite() {
+    let fixture = Fixture::new();
+    let path = fixture.source("identical.fountain", b"\xef\xbb\xbf!Original\r\n");
+    let mut first = fixture.service();
+    let opened = first.open_selected(&path).unwrap();
+    checkpoint(&mut first, &opened, 21, &opened.source);
+    let journal = fixture
+        .store()
+        .join("recovery")
+        .join(format!("{}.journal", opened.identity.document_id));
+    let before = fs::read(&journal).unwrap();
+    drop(first);
+    let mut second = fixture.service();
+    let reopened = second.open_selected(&path).unwrap();
+    assert_eq!(fs::read(&journal).unwrap(), before);
+    checkpoint(&mut second, &reopened, 22, b"!New edit\r\n");
+    assert_eq!(fs::read(&path).unwrap(), opened.source);
+}
+
+#[test]
+fn keep_survives_restart_but_not_a_changed_source() {
+    let fixture = Fixture::new();
+    let path = fixture.source("keep.fountain", b"saved file");
+    let mut first = fixture.service();
+    let opened = first.open_selected(&path).unwrap();
+    checkpoint(&mut first, &opened, 21, b"different recovery");
+    first
+        .keep_current_source(&KeepRequest {
+            identity: opened.identity.clone(),
+            selection: latest_selection(&first, &opened),
+            expected_fingerprint: opened.fingerprint.clone().unwrap(),
+        })
+        .unwrap();
+    drop(first);
+    // Metadata alone must not invalidate a content-bound decision.
+    fs::write(&path, b"saved file").unwrap();
+    let mut second = fixture.service();
+    let reopened = second.open_selected(&path).unwrap();
+    checkpoint(&mut second, &reopened, 22, b"draft after keep");
+    drop(second);
+    fs::write(&path, b"externally changed").unwrap();
+    let mut third = fixture.service();
+    let reopened = third.open_selected(&path).unwrap();
+    assert_eq!(
+        third
+            .checkpoint(
+                &reopened.identity,
+                23,
+                b"new draft",
+                &source_hash(b"new draft"),
+                json!({})
+            )
+            .unwrap_err()
+            .code,
+        ErrorCode::RecoveryNeedsAttention
+    );
+    assert_eq!(fs::read(&path).unwrap(), b"externally changed");
+}
+
+#[test]
+fn identical_older_record_cannot_hide_newer_divergent_recovery() {
+    let fixture = Fixture::new();
+    let path = fixture.source("older.fountain", b"saved");
+    let mut first = fixture.service();
+    let opened = first.open_selected(&path).unwrap();
+    checkpoint(&mut first, &opened, 21, b"saved");
+    let older = latest_selection(&first, &opened);
+    checkpoint(&mut first, &opened, 22, b"redirected work");
+    let source = fs::read(&path).unwrap();
+    drop(first);
+    let mut second = fixture.service();
+    let reopened = second.open_selected(&path).unwrap();
+    assert!(
+        !second
+            .list_document_recovery(&reopened.identity)
+            .unwrap()
+            .reconciled
+    );
+    assert_eq!(
+        second
+            .keep_current_source(&KeepRequest {
+                identity: reopened.identity.clone(),
+                selection: older,
+                expected_fingerprint: reopened.fingerprint.clone().unwrap()
+            })
+            .unwrap_err()
+            .code,
+        ErrorCode::RecoveryNeedsAttention
+    );
+    assert_eq!(
+        second
+            .checkpoint(
+                &reopened.identity,
+                23,
+                b"new",
+                &source_hash(b"new"),
+                json!({})
+            )
+            .unwrap_err()
+            .code,
+        ErrorCode::RecoveryNeedsAttention
+    );
+    assert_eq!(fs::read(&path).unwrap(), source);
+    assert_eq!(
+        second
+            .inspect_recovery(&reopened.identity)
+            .unwrap()
+            .latest
+            .unwrap()
+            .source,
+        b"redirected work"
+    );
+}
+
+#[test]
+fn unsafe_keep_marker_fails_without_touching_author_material_or_granting_admission() {
+    use std::os::unix::fs::symlink;
+    let fixture = Fixture::new();
+    let path = fixture.source("unsafe.fountain", b"saved");
+    let sentinel = fixture.source("sentinel", b"untouched");
+    let mut first = fixture.service();
+    let opened = first.open_selected(&path).unwrap();
+    checkpoint(&mut first, &opened, 21, b"different");
+    drop(first);
+    let mut first = fixture.service();
+    let opened = first.open_selected(&path).unwrap();
+    let marker = fixture
+        .store()
+        .join("recovery")
+        .join(format!("{}.keep", opened.identity.document_id));
+    symlink(&sentinel, &marker).unwrap();
+    let journal = fs::read(marker.with_extension("journal")).unwrap();
+    assert!(
+        first
+            .keep_current_source(&KeepRequest {
+                identity: opened.identity.clone(),
+                selection: latest_selection(&first, &opened),
+                expected_fingerprint: opened.fingerprint.clone().unwrap()
+            })
+            .is_err()
+    );
+    assert_eq!(fs::read(&sentinel).unwrap(), b"untouched");
+    assert_eq!(fs::read(marker.with_extension("journal")).unwrap(), journal);
+    assert!(
+        !first
+            .list_document_recovery(&opened.identity)
+            .unwrap()
+            .reconciled
+    );
+    drop(first);
+    let mut second = fixture.service();
+    let reopened = second.open_selected(&path).unwrap();
+    assert!(
+        !second
+            .list_document_recovery(&reopened.identity)
+            .unwrap()
+            .reconciled
+    );
+    assert_eq!(fs::read(&path).unwrap(), b"saved");
+}
+
+#[test]
+fn corrupt_marker_and_pending_or_damaged_journal_never_auto_reconcile() {
+    for artifact in ["keep", "pending", "journal"] {
+        let fixture = Fixture::new();
+        let path = fixture.source("damaged.fountain", b"saved");
+        let mut first = fixture.service();
+        let opened = first.open_selected(&path).unwrap();
+        let bytes: &[u8] = if artifact == "keep" {
+            b"different"
+        } else {
+            b"saved"
+        };
+        checkpoint(&mut first, &opened, 21, bytes);
+        let name = fixture
+            .store()
+            .join("recovery")
+            .join(format!("{}.{}", opened.identity.document_id, artifact));
+        if artifact == "journal" {
+            use std::io::Write;
+            fs::OpenOptions::new()
+                .append(true)
+                .open(&name)
+                .unwrap()
+                .write_all(b"torn tail")
+                .unwrap();
+        } else {
+            fs::write(&name, b"invalid interrupted artifact").unwrap();
+            fs::set_permissions(&name, fs::Permissions::from_mode(0o600)).unwrap();
+        }
+        let retained = fs::read(&name).unwrap();
+        drop(first);
+        let mut second = fixture.service();
+        let reopened = second.open_selected(&path).unwrap();
+        assert!(
+            !second
+                .list_document_recovery(&reopened.identity)
+                .unwrap()
+                .reconciled,
+            "{artifact}"
+        );
+        assert_eq!(fs::read(&name).unwrap(), retained);
+        assert_eq!(fs::read(&path).unwrap(), b"saved");
+    }
+}
+
+#[test]
+fn own_verified_checkpoint_reports_admission_without_a_recovery_choice() {
+    let fixture = Fixture::new();
+    let path = fixture.source("fresh.fountain", b"fresh source");
+    let mut service = fixture.service();
+    let opened = service.open_selected(&path).unwrap();
+    checkpoint(&mut service, &opened, 21, b"fresh live draft");
+    let entry = service.list_document_recovery(&opened.identity).unwrap();
+    assert!(
+        entry.reconciled,
+        "a verified current-session draft needs no older-session decision"
+    );
+    assert_eq!(entry.candidates[0].session_id, opened.identity.session_id);
+    assert_eq!(fs::read(&path).unwrap(), b"fresh source");
+    drop(service);
+    let mut restarted = fixture.service();
+    let reopened = restarted.open_selected(&path).unwrap();
+    assert!(
+        !restarted
+            .list_document_recovery(&reopened.identity)
+            .unwrap()
+            .reconciled
+    );
+    assert_eq!(fs::read(&path).unwrap(), b"fresh source");
+}
+
+#[test]
+fn explicit_keep_of_changed_confirmed_source_survives_restart_without_auto_choosing() {
+    let fixture = Fixture::new();
+    let path = fixture.source("confirmed.fountain", b"initial");
+    let mut first = fixture.service();
+    let opened = first.open_selected(&path).unwrap();
+    first
+        .save_request(screenwriter_core::documents::saving::SaveRequest {
+            identity: opened.identity.clone(),
+            version: 21,
+            source: b"confirmed".to_vec(),
+            source_sha256: source_hash(b"confirmed"),
+            expected_fingerprint: opened.fingerprint.clone().unwrap(),
+            draft_metadata: json!({"draft": true}),
+        })
+        .unwrap();
+    checkpoint(&mut first, &opened, 22, b"recovered draft");
+    drop(first);
+    fs::write(&path, b"external saved file").unwrap();
+    let mut second = fixture.service();
+    let reopened = second.open_selected(&path).unwrap();
+    assert!(
+        !second
+            .list_document_recovery(&reopened.identity)
+            .unwrap()
+            .reconciled
+    );
+    let selection = latest_selection(&second, &reopened);
+    let compared = second
+        .compare_recovery(&compare_request(&reopened, &selection))
+        .unwrap();
+    assert_eq!(
+        compared.transaction,
+        ChoiceTransaction::ConfirmedRecordDiverged
+    );
+    assert!(!compared.external_divergence);
+    assert!(!compared.identical);
+    second
+        .keep_current_source(&KeepRequest {
+            identity: reopened.identity.clone(),
+            selection,
+            expected_fingerprint: reopened.fingerprint.clone().unwrap(),
+        })
+        .unwrap();
+    drop(second);
+    let mut third = fixture.service();
+    let reopened = third.open_selected(&path).unwrap();
+    assert!(
+        third
+            .list_document_recovery(&reopened.identity)
+            .unwrap()
+            .reconciled
+    );
+    assert_eq!(fs::read(&path).unwrap(), b"external saved file");
+    assert_eq!(
+        third
+            .inspect_recovery(&reopened.identity)
+            .unwrap()
+            .latest
+            .unwrap()
+            .source,
+        b"recovered draft"
+    );
+    third
+        .save_request(screenwriter_core::documents::saving::SaveRequest {
+            identity: reopened.identity.clone(),
+            version: 23,
+            source: b"later edit".to_vec(),
+            source_sha256: source_hash(b"later edit"),
+            expected_fingerprint: reopened.fingerprint.clone().unwrap(),
+            draft_metadata: json!({"draft": true}),
+        })
+        .unwrap();
+    assert_eq!(fs::read(&path).unwrap(), b"later edit");
+    assert_eq!(
+        third
+            .inspect_source_save(&reopened.identity)
+            .unwrap()
+            .previous
+            .as_deref(),
+        Some(b"external saved file".as_slice())
+    );
 }

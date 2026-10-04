@@ -131,8 +131,16 @@ back to the first enabled screenplay action when Save is unavailable.
 Recovery remains an explicit full-byte native choice. The displayed preview is
 bounded, while Resume revalidates and checkpoints the complete selected bytes
 under a fresh identity, retaining the original. Selected source recovery keeps
-Recover as Current, Keep Current File and Save Recovered Copy; matching bytes do
-not silently reconcile older-session recovery. Native tmpfs/Btrfs and injected
+Restore recovered draft, Keep saved file and Save Recovered Copy. Native open
+reconciles only clean identical latest content or an exact verified Keep marker
+under exclusive ownership and safe transaction guards. Discovery finishes before
+editing; unresolved recovery shows one plain primary choice, with older records
+behind Inspect. Inspect later permits read-only navigation; title, spelling,
+find/move and Import authorship stay gated as well. Successful choice returns
+focus through the owned editor view with its selection retained. Interrupted saves and
+malformed/missing-source emergency copies remain available. No automatic adoption
+or journal retirement. [AUDIT-D02 brief](tasks/AUDIT-D02.md) owns this amendment;
+its evidence preserves the historical explicit-choice checks. Native tmpfs/Btrfs and injected
 UI coverage, actual warm Home observations and accessibility limits live in
 [M4-02 evidence](test-evidence/M4.md#m4-02--home-and-recovery-workflows).
 

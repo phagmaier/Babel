@@ -55,13 +55,7 @@ def run(d):
         d.type_text('\ue009z\ue000');ready()
     def reopen(target,expected):
         d.close_session();d.click('Open Fountain',actions=True);d.picker(target)
-        d.wait(lambda:'Recovery choice' in d.body(),'Reopen recovery comparison',timeout=60)
-        d.wait(lambda:d.script("return [...document.querySelectorAll('button')].some(b=>b.textContent==='Keep Current File'&&!b.disabled);"),'Reviewed Keep enabled',timeout=60)
-        d.click('Keep Current File')
-        d.wait(lambda:'The current file was kept.' in d.body(),'Keep current file review',timeout=60)
-        if 'A confirmed replacement matches the file' in d.body():
-            d.click('Resolve Interrupted Save')
-            d.wait(lambda:'An interrupted save was confirmed' in d.body() or 'No interrupted' in d.body(),'Confirmed-save reconciliation',timeout=60)
+        d.assert_identical_reopen()
         ready();d.audit(target,expected)
     def owned_focus():
         clients=[c for c in d.owned_clients() if c.get('class')=='babel-desktop']
@@ -154,12 +148,12 @@ def run(d):
     # Unsupported encoding keeps form inspectable but actions disabled.
     target=d.ROOT/'files'/'title-readonly.fountain';target.write_bytes(b'\xffTitle: invalid\n')
     d.click('Open Fountain',actions=True);d.picker(target)
-    d.wait(lambda:'Source file: Read-only' in d.body(),'Read-only source opened',timeout=60)
+    d.wait(lambda:d.script("return document.querySelector('[aria-label=\"Protection status\"]')?.innerText.startsWith('Read-only') && document.querySelector('.ProseMirror')?.getAttribute('contenteditable')==='false';"),'Read-only source opened',timeout=60)
     d.click('Title page',actions=True)
     assert d.script("return document.querySelector('.title-page-panel').innerText.includes('read-only') && [...document.querySelectorAll('.title-page-panel button')].find(b=>b.textContent==='Add field').disabled;")
     assert target.read_bytes()==b'\xffTitle: invalid\n'
     d.screenshot('title-readonly');d.click('Close title page')
-    # Invalid UTF-8 is inspection-only and has no faithful editor capture.
-    # Dispose this owned unedited test process through the runner finally path.
+    # Inspection-only close releases ownership without attempting UTF-8 capture.
+    d.close_session()
     (d.ROOT/'title-report.json').write_text(json.dumps(report,indent=2))
     print('PASS native title source-failure+recovery+Save As / read-only exact bytes',flush=True)

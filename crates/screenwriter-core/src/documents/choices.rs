@@ -68,6 +68,8 @@ pub enum ChoiceTransaction {
     Prepared,
     InstalledCandidateUnconfirmed,
     ConfirmedRecordMatchesSource,
+    /// A prior confirmed record differs, with no unresolved intent/candidate.
+    ConfirmedRecordDiverged,
     Diverged,
     NeedsAttention,
 }

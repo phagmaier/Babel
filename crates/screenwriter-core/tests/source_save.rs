@@ -360,15 +360,10 @@ fn managed_storage_is_private_and_project_metadata_is_never_changed() {
     restarted
         .enqueue_save(request(&reopened, 22, b"draft from new session"))
         .unwrap();
-    assert_eq!(
-        restarted
-            .save_next(&reopened.identity)
-            .unwrap_err()
-            .error
-            .code,
-        ErrorCode::RecoveryNeedsAttention
-    );
-    assert_eq!(f.bytes(), b"managed draft\r\n  ");
+    let saved = restarted.save_next(&reopened.identity).unwrap().unwrap();
+    assert_eq!(saved.version, 22);
+    assert_eq!(saved.source_sha256, source_hash(b"draft from new session"));
+    assert_eq!(f.bytes(), b"draft from new session");
 }
 
 #[test]

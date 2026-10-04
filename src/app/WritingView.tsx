@@ -206,6 +206,15 @@ export function WritingView({
   const frozenRef = useRef(false);
   const writableRef = useRef(true);
   const readyRef = useRef(false);
+  const recoveryPendingRef = useRef(false);
+  const editableRef = useMemo(
+    () => ({
+      get current() {
+        return writableRef.current && !recoveryPendingRef.current;
+      },
+    }),
+    [],
+  );
   const adoptingRef = useRef(false);
   const windowCloseRef = useRef(false);
   const closeRequestedRef = useRef(false);
@@ -243,6 +252,9 @@ export function WritingView({
   const [copyDestination, setCopyDestination] =
     useState<CopyDestination | null>(null);
   const [candidates, setCandidates] = useState<RecoveryCandidate[]>([]);
+  const [recoveryPending, setRecoveryPending] = useState(false);
+  const [recoveryChoiceCompleted, setRecoveryChoiceCompleted] = useState(false);
+  const [recoveryDiscoveryFailed, setRecoveryDiscoveryFailed] = useState(false);
   const [busy, setBusy] = useState(false);
   const closeCheck = () => {
     setShowCheck(false);
@@ -271,7 +283,7 @@ export function WritingView({
     readyRef,
     titleDraftRef,
     titleComposingRef,
-    writableRef,
+    writableRef: editableRef,
     showClose,
     busy,
     active,
@@ -405,7 +417,7 @@ export function WritingView({
     operationRef,
     frozenRef,
     readyRef,
-    writableRef,
+    writableRef: editableRef,
     sessionRef,
     outline,
     busy,
@@ -684,6 +696,7 @@ export function WritingView({
           adoptingRef.current ||
           (writableRef.current &&
             readyRef.current &&
+            !recoveryPendingRef.current &&
             !frozenRef.current &&
             ((!titleDraftRef.current && !titleComposingRef.current) ||
               titleApplyingRef.current)),
@@ -1060,20 +1073,31 @@ export function WritingView({
         }
         if (!alive || !session.active) return;
         refresh();
+        if (session.active.fingerprint) {
+          recoveryPendingRef.current = true;
+          setRecoveryPending(true);
+          try {
+            const entry = await ports.recovery.inspect(session.active.identity);
+            if (!alive) return;
+            if (entry.documentId !== session.active.identity.documentId)
+              throw new Error('Recovery identity mismatch');
+            setCandidates([...entry.candidates]);
+            recoveryPendingRef.current =
+              !!entry.error ||
+              entry.notices.length > 0 ||
+              (entry.candidates.length > 0 && entry.reconciled !== true);
+            setRecoveryPending(recoveryPendingRef.current);
+          } catch {
+            if (!alive) return;
+            setRecoveryDiscoveryFailed(true);
+            setError(
+              'Recovery could not be checked. Review remains available; return Home and reopen before editing.',
+            );
+          }
+        }
         readyRef.current = true;
         viewRef.current?.setProps({});
         setPhase('active');
-
-        void ports.recovery
-          .inspect(session.active.identity)
-          .then((entry) => {
-            if (!alive) return;
-            const id = session.active?.identity.documentId;
-            setCandidates(entry.documentId === id ? [...entry.candidates] : []);
-          })
-          .catch(() => {
-            // Recovery discovery is advisory; the session stays usable.
-          });
       } catch (failure: unknown) {
         if (alive) {
           setError(
@@ -1223,18 +1247,27 @@ export function WritingView({
   ]);
 
   useEffect(() => {
-    if (!importHost.current || !active || active.readOnly || phase !== 'active')
+    if (
+      !importHost.current ||
+      !active ||
+      active.readOnly ||
+      recoveryPending ||
+      phase !== 'active'
+    )
       return;
     const view = viewRef.current;
     if (!view) return;
     const boundary = new FountainImportBoundary(
       () => view,
-      (apply, signal) =>
-        sessionRef.current!.runProtectedWorkflow(
+      (apply, signal) => {
+        if (!editableRef.current)
+          throw new Error('Choose recovery before importing.');
+        return sessionRef.current!.runProtectedWorkflow(
           'fountainImport',
           apply,
           signal,
-        ),
+        );
+      },
     );
     const panel = createFountainImportPanel(importHost.current, boundary);
     panel.input.value = stagedImportRef.current;
@@ -1244,6 +1277,8 @@ export function WritingView({
     };
   }, [
     ports.workflows,
+    recoveryPending,
+    editableRef,
     active?.identity.documentId,
     active?.identity.handle,
     phase,
@@ -1341,14 +1376,24 @@ export function WritingView({
       });
   };
 
-  const reportOutcome = (outcome: { status: string; fileName?: string }) => {
+  const reportOutcome = (
+    outcome: { status: string; fileName?: string },
+    changedIdentity = false,
+  ) => {
     if (outcome.status === 'cancelled')
       setError('The native dialog was cancelled. Nothing changed.');
     else if (outcome.fileName) {
       setError('');
       if (outcome.status === 'published') {
         setCopyDestination(null);
-        setCandidates([]);
+        if (changedIdentity) {
+          setCandidates([]);
+          recoveryPendingRef.current = false;
+          setRecoveryPending(false);
+          setRecoveryChoiceCompleted(false);
+          setRecoveryDiscoveryFailed(false);
+          viewRef.current?.setProps({});
+        }
       }
     }
     refresh();
@@ -1408,6 +1453,7 @@ export function WritingView({
         comparisons = result.catch(() => undefined);
         return result;
       },
+      keep: async (request) => exclusive(() => ports.choices.keep(request)),
       recover: async (request) =>
         exclusive(async () => {
           return await sessionRef.current!.replaceFromNative(
@@ -1446,6 +1492,51 @@ export function WritingView({
     };
   }, [ports]);
 
+  const recoveryChosen = () => {
+    recoveryPendingRef.current = false;
+    setRecoveryPending(false);
+    setRecoveryChoiceCompleted(true);
+    viewRef.current?.setProps({});
+    // Re-enter through the owned view so the retained caret is synchronized.
+    viewRef.current?.focus();
+    refresh();
+  };
+  const orderedRecovery = [...candidates].sort(
+    (a, b) => b.generation - a.generation,
+  );
+  const recoveryPanel = (candidate: RecoveryCandidate) =>
+    active?.fingerprint && (
+      <RecoveryChoicePanel
+        key={`${active.identity.handle}:${candidate.selection.origin}:${candidate.selection.recordSha256}`}
+        port={choicePort}
+        readOnly={active.readOnly}
+        identity={active.identity}
+        selection={candidate.selection}
+        expectedFingerprint={active.fingerprint}
+        nextVersion={Math.max(
+          active.liveVersion + 1,
+          ...candidates.map((item) => item.version + 1),
+        )}
+        onKept={recoveryChosen}
+        onRecovered={recoveryChosen}
+        onInspectLater={() => viewRef.current?.focus()}
+        onResolved={() => {
+          void ports.recovery
+            .inspect(active.identity)
+            .then((entry) => {
+              if (
+                sessionRef.current?.active?.identity.handle !==
+                active.identity.handle
+              )
+                return;
+              if (entry.reconciled) recoveryChosen();
+              else refresh();
+            })
+            .catch(() => refresh());
+        }}
+      />
+    );
+
   // The editor and import hosts are keyed so React preserves their DOM across
   // phase changes. Unkeyed conditional trees unmounted ProseMirror's DOM out
   // from under the live view, silently detaching the editor.
@@ -1467,7 +1558,7 @@ export function WritingView({
       composing:
         commandComposing || !!current?.composing || titleComposingRef.current,
       staged: titleDraftRef.current,
-      readOnly: !writableRef.current,
+      readOnly: !editableRef.current,
       form: false,
       undo: !!current && undoDepth(current.state) > 0,
       redo: !!current && redoDepth(current.state) > 0,
@@ -1530,11 +1621,26 @@ export function WritingView({
               ),
             );
           break;
-        case 'saveAs':
-          void run(() => currentSession.saveAs().then(reportOutcome));
+        case 'saveAs': {
+          const before = currentSession.active?.identity.handle;
+          void run(() =>
+            currentSession
+              .saveAs()
+              .then((outcome) =>
+                reportOutcome(
+                  outcome,
+                  currentSession.active?.identity.handle !== before,
+                ),
+              ),
+          );
           break;
+        }
         case 'exportFountain':
-          void run(() => currentSession.exportCopy().then(reportOutcome));
+          void run(() =>
+            currentSession
+              .exportCopy()
+              .then((outcome) => reportOutcome(outcome)),
+          );
           break;
         case 'open':
           requestClose(true);
@@ -1658,7 +1764,7 @@ export function WritingView({
             titleComposingRef.current ||
             Boolean(showClose)
           }
-          readOnly={() => !writableRef.current}
+          readOnly={() => !editableRef.current}
           onController={(controller) => {
             spellingRef.current = controller;
           }}
@@ -1689,7 +1795,7 @@ export function WritingView({
             operationRef.current ||
             frozenRef.current ||
             !readyRef.current ||
-            !writableRef.current ||
+            !editableRef.current ||
             Boolean(active?.readOnly)
           }
           replaceMessage={replaceMessage}
@@ -1706,7 +1812,7 @@ export function WritingView({
           state={viewRef.current.state}
           getView={() => viewRef.current}
           disabled={busy || showClose || !readyRef.current || frozenRef.current}
-          readOnly={Boolean(active?.readOnly)}
+          readOnly={Boolean(active?.readOnly) || recoveryPending}
           onDraft={(dirty, composing) => {
             titleDraftRef.current = dirty;
             titleComposingRef.current = composing;
@@ -1717,7 +1823,7 @@ export function WritingView({
               operationRef.current ||
               frozenRef.current ||
               !readyRef.current ||
-              !writableRef.current ||
+              !editableRef.current ||
               titleComposingRef.current
             )
               return false;
@@ -1754,7 +1860,9 @@ export function WritingView({
         <Outline
           state={outline}
           disabled={busy || showClose}
-          moveDisabled={Boolean(active?.readOnly) || Boolean(move)}
+          moveDisabled={
+            Boolean(active?.readOnly) || recoveryPending || Boolean(move)
+          }
           onMove={previewMove}
           onNavigate={onOutlineNavigate}
         />
@@ -2070,6 +2178,35 @@ export function WritingView({
           execute={executeCommand}
         />
       )}
+      {recoveryPending && (
+        <p role="alert">
+          Choose which draft to use before editing. Both drafts remain
+          protected. Inspect later lets you read the screenplay without editing.
+        </p>
+      )}
+      {recoveryDiscoveryFailed && (
+        <p role="alert">
+          Recovery review is unavailable. Return Home and reopen to retry.
+        </p>
+      )}
+      {active && active.fingerprint && orderedRecovery.length > 0 && (
+        <>
+          {(recoveryPending || recoveryChoiceCompleted) &&
+            recoveryPanel(orderedRecovery[0]!)}
+          <details>
+            <summary>
+              Inspect{' '}
+              {recoveryPending
+                ? 'other recovery generations'
+                : 'retained recovery'}
+            </summary>
+            {(recoveryPending || recoveryChoiceCompleted
+              ? orderedRecovery.slice(1)
+              : orderedRecovery
+            ).map(recoveryPanel)}
+          </details>
+        </>
+      )}
       {hosts}
 
       {session && session.active && showClose && !closeWorking && (
@@ -2088,7 +2225,7 @@ export function WritingView({
           onClosed={() => finishClose(session)}
         />
       )}
-      {active && !active.readOnly && checkpoint && (
+      {active && !active.readOnly && !recoveryPending && checkpoint && (
         <SnapshotPanel
           port={snapshotPort}
           current={checkpoint}
@@ -2097,24 +2234,6 @@ export function WritingView({
           onRestored={() => refresh()}
         />
       )}
-      {active &&
-        !active.readOnly &&
-        active.fingerprint &&
-        candidates.map((candidate) => (
-          <RecoveryChoicePanel
-            key={`${active.identity.handle}:${candidate.selection.origin}:${candidate.selection.recordSha256}`}
-            port={choicePort}
-            identity={active.identity}
-            selection={candidate.selection}
-            expectedFingerprint={active.fingerprint!}
-            nextVersion={Math.max(
-              active.liveVersion + 1,
-              ...candidates.map((item) => item.version + 1),
-            )}
-            onRecovered={() => refresh()}
-            onResolved={() => refresh()}
-          />
-        ))}
     </main>
   );
 }

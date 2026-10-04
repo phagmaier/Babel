@@ -303,7 +303,7 @@ def audit_fixes(d):
     d.close_session()
     assert target.read_bytes() == original and target.stat().st_mode & 0o777 == 0o444
     d.click('Open Fountain', actions=True);d.picker(copied)
-    d.wait(lambda:d.editor_text() == 'Read-only source.','Copied source reopens');d.wait(lambda:'Keep Current File' in d.body(),'Copied source recovery comparison');d.click('Keep Current File');d.close_session()
+    d.wait(lambda:d.editor_text() == 'Read-only source.','Copied source reopens');d.assert_identical_reopen();d.close_session()
     print('PASS native read-only Save As / cancel / fresh identity / exact CRLF source / reopen',flush=True)
 
     d.click('New screenplay', actions=True)
@@ -328,7 +328,7 @@ def audit_fixes(d):
     saved = d.ROOT / 'files/resumed.fountain'
     d.click('Save As',actions=True);d.picker(saved);d.audit(saved,expected)
     d.close_session();d.click('Open Fountain',actions=True);d.picker(saved)
-    d.wait(lambda:d.editor_text() == 'Unsaved checkpoint survives.','Resumed copy reopens');d.wait(lambda:'Keep Current File' in d.body(),'Resumed source recovery comparison');d.click('Keep Current File');d.close_session()
+    d.wait(lambda:d.editor_text() == 'Unsaved checkpoint survives.','Resumed copy reopens');d.assert_identical_reopen();d.close_session()
     assert any(m['documentId'] == record['documentId'] and s == expected for m,s in d.journal_records())
     print('PASS native New / protected checkpoint / owned SIGKILL / restart / explicit resume / Save As / close / reopen; original checkpoint retained',flush=True)
 
@@ -343,12 +343,7 @@ def audit_fixes(d):
     d.editor_home();d.type_text('New.');d.click('Save',actions=True)
     d.audit(source,b'!New.Managed original.\n');d.close_session()
     d.click('Open Fountain',actions=True);d.picker(source)
-    d.wait(lambda:'Recovery compares candidates' in d.body() or 'Keep Current File' in d.body(),'Selected managed recovery shown independently of private catalog')
-    d.click('Keep Current File')
-    d.wait(lambda:'The current file was kept.' in d.body(), 'Managed Keep completed before authored input')
-    if 'A confirmed replacement matches the file.' in d.body():
-        d.click('Resolve Interrupted Save')
-        d.wait(lambda:'An interrupted save was confirmed' in d.body() or 'No interrupted save needed completion.' in d.body(), 'Managed confirmed-save reconciliation')
+    d.assert_identical_reopen()
     d.wait(lambda:d.script("return document.querySelector('#writing-save')?.disabled===false;"), 'Managed recovery thawed before input')
     d.wait(lambda:d.script("const root=document.querySelector('.ProseMirror');return root?.contentEditable==='true'&&root.getAttribute('aria-readonly')==='false';"), 'Managed editor input and selection enabled')
     # Re-enter the editor with a trusted pointer before moving the retained

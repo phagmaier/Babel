@@ -17,6 +17,7 @@ export type ChoiceTransaction =
   | 'prepared'
   | 'installedCandidateUnconfirmed'
   | 'confirmedRecordMatchesSource'
+  | 'confirmedRecordDiverged'
   | 'diverged'
   | 'needsAttention';
 

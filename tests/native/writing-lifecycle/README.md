@@ -848,3 +848,28 @@ frozen-baseline failure; failed roots/ordinary-close attempts and fallback force
 teardown must remain visible. The separate plain-presentation runner covers its
 AT-SPI protected-close expectation; it is not full IME/geometry acceptance.
 See [D-06 evidence](../../../docs/test-evidence/AUDIT.md#audit-d06--plain-status-and-failure-only-close-prompts).
+
+## AUDIT-D02 recovery reopen
+
+`--recovery-reopen` runs the default production WebKit app against disposable
+CRLF content: identical latest-journal admission, native source refusal and
+retained divergent checkpoint, plain choice before editing, read-only Inspect
+later, synced Keep marker, owned parent SIGKILL/restart, persisted decision,
+later Save/Undo and exact bytes. Its process ledger/crash verdict remains strict;
+an intentional parent kill does not excuse owned WebKit crashes.
+
+Reopen checks in the existing recovery/Home/editor/move/title/replace/spelling/
+character/daily drills now assert writable native admission and absence of a
+visible Keep ritual for identical bytes. Their independent content/selection/
+Undo/IME assertions stay in place. Divergent adoption remains explicit.
+
+```sh
+BABEL_NATIVE_BINARY=$PWD/target/audit-d02/frozen-final/babel-desktop BABEL_SHUTDOWN_MODE=ordinary python3 tests/native/writing-lifecycle/isolated_ime.py target/audit-simp-f/prerequisites/prefix -- python3 tests/native/writing-lifecycle/integrated_exit.py /tmp "$PWD/target" --output target/audit-d02/native-final-guarded --modes recovery-reopen recovery-shutdown home editor-exit characters scene-moves title-page replace spellcheck daily-session
+```
+
+Use fresh output roots and freeze each newly built candidate with provenance.
+The private signed IME prefix/canonical read-only Mozc bind from Native R1 remains
+required; genuine composition is not replaced by injected events. Build/shared
+tests remain idle during native timing. [D-02 evidence](../../../docs/test-evidence/AUDIT.md#audit-d02--safe-reopen-reconciliation-and-recovery-choice)
+records candidate identity, failed attempts and strict/content distinctions.
+Historical C1/F2 and admission findings remain open.

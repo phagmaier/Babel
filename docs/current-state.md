@@ -1,98 +1,97 @@
-# Current state — AUDIT-NATIVE-R1 complete
+# Current state — AUDIT-D02 complete
 
 Date: 2026-10-04. Application: **babel**. Main; local commit only, no push.
-M0–M5 and bounded M6-01 investigation remain recorded complete. **M6-02 stays
-unchecked; operation findings, C1/F2 and Local v1 admission remain open.**
+M0–M5 and bounded M6-01 work remain recorded complete. **M6-02, C1/F2 and
+Local v1 admission remain open.**
 
 ## Task and work
 
-**AUDIT-NATIVE-R1 complete**, base `fcfade8`: Save-first F6 focus restored;
-private Mozc server bound read-only at its compiled path. Command drill now
-observes owned GTK selection during physical keys before Save As/Enter.
+**AUDIT-D02 complete**, base `e595393`: accepted rules 1+3.
+[Brief](tasks/AUDIT-D02.md),
+[evidence](test-evidence/AUDIT.md#audit-d02--safe-reopen-reconciliation-and-recovery-choice).
+Native open admits only a clean latest identical journal under strict source/
+transaction/ownership checks, or an exact hash-bound persisted explicit Keep.
+Prior confirmed-source divergence permits reviewed Keep only without an unresolved
+intent/candidate. Current-session checkpoints require no older-session choice.
+No source receipt is inferred; no journal is automatically adopted, retired or deleted.
+Paths: [native admission](../crates/screenwriter-core/src/documents/reconciliation_store.rs),
+[writing gate](../src/app/WritingView.tsx), [choice panel](../src/app/RecoveryChoicePanel.tsx).
+
+The editor waits for discovery. Unresolved recovery gets a plain primary choice
+before typing; Inspect later stays read-only. Failed choices/discovery retain
+review/copy/Home. Exporting a copy does not unlock review; successful Save As
+adoption switches to a fresh identity. Native New-with-destination regression
+and failed-A-save/Save-As-B/reopen-A protection have dedicated checks.
+
+Tier 3: current frontend **885/885**, Rust **273/273 each tmpfs/Btrfs**;
+shared format/lint/typecheck/build, clippy, browser and default embedded release
+pass. Final native **20/20 content, 19/20 strict** across ten affected modes on
+both filesystems, including genuine editor/IME and character/focus checks.
+Earlier failures and the interrupted sample remain retained.
+Artifacts: `target/audit-d02/`, including frozen candidates, ledgers/journals,
+raw owned cores, original roots and checksummed tmpfs mirrors. Tests use synthetic
+files/private IME; fixtures, locks/pins, frozen AUDIT and prior evidence stay intact.
+
+## Retained findings and limits
+
+D02's first broad candidate found and corrected the fresh-New review gate.
+Native character external-source review and title-page read-only predicates were
+updated for accepted behavior without dropping input/byte/Undo assertions.
+Corrected broad run: 18/20 content, 17/20 strict; missing caret after Keep exposed
+a focus regression on both filesystems. Owned-view focus, auxiliary authorship
+gates and own-session unresolved-transaction admission now have red/green tests.
+Its owned Btrfs WebKit SIGSEGV **335923/start 3571811**, 08:41:17 UTC, and the
+corrected tmpfs recovery-shutdown SIGSEGV **353321/start 3701248**, 09:02:47 UTC,
+coincide with parent disappearance during existing forced restart. Final Btrfs
+editor content passed but strict audit failed: owned WebKit **SIGABRT 413296/start
+3989180**, parent 413264/start 3989166, coarse core time 09:53:07 UTC in the same
+second as forced parent disappearance. Raw cores/PID/start/journal retained;
+no cause, correction or C1/F2 disposition. Clean reruns do not clear findings.
+
+**AUDIT-NATIVE-R1 complete** (`e595393`): Save-first F6, canonical read-only
+Mozc bind and observed owned GTK menu traversal.
 [Brief](tasks/AUDIT-NATIVE-R1.md),
 [evidence](test-evidence/AUDIT.md#audit-native-r1--f6-focus-and-private-mozc).
-Only WritingView focus logic and native test prerequisites/traversal changed;
-original 819 native assertions, editor/drill/frozen AUDIT bytes remain intact.
-Current frontend **876/876**, Rust **264/264**; shared/static/browser/default
-embedded release pass. Full native commands **2/2 strict**; editor **2/2 content,
-1/2 strict** on tmpfs/Btrfs. Selected **4/4 content, 3/4 strict**, not a clean
-full matrix. Btrfs owned WebKit **SIGSEGV 251383/start 3043549** coincides with
-parent disappearance during existing forced SIGKILL/restart; source/recovery
-checks pass but no cause/correction or C1/F2 closure. Raw journal/core, failed
-attempts and checksummed tmpfs mirrors retained in `target/audit-native-r1/`.
-Original F6/Mozc blockers corrected; wider read-only F6 remains unverified after
-an additional injected probe. No full keyboard/a11y/IME or admission claim.
+Commands 2/2 strict; editor 2/2 content, 1/2 strict. Earlier owned Btrfs WebKit
+SIGSEGV **251383/start 3043549** remains retained. Broader read-only F6 and full
+native keyboard/a11y/IME remain unverified; clean controls cannot dispose crashes.
 
-**AUDIT-D06 complete**, base `200e375`. [Brief](tasks/AUDIT-D06.md).
-Receipt-derived status with closed Save details; memory-only/snapshot alerts
-remain visible. File-backed/read-only Close session, Home/Open and native window
-requests automatically use the existing exact-protection/release coordinator.
-Untitled drafts still ask before recovery-only close; failures retain the editor
-and retry/copy/risk choices. Keep writing clears the pending close destination.
-No cadence/version/receipt/native adapter, fixture or dependency changes.
+**AUDIT-D06 complete** (`fcfade8`), receipt-derived plain status and protected
+file/read-only close; [brief](tasks/AUDIT-D06.md) and
+[evidence](test-evidence/AUDIT.md#audit-d06--plain-status-and-failure-only-close-prompts).
+Earlier native 10/14 and baseline F6/Mozc failures remain historical evidence.
+**AUDIT-SIMP-F complete** (`200e375`); [brief](tasks/AUDIT-SIMP-F.md),
+[evidence](test-evidence/AUDIT.md#audit-simp-f--frontend-guard-and-native-dispatch-simplification).
+Its initial daily-assessment failure stays unresolved despite clean later runs.
+D02 also retains a combined frontend Replace-All assertion failure: unchanged
+isolated/current/complete reruns passed, without a cause/correction claim. An
+initial browser page-load timeout during matrix work passed on idle retry; no
+timeout/assertion/config change or cause claim.
+Wave 0–3 closures and failures remain in TODO and linked audit evidence, including
+SLP-B's owned WebKit crash. `AUDIT.md` stays frozen. C356 enforcing SELinux/native
+highlight input is unverified; C04's unreproduced cache failure remains retained.
 
-Tier 2: current frontend **875/875**, Rust **264/264** unrestricted; shared
-format/lint/typecheck/build, browser, default embedded release, Python/dispatch
-and artifact audits pass. Selected WebKit **10/14 successful**, **14/14 owned
-crash audits clean**; separate AT-SPI plain presentation **2/2 strict** on
-both filesystems. Real untitled window prompt/cancel, automatic file window
-exit, writable reopen and exact BOM/CRLF/draft bytes passed tmpfs/Btrfs.
-Commands/F6 and editor/Mozc failures reproduce on retained frozen controls;
-full command/IME coverage remains blocked. Initial focus/query/sandbox failures
-and all retries remain retained. A new focus check now waits for the exact
-required button; unsuccessful IME harness experiments were reverted.
-[Evidence, commands, failures and limits](test-evidence/AUDIT.md#audit-d06--plain-status-and-failure-only-close-prompts).
-Artifacts: `target/audit-d06/`; failed roots/ledgers and tmpfs mirrors retained.
-No full native/a11y/IME, SELinux, C1/F2, M6-02 or admission closure.
-
-**AUDIT-SIMP-F complete** (`200e375`, local; base `ef0ff02`).
-[Brief](tasks/AUDIT-SIMP-F.md), [evidence](test-evidence/AUDIT.md#audit-simp-f--frontend-guard-and-native-dispatch-simplification).
-Shared cleanup/locks/stamp guards/error codes/native dispatch. Prior 867/867
-frontend, 264/264 Rust, 21/22 selected native; baseline F6 and initial daily
-assessment failures remain retained. D-06 does not dispose of those findings.
-
-Wave 3 prior work remains complete: [SIMP-N](tasks/AUDIT-SIMP-N.md) `ef0ff02`,
-[SLP-C](tasks/AUDIT-SLP-C.md) `653f037`, [SLP-B](tasks/AUDIT-SLP-B.md) `186ea59`,
-[SLP-A](tasks/AUDIT-SLP-A.md) `d463656`, [TEST](tasks/AUDIT-TEST.md) `09d496f`.
-[Audit evidence](test-evidence/AUDIT.md) retains their checks/failures, including
-SLP-B's owned Btrfs WebKit SIGSEGV (`69485`/start `1517917`); clean controls do
-not resolve it or the M6-03 copy/prune gap. `AUDIT.md` remains frozen.
-
-Earlier Wave 1/0 closures and evidence remain in TODO/AUDIT: C01, C04, D01,
-D08A, C356 and W0/W0-R1. C356's enforcing Fedora/SELinux and native highlight
-input are unverified. C04's unreproduced publication-cache failure is retained.
-W0-R1's recorded CI green predates these local commits; no new CI/push claim.
-
-## M6 findings and blockers
-
-Prior bounded Linux hardening: Save As refusal/identity and Undo rollback,
-child-kill source/recovery/local-restore, path-loss/shared-store drills and
-independent byte/head audit. No cause/correction for untouched M6-01 symptoms.
-[Brief](tasks/M6-02.md), [S15.2 matrix](test-evidence/M6-02-matrix.md),
-[review](reviews/2026-10-03-m6-02-persistence-review.md),
-[checks/failures](test-evidence/M6.md#m6-02--persistence-interruption-and-operation-investigation).
-
-Separate-store read-only expectations conflict with ADR 0012 shared-store
-lease scope. Btrfs restart preserved content but recorded owned WebKit SIGABRT
-following parent SIGKILL (`274428`/start `2737907`); provenance/cores and failed
-M6-01/M6-02 roots remain. Intact bytes and clean samples do not close C1/F2.
-Rename path-loss is not unmount/power/controller/antivirus/sync acceptance.
-Save As/IME stress symptoms remain open; M6-03 independent copy/prune has not
-started. Capture-failure bundle policy remains a separate owner/ADR decision.
+[M6-02](tasks/M6-02.md), [matrix](test-evidence/M6-02-matrix.md),
+[review](reviews/2026-10-03-m6-02-persistence-review.md) and
+[evidence](test-evidence/M6.md#m6-02--persistence-interruption-and-operation-investigation)
+retain original Save As/IME findings, shared-store lease scope and owned Btrfs
+SIGABRT after parent SIGKILL. Intact bytes/clean reruns do not close C1/F2.
+Path-loss is not unmount/power/controller/antivirus/sync acceptance. M6-03 independent
+copy/prune and capture-failure bundle policy remain separate open work.
 
 ## Next action and stopping point
 
-Stopped after **AUDIT-NATIVE-R1**, local commit only; do not start D-02 here.
-Next ready DESIGN continuation: draft bounded **D-02** rules 1+3
-(byte-identical journal reconciliation and plain divergent choice), without
-rejected auto-adopt/retirement. For a separate crash follow-up, start from the
-retained Btrfs owned core/ledger and matched forced-restart controls; clean
-reruns cannot dispose of it. Initial SIMP-F daily assessment remains unresolved.
-Never weaken assertions or substitute injected composition for native IME.
+D02 work, evidence and handoff are committed locally on main; no push.
+**Stopped after D-02 before D-03.** The next fresh agent should read this handoff,
+TODO's accepted D-03 row and prepare a bounded brief for screenplay styling and
+layout slices before pilot. Preserve the row schema/deferred rewrite, native
+crash findings and initial assessment failure. Never substitute injected
+composition for genuine IME. No full native/a11y/keyboard, SELinux, M6-02, C1/F2
+or Local v1 admission closure.
 
-[M6-02-R1](tasks/M6-02-R1.md) remains separate. Supported-runtime
-[M6-01-R1](tasks/M6-01-R1.md) needs an identified available correction; C stays
-open before M6-14/16. Real interruption, full S13, security/notices, target-native/
-screenreader/installed/manual update, backup/migration/owner pilot and Local v1
-remain later gates. DEV-02 is owner-only. No M7, private-engine shipping,
-personal manuscript/credential/upload work.
+[M6-02-R1](tasks/M6-02-R1.md) and supported-runtime
+[M6-01-R1](tasks/M6-01-R1.md) remain separate. Crash follow-up starts from retained
+owned ledgers/cores and matched controls; C stays open before M6-14/16. Full S13,
+security/notices, target-native/screenreader/installed/manual update, backup/
+migration/owner pilot and Local v1 remain later gates. DEV-02 is owner-only.
+No M7, private-engine shipping, personal manuscript/credentials/upload work.

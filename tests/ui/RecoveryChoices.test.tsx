@@ -75,6 +75,110 @@ function port(
 afterEach(cleanup);
 
 describe('explicit recovery choices', () => {
+  it('retains emergency copying for read-only malformed or missing-source review', async () => {
+    const copy = vi.fn(async () => ({
+      identity,
+      version: 21,
+      fileName: 'raw-copy.fountain',
+      fingerprint,
+      sourceSha256: comparison.recovery.sourceSha256,
+      byteLength: 8,
+    }));
+    const stub = port({
+      compare: async () => ({
+        ...structuredClone(comparison),
+        recovery: { ...comparison.recovery, encoding: 'unsupported' },
+        source: {
+          ...comparison.source,
+          status: 'missing',
+          fingerprint: null,
+          sourceSha256: null,
+        },
+        transaction: 'needsAttention',
+      }),
+      copy,
+    });
+    render(
+      <RecoveryChoicePanel
+        port={stub}
+        identity={identity}
+        selection={selection}
+        expectedFingerprint={fingerprint}
+        readOnly
+      />,
+    );
+    await screen.findByText(/source file is missing/);
+    expect(
+      screen
+        .getByRole('button', { name: 'Restore recovered draft' })
+        .hasAttribute('disabled'),
+    ).toBe(true);
+    expect(
+      screen
+        .getByRole('button', { name: 'Keep saved file' })
+        .hasAttribute('disabled'),
+    ).toBe(true);
+    expect(
+      screen
+        .getByRole('button', { name: 'Resolve Interrupted Save' })
+        .hasAttribute('disabled'),
+    ).toBe(true);
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Save Recovered Copy' }),
+    );
+    await screen.findByText(/Recovered copy saved as raw-copy.fountain/);
+    expect(copy).toHaveBeenCalledExactlyOnceWith({
+      identity,
+      selection,
+      expectedFingerprint: fingerprint,
+    });
+  });
+  it.each(['confirmedRecordDiverged', 'diverged'] as const)(
+    'distinguishes reviewed confirmed divergence from unresolved %s',
+    async (transaction) => {
+      const keep = vi.fn(async () => ({
+        ...structuredClone(comparison),
+        transaction,
+      }));
+      render(
+        <RecoveryChoicePanel
+          port={port({
+            compare: async () => ({
+              ...structuredClone(comparison),
+              transaction,
+            }),
+            keep,
+          })}
+          identity={identity}
+          selection={selection}
+          expectedFingerprint={fingerprint}
+        />,
+      );
+      const button = await screen.findByRole('button', {
+        name: 'Keep saved file',
+      });
+      await screen.findByText(/Which draft do you want to use/);
+      await waitFor(() =>
+        expect(button.hasAttribute('disabled')).toBe(
+          transaction === 'diverged',
+        ),
+      );
+      expect(
+        screen
+          .getByRole('button', { name: 'Restore recovered draft' })
+          .hasAttribute('disabled'),
+      ).toBe(transaction === 'diverged');
+      if (transaction === 'confirmedRecordDiverged') {
+        fireEvent.click(button);
+        await screen.findByText(/The current file was kept\./);
+        expect(keep).toHaveBeenCalledOnce();
+        expect(
+          screen.queryByRole('button', { name: 'Resolve Interrupted Save' }),
+        ).toBeNull();
+      }
+    },
+  );
+
   it('shows both generations and completes an explicit recovery without picking a timestamp winner', async () => {
     const receipt = {
       identity,
@@ -104,7 +208,9 @@ describe('explicit recovery choices', () => {
     expect(
       screen.getByText(`Recovery SHA-256: ${'c'.repeat(64)}`),
     ).toBeTruthy();
-    fireEvent.click(screen.getByRole('button', { name: 'Recover as Current' }));
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Restore recovered draft' }),
+    );
     await waitFor(() =>
       expect(recover).toHaveBeenCalledWith({
         identity,
@@ -136,7 +242,7 @@ describe('explicit recovery choices', () => {
       />,
     );
     await screen.findByText(/Recovery version 21, generation 2/);
-    fireEvent.click(screen.getByRole('button', { name: 'Keep Current File' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Keep saved file' }));
     await screen.findByText(/The current file was kept/);
     fireEvent.click(
       screen.getByRole('button', { name: 'Save Recovered Copy' }),
@@ -192,7 +298,7 @@ describe('explicit recovery choices', () => {
     await screen.findByText(/changed outside this session/);
     expect(
       screen.getByRole('button', {
-        name: 'Recover as Current',
+        name: 'Restore recovered draft',
       }) as HTMLButtonElement,
     ).toHaveProperty('disabled', true);
     fireEvent.click(

@@ -71,6 +71,201 @@ function unsaved(): OpenDocument {
   };
 }
 
+it('waits for recovery discovery before allowing opened-file typing', async () => {
+  const { ports } = fixturePorts({ picked: opened() });
+  const entry = await ports.recovery.inspect(identity);
+  const discovery =
+    deferred<Awaited<ReturnType<typeof ports.recovery.inspect>>>();
+  let inspections = 0;
+  ports.recovery.inspect = async () =>
+    ++inspections === 1 ? entry : discovery.promise;
+  render(
+    <WritingView
+      ports={ports}
+      open={{ kind: 'picked' }}
+      onSessionClosed={vi.fn()}
+    />,
+  );
+  const editor = await screen.findByRole('textbox', {
+    name: 'Screenplay text',
+  });
+  await waitFor(() => expect(inspections).toBe(2));
+  await waitFor(() =>
+    expect(editor.getAttribute('contenteditable')).toBe('false'),
+  );
+  discovery.resolve({
+    documentId: identity.documentId,
+    candidates: [],
+    notices: [],
+    error: null,
+  });
+  await waitFor(() =>
+    expect(editor.getAttribute('contenteditable')).toBe('true'),
+  );
+});
+
+it('keeps divergent recovery read-only until Keep completes', async () => {
+  const { ports } = fixturePorts({ picked: opened(), candidates: true });
+  const views: ReturnType<typeof editorMount.mountScreenplayEditor>[] = [];
+  const mount = editorMount.mountScreenplayEditor;
+  vi.spyOn(editorMount, 'mountScreenplayEditor').mockImplementation(
+    (...args) => {
+      const view = mount(...args);
+      views.push(view);
+      return view;
+    },
+  );
+  const keeping = deferred<Awaited<ReturnType<typeof ports.choices.keep>>>();
+  ports.choices.keep = () => keeping.promise;
+  render(
+    <WritingView
+      ports={ports}
+      open={{ kind: 'picked' }}
+      onSessionClosed={vi.fn()}
+    />,
+  );
+  const keep = await screen.findByRole('button', { name: 'Keep saved file' });
+  const editor = screen.getByRole('textbox', { name: 'Screenplay text' });
+  expect(editor.getAttribute('contenteditable')).toBe('false');
+  const selection = views[0]!.state.selection.toJSON();
+  keep.focus();
+  fireEvent.click(keep);
+  expect(editor.getAttribute('contenteditable')).toBe('false');
+  keeping.resolve(
+    await ports.choices.compare({
+      identity,
+      selection: (await ports.recovery.inspect(identity)).candidates[0]!
+        .selection,
+    }),
+  );
+  await waitFor(() =>
+    expect(editor.getAttribute('contenteditable')).toBe('true'),
+  );
+  expect(views[0]!.hasFocus()).toBe(true);
+  expect(views[0]!.state.selection.toJSON()).toEqual(selection);
+});
+
+it('retains read-only review after Keep fails and after Inspect later', async () => {
+  const { ports } = fixturePorts({ picked: opened(), candidates: true });
+  ports.choices.keep = async () => {
+    throw { code: 'io' };
+  };
+  render(
+    <WritingView
+      ports={ports}
+      open={{ kind: 'picked' }}
+      onSessionClosed={vi.fn()}
+    />,
+  );
+  fireEvent.click(
+    await screen.findByRole('button', { name: 'Keep saved file' }),
+  );
+  await screen.findByText(/Keep did not complete/);
+  const editor = screen.getByRole('textbox', { name: 'Screenplay text' });
+  expect(editor.getAttribute('contenteditable')).toBe('false');
+  fireEvent.click(screen.getByRole('button', { name: 'Inspect later' }));
+  expect(document.activeElement).toBe(editor);
+  expect(editor.getAttribute('contenteditable')).toBe('false');
+  expect(
+    screen.getByRole('button', { name: 'Save' }).hasAttribute('disabled'),
+  ).toBe(true);
+});
+
+it('exporting a copy leaves unresolved recovery read-only', async () => {
+  const { ports } = fixturePorts({ picked: opened(), candidates: true });
+  ports.entry.selectDestination = async () => ({
+    token: 'copy',
+    fileName: 'emergency.fountain',
+    storageRelation: 'unknownPhysicalDisk',
+  });
+  const copy = vi.spyOn(ports.snapshots, 'copy');
+  render(
+    <WritingView
+      ports={ports}
+      open={{ kind: 'picked' }}
+      onSessionClosed={vi.fn()}
+    />,
+  );
+  await screen.findByRole('button', { name: 'Keep saved file' });
+  fireEvent.click(
+    within(screen.getByLabelText('Screenplay actions')).getByRole('button', {
+      name: 'Export Fountain copy',
+    }),
+  );
+  await waitFor(() => expect(copy).toHaveBeenCalledOnce());
+  await waitFor(() =>
+    expect(
+      screen
+        .getByRole('button', { name: 'Export Fountain copy' })
+        .hasAttribute('disabled'),
+    ).toBe(false),
+  );
+  expect(
+    screen
+      .getByRole('textbox', { name: 'Screenplay text' })
+      .getAttribute('contenteditable'),
+  ).toBe('false');
+  expect(
+    screen.getByText(/Choose which draft to use before editing\./),
+  ).toBeTruthy();
+  expect(
+    screen.getByRole('button', { name: 'Save' }).hasAttribute('disabled'),
+  ).toBe(true);
+});
+
+it('keeps title-page authorship disabled during unresolved recovery review', async () => {
+  const { ports } = fixturePorts({ picked: opened(), candidates: true });
+  render(
+    <WritingView
+      ports={ports}
+      open={{ kind: 'picked' }}
+      onSessionClosed={vi.fn()}
+    />,
+  );
+  await screen.findByRole('button', { name: 'Keep saved file' });
+  fireEvent.click(
+    within(screen.getByLabelText('Screenplay actions')).getByRole('button', {
+      name: 'Title page',
+    }),
+  );
+  expect(
+    screen.queryByRole('button', { name: 'Import Fountain as screenplay' }),
+  ).toBeNull();
+  const add = await screen.findByRole('button', { name: 'Add field' });
+  await waitFor(() => expect(add.hasAttribute('disabled')).toBe(true));
+  expect(
+    screen
+      .getByRole('textbox', { name: 'Screenplay text' })
+      .getAttribute('contenteditable'),
+  ).toBe('false');
+});
+
+it('keeps discovery failures read-only without hiding Home', async () => {
+  const { ports } = fixturePorts({ picked: opened() });
+  const inspect = ports.recovery.inspect;
+  let calls = 0;
+  ports.recovery.inspect = async (id) => {
+    if (++calls > 1) throw { code: 'io' };
+    return inspect(id);
+  };
+  render(
+    <WritingView
+      ports={ports}
+      open={{ kind: 'picked' }}
+      onSessionClosed={vi.fn()}
+    />,
+  );
+  await screen.findByText(/Recovery review is unavailable/);
+  expect(
+    screen
+      .getByRole('textbox', { name: 'Screenplay text' })
+      .getAttribute('contenteditable'),
+  ).toBe('false');
+  expect(
+    screen.getByRole('button', { name: 'Home' }).hasAttribute('disabled'),
+  ).toBe(false);
+});
+
 it.each([false, true])(
   'returns deferred preview focus unless the writer chooses newer focus (%s)',
   async (newerFocus) => {
@@ -490,7 +685,7 @@ describe('M3-12 writing surface', () => {
     const actions = await screen.findByLabelText('Screenplay actions');
     await within(actions).findByRole('button', { name: 'Save' });
     fireEvent.click(
-      await screen.findByRole('button', { name: 'Recover as Current' }),
+      await screen.findByRole('button', { name: 'Restore recovered draft' }),
     );
     await screen.findByText(/Recovered as current, version 3/);
     await waitFor(() =>
@@ -577,7 +772,7 @@ describe('M3-12 writing surface', () => {
       ).toBe(false),
     );
     fireEvent.click(
-      await screen.findByRole('button', { name: 'Recover as Current' }),
+      await screen.findByRole('button', { name: 'Restore recovered draft' }),
     );
     await screen.findByText(/Recovered as current/);
     await waitFor(() =>
@@ -2208,6 +2403,16 @@ it.each([false, true])(
       picked: auditDocument(original),
       candidates: true,
     });
+    const inspect = ports.recovery.inspect;
+    ports.recovery.inspect = async (id) => ({
+      ...(await inspect(id)),
+      reconciled: true,
+    });
+    const compare = ports.choices.compare;
+    ports.choices.compare = async (request) => ({
+      ...(await compare(request)),
+      transaction: 'confirmedRecordMatchesSource',
+    });
     const entry = await ports.snapshots.create({
       checkpoint: {
         identity,
@@ -2253,6 +2458,7 @@ it.each([false, true])(
     );
     const view = await auditView(ports),
       before = view.state;
+    fireEvent.click(screen.getByText('Inspect retained recovery'));
     fireEvent.click(
       await screen.findByRole('button', { name: 'Restore previous version' }),
     );
@@ -2342,12 +2548,23 @@ it.each([false, true])(
   'AUDIT-TEST WritingView resolves exact native receipts, refusing foreign identity: %s',
   async (foreign) => {
     const { ports } = fixturePorts({ picked: opened(), candidates: true });
+    const compare = ports.choices.compare;
+    ports.choices.compare = async (request) => ({
+      ...(await compare(request)),
+      transaction: 'confirmedRecordMatchesSource',
+    });
     ports.choices.resolve = vi.fn(async () => ({
       identity: foreign ? { ...identity, handle: 'foreign' } : identity,
       observation: 'confirmedRecordMatchesSource' as const,
       completed: receiptFor(2),
       previousPreserved: true,
     }));
+    const inspect = ports.recovery.inspect;
+    ports.recovery.inspect = async (id) => ({
+      ...(await inspect(id)),
+      reconciled:
+        !foreign && vi.mocked(ports.choices.resolve).mock.calls.length > 0,
+    });
     const save = vi.spyOn(ports.documents, 'save');
     const view = await auditView(ports),
       before = view.state;

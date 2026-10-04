@@ -91,15 +91,8 @@ def run(d):
         d.close_session()
         d.command('DELETE',''); d.SESSION = None
         d.new_session(); d.click('Open Fountain',actions=True); d.picker(target); ready()
-        d.wait(lambda: 'Both generations hold identical content.' in d.body(), 'Reopened recovery comparison settled', timeout=60)
-        if 'Recovery choice' in d.body():
-            assert target.read_bytes() == SOURCE
-            click('Keep Current File')
-            d.wait(lambda:'The current file was kept.' in d.body(),'Explicit reviewed recovery choice')
-            d.wait(lambda:'Comparing recovery against' not in d.body(), 'Reopened comparisons settled', timeout=60)
-            if 'A confirmed replacement matches the file' in d.body():
-                click('Resolve Interrupted Save')
-                d.wait(lambda:'An interrupted save was confirmed' in d.body() or 'No interrupted' in d.body(),'Confirmed-save reconciliation')
+        d.assert_identical_reopen()
+        assert target.read_bytes() == SOURCE
         ready(); open_panel()
 
     d.click('Open Fountain',actions=True); d.picker(target); ready(); save(SOURCE)

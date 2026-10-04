@@ -655,6 +655,20 @@ Recovery records are versioned and checksummed, with enough framing to reject tr
 
 At startup, inspect recovery metadata without rewriting the source. If recovery is newer/different, show a clear comparison and choices: Recover as Current, Save Recovered Copy, Keep Current File, or Inspect Later. Preserve both until the user resolves the case. Time stamps alone must not choose the winner.
 
+An exclusively owned source may reconcile automatically only when the latest
+clean published journal has identical bytes and no save transaction is unresolved.
+Explicit Keep may persist a verified decision bound to the document, latest
+recovery record and source content hash; changes to either generation invalidate
+that decision. A fresh choice is required unless the strict identical-byte path
+independently applies. Neither path grants a source-save receipt or deletes material.
+Unresolved recovery must be reviewed before editing; Inspect Later permits
+read-only review. Metadata-only changes do not define content divergence.
+A prior confirmed source record that differs from the current file does not
+choose a winner; an explicit Keep may bind the reviewed source only when no
+intent, previous-pending copy or candidate remains. Automatic identical-byte
+admission still requires NoTransaction or ConfirmedRecordMatchesSource. A verified
+checkpoint from the current registration needs no older-session choice.
+
 A corrupted tail must not make earlier valid records unusable. Schema upgrades require backward readers or a safe export path for existing recovery files. Unknown newer schemas open conservatively; never delete them to make startup succeed.
 
 Unsaved drafts also participate in recovery. A newly typed document must not vanish just because the writer had not chosen a filename.

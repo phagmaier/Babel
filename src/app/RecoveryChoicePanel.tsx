@@ -21,6 +21,8 @@ const transactions = {
     'A replacement reached the file but was never confirmed. Resolve it before choosing.',
   confirmedRecordMatchesSource:
     'A confirmed replacement matches the file. Resolve it to finish the acknowledgement.',
+  confirmedRecordDiverged:
+    'The saved file differs from its last confirmed save. No interrupted save is waiting; choose which draft to use.',
   diverged:
     'The file changed outside this session. Both generations stay preserved; no direction is picked automatically.',
   needsAttention:
@@ -60,6 +62,9 @@ export function RecoveryChoicePanel({
   selection,
   expectedFingerprint,
   onRecovered,
+  onKept,
+  onInspectLater,
+  readOnly = false,
   onResolved,
   nextVersion,
 }: {
@@ -69,6 +74,9 @@ export function RecoveryChoicePanel({
   expectedFingerprint: DiskFingerprint;
   /** Adopted bytes must reach the editor through these callbacks; the panel never writes them itself. */
   onRecovered?: (receipt: SaveReceipt, selection: RecoverySelection) => void;
+  onKept?: () => void;
+  onInspectLater?: () => void;
+  readOnly?: boolean;
   onResolved?: (resolution: TransactionResolution) => void;
   nextVersion?: number;
 }) {
@@ -163,6 +171,11 @@ export function RecoveryChoicePanel({
         <button type="button" onClick={() => setRefresh((n) => n + 1)}>
           Refresh comparison
         </button>
+        {onInspectLater && (
+          <button type="button" disabled={busy} onClick={onInspectLater}>
+            Inspect later
+          </button>
+        )}
       </section>
     );
   if (!comparison)
@@ -183,11 +196,14 @@ export function RecoveryChoicePanel({
   const transactionNotice = transactions[comparison.transaction];
   const canAdopt =
     !busy &&
+    !readOnly &&
+    comparison.recovery.encoding === 'utf8' &&
     comparison.source.status === 'current' &&
     !comparison.externalDivergence &&
     !staleFingerprint &&
     (comparison.transaction === 'noTransaction' ||
-      comparison.transaction === 'confirmedRecordMatchesSource');
+      comparison.transaction === 'confirmedRecordMatchesSource' ||
+      comparison.transaction === 'confirmedRecordDiverged');
   const targetVersion = nextVersion ?? newVersion;
   const versionReady =
     targetVersion !== null &&
@@ -198,16 +214,26 @@ export function RecoveryChoicePanel({
     <section className="card recovery" aria-labelledby="choice-heading">
       <h2 id="choice-heading">Recovery choice</h2>
       <p>
-        Recovery version {comparison.recovery.version}, generation{' '}
-        {comparison.recovery.generation} · {comparison.recovery.byteLength}{' '}
-        bytes. {sourceStates[comparison.source.status]}
+        {comparison.identical
+          ? 'The recovered draft matches the saved file.'
+          : 'A recovered draft differs from the saved file. Which draft do you want to use?'}
       </p>
-      <p className="hash">
-        Recovery SHA-256: {comparison.recovery.sourceSha256}
-      </p>
-      {comparison.source.sourceSha256 && (
-        <p className="hash">Source SHA-256: {comparison.source.sourceSha256}</p>
-      )}
+      <details>
+        <summary>Inspect recovery details</summary>
+        <p>
+          Recovery version {comparison.recovery.version}, generation{' '}
+          {comparison.recovery.generation} · {comparison.recovery.byteLength}{' '}
+          bytes. {sourceStates[comparison.source.status]}
+        </p>
+        <p className="hash">
+          Recovery SHA-256: {comparison.recovery.sourceSha256}
+        </p>
+        {comparison.source.sourceSha256 && (
+          <p className="hash">
+            Source SHA-256: {comparison.source.sourceSha256}
+          </p>
+        )}
+      </details>
       {comparison.identical && <p>Both generations hold identical content.</p>}
       {comparison.externalDivergence && (
         <p role="alert">
@@ -282,25 +308,33 @@ export function RecoveryChoicePanel({
             )
           }
         >
-          Recover as Current
+          Restore recovered draft
         </button>
         <button
           type="button"
-          disabled={busy || comparison.source.status === 'missing'}
+          disabled={
+            busy ||
+            readOnly ||
+            comparison.source.status !== 'current' ||
+            (comparison.transaction !== 'noTransaction' &&
+              comparison.transaction !== 'confirmedRecordMatchesSource' &&
+              comparison.transaction !== 'confirmedRecordDiverged')
+          }
           onClick={() =>
             void act(
               'Keep',
               () => port.keep({ identity, selection, expectedFingerprint }),
               (value) => {
                 const keptValue = value as RecoveryComparison;
-                if (validComparison(keptValue, identity, selection))
+                if (validComparison(keptValue, identity, selection)) {
                   setKept(true);
-                else throw { code: 'recoveryNeedsAttention' };
+                  onKept?.();
+                } else throw { code: 'recoveryNeedsAttention' };
               },
             )
           }
         >
-          Keep Current File
+          Keep saved file
         </button>
         <button
           type="button"
@@ -315,31 +349,36 @@ export function RecoveryChoicePanel({
         >
           Save Recovered Copy
         </button>
-        <button
-          type="button"
-          disabled={busy}
-          onClick={() =>
-            void act(
-              'Resolve',
-              () => port.resolve(identity),
-              (value) => {
-                const resolution = value as TransactionResolution;
-                setResolved(resolution);
-                onResolved?.(resolution);
-              },
-            )
-          }
-        >
-          Resolve Interrupted Save
-        </button>
+        {comparison.transaction !== 'noTransaction' &&
+          comparison.transaction !== 'confirmedRecordDiverged' && (
+            <button
+              type="button"
+              disabled={busy || readOnly}
+              onClick={() =>
+                void act(
+                  'Resolve',
+                  () => port.resolve(identity),
+                  (value) => {
+                    const resolution = value as TransactionResolution;
+                    setResolved(resolution);
+                    onResolved?.(resolution);
+                  },
+                )
+              }
+            >
+              Resolve Interrupted Save
+            </button>
+          )}
         <button type="button" onClick={() => setRefresh((n) => n + 1)}>
           Refresh comparison
         </button>
       </div>
-      <p>
-        Timestamps never choose a winner. Every choice preserves both
-        generations until retention (a later task) applies.
-      </p>
+      {onInspectLater && (
+        <button type="button" disabled={busy} onClick={onInspectLater}>
+          Inspect later
+        </button>
+      )}
+      <p>Both drafts stay preserved when you choose.</p>
     </section>
   );
 }

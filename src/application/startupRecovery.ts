@@ -34,6 +34,8 @@ export type RecoveryNotice =
   | 'unreadableArtifact';
 export interface RecoveryEntry {
   documentId: string;
+  /** Native journal admission only; absent readers never imply acceptance. */
+  reconciled?: boolean;
   candidates: readonly RecoveryCandidate[];
   notices: readonly RecoveryNotice[];
   error: DocumentError | null;

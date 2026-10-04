@@ -160,6 +160,15 @@ fn transaction_status(
     identity: &DocumentRequest,
 ) -> Result<ChoiceTransaction, DocumentError> {
     match service.inspect_source_save(identity) {
+        Ok(state)
+            if state.observation == SaveObservation::Diverged
+                && state.intent.is_none()
+                && state.previous_pending.is_none()
+                && state.confirmed.is_some()
+                && state.candidate.is_none() =>
+        {
+            Ok(ChoiceTransaction::ConfirmedRecordDiverged)
+        }
         Ok(state) => Ok(state.observation.into()),
         Err(err) if err.code == ErrorCode::MissingSource => Ok(ChoiceTransaction::NoTransaction),
         Err(err) if err.code == ErrorCode::SaveNeedsAttention => {
@@ -178,8 +187,8 @@ fn comparison(
     let (checkpoint, candidate) = find_checkpoint(service, identity, selection)?;
     let (source, bytes) = snapshot_status(record)?;
     let identical = bytes.as_deref() == Some(checkpoint.source.as_slice());
-    let external_divergence = match (&record.baseline, &source.fingerprint) {
-        (Some(base), Some(current)) => current != base,
+    let external_divergence = match (&record.baseline, &source.source_sha256) {
+        (Some(base), Some(current)) => current != &base.sha256,
         (Some(_), None) => record.anchor.is_some(),
         _ => false,
     };
@@ -413,7 +422,8 @@ impl DocumentService {
     }
 
     /// Explicit keep: verifies both generations are unchanged and reconciles
-    /// this session for future writes. Nothing is written or deleted.
+    /// future writes. A content-bound decision marker is published; no author
+    /// bytes are written or deleted.
     pub fn keep_current_source(
         &mut self,
         request: &KeepRequest,
@@ -453,9 +463,7 @@ impl DocumentService {
         if compared.transaction == ChoiceTransaction::NeedsAttention {
             return Err(error(ErrorCode::SaveNeedsAttention));
         }
-        if let Some(record) = self.documents.get_mut(&request.identity.handle) {
-            record.recovery_reconciled = true;
-        }
+        self.persist_keep(&request.identity, &request.selection)?;
         Ok(compared)
     }
 
@@ -559,6 +567,7 @@ impl DocumentService {
             }
         }
         let completed = self.complete_replacement(identity, &state, &mut gate)?;
+        let _ = self.reconcile_recovery_at_open(identity);
         Ok(TransactionResolution {
             identity: identity.clone(),
             observation: ChoiceTransaction::ConfirmedRecordMatchesSource,

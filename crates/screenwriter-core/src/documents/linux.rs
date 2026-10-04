@@ -21,6 +21,8 @@ mod history_store;
 mod pdf_store;
 #[path = "recent_store.rs"]
 mod recent_store;
+#[path = "reconciliation_store.rs"]
+mod reconciliation_store;
 #[path = "recovery_store.rs"]
 mod recovery_store;
 #[path = "reload_store.rs"]
@@ -299,9 +301,8 @@ struct Registered {
     last_admitted: Option<(u64, String, serde_json::Value)>,
     save_uncertain: bool,
     history_attention: bool,
-    /// Set only by an explicit M2-05B recovery choice in this session. It relaxes
-    /// the older-session journal gate for later checkpoints; a restart requires
-    /// a fresh choice. Never persisted.
+    /// Safe identical-byte reopen or verified explicit recovery decision.
+    /// Grants journal admission only, never source-save credit.
     recovery_reconciled: bool,
 }
 
@@ -603,6 +604,8 @@ impl DocumentService {
                 leases,
             },
         );
+        // Unsafe or interrupted material remains available for explicit review.
+        let _ = self.reconcile_recovery_at_open(&initial.identity);
         Ok(initial)
     }
 

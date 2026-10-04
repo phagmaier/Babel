@@ -29,20 +29,23 @@ def run(d):
         d.wait(lambda:'Saved locally' in d.body(),'Exact source save'); ready()
 
     def settle_recovery():
-        d.wait(lambda:'Comparing recovery against' not in d.body(),'Native source comparisons settled',timeout=60)
-        if 'Recovery choice' not in d.body(): return
-        d.wait(lambda:d.script("return [...document.querySelectorAll('button')].some(b=>b.textContent==='Keep Current File'&&!b.disabled);"),'Reviewed Keep current enabled',timeout=60)
-        d.click('Keep Current File');d.wait(lambda:'The current file was kept.' in d.body(),'Explicit current file review')
-        d.wait(lambda:'Comparing recovery against' not in d.body(),'All recovery comparisons settled',timeout=60)
-        if 'A confirmed replacement matches the file' in d.body():
-            d.wait(lambda:d.script("return [...document.querySelectorAll('button')].some(b=>b.textContent==='Resolve Interrupted Save'&&!b.disabled);"),'Enabled confirmed-save reconciliation')
-            button=d.find('//section[.//p[contains(.,"A confirmed replacement matches the file")]]//button[normalize-space(.)="Resolve Interrupted Save" and not(@disabled)]');d.script("arguments[0].scrollIntoView({block:'center'});",[{d.ELEMENT:button}]);d.command('POST','/element/'+button+'/click',{})
-            d.wait(lambda:'An interrupted save was confirmed' in d.body() or 'No interrupted' in d.body(),'Confirmed-save reconciliation')
+        d.assert_identical_reopen()
         ready()
 
     def open_file(path, review=True):
-        d.click('Open Fountain',actions=True); d.picker(path); ready()
-        if review: settle_recovery()
+        d.click('Open Fountain',actions=True); d.picker(path)
+        if review:
+            d.wait(lambda: d.script("return document.querySelector('.ProseMirror')?.getAttribute('contenteditable')==='true';") or 'Choose which draft to use before editing.' in d.body(), 'Selected source discovery completed')
+            if 'Choose which draft to use before editing.' in d.body():
+                # Deliberate external-byte changes in this fixture require an explicit choice.
+                expected = path.read_bytes()
+                d.wait(lambda: d.script("return [...document.querySelectorAll('button')].some(b=>b.textContent.trim()==='Keep saved file'&&!b.disabled);"), 'Explicit current-source choice available')
+                d.click('Keep saved file')
+                d.wait(lambda: 'The current file was kept.' in d.body(), 'Reviewed external source kept')
+                assert path.read_bytes() == expected
+                assert d.script("return document.querySelector('.ProseMirror')?.getAttribute('contenteditable');") == 'true'
+        ready()
+        if review and 'The current file was kept.' not in d.body(): settle_recovery()
 
     def restart():
         # Programmatic production close activation avoids WebDriver scrolling

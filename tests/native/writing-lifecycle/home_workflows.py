@@ -19,10 +19,7 @@ def run(h):
         h.close_session()
 
     def keep_identical():
-        h.wait(lambda: 'Both generations hold identical content.' in h.body(), 'Explicit identical recovery comparison')
-        element = h.find("//section[.//h2[normalize-space(.)='Recovery choice']][.//p[normalize-space(.)='Both generations hold identical content.']]//button[normalize-space(.)='Keep Current File']")
-        h.command('POST', f'/element/{element}/click', {})
-        h.wait(lambda: 'The current file was kept.' in h.body(), 'Explicit Keep Current File')
+        h.assert_identical_reopen()
 
     h.wait(home_ready, 'Home bounded reads complete')
     warm_launch_ms = (time.monotonic() - h.SESSION_STARTED) * 1000
@@ -187,11 +184,8 @@ def run(h):
     close_session()
     h.click('Open long-home.fountain')
     h.wait(lambda: h.editor_text() == long_bytes.decode().rstrip('\r\n'), 'Recent large source reopened')
-    # Resolve identical previous-session material before generating divergence.
-    h.wait(lambda: 'Both generations hold identical content.' in h.body(), 'Recovery comparison ready')
-    el = h.find("//section[.//h2[normalize-space(.)='Recovery choice']][.//p[normalize-space(.)='Both generations hold identical content.']]//button[normalize-space(.)='Keep Current File']")
-    h.command('POST', f'/element/{el}/click', {})
-    h.wait(lambda: 'The current file was kept.' in h.body(), 'Keep explicit current source')
+    # Identical previous-session material is admitted before typing.
+    h.assert_identical_reopen()
     outside = b'External version remains.\n'
     long_source.write_bytes(outside)
     h.type_text('LOCAL ')

@@ -73,6 +73,10 @@ impl LocalRecoveryReader {
             let parsed = std::str::from_utf8(bytes)
                 .ok()
                 .and_then(|name| name.split_once('.'));
+            // Keep is decision metadata, not another recovery candidate.
+            if parsed.is_some_and(|(id, suffix)| valid_uuid(id) && suffix == "keep") {
+                continue;
+            }
             if let Some((id, suffix)) = parsed
                 && valid_uuid(id)
                 && [
@@ -107,6 +111,7 @@ impl LocalRecoveryReader {
     pub(super) fn entry_at(dir: &File, id: &str) -> RecoveryEntry {
         let mut entry = RecoveryEntry {
             document_id: id.to_owned(),
+            reconciled: false,
             candidates: Vec::new(),
             notices: Vec::new(),
             error: None,
@@ -224,6 +229,7 @@ impl DocumentService {
             Err(err) if err.code == ErrorCode::MissingSource => {
                 return Ok(RecoveryEntry {
                     document_id: identity.document_id.clone(),
+                    reconciled: false,
                     candidates: Vec::new(),
                     notices: Vec::new(),
                     error: None,
@@ -231,7 +237,22 @@ impl DocumentService {
             }
             Err(err) => return Err(err),
         };
-        let result = LocalRecoveryReader::entry_at(&dir, &identity.document_id);
+        let mut result = LocalRecoveryReader::entry_at(&dir, &identity.document_id);
+        // Fresh Save As already protects its own draft. Neither this fact nor a
+        // cached decision may bypass unresolved transactions or changed records.
+        result.reconciled = result.error.is_none()
+            && result.notices.is_empty()
+            && result
+                .candidates
+                .iter()
+                .max_by_key(|candidate| candidate.generation)
+                .is_some_and(|latest| {
+                    (self
+                        .registered(identity)
+                        .is_ok_and(|record| record.recovery_reconciled)
+                        || latest.session_id == identity.session_id)
+                        && self.recovery_admission_is_safe(identity, latest)
+                });
         self.recovery_directory(Some(identity), false)?;
         Ok(result)
     }

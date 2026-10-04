@@ -83,6 +83,9 @@ pub enum RecoveryNotice {
 #[serde(rename_all = "camelCase")]
 pub struct RecoveryEntry {
     pub document_id: String,
+    /// No unresolved older-session journal gate; grants no source-save credit.
+    #[serde(default)]
+    pub reconciled: bool,
     pub candidates: Vec<RecoveryCandidate>,
     pub notices: Vec<RecoveryNotice>,
     pub error: Option<DocumentError>,

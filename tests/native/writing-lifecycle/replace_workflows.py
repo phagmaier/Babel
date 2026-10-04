@@ -126,10 +126,7 @@ def run(d):
     d.audit(target, after_all)
     # Reopening prior recovery generations needs the explicit identical-content
     # choice before the session can close, as in the main lifecycle drill.
-    d.wait(lambda: 'Both generations hold identical content.' in d.body(), 'Matching previous-session recovery is discoverable')
-    same = d.find("//section[.//h2[normalize-space(.)='Recovery choice']][.//p[normalize-space(.)='Both generations hold identical content.']]//button[normalize-space(.)='Keep Current File']")
-    d.command('POST', f'/element/{same}/click', {})
-    d.wait(lambda: 'The current file was kept.' in d.body(), 'Explicit Keep Current File reconciles the old session')
+    d.assert_identical_reopen()
     d.close_session(); d.audit(target, after_all)
     print('PASS native replace-one/keyboard/replace-all/Undo/Save/reopen with title refusal and exact bytes', flush=True)
     print('ARTIFACTS', d.ROOT, flush=True)

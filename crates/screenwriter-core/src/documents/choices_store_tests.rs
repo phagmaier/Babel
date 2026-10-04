@@ -186,6 +186,159 @@ fn finalize_completes_replaced_but_unconfirmed_save() {
 }
 
 #[test]
+fn interrupted_save_keeps_identical_recovery_choice_required_until_verified_finalize() {
+    let fixture = Fixture::new();
+    let mut first = fixture.service();
+    let opened = first.open_selected(&fixture.source).unwrap();
+    first
+        .enqueue_save(Fixture::save_request(
+            &opened.identity,
+            21,
+            b"edited",
+            opened.fingerprint.as_ref().unwrap(),
+        ))
+        .unwrap();
+    first
+        .save_next_with(&opened.identity, |stage| {
+            if stage == source_store::Stage::Verified {
+                Err(error(ErrorCode::Io))
+            } else {
+                Ok(())
+            }
+        })
+        .unwrap_err();
+    assert!(
+        !first
+            .list_document_recovery(&opened.identity)
+            .unwrap()
+            .reconciled,
+        "an own-session checkpoint cannot admit an unresolved replacement"
+    );
+    drop(first);
+    let mut second = fixture.service();
+    let reopened = second.open_selected(&fixture.source).unwrap();
+    assert_eq!(
+        second
+            .inspect_source_save(&reopened.identity)
+            .unwrap()
+            .observation,
+        SaveObservation::InstalledCandidateUnconfirmed
+    );
+    assert!(
+        !second
+            .list_document_recovery(&reopened.identity)
+            .unwrap()
+            .reconciled
+    );
+    let latest = second
+        .inspect_recovery(&reopened.identity)
+        .unwrap()
+        .latest
+        .unwrap();
+    let selection = crate::documents::startup::RecoverySelection {
+        document_id: reopened.identity.document_id.clone(),
+        origin: crate::documents::startup::RecoveryOrigin::Current,
+        record_sha256: source_hash(&latest.encode().unwrap()),
+    };
+    assert_eq!(
+        second
+            .keep_current_source(&KeepRequest {
+                identity: reopened.identity.clone(),
+                selection,
+                expected_fingerprint: reopened.fingerprint.clone().unwrap()
+            })
+            .unwrap_err()
+            .code,
+        ErrorCode::SaveNeedsAttention
+    );
+    let resolved = second
+        .finalize_interrupted_save(&ResolveRequest {
+            identity: reopened.identity.clone(),
+        })
+        .unwrap();
+    assert_eq!(resolved.completed.unwrap().version, 21);
+    assert!(
+        second
+            .list_document_recovery(&reopened.identity)
+            .unwrap()
+            .reconciled
+    );
+    assert_eq!(std::fs::read(&fixture.source).unwrap(), b"edited");
+}
+
+#[test]
+fn failed_save_then_save_as_never_auto_adopts_redirected_work_on_original_reopen() {
+    let fixture = Fixture::new();
+    let mut first = fixture.service();
+    let opened = first.open_selected(&fixture.source).unwrap();
+    let redirected = b"work deliberately redirected to B";
+    first
+        .enqueue_save(Fixture::save_request(
+            &opened.identity,
+            21,
+            redirected,
+            opened.fingerprint.as_ref().unwrap(),
+        ))
+        .unwrap();
+    let failure = first
+        .save_next_with(&opened.identity, |stage| {
+            if stage == source_store::Stage::RecoveryProtected {
+                Err(error(ErrorCode::Io))
+            } else {
+                Ok(())
+            }
+        })
+        .unwrap_err();
+    assert!(failure.recovery.is_some());
+    assert_eq!(failure.replacement, ReplacementState::SourceUnchanged);
+    let destination = fixture.source.with_file_name("B.fountain");
+    let target = first
+        .select_save_destination(&opened.identity, &destination)
+        .unwrap();
+    let copied = first
+        .save_as_copy(&crate::documents::save_as::SaveAsRequest {
+            checkpoint: crate::documents::persistence::CheckpointRequest {
+                identity: opened.identity.clone(),
+                version: 21,
+                source: redirected.to_vec(),
+                source_sha256: source_hash(redirected),
+                expected_fingerprint: opened.fingerprint.clone(),
+                draft_metadata: serde_json::json!({"draft": true}),
+            },
+            destination_token: target.token,
+        })
+        .unwrap();
+    assert_ne!(
+        copied.document.identity.document_id,
+        opened.identity.document_id
+    );
+    let journal = fixture
+        .store
+        .join("recovery")
+        .join(format!("{}.journal", opened.identity.document_id));
+    let retained = std::fs::read(&journal).unwrap();
+    drop(first);
+    let mut second = fixture.service();
+    let reopened = second.open_selected(&fixture.source).unwrap();
+    assert_eq!(
+        second
+            .inspect_source_save(&reopened.identity)
+            .unwrap()
+            .observation,
+        SaveObservation::NoTransaction
+    );
+    assert!(
+        !second
+            .list_document_recovery(&reopened.identity)
+            .unwrap()
+            .reconciled
+    );
+    assert_eq!(std::fs::read(&fixture.source).unwrap(), b"original");
+    assert_eq!(std::fs::read(&destination).unwrap(), redirected);
+    assert_eq!(std::fs::read(&journal).unwrap(), retained);
+}
+
+#[test]
 fn finalize_leaves_prepared_and_diverged_states_untouched() {
     let fixture = Fixture::new();
     let mut service = fixture.service();

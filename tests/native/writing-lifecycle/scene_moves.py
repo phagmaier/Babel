@@ -40,14 +40,7 @@ def run(d):
         ready()
     def reopen(target,expected):
         ready();d.close_session();d.click('Open Fountain',actions=True);d.picker(target)
-        d.wait(lambda:'Recovery choice' in d.body(),'Reopened synthetic recovery comparison',timeout=60)
-        d.wait(lambda:d.script("return [...document.querySelectorAll('button')].some(b=>b.textContent==='Keep Current File'&&!b.disabled);"),'Explicit reviewed Keep is available',timeout=60)
-        d.audit(target,expected)
-        d.click('Keep Current File')
-        d.wait(lambda:'The current file was kept.' in d.body(),'Reviewed reopened source retains recovery',timeout=60)
-        if 'A confirmed replacement matches the file' in d.body():
-            d.click('Resolve Interrupted Save')
-            d.wait(lambda:'An interrupted save was confirmed' in d.body() or 'No interrupted' in d.body(),'Explicit confirmed-save reconciliation',timeout=60)
+        d.assert_identical_reopen()
         ready();d.audit(target,expected)
     def safety(source):
         repos=list((d.ROOT/'data'/'app.babel.screenwriter'/'history').glob('*.git'))

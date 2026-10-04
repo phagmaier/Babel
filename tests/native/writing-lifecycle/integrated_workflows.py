@@ -117,10 +117,7 @@ def run(d):
     # Reopen in a new process/profile lifetime, then explicitly reconcile recovery.
     d.close_session(); d.command('DELETE', ''); d.SESSION = None; d.new_session()
     click('Open daily-session.fountain'); ready()
-    d.wait(lambda: 'Both generations hold identical content.' in d.body(), 'Exact previous-session recovery comparison')
-    e = d.find("//section[.//p[normalize-space(.)='Both generations hold identical content.']]//button[normalize-space(.)='Keep Current File']")
-    activate(e)
-    d.wait(lambda: 'The current file was kept.' in d.body(), 'Explicit recovery decision')
+    d.assert_identical_reopen()
     save()
     assert d.script("return [...document.querySelectorAll('.ProseMirror strong')].map(e=>e.textContent);") == ['sun', 'mo']
     assert 'Morning signal' in d.body() and '3 scenes' in d.body() and '2 characters' in d.body()

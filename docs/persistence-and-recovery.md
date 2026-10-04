@@ -180,11 +180,14 @@ M2-05B-R1 corrects the two [independent review](reviews/2026-09-28-m2-05b-review
 
 Comparison, adoption, keep, sibling copy and transaction finalize operate on a natively opened (`open_selected`) registration anchor;
 no IPC path exists and no choice deletes material. The older-session journal
-gate stays closed for ordinary checkpoints/saves; only an explicit choice
-reconciles it in memory for the current registration, and a restart requires
-a fresh choice. Recover as Current adopts selected bytes as a strictly newer
-version through the M2-03 recovery-first transaction with an exact source
-receipt; Keep verifies both unchanged and writes nothing; Save Recovered Copy
+gate admits an exclusive reopen only when the latest clean published journal
+matches source bytes and no save transaction is unresolved. Explicit Keep
+publishes verified private decision metadata bound to the document, latest
+canonical recovery record and source content hash; changed source/record,
+unsafe artifacts or interrupted transactions require a fresh choice. Source
+and journal bytes remain intact. Recover as Current adopts selected bytes as
+a strictly newer version through the M2-03 recovery-first transaction with
+an exact source receipt; Save Recovered Copy
 writes exact bytes (including malformed UTF-8) to a synced sibling and
 reports only the file name; finalize completes only the two safe
 post-replacement states. The unused native-only in-session relink API was removed
@@ -194,6 +197,14 @@ corruption still blocks. Retention/pruning, Save As, external backup
 destinations and protected close remain M2-05C/D. [ADR 0017](decisions/0017-explicit-recovery-choices.md)
 and [M2 evidence](test-evidence/M2-05B.md)
 record the contract and native/mocked verification boundary.
+
+AUDIT-D02 distinguishes a prior confirmed record whose source later changed
+from an unresolved replacement: only an explicit reviewed Keep may bind that
+source when no intent, previous-pending copy or candidate remains. Identical-byte
+automatic admission still requires NoTransaction or ConfirmedRecordMatchesSource.
+A verified latest checkpoint from the current registration needs no older-session
+choice. Exporting a standalone copy does not resolve a pending review; successful
+Save As adoption switches to a fresh identity without carrying the old gate.
 
 ## M2-05C snapshots, retention and external copies
 
@@ -308,7 +319,9 @@ owns checks and measured native latency.
 
 The default native writing view binds the production editor to the passed
 persistence/cadence/close services. Open allocates its editor version above
-known recovery versions from the selected native registration, including managed project journals, without automatic saving or reconciliation. Save As
+known recovery versions from the selected native registration, including managed project journals, without automatic saving. AUDIT-D02 adds
+only safe native reopen reconciliation; unresolved recovery blocks editing,
+while Inspect Later permits read-only review. Save As
 protects a frozen latest capture before exact publication and identity switching;
 cancellation/failure retains the active editor. Old registrations, captures and
 selected copy tokens are retired at the boundary. Read-only sessions reject editor transactions and ordinary Save; Save As can publish exact bytes without checkpointing or writing the original registration. Fresh adoption precedes release of the old registration; failure restores its immutable editor state, selection and undo history while preserving any published copy. The restored view is re-captured to rebind its outline, counts and navigation; rollback does not leave derived facts permanently pending or add an editor transaction.

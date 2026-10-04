@@ -74,8 +74,7 @@ def run(d):
     d.new_session()
     d.click('Open Fountain', actions=True); d.picker(path)
     d.wait(lambda: d.script("return document.querySelector('#writing-save')?.disabled === false;"), 'Native lease released; same file reopens writable')
-    d.wait(lambda: 'Both generations hold identical content.' in d.body(), 'Prior-session recovery explicitly compared')
-    d.click('Keep Current File')
+    d.assert_identical_reopen()
     d.close_session()
     d.audit(path, source)
     (d.ROOT / 'd06-status-close.json').write_text(json.dumps({
