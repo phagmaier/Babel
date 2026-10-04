@@ -103,35 +103,17 @@ pub(super) fn record_composition_proof(report: String) -> Result<(), &'static st
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::test_support::TestRoot;
     use std::os::unix::fs::PermissionsExt;
-    struct Fixture(PathBuf);
+    struct Fixture(TestRoot);
     impl Fixture {
         fn new() -> Self {
-            let base = std::env::var_os("BABEL_COMPOSITION_TEST_ROOT")
-                .map(PathBuf::from)
-                .unwrap_or_else(std::env::temp_dir);
-            let root = base.join(format!(
-                "babel-editor-composition-test-{}-{}",
-                std::process::id(),
-                std::time::SystemTime::now()
-                    .duration_since(std::time::UNIX_EPOCH)
-                    .unwrap()
-                    .as_nanos()
-            ));
-            std::fs::create_dir(&root).unwrap();
-            std::fs::set_permissions(&root, std::fs::Permissions::from_mode(0o700)).unwrap();
-            std::fs::write(root.join("SYNTHETIC-M1-06"), MARKER).unwrap();
-            std::fs::set_permissions(
-                root.join("SYNTHETIC-M1-06"),
-                std::fs::Permissions::from_mode(0o600),
-            )
-            .unwrap();
+            let root = TestRoot::new(
+                "BABEL_COMPOSITION_TEST_ROOT",
+                "babel-editor-composition-test",
+            );
+            root.write("SYNTHETIC-M1-06", MARKER, 0o600);
             Self(root)
-        }
-    }
-    impl Drop for Fixture {
-        fn drop(&mut self) {
-            std::fs::remove_dir_all(&self.0).unwrap();
         }
     }
     #[test]
@@ -196,7 +178,7 @@ mod tests {
         };
         let app = mock_builder()
             .manage(host.clone())
-            .manage(ProofRoot(f.0.clone()))
+            .manage(ProofRoot(f.0.to_path_buf()))
             .invoke_handler(tauri::generate_handler![
                 open_composition_fixture,
                 save_document,

@@ -31,3 +31,7 @@ mod tests {
         assert_eq!(info.platform, "desktop");
     }
 }
+
+#[cfg(all(test, target_os = "linux"))]
+#[path = "../../../tests/support/test_root.rs"]
+mod test_support;

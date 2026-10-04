@@ -84,19 +84,7 @@ fn private_dir(parent: &File, name: &str, create: bool) -> Result<File, Document
     if info.st_uid != geteuid().as_raw() || info.st_mode & 0o7022 != 0 {
         return Err(error(ErrorCode::OwnershipLost));
     }
-    if create {
-        match fs::mkdirat(parent, name, Mode::from_raw_mode(0o700)) {
-            Ok(()) => parent.sync_all().map_err(io_error)?,
-            Err(Errno::EXIST) => (),
-            Err(e) => return Err(syscall_error(e)),
-        }
-    }
-    let dir = child_directory(parent, OsStr::new(name))?;
-    let info = stat(&dir)?;
-    if info.st_uid != geteuid().as_raw() || info.st_mode & 0o7777 != 0o700 {
-        return Err(error(ErrorCode::OwnershipLost));
-    }
-    Ok(dir)
+    super::private_dir(parent, name, create, ErrorCode::OwnershipLost)
 }
 fn read(dir: &File, name: &str, limit: usize) -> Result<Option<Vec<u8>>, DocumentError> {
     source_store::read_optional(dir, name, limit)
@@ -118,15 +106,7 @@ fn write_new(
     partial: Stage,
     synced: Stage,
 ) -> Result<(), DocumentError> {
-    let mut file = File::from(
-        fs::openat(
-            dir,
-            name,
-            OFlags::WRONLY | OFlags::CREATE | OFlags::EXCL | OFlags::NOFOLLOW | OFlags::CLOEXEC,
-            Mode::from_raw_mode(0o600),
-        )
-        .map_err(syscall_error)?,
-    );
+    let mut file = create_private(dir, name, OFlags::WRONLY).map_err(syscall_error)?;
     let mid = bytes.len() / 2;
     file.write_all(&bytes[..mid]).map_err(io_error)?;
     gate(partial)?;
@@ -740,25 +720,8 @@ impl DocumentService {
             return Err(error(ErrorCode::InvalidDestination));
         }
         let dir = directory(path)?;
-        let info = stat(&dir)?;
-        if info.st_uid != geteuid().as_raw()
-            || info.st_mode & 0o7022 != 0
-            || info.st_mode & 0o300 != 0o300
-        {
-            return Err(error(ErrorCode::InvalidDestination));
-        }
-        source_store::plain_metadata(&dir)?;
-        let source_device = self
-            .registered(identity)?
-            .baseline
-            .as_ref()
-            .map(|f| f.device.clone())
-            .unwrap_or(stat(&self.store)?.st_dev.to_string());
-        let relation = if info.st_dev.to_string() == source_device {
-            StorageRelation::SameFilesystem
-        } else {
-            StorageRelation::UnknownPhysicalDisk
-        };
+        let info = writable_private_destination(&dir)?;
+        let relation = self.storage_relation(identity, &info)?;
         let result = CopyDestination {
             token: uuid(),
             storage_relation: relation,

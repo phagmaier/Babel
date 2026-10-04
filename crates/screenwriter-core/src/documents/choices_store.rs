@@ -227,19 +227,8 @@ pub(super) fn link_loose_identity(
             })
             .map_err(|_| error(ErrorCode::IdentityStoreUnavailable))?;
             let pending = format!("{key}.locate-{}.pending", uuid());
-            let mut file = File::from(
-                fs::openat(
-                    &service.store,
-                    pending.as_str(),
-                    OFlags::WRONLY
-                        | OFlags::CREATE
-                        | OFlags::EXCL
-                        | OFlags::NOFOLLOW
-                        | OFlags::CLOEXEC,
-                    Mode::from_raw_mode(0o600),
-                )
-                .map_err(syscall_error)?,
-            );
+            let mut file = create_private(&service.store, pending.as_str(), OFlags::WRONLY)
+                .map_err(syscall_error)?;
             file.write_all(&bytes).map_err(io_error)?;
             file.sync_all().map_err(io_error)?;
             if snapshot(
@@ -508,15 +497,7 @@ impl DocumentService {
         if name.len() > 240 {
             return Err(error(ErrorCode::UnsafePath));
         }
-        let mut file = File::from(
-            fs::openat(
-                &anchor.parent,
-                name,
-                OFlags::RDWR | OFlags::CREATE | OFlags::EXCL | OFlags::NOFOLLOW | OFlags::CLOEXEC,
-                Mode::from_raw_mode(0o600),
-            )
-            .map_err(syscall_error)?,
-        );
+        let mut file = create_private(&anchor.parent, name, OFlags::RDWR).map_err(syscall_error)?;
         file.write_all(&checkpoint.source).map_err(io_error)?;
         file.sync_all().map_err(io_error)?;
         let info = stat(&file)?;

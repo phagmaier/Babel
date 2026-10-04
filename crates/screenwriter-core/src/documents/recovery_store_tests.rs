@@ -1,6 +1,6 @@
 use super::*;
+use crate::test_support::TestRoot;
 use std::io::{BufRead, BufReader};
-use std::os::unix::fs::PermissionsExt;
 use std::process::{Command, Stdio};
 
 fn checkpoint(
@@ -27,27 +27,16 @@ fn checkpoint(
     )
 }
 
-struct Fixture(PathBuf);
+struct Fixture(TestRoot);
 
 impl Fixture {
     fn new() -> Self {
-        let base = std::env::var_os("BABEL_RECOVERY_TEST_ROOT")
-            .map(PathBuf::from)
-            .unwrap_or_else(std::env::temp_dir);
-        let path = base.join(format!("babel-recovery-{}", uuid()));
-        std::fs::create_dir(&path).unwrap();
-        std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o700)).unwrap();
+        let path = TestRoot::new("BABEL_RECOVERY_TEST_ROOT", "babel-recovery");
         Self(path)
     }
 
     fn dir(&self) -> File {
         directory(&self.0).unwrap()
-    }
-}
-
-impl Drop for Fixture {
-    fn drop(&mut self) {
-        std::fs::remove_dir_all(&self.0).unwrap();
     }
 }
 

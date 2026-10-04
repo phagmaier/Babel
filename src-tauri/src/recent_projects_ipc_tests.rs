@@ -1,27 +1,16 @@
 //! Generated Tauri MockRuntime dispatch with native synthetic files. Not WebView E2E.
 use super::*;
+use crate::test_support::TestRoot;
 use serde_json::{Value, json};
-use std::{fs, os::unix::fs::PermissionsExt, path::PathBuf};
+use std::{fs, os::unix::fs::PermissionsExt};
 use tauri::test::{mock_builder, mock_context, noop_assets};
 
 fn invoke(
-    w: &tauri::WebviewWindow<tauri::test::MockRuntime>,
+    view: &tauri::WebviewWindow<tauri::test::MockRuntime>,
     cmd: &str,
     request: Value,
 ) -> Result<Value, Value> {
-    tauri::test::get_ipc_response(
-        w,
-        tauri::webview::InvokeRequest {
-            cmd: cmd.into(),
-            callback: tauri::ipc::CallbackFn(0),
-            error: tauri::ipc::CallbackFn(1),
-            url: "tauri://localhost".parse().unwrap(),
-            body: tauri::ipc::InvokeBody::Json(json!({"request":request})),
-            headers: Default::default(),
-            invoke_key: tauri::test::INVOKE_KEY.into(),
-        },
-    )
-    .map(|r| r.deserialize::<Value>().unwrap())
+    crate::test_support::invoke(view, cmd, json!({"request": request}))
 }
 
 fn app(host: DocumentHost) -> tauri::App<tauri::test::MockRuntime> {
@@ -39,21 +28,10 @@ fn app(host: DocumentHost) -> tauri::App<tauri::test::MockRuntime> {
         .unwrap()
 }
 
-struct Fixture(PathBuf);
+struct Fixture(TestRoot);
 impl Fixture {
     fn new() -> Self {
-        let path = std::env::var_os("BABEL_IPC_TEST_ROOT")
-            .map(PathBuf::from)
-            .unwrap_or_else(std::env::temp_dir)
-            .join(format!(
-                "babel-recent-ipc-{}",
-                std::time::SystemTime::now()
-                    .duration_since(std::time::UNIX_EPOCH)
-                    .unwrap()
-                    .as_nanos()
-            ));
-        fs::create_dir(&path).unwrap();
-        fs::set_permissions(&path, fs::Permissions::from_mode(0o700)).unwrap();
+        let path = TestRoot::new("BABEL_IPC_TEST_ROOT", "babel-recent-ipc");
         fs::write(
             path.join("native.fountain"),
             b"\xef\xbb\xbfINT. ROOM - DAY\r\n  ",
@@ -65,11 +43,6 @@ impl Fixture {
         )
         .unwrap();
         Self(path)
-    }
-}
-impl Drop for Fixture {
-    fn drop(&mut self) {
-        fs::remove_dir_all(&self.0).unwrap();
     }
 }
 

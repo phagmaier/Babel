@@ -1,41 +1,20 @@
 //! MockRuntime dispatch with real helper and disposable native document; not WebView evidence.
 use super::*;
+use crate::test_support::TestRoot;
+use crate::test_support::invoke_raw as invoke;
 use publication_host::*;
 use screenwriter_core::documents::recovery::source_hash;
 use serde_json::{Value, json};
 use tauri::test::{mock_builder, mock_context, noop_assets};
-fn invoke(
-    view: &tauri::WebviewWindow<tauri::test::MockRuntime>,
-    cmd: &str,
-    body: Value,
-) -> Result<tauri::ipc::InvokeResponseBody, Value> {
-    tauri::test::get_ipc_response(
-        view,
-        tauri::webview::InvokeRequest {
-            cmd: cmd.into(),
-            callback: tauri::ipc::CallbackFn(0),
-            error: tauri::ipc::CallbackFn(1),
-            url: "tauri://localhost".parse().unwrap(),
-            body: tauri::ipc::InvokeBody::Json(body),
-            headers: Default::default(),
-            invoke_key: tauri::test::INVOKE_KEY.into(),
-        },
-    )
-}
+
 #[test]
 fn publication_ipc_strict_owned_path_free_and_isolated_from_save_recovery() {
-    let base = std::env::var_os("BABEL_PUBLICATION_TEST_ROOT")
-        .map(std::path::PathBuf::from)
-        .unwrap_or_else(std::env::temp_dir);
-    let root = base.join(format!(
-        "babel-publication-ipc-{}-{}",
-        std::process::id(),
-        std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .unwrap()
-            .as_nanos()
-    ));
-    std::fs::create_dir(&root).unwrap();
+    let mut root = TestRoot::with_options(
+        "BABEL_PUBLICATION_TEST_ROOT",
+        "babel-publication-ipc",
+        None,
+        false,
+    );
     let source_path = root.join("synthetic.fountain");
     let original = b"!Original source.\r\n";
     std::fs::write(&source_path, original).unwrap();
@@ -187,7 +166,7 @@ fn publication_ipc_strict_owned_path_free_and_isolated_from_save_recovery() {
     );
     drop(view);
     drop(app);
-    std::fs::remove_dir_all(root).unwrap();
+    root.cleanup().unwrap();
 }
 
 fn stored_bytes(root: &std::path::Path) -> std::collections::BTreeMap<std::path::PathBuf, Vec<u8>> {
@@ -206,19 +185,7 @@ fn stored_bytes(root: &std::path::Path) -> std::collections::BTreeMap<std::path:
 #[test]
 fn pdf_export_ipc_captures_protected_bytes_and_publishes_only_its_owned_artifact() {
     use std::os::unix::fs::PermissionsExt;
-    let base = std::env::var_os("BABEL_PUBLICATION_TEST_ROOT")
-        .map(std::path::PathBuf::from)
-        .unwrap_or_else(std::env::temp_dir);
-    let root = base.join(format!(
-        "babel-export-ipc-{}-{}",
-        std::process::id(),
-        std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .unwrap()
-            .as_nanos()
-    ));
-    std::fs::create_dir(&root).unwrap();
-    std::fs::set_permissions(&root, std::fs::Permissions::from_mode(0o700)).unwrap();
+    let mut root = TestRoot::new("BABEL_PUBLICATION_TEST_ROOT", "babel-export-ipc");
     let original = b"!Original author source.\r\n";
     let source_path = root.join("synthetic.fountain");
     std::fs::write(&source_path, original).unwrap();
@@ -384,5 +351,5 @@ fn pdf_export_ipc_captures_protected_bytes_and_publishes_only_its_owned_artifact
     .unwrap();
     drop(view);
     drop(app);
-    std::fs::remove_dir_all(root).unwrap();
+    root.cleanup().unwrap();
 }

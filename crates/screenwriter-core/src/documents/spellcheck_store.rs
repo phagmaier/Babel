@@ -125,15 +125,8 @@ impl DocumentService {
             return Err(attention());
         }
         self.verify_lease(&lease)?;
-        let mut file = File::from(
-            fs::openat(
-                &self.store,
-                PENDING,
-                OFlags::WRONLY | OFlags::CREATE | OFlags::EXCL | OFlags::NOFOLLOW | OFlags::CLOEXEC,
-                Mode::from_raw_mode(0o600),
-            )
-            .map_err(syscall_error)?,
-        );
+        let mut file =
+            create_private(&self.store, PENDING, OFlags::WRONLY).map_err(syscall_error)?;
         let half = bytes.len() / 2;
         file.write_all(&bytes[..half]).map_err(io_error)?;
         gate(Stage::PartialWrite)?;

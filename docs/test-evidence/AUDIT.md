@@ -502,3 +502,43 @@ SELinux, C1/F2, M6-02 or Local v1 admission claim. Prior failures/cores untouche
 Final changed-doc formatting/link/diff checks recorded below.
 
 - Final `pnpm format:check`, `python3 tools/check-links.py`, `python3 tools/audit-slp-c.py`, `git diff --check` — **pass**, 170 changed links/168 retained files; `format-final.{log,json}`, `links-final.log`, `surfaces-final.json`. Handoff 115 lines/8,156 bytes; frozen audit/fixture/native/editor bytes and earlier failure artifacts retained.
+
+## AUDIT-SIMP-N — shared native workers and storage/test primitives
+
+Base `653f037`, clean main/four local commits ahead at claim, 2026-10-03.
+[Brief](../tasks/AUDIT-SIMP-N.md). Accepted X-01/05/02/03 only. Nine simple
+DocumentError workers plus prior snapshot/recent/startup callers share the
+cost-aware worker; payload-before-reserve and error/permit behavior retained.
+One handler list preserves all four cfg inventories. Shared test-only TestRoot
+and IPC transport preserve per-suite literals/modes/envelopes/cleanup policies;
+publication cancellation/wait stays local. Legacy hard-coded desktop temp root
+now honors BABEL_IPC_TEST_ROOT; canonical matrix adds the retained composition
+selector. Thirteen exclusive creates share flags/access/Errno only; child-dir
+checks share original error codes while parent policy remains local. Destination
+checks/storage relation retain stat order and the eager store-stat fallback.
+Write/gate/fsync/read-back sequences, lease open, picker/release/SaveFailure
+workers, frontend/fixtures and pins remain unchanged. Artifacts:
+`target/audit-simp-n/`. No new protocol, dependency or admission decision.
+
+- `python3 tools/audit-simp-n.py` before edits — expected **red 10 structural findings**, **pass 289 retained files/1,468 existing assertion literals**; `red-structure.json`. Expanded protected-method guard initially **fail** because it named nonexistent pick_save_destination; corrected to the actual unchanged pick_save_target (`protected-boundary.json`). Final **pass**, handler inventories 45/47 Linux and 39/39 non-Linux, protected worker/picker/lease bodies unchanged; `structure-final.json`. Source cfg parity is not non-Linux compilation/runtime evidence.
+- `CARGO_HOME=/tmp/babel-cargo cargo check --workspace --all-targets --all-features --locked` — first **compile fail**: extraction used nonexistent HistoryUnavailable instead of the original HistoryNeedsAttention (`early-check.log`); corrected compile **fail** on three missed startup snapshot_worker callers (`early-check-corrected.log`). Fixture compile **fail**: Path/TestRoot child-fixture and subprocess argument types, test-only import at production scope and old worker callers (`fixture-check.log`). Corrected without changing production error policies or existing assertions.
+- `CARGO_HOME=/tmp/babel-cargo cargo fix --workspace --all-targets --all-features --locked --allow-dirty` — **pass**, unused imports removed; two remaining dead-code warnings resolved by removing the superseded UUID helper and naming the cleanup-owning choices field _root (`fixture-fix.log`). No warning suppression added except the audit-requested integration support module's dead_code allowance for per-binary unused helper methods.
+- `CARGO_HOME=/tmp/babel-cargo cargo test -p babel-desktop -p screenwriter-core --lib --locked` — initial real IO/MockRuntime **fail desktop 55/61**, six inline fixtures removed their TestRoot by value and triggered strict duplicate Drop cleanup (`focused-rust.log`). Preserve original explicit cleanup timing via cleanup/disarm; corrected **pass 61/61 desktop +122/122 core** (`focused-rust-corrected.log`); final **pass 183/183**, 7.003s (`focused-final.{log,json}`). Three added worker tests cover absent/poison/join panic, exact cost/refusal-before-operation, core success/error and full byte/job budget release; injected failure boundaries, not GTK termination proof.
+- `CARGO_HOME=/tmp/babel-cargo cargo clippy --workspace --all-targets --all-features --locked -- -D warnings` — intermediate **compile fail** after the retained feature fixture port: missing PermissionsExt, attempted TestRoot clone and unused mut (`clippy.log`); partial correction still **fail** missing trait (`clippy-corrected.log`). Final **pass**, 3.02s (`clippy-final.log`); `cargo fmt --all -- --check` **pass**. All-feature static coverage preserves native feature; only x86_64-unknown-linux-gnu target is installed, so non-Linux build remains unverified.
+- `pnpm check` — **pass 863/863**, format/lint/typecheck/build, 63.647s; `frontend.{log,json}`. Frontend byte-identical; existing Vite chunk advisory retained.
+- `CARGO_HOME=/tmp/babel-cargo python3 tools/run-workspace-matrix.py /tmp "$PWD/target" --output target/audit-simp-n/matrix` — real disposable tmpfs/Btrfs IO + MockRuntime **pass 264/264 each**, 64.475s/138.966s; `matrix/`, `matrix.{log,json}`. All 15 default selectors bound, including the formerly hard-coded release-dispatch root. Original 261 →264 from the three new worker tests; all 1,468 prior assertion literals unchanged. Optional unavailable Enchant providers warn; Hunspell backend passes.
+- `CARGO_HOME=/tmp/babel-cargo python3 tools/run-workspace-matrix.py /tmp "$PWD/target" --output target/audit-simp-n/feature-matrix -- cargo test -p babel-desktop --features editor-composition-proof --locked` — retained feature real IO/MockRuntime **pass 65/65 each**, 17.764s/17.927s; `feature-matrix/`, `feature-matrix.{log,json}`. Added composition selector makes 16 bound selectors; fixed marker/private-root/IDs/report-size assertions retained. No new native composition/IME claim.
+- `pnpm test:browser` — actual Chromium/browser **pass**, 20.549s; `browser.{log,json}`. Browser native ports disabled; no WebKit claim from this check.
+- `CARGO_HOME=/tmp/babel-cargo pnpm tauri build --no-bundle` — actual default embedded release/pinned helper **pass**, 61.296s; `release-build.{log,json}`. `frozen-native.json`: binary SHA-256 65322606db77a451fbe810b0c47815159b8cca13d4877f8350c6a8e5c655c7bc, GTK 3.24.52/WebKitGTK 2.52.6, unchanged helper tree 808d2276543fce73967f8c66166d5e61a676282e094716da3e42b7831454086a. No installed/package/CI claim.
+- `CARGO_HOME=/tmp/babel-cargo cargo build -p babel-desktop --features editor-composition-proof --locked` — actual retained-feature build **pass**, 10.706s; `feature-build.{log,json}`. Default and feature handler branches compile; source parity alone covers the unavailable non-Linux branches.
+- `sh tools/lint-py.sh` — **pass 78 current/tracked Python files**, initial 4.693s (`python.{log,json}`), final including matrix selector update (`python-final.log`). Failed one-off fixture-summary regex inspection left source untouched; no unavailable prerequisite was bypassed or installed.
+
+- `BABEL_SHUTDOWN_MODE=ordinary GTK_IM_MODULE=gtk-im-context-simple python3 tests/native/writing-lifecycle/integrated_exit.py /tmp "$PWD/target" --modes workflow-protection audit-fixes --output target/audit-simp-n/native` — actual WebKit **pass 4/4 content and strict owned-process/crash audits**, 149.265s; `native.{log,json}`, `native/results.json` and per-run logs/ledgers/journals. Tmpfs workflow/audit-fixes 18.01s/50.28s; Btrfs 18.22s/62.70s. No owned crash events or live native processes left. Builds/shared tests idle; ordinary final close distinguished from the audit-fixes intentional parent-kill scenario. Clean samples do not resolve retained SLP-B SIGSEGV, M6-02 SIGABRT or C1/F2.
+- `python3 tests/native/writing-lifecycle/audit_retained.py target/audit-simp-n/native/results.json --output target/audit-simp-n/native-retained-audit.json` — independent retained-artifact **pass 4 roots/58 frames/24 snapshots/4 safety refs/6 previous sources**, 0.088s; `native-retained.{log,json}`, `native-retained-audit.json`. Exact literal/hash/version/head checks; no new independent snapshot-copy/prune, universal durability or admission claim.
+
+Acceptance complete; local commit only, stopped before AUDIT-SIMP-F. Frozen
+AUDIT.md and prior failure roots/cores untouched. SELinux, C1/F2, M6-02,
+M6-03 independent snapshot copy/prune and Local v1 admission remain open.
+Final changed-document and boundary checks recorded below.
+
+- Final `pnpm format:check`, `cargo fmt --all -- --check`, `python3 tools/check-links.py`, `python3 tools/audit-simp-n.py`, `git diff --check` — **pass**, 132 changed links/289 retained files/1,468 existing assertions; `format-final.{log,json}`, `links-final.{log,json}`, `structure-final.json`. Handoff 90 lines/7,327 bytes; prior evidence prefix, frozen audit/fixtures/native/frontend/pins and earlier failure artifacts retained.

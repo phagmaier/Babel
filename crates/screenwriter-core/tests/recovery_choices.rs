@@ -1,6 +1,8 @@
 #![cfg(target_os = "linux")]
 //! M2-05B explicit choices over natively opened sources. Synthetic temp files
 //! only; every fixture root is removed. No manuscript, credential or remote use.
+mod common;
+use common::TestRoot;
 use screenwriter_core::documents::{
     DocumentService, ErrorCode, OpenDocument,
     choices::{
@@ -18,22 +20,10 @@ use std::{
     path::{Path, PathBuf},
 };
 
-struct Fixture(PathBuf);
+struct Fixture(TestRoot);
 impl Fixture {
     fn new() -> Self {
-        let base = std::env::var_os("BABEL_CHOICES_TEST_ROOT")
-            .map(PathBuf::from)
-            .unwrap_or_else(std::env::temp_dir);
-        let path = base.join(format!(
-            "babel-choices-{}-{}",
-            std::process::id(),
-            std::time::SystemTime::now()
-                .duration_since(std::time::UNIX_EPOCH)
-                .unwrap()
-                .as_nanos()
-        ));
-        fs::create_dir(&path).unwrap();
-        fs::set_permissions(&path, fs::Permissions::from_mode(0o700)).unwrap();
+        let path = TestRoot::new("BABEL_CHOICES_TEST_ROOT", "babel-choices");
         Self(path)
     }
 
@@ -50,11 +40,6 @@ impl Fixture {
         fs::write(&path, bytes).unwrap();
         fs::set_permissions(&path, fs::Permissions::from_mode(0o600)).unwrap();
         path
-    }
-}
-impl Drop for Fixture {
-    fn drop(&mut self) {
-        fs::remove_dir_all(&self.0).unwrap();
     }
 }
 

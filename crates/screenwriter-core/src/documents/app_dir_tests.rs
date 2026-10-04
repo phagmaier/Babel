@@ -1,33 +1,27 @@
 //! First-run app-dir restriction tests on real Linux files.
 use super::*;
+use crate::test_support::TestRoot;
 use std::{fs, os::unix::fs::PermissionsExt, path::PathBuf};
 
-struct Fixture(PathBuf);
+struct Fixture(TestRoot);
 impl Fixture {
     fn dir(mode: u32) -> Self {
-        let root = std::env::var_os("BABEL_APP_DIR_TEST_ROOT")
-            .map(PathBuf::from)
-            .unwrap_or_else(std::env::temp_dir)
-            .join(format!(
-                "babel-app-dir-{}-{}",
-                std::process::id(),
-                std::time::SystemTime::now()
-                    .duration_since(std::time::UNIX_EPOCH)
-                    .unwrap()
-                    .as_nanos()
-            ));
-        fs::create_dir(&root).unwrap();
-        fs::set_permissions(&root, fs::Permissions::from_mode(mode)).unwrap();
+        let root = TestRoot::with_options(
+            "BABEL_APP_DIR_TEST_ROOT",
+            "babel-app-dir",
+            Some(mode),
+            false,
+        );
         Self(root)
     }
 }
 impl Drop for Fixture {
     fn drop(&mut self) {
-        let _ = fs::remove_dir_all(&self.0);
+        let _ = self.0.cleanup();
     }
 }
 
-fn mode(path: &PathBuf) -> u32 {
+fn mode(path: &Path) -> u32 {
     fs::metadata(path).unwrap().permissions().mode() & 0o7777
 }
 

@@ -1,5 +1,6 @@
 //! MockRuntime strict command dispatch over real disposable native stores, not WebView tests.
 use super::*;
+use crate::test_support::TestRoot;
 use screenwriter_core::documents::{
     history::WorkflowProtectionReceipt, recovery::source_hash, saving::MAX_QUEUED_BYTES,
 };
@@ -9,36 +10,14 @@ use tauri::{
     test::{mock_builder, mock_context, noop_assets},
 };
 fn invoke(
-    webview: &tauri::WebviewWindow<tauri::test::MockRuntime>,
+    view: &tauri::WebviewWindow<tauri::test::MockRuntime>,
     body: Value,
 ) -> Result<tauri::ipc::InvokeResponseBody, Value> {
-    tauri::test::get_ipc_response(
-        webview,
-        tauri::webview::InvokeRequest {
-            cmd: "protect_workflow".into(),
-            callback: tauri::ipc::CallbackFn(0),
-            error: tauri::ipc::CallbackFn(1),
-            url: "tauri://localhost".parse().unwrap(),
-            body: tauri::ipc::InvokeBody::Json(body),
-            headers: Default::default(),
-            invoke_key: tauri::test::INVOKE_KEY.to_string(),
-        },
-    )
+    crate::test_support::invoke_raw(view, "protect_workflow", body)
 }
 #[test]
 fn workflow_protection_ipc_is_strict_bounded_owned_and_byte_exact() {
-    let base = std::env::var_os("BABEL_IPC_TEST_ROOT")
-        .map(std::path::PathBuf::from)
-        .unwrap_or_else(std::env::temp_dir);
-    let root = base.join(format!(
-        "babel-workflow-ipc-{}-{}",
-        std::process::id(),
-        std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .unwrap()
-            .as_nanos()
-    ));
-    std::fs::create_dir(&root).unwrap();
+    let mut root = TestRoot::with_options("BABEL_IPC_TEST_ROOT", "babel-workflow-ipc", None, false);
     let file = root.join("synthetic.fountain");
     let original = b"!Source untouched.\r\n";
     let draft = b"\xef\xbb\xbf!Exact draft.\r\n";
@@ -128,5 +107,5 @@ fn workflow_protection_ipc_is_strict_bounded_owned_and_byte_exact() {
     assert_eq!(std::fs::read(file).unwrap(), original);
     drop(view);
     drop(app);
-    std::fs::remove_dir_all(root).unwrap();
+    root.cleanup().unwrap();
 }

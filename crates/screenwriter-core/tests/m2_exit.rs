@@ -1,5 +1,7 @@
 #![cfg(target_os = "linux")]
 //! One disposable open/save/restart/acknowledged-checkpoint/adoption drill.
+mod common;
+use common::TestRoot;
 use screenwriter_core::documents::{
     DocumentService,
     choices::RecoverRequest,
@@ -7,29 +9,18 @@ use screenwriter_core::documents::{
     saving::{SaveProtection, SaveRequest},
     startup::{RecoveryOrigin, RecoverySelection},
 };
-use std::{fs, os::unix::fs::PermissionsExt, path::PathBuf};
-use uuid::Uuid;
+use std::{fs, path::PathBuf};
 
 const INITIAL: &[u8] = b"\xef\xbb\xbfTitle: Exit\r\n\r\nINT. ROOM - DAY\r\n  first  \r\n";
 const SAVED: &[u8] = b"\xef\xbb\xbfTitle: Exit\r\n\r\nINT. ROOM - DAY\r\n  saved [[raw]]  \r\n";
 const JOURNALED: &[u8] =
     b"\xef\xbb\xbfTitle: Exit\r\n\r\nINT. ROOM - DAY\r\n  journaled [[raw]]  \r\n";
 
-struct Fixture(PathBuf);
+struct Fixture(TestRoot);
 impl Fixture {
     fn new() -> Self {
-        let base = std::env::var_os("BABEL_M2_EXIT_TEST_ROOT")
-            .map(PathBuf::from)
-            .unwrap_or_else(std::env::temp_dir);
-        let root = base.join(format!("babel-m2-exit-{}", Uuid::new_v4()));
-        fs::create_dir(&root).unwrap();
-        fs::set_permissions(&root, fs::Permissions::from_mode(0o700)).unwrap();
-        fs::write(root.join("script.fountain"), INITIAL).unwrap();
-        fs::set_permissions(
-            root.join("script.fountain"),
-            fs::Permissions::from_mode(0o640),
-        )
-        .unwrap();
+        let root = TestRoot::new("BABEL_M2_EXIT_TEST_ROOT", "babel-m2-exit");
+        root.write("script.fountain", INITIAL, 0o640);
         Self(root)
     }
     fn service(&self) -> DocumentService {
@@ -37,11 +28,6 @@ impl Fixture {
     }
     fn source(&self) -> PathBuf {
         self.0.join("script.fountain")
-    }
-}
-impl Drop for Fixture {
-    fn drop(&mut self) {
-        fs::remove_dir_all(&self.0).unwrap();
     }
 }
 

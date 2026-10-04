@@ -1,24 +1,16 @@
 #![cfg(target_os = "linux")]
+mod common;
+use common::TestRoot;
 use screenwriter_core::documents::{recovery::*, saving::*, *};
-use std::{fs, os::unix::fs::PermissionsExt, path::PathBuf};
+use std::{fs, os::unix::fs::PermissionsExt};
 use uuid::Uuid;
 
 const ORIGINAL: &[u8] = b"\xef\xbb\xbfTitle:  Synthetic\r\n\r\n  \r\n[[unknown";
-struct Fixture(PathBuf);
+struct Fixture(TestRoot);
 impl Fixture {
     fn new() -> Self {
-        let base = std::env::var_os("BABEL_SAVE_TEST_ROOT")
-            .map(PathBuf::from)
-            .unwrap_or_else(std::env::temp_dir);
-        let root = base.join(format!("babel-save-api-{}", Uuid::new_v4()));
-        fs::create_dir(&root).unwrap();
-        fs::set_permissions(&root, fs::Permissions::from_mode(0o700)).unwrap();
-        fs::write(root.join("script.fountain"), ORIGINAL).unwrap();
-        fs::set_permissions(
-            root.join("script.fountain"),
-            fs::Permissions::from_mode(0o640),
-        )
-        .unwrap();
+        let root = TestRoot::new("BABEL_SAVE_TEST_ROOT", "babel-save-api");
+        root.write("script.fountain", ORIGINAL, 0o640);
         Self(root)
     }
     fn service(&self) -> DocumentService {
@@ -33,11 +25,6 @@ impl Fixture {
     }
     fn bytes(&self) -> Vec<u8> {
         fs::read(self.0.join("script.fountain")).unwrap()
-    }
-}
-impl Drop for Fixture {
-    fn drop(&mut self) {
-        fs::remove_dir_all(&self.0).unwrap();
     }
 }
 fn request(open: &OpenDocument, version: u64, source: &[u8]) -> SaveRequest {

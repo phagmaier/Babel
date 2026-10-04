@@ -3,30 +3,6 @@ use super::*;
 use document_entry_host::{EntryRequest, pick_source_file};
 use screenwriter_core::documents::recents::*;
 
-impl DocumentHost {
-    async fn recent_operation<T: Send + 'static>(
-        &self,
-        cost: usize,
-        operation: impl FnOnce(&mut DocumentService) -> Result<T, DocumentError> + Send + 'static,
-    ) -> Result<T, DocumentError> {
-        let permit = self.reserve(cost)?;
-        let worker = self.service.clone();
-        tauri::async_runtime::spawn_blocking(move || {
-            let _permit = permit;
-            let mut service = worker
-                .lock()
-                .map_err(|_| DocumentError::new(ErrorCode::NativeUnavailable))?;
-            operation(
-                service
-                    .as_mut()
-                    .ok_or_else(|| DocumentError::new(ErrorCode::NativeUnavailable))?,
-            )
-        })
-        .await
-        .map_err(|_| DocumentError::new(ErrorCode::NativeUnavailable))?
-    }
-}
-
 #[tauri::command]
 pub(super) async fn list_recent_projects(
     request: EntryRequest,
@@ -34,7 +10,7 @@ pub(super) async fn list_recent_projects(
 ) -> Result<RecentList, DocumentError> {
     let _ = request;
     state
-        .recent_operation(MAX_RECENT_BYTES * 2, |s| s.list_recent_projects())
+        .document_worker(MAX_RECENT_BYTES * 2, |s| s.list_recent_projects())
         .await
 }
 
@@ -44,7 +20,7 @@ pub(super) async fn remove_recent_project(
     state: tauri::State<'_, DocumentHost>,
 ) -> Result<(), DocumentError> {
     state
-        .recent_operation(MAX_RECENT_BYTES * 2, move |s| {
+        .document_worker(MAX_RECENT_BYTES * 2, move |s| {
             s.remove_recent_project(&request)
         })
         .await
@@ -56,7 +32,7 @@ pub(super) async fn open_recent_project(
     state: tauri::State<'_, DocumentHost>,
 ) -> Result<RecentOpen, DocumentError> {
     state
-        .recent_operation(
+        .document_worker(
             MAX_RECENT_BYTES * 2 + screenwriter_core::documents::MAX_SOURCE_BYTES,
             move |s| s.open_recent_project(&request),
         )
@@ -72,7 +48,7 @@ pub(super) async fn locate_recent_project(
     // service mutex is never held while a human chooses a file.
     let id = request.entry_id.clone();
     state
-        .recent_operation(MAX_RECENT_BYTES * 2, move |s| {
+        .document_worker(MAX_RECENT_BYTES * 2, move |s| {
             if !s
                 .list_recent_projects()?
                 .entries
@@ -109,7 +85,7 @@ pub(super) async fn confirm_recent_location(
     state: tauri::State<'_, DocumentHost>,
 ) -> Result<RecentOpen, DocumentError> {
     state
-        .recent_operation(
+        .document_worker(
             MAX_RECENT_BYTES * 2 + screenwriter_core::documents::MAX_SOURCE_BYTES,
             move |s| s.confirm_recent_location(&request),
         )

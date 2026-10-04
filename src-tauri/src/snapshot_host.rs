@@ -7,41 +7,6 @@ use screenwriter_core::documents::{
     snapshots::*,
 };
 
-impl DocumentHost {
-    pub(super) async fn snapshot_worker<T: Send + 'static>(
-        &self,
-        #[cfg(target_os = "linux")] operation: impl FnOnce(
-            &mut DocumentService,
-        ) -> Result<T, DocumentError>
-        + Send
-        + 'static,
-        #[cfg(not(target_os = "linux"))] operation: impl Send + 'static,
-    ) -> Result<T, DocumentError> {
-        let permit = self.reserve(MAX_SOURCE_BYTES)?;
-        let worker = self.service.clone();
-        tauri::async_runtime::spawn_blocking(move || {
-            let _permit = permit;
-            let mut service = worker
-                .lock()
-                .map_err(|_| DocumentError::new(ErrorCode::NativeUnavailable))?;
-            #[cfg(target_os = "linux")]
-            {
-                operation(
-                    service
-                        .as_mut()
-                        .ok_or_else(|| DocumentError::new(ErrorCode::NativeUnavailable))?,
-                )
-            }
-            #[cfg(not(target_os = "linux"))]
-            {
-                let _ = (&mut service, operation);
-                Err(DocumentError::new(ErrorCode::NativeUnavailable))
-            }
-        })
-        .await
-        .map_err(|_| DocumentError::new(ErrorCode::NativeUnavailable))?
-    }
-}
 #[tauri::command]
 pub(super) async fn list_snapshots(
     request: DocumentRequest,
@@ -49,12 +14,12 @@ pub(super) async fn list_snapshots(
 ) -> Result<SnapshotCatalog, DocumentError> {
     #[cfg(target_os = "linux")]
     return state
-        .snapshot_worker(move |s| s.list_snapshots(&request))
+        .document_worker(MAX_SOURCE_BYTES, move |s| s.list_snapshots(&request))
         .await;
     #[cfg(not(target_os = "linux"))]
     {
         let _ = request;
-        state.snapshot_worker(()).await
+        state.document_worker(MAX_SOURCE_BYTES, ()).await
     }
 }
 #[tauri::command]
@@ -64,12 +29,12 @@ pub(super) async fn read_snapshot(
 ) -> Result<SnapshotPreview, DocumentError> {
     #[cfg(target_os = "linux")]
     return state
-        .snapshot_worker(move |s| s.read_snapshot(&request))
+        .document_worker(MAX_SOURCE_BYTES, move |s| s.read_snapshot(&request))
         .await;
     #[cfg(not(target_os = "linux"))]
     {
         let _ = request;
-        state.snapshot_worker(()).await
+        state.document_worker(MAX_SOURCE_BYTES, ()).await
     }
 }
 #[tauri::command]
@@ -81,12 +46,12 @@ pub(super) async fn create_snapshot(
     payload_cost(c.version, &c.source, &c.source_sha256, &c.draft_metadata)?;
     #[cfg(target_os = "linux")]
     return state
-        .snapshot_worker(move |s| s.create_snapshot(&request))
+        .document_worker(MAX_SOURCE_BYTES, move |s| s.create_snapshot(&request))
         .await;
     #[cfg(not(target_os = "linux"))]
     {
         let _ = request;
-        state.snapshot_worker(()).await
+        state.document_worker(MAX_SOURCE_BYTES, ()).await
     }
 }
 #[tauri::command]
@@ -96,12 +61,12 @@ pub(super) async fn prune_snapshots(
 ) -> Result<SnapshotCatalog, DocumentError> {
     #[cfg(target_os = "linux")]
     return state
-        .snapshot_worker(move |s| s.prune_snapshots(&request))
+        .document_worker(MAX_SOURCE_BYTES, move |s| s.prune_snapshots(&request))
         .await;
     #[cfg(not(target_os = "linux"))]
     {
         let _ = request;
-        state.snapshot_worker(()).await
+        state.document_worker(MAX_SOURCE_BYTES, ()).await
     }
 }
 #[tauri::command]
@@ -113,12 +78,12 @@ pub(super) async fn save_external_copy(
     payload_cost(c.version, &c.source, &c.source_sha256, &c.draft_metadata)?;
     #[cfg(target_os = "linux")]
     return state
-        .snapshot_worker(move |s| s.save_external_copy(&request))
+        .document_worker(MAX_SOURCE_BYTES, move |s| s.save_external_copy(&request))
         .await;
     #[cfg(not(target_os = "linux"))]
     {
         let _ = request;
-        state.snapshot_worker(()).await
+        state.document_worker(MAX_SOURCE_BYTES, ()).await
     }
 }
 #[tauri::command]

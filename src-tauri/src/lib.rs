@@ -29,6 +29,7 @@ use save_as_host::{save_as_copy, select_save_destination};
 mod persistence_host;
 mod reload_host;
 use reload_host::{check_source_document, reload_source_document};
+mod document_worker;
 mod publication_host;
 mod recovery_choices_host;
 mod snapshot_host;
@@ -286,61 +287,6 @@ pub fn run() {
         });
     #[cfg(target_os = "linux")]
     let builder = builder.manage(SpellcheckHost::default());
-    #[cfg(not(all(feature = "editor-composition-proof", target_os = "linux")))]
-    let builder = builder.invoke_handler(tauri::generate_handler![
-        app_info,
-        update_command_menu,
-        render_publication,
-        prepare_pdf_capture,
-        select_pdf_destination,
-        render_pdf_export,
-        publish_pdf_export,
-        cancel_pdf_export,
-        read_publication,
-        assess_publication,
-        cancel_publication,
-        #[cfg(target_os = "linux")]
-        spellcheck,
-        check_source_document,
-        reload_source_document,
-        create_unsaved_draft,
-        open_source_via_picker,
-        #[cfg(target_os = "linux")]
-        list_recent_projects,
-        #[cfg(target_os = "linux")]
-        remove_recent_project,
-        #[cfg(target_os = "linux")]
-        open_recent_project,
-        #[cfg(target_os = "linux")]
-        locate_recent_project,
-        #[cfg(target_os = "linux")]
-        confirm_recent_location,
-        select_destination,
-        select_save_destination,
-        save_as_copy,
-        release_open_document,
-        release_open_document_at_risk,
-        list_local_recovery,
-        read_local_recovery,
-        list_document_recovery,
-        read_document_recovery,
-        resume_local_recovery,
-        checkpoint_document,
-        protect_workflow,
-        save_document,
-        compare_recovery,
-        recover_checkpoint_as_current,
-        keep_current_source,
-        save_recovered_copy,
-        list_snapshots,
-        read_snapshot,
-        create_snapshot,
-        prune_snapshots,
-        restore_snapshot,
-        save_external_copy,
-        resolve_save_transaction
-    ]);
-    #[cfg(all(feature = "editor-composition-proof", target_os = "linux"))]
     let builder = builder.invoke_handler(tauri::generate_handler![
         app_info,
         update_command_menu,
@@ -393,7 +339,9 @@ pub fn run() {
         restore_snapshot,
         save_external_copy,
         resolve_save_transaction,
+        #[cfg(all(feature = "editor-composition-proof", target_os = "linux"))]
         open_composition_fixture,
+        #[cfg(all(feature = "editor-composition-proof", target_os = "linux"))]
         record_composition_proof
     ]);
     builder
@@ -443,3 +391,6 @@ mod publication_ipc_tests;
 
 #[cfg(all(test, target_os = "linux"))]
 mod close_lifecycle_tests;
+
+#[cfg(all(test, target_os = "linux"))]
+mod test_support;

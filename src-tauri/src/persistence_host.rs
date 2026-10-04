@@ -131,28 +131,15 @@ impl DocumentHost {
             &request.checkpoint.source_sha256,
             &request.checkpoint.draft_metadata,
         )?;
-        let permit = self.reserve(cost)?;
-        let worker = self.service.clone();
-        tauri::async_runtime::spawn_blocking(move || {
-            let _permit = permit;
-            let mut service = worker
-                .lock()
-                .map_err(|_| DocumentError::new(ErrorCode::NativeUnavailable))?;
-            #[cfg(target_os = "linux")]
-            {
-                service
-                    .as_mut()
-                    .ok_or_else(|| DocumentError::new(ErrorCode::NativeUnavailable))?
-                    .protect_editor_workflow(request)
-            }
-            #[cfg(not(target_os = "linux"))]
-            {
-                let _ = (&mut service, request);
-                Err(DocumentError::new(ErrorCode::NativeUnavailable))
-            }
-        })
-        .await
-        .map_err(|_| DocumentError::new(ErrorCode::NativeUnavailable))?
+        #[cfg(target_os = "linux")]
+        return self
+            .document_worker(cost, move |s| s.protect_editor_workflow(request))
+            .await;
+        #[cfg(not(target_os = "linux"))]
+        {
+            let _ = request;
+            self.document_worker(cost, ()).await
+        }
     }
 
     async fn save(&self, request: SaveRequest) -> Result<SaveReceipt, Box<SaveFailure>> {
@@ -228,34 +215,14 @@ pub(super) async fn protect_workflow(
 #[cfg(all(test, target_os = "linux"))]
 mod tests {
     use super::*;
+    use crate::test_support::TestRoot;
     use screenwriter_core::documents::{Ownership, recovery::source_hash};
-    use std::{
-        os::unix::fs::PermissionsExt,
-        path::PathBuf,
-        time::{Duration, Instant},
-    };
-    struct Fixture(PathBuf);
+    use std::time::{Duration, Instant};
+    struct Fixture(TestRoot);
     impl Fixture {
         fn new() -> Self {
-            let base = std::env::var_os("BABEL_IPC_TEST_ROOT")
-                .map(PathBuf::from)
-                .unwrap_or_else(std::env::temp_dir);
-            let path = base.join(format!(
-                "babel-worker-{}-{}",
-                std::process::id(),
-                std::time::SystemTime::now()
-                    .duration_since(std::time::UNIX_EPOCH)
-                    .unwrap()
-                    .as_nanos()
-            ));
-            std::fs::create_dir(&path).unwrap();
-            std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o700)).unwrap();
-            std::fs::write(path.join("source.fountain"), b"original").unwrap();
-            std::fs::set_permissions(
-                path.join("source.fountain"),
-                std::fs::Permissions::from_mode(0o600),
-            )
-            .unwrap();
+            let path = TestRoot::new("BABEL_IPC_TEST_ROOT", "babel-worker");
+            path.write("source.fountain", b"original", 0o600);
             Self(path)
         }
         fn host(&self) -> (DocumentHost, OpenDocument) {
@@ -271,11 +238,6 @@ mod tests {
                 },
                 opened,
             )
-        }
-    }
-    impl Drop for Fixture {
-        fn drop(&mut self) {
-            std::fs::remove_dir_all(&self.0).unwrap();
         }
     }
     fn request(opened: &OpenDocument, version: u64, source: &[u8]) -> SaveRequest {

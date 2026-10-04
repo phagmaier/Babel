@@ -47,33 +47,14 @@ fn git<T>(result: Result<T, git2::Error>) -> Result<T, DocumentError> {
 }
 
 fn private_dir(parent: &File, name: &str, create: bool) -> Result<File, DocumentError> {
-    if create {
-        match fs::mkdirat(parent, name, Mode::from_raw_mode(0o700)) {
-            Ok(()) => parent.sync_all().map_err(io_error)?,
-            Err(Errno::EXIST) => (),
-            Err(err) => return Err(syscall_error(err)),
-        }
-    }
-    let dir = child_directory(parent, OsStr::new(name))?;
-    let info = stat(&dir)?;
-    if info.st_uid != geteuid().as_raw() || info.st_mode & 0o7777 != 0o700 {
-        return Err(history_error());
-    }
-    Ok(dir)
+    super::private_dir(parent, name, create, ErrorCode::HistoryNeedsAttention)
 }
 
 fn verify_marker(dir: &File, project: &str, fresh: bool) -> Result<(), DocumentError> {
     let expected = format!("babel-history-v1\n{project}\n");
     if fresh {
-        let mut marker = File::from(
-            fs::openat(
-                dir,
-                "babel-project",
-                OFlags::WRONLY | OFlags::CREATE | OFlags::EXCL | OFlags::NOFOLLOW | OFlags::CLOEXEC,
-                Mode::from_raw_mode(0o600),
-            )
-            .map_err(syscall_error)?,
-        );
+        let mut marker =
+            create_private(dir, "babel-project", OFlags::WRONLY).map_err(syscall_error)?;
         marker.write_all(expected.as_bytes()).map_err(io_error)?;
         marker.sync_all().map_err(io_error)?;
         dir.sync_all().map_err(io_error)?;

@@ -1,22 +1,10 @@
 use super::*;
+use crate::test_support::TestRoot;
 use std::os::unix::fs::PermissionsExt;
-use std::path::PathBuf;
-struct Fixture(PathBuf);
+struct Fixture(TestRoot);
 impl Fixture {
     fn new() -> Self {
-        let path = std::env::var_os("BABEL_SPELLCHECK_TEST_ROOT")
-            .map(PathBuf::from)
-            .unwrap_or_else(std::env::temp_dir)
-            .join(format!(
-                "babel-spellcheck-host-{}-{}",
-                std::process::id(),
-                std::time::SystemTime::now()
-                    .duration_since(std::time::UNIX_EPOCH)
-                    .unwrap()
-                    .as_nanos()
-            ));
-        std::fs::create_dir(&path).unwrap();
-        std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o700)).unwrap();
+        let path = TestRoot::new("BABEL_SPELLCHECK_TEST_ROOT", "babel-spellcheck-host");
         Self(path)
     }
     fn host(&self) -> SpellcheckHost {
@@ -28,7 +16,7 @@ impl Fixture {
 }
 impl Drop for Fixture {
     fn drop(&mut self) {
-        let _ = std::fs::remove_dir_all(&self.0);
+        let _ = self.0.cleanup();
     }
 }
 fn request(value: serde_json::Value) -> SpellcheckRequest {

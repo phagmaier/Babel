@@ -1,46 +1,18 @@
 //! Generated MockRuntime dispatch with real owned files, not native WebView evidence.
 use super::*;
+use crate::test_support::TestRoot;
 use screenwriter_core::documents::{
     LocalRecoveryReader, recovery::source_hash, startup::RecoveryCatalog,
 };
 use serde_json::{Value, json};
-use std::{fs, os::unix::fs::PermissionsExt};
+use std::fs;
 use tauri::test::{mock_builder, mock_context, noop_assets};
 
-fn invoke(
-    webview: &tauri::WebviewWindow<tauri::test::MockRuntime>,
-    cmd: &str,
-    body: Value,
-) -> Result<tauri::ipc::InvokeResponseBody, Value> {
-    tauri::test::get_ipc_response(
-        webview,
-        tauri::webview::InvokeRequest {
-            cmd: cmd.into(),
-            callback: tauri::ipc::CallbackFn(0),
-            error: tauri::ipc::CallbackFn(1),
-            url: "tauri://localhost".parse().unwrap(),
-            body: tauri::ipc::InvokeBody::Json(body),
-            headers: Default::default(),
-            invoke_key: tauri::test::INVOKE_KEY.into(),
-        },
-    )
-}
+use crate::test_support::invoke_raw as invoke;
 
 #[test]
 fn selected_recovery_and_resume_commands_are_path_free_exact_and_registration_bound() {
-    let base = std::env::var_os("BABEL_STARTUP_TEST_ROOT")
-        .map(std::path::PathBuf::from)
-        .unwrap_or_else(std::env::temp_dir);
-    let root = base.join(format!(
-        "babel-resume-ipc-{}-{}",
-        std::process::id(),
-        std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .unwrap()
-            .as_nanos()
-    ));
-    fs::create_dir(&root).unwrap();
-    fs::set_permissions(&root, fs::Permissions::from_mode(0o700)).unwrap();
+    let mut root = TestRoot::new("BABEL_STARTUP_TEST_ROOT", "babel-resume-ipc");
     let mut service = DocumentService::new(&root.join("store")).unwrap();
     let document = service.register_unsaved().unwrap();
     let source = b"!Full selected recovery.\r\n".repeat(6000);
@@ -122,24 +94,12 @@ fn selected_recovery_and_resume_commands_are_path_free_exact_and_registration_bo
         .is_err()
     );
     drop(app);
-    fs::remove_dir_all(root).unwrap();
+    root.cleanup().unwrap();
 }
 
 #[test]
 fn startup_commands_review_exact_raw_generation_reject_stale_and_path_requests_without_writer() {
-    let base = std::env::var_os("BABEL_STARTUP_TEST_ROOT")
-        .map(std::path::PathBuf::from)
-        .unwrap_or_else(std::env::temp_dir);
-    let root = base.join(format!(
-        "babel-startup-ipc-{}-{}",
-        std::process::id(),
-        std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .unwrap()
-            .as_nanos()
-    ));
-    fs::create_dir(&root).unwrap();
-    fs::set_permissions(&root, fs::Permissions::from_mode(0o700)).unwrap();
+    let mut root = TestRoot::new("BABEL_STARTUP_TEST_ROOT", "babel-startup-ipc");
     let store = root.join("store");
     let mut service = DocumentService::new(&store).unwrap();
     let identity = service.register_unsaved().unwrap().identity;
@@ -241,7 +201,7 @@ fn startup_commands_review_exact_raw_generation_reject_stale_and_path_requests_w
     );
     drop(webview);
     drop(app);
-    fs::remove_dir_all(root).unwrap();
+    root.cleanup().unwrap();
 }
 
 #[test]

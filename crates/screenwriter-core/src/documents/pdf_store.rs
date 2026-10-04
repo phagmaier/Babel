@@ -19,16 +19,7 @@ pub(super) enum PdfStage {
     Synced,
     Verified,
 }
-fn destination_dir(dir: &File) -> Result<(), DocumentError> {
-    let info = stat(dir)?;
-    if info.st_uid != geteuid().as_raw()
-        || info.st_mode & 0o7022 != 0
-        || info.st_mode & 0o300 != 0o300
-    {
-        return Err(error(ErrorCode::InvalidDestination));
-    }
-    source_store::plain_metadata(dir)
-}
+
 fn existing(anchor: &Anchor) -> Result<Option<(Vec<u8>, DiskFingerprint, File)>, DocumentError> {
     let file = match read_file(&anchor.parent, &anchor.name) {
         Ok(f) => f,
@@ -52,15 +43,7 @@ fn read_pdf(dir: &File, name: &OsStr) -> Result<(Vec<u8>, DiskFingerprint), Docu
     snapshot(read_file(dir, name)?, MAX_PDF_BYTES)
 }
 fn write_new(dir: &File, name: &str, bytes: &[u8]) -> Result<DiskFingerprint, DocumentError> {
-    let mut file = File::from(
-        fs::openat(
-            dir,
-            name,
-            OFlags::WRONLY | OFlags::CREATE | OFlags::EXCL | OFlags::NOFOLLOW | OFlags::CLOEXEC,
-            Mode::from_raw_mode(0o600),
-        )
-        .map_err(syscall_error)?,
-    );
+    let mut file = create_private(dir, name, OFlags::WRONLY).map_err(syscall_error)?;
     file.write_all(bytes).map_err(io_error)?;
     file.sync_all().map_err(io_error)?;
     let (back, fp) = read_pdf(dir, OsStr::new(name))?;
@@ -174,7 +157,7 @@ impl DocumentService {
         self.pdf_capture(identity, token)?;
         let anchor = Anchor::selected(path)?;
         self.pdf_path_allowed(&anchor)?;
-        destination_dir(&anchor.parent)?;
+        writable_private_destination(&anchor.parent)?;
         let original = existing(&anchor)?;
         let result = PdfTarget {
             token: uuid(),
@@ -230,7 +213,7 @@ impl DocumentService {
         let destination = self.pdf_destinations.remove(target).unwrap();
         let a = &destination.anchor;
         a.verify_location()?;
-        destination_dir(&a.parent)?;
+        writable_private_destination(&a.parent)?;
         self.pdf_path_allowed(a)?;
         let _lease = self.lease(&format!(
             "pdf:{}",
@@ -259,7 +242,7 @@ impl DocumentService {
             }
             gate(PdfStage::PreviousProtected)?;
             a.verify_location()?;
-            destination_dir(&a.parent)?;
+            writable_private_destination(&a.parent)?;
             self.pdf_path_allowed(a)?;
             check_original()?;
             gate(PdfStage::BeforeInstall)?;

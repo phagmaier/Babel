@@ -4,44 +4,18 @@
 //! targets, never power-loss guarantees. Set BABEL_CADENCE_REPORT to write a
 //! JSON report; fixtures live under BABEL_IPC_TEST_ROOT or the system temp dir.
 use super::*;
+use crate::test_support::TestRoot;
 use screenwriter_core::documents::{
     persistence::CheckpointRequest, recovery::source_hash, saving::SaveRequest,
 };
-use std::{
-    fs,
-    os::unix::fs::{MetadataExt, PermissionsExt},
-    path::PathBuf,
-    time::Instant,
-};
+use std::{fs, os::unix::fs::MetadataExt, time::Instant};
 
-struct Fixture(PathBuf);
+struct Fixture(TestRoot);
 impl Fixture {
     fn new() -> Self {
-        let root = std::env::var_os("BABEL_IPC_TEST_ROOT")
-            .map(PathBuf::from)
-            .unwrap_or_else(std::env::temp_dir)
-            .join(format!(
-                "babel-cadence-{}-{}",
-                std::process::id(),
-                std::time::SystemTime::now()
-                    .duration_since(std::time::UNIX_EPOCH)
-                    .unwrap()
-                    .as_nanos()
-            ));
-        fs::create_dir(&root).unwrap();
-        fs::set_permissions(&root, fs::Permissions::from_mode(0o700)).unwrap();
-        fs::write(root.join("source.fountain"), b"INT. HOUSE - DAY\n").unwrap();
-        fs::set_permissions(
-            root.join("source.fountain"),
-            fs::Permissions::from_mode(0o600),
-        )
-        .unwrap();
+        let root = TestRoot::new("BABEL_IPC_TEST_ROOT", "babel-cadence");
+        root.write("source.fountain", b"INT. HOUSE - DAY\n", 0o600);
         Self(root)
-    }
-}
-impl Drop for Fixture {
-    fn drop(&mut self) {
-        fs::remove_dir_all(&self.0).unwrap();
     }
 }
 

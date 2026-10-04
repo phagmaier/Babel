@@ -2,29 +2,25 @@
 //! runtime hook or general filesystem endpoint is added.
 use super::*;
 use crate::documents::recovery::source_hash;
+use crate::test_support::TestRoot;
 use std::os::unix::fs::PermissionsExt;
 
 struct Fixture {
-    root: PathBuf,
+    _root: TestRoot,
     store: PathBuf,
     source: PathBuf,
 }
 
 impl Fixture {
     fn new() -> Self {
-        let base = std::env::var_os("BABEL_CHOICES_TEST_ROOT")
-            .map(PathBuf::from)
-            .unwrap_or_else(std::env::temp_dir);
-        let root = base.join(format!("babel-choices-{}", uuid()));
-        std::fs::create_dir(&root).unwrap();
-        std::fs::set_permissions(&root, std::fs::Permissions::from_mode(0o700)).unwrap();
+        let root = TestRoot::new("BABEL_CHOICES_TEST_ROOT", "babel-choices");
         let source = root.join("story.fountain");
         std::fs::write(&source, b"original").unwrap();
         std::fs::set_permissions(&source, std::fs::Permissions::from_mode(0o600)).unwrap();
         Self {
             store: root.join("app-data"),
             source,
-            root,
+            _root: root,
         }
     }
 
@@ -46,12 +42,6 @@ impl Fixture {
             expected_fingerprint: baseline.clone(),
             draft_metadata: serde_json::json!({"draft": true}),
         }
-    }
-}
-
-impl Drop for Fixture {
-    fn drop(&mut self) {
-        std::fs::remove_dir_all(&self.root).unwrap();
     }
 }
 

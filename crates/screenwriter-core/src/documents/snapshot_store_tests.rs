@@ -1,6 +1,7 @@
 //! Real disposable native files. Injected errors and SIGKILL are labeled separately.
 use super::*;
 use crate::documents::persistence::CheckpointRequest;
+use crate::test_support::TestRoot;
 use std::io::{BufRead, BufReader};
 use std::os::unix::fs::PermissionsExt;
 use std::process::{Command, Stdio};
@@ -124,21 +125,11 @@ fn restore_uses_replacement_metadata_and_accepts_an_immediate_same_version_save(
     assert_eq!(saved.version, 3);
     assert_eq!(std::fs::read(f.0.join("source.fountain")).unwrap(), NEW);
 }
-struct Fixture(PathBuf);
+struct Fixture(TestRoot);
 impl Fixture {
     fn new() -> Self {
-        let base = std::env::var_os("BABEL_SNAPSHOT_TEST_ROOT")
-            .map(PathBuf::from)
-            .unwrap_or_else(std::env::temp_dir);
-        let root = base.join(format!("babel-snapshots-{}", uuid()));
-        std::fs::create_dir(&root).unwrap();
-        std::fs::set_permissions(&root, std::fs::Permissions::from_mode(0o700)).unwrap();
-        std::fs::write(root.join("source.fountain"), ORIGINAL).unwrap();
-        std::fs::set_permissions(
-            root.join("source.fountain"),
-            std::fs::Permissions::from_mode(0o600),
-        )
-        .unwrap();
+        let root = TestRoot::new("BABEL_SNAPSHOT_TEST_ROOT", "babel-snapshots");
+        root.write("source.fountain", ORIGINAL, 0o600);
         Self(root)
     }
     fn open(&self) -> (DocumentService, OpenDocument) {
@@ -152,11 +143,6 @@ impl Fixture {
         self.0
             .join("app-data/snapshots")
             .join(&opened.identity.document_id)
-    }
-}
-impl Drop for Fixture {
-    fn drop(&mut self) {
-        std::fs::remove_dir_all(&self.0).unwrap();
     }
 }
 fn checkpoint(open: &OpenDocument, version: u64, bytes: &[u8]) -> CheckpointRequest {
@@ -868,7 +854,7 @@ fn restore_crash_child() {
     let Some(root) = std::env::var_os("BABEL_RESTORE_CHILD_ROOT") else {
         return;
     };
-    let f = Fixture(PathBuf::from(root));
+    let f = Fixture(PathBuf::from(root).into());
     let (mut service, open) = f.open();
     let selected = service
         .create_snapshot(&named(&open, 1, NEW))
@@ -899,7 +885,7 @@ fn crash_child() {
     let Some(root) = std::env::var_os("BABEL_SNAPSHOT_CHILD_ROOT") else {
         return;
     };
-    let f = Fixture(PathBuf::from(root));
+    let f = Fixture(PathBuf::from(root).into());
     let (service, open) = f.open();
     create_at(&service, &open, ORIGINAL, SnapshotKind::Named, 1);
     let target = std::env::var("BABEL_SNAPSHOT_CHILD_STAGE").unwrap();

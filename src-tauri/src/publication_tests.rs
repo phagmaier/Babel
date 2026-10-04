@@ -1,24 +1,19 @@
 //! Fake-helper faults and real-helper filesystem tests; no WebView claims.
 use super::*;
+use crate::test_support::TestRoot;
 use std::os::unix::fs::{PermissionsExt, symlink};
 struct Fixture {
-    root: PathBuf,
+    root: TestRoot,
     host: PublicationHost,
 }
 impl Fixture {
     fn new(script: Option<&str>, timeout: Duration) -> Self {
-        let base = std::env::var_os("BABEL_PUBLICATION_TEST_ROOT")
-            .map(PathBuf::from)
-            .unwrap_or_else(std::env::temp_dir);
-        let root = base.join(format!(
-            "babel-publication-{}-{}",
-            std::process::id(),
-            std::time::SystemTime::now()
-                .duration_since(std::time::UNIX_EPOCH)
-                .unwrap()
-                .as_nanos()
-        ));
-        fs::create_dir_all(&root).unwrap();
+        let root = TestRoot::with_options(
+            "BABEL_PUBLICATION_TEST_ROOT",
+            "babel-publication",
+            None,
+            true,
+        );
         let real = Path::new(env!("CARGO_MANIFEST_DIR"))
             .join("../target/pdf-helper/runtime")
             .canonicalize()
@@ -99,7 +94,7 @@ impl Drop for Fixture {
         {
             std::thread::sleep(Duration::from_millis(10));
         }
-        fs::remove_dir_all(&self.root).unwrap();
+        self.root.cleanup().unwrap();
     }
 }
 #[test]

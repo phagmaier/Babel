@@ -1,26 +1,17 @@
 use super::*;
 use crate::documents::history::WorkflowOperation;
 use crate::documents::saving::{SaveProtection, SaveRequest};
+use crate::test_support::TestRoot;
 use std::os::unix::fs::PermissionsExt;
 
 const OLD: &[u8] = b"\xef\xbb\xbfTitle: Test\r\n\r\nINT. ROOM - DAY\r\n  old [[unknown]]  \r\n";
 const NEW: &[u8] = b"\xef\xbb\xbfTitle: Test\r\n\r\nINT. ROOM - DAY\r\n  new [[unknown]]  \r\n";
 
-struct Fixture(PathBuf);
+struct Fixture(TestRoot);
 impl Fixture {
     fn new() -> Self {
-        let base = std::env::var_os("BABEL_HISTORY_TEST_ROOT")
-            .map(PathBuf::from)
-            .unwrap_or_else(std::env::temp_dir);
-        let root = base.join(format!("babel-history-native-{}", uuid()));
-        std::fs::create_dir(&root).unwrap();
-        std::fs::set_permissions(&root, std::fs::Permissions::from_mode(0o700)).unwrap();
-        std::fs::write(root.join("script.fountain"), OLD).unwrap();
-        std::fs::set_permissions(
-            root.join("script.fountain"),
-            std::fs::Permissions::from_mode(0o640),
-        )
-        .unwrap();
+        let root = TestRoot::new("BABEL_HISTORY_TEST_ROOT", "babel-history-native");
+        root.write("script.fountain", OLD, 0o640);
         Self(root)
     }
     fn open(&self) -> (DocumentService, OpenDocument) {
@@ -35,11 +26,6 @@ impl Fixture {
         self.0
             .join("app-data/history")
             .join(format!("{}.git", id.document_id))
-    }
-}
-impl Drop for Fixture {
-    fn drop(&mut self) {
-        std::fs::remove_dir_all(&self.0).unwrap();
     }
 }
 

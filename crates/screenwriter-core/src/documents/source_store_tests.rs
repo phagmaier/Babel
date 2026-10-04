@@ -1,4 +1,5 @@
 use super::*;
+use crate::test_support::TestRoot;
 use std::io::{BufRead, BufReader};
 use std::os::unix::fs::{MetadataExt, PermissionsExt, symlink};
 use std::process::{Command, Stdio};
@@ -7,21 +8,11 @@ const ORIGINAL: &[u8] = b"\xef\xbb\xbforiginal\r\n  \r\n";
 const OLD: &[u8] = b"old successful source\r\n  ";
 const NEW: &[u8] = b"[[unfinished\r\n@\r\n  \r\n";
 
-struct Fixture(PathBuf);
+struct Fixture(TestRoot);
 impl Fixture {
     fn new() -> Self {
-        let base = std::env::var_os("BABEL_SAVE_TEST_ROOT")
-            .map(PathBuf::from)
-            .unwrap_or_else(std::env::temp_dir);
-        let root = base.join(format!("babel-source-save-{}", uuid()));
-        std::fs::create_dir(&root).unwrap();
-        std::fs::set_permissions(&root, std::fs::Permissions::from_mode(0o700)).unwrap();
-        std::fs::write(root.join("source.fountain"), ORIGINAL).unwrap();
-        std::fs::set_permissions(
-            root.join("source.fountain"),
-            std::fs::Permissions::from_mode(0o640),
-        )
-        .unwrap();
+        let root = TestRoot::new("BABEL_SAVE_TEST_ROOT", "babel-source-save");
+        root.write("source.fountain", ORIGINAL, 0o640);
         Self(root)
     }
     fn open(&self) -> (DocumentService, OpenDocument) {
@@ -37,11 +28,6 @@ impl Fixture {
     }
     fn bytes(&self) -> Vec<u8> {
         std::fs::read(self.0.join("source.fountain")).unwrap()
-    }
-}
-impl Drop for Fixture {
-    fn drop(&mut self) {
-        std::fs::remove_dir_all(&self.0).unwrap();
     }
 }
 fn request(
@@ -618,7 +604,7 @@ fn crash_child() {
     let Some(root) = std::env::var_os("BABEL_SAVE_CHILD_ROOT") else {
         return;
     };
-    let fixture = Fixture(PathBuf::from(root));
+    let fixture = Fixture(PathBuf::from(root).into());
     let (mut service, opened) = fixture.open();
     enqueue(&mut service, &opened.identity, 21, NEW);
     let target = std::env::var("BABEL_SAVE_CHILD_STAGE").unwrap();

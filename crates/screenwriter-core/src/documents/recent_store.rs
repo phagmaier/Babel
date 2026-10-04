@@ -206,15 +206,8 @@ fn relink_managed_mapping(
     }
     let write = |bytes: &[u8]| -> Result<String, DocumentError> {
         let name = format!("project.locate-{}.pending", uuid());
-        let mut file = File::from(
-            fs::openat(
-                &aux,
-                name.as_str(),
-                OFlags::WRONLY | OFlags::CREATE | OFlags::EXCL | OFlags::NOFOLLOW | OFlags::CLOEXEC,
-                Mode::from_raw_mode(0o600),
-            )
-            .map_err(syscall_error)?,
-        );
+        let mut file =
+            create_private(&aux, name.as_str(), OFlags::WRONLY).map_err(syscall_error)?;
         file.write_all(bytes).map_err(io_error)?;
         file.sync_all().map_err(io_error)?;
         if snapshot(read_file(&aux, OsStr::new(&name))?, MAX_METADATA_BYTES)?.0 != bytes {
@@ -355,15 +348,8 @@ impl DocumentService {
             return Err(attention());
         }
         self.verify_lease(lease)?;
-        let mut file = File::from(
-            fs::openat(
-                &self.store,
-                PENDING,
-                OFlags::WRONLY | OFlags::CREATE | OFlags::EXCL | OFlags::NOFOLLOW | OFlags::CLOEXEC,
-                Mode::from_raw_mode(0o600),
-            )
-            .map_err(syscall_error)?,
-        );
+        let mut file =
+            create_private(&self.store, PENDING, OFlags::WRONLY).map_err(syscall_error)?;
         // Retain failed/interrupted artifacts for inspection; the old generation remains intact.
         let half = bytes.len() / 2;
         file.write_all(&bytes[..half]).map_err(io_error)?;

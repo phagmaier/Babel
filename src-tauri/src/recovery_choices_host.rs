@@ -13,106 +13,56 @@ use screenwriter_core::documents::{
 
 impl DocumentHost {
     async fn compare(&self, request: CompareRequest) -> Result<RecoveryComparison, DocumentError> {
-        let permit = self.reserve(MAX_SOURCE_BYTES)?;
-        let worker = self.service.clone();
-        tauri::async_runtime::spawn_blocking(move || {
-            let _permit = permit;
-            let service = worker
-                .lock()
-                .map_err(|_| DocumentError::new(ErrorCode::NativeUnavailable))?;
-            #[cfg(target_os = "linux")]
-            {
-                service
-                    .as_ref()
-                    .ok_or_else(|| DocumentError::new(ErrorCode::NativeUnavailable))?
-                    .compare_recovery(&request)
-            }
-            #[cfg(not(target_os = "linux"))]
-            {
-                let _ = (&service, request);
-                Err(DocumentError::new(ErrorCode::NativeUnavailable))
-            }
-        })
-        .await
-        .map_err(|_| DocumentError::new(ErrorCode::NativeUnavailable))?
+        #[cfg(target_os = "linux")]
+        return self
+            .document_worker(MAX_SOURCE_BYTES, move |s| s.compare_recovery(&request))
+            .await;
+        #[cfg(not(target_os = "linux"))]
+        {
+            let _ = request;
+            self.document_worker(MAX_SOURCE_BYTES, ()).await
+        }
     }
 
     async fn keep(&self, request: KeepRequest) -> Result<RecoveryComparison, DocumentError> {
-        let permit = self.reserve(MAX_SOURCE_BYTES)?;
-        let worker = self.service.clone();
-        tauri::async_runtime::spawn_blocking(move || {
-            let _permit = permit;
-            let mut service = worker
-                .lock()
-                .map_err(|_| DocumentError::new(ErrorCode::NativeUnavailable))?;
-            #[cfg(target_os = "linux")]
-            {
-                service
-                    .as_mut()
-                    .ok_or_else(|| DocumentError::new(ErrorCode::NativeUnavailable))?
-                    .keep_current_source(&request)
-            }
-            #[cfg(not(target_os = "linux"))]
-            {
-                let _ = (&mut service, request);
-                Err(DocumentError::new(ErrorCode::NativeUnavailable))
-            }
-        })
-        .await
-        .map_err(|_| DocumentError::new(ErrorCode::NativeUnavailable))?
+        #[cfg(target_os = "linux")]
+        return self
+            .document_worker(MAX_SOURCE_BYTES, move |s| s.keep_current_source(&request))
+            .await;
+        #[cfg(not(target_os = "linux"))]
+        {
+            let _ = request;
+            self.document_worker(MAX_SOURCE_BYTES, ()).await
+        }
     }
 
     async fn copy(&self, request: CopyRequest) -> Result<CopyReceipt, DocumentError> {
-        let permit = self.reserve(MAX_SOURCE_BYTES)?;
-        let worker = self.service.clone();
-        tauri::async_runtime::spawn_blocking(move || {
-            let _permit = permit;
-            let service = worker
-                .lock()
-                .map_err(|_| DocumentError::new(ErrorCode::NativeUnavailable))?;
-            #[cfg(target_os = "linux")]
-            {
-                service
-                    .as_ref()
-                    .ok_or_else(|| DocumentError::new(ErrorCode::NativeUnavailable))?
-                    .save_recovered_copy(&request)
-            }
-            #[cfg(not(target_os = "linux"))]
-            {
-                let _ = (&service, request);
-                Err(DocumentError::new(ErrorCode::NativeUnavailable))
-            }
-        })
-        .await
-        .map_err(|_| DocumentError::new(ErrorCode::NativeUnavailable))?
+        #[cfg(target_os = "linux")]
+        return self
+            .document_worker(MAX_SOURCE_BYTES, move |s| s.save_recovered_copy(&request))
+            .await;
+        #[cfg(not(target_os = "linux"))]
+        {
+            let _ = request;
+            self.document_worker(MAX_SOURCE_BYTES, ()).await
+        }
     }
 
     async fn resolve(
         &self,
         request: ResolveRequest,
     ) -> Result<TransactionResolution, DocumentError> {
-        let permit = self.reserve(MAX_SOURCE_BYTES)?;
-        let worker = self.service.clone();
-        tauri::async_runtime::spawn_blocking(move || {
-            let _permit = permit;
-            let mut service = worker
-                .lock()
-                .map_err(|_| DocumentError::new(ErrorCode::NativeUnavailable))?;
-            #[cfg(target_os = "linux")]
-            {
-                service
-                    .as_mut()
-                    .ok_or_else(|| DocumentError::new(ErrorCode::NativeUnavailable))?
-                    .finalize_interrupted_save(&request)
-            }
-            #[cfg(not(target_os = "linux"))]
-            {
-                let _ = (&mut service, request);
-                Err(DocumentError::new(ErrorCode::NativeUnavailable))
-            }
-        })
-        .await
-        .map_err(|_| DocumentError::new(ErrorCode::NativeUnavailable))?
+        #[cfg(target_os = "linux")]
+        return self
+            .document_worker(MAX_SOURCE_BYTES, move |s| {
+                s.finalize_interrupted_save(&request)
+            })
+            .await;
+        #[cfg(not(target_os = "linux"))]
+        {
+            let _ = request;
+            self.document_worker(MAX_SOURCE_BYTES, ()).await
+        }
     }
 
     async fn recover(&self, request: RecoverRequest) -> Result<SaveReceipt, Box<SaveFailure>> {

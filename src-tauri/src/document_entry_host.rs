@@ -17,28 +17,13 @@ pub(super) struct EntryRequest {}
 
 impl DocumentHost {
     async fn create_unsaved(&self) -> Result<OpenDocument, DocumentError> {
-        let permit = self.reserve(0)?;
-        let worker = self.service.clone();
-        tauri::async_runtime::spawn_blocking(move || {
-            let _permit = permit;
-            let mut service = worker
-                .lock()
-                .map_err(|_| DocumentError::new(ErrorCode::NativeUnavailable))?;
-            #[cfg(target_os = "linux")]
-            {
-                service
-                    .as_mut()
-                    .ok_or_else(|| DocumentError::new(ErrorCode::NativeUnavailable))?
-                    .register_unsaved()
-            }
-            #[cfg(not(target_os = "linux"))]
-            {
-                let _ = &mut service;
-                Err(DocumentError::new(ErrorCode::NativeUnavailable))
-            }
-        })
-        .await
-        .map_err(|_| DocumentError::new(ErrorCode::NativeUnavailable))?
+        #[cfg(target_os = "linux")]
+        return self.document_worker(0, move |s| s.register_unsaved()).await;
+        #[cfg(not(target_os = "linux"))]
+        {
+            let _ = ();
+            self.document_worker(0, ()).await
+        }
     }
 
     async fn open_picked(&self) -> Result<Option<OpenDocument>, DocumentError> {

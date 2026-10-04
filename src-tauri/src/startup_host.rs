@@ -19,7 +19,9 @@ pub(super) async fn list_document_recovery(
 ) -> Result<RecoveryEntry, DocumentError> {
     #[cfg(target_os = "linux")]
     return documents
-        .snapshot_worker(move |service| service.list_document_recovery(&request))
+        .document_worker(MAX_SOURCE_BYTES, move |service| {
+            service.list_document_recovery(&request)
+        })
         .await;
     #[cfg(not(target_os = "linux"))]
     {
@@ -35,7 +37,9 @@ pub(super) async fn read_document_recovery(
 ) -> Result<RecoveryPreview, DocumentError> {
     #[cfg(target_os = "linux")]
     return documents
-        .snapshot_worker(move |service| service.read_document_recovery(&request))
+        .document_worker(MAX_SOURCE_BYTES, move |service| {
+            service.read_document_recovery(&request)
+        })
         .await;
     #[cfg(not(target_os = "linux"))]
     {
@@ -51,7 +55,9 @@ pub(super) async fn resume_local_recovery(
 ) -> Result<ResumedDraft, DocumentError> {
     #[cfg(target_os = "linux")]
     return documents
-        .snapshot_worker(move |service| service.resume_local_recovery(&request))
+        .document_worker(MAX_SOURCE_BYTES, move |service| {
+            service.resume_local_recovery(&request)
+        })
         .await;
     #[cfg(not(target_os = "linux"))]
     {

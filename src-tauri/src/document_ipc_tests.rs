@@ -1,41 +1,17 @@
 //! Tauri MockRuntime dispatch tests, not native WebView verification.
 use super::*;
+use crate::test_support::TestRoot;
 use serde_json::{Value, json};
 use tauri::{
     Manager,
     test::{mock_builder, mock_context, noop_assets},
 };
 
-fn invoke(
-    webview: &tauri::WebviewWindow<tauri::test::MockRuntime>,
-    cmd: &str,
-    body: Value,
-) -> Result<tauri::ipc::InvokeResponseBody, Value> {
-    tauri::test::get_ipc_response(
-        webview,
-        tauri::webview::InvokeRequest {
-            cmd: cmd.into(),
-            callback: tauri::ipc::CallbackFn(0),
-            error: tauri::ipc::CallbackFn(1),
-            url: "tauri://localhost".parse().unwrap(),
-            body: tauri::ipc::InvokeBody::Json(body),
-            headers: Default::default(),
-            invoke_key: tauri::test::INVOKE_KEY.to_string(),
-        },
-    )
-}
+use crate::test_support::invoke_raw as invoke;
 
 #[test]
 fn release_dispatch_is_path_free_session_bound_and_revokes_handle() {
-    let root = std::env::temp_dir().join(format!(
-        "babel-ipc-{}-{}",
-        std::process::id(),
-        std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .unwrap()
-            .as_nanos()
-    ));
-    std::fs::create_dir(&root).unwrap();
+    let mut root = TestRoot::with_options("BABEL_IPC_TEST_ROOT", "babel-ipc", None, false);
     let mut service = DocumentService::new(&root.join("app-data")).unwrap();
     let source = root.join("synthetic.fountain");
     std::fs::write(&source, b"\xef\xbb\xbfunknown\r\n  \xff").unwrap();
@@ -86,7 +62,7 @@ fn release_dispatch_is_path_free_session_bound_and_revokes_handle() {
     assert_eq!(std::fs::read(&source).unwrap(), opened.source);
     drop(webview);
     drop(app);
-    std::fs::remove_dir_all(root).unwrap();
+    root.cleanup().unwrap();
 }
 
 #[test]
@@ -130,29 +106,11 @@ fn production_default_cannot_open_a_frontend_path_or_claim_native_readiness() {
     );
 }
 
-struct PersistenceFixture(std::path::PathBuf);
+struct PersistenceFixture(TestRoot);
 impl PersistenceFixture {
     fn new() -> Self {
-        use std::os::unix::fs::PermissionsExt;
-        let base = std::env::var_os("BABEL_IPC_TEST_ROOT")
-            .map(std::path::PathBuf::from)
-            .unwrap_or_else(std::env::temp_dir);
-        let root = base.join(format!(
-            "babel-persistence-ipc-{}-{}",
-            std::process::id(),
-            std::time::SystemTime::now()
-                .duration_since(std::time::UNIX_EPOCH)
-                .unwrap()
-                .as_nanos()
-        ));
-        std::fs::create_dir(&root).unwrap();
-        std::fs::set_permissions(&root, std::fs::Permissions::from_mode(0o700)).unwrap();
-        std::fs::write(root.join("source.fountain"), b"original\r\n  ").unwrap();
-        std::fs::set_permissions(
-            root.join("source.fountain"),
-            std::fs::Permissions::from_mode(0o640),
-        )
-        .unwrap();
+        let root = TestRoot::new("BABEL_IPC_TEST_ROOT", "babel-persistence-ipc");
+        root.write("source.fountain", b"original\r\n  ", 0o640);
         Self(root)
     }
     fn service(&self) -> (DocumentService, OpenDocument) {
@@ -164,11 +122,6 @@ impl PersistenceFixture {
     }
     fn bytes(&self) -> Vec<u8> {
         std::fs::read(self.0.join("source.fountain")).unwrap()
-    }
-}
-impl Drop for PersistenceFixture {
-    fn drop(&mut self) {
-        std::fs::remove_dir_all(&self.0).unwrap();
     }
 }
 fn persistence_app(host: DocumentHost) -> tauri::App<tauri::test::MockRuntime> {

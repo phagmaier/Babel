@@ -65,6 +65,55 @@ fn syscall_error(err: Errno) -> DocumentError {
     }
 }
 
+/// Exclusive private inode creation; callers retain their access mode and Errno mapping.
+fn create_private(
+    parent: &File,
+    name: impl rustix::path::Arg,
+    access: OFlags,
+) -> Result<File, Errno> {
+    fs::openat(
+        parent,
+        name,
+        access | OFlags::CREATE | OFlags::EXCL | OFlags::NOFOLLOW | OFlags::CLOEXEC,
+        Mode::from_raw_mode(0o600),
+    )
+    .map(File::from)
+}
+
+/// Child creation/validation only. Parent checks and error policy stay at callers.
+fn private_dir(
+    parent: &File,
+    name: &str,
+    create: bool,
+    code: ErrorCode,
+) -> Result<File, DocumentError> {
+    if create {
+        match fs::mkdirat(parent, name, Mode::from_raw_mode(0o700)) {
+            Ok(()) => parent.sync_all().map_err(io_error)?,
+            Err(Errno::EXIST) => (),
+            Err(err) => return Err(syscall_error(err)),
+        }
+    }
+    let dir = child_directory(parent, OsStr::new(name))?;
+    let info = stat(&dir)?;
+    if info.st_uid != geteuid().as_raw() || info.st_mode & 0o7777 != 0o700 {
+        return Err(error(code));
+    }
+    Ok(dir)
+}
+
+fn writable_private_destination(dir: &File) -> Result<Stat, DocumentError> {
+    let info = stat(dir)?;
+    if info.st_uid != geteuid().as_raw()
+        || info.st_mode & 0o7022 != 0
+        || info.st_mode & 0o300 != 0o300
+    {
+        return Err(error(ErrorCode::InvalidDestination));
+    }
+    source_store::plain_metadata(dir)?;
+    Ok(info)
+}
+
 fn hash(bytes: &[u8]) -> String {
     format!("{:x}", Sha256::digest(bytes))
 }
@@ -322,6 +371,25 @@ pub struct DocumentService {
 }
 
 impl DocumentService {
+    fn storage_relation(
+        &self,
+        identity: &DocumentRequest,
+        info: &Stat,
+    ) -> Result<snapshots::StorageRelation, DocumentError> {
+        use snapshots::StorageRelation;
+        let source_device = self
+            .registered(identity)?
+            .baseline
+            .as_ref()
+            .map(|f| f.device.clone())
+            .unwrap_or(stat(&self.store)?.st_dev.to_string());
+        Ok(if info.st_dev.to_string() == source_device {
+            StorageRelation::SameFilesystem
+        } else {
+            StorageRelation::UnknownPhysicalDisk
+        })
+    }
+
     pub fn has_open_documents(&self) -> bool {
         !self.documents.is_empty()
     }
@@ -427,19 +495,8 @@ impl DocumentService {
                     document_id: document_id.clone(),
                 })
                 .map_err(|_| error(ErrorCode::IdentityStoreUnavailable))?;
-                let mut file = File::from(
-                    fs::openat(
-                        &self.store,
-                        name.as_str(),
-                        OFlags::WRONLY
-                            | OFlags::CREATE
-                            | OFlags::EXCL
-                            | OFlags::NOFOLLOW
-                            | OFlags::CLOEXEC,
-                        Mode::from_raw_mode(0o600),
-                    )
-                    .map_err(syscall_error)?,
-                );
+                let mut file = create_private(&self.store, name.as_str(), OFlags::WRONLY)
+                    .map_err(syscall_error)?;
                 file.write_all(&bytes).map_err(io_error)?;
                 file.sync_all().map_err(io_error)?;
                 self.store.sync_all().map_err(io_error)?;
@@ -710,19 +767,12 @@ impl DocumentService {
         if info.st_uid != geteuid().as_raw() || info.st_mode & 0o7022 != 0 {
             return Err(error(ErrorCode::IdentityStoreUnavailable));
         }
-        if create {
-            match fs::mkdirat(&parent, "recovery", Mode::from_raw_mode(0o700)) {
-                Ok(()) => parent.sync_all().map_err(io_error)?,
-                Err(Errno::EXIST) => (),
-                Err(err) => return Err(syscall_error(err)),
-            }
-        }
-        let dir = child_directory(&parent, OsStr::new("recovery"))?;
-        let info = stat(&dir)?;
-        if info.st_uid != geteuid().as_raw() || info.st_mode & 0o7777 != 0o700 {
-            return Err(error(ErrorCode::IdentityStoreUnavailable));
-        }
-        Ok(dir)
+        private_dir(
+            &parent,
+            "recovery",
+            create,
+            ErrorCode::IdentityStoreUnavailable,
+        )
     }
 
     /// Native-only serialized recovery write. No source file is changed or acknowledged.

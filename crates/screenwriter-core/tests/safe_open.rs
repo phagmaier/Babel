@@ -1,5 +1,7 @@
 #![cfg(target_os = "linux")]
 
+mod common;
+use common::TestRoot;
 use screenwriter_core::documents::*;
 use std::fs;
 use std::os::unix::fs::{PermissionsExt, symlink};
@@ -7,16 +9,11 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 use uuid::Uuid;
 
-struct Fixture(PathBuf);
+struct Fixture(TestRoot);
 
 impl Fixture {
     fn new() -> Self {
-        let base = std::env::var_os("BABEL_OPEN_TEST_ROOT")
-            .map(PathBuf::from)
-            .unwrap_or_else(std::env::temp_dir);
-        let root = base.join(format!("babel-safe-open-{}", Uuid::new_v4()));
-        fs::create_dir(&root).unwrap();
-        fs::set_permissions(&root, fs::Permissions::from_mode(0o700)).unwrap();
+        let root = TestRoot::new("BABEL_OPEN_TEST_ROOT", "babel-safe-open");
         Self(root)
     }
 
@@ -42,12 +39,6 @@ impl Fixture {
         .unwrap();
         fs::write(aux.join("project.json"), &bytes).unwrap();
         bytes
-    }
-}
-
-impl Drop for Fixture {
-    fn drop(&mut self) {
-        fs::remove_dir_all(&self.0).unwrap();
     }
 }
 

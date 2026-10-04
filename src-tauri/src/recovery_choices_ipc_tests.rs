@@ -1,5 +1,6 @@
 //! Generated MockRuntime dispatch with real owned files, not native WebView evidence.
 use super::*;
+use crate::test_support::TestRoot;
 use screenwriter_core::documents::{
     choices::{CompareRequest, RecoverRequest, RecoveryComparison},
     recovery::source_hash,
@@ -7,30 +8,13 @@ use screenwriter_core::documents::{
     startup::{RecoveryOrigin, RecoverySelection},
 };
 use serde_json::{Value, json};
-use std::{fs, os::unix::fs::PermissionsExt};
+use std::fs;
 use tauri::test::{mock_builder, mock_context, noop_assets};
 
-fn invoke(
-    webview: &tauri::WebviewWindow<tauri::test::MockRuntime>,
-    cmd: &str,
-    body: Value,
-) -> Result<tauri::ipc::InvokeResponseBody, Value> {
-    tauri::test::get_ipc_response(
-        webview,
-        tauri::webview::InvokeRequest {
-            cmd: cmd.into(),
-            callback: tauri::ipc::CallbackFn(0),
-            error: tauri::ipc::CallbackFn(1),
-            url: "tauri://localhost".parse().unwrap(),
-            body: tauri::ipc::InvokeBody::Json(body),
-            headers: Default::default(),
-            invoke_key: tauri::test::INVOKE_KEY.into(),
-        },
-    )
-}
+use crate::test_support::invoke_raw as invoke;
 
 struct Harness {
-    root: std::path::PathBuf,
+    root: TestRoot,
     opened: OpenDocument,
     fingerprint: screenwriter_core::documents::DiskFingerprint,
     selection: RecoverySelection,
@@ -38,25 +22,8 @@ struct Harness {
 
 impl Harness {
     fn setup(source_bytes: &[u8], recovery_bytes: &[u8]) -> (Self, DocumentHost) {
-        let base = std::env::var_os("BABEL_IPC_TEST_ROOT")
-            .map(std::path::PathBuf::from)
-            .unwrap_or_else(std::env::temp_dir);
-        let root = base.join(format!(
-            "babel-choices-ipc-{}-{}",
-            std::process::id(),
-            std::time::SystemTime::now()
-                .duration_since(std::time::UNIX_EPOCH)
-                .unwrap()
-                .as_nanos()
-        ));
-        fs::create_dir(&root).unwrap();
-        fs::set_permissions(&root, fs::Permissions::from_mode(0o700)).unwrap();
-        fs::write(root.join("source.fountain"), source_bytes).unwrap();
-        fs::set_permissions(
-            root.join("source.fountain"),
-            fs::Permissions::from_mode(0o600),
-        )
-        .unwrap();
+        let root = TestRoot::new("BABEL_IPC_TEST_ROOT", "babel-choices-ipc");
+        root.write("source.fountain", source_bytes, 0o600);
         let mut service = DocumentService::new(&root.join("app-data")).unwrap();
         let opened = service
             .open_selected(&root.join("source.fountain"))
@@ -116,12 +83,6 @@ impl Harness {
             selection: self.selection.clone(),
         })
         .unwrap()
-    }
-}
-
-impl Drop for Harness {
-    fn drop(&mut self) {
-        fs::remove_dir_all(&self.root).unwrap();
     }
 }
 

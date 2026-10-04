@@ -1,26 +1,19 @@
 use super::*;
+use crate::test_support::TestRoot;
 use std::{
     fs as disk,
     os::unix::fs::{PermissionsExt, symlink},
 };
 const OLD: &[u8] = b"%PDF-1.4\nprevious synthetic PDF\n";
 const NEW: &[u8] = b"%PDF-1.4\nnew synthetic PDF\n";
-struct Fixture(PathBuf);
+struct Fixture(TestRoot);
 impl Fixture {
     fn new() -> Self {
-        let root = std::env::var_os("BABEL_PDF_TEST_ROOT")
-            .map(PathBuf::from)
-            .unwrap_or_else(std::env::temp_dir)
-            .join(format!("babel-pdf-{}", uuid()));
-        disk::create_dir(&root).unwrap();
-        disk::set_permissions(&root, disk::Permissions::from_mode(0o700)).unwrap();
+        let root = TestRoot::new("BABEL_PDF_TEST_ROOT", "babel-pdf");
         Self(root)
     }
     fn write(&self, name: &str, bytes: &[u8]) -> PathBuf {
-        let path = self.0.join(name);
-        disk::write(&path, bytes).unwrap();
-        disk::set_permissions(&path, disk::Permissions::from_mode(0o600)).unwrap();
-        path
+        self.0.write(name, bytes, 0o600)
     }
     fn service(&self) -> (DocumentService, OpenDocument, PdfCaptureReceipt) {
         let source = self.write(
@@ -41,11 +34,6 @@ impl Fixture {
             expected_fingerprint: o.fingerprint.clone(),
             draft_metadata: serde_json::json!({}),
         }
-    }
-}
-impl Drop for Fixture {
-    fn drop(&mut self) {
-        disk::remove_dir_all(&self.0).unwrap();
     }
 }
 #[test]

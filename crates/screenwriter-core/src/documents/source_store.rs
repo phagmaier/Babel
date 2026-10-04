@@ -683,19 +683,7 @@ fn private_directory(parent: &File, name: &str, create: bool) -> Result<File, Do
     if info.st_uid != geteuid().as_raw() || info.st_mode & 0o7022 != 0 {
         return Err(error(ErrorCode::OwnershipLost));
     }
-    if create {
-        match fs::mkdirat(parent, name, Mode::from_raw_mode(0o700)) {
-            Ok(()) => parent.sync_all().map_err(io_error)?,
-            Err(Errno::EXIST) => (),
-            Err(e) => return Err(syscall_error(e)),
-        }
-    }
-    let dir = child_directory(parent, OsStr::new(name))?;
-    let info = stat(&dir)?;
-    if info.st_uid != geteuid().as_raw() || info.st_mode & 0o7777 != 0o700 {
-        return Err(error(ErrorCode::OwnershipLost));
-    }
-    Ok(dir)
+    super::private_dir(parent, name, create, ErrorCode::OwnershipLost)
 }
 
 fn write_new(
@@ -706,15 +694,7 @@ fn write_new(
     stages: [Stage; 4],
 ) -> Result<File, DocumentError> {
     gate(stages[0])?;
-    let mut file = File::from(
-        fs::openat(
-            dir,
-            name,
-            OFlags::RDWR | OFlags::CREATE | OFlags::EXCL | OFlags::NOFOLLOW | OFlags::CLOEXEC,
-            Mode::from_raw_mode(0o600),
-        )
-        .map_err(syscall_error)?,
-    );
+    let mut file = create_private(dir, name, OFlags::RDWR).map_err(syscall_error)?;
     let mid = bytes.len() / 2;
     file.write_all(&bytes[..mid]).map_err(io_error)?;
     gate(stages[1])?;

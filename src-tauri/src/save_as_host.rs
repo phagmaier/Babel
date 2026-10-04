@@ -58,28 +58,15 @@ impl DocumentHost {
     ) -> Result<SaveAsReceipt, DocumentError> {
         let c = &request.checkpoint;
         payload_cost(c.version, &c.source, &c.source_sha256, &c.draft_metadata)?;
-        let permit = self.reserve(MAX_SOURCE_BYTES)?;
-        let worker = self.service.clone();
-        tauri::async_runtime::spawn_blocking(move || {
-            let _permit = permit;
-            let mut service = worker
-                .lock()
-                .map_err(|_| DocumentError::new(ErrorCode::NativeUnavailable))?;
-            #[cfg(target_os = "linux")]
-            {
-                service
-                    .as_mut()
-                    .ok_or_else(|| DocumentError::new(ErrorCode::NativeUnavailable))?
-                    .save_as_copy(&request)
-            }
-            #[cfg(not(target_os = "linux"))]
-            {
-                let _ = (&mut service, request);
-                Err(DocumentError::new(ErrorCode::NativeUnavailable))
-            }
-        })
-        .await
-        .map_err(|_| DocumentError::new(ErrorCode::NativeUnavailable))?
+        #[cfg(target_os = "linux")]
+        return self
+            .document_worker(MAX_SOURCE_BYTES, move |s| s.save_as_copy(&request))
+            .await;
+        #[cfg(not(target_os = "linux"))]
+        {
+            let _ = request;
+            self.document_worker(MAX_SOURCE_BYTES, ()).await
+        }
     }
 }
 

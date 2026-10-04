@@ -198,6 +198,7 @@ pub async fn assess_publication(
 #[cfg(all(test, target_os = "linux"))]
 mod tests {
     use super::*;
+    use crate::test_support::TestRoot;
     fn runtime() -> PathBuf {
         Path::new(env!("CARGO_MANIFEST_DIR")).join("../target/pdf-helper/runtime")
     }
@@ -243,18 +244,12 @@ mod tests {
     }
     #[test]
     fn assessment_identity_rejects_missing_changed_profile_font_and_upstream() {
-        let base = std::env::var_os("BABEL_PUBLICATION_TEST_ROOT")
-            .map(PathBuf::from)
-            .unwrap_or_else(std::env::temp_dir);
-        let root = base.join(format!(
-            "babel-assessment-{}-{}",
-            std::process::id(),
-            std::time::SystemTime::now()
-                .duration_since(std::time::UNIX_EPOCH)
-                .unwrap()
-                .as_nanos()
-        ));
-        fs::create_dir_all(&root).unwrap();
+        let mut root = TestRoot::with_options(
+            "BABEL_PUBLICATION_TEST_ROOT",
+            "babel-assessment",
+            None,
+            true,
+        );
         assert!(assessment_identity(&root).is_err());
         let real = runtime();
         let mut files = vec![
@@ -310,6 +305,6 @@ mod tests {
             fs::copy(real.join(file), root.join(file)).unwrap();
         }
         assert!(assessment_identity(&root).is_ok());
-        fs::remove_dir_all(root).unwrap();
+        root.cleanup().unwrap();
     }
 }

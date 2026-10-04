@@ -1,4 +1,6 @@
 #![cfg(target_os = "linux")]
+mod common;
+use common::TestRoot;
 use screenwriter_core::documents::{
     DocumentService, ErrorCode, LocalRecoveryReader,
     recovery::{Checkpoint, source_hash},
@@ -15,22 +17,10 @@ use std::{
     path::{Path, PathBuf},
 };
 
-struct Fixture(PathBuf);
+struct Fixture(TestRoot);
 impl Fixture {
     fn new() -> Self {
-        let base = std::env::var_os("BABEL_STARTUP_TEST_ROOT")
-            .map(PathBuf::from)
-            .unwrap_or_else(std::env::temp_dir);
-        let path = base.join(format!(
-            "babel-startup-{}-{}",
-            std::process::id(),
-            std::time::SystemTime::now()
-                .duration_since(std::time::UNIX_EPOCH)
-                .unwrap()
-                .as_nanos()
-        ));
-        fs::create_dir(&path).unwrap();
-        fs::set_permissions(&path, fs::Permissions::from_mode(0o700)).unwrap();
+        let path = TestRoot::new("BABEL_STARTUP_TEST_ROOT", "babel-startup");
         Self(path)
     }
     fn store(&self) -> PathBuf {
@@ -64,11 +54,6 @@ impl Fixture {
     }
     fn reader(&self) -> LocalRecoveryReader {
         LocalRecoveryReader::open(&self.store()).unwrap().unwrap()
-    }
-}
-impl Drop for Fixture {
-    fn drop(&mut self) {
-        fs::remove_dir_all(&self.0).unwrap();
     }
 }
 

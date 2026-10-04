@@ -41,28 +41,9 @@ fn valid_file_name(name: &OsStr) -> Result<String, DocumentError> {
     Ok(text.to_string())
 }
 
-fn destination_checks(dir: &File) -> Result<(), DocumentError> {
-    let info = stat(dir)?;
-    if info.st_uid != geteuid().as_raw()
-        || info.st_mode & 0o7022 != 0
-        || info.st_mode & 0o300 != 0o300
-    {
-        return Err(error(ErrorCode::InvalidDestination));
-    }
-    source_store::plain_metadata(dir)
-}
-
 /// Exclusive temporary write with sync and exact byte verification.
 fn write_temp(dir: &File, name: &str, bytes: &[u8]) -> Result<(), DocumentError> {
-    let mut file = File::from(
-        fs::openat(
-            dir,
-            name,
-            OFlags::WRONLY | OFlags::CREATE | OFlags::EXCL | OFlags::NOFOLLOW | OFlags::CLOEXEC,
-            Mode::from_raw_mode(0o600),
-        )
-        .map_err(syscall_error)?,
-    );
+    let mut file = create_private(dir, name, OFlags::WRONLY).map_err(syscall_error)?;
     file.write_all(bytes).map_err(io_error)?;
     file.sync_all().map_err(io_error)?;
     let (back, _) = snapshot(
@@ -106,7 +87,7 @@ impl DocumentService {
         let file_name = valid_file_name(name)?;
         let parent = path.parent().ok_or_else(|| error(ErrorCode::UnsafePath))?;
         let dir = directory(parent)?;
-        destination_checks(&dir)?;
+        writable_private_destination(&dir)?;
         // Advisory fast-fail; the exclusive rename at publication is authoritative.
         match fs::openat(
             &dir,
@@ -119,17 +100,7 @@ impl DocumentService {
             Err(_) => return Err(error(ErrorCode::InvalidDestination)),
         }
         let info = stat(&dir)?;
-        let source_device = self
-            .registered(identity)?
-            .baseline
-            .as_ref()
-            .map(|f| f.device.clone())
-            .unwrap_or(stat(&self.store)?.st_dev.to_string());
-        let relation = if info.st_dev.to_string() == source_device {
-            StorageRelation::SameFilesystem
-        } else {
-            StorageRelation::UnknownPhysicalDisk
-        };
+        let relation = self.storage_relation(identity, &info)?;
         let token = uuid();
         self.save_destinations
             .retain(|_, d| &d.identity != identity);
@@ -182,7 +153,7 @@ impl DocumentService {
         if !same_file(&info, &stat(&destination.dir)?) {
             return Err(error(ErrorCode::InvalidDestination));
         }
-        destination_checks(&current)?;
+        writable_private_destination(&current)?;
         self.check_capacity()?;
         let temp = format!(".babel-save-as-{}.pending", uuid());
         let cleanup = |dir: &File| {
@@ -272,15 +243,8 @@ impl DocumentService {
         .map_err(|_| error(ErrorCode::IdentityStoreUnavailable))?;
         let name = format!("{key}.identity.json");
         let temp = format!("{name}.tmp.{}", uuid());
-        let mut file = File::from(
-            fs::openat(
-                &self.store,
-                temp.as_str(),
-                OFlags::WRONLY | OFlags::CREATE | OFlags::EXCL | OFlags::NOFOLLOW | OFlags::CLOEXEC,
-                Mode::from_raw_mode(0o600),
-            )
-            .map_err(syscall_error)?,
-        );
+        let mut file =
+            create_private(&self.store, temp.as_str(), OFlags::WRONLY).map_err(syscall_error)?;
         file.write_all(&bytes).map_err(io_error)?;
         file.sync_all().map_err(io_error)?;
         drop(file);

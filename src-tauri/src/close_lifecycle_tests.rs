@@ -1,19 +1,13 @@
 //! Native registration/lease tests plus injected close effects. No real GTK
 //! termination is claimed by these callbacks; the release drills own that proof.
 use super::*;
-use std::{
-    cell::RefCell, fs, os::unix::fs::PermissionsExt, path::PathBuf, sync::mpsc, time::Duration,
-};
+use crate::test_support::TestRoot;
+use std::{cell::RefCell, fs, os::unix::fs::PermissionsExt, sync::mpsc, time::Duration};
 
-struct Fixture(PathBuf);
+struct Fixture(TestRoot);
 impl Fixture {
     fn new() -> Self {
-        let root = std::env::var_os("BABEL_IPC_TEST_ROOT")
-            .map(PathBuf::from)
-            .unwrap_or_else(std::env::temp_dir)
-            .join(format!("babel-close-{}", uuid_for_fixture()));
-        fs::create_dir(&root).unwrap();
-        fs::set_permissions(&root, fs::Permissions::from_mode(0o700)).unwrap();
+        let root = TestRoot::new("BABEL_IPC_TEST_ROOT", "babel-close");
         fs::write(
             root.join("source.fountain"),
             b"\xef\xbb\xbf!Keep this draft.  \r\n",
@@ -40,21 +34,6 @@ impl Fixture {
             b"\xef\xbb\xbf!Keep this draft.  \r\n"
         );
     }
-}
-impl Drop for Fixture {
-    fn drop(&mut self) {
-        fs::remove_dir_all(&self.0).unwrap();
-    }
-}
-fn uuid_for_fixture() -> String {
-    format!(
-        "{}-{}",
-        std::process::id(),
-        std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .unwrap()
-            .as_nanos()
-    )
 }
 fn failed_effect() -> tauri::Result<()> {
     Err(tauri::Error::Io(std::io::Error::other(

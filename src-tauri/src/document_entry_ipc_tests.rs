@@ -2,6 +2,7 @@
 //! Linux files; OS picker display itself is cancelled headlessly (see
 //! `document_entry_host` test stubs) and stays a real-display M3-12 drill.
 use super::*;
+use crate::test_support::TestRoot;
 use screenwriter_core::documents::{
     DocumentKind, Ownership,
     persistence::CheckpointRequest,
@@ -9,60 +10,20 @@ use screenwriter_core::documents::{
     snapshots::{ExternalCopyRequest, SnapshotKind, SnapshotRequest},
 };
 use serde_json::{Value, json};
-use std::{fs, os::unix::fs::PermissionsExt, path::PathBuf};
+use std::fs;
 use tauri::test::{mock_builder, mock_context, noop_assets};
 
-fn invoke(
-    webview: &tauri::WebviewWindow<tauri::test::MockRuntime>,
-    cmd: &str,
-    body: Value,
-) -> Result<Value, Value> {
-    tauri::test::get_ipc_response(
-        webview,
-        tauri::webview::InvokeRequest {
-            cmd: cmd.into(),
-            callback: tauri::ipc::CallbackFn(0),
-            error: tauri::ipc::CallbackFn(1),
-            url: "tauri://localhost".parse().unwrap(),
-            body: tauri::ipc::InvokeBody::Json(body),
-            headers: Default::default(),
-            invoke_key: tauri::test::INVOKE_KEY.into(),
-        },
-    )
-    .map(|r| r.deserialize::<Value>().unwrap())
-}
+use crate::test_support::invoke;
 
-struct Fixture(PathBuf);
+struct Fixture(TestRoot);
 impl Fixture {
     fn new() -> Self {
-        let root = std::env::var_os("BABEL_IPC_TEST_ROOT")
-            .map(PathBuf::from)
-            .unwrap_or_else(std::env::temp_dir)
-            .join(format!(
-                "babel-entry-ipc-{}-{}",
-                std::process::id(),
-                std::time::SystemTime::now()
-                    .duration_since(std::time::UNIX_EPOCH)
-                    .unwrap()
-                    .as_nanos()
-            ));
-        fs::create_dir(&root).unwrap();
-        fs::set_permissions(&root, fs::Permissions::from_mode(0o700)).unwrap();
-        fs::write(root.join("managed.fountain"), b"INT. HOUSE - DAY\n").unwrap();
-        fs::set_permissions(
-            root.join("managed.fountain"),
-            fs::Permissions::from_mode(0o600),
-        )
-        .unwrap();
+        let root = TestRoot::new("BABEL_IPC_TEST_ROOT", "babel-entry-ipc");
+        root.write("managed.fountain", b"INT. HOUSE - DAY\n", 0o600);
         Self(root)
     }
     fn service(&self) -> DocumentService {
         DocumentService::new(&self.0.join("app-data")).unwrap()
-    }
-}
-impl Drop for Fixture {
-    fn drop(&mut self) {
-        fs::remove_dir_all(&self.0).unwrap();
     }
 }
 

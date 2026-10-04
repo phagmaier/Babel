@@ -143,21 +143,13 @@ fn write_new(
     mut gate: impl FnMut(Stage) -> Result<(), DocumentError>,
 ) -> Result<(), DocumentError> {
     gate(Stage::BeforeWrite)?;
-    let mut file = File::from(
-        fs::openat(
-            dir,
-            name,
-            OFlags::WRONLY | OFlags::CREATE | OFlags::EXCL | OFlags::NOFOLLOW | OFlags::CLOEXEC,
-            Mode::from_raw_mode(0o600),
-        )
-        .map_err(|err| {
-            if err == Errno::EXIST {
-                error(ErrorCode::RecoveryNeedsAttention)
-            } else {
-                syscall_error(err)
-            }
-        })?,
-    );
+    let mut file = create_private(dir, name, OFlags::WRONLY).map_err(|err| {
+        if err == Errno::EXIST {
+            error(ErrorCode::RecoveryNeedsAttention)
+        } else {
+            syscall_error(err)
+        }
+    })?;
     let mid = bytes.len() / 2;
     file.write_all(&bytes[..mid]).map_err(io_error)?;
     gate(Stage::PartialWrite)?;

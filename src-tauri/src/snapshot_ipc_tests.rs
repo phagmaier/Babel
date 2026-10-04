@@ -1,51 +1,24 @@
 //! Generated MockRuntime dispatch with real Linux files; not native WebView evidence.
 use super::*;
+use crate::test_support::TestRoot;
 use screenwriter_core::documents::{
     persistence::CheckpointRequest, recovery::source_hash, snapshots::*,
 };
 use serde_json::{Value, json};
-use std::{fs, os::unix::fs::PermissionsExt, path::PathBuf};
+use std::{fs, os::unix::fs::PermissionsExt};
 use tauri::test::{mock_builder, mock_context, noop_assets};
 fn invoke(
-    webview: &tauri::WebviewWindow<tauri::test::MockRuntime>,
+    view: &tauri::WebviewWindow<tauri::test::MockRuntime>,
     cmd: &str,
     request: Value,
 ) -> Result<Value, Value> {
-    tauri::test::get_ipc_response(
-        webview,
-        tauri::webview::InvokeRequest {
-            cmd: cmd.into(),
-            callback: tauri::ipc::CallbackFn(0),
-            error: tauri::ipc::CallbackFn(1),
-            url: "tauri://localhost".parse().unwrap(),
-            body: tauri::ipc::InvokeBody::Json(json!({"request":request})),
-            headers: Default::default(),
-            invoke_key: tauri::test::INVOKE_KEY.into(),
-        },
-    )
-    .map(|r| r.deserialize::<Value>().unwrap())
+    crate::test_support::invoke(view, cmd, json!({"request": request}))
 }
-struct Fixture(PathBuf);
+struct Fixture(TestRoot);
 impl Fixture {
     fn new() -> Self {
-        let root = std::env::var_os("BABEL_IPC_TEST_ROOT")
-            .map(PathBuf::from)
-            .unwrap_or_else(std::env::temp_dir)
-            .join(format!(
-                "babel-snapshot-ipc-{}",
-                std::time::SystemTime::now()
-                    .duration_since(std::time::UNIX_EPOCH)
-                    .unwrap()
-                    .as_nanos()
-            ));
-        fs::create_dir(&root).unwrap();
-        fs::set_permissions(&root, fs::Permissions::from_mode(0o700)).unwrap();
+        let root = TestRoot::new("BABEL_IPC_TEST_ROOT", "babel-snapshot-ipc");
         Self(root)
-    }
-}
-impl Drop for Fixture {
-    fn drop(&mut self) {
-        fs::remove_dir_all(&self.0).unwrap();
     }
 }
 #[test]

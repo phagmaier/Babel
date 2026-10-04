@@ -1,19 +1,15 @@
 use super::*;
 use crate::documents::persistence::CheckpointRequest;
+use crate::test_support::TestRoot;
 use std::os::unix::fs::{MetadataExt, PermissionsExt, symlink};
 
 const OLD: &[u8] = b"\xef\xbb\xbf!Original\r\n  \r\n";
 const DISK: &[u8] = b"!Outside\r\n";
 const LOCAL: &[u8] = b"!Unsaved local\r\n";
-struct Fixture(PathBuf);
+struct Fixture(TestRoot);
 impl Fixture {
     fn new() -> Self {
-        let root = std::env::var_os("BABEL_SAVE_TEST_ROOT")
-            .map(PathBuf::from)
-            .unwrap_or_else(std::env::temp_dir)
-            .join(format!("babel-reload-{}", uuid()));
-        std::fs::create_dir(&root).unwrap();
-        std::fs::set_permissions(&root, std::fs::Permissions::from_mode(0o700)).unwrap();
+        let root = TestRoot::new("BABEL_SAVE_TEST_ROOT", "babel-reload");
         std::fs::write(root.join("source.fountain"), OLD).unwrap();
         Self(root)
     }
@@ -27,11 +23,6 @@ impl Fixture {
     }
     fn source(&self) -> PathBuf {
         self.0.join("source.fountain")
-    }
-}
-impl Drop for Fixture {
-    fn drop(&mut self) {
-        std::fs::remove_dir_all(&self.0).unwrap();
     }
 }
 fn capture(

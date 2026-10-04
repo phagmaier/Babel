@@ -5,6 +5,7 @@ use super::*;
 use crate::documents::{
     persistence::CheckpointRequest, recovery::source_hash, save_as::SaveAsRequest,
 };
+use crate::test_support::TestRoot;
 use serde_json::json;
 use std::{
     fs,
@@ -14,28 +15,11 @@ use std::{
     process::{Command, Stdio},
 };
 
-struct Fixture(PathBuf);
+struct Fixture(TestRoot);
 impl Fixture {
     fn new() -> Self {
-        let root = std::env::var_os("BABEL_SAVE_TEST_ROOT")
-            .map(PathBuf::from)
-            .unwrap_or_else(std::env::temp_dir)
-            .join(format!(
-                "babel-save-as-{}-{}",
-                std::process::id(),
-                std::time::SystemTime::now()
-                    .duration_since(std::time::UNIX_EPOCH)
-                    .unwrap()
-                    .as_nanos()
-            ));
-        fs::create_dir(&root).unwrap();
-        fs::set_permissions(&root, fs::Permissions::from_mode(0o700)).unwrap();
-        fs::write(root.join("source.fountain"), b"INT. HOUSE - DAY\n").unwrap();
-        fs::set_permissions(
-            root.join("source.fountain"),
-            fs::Permissions::from_mode(0o600),
-        )
-        .unwrap();
+        let root = TestRoot::new("BABEL_SAVE_TEST_ROOT", "babel-save-as");
+        root.write("source.fountain", b"INT. HOUSE - DAY\n", 0o600);
         Self(root)
     }
     fn service(&self) -> (DocumentService, OpenDocument) {
@@ -55,11 +39,6 @@ impl Fixture {
             expected_fingerprint: opened.fingerprint.clone(),
             draft_metadata: json!({"saveAs": true}),
         }
-    }
-}
-impl Drop for Fixture {
-    fn drop(&mut self) {
-        fs::remove_dir_all(&self.0).unwrap();
     }
 }
 
@@ -480,7 +459,7 @@ fn crash_child() {
     let Some(root) = std::env::var_os("BABEL_SAVE_AS_CHILD_ROOT") else {
         return;
     };
-    let fixture = Fixture(PathBuf::from(root));
+    let fixture = Fixture(PathBuf::from(root).into());
     let mut service = DocumentService::new(&fixture.0.join("app-data")).unwrap();
     let opened = service
         .open_selected(&fixture.0.join("source.fountain"))

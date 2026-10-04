@@ -44,26 +44,17 @@ pub async fn prepare_pdf_capture(
         &cp.source_sha256,
         &cp.draft_metadata,
     )?;
-    let permit = state.reserve(MAX_SOURCE_BYTES)?;
-    let documents = state.inner().clone();
-    tauri::async_runtime::spawn_blocking(move || {
-        let _permit = permit;
-        let mut service = documents.service.lock().map_err(|_| unavailable())?;
-        #[cfg(target_os = "linux")]
-        {
-            service
-                .as_mut()
-                .ok_or_else(unavailable)?
-                .prepare_pdf_capture(&request.checkpoint)
-        }
-        #[cfg(not(target_os = "linux"))]
-        {
-            let _ = (&mut service, request);
-            Err(unavailable())
-        }
-    })
-    .await
-    .map_err(|_| unavailable())?
+    #[cfg(target_os = "linux")]
+    return state
+        .document_worker(MAX_SOURCE_BYTES, move |s| {
+            s.prepare_pdf_capture(&request.checkpoint)
+        })
+        .await;
+    #[cfg(not(target_os = "linux"))]
+    {
+        let _ = request;
+        state.document_worker(MAX_SOURCE_BYTES, ()).await
+    }
 }
 #[cfg(test)]
 fn pick_pdf() -> Option<PathBuf> {
@@ -253,24 +244,15 @@ pub async fn cancel_pdf_export(
     request: PdfCaptureRequest,
     documents: tauri::State<'_, DocumentHost>,
 ) -> Result<(), DocumentError> {
-    let permit = documents.reserve(0)?;
-    let documents = documents.inner().clone();
-    tauri::async_runtime::spawn_blocking(move || {
-        let _permit = permit;
-        let mut service = documents.service.lock().map_err(|_| unavailable())?;
-        #[cfg(target_os = "linux")]
-        {
-            service
-                .as_mut()
-                .ok_or_else(unavailable)?
-                .cancel_pdf_capture(&request.identity, &request.capture_token)
-        }
-        #[cfg(not(target_os = "linux"))]
-        {
-            let _ = (&mut service, request);
-            Err(unavailable())
-        }
-    })
-    .await
-    .map_err(|_| unavailable())?
+    #[cfg(target_os = "linux")]
+    return documents
+        .document_worker(0, move |s| {
+            s.cancel_pdf_capture(&request.identity, &request.capture_token)
+        })
+        .await;
+    #[cfg(not(target_os = "linux"))]
+    {
+        let _ = request;
+        documents.document_worker(0, ()).await
+    }
 }

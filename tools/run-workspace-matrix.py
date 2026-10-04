@@ -43,6 +43,7 @@ SELECTORS = [
     "BABEL_PDF_TEST_ROOT",
     "BABEL_OPEN_TEST_ROOT",
     "BABEL_M2_EXIT_TEST_ROOT",
+    "BABEL_COMPOSITION_TEST_ROOT",
 ]
 
 DEFAULT_COMMAND = ["cargo", "test", "--workspace", "--locked"]

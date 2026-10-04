@@ -1,4 +1,6 @@
 #![cfg(target_os = "linux")]
+mod common;
+use common::TestRoot;
 use screenwriter_core::documents::{recovery::*, *};
 use std::{
     fs,
@@ -7,15 +9,10 @@ use std::{
 };
 use uuid::Uuid;
 
-struct Fixture(PathBuf);
+struct Fixture(TestRoot);
 impl Fixture {
     fn new() -> Self {
-        let base = std::env::var_os("BABEL_RECOVERY_TEST_ROOT")
-            .map(PathBuf::from)
-            .unwrap_or_else(std::env::temp_dir);
-        let root = base.join(format!("babel-recovery-api-{}", Uuid::new_v4()));
-        fs::create_dir(&root).unwrap();
-        fs::set_permissions(&root, fs::Permissions::from_mode(0o700)).unwrap();
+        let root = TestRoot::new("BABEL_RECOVERY_TEST_ROOT", "babel-recovery-api");
         Self(root)
     }
     fn service(&self) -> DocumentService {
@@ -31,11 +28,6 @@ impl Fixture {
         self.0
             .join("app-data/recovery")
             .join(format!("{id}.journal"))
-    }
-}
-impl Drop for Fixture {
-    fn drop(&mut self) {
-        fs::remove_dir_all(&self.0).unwrap();
     }
 }
 

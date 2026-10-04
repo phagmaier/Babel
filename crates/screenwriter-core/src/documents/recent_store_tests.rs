@@ -1,6 +1,7 @@
 //! Real native filesystem tests; repeat via BABEL_RECENT_TEST_ROOT on tmpfs/Btrfs.
 use super::*;
 use crate::documents::{persistence::CheckpointRequest, save_as::SaveAsRequest};
+use crate::test_support::TestRoot;
 use serde_json::json;
 use std::{
     fs as disk,
@@ -9,15 +10,10 @@ use std::{
     process::{Command, Stdio},
 };
 
-struct Fixture(PathBuf);
+struct Fixture(TestRoot);
 impl Fixture {
     fn new() -> Self {
-        let root = std::env::var_os("BABEL_RECENT_TEST_ROOT")
-            .map(PathBuf::from)
-            .unwrap_or_else(std::env::temp_dir)
-            .join(format!("babel-recents-{}", uuid()));
-        disk::create_dir(&root).unwrap();
-        disk::set_permissions(&root, disk::Permissions::from_mode(0o700)).unwrap();
+        let root = TestRoot::new("BABEL_RECENT_TEST_ROOT", "babel-recents");
         let f = Self(root);
         f.file(
             "first.fountain",
@@ -26,10 +22,7 @@ impl Fixture {
         f
     }
     fn file(&self, name: &str, bytes: &[u8]) -> PathBuf {
-        let path = self.0.join(name);
-        disk::write(&path, bytes).unwrap();
-        disk::set_permissions(&path, disk::Permissions::from_mode(0o600)).unwrap();
-        path
+        self.0.write(name, bytes, 0o600)
     }
     fn service(&self) -> DocumentService {
         DocumentService::new(&self.0.join("app-data")).unwrap()
@@ -77,11 +70,6 @@ impl Fixture {
         )
         .unwrap();
         (dir, id)
-    }
-}
-impl Drop for Fixture {
-    fn drop(&mut self) {
-        disk::remove_dir_all(&self.0).unwrap();
     }
 }
 
