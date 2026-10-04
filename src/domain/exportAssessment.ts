@@ -357,6 +357,19 @@ function rendererOnlyHidden(
   return found;
 }
 
+/** Python's `str.expandtabs(4)`: the pinned renderer expands every line's
+ * tabs to four-column stops before it reads the line. */
+function expandTabs(text: string): string {
+  let expanded = '';
+  let column = 0;
+  for (const char of text) {
+    const width = char === '\t' ? 4 - (column % 4) : 1;
+    expanded += char === '\t' ? ' '.repeat(width) : char;
+    column += width;
+  }
+  return expanded;
+}
+
 // AUDIT-D04-R2. The codec reads forcing markers after indentation, page breaks
 // with surrounding whitespace and cues ending in two spaces; the pinned
 // renderer does not, and it prints headings and forced transitions in capitals.
@@ -364,12 +377,13 @@ const forcedMarkers: Partial<Record<FountainLine['kind'], [string, string]>> = {
   action: ['!', 'as text'],
   sceneHeading: ['.', 'and this heading as action'],
   character: ['@', 'as text and may print this speech as action'],
-  transition: ['>', 'and this transition as action'],
+  transition: ['>', 'and may print this transition as action'],
   lyrics: ['~', 'and this lyric without italics'],
 };
 /** What the pinned renderer would print differently from the codec's reading. */
 function rendererLineReading(
   row: FountainLine,
+  line: number,
   paragraph: readonly number[],
 ): string | null {
   const text = row.sourceText;
@@ -381,11 +395,24 @@ function rendererLineReading(
       return 'The profile reads a scene heading only at the start of a line; it would print this indented heading as action.';
   }
   if (row.kind === 'pageBreak' && text !== text.trim())
-    return 'The profile breaks the page only on a line of “=” signs with no spaces or tabs around them; it would print this line as text.';
-  if (row.kind === 'character' && row.marker === '@' && text === '@')
+    return 'The profile breaks the page only on a line of “=” signs with no spaces or tabs around them; it would print this line as text, or omit it as a synopsis directly after a scene heading or section.';
+  // An empty “@” is a cue for the renderer only when it opens a speech
+  // paragraph and something, even a space, follows the marker.
+  if (
+    row.kind === 'character' &&
+    row.marker === '@' &&
+    text.trimEnd() === '@' &&
+    (text === '@' || paragraph.length === 1 || paragraph[0] !== line)
+  )
     return 'The profile does not read an empty “@” cue; it would print “@” and any speech below it as action.';
-  if (row.kind === 'character' && text.endsWith('  ') && paragraph.length > 1)
-    return 'The profile does not read a cue that ends with two spaces; it would print this cue, with any “@” marker, and its speech as action.';
+  if (
+    row.kind === 'character' &&
+    expandTabs(text).endsWith('  ') &&
+    paragraph.length > 1
+  )
+    return 'The profile does not read a cue that ends with two spaces or a tab that expands to them; it would print this cue, with any “@” marker, and its speech as action.';
+  if (row.kind === 'transition' && text === '>')
+    return 'The profile does not read an empty “>” transition; it would print “>” as text.';
   if (paragraph.length !== 1) return null;
   const capitals = (value?: string) =>
     value !== undefined && value !== value.toUpperCase();
@@ -402,21 +429,24 @@ function rendererLineReading(
 /** Mirrors the pinned renderer's title-page reading of the opening block (its
  * lines up to the first empty line, tabs expanded): every line is `Key: value`
  * or an indented value under an empty key, a force marker cannot start it, and
- * at least one value results. Returns the block length, or 0 for body text. */
-function rendererTitleLines(lines: readonly FountainLine[]): number {
+ * at least one value results. Returns the block length and the lines read as
+ * keys, or null for body text. */
+function rendererTitleBlock(
+  lines: readonly FountainLine[],
+): { length: number; keys: ReadonlySet<number> } | null {
   const block: string[] = [];
   for (const line of lines) {
-    let text = '';
-    for (const char of line.sourceText)
-      text += char === '\t' ? ' '.repeat(4 - (text.length % 4)) : char;
+    const text = expandTabs(line.sourceText);
     if (text === '') break;
     block.push(text);
   }
-  if (!block.length || /^[!@~.>#=]/.test(block[0]!)) return 0;
+  if (!block.length || /^[!@~.>#=]/.test(block[0]!)) return null;
+  const keys = new Set<number>();
   let values = 0;
   for (let at = 0; at < block.length;) {
-    const field = /^([^:]+):\s*(.*)$/.exec(block[at++]!);
-    if (!field) return 0;
+    const field = /^([^:]+):\s*(.*)$/.exec(block[at]!);
+    if (!field) return null;
+    keys.add(at++);
     if (field[2]) values++;
     else
       while (at < block.length && /^\s{3,}./.test(block[at]!)) {
@@ -424,7 +454,7 @@ function rendererTitleLines(lines: readonly FountainLine[]): number {
         at++;
       }
   }
-  return values ? block.length : 0;
+  return values ? { length: block.length, keys } : null;
 }
 
 /** Mirrors the pinned renderer's section rule: 1–6 `#` at the line start. */
@@ -617,11 +647,15 @@ export function evaluateExportAssessment(
   }
   const titleEnd = document.titleFields.at(-1);
   // AUDIT-D04-R1: the codec and the renderer must agree on whether the opening
-  // block is a title page. A boneyard there is removed first by the renderer and
-  // is reported separately; a missing separator is reported below.
+  // block is a title page. The renderer removes boneyards first, which this
+  // mirror does not model: one inside a title field is reported separately and
+  // the comparison is skipped. A missing separator is reported below.
   const codecTitle = titleEnd ? titleEnd.from + titleEnd.count : 0;
-  const rendererTitle = rendererTitleLines(document.lines);
-  const opening = document.lines.slice(0, Math.max(codecTitle, rendererTitle));
+  const rendererTitle = rendererTitleBlock(document.lines);
+  const opening = document.lines.slice(
+    0,
+    Math.max(codecTitle, rendererTitle?.length ?? 0),
+  );
   if (!opening.some((row) => row.sourceText.includes('/*'))) {
     const separated = (document.lines[codecTitle]?.sourceText ?? '') === '';
     if (codecTitle && !rendererTitle && separated)
@@ -636,8 +670,24 @@ export function evaluateExportAssessment(
         'SC005',
         'The profile reads this opening block as a title page and would not print it as script text.',
         0,
-        rendererTitle - 1,
+        rendererTitle.length - 1,
       );
+    else if (rendererTitle)
+      // After a valued key the renderer reads every line as a key, so an
+      // indented `Key: value` there is a separate field it never prints.
+      for (const field of document.titleFields) {
+        const end = field.from + field.count - 1;
+        for (let at = field.from + 1; at <= end; at++)
+          if (rendererTitle.keys.has(at)) {
+            add(
+              'SC005',
+              `The profile reads this indented line as a separate title field, not as part of “${field.key}”, and would not print it.`,
+              at,
+              end,
+            );
+            break;
+          }
+      }
   }
   if (titleEnd) {
     const next = document.lines[titleEnd.from + titleEnd.count];
@@ -701,7 +751,7 @@ export function evaluateExportAssessment(
         'The profile cannot represent this scene-number syntax.',
         line,
       );
-    const reading = rendererLineReading(row, rows);
+    const reading = rendererLineReading(row, line, rows);
     if (reading) add('SC005', reading, line);
   });
   const sourceBytes = document.hiddenRegions.length ? document.bytes : null;

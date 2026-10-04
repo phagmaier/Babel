@@ -1467,6 +1467,141 @@
         "sections": 0,
         "synopses": 0
       }
+    },
+    {
+      "name": "cue ending in a tab prints the speech as action",
+      "source": "INT. LAB - DAY\n\nMAYA\t\nHello.\n",
+      "prints": [
+        "MAYA",
+        "Hello."
+      ],
+      "omits": [],
+      "clean": false,
+      "blockingLines": [
+        2
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "forced cue ending in a tab prints its marker",
+      "source": "INT. LAB - DAY\n\n@MAYA\t\nHello.\n",
+      "prints": [
+        "@MAYA",
+        "Hello."
+      ],
+      "omits": [],
+      "clean": false,
+      "blockingLines": [
+        2
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "forced cue whose trailing tab expands to one space stays a cue",
+      "source": "INT. LAB - DAY\n\n@marcus\t\nHello.\n",
+      "prints": [
+        "marcus",
+        "Hello."
+      ],
+      "omits": [
+        "@"
+      ],
+      "clean": true,
+      "blockingLines": [],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "lone forced transition marker prints as text",
+      "source": "INT. LAB - DAY\n\nA lamp.\n\n>\n\nIt glows.\n",
+      "prints": [
+        "A lamp. > It glows."
+      ],
+      "omits": [],
+      "clean": false,
+      "blockingLines": [
+        4
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "forced cue marker followed only by a space prints as text",
+      "source": "INT. LAB - DAY\n\nA lamp.\n\n@ \n\nIt glows.\n",
+      "prints": [
+        "A lamp. @ It glows."
+      ],
+      "omits": [],
+      "clean": false,
+      "blockingLines": [
+        4
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "indented key after a valued title key is a separate field the renderer drops",
+      "source": "Title: Night Shift\nContact: Sam\n    Tel: 555 0100\n\nINT. LAB - DAY\n\nA lamp glows.\n",
+      "prints": [
+        "Night Shift",
+        "Sam",
+        "INT. LAB - DAY"
+      ],
+      "omits": [
+        "555 0100",
+        "Tel"
+      ],
+      "clean": false,
+      "blockingLines": [
+        2
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "indented key-like line under an empty title key is a value on both sides",
+      "source": "Title: Night Shift\nContact:\n    Sam\n    Tel: 555 0100\n\nINT. LAB - DAY\n\nA lamp glows.\n",
+      "prints": [
+        "Night Shift",
+        "Sam",
+        "Tel: 555 0100",
+        "INT. LAB - DAY"
+      ],
+      "omits": [],
+      "clean": true,
+      "blockingLines": [],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
     }
   ]
 }

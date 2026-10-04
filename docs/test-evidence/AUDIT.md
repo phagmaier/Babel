@@ -949,3 +949,67 @@ IPC, helper, profile or pin change.
 - `pnpm check` **pass**, 999/999 in 64 files; `pnpm test:pdf-helper` **15/15 pass**; `env -u FORCE_COLOR pnpm test:browser` **pass**. Rust gates as in the session baseline (no Rust change).
 - Behavior note: an opened file whose opening block is an empty template (`Title:` / `Author:` with no values) now opens as editable body text, matching what the PDF prints; its bytes are unchanged on a no-op.
 - Native title-page drill (`drill.py --title-page`) and pdf-export/script-check/publication-exit modes — **BLOCKED** (no display).
+
+## AUDIT-DEV-REVIEW — dev branch review before merge
+
+Review of `dev` at `a22f01f` (the four cloud-session commits over `main`
+`718c6e8`). Host: owner laptop, **uid 1000**, live Hyprland display, repository
+on Btrfs, `/tmp` tmpfs; node 26.7.0, pnpm 11.22.0, Rust 1.97.1. Tier 2 frontend
+domain plus the native drills the cloud session left blocked. No Rust, IPC,
+helper, profile, font, pin or codec change in this review.
+
+As pulled, before any change:
+
+- `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm build` **pass**; `pnpm test` **pass**, 999/999 in the 64 tracked files. On this host `pnpm test` also collects 61 archived copies under `target/audit-simp-f/baseline-source` (1862/1862 in 125 files); `pnpm exec vitest run --exclude 'target/**'` gives the tracked count.
+- `pnpm test:pdf-helper` **15/15 pass**; `env -u FORCE_COLOR pnpm test:browser` **pass**, clean exit (the cloud's orphaned-Vite hang did not occur).
+- `cargo fmt --all -- --check` **pass**; `cargo clippy --workspace --all-targets --locked -- -D warnings` **pass** (70s); `cargo test --workspace --locked --no-fail-fast` **273/273 pass** (137s) as a non-root user, one filesystem. The cloud baseline's `safe_open` failure was the root-only environment failure it was labelled.
+- Edited pre-existing tests (`editor-bridge.test.ts`, `export-assessment.test.ts`) read against `main`: neither assertion is weakened. No change under `crates/`, `src-tauri/`, `tools/pdf-helper/*.py` other than the new helper test, profiles, fonts or lockfiles.
+
+Differential probe (session scratch, not retained): 30,000 generated sources of
+one to four short paragraphs with risky indentation, tabs, trailing spaces and
+opening `Key:` blocks, read by the pinned runtime's `frozen_profile.parse` and
+by the codec plus assessment at `main`, `dev` and the reviewed tree. Compared:
+role, text and scene number of every printed row and the printed title values,
+whitespace collapsed. Parse level only; no layout probes.
+
+| Tree            | Clean and equal | Clean but different | Gated |
+| --------------- | --------------- | ------------------- | ----- |
+| `main`          | 4,723           | 3,753               | rest  |
+| `dev` `a22f01f` | 5,050           | 357                 | rest  |
+| reviewed        | 5,050           | 115                 | rest  |
+
+- No source that `main` read as clean and equal is gated on `dev` or after the review (0 new false positives in the sample). All 48 tracked `.fountain` files: one newly reported line, `fixtures/fountain/elements.fountain:37`, as the R2 evidence states; no line kind changes.
+- 23 sources gated on `main` are clean but different on `dev`: each was gated only by the old `FADE IN:`/`x:` unknown-title-field reading, and each difference is one of the classes below. Not a regression of the R1 rule.
+- R1 behavior checked through the editor: typing a value after a now-body-text `Title:` captures `!Title: Night` (forced Action), so the row keeps the role it shows and the PDF prints it as action. A real title page is still created through the form.
+
+Fixed here, red first (assessment only; classification unchanged):
+
+- Corpus `fixtures/assessment/oracle.json` **76 → 83 cases**, appended; the earlier bytes are an unchanged prefix. `HelperTest.test_assessment_oracle_printed_text` **pass first run** on all 83; `tests/contract/export-assessment.test.ts` **fail 5/97**, exactly the five finding cases, then **98/98** with the guards and one focused test.
+- A cue ending in a tab: the renderer expands tabs to four-column stops before its two-space rule, so `MAYA\t` and `@MAYA\t` print with their speech as action (`@marcus\t`, one space, stays a cue). The guard read only literal spaces.
+- A lone `>` prints `>` as text. Reachable in the editor: choosing Transition on an empty row and leaving it captures `>`.
+- An empty `@` cue with a trailing space, alone in its paragraph or inside an action paragraph, prints `@`. The guard matched only a bare `@`.
+- An indented `Key: value` after a valued title key (`Contact: Sam` / `    Tel: 555 0100`): the codec shows it as part of the field; the renderer reads a separate field and never prints it. New blocking SC005 from that line to the end of the field.
+- Two messages corrected against the renderer: an indented `>CUT TO:` still prints as a transition (with its marker), and a padded `===` directly after a scene heading or section is taken as a synopsis rather than printed.
+- Injected faults (scratch script, source restored by SHA-256) — **7/7 detected**: tab expansion off, bare-only `@`, paragraph position ignored, lone `>` off, renderer-only key off, range cut to one line, tab stops in UTF-16 units.
+
+Remaining clean-but-different classes, all present on `main`, tracked as
+**AUDIT-D04-R3** (reproductions, renderer reading after the arrow):
+
+- `MAYA\n\t\nx:\n` — a whitespace-only line of a tab or two or more spaces is not a paragraph break → a speech; the codec reads two actions.
+- `@maya\n(beat\n` — unclosed parenthetical → parenthetical indent; codec dialogue. Same text.
+- `EXT. ROOF - NIGHT #12# \n` — trailing space after a scene number → number 12 in the margins; the codec shows `#12#` in the heading.
+- `INT \n` — a heading prefix with only trailing whitespace → action; codec heading.
+- `/* bone */\nINT.\n`, `/* bone */\nCUT TO:\n`, `Maya\n\n#Act\n/* bone */\n` — the renderer deletes a boneyard-only line and leaves a blank one → heading, transition, and a section that drops `#Act`; the codec reads actions. Also the opening block: ` title: lower\n/* b */\nMAYA\n` → a title page that drops the first line.
+
+Observation, not a finding (same on `main`; JSDOM only): after text, Enter then
+Ctrl+1 (or Tab, Escape, Tab) leaves an empty Scene Heading row for which
+`captureEditor` throws `Requested element cannot round-trip unambiguously`
+until a character is typed. Effect on native save cadence or close while the
+row is empty is unverified; parked in TODO.
+
+Final, reviewed tree:
+
+- `pnpm check` **pass**; tracked suite `pnpm exec vitest run --exclude 'target/**'` **1007/1007** in 64 files (999 + 7 corpus cases + 1 focused test); `pnpm test:pdf-helper` **15/15 pass**, 111 helper runs; `env -u FORCE_COLOR pnpm test:browser` **pass**; `python3 tools/check-links.py` and `sh tools/lint-py.sh` **pass**; `git diff --check` clean. Rust gates as above (no Rust change in the review).
+- `RUSTUP_TOOLCHAIN=1.97.1 mise exec node@26.7.0 pnpm@11.22.0 -- pnpm tauri build --no-bundle` **pass** (156s); binary `aefcae53…` (`target/audit-dev-review/binary.sha256`).
+- Native, binary in place, live Hyprland session: `BABEL_SHUTDOWN_MODE=ordinary python3 tests/native/writing-lifecycle/isolated_ime.py target/audit-simp-f/prerequisites/prefix -- python3 tests/native/writing-lifecycle/integrated_exit.py /tmp $PWD/target --output target/audit-dev-review/native --modes pdf-export script-check publication-exit title-page` — **8/8 content, 8/8 owned crash audits clean**, 470s (`native.log`, `native/results.json`, ledgers and journals). Covers the R2 and R1 assessment changes, the R1 codec/title-form change (including the form's add of an empty `Contact:`) and the review guards, on tmpfs and Btrfs.
+- Still not run: a native type-and-export case for D-07 (no drill mode exists); other native modes; full keyboard/a11y/IME. The loaded Replace-All failure the cloud session saw once was not reproduced in four full-suite runs here.

@@ -447,6 +447,47 @@ it.each(oracle.cases)(
   },
 );
 
+// Review of AUDIT-D04-R2/R1: branches the shared corpus cannot show through
+// PDF text alone. Renderer readings confirmed with a parse-level probe.
+it('AUDIT-DEV-REVIEW reports an empty @ cue only where the renderer prints it, and the whole dropped title range', () => {
+  const messages = (source: string) => {
+    const result = assess(source);
+    if (result.status !== 'verified') throw new Error('unavailable');
+    return result.issues.map((issue) => [
+      issue.line,
+      issue.endLine,
+      issue.message,
+    ]);
+  };
+  const emptyCue = expect.stringContaining('empty “@” cue');
+  // Inside an action paragraph the renderer prints "@" and the speech as action.
+  expect(messages('A lamp.\n@ \nHello.\n')).toContainEqual([1, 1, emptyCue]);
+  // Opening a speech paragraph, "@ " is an empty cue on both sides; "@" and a
+  // tab expands to a cue ending in spaces, which the renderer does not read.
+  const tabbed = expect.stringContaining('two spaces or a tab');
+  expect(messages('@ \nHello.\n')).not.toContainEqual([0, 0, emptyCue]);
+  expect(messages('@\t\nHello.\n')).toContainEqual([0, 0, tabbed]);
+  // "> " and ">\t" print nothing; only a lone ">" prints its marker.
+  for (const source of ['A lamp.\n\n> \n', 'A lamp.\n\n>\t\n'])
+    expect(messages(source)).toEqual([]);
+  // The renderer attributes every line from the indented key on to that key.
+  expect(
+    messages('Title: A\nContact: Sam\n    Tel:\n    555 0100\n\n!Body.\n'),
+  ).toEqual([[2, 3, expect.stringContaining('separate title field')]]);
+  // A tab stop is measured in characters, as the renderer counts them: after
+  // three it is one space (still a cue), after four it is four spaces.
+  expect(messages('.INT. A\n\n@Z😀\t\nHello.\n')).not.toContainEqual([
+    2,
+    2,
+    tabbed,
+  ]);
+  expect(messages('.INT. A\n\n@Zo😀\t\nHello.\n')).toContainEqual([
+    2,
+    2,
+    tabbed,
+  ]);
+});
+
 it('AUDIT-D04 summarises omissions with counts and line totals in one sentence', () => {
   const result = assess(
     '# One\n\n# Two\n\n.INT. A - DAY\n\n= Beat.\n\n[[first\nsecond\nthird]]\n\n!Body [[aside]] text.\n\n/* cut\nmore */\n\n!End.\n',

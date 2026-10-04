@@ -1,61 +1,64 @@
-# Current state — audit session 2026-10-04 (cloud, no display)
+# Current state — dev review session 2026-10-04 (owner host)
 
-Date: 2026-10-04. Application: **babel**. Base `718c6e8`. Session commits on
-branch `claude/nifty-carson-adcfu6` (owner override: one commit per task).
-M0–M5 and bounded M6-01 work remain recorded complete. **M6-02, C1/F2 and
-Local v1 admission remain open.**
+Date: 2026-10-04. Application: **babel**. Branch `dev`: the four cloud-session
+commits `30f05d8`..`a22f01f` over `main` `718c6e8`, plus one review commit.
+Not merged or pushed. M0–M5 and bounded M6-01 work remain recorded complete.
+**M6-02, C1/F2 and Local v1 admission remain open.**
 
-## This session — stopped after the queue
+## This session — AUDIT-DEV-REVIEW (review of `dev` before merge)
 
-Host: Linux container, uid 0, no display, `target/` not in git (no retained
-artifacts, frozen binaries or IME prerequisites).
-[Baseline](test-evidence/AUDIT.md#session-baseline--cloud-container-2026-10-04):
-frontend 927/927, browser pass (orphaned Vite stopped by hand), helper 14/14,
-fmt/clippy pass, Rust 272/273 (root-only `safe_open` permission failure).
-Final: frontend **999/999**, helper **15/15**, browser pass; no Rust change.
+[Evidence](test-evidence/AUDIT.md#audit-dev-review--dev-branch-review-before-merge).
+Host: owner laptop, uid 1000, Hyprland display, Btrfs repo, tmpfs `/tmp`.
 
-- **AUDIT-D07 complete** ([brief](tasks/AUDIT-D07.md),
-  [evidence](test-evidence/AUDIT.md#audit-d07--typed-scene-oracle)): typed-scene
-  oracle from zero bytes through the mounted editor with live completion, and
-  the same hand-written fixture checked by the pinned renderer. Findings F1–F4
-  pinned as found and tracked as **AUDIT-D07-F** (owner decisions).
-- **AUDIT-D04-R2 complete** ([brief](tasks/AUDIT-D04-R2.md),
-  [evidence](test-evidence/AUDIT.md#audit-d04-r2--renderercodec-disagreement-sweep)):
-  corpus 27 → 68 cases; 18 clean-but-different cases now blocking SC005
-  (assessment only). Capitals in headings and forced transitions are reported
-  per SPEC S09.2; the owner may treat them as print style instead.
-- **AUDIT-PARK complete** ([brief](tasks/AUDIT-PARK.md),
-  [evidence](test-evidence/AUDIT.md#audit-park--confirm-first-parking-verdicts)):
-  every parked item has a test and verdict; confirmed save/recovery/snapshot
-  items are tracked as **AUDIT-PARK-T**. T-05 not reproduced in 40 runs; D02's
-  retained Replace-All test failure reproduced once in 10 loaded runs, cause
-  not isolated, no text lost.
-- **AUDIT-D04-R1 complete** ([brief](tasks/AUDIT-D04-R1.md),
-  [evidence](test-evidence/AUDIT.md#audit-d04-r1--all-empty-leading-key-block)):
-  owner-approved rule in the codec; `FADE IN:` is body text; the title form
-  cannot leave an all-empty block; the assessment mirrors the renderer's
-  title-page reading. Corpus now 76 cases.
+- **As pulled:** every shared gate passes — frontend 999/999 tracked tests,
+  helper 15/15, browser, `cargo fmt`/`clippy`, Rust **273/273 as non-root**.
+  The two edited pre-existing tests are not weakened; no Rust, IPC, helper,
+  profile, font or pin change.
+- **Differential probe** (30,000 generated sources against the pinned
+  renderer): `dev` gates nothing that `main` read correctly, and cuts
+  clean-but-different sources from 3,753 to 357.
+- **Fixed in review, red first** (`src/domain/exportAssessment.ts`, assessment
+  only): cues ending in a tab, a lone `>`, spaced empty `@` cues, and an
+  indented `Key: value` after a valued title key. Corpus 76 → 83; 115 left.
+  Two limitation messages corrected against the renderer. 7/7 faults detected.
+- **Final:** `pnpm check` pass, frontend **1007/1007** tracked, helper
+  **15/15**, browser pass.
+- **Native, binary in place** (`aefcae53…`, built from the reviewed tree):
+  `integrated_exit.py --modes pdf-export script-check publication-exit
+title-page` on tmpfs and Btrfs — **8/8 content, 8/8 owned crash audits
+  clean**, 470s (`target/audit-dev-review/native`).
 
-## Needs native rerun (owner, with a display)
+Cloud-session tasks, unchanged and covered by the gates above:
+[AUDIT-D07](tasks/AUDIT-D07.md) typed-scene oracle,
+[AUDIT-D04-R2](tasks/AUDIT-D04-R2.md) renderer/codec sweep,
+[AUDIT-PARK](tasks/AUDIT-PARK.md) parking verdicts and
+[AUDIT-D04-R1](tasks/AUDIT-D04-R1.md) all-empty `Key:` block is body text.
 
-Binary in place beside its helper (`target/release`), tmpfs and Btrfs, with
-owned shutdown attribution:
+## Still unverified
 
-- `integrated_exit.py --modes pdf-export script-check publication-exit` (D04-R2
-  and D04-R1 assessment changes).
-- `integrated_exit.py --modes title-page` (D04-R1 codec/title form; its add of
-  an empty `Contact:` is pinned at domain level only).
-- D-07 typed-export case: no drill mode exists; write one (type the fixture
-  scene, Export PDF, `pdftotext`) and run it.
-- Rust `cargo test --workspace` as a non-root user (baseline root failure).
+- D-07 typed-export case in the native app: no drill mode exists (type the
+  fixture scene, Export PDF, `pdftotext`). JSDOM and helper proof only.
+- `pnpm test` on this host also runs 61 archived test copies under
+  `target/audit-simp-f/baseline-source`; use `--exclude 'target/**'` for the
+  tracked count.
 
-## Open from this session
+## Open — owner decisions or briefs
 
-AUDIT-D07-F (F1 empty Dialogue/Lyrics exit without separator, F2 no keyboard
-exit from a note at document end, F3 Page Break caret before `===`, F4
-empty-cue suggestions capture the element-cycle Tab) and AUDIT-PARK-T (D-05
-protection/snapshot cap; duplicate draft after a failed resume) need owner
-decisions or briefs. Scratch core-crate probes and logs were not retained.
+- **AUDIT-D07-F**: F1 empty Dialogue/Lyrics exit without separator, F2 no
+  keyboard exit from a note at document end, F3 Page Break caret before `===`,
+  F4 empty-cue suggestions capture the element-cycle Tab.
+- **AUDIT-PARK-T**: D-05 replace-all protection and snapshot cap; duplicate
+  draft after a failed resume.
+- **Capitals guard**: lowercase headings and forced transitions block export
+  because the editor shows them as typed and the PDF prints capitals. Showing
+  them in capitals in the editor would let the guard go; one guard to remove.
+- **AUDIT-D04-R3**: five remaining renderer/codec classes (whitespace-only
+  separators, unclosed parentheticals, spaced scene numbers, bare heading
+  prefix, boneyard-only lines). All predate this branch.
+- Parked, unverified: an empty Scene Heading row after text cannot be captured
+  until a character is typed (JSDOM, same on `main`).
+- Replace-All test failure under load (1/10 in the cloud, D02's retained
+  failure): not reproduced here in four full runs; cause still unknown.
 
 ## Retained findings and limits (detail in linked evidence)
 
@@ -82,11 +85,12 @@ after parent SIGKILL. M6-03 copy/prune and capture-failure bundle policy open.
 
 ## Next action
 
-Owner: run the native list above and decide AUDIT-D07-F / AUDIT-PARK-T and the
-capitals guard. Agent: remaining accepted DESIGN items without a brief are D-05
-cheap variant (now with AUDIT-PARK-T facts) and D-09 page count. Never
-substitute injected composition for genuine IME; unset `FORCE_COLOR` for
-`pnpm test:browser`. No full native/a11y/keyboard, SELinux, M6-02, C1/F2 or
-Local v1 closure; [M6-02-R1](tasks/M6-02-R1.md) and
+Owner: review the `dev` review commit, then merge `dev` to `main` (no push
+without authorization) and decide the open items above. Agent: AUDIT-D04-R3
+brief, a native typed-export drill mode for D-07, then the accepted DESIGN
+items without a brief (D-05 cheap variant with AUDIT-PARK-T facts, D-09 page
+count). Never substitute injected composition for genuine IME; unset
+`FORCE_COLOR` for `pnpm test:browser`. No full native/a11y/keyboard, SELinux,
+M6-02, C1/F2 or Local v1 closure; [M6-02-R1](tasks/M6-02-R1.md) and
 [M6-01-R1](tasks/M6-01-R1.md) remain separate; DEV-02 is owner-only. No M6/M7
 work, private-engine shipping, personal manuscript/credentials/upload work.

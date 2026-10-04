@@ -107,9 +107,13 @@ renderer's differ (assessment only; codec classification is unchanged):
 - a forcing marker (`.` `!` `@` `>` `~`) after leading spaces or tabs, which
   the renderer prints as text, and an indented scene heading, which it prints
   as action;
-- a page break with spaces or tabs around its `=` signs, printed as text;
-- a bare `@` cue, and a cue paragraph whose cue ends with two spaces, which the
+- a page break with spaces or tabs around its `=` signs, printed as text (or
+  taken as a synopsis directly after a scene heading or section);
+- an empty `@` cue that is bare, alone in its paragraph or not its first line,
+  and a cue paragraph whose cue ends with two spaces or a tab that expands to
+  them (the renderer expands tabs to four-column stops first), which the
   renderer prints with its speech as action;
+- a lone `>`, which the renderer prints as text;
 - a lowercase letter in a scene heading (including its number) or a forced
   transition: the renderer prints both in capitals.
 
@@ -120,4 +124,10 @@ Since AUDIT-D04-R1 a first line `FADE IN:` (any leading block of empty `Key:`
 fields) is body text on both sides. The assessment also mirrors the renderer's
 title-page reading: an indented line after a valued key makes the renderer
 print the whole block, keys included, as script text, and an indented first
-key makes it a title page that prints nothing; both are blocking SC005.
+key makes it a title page that prints nothing; both are blocking SC005. So is
+an indented `Key: value` line after a valued key where both sides still read a
+title page: the codec shows it as part of that field, the renderer reads a
+separate field and never prints it. The mirror does not model the renderer's
+boneyard removal in the opening block; that and the other remaining
+differences are listed under
+[AUDIT-D04-R3](test-evidence/AUDIT.md#audit-dev-review--dev-branch-review-before-merge).
