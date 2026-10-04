@@ -91,10 +91,36 @@ def run(d):
     from command_accessibility import inspect
     tree=inspect(d,'menu'); report.append({'nativeMenuAtspiNodes':len(tree['nodes'])})
     print('NATIVE MENU OPEN', d.script('return window.commandKeys;'),flush=True)
-    # Down already selected the first enabled item, Save; next is Save As.
-    # Toolkit popup creation/focus is asynchronous. Give each real key a
-    # rendered turn rather than send an instantaneous burst before its grab.
-    subprocess.run(['/tmp/babel-m3-08-keyboard','command-menu-save-as'],check=True)
+    # Observe the actual GTK selection while sending physical keys; catalog
+    # additions must not redirect this Save As/picker oracle to another action.
+    from owned_accessibility import Accessibility
+    accessibility = Accessibility(d.DRIVER.pid)
+    menu_items = [node for node in tree['nodes'] if
+                  node['roleSymbol']=='ATSPI_ROLE_MENU_ITEM' and
+                  "'toolkit': 'gtk'" in node['properties']]
+    for node in menu_items:
+        node['owner'] = accessibility.owner(node['bus'])
+    def physical_menu(action):
+        accessibility.assert_focus()
+        subprocess.run(['/tmp/babel-m3-08-keyboard',action],check=True)
+    physical_menu('escape'); physical_menu('f10')
+    selection = []
+    def selected_save_as():
+        selected = []
+        for node in menu_items:
+            accessibility.validate(node)
+            state = accessibility.call(node['bus'],node['path'],'Accessible','GetState')[0]
+            if state[0] & ((1 << 23) | (1 << 12)):  # SELECTED or FOCUSED
+                selected.append(accessibility.name(node['bus'],node['path']))
+        selection.append(selected)
+        print('NATIVE MENU SELECTION',selected,flush=True)
+        return selected == ['Save As (Ctrl+K)']
+    for _ in range(12):
+        physical_menu('down'); time.sleep(.15)
+        if selected_save_as(): break
+    d.wait(selected_save_as,'Actual native Save As menu selection')
+    (d.ROOT/'commands-menu-selection.json').write_text(json.dumps(selection,indent=2)+'\n')
+    physical_menu('return')
     d.picker(None); ready(); d.audit(target,source)
     d.wait(lambda:'The native dialog was cancelled. Nothing changed.' in d.body(),'Native menu Save As cancellation')
     report.append('production remap persisted; Ctrl+K Save As/native picker cancellation; native GTK F10/Down/Enter Save As/picker cancellation; exact source')

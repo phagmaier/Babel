@@ -689,10 +689,11 @@ export function WritingView({
               titleApplyingRef.current)),
         canNavigate: () => readyRef.current && !frozenRef.current,
         escapeFocus: () => {
-          host
-            .closest('main')
-            ?.querySelector<HTMLElement>('.actions button:not(:disabled)')
-            ?.focus();
+          const main = host.closest('main');
+          const target =
+            main?.querySelector<HTMLElement>('#writing-save:not(:disabled)') ??
+            main?.querySelector<HTMLElement>('.actions button:not(:disabled)');
+          target?.focus();
         },
         escapePresentation: () => {
           if (

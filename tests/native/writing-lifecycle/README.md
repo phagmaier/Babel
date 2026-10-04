@@ -509,7 +509,10 @@ a read-only package/system bind view and an owned PID namespace; cleanup stops
 only that namespace, including its Mozc server. The view materializes only
 package-intersecting directories, with other entries pointing to a separately
 read-only-bound system `/usr`. This preserves package precedence without kernel
-overlayfs. The host needs `bwrap` with read-only bind/PID-namespace support,
+overlayfs. The verified `usr/lib/mozc` directory additionally binds read-only
+at `/usr/lib/mozc`: Mozc validates `/proc/<pid>/exe` against its compiled server
+path and rejects the union's leaf symlinks. Writable mounts stay limited to the
+private root. The host needs `bwrap` with read-only bind/PID-namespace support,
 `gtk-query-immodules-3.0`, `gdbus`,
 the existing keyboard helpers and native GUI. No system installation, autostart,
 global settings, xcb/waylandim keyboard frontend or cloud-pinyin addon. The
@@ -831,6 +834,14 @@ The existing corpus/Undo/selection/copy/risk and shutdown oracles remain intact.
 ```sh
 BABEL_SHUTDOWN_MODE=ordinary python3 tests/native/writing-lifecycle/integrated_exit.py /tmp "$PWD/target" --output target/audit-d06/native --modes recovery-shutdown home characters editor-exit capture-review commands persistence-paths
 ```
+
+AUDIT-NATIVE-R1 makes writing F6 prefer enabled Save and supplies Mozc's
+canonical server path through an additional read-only bind. The commands drill
+observes the owned GTK menu's actual selected/focused label while sending
+physical Down keys, then requires Save As before physical Enter; it does not
+activate a menu through AT-SPI. Rebuild the existing keyboard helper after a
+reboot as documented above. [Follow-up evidence](../../../docs/test-evidence/AUDIT.md#audit-native-r1--f6-focus-and-private-mozc)
+retains all earlier failures and the owned Btrfs editor SIGSEGV.
 
 Use the existing isolated IME launcher for editor-exit. Commands/F6 has a retained
 frozen-baseline failure; failed roots/ordinary-close attempts and fallback forced

@@ -86,7 +86,11 @@ def main():
     daemon_cmd = ['bwrap', '--die-with-parent', '--unshare-pid',
         '--ro-bind', '/', '/', '--proc', '/proc', '--bind', str(root), str(root),
         '--ro-bind', '/usr', str(system_alias),
-        '--ro-bind', str(usr_view), '/usr', '/usr/bin/fcitx5', '-D', '-k', '--disable', 'all',
+        '--ro-bind', str(usr_view), '/usr',
+        # Mozc validates /proc/<pid>/exe against its compiled server path.
+        # The union's leaf symlinks fail that check; bind the verified directory
+        # read-only at the expected path without widening writable mounts.
+        '--ro-bind', str(prefix / 'usr/lib/mozc'), '/usr/lib/mozc', '/usr/bin/fcitx5', '-D', '-k', '--disable', 'all',
         '--enable', 'keyboard,dbus,dbusfrontend,pinyin,punctuation,mozc,classicui,wayland',
         '--ui', 'classicui']
     # Read-only bind view makes compiled engine paths available without overlayfs.

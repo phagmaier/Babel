@@ -125,7 +125,8 @@ gate. Home entry choices are serialized by the mounted route; stale native opens
 release their returned registration instead of switching a newer session. Late
 catalog, locate and recovery inspection responses cannot update a retired Home.
 New/Open/Recent/Locate/Remove/confirmation use semantic buttons and visible focus;
-Home starts focus at New, and F6 still reaches the existing writing save action.
+Home starts focus at New. F6 prefers the enabled writing save action, falling
+back to the first enabled screenplay action when Save is unavailable.
 
 Recovery remains an explicit full-byte native choice. The displayed preview is
 bounded, while Resume revalidates and checkpoints the complete selected bytes

@@ -1,10 +1,27 @@
-# Current state — AUDIT-D06 complete
+# Current state — AUDIT-NATIVE-R1 complete
 
-Date: 2026-10-03. Application: **babel**. Main; local commit only, no push.
+Date: 2026-10-04. Application: **babel**. Main; local commit only, no push.
 M0–M5 and bounded M6-01 investigation remain recorded complete. **M6-02 stays
 unchecked; operation findings, C1/F2 and Local v1 admission remain open.**
 
 ## Task and work
+
+**AUDIT-NATIVE-R1 complete**, base `fcfade8`: Save-first F6 focus restored;
+private Mozc server bound read-only at its compiled path. Command drill now
+observes owned GTK selection during physical keys before Save As/Enter.
+[Brief](tasks/AUDIT-NATIVE-R1.md),
+[evidence](test-evidence/AUDIT.md#audit-native-r1--f6-focus-and-private-mozc).
+Only WritingView focus logic and native test prerequisites/traversal changed;
+original 819 native assertions, editor/drill/frozen AUDIT bytes remain intact.
+Current frontend **876/876**, Rust **264/264**; shared/static/browser/default
+embedded release pass. Full native commands **2/2 strict**; editor **2/2 content,
+1/2 strict** on tmpfs/Btrfs. Selected **4/4 content, 3/4 strict**, not a clean
+full matrix. Btrfs owned WebKit **SIGSEGV 251383/start 3043549** coincides with
+parent disappearance during existing forced SIGKILL/restart; source/recovery
+checks pass but no cause/correction or C1/F2 closure. Raw journal/core, failed
+attempts and checksummed tmpfs mirrors retained in `target/audit-native-r1/`.
+Original F6/Mozc blockers corrected; wider read-only F6 remains unverified after
+an additional injected probe. No full keyboard/a11y/IME or admission claim.
 
 **AUDIT-D06 complete**, base `200e375`. [Brief](tasks/AUDIT-D06.md).
 Receipt-derived status with closed Save details; memory-only/snapshot alerts
@@ -65,12 +82,13 @@ started. Capture-failure bundle policy remains a separate owner/ADR decision.
 
 ## Next action and stopping point
 
-Stopped after **AUDIT-D06**. Next DESIGN continuation: draft bounded **D-02**
-rules 1+3 (byte-identical journal reconciliation and plain divergent choice),
-without rejected auto-adopt/retirement. Do not start another DESIGN task here.
-Native F6 and Mozc prerequisite failures need separate reproduction/disposition;
-initial SIMP-F daily assessment observation remains unresolved. Do not weaken
-assertions or substitute injected composition for genuine native IME.
+Stopped after **AUDIT-NATIVE-R1**, local commit only; do not start D-02 here.
+Next ready DESIGN continuation: draft bounded **D-02** rules 1+3
+(byte-identical journal reconciliation and plain divergent choice), without
+rejected auto-adopt/retirement. For a separate crash follow-up, start from the
+retained Btrfs owned core/ledger and matched forced-restart controls; clean
+reruns cannot dispose of it. Initial SIMP-F daily assessment remains unresolved.
+Never weaken assertions or substitute injected composition for native IME.
 
 [M6-02-R1](tasks/M6-02-R1.md) remains separate. Supported-runtime
 [M6-01-R1](tasks/M6-01-R1.md) needs an identified available correction; C stays

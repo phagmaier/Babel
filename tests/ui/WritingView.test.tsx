@@ -620,6 +620,42 @@ describe('M3-12 writing surface', () => {
     );
   });
 
+  it('AUDIT-NATIVE-R1 F6 prefers Save over earlier enabled source actions and returns', async () => {
+    const { ports } = fixturePorts({ picked: opened() });
+    ports.externalSource = {
+      check: vi.fn(async () => ({
+        identity,
+        status: 'unchanged' as const,
+        fingerprint: opened().fingerprint!,
+        source: null,
+      })),
+      reload: vi.fn(),
+    };
+    render(
+      <WritingView
+        ports={ports}
+        open={{ kind: 'picked' }}
+        onSessionClosed={vi.fn()}
+      />,
+    );
+    const save = await screen.findByRole('button', {
+      name: 'Save',
+    });
+    await waitFor(() => expect(save.hasAttribute('disabled')).toBe(false));
+    const check = screen.getByRole('button', {
+      name: 'Check external changes',
+    });
+    expect(check.hasAttribute('disabled')).toBe(false);
+    const editor = screen
+      .getByLabelText('Screenplay editor')
+      .querySelector<HTMLElement>('.ProseMirror')!;
+    editor.focus();
+    fireEvent.keyDown(editor, { key: 'F6' });
+    expect(document.activeElement).toBe(save);
+    fireEvent.keyDown(save, { key: 'F6' });
+    expect(document.activeElement).toBe(editor);
+  });
+
   it('refuses smart keys and element commands when native ownership is read-only', async () => {
     const { ports, calls } = fixturePorts({
       picked: {
