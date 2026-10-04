@@ -7,10 +7,8 @@ import type {
   LineEdit,
   Newline,
   SourceLineEdit,
-  ConversionProposal,
-  StyledText,
 } from './fountainModel.ts';
-import { parseInline, richView, sourceForInline } from './fountainInline.ts';
+import { parseInline, richView } from './fountainInline.ts';
 import { structureFountain } from './fountainStructure.ts';
 import { unescapedIndex } from './fountainSyntax.ts';
 
@@ -38,8 +36,7 @@ export class FountainEditError extends Error {
     | 'invalid-edit'
     | 'round-trip'
     | 'neighbor-drift'
-    | 'unrepresentable'
-    | 'stale-conversion';
+    | 'unrepresentable';
   /** For `neighbor-drift`: the unowned line (pre-edit index) whose interpretation would change. */
   readonly line: number | undefined;
   constructor(code: FountainEditError['code'], message: string, line?: number) {
@@ -1129,8 +1126,6 @@ function sourceContext(
   document: FountainDocument,
   from: number,
   count: number,
-  conversion: boolean,
-  mixedHidden: boolean,
 ) {
   if (!snapshots.has(document))
     throw new TypeError('Expected a codec-owned immutable document');
@@ -1163,26 +1158,26 @@ function sourceContext(
     if (
       intersects(region.from, region.count) &&
       (!includes(region.from, region.count) ||
-        (!conversion && (!region.closed || region.ambiguous)))
+        !region.closed ||
+        region.ambiguous)
     )
       throw new FountainEditError(
         'protected-region',
-        'Hidden edits must own a complete unambiguous region; preserve a copy before conversion',
+        'Hidden edits must own a complete unambiguous region; preserve an exact copy',
       );
   }
   if (
-    !conversion &&
     document.lines
       .slice(from, end)
       .some(
         (line) =>
-          (line.kind === 'raw' && !mixedHidden) ||
+          line.kind === 'raw' ||
           (!line.editable && !line.titleOf && !line.hiddenOf),
       )
   )
     throw new FountainEditError(
       'protected-region',
-      'Raw or imported malformed content requires a conversion proposal',
+      'Raw or imported malformed content stays protected; preserve an exact copy',
     );
 }
 
@@ -1233,11 +1228,9 @@ function concreteTransaction(
   from: number,
   count: number,
   edits: readonly SourceLineEdit[],
-  conversion = false,
-  mixedHidden = false,
   retainedIds?: readonly string[],
 ): FountainDocument {
-  sourceContext(document, from, count, conversion, mixedHidden);
+  sourceContext(document, from, count);
   if (
     retainedIds &&
     (retainedIds.length !== edits.length ||
@@ -1306,7 +1299,7 @@ function concreteTransaction(
         if (line.kind === 'raw' && !line.hiddenOf)
           throw new FountainEditError(
             'unrepresentable',
-            'Conversion still contains unsupported raw syntax; original bytes remain available',
+            'Changed source contains unsupported raw syntax; original bytes remain available',
           );
       }
       for (const region of after.hiddenRegions) {
@@ -1340,7 +1333,7 @@ function concreteTransaction(
   );
 }
 
-/** Complete known-region edits. Unknown/malformed conversion must use the proposal lifecycle. */
+/** Complete known-region edits; raw, malformed and ambiguous source stays protected. */
 export function replaceKnownSourceContext(
   document: FountainDocument,
   from: number,
@@ -1348,63 +1341,7 @@ export function replaceKnownSourceContext(
   edits: readonly SourceLineEdit[],
   retainedIds?: readonly string[],
 ): FountainDocument {
-  return concreteTransaction(
-    document,
-    from,
-    count,
-    edits,
-    false,
-    false,
-    retainedIds,
-  );
-}
-
-const proposals = new WeakMap<
-  ConversionProposal,
-  { before: FountainDocument; after: FountainDocument }
->();
-export function proposeSourceConversion(
-  document: FountainDocument,
-  from: number,
-  count: number,
-  edits: readonly SourceLineEdit[],
-): ConversionProposal {
-  const after = concreteTransaction(document, from, count, edits, true);
-  const proposal: ConversionProposal = Object.freeze({
-    sourceStart:
-      document.lines[from]?.sourceStart ?? snapshots.get(document)!.length,
-    sourceEnd:
-      document.lines[from + count - 1]?.sourceEnd ??
-      document.lines[from]?.sourceStart ??
-      snapshots.get(document)!.length,
-    get originalBytes() {
-      return serializeFountain(document);
-    },
-    get candidateBytes() {
-      return serializeFountain(after);
-    },
-  });
-  proposals.set(proposal, { before: document, after });
-  return proposal;
-}
-
-/** An editor's explicit acceptance event. A stale proposal cannot replace newer authoring state. */
-export function acceptSourceConversion(
-  current: FountainDocument,
-  proposal: ConversionProposal,
-): FountainDocument {
-  const pair = proposals.get(proposal);
-  if (!pair)
-    throw new FountainEditError(
-      'invalid-edit',
-      'Expected a codec-owned conversion proposal',
-    );
-  if (current !== pair.before)
-    throw new FountainEditError(
-      'stale-conversion',
-      'Source changed since conversion was proposed; original and candidate copies remain available',
-    );
-  return pair.after;
+  return concreteTransaction(document, from, count, edits, retainedIds);
 }
 
 function existingSource(
@@ -1457,118 +1394,6 @@ export function replaceTitleField(
       : { source: indent + text, kind: 'titleContinuation', text };
   });
   return replaceKnownSourceContext(document, field.from, field.count, edits);
-}
-
-/** Content rows include leading/trailing empty entries when wrappers occupy their own lines. */
-export function replaceHiddenContent(
-  document: FountainDocument,
-  id: string,
-  contentLines: readonly string[],
-): FountainDocument {
-  const region = document.hiddenRegions.find(
-    (candidate) => candidate.id === id,
-  );
-  if (!region)
-    throw new FountainEditError('range', 'No hidden region with that ID');
-  if (!region.closed || region.ambiguous)
-    throw new FountainEditError(
-      'unrepresentable',
-      'Incomplete/ambiguous hidden syntax requires an explicit conversion proposal and exact copy',
-    );
-  const open = region.kind === 'note' ? '[[' : '/*';
-  const close = region.kind === 'note' ? ']]' : '*/';
-  if (
-    !contentLines.length ||
-    contentLines.some(
-      (line) =>
-        /[\r\n]/.test(line) || line.includes(open) || line.includes(close),
-    )
-  )
-    throw new FountainEditError(
-      'unrepresentable',
-      'Hidden content would introduce or cross a delimiter',
-    );
-  const first = document.lines[region.from]!;
-  const last = document.lines[region.from + region.count - 1]!;
-  const bytes = snapshots.get(document)!;
-  const prefix = decoder.decode(
-    bytes.subarray(first.sourceStart, region.sourceStart),
-  );
-  const suffix = decoder.decode(
-    bytes.subarray(region.sourceEnd, last.contentEnd),
-  );
-  const source = prefix + open + contentLines.join('\n') + close + suffix;
-  const physical = source.split('\n');
-  const edits = physical.map((text, index): SourceLineEdit => ({
-    source: text,
-    text,
-    kind:
-      (index === 0 && prefix.trim() !== '') ||
-      (index === physical.length - 1 && suffix.trim() !== '')
-        ? 'raw'
-        : region.kind,
-  }));
-  return concreteTransaction(
-    document,
-    region.from,
-    region.count,
-    edits,
-    false,
-    true,
-  );
-}
-
-export function replaceInline(
-  document: FountainDocument,
-  index: number,
-  runs: readonly StyledText[],
-): FountainDocument {
-  const line = document.lines[index];
-  if (!line?.inline)
-    throw new FountainEditError(
-      'unrepresentable',
-      'This source region has no editable inline interpretation; preserve an exact copy',
-    );
-  let text: string;
-  try {
-    text = sourceForInline(runs);
-  } catch (error) {
-    throw new FountainEditError(
-      'unrepresentable',
-      error instanceof Error ? error.message : 'Unrepresentable inline content',
-    );
-  }
-  if (
-    JSON.stringify(richView(line.inline.runs)) ===
-    JSON.stringify(richView(runs))
-  )
-    return document;
-  if (line.titleOf) {
-    const field = document.titleFields.find(
-      (candidate) => candidate.id === line.titleOf,
-    )!;
-    return replaceTitleField(
-      document,
-      field.id,
-      field.key,
-      field.values.map((value) =>
-        value.lineId === line.id ? text : value.text,
-      ),
-    );
-  }
-  const after = replaceLine(document, index, {
-    kind: line.kind as LineEdit['kind'],
-    text,
-  });
-  if (
-    JSON.stringify(richView(after.lines[index]!.inline!.runs)) !==
-    JSON.stringify(richView(runs))
-  )
-    throw new FountainEditError(
-      'round-trip',
-      'Inline semantics changed while serializing grammar context',
-    );
-  return after;
 }
 
 export function setDualDialogue(

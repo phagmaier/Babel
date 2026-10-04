@@ -1,32 +1,34 @@
-# Current state — AUDIT-SLP-B complete; stopped
+# Current state — AUDIT-SLP-C complete; stopped
 
 Date: 2026-10-03. Application: **babel**. Main; local commit only, no push.
-Current task base `d463656`, clean main, two local commits ahead at claim. M0–M5 and bounded M6-01
-investigation remain recorded complete. **M6-02 stays unchecked; retained
-operation findings, C1/F2 and Local v1 admission remain open.**
+M0–M5 and bounded M6-01 investigation remain recorded complete. **M6-02 stays
+unchecked; operation findings, C1/F2 and Local v1 admission remain open.**
 
 ## Task and work
 
-**AUDIT-SLP-B complete**, base `d463656`, main. [Brief](tasks/AUDIT-SLP-B.md).
-S-02 composition page/model/drivers retired before S-01 codec/proof suites;
-S-03 native/PDF proof programs and four npm dependencies removed; S-04 snapshot
-page/config/fixed destination command removed. Ported corrupt-oracle/path/topic
-and original fixture byte/isolation assertions, then removed redundant codec.
-S-11 production candidate tamper/truncation coverage precedes replacement-proof
-removal. Kept composition fixtures/seed/native backend, independent renderer/PDF
-inputs and history-store. Historical links use pinned pre-deletion sources.
-Tier 3: frontend 862/862; workspace 261/261 each tmpfs/Btrfs; focused 207/207 +
-source 16/16; retained feature 62/62; five faults detected. Default native
-lifecycle content 2/2 but initial strict 1/2: Btrfs owned WebKit SIGSEGV
-(PID `69485`, start `1517917`) at parent-kill/restart; raw core/ledger retained.
-Fresh control/replay 2/2 and retained feature input/protection pass. These
-clean samples do not resolve the retained runtime failure or C1/F2.
-[Audit evidence](test-evidence/AUDIT.md#audit-slp-b--retired-prototype-proofs-with-production-coverage)
-owns failures, commands/timings/artifacts and native/injected claim limits.
-Static/build/browser/link/diff checks pass. Frozen audit and 63 retained files
-unchanged. Snapshot copy/prune independent production-native gap stays M6-03.
-No new package/IME/S13/CI, SELinux, C1/F2 or admission claim. Local commit only;
-stopped before AUDIT-SLP-C.
+**AUDIT-SLP-C complete**, base `186ea59`, main. [Brief](tasks/AUDIT-SLP-C.md).
+Deleted unused inline/hidden edit APIs, conversion proposal/acceptance/type/error
+and conversion/mixed-hidden bypass flags. Ported supported edits to guarded live
+EditorState/capture, title action and complete known context; retained independent
+parser samples and raw/mixed/malformed protection tests. Added exact Undo/Redo
+checks and pinned the rich sample's 112 successes/16 round-trip refusals; baseline
+codec replay confirms unchanged live behavior. D01 keep-set and 168 retained files
+byte-identical. Tier 2: frontend 863/863, focused 275/275,
+Rust workspace 261/261 (tmpfs), baseline-live 49/49; renderer/browser/static pass.
+[Audit evidence](test-evidence/AUDIT.md#audit-slp-c--unused-complex-codec-edit-apis)
+owns exploratory assertion failures, commands/timing and injected/JSDOM limits.
+No new native/IME/package/SELinux/C1/F2/admission claim. Local commit only;
+stopped before AUDIT-SIMP-N.
+
+**AUDIT-SLP-B complete** (`186ea59`, local; base `d463656`).
+[Brief](tasks/AUDIT-SLP-B.md), [evidence/failures](test-evidence/AUDIT.md#audit-slp-b--retired-prototype-proofs-with-production-coverage).
+Retired superseded composition/native/PDF/snapshot/codec/replacement proofs after
+production coverage ports; retained fixtures/backend/renderer/history-store.
+Frontend 862/862, workspace 261/261 each tmpfs/Btrfs; five faults detected.
+Initial strict native 1/2: owned Btrfs WebKit SIGSEGV (PID `69485`, start `1517917`)
+at parent-kill/restart, raw core/ledger retained. Content 2/2, fresh control/replay
+strict 2/2 and feature input/protection pass; clean samples do not resolve the
+runtime finding or C1/F2. M6-03 independent snapshot copy/prune gap remains.
 
 **AUDIT-SLP-A complete** (`d463656`, local; base `09d496f`).
 [Brief](tasks/AUDIT-SLP-A.md), [evidence/failures](test-evidence/AUDIT.md#audit-slp-a--unused-import-read-relink-and-status-paths).
@@ -70,11 +72,6 @@ not actual unmount/power/controller/antivirus/sync-product acceptance. M6-01
 failed roots/binaries/cores remain untouched; stronger Save As/IME samples did
 not reproduce their symptoms, so causes stay open.
 
-## Docs maintenance
-
-Tier 1 debloat `433c150`: tracker/index/stale refs and tracked link/matrix tools;
-formatting, 172 links, Python and diff passed. Frozen evidence retained.
-
 ## Audit execution (2026-10-03, `AUDIT.md` frozen)
 
 Tracker: `TODO.md` `## Audit execution`; [audit evidence](test-evidence/AUDIT.md).
@@ -102,10 +99,11 @@ Clean samples do not close C1/F2 or universal storage/sync-folder acceptance.
 
 ## Next action and blockers
 
-Completed `AUDIT-SLP-B`; stopped before `AUDIT-SLP-C`. Next continuation: draft
-SLP-C's bounded brief for S-08 replaceInline/replaceHiddenContent/conversion
-pair deletion; keep setDualDialogue/replaceLineWithBreaks wired by AUDIT-D01.
-SIMP-N/F and D-06 remain later separate briefs. Capture-failure draft-bundle
+Completed `AUDIT-SLP-C`; stopped before `AUDIT-SIMP-N`. Next continuation:
+draft SIMP-N's bounded brief for X-01 worker helpers, X-05 handler-list dedup,
+X-02 test fixtures and the accepted X-03 private-file/directory primitives;
+keep audit-refuted shared-save-worker/write-verified proposals out. Tier 3.
+SIMP-F and D-06 remain later separate briefs. Capture-failure draft-bundle
 fallback remains an owner decision (ADR + Tier 3). [M6-02-R1](tasks/M6-02-R1.md)
 remains separate; C1/F2 unchanged.
 

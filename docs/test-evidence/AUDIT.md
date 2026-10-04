@@ -471,3 +471,34 @@ closure, and the two crash records describe one event, not duplicate crashes.
 
 - Final `python3 tools/audit-slp-b.py` — **pass 63 retained files and full handler parity**: default 45 commands unchanged, retained feature 47 after only the two retired commands; `surfaces-final.json`, `handler-parity.json`.
 - Final `pnpm format:check`, `cargo fmt --all -- --check`, `sh tools/lint-py.sh`, `python3 tools/check-links.py`, `git diff --check` — **pass**, 77 Python files/469 changed links; `format-final.log`, `python-final.log`, `links-final.log`. Handoff 117 lines/8,133 bytes; frozen bytes and original failed native artifacts retained.
+
+## AUDIT-SLP-C — unused complex codec edit APIs
+
+Base `186ea59`, clean main at claim, 2026-10-03. [Brief](../tasks/AUDIT-SLP-C.md).
+S-08 deletion only; no live editor/native/persistence behavior or dependency
+change. Removed unused inline/hidden/conversion APIs, proposal state/type/error
+and bypass parameters. Supported inline/Note/title edits now tested through
+production guarded EditorState/deferred capture/title actions; standalone hidden
+source edits use complete known context. Retired mixed-hidden/raw-conversion
+successes remain independent parser samples plus current protection refusals.
+Independent fixture bytes/hashes and historical recipes unchanged. Renderer
+reports explicitly identify four historical edited parser samples. Artifacts:
+`target/audit-slp-c/`; observed host/pins remain as recorded above.
+
+- `python3 tools/audit-slp-c.py` before edits — expected **red 19 removed surfaces/bypasses**, retained bytes pass; `red-surfaces.json`. After deletion **pass 168 retained files** plus byte-identical existingSource/setDualDialogue/replaceLineWithBreaks; `surfaces.json`. Includes frozen AUDIT.md, fixtures, native sources, editor capture/commands, inline encoder and dependency pins.
+- `pnpm exec vitest run tests/contract/fountain-complex.test.ts` before deleting APIs — JSDOM/live-editor control initial **fail 48/49**, migrated ambiguous-note expectation wrongly required round-trip rather than unrepresentable; `ported-control.log`. A failed edit-script attempt left the assertion unchanged and repeat failed identically (`ported-control-corrected.log`); corrected per-case error expectations **pass 49/49**, 1.09s (`ported-control-final.log`). Production code unchanged throughout this control.
+- `pnpm exec vitest run tests/contract/fountain-complex.test.ts tests/contract/production-fountain.test.ts tests/contract/editor-bridge.test.ts tests/contract/editor-keys.test.ts tests/contract/editor-shortcuts.test.ts tests/contract/editor-input.test.ts` — codec/JSDOM/synthetic production transactions **pass 275/275**, initial 2.77s `focused.log`, final 4.815s `focused-final.{log,json}`. Exact live capture/Undo/Redo, raw/mixed/unclosed/malformed protection, D01 wiring and fixture semantics retained; no native trusted-input claim.
+- Strengthened rich-request assertion exploration (`pnpm exec vitest run tests/contract/fountain-complex.test.ts`) — **fail 48/49** expecting all 128 successes; actual 112 successes/16 typed refusals (`rich-requests.log`). Refusal-shape probe **fail 48/49** expecting no refusals (`rich-refusals.log`): only modulo-8 variant 7, styled boneyard literal, refuses round-trip. Final assertion requires exactly 112 successes and this refusal shape, replacing the old acceptance of any typed refusal; no production behavior changed.
+- `pnpm exec vitest run tests/contract/fountain-complex.test.ts --config target/audit-slp-c/baseline.config.ts` — in-memory pre-change `186ea59` codec with current live/editor tests **pass 49/49**, 2.589s; `baseline-live.{log,json}`, `baseline-loaded.json`. Confirms the pinned 112/16 outcome against unchanged baseline; production files never overwritten. This is a JSDOM baseline control, not native verification.
+- `pnpm check` — first **fail 862 pass/1 assertion fail**, 56.091s, during the too-strong 128-success exploration (`frontend.{log,json}`); final **pass 863/863**, formatting/lint/typecheck/build, 63.373s (`frontend-final.{log,json}`). One added live Undo/Redo test; original 862 → 863. Existing Vite chunk advisory retained.
+- `cargo fmt --all -- --check` and `CARGO_HOME=/tmp/babel-cargo cargo clippy --workspace --all-targets --all-features --locked -- -D warnings` — **pass**, 3.417s combined; `rust-static.{log,json}`. Native retained feature statically checked; no new native runtime claim.
+- `CARGO_HOME=/tmp/babel-cargo cargo test --workspace --locked` — real disposable tmpfs IO + MockRuntime **pass 261/261**, 64.144s; `workspace.{log,json}`. Optional unavailable Enchant providers warn; Hunspell tests pass. Tier 2: codec/tests/tooling only, native filesystem/IPC/packaging source unchanged; no second filesystem, embedded native rebuild or native drill required. Prior SLP-B owned SIGSEGV and all C1/F2 evidence remain open.
+- `PYTHONPATH=$PWD/target/pdf-helper/runtime/app/lib node tests/tooling/fountain-complex-compare.ts target/pdf-helper/runtime/python/bin/python3.13 target/audit-slp-c/production-comparison` — independent pinned renderer/production parser **pass 37 literal source checks, 30 renderer checks, 26 supported agreements**, 2.165s; `renderer.{log,json}`, `production-comparison/comparison.json`. Four historical edited samples explicitly listed; this no longer asserts execution of their retired codec helpers, and is not a production PDF/editor/native flow.
+- `pnpm test:browser` — actual Chromium/browser **pass**, 13.701s; `browser.{log,json}`. Browser native ports disabled; no new WebKit/IME/persistence evidence.
+- `sh tools/lint-py.sh` — **pass 77 tracked/current Python files**, 3.922s; `python.{log,json}`. New boundary checker included; no global settings or dependency changes.
+
+Acceptance complete; local commit only, stopped before AUDIT-SIMP-N. No new
+SELinux, C1/F2, M6-02 or Local v1 admission claim. Prior failures/cores untouched.
+Final changed-doc formatting/link/diff checks recorded below.
+
+- Final `pnpm format:check`, `python3 tools/check-links.py`, `python3 tools/audit-slp-c.py`, `git diff --check` — **pass**, 170 changed links/168 retained files; `format-final.{log,json}`, `links-final.log`, `surfaces-final.json`. Handoff 115 lines/8,156 bytes; frozen audit/fixture/native/editor bytes and earlier failure artifacts retained.

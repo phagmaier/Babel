@@ -1,12 +1,18 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
+import { undo, redo } from 'prosemirror-history';
+import { TextSelection, type EditorState } from 'prosemirror-state';
 import {
-  acceptSourceConversion,
+  createEditorState,
+  applyEditorTransaction,
+  sourceTitleTransaction,
+} from '../../src/editor/state';
+import { captureEditor } from '../../src/editor/sourceBridge';
+import { screenplaySchema } from '../../src/editor/schema';
+import { toggleEditorMark } from '../../src/editor/formatting';
+import {
   FountainEditError,
   parseFountain,
-  proposeSourceConversion,
-  replaceHiddenContent,
-  replaceInline,
   replaceKnownSourceContext,
   replaceLine,
   replaceLineWithBreaks,
@@ -144,6 +150,49 @@ const project = (
       : {}),
   };
 };
+// Synthetic requests enter the same guarded state and deferred capture as typing.
+function rowStart(state: EditorState, index: number) {
+  return (
+    1 +
+    state.doc.content.content
+      .slice(0, index)
+      .reduce((size, row) => size + row.nodeSize, 0)
+  );
+}
+function editRuns(
+  document: FountainDocument,
+  index: number,
+  runs: readonly StyledText[],
+) {
+  const state = createEditorState(document.bytes, document.recovery);
+  const row = state.doc.child(index);
+  const from = rowStart(state, index);
+  const content = runs
+    .filter((run) => run.text)
+    .map((run) =>
+      screenplaySchema.text(
+        run.text,
+        run.styles.map((style) => screenplaySchema.marks[style]!.create()),
+      ),
+    );
+  const applied = applyEditorTransaction(
+    state,
+    state.tr.replaceWith(from, from + row.content.size, content),
+  );
+  if (!applied.accepted)
+    throw new FountainEditError(
+      'protected-region',
+      'Live editor refused the request',
+    );
+  return captureEditor(applied.state).document;
+}
+function editLiteralRow(
+  document: FountainDocument,
+  index: number,
+  text: string,
+) {
+  return editRuns(document, index, [{ text, styles: [] }]);
+}
 const apply = (
   document: FountainDocument,
   entry: ComplexOracle,
@@ -158,10 +207,10 @@ const apply = (
         op.values!,
       );
     case 'hidden':
-      return replaceHiddenContent(
+      return editLiteralRow(
         document,
-        document.hiddenRegions[op.region!]!.id,
-        op.content!,
+        document.hiddenRegions[op.region!]!.from,
+        '[[A better note.',
       );
     case 'dual':
       return setDualDialogue(
@@ -170,14 +219,17 @@ const apply = (
         document.dialogueGroups[op.left!]!.id,
       );
     case 'inline':
-      return replaceInline(document, op.line!, op.runs!);
+      return editRuns(document, op.line!, op.runs!);
     case 'break':
       return replaceLineWithBreaks(document, op.line!, op.texts!);
     case 'conversion':
-      return acceptSourceConversion(
-        document,
-        proposeSourceConversion(document, op.from!, op.count!, op.edits!),
+      // Retired recipe remains an independent parser sample, never a live conversion.
+      failure(
+        () =>
+          replaceKnownSourceContext(document, op.from!, op.count!, op.edits!),
+        'protected-region',
       );
+      return parse(entry.edited);
     default:
       throw new Error('Unknown literal operation');
   }
@@ -185,7 +237,7 @@ const apply = (
 
 describe('M3-03 independent source/complex-meaning expectations', () => {
   it.each(complex.cases)(
-    '$id preserves exact original and matches independently authored edited bytes/meaning',
+    '$id preserves exact original and matches independent bytes/meaning (raw conversion is parser-only)',
     (entry) => {
       expect(complex.schema).toBe(1);
       expect(digest(encode(entry.source))).toBe(entry.sourceSha256);
@@ -347,12 +399,16 @@ describe('title/hidden ownership and delimiter boundaries', () => {
       '\ufeff\n/*\r\nEXT. OLD ROAD - NIGHT\r\n\r\nKeep.\r\n*/',
     );
     const region = before.hiddenRegions[0]!;
-    const after = replaceHiddenContent(before, region.id, [
-      '',
-      'EXT. NEW ROAD - NIGHT',
-      '',
-      'Keep.',
-      '',
+    const after = replaceKnownSourceContext(before, region.from, region.count, [
+      { source: '/*', kind: 'boneyard', text: '/*' },
+      {
+        source: 'EXT. NEW ROAD - NIGHT',
+        kind: 'boneyard',
+        text: 'EXT. NEW ROAD - NIGHT',
+      },
+      { source: '', kind: 'boneyard', text: '' },
+      { source: 'Keep.', kind: 'boneyard', text: 'Keep.' },
+      { source: '*/', kind: 'boneyard', text: '*/' },
     ]);
     expect(source(after)).toBe(
       '\ufeff\n/*\r\nEXT. NEW ROAD - NIGHT\r\n\r\nKeep.\r\n*/',
@@ -374,25 +430,22 @@ describe('title/hidden ownership and delimiter boundaries', () => {
     expect(source(after)).toContain('EXT. NEW ROAD');
   });
 
-  it('edits inline/multiline hidden regions without touching visible prefixes/suffixes or sibling notes', () => {
-    const before = parse(
-      '\nVisible [[old\n  \ntail]] suffix [[keep]].\n\n!Body.\n',
-    );
-    const region = before.hiddenRegions[0]!;
-    expect(region.content).toBe('old\n  \ntail');
-    expect(before.hiddenRegions[1]!.content).toBe('keep');
-    const after = replaceHiddenContent(before, region.id, [
-      'new',
-      '  ',
-      'tail',
-    ]);
-    expect(source(after)).toBe(
-      '\nVisible [[new\n  \ntail]] suffix [[keep]].\n\n!Body.\n',
-    );
-    expect(after.hiddenRegions.map((item) => item.content)).toEqual([
-      'new\n  \ntail',
+  it('preserves mixed hidden/visible parser samples and refuses live edits of their raw rows', () => {
+    const original = '\nVisible [[old\n  \ntail]] suffix [[keep]].\n\n!Body.\n';
+    const before = parse(original);
+    expect(before.hiddenRegions.map((region) => region.content)).toEqual([
+      'old\n  \ntail',
       'keep',
     ]);
+    const sample = '\nVisible [[new\n  \ntail]] suffix [[keep]].\n\n!Body.\n';
+    expect(parse(sample).hiddenRegions.map((region) => region.content)).toEqual(
+      ['new\n  \ntail', 'keep'],
+    );
+    expect(source(parse(sample))).toBe(sample);
+    failure(
+      () => editLiteralRow(before, 1, 'Visible [[new'),
+      'protected-region',
+    );
     failure(
       () =>
         replaceKnownSourceContext(before, 1, 3, [
@@ -400,6 +453,7 @@ describe('title/hidden ownership and delimiter boundaries', () => {
         ]),
       'protected-region',
     );
+    expect(source(before)).toBe(original);
   });
 
   it('hidden byte spans include Unicode exactly, exclude delimiters from content and never expose omitted text as emphasis', () => {
@@ -431,8 +485,11 @@ describe('title/hidden ownership and delimiter boundaries', () => {
       const region = document.hiddenRegions[0]!;
       expect(region.closed && !region.ambiguous).toBe(false);
       failure(
-        () => replaceHiddenContent(document, region.id, ['change']),
-        'unrepresentable',
+        () =>
+          replaceKnownSourceContext(document, region.from, region.count, [
+            { source: '[[change]]', kind: 'note', text: '[[change]]' },
+          ]),
+        'protected-region',
       );
       expect(source(document)).toBe(text);
     }
@@ -444,29 +501,28 @@ describe('title/hidden ownership and delimiter boundaries', () => {
         ]),
       'protected-region',
     );
-    failure(
-      () =>
-        replaceHiddenContent(before, before.hiddenRegions[0]!.id, [
-          'unsafe ]] suffix',
-        ]),
-      'unrepresentable',
-    );
-    failure(
-      () =>
-        replaceHiddenContent(before, before.hiddenRegions[0]!.id, [
-          'a',
-          '',
-          'b',
-        ]),
-      'unrepresentable',
-    );
+    for (const [rows, code] of [
+      [['[[unsafe ]] suffix]]'], 'round-trip'],
+      [['[[a', '', 'b]]'], 'unrepresentable'],
+    ] as const) {
+      failure(
+        () =>
+          replaceKnownSourceContext(
+            before,
+            1,
+            3,
+            rows.map((text) => ({ source: text, text, kind: 'note' as const })),
+          ),
+        code,
+      );
+    }
   });
 
-  it('refuses deleting a closer while undeclared tail text remains, even with a conversion proposal', () => {
+  it('refuses deleting a closer while undeclared tail text remains through known context', () => {
     const before = parse('\n/*\nold\n*/\n\n!Visible.\n');
     failure(
       () =>
-        proposeSourceConversion(before, 1, 2, [
+        replaceKnownSourceContext(before, 1, 2, [
           { source: '/*', kind: 'boneyard', text: '/*' },
           { source: 'old', kind: 'boneyard', text: 'old' },
         ]),
@@ -474,7 +530,7 @@ describe('title/hidden ownership and delimiter boundaries', () => {
     );
     failure(
       () =>
-        proposeSourceConversion(before, 1, 3, [
+        replaceKnownSourceContext(before, 1, 3, [
           { source: '/*', kind: 'boneyard', text: '/*' },
           { source: 'new', kind: 'boneyard', text: 'new' },
         ]),
@@ -484,7 +540,7 @@ describe('title/hidden ownership and delimiter boundaries', () => {
   });
 });
 
-describe('dialogue groups, incomplete input and safe conversion acceptance', () => {
+describe('dialogue groups, incomplete input and protected source', () => {
   it('sets/removes a dual relationship, preserving speech/parentheticals/IDs and rejecting overlap', () => {
     const before = parse('\n@Mara\nFirst.\n\n@Ivo\nReply.\n\n@Zoë\nLast.\n');
     const pair = setDualDialogue(
@@ -544,7 +600,7 @@ describe('dialogue groups, incomplete input and safe conversion acceptance', () 
     expect(source(chained)).toContain('@Zoë ^\nLast.\n');
   });
 
-  it('creates reviewable owned proposals; mutable copies, stale acceptance and forged proposals cannot replace source', () => {
+  it('raw edits stay refused after unrelated live edits and owned copy mutation', () => {
     const before = parse('\n{{raw}}\n\n!Body.\n');
     const edits: SourceLineEdit[] = [
       { source: '!Converted.', kind: 'action', text: 'Converted.' },
@@ -553,64 +609,48 @@ describe('dialogue groups, incomplete input and safe conversion acceptance', () 
       () => replaceKnownSourceContext(before, 1, 1, edits),
       'protected-region',
     );
-    const proposal = proposeSourceConversion(before, 1, 1, edits);
-    expect(Object.isFrozen(proposal)).toBe(true);
-    expect(new TextDecoder().decode(proposal.originalBytes)).toBe(
-      '\n{{raw}}\n\n!Body.\n',
-    );
-    expect(new TextDecoder().decode(proposal.candidateBytes)).toBe(
-      '\n!Converted.\n\n!Body.\n',
-    );
-    proposal.originalBytes.fill(0);
-    proposal.candidateBytes.fill(0);
-    const newer = replaceLine(before, 3, {
-      kind: 'action',
-      text: 'Newer body.',
-    });
-    failure(() => acceptSourceConversion(newer, proposal), 'stale-conversion');
+    failure(() => editLiteralRow(before, 1, 'Converted.'), 'protected-region');
+    before.bytes.fill(0);
+    const newer = editLiteralRow(before, 3, 'Newer body.');
     failure(
-      () => acceptSourceConversion(before, { ...proposal }),
-      'invalid-edit',
-    );
-    expect(source(acceptSourceConversion(before, proposal))).toBe(
-      '\n!Converted.\n\n!Body.\n',
+      () => replaceKnownSourceContext(newer, 1, 1, edits),
+      'protected-region',
     );
     expect(source(before)).toBe('\n{{raw}}\n\n!Body.\n');
     expect(source(newer)).toBe('\n{{raw}}\n\n!Newer body.\n');
   });
 
-  it('allows explicit complete unclosed-region/imported-malformed conversion but refuses unsafe candidates', () => {
-    const before = parse('\n[[unfinished\ntail');
-    const proposal = proposeSourceConversion(before, 1, 2, [
-      { source: '[[reviewed', kind: 'note', text: '[[reviewed' },
-      { source: 'tail]]', kind: 'note', text: 'tail]]' },
-    ]);
-    expect(source(acceptSourceConversion(before, proposal))).toBe(
-      '\n[[reviewed\ntail]]',
-    );
-    expect(source(before)).toBe('\n[[unfinished\ntail');
-    const malformed = parse('\n@Zoë\n(unfinished\n');
-    const complete = proposeSourceConversion(malformed, 2, 1, [
-      { source: '(waiting)', kind: 'parenthetical', text: '(waiting)' },
-    ]);
-    expect(source(acceptSourceConversion(malformed, complete))).toBe(
-      '\n@Zoë\n(waiting)\n',
-    );
-    failure(
-      () =>
-        proposeSourceConversion(parse('\n{{raw}}\n'), 1, 1, [
-          { source: '{{still raw}}', kind: 'raw', text: '{{still raw}}' },
-        ]),
-      'unrepresentable',
-    );
-    failure(
-      () =>
-        proposeSourceConversion(before, 1, 2, [
-          { source: '[[unfinished', kind: 'note', text: '[[unfinished' },
-          { source: 'tail', kind: 'note', text: 'tail' },
-        ]),
-      'unrepresentable',
-    );
+  it('complete ownership cannot convert unclosed regions or imported malformed parentheticals', () => {
+    for (const [original, from, count, edits] of [
+      [
+        '\n[[unfinished\ntail',
+        1,
+        2,
+        [
+          { source: '[[reviewed', kind: 'note', text: '[[reviewed' },
+          { source: 'tail]]', kind: 'note', text: 'tail]]' },
+        ],
+      ],
+      [
+        '\n@Zoë\n(unfinished\n',
+        2,
+        1,
+        [{ source: '(waiting)', kind: 'parenthetical', text: '(waiting)' }],
+      ],
+      [
+        '\n{{raw}}\n',
+        1,
+        1,
+        [{ source: '{{still raw}}', kind: 'raw', text: '{{still raw}}' }],
+      ],
+    ] as const) {
+      const before = parse(original);
+      failure(
+        () => replaceKnownSourceContext(before, from, count, edits),
+        'protected-region',
+      );
+      expect(source(before)).toBe(original);
+    }
   });
 });
 
@@ -661,12 +701,12 @@ describe('inline formatting/literals and intentional physical breaks', () => {
       { text: ' bell', styles: ['underline'] },
       { text: ' *literal* _plain_ \\ end.', styles: [] },
     ];
-    const after = replaceInline(before, 1, runs);
+    const after = editRuns(before, 1, runs);
     expect(source(after)).toBe(
       '\ufeff\n!A _low *gentle* bell_ \\*literal\\* \\_plain\\_ \\ end.\r\n\r\n!Tail.',
     );
     expect(richView(after.lines[1]!.inline!.runs)).toEqual(richView(runs));
-    expect(replaceInline(after, 1, runs)).toBe(after);
+    expect(editRuns(after, 1, runs).bytes).toEqual(after.bytes);
     expect(source(before)).toBe('\ufeff\n!A bell.\r\n\r\n!Tail.');
   });
 
@@ -674,9 +714,22 @@ describe('inline formatting/literals and intentional physical breaks', () => {
     const before = parse(
       'Title:\n    Quiet Tide\n    Part Two\nPrivate: Keep\n\n!Body.\n',
     );
-    const after = replaceInline(before, 1, [
-      { text: 'Quiet Light', styles: ['bold'] },
-    ]);
+    const state = createEditorState(before.bytes, before.recovery);
+    const field = before.titleFields[0]!;
+    const transaction = sourceTitleTransaction(state, {
+      kind: 'edit',
+      id: field.id,
+      key: field.key,
+      values: [
+        '',
+        sourceForInline([{ text: 'Quiet Light', styles: ['bold'] }]),
+        'Part Two',
+      ],
+    });
+    expect(transaction).not.toBeNull();
+    const applied = applyEditorTransaction(state, transaction!);
+    expect(applied.accepted).toBe(true);
+    const after = captureEditor(applied.state).document;
     expect(source(after)).toBe(
       'Title:\n    **Quiet Light**\n    Part Two\nPrivate: Keep\n\n!Body.\n',
     );
@@ -692,27 +745,37 @@ describe('inline formatting/literals and intentional physical breaks', () => {
       expect(Object.isFrozen(item)).toBe(true);
   });
 
-  it('refuses unsupported styled whitespace/newlines/context and protected raw marks without losing original bytes', () => {
+  it('explicit formatting refuses styled whitespace; guarded edits refuse newlines/raw and capture refuses grammar drift', () => {
+    let state = createEditorState(encode('\n! leading \n'));
+    const start = rowStart(state, 1);
+    state = applyEditorTransaction(
+      state,
+      state.tr.setSelection(
+        TextSelection.create(
+          state.doc,
+          start,
+          start + state.doc.child(1).content.size,
+        ),
+      ),
+    ).state;
+    expect(toggleEditorMark(state, 'bold').transaction).toBeUndefined();
+    expect(source(captureEditor(state).document)).toBe('\n! leading \n');
     const before = parse('\n!Body.\n');
     failure(
-      () => replaceInline(before, 1, [{ text: ' leading ', styles: ['bold'] }]),
-      'unrepresentable',
-    );
-    failure(
-      () => replaceInline(before, 1, [{ text: 'two\nlines', styles: [] }]),
-      'unrepresentable',
+      () => editRuns(before, 1, [{ text: 'two\nlines', styles: [] }]),
+      'protected-region',
     );
     const dialogue = parse('\n@Zoë\nSignal.\n');
     failure(
-      () => replaceInline(dialogue, 2, [{ text: '@Someone', styles: [] }]),
+      () => editRuns(dialogue, 2, [{ text: '@Someone', styles: [] }]),
       'round-trip',
     );
     failure(
       () =>
-        replaceInline(parse('\n{{raw}}\n'), 1, [
+        editRuns(parse('\n{{raw}}\n'), 1, [
           { text: 'changed', styles: ['italic'] },
         ]),
-      'unrepresentable',
+      'protected-region',
     );
     expect(source(before)).toBe('\n!Body.\n');
     expect(source(dialogue)).toBe('\n@Zoë\nSignal.\n');
@@ -749,7 +812,7 @@ describe('inline formatting/literals and intentional physical breaks', () => {
     const document = parseFountain(input);
     failure(
       () =>
-        proposeSourceConversion(document, 0, 0, [
+        replaceKnownSourceContext(document, 0, 0, [
           { source: '!Body.', kind: 'action', text: 'Body.' },
         ]),
       'read-only',
@@ -782,7 +845,7 @@ describe('inline formatting/literals and intentional physical breaks', () => {
     const before = parse('\n[[first \\]] literal\nend]]\n\n!Tail.\n');
     expect(before.hiddenRegions[0]!.content).toBe('first \\]] literal\nend');
     expect(before.lines[2]!.kind).toBe('note');
-    const literal = replaceInline(parse('\n!Body.\n'), 1, [
+    const literal = editRuns(parse('\n!Body.\n'), 1, [
       { text: '/*literal*/ [[note]] _literal_ *star*', styles: [] },
     ]);
     expect(literal.hiddenRegions).toEqual([]);
@@ -813,12 +876,13 @@ describe('inline formatting/literals and intentional physical breaks', () => {
       closed: true,
       content: String.raw`hidden \]`,
     });
-    const edited = replaceHiddenContent(
-      complete,
-      complete.hiddenRegions[0]!.id,
-      ['Changed.'],
+    failure(
+      () => editLiteralRow(complete, 0, String.raw`\[[[Changed.]]`),
+      'protected-region',
     );
-    expect(source(edited)).toBe(String.raw`\[[[Changed.]]` + '\n');
+    expect(source(parse(String.raw`\[[[Changed.]]` + '\n'))).toBe(
+      String.raw`\[[[Changed.]]` + '\n',
+    );
     expect(source(complete)).toBe(String.raw`\[[[hidden \]]]` + '\n');
   });
 
@@ -871,6 +935,8 @@ describe('inline formatting/literals and intentional physical breaks', () => {
       ['italic', 'underline'],
       ['bold', 'italic', 'underline'],
     ];
+    let successful = 0;
+    const refusals = new Set<string>();
     for (let count = 0; count < 128; count++) {
       const runs: StyledText[] = [
         { text: 'A ', styles: [] },
@@ -881,7 +947,8 @@ describe('inline formatting/literals and intentional physical breaks', () => {
         { text: ' bell.', styles: [] },
       ];
       try {
-        const result = replaceInline(before, 1, runs);
+        const result = editRuns(before, 1, runs);
+        successful++;
         expect(richView(result.lines[1]!.inline!.runs)).toEqual(richView(runs));
         expect(richView(parseInline(sourceForInline(runs)).runs)).toEqual(
           richView(runs),
@@ -891,9 +958,13 @@ describe('inline formatting/literals and intentional physical breaks', () => {
         );
       } catch (error) {
         expect(error).toBeInstanceOf(FountainEditError);
+        refusals.add(`${count % 8}:${(error as FountainEditError).code}`);
       }
       expect(source(before)).toBe('\n!Body.\n\n!Tail.');
     }
+    expect(successful).toBe(112);
+    // The styled boneyard literal retains the production grammar refusal, not a generic catch-all.
+    expect([...refusals]).toEqual(['7:round-trip']);
   });
 });
 
@@ -908,9 +979,48 @@ it('AUDIT-C356 emits ordinary brackets and paths literally while protecting note
     ['a\\_b', 'a\\\\\\_b'],
     ['a\\[b]', 'a\\\\[b]'],
   ]) {
-    const after = replaceInline(before, 1, [{ text: text!, styles: [] }]);
+    const after = editRuns(before, 1, [{ text: text!, styles: [] }]);
     expect(source(after)).toBe(`\ufeff\n!${spelling}\r\n\r\n!Tail.`);
     expect(after.lines[1]!.inline!.text).toBe(text);
     expect(source(before)).toBe('\ufeff\n!Before.\r\n\r\n!Tail.');
+  }
+});
+
+it('live inline and standalone-note changes preserve exact original bytes through Undo/Redo', () => {
+  for (const [original, row, text, edited] of [
+    [
+      '\ufeff\n!Before.\r\n\r\n!Tail.',
+      1,
+      '[the sign] a\\b',
+      '\ufeff\n![the sign] a\\b\r\n\r\n!Tail.',
+    ],
+    [
+      '\n[[A note.\r\n  \r\nKeep the tail.]]\r\n\r\n{{raw}}',
+      1,
+      '[[A better note.',
+      '\n[[A better note.\r\n  \r\nKeep the tail.]]\r\n\r\n{{raw}}',
+    ],
+  ] as const) {
+    const state = createEditorState(encode(original));
+    const from = rowStart(state, row);
+    const changed = applyEditorTransaction(
+      state,
+      state.tr.insertText(text, from, from + state.doc.child(row).content.size),
+    );
+    expect(changed.accepted).toBe(true);
+    let current = changed.state;
+    expect(source(captureEditor(current).document)).toBe(edited);
+    expect(
+      undo(current, (transaction) => {
+        current = applyEditorTransaction(current, transaction).state;
+      }),
+    ).toBe(true);
+    expect(source(captureEditor(current).document)).toBe(original);
+    expect(
+      redo(current, (transaction) => {
+        current = applyEditorTransaction(current, transaction).state;
+      }),
+    ).toBe(true);
+    expect(source(captureEditor(current).document)).toBe(edited);
   }
 });

@@ -197,11 +197,3 @@ export interface SourceLineEdit {
   /** A cue ID, or null for explicitly absent dual association. */
   readonly dualWith?: string | null;
 }
-export interface ConversionProposal {
-  /** Selected range in the original full snapshot, in UTF-8 bytes. */
-  readonly sourceStart: number;
-  readonly sourceEnd: number;
-  /** Each getter returns an owned copy of the full original/candidate source. */
-  readonly originalBytes: Uint8Array;
-  readonly candidateBytes: Uint8Array;
-}

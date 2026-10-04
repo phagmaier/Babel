@@ -4,11 +4,7 @@ import { spawnSync } from 'node:child_process';
 import { readFileSync, mkdirSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import {
-  acceptSourceConversion,
   parseFountain,
-  proposeSourceConversion,
-  replaceHiddenContent,
-  replaceInline,
   replaceLine,
   replaceLineWithBreaks,
   replaceTitleField,
@@ -89,6 +85,7 @@ const checks = new Map<
   }
 >();
 let sourceChecks = 0;
+const historicalEditedSamples: string[] = [];
 function submit(
   id: string,
   document: FountainDocument,
@@ -159,11 +156,11 @@ for (const entry of complex.cases) {
       );
       break;
     case 'hidden':
-      after = replaceHiddenContent(
-        original,
-        original.hiddenRegions[op.region!]!.id,
-        op.content!,
-      );
+    case 'inline':
+    case 'conversion':
+      // Independent historical literal, not evidence of a live editor operation.
+      historicalEditedSamples.push(entry.id);
+      after = parseFountain(Buffer.from(entry.edited));
       break;
     case 'dual':
       after = setDualDialogue(
@@ -172,17 +169,8 @@ for (const entry of complex.cases) {
         original.dialogueGroups[op.left!]!.id,
       );
       break;
-    case 'inline':
-      after = replaceInline(original, op.line!, op.runs!);
-      break;
     case 'break':
       after = replaceLineWithBreaks(original, op.line!, op.texts!);
-      break;
-    case 'conversion':
-      after = acceptSourceConversion(
-        original,
-        proposeSourceConversion(original, op.from!, op.count!, op.edits!),
-      );
       break;
     default:
       throw new Error('Unknown literal operation');
@@ -351,8 +339,9 @@ for (const actual of parsed.entries) {
 const report = {
   task: 'M3-03',
   scope:
-    'Production source codec against independent literals and pinned Screenplain AST/actual bare HTML; no production PDF/editor/native flow',
+    'Production codec and independent historical parser samples against pinned Screenplain AST/actual bare HTML; no production PDF/editor/native flow',
   sourceChecks,
+  historicalEditedSamples,
   rendererChecks: seen.size,
   agreements,
   gaps: [
@@ -374,5 +363,5 @@ writeFileSync(
   JSON.stringify(report, null, 2) + '\n',
 );
 console.log(
-  `PASS: ${sourceChecks} literal production source checks; ${seen.size} independent renderer checks; ${agreements} full supported atom/run/title agreements. Report: ${resolve(directory, 'comparison.json')}`,
+  `PASS: ${sourceChecks} literal source checks (${historicalEditedSamples.length} historical edited parser samples); ${seen.size} independent renderer checks; ${agreements} full supported atom/run/title agreements. Report: ${resolve(directory, 'comparison.json')}`,
 );
