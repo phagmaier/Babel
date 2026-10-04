@@ -1,0 +1,530 @@
+{
+  "provenance": "Original synthetic cases authored for AUDIT-D04; no real manuscript.",
+  "purpose": "One hand-authored corpus read by two independent checkers. prints/omits are checked against text extracted from PDFs rendered by the pinned helper (tools/pdf-helper/test_helper.py). clean/blockingLines/omissions are checked against Babel's export assessment (tests/contract/export-assessment.test.ts). Whitespace is collapsed before text comparison.",
+  "profile": "us-letter-draft-v1",
+  "cases": [
+    {
+      "name": "inline note in action",
+      "source": "INT. LAB - DAY\n\nA lamp [[private thought]] glows.\n",
+      "prints": [
+        "INT. LAB - DAY",
+        "A lamp glows."
+      ],
+      "omits": [
+        "private thought"
+      ],
+      "clean": true,
+      "blockingLines": [],
+      "omissions": {
+        "notes": 1,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "inline note in dialogue keeps the speech together",
+      "source": "MAYA\nYou kept the light on. [[check tone]]\nAfter everything.\n",
+      "prints": [
+        "MAYA",
+        "You kept the light on.",
+        "After everything."
+      ],
+      "omits": [
+        "check tone"
+      ],
+      "clean": true,
+      "blockingLines": [],
+      "omissions": {
+        "notes": 1,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "inline note on a cue",
+      "source": "MAYA [[angrily]]\nHello there.\n",
+      "prints": [
+        "MAYA",
+        "Hello there."
+      ],
+      "omits": [
+        "angrily"
+      ],
+      "clean": true,
+      "blockingLines": [],
+      "omissions": {
+        "notes": 1,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "inline boneyard in action",
+      "source": "INT. LAB - DAY\n\nA lamp /* cut this */ glows.\n",
+      "prints": [
+        "A lamp glows."
+      ],
+      "omits": [
+        "cut this"
+      ],
+      "clean": true,
+      "blockingLines": [],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 1,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "standalone section, synopsis, note and boneyard",
+      "source": "# Act One\n\nINT. LAB - DAY\n\n= Maya arrives.\n\nA lamp glows.\n\n[[Remember the storm]]\n\n/* Old ending */\n\nShe waits.\n",
+      "prints": [
+        "INT. LAB - DAY",
+        "A lamp glows.",
+        "She waits."
+      ],
+      "omits": [
+        "Act One",
+        "Maya arrives",
+        "Remember the storm",
+        "Old ending"
+      ],
+      "clean": true,
+      "blockingLines": [],
+      "omissions": {
+        "notes": 1,
+        "boneyards": 1,
+        "sections": 1,
+        "synopses": 1
+      }
+    },
+    {
+      "name": "section paragraph carrying its synopsis",
+      "source": "# Act One\n= The setup.\n\nINT. LAB - DAY\n\nA lamp glows.\n",
+      "prints": [
+        "INT. LAB - DAY",
+        "A lamp glows."
+      ],
+      "omits": [
+        "Act One",
+        "The setup"
+      ],
+      "clean": true,
+      "blockingLines": [],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 1,
+        "synopses": 1
+      }
+    },
+    {
+      "name": "per-bracket escapes stay literal",
+      "source": "INT. LAB - DAY\n\nA \\[\\[literal\\]\\] lamp.\n",
+      "prints": [
+        "A [[literal]] lamp."
+      ],
+      "omits": [],
+      "clean": true,
+      "blockingLines": [],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "hash line inside a text paragraph prints",
+      "source": "INT. LAB - DAY\n\n#1 DAD mug sits.\nHe drinks.\n",
+      "prints": [
+        "#1 DAD mug sits.",
+        "He drinks."
+      ],
+      "omits": [],
+      "clean": true,
+      "blockingLines": [],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "ordinary scene",
+      "source": "INT. LAB - DAY\n\nA lamp glows.\n\nMAYA\nHello.\n",
+      "prints": [
+        "INT. LAB - DAY",
+        "A lamp glows.",
+        "MAYA",
+        "Hello."
+      ],
+      "omits": [],
+      "clean": true,
+      "blockingLines": [],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "lone escaped brackets without a hidden marker print literally",
+      "source": "INT. LAB - DAY\n\nA [see \\[x\\]] lamp.\n",
+      "prints": [
+        "A [see [x]] lamp."
+      ],
+      "omits": [],
+      "clean": true,
+      "blockingLines": [],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "escaped note opener with no closer prints literally",
+      "source": "INT. LAB - DAY\n\nA \\[[open lamp.\n",
+      "prints": [
+        "A [[open lamp."
+      ],
+      "omits": [],
+      "clean": true,
+      "blockingLines": [],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "synopsis after action is printed by the renderer",
+      "source": "INT. LAB - DAY\n\nA lamp glows.\n\n= Stray synopsis.\n",
+      "prints": [
+        "= Stray synopsis."
+      ],
+      "omits": [],
+      "clean": false,
+      "blockingLines": [
+        4
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "indented section marker is printed by the renderer",
+      "source": "INT. LAB - DAY\n\n  # Indented heading\n\nA lamp glows.\n",
+      "prints": [
+        "# Indented heading",
+        "A lamp glows."
+      ],
+      "omits": [],
+      "clean": false,
+      "blockingLines": [
+        2
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "section sharing a paragraph with text is printed by the renderer",
+      "source": "INT. LAB - DAY\n\n# Scratch heading\nA lamp glows.\n",
+      "prints": [
+        "# Scratch heading",
+        "A lamp glows."
+      ],
+      "omits": [],
+      "clean": false,
+      "blockingLines": [
+        2
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "hash-digit action is dropped by the renderer",
+      "source": "INT. LAB - DAY\n\n#1 DAD mug sits on the desk.\n",
+      "prints": [
+        "INT. LAB - DAY"
+      ],
+      "omits": [
+        "DAD mug"
+      ],
+      "clean": false,
+      "blockingLines": [
+        2
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "equals-led text is dropped by the renderer",
+      "source": "INT. LAB - DAY\n\n==== marker\n",
+      "prints": [
+        "INT. LAB - DAY"
+      ],
+      "omits": [
+        "marker"
+      ],
+      "clean": false,
+      "blockingLines": [
+        2
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "escaped note opener is still stripped by the renderer",
+      "source": "INT. LAB - DAY\n\nA \\[[literal]] lamp.\n",
+      "prints": [
+        "INT. LAB - DAY"
+      ],
+      "omits": [
+        "literal"
+      ],
+      "clean": false,
+      "blockingLines": [
+        2
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "escaped boneyard opener is still stripped by the renderer",
+      "source": "INT. LAB - DAY\n\nA \\/* literal */ lamp.\n",
+      "prints": [
+        "INT. LAB - DAY"
+      ],
+      "omits": [
+        "literal"
+      ],
+      "clean": false,
+      "blockingLines": [
+        2
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "boneyard inside a title value is stripped by the renderer",
+      "source": "Title: A /* hidden */ Story\n\nINT. LAB - DAY\n\nA lamp glows.\n",
+      "prints": [
+        "A Story",
+        "A lamp glows."
+      ],
+      "omits": [
+        "hidden"
+      ],
+      "clean": false,
+      "blockingLines": [
+        0
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "unclosed note",
+      "source": "INT. LAB - DAY\n\nA lamp glows.\n\n[[never closed\n\nShe waits.\n",
+      "prints": [
+        "A lamp glows.",
+        "She waits."
+      ],
+      "omits": [],
+      "clean": false,
+      "blockingLines": [
+        4
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "accidental boneyard opener pairs with a later boneyard",
+      "source": "INT. LAB - DAY\n\nA /* lamp glows.\n\nShe waits.\n\n/* Old ending */\n\nThe end.\n",
+      "prints": [
+        "The end."
+      ],
+      "omits": [
+        "She waits",
+        "lamp glows",
+        "Old ending"
+      ],
+      "clean": false,
+      "blockingLines": [
+        2
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "unknown title key",
+      "source": "SUPER: \"LONDON, 1987\"\n\nINT. LAB - DAY\n\nA lamp glows.\n",
+      "prints": [
+        "INT. LAB - DAY",
+        "A lamp glows."
+      ],
+      "omits": [
+        "LONDON"
+      ],
+      "clean": false,
+      "blockingLines": [
+        0
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "multi-line note with visible text on both boundary lines",
+      "source": "INT. LAB - DAY\n\nStart [[note\ncontinues]] tail.\n",
+      "prints": [
+        "Start tail."
+      ],
+      "omits": [
+        "continues"
+      ],
+      "clean": false,
+      "blockingLines": [
+        2,
+        3
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "line that starts with a note",
+      "source": "MAYA\n[[beat]] Hello.\n",
+      "prints": [
+        "MAYA",
+        "Hello."
+      ],
+      "omits": [
+        "beat"
+      ],
+      "clean": false,
+      "blockingLines": [
+        1
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "unknown brace syntax stays raw",
+      "source": "INT. LAB - DAY\n\nA {{macro}} lamp.\n",
+      "prints": [
+        "A {{macro}} lamp."
+      ],
+      "omits": [],
+      "clean": false,
+      "blockingLines": [
+        2
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "escaped closer inside a note ends it early in the renderer",
+      "source": "INT. LAB - DAY\n\nA lamp glows.\n\n[[private \\]] leaked words ]]\n",
+      "prints": [
+        "A lamp glows.",
+        "leaked words"
+      ],
+      "omits": [
+        "private"
+      ],
+      "clean": false,
+      "blockingLines": [
+        4
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "note split by a blank line is printed by the renderer",
+      "source": "INT. LAB - DAY\n\n[[first\n\nsecond]]\n\nThe end.\n",
+      "prints": [
+        "[[first",
+        "second]]",
+        "The end."
+      ],
+      "omits": [],
+      "clean": false,
+      "blockingLines": [
+        2
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    }
+  ]
+}

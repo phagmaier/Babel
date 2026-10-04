@@ -19,6 +19,8 @@ import { nativeExportPdf } from '../../src/infrastructure/nativeExportPdf';
 import { invoke } from '@tauri-apps/api/core';
 vi.mock('@tauri-apps/api/core', () => ({ invoke: vi.fn() }));
 afterEach(() => vi.useRealTimers());
+/** Blocking raw content plus its SC004 warning: export must stop for review. */
+const REVIEW = 'INT. LAB - DAY\n\n{{raw}} light.\n';
 async function setup(text?: string) {
   vi.useFakeTimers();
   const f = await previewFixture();
@@ -90,14 +92,16 @@ async function setup(text?: string) {
       layout: sources.map(() => null),
     })),
   };
+  const changed = vi.fn();
   const controller = new ExportPdfController(
     port,
     assessment,
     preview,
-    vi.fn(),
+    changed,
   );
   const capture = vi.fn(async () => ({ snapshot, receipt }));
   return {
+    changed,
     f,
     snapshot,
     receipt,
@@ -109,8 +113,47 @@ async function setup(text?: string) {
     capture,
   };
 }
-it('protects then reviews exact capture before selecting; typing cannot cancel or replace export', async () => {
+it('AUDIT-D04 exports a capture with nothing to review straight to the destination picker', async () => {
   const t = await setup();
+  t.preview.open();
+  const job = deferred<Awaited<ReturnType<ExportPdfPort['render']>>>();
+  t.port.render = vi.fn(() => job.promise);
+  const exporting = t.controller.start(t.capture);
+  await vi.waitFor(() => expect(t.controller.state.phase).toBe('rendering'));
+  expect(t.port.select).toHaveBeenCalledOnce();
+  // Typing after the protected capture cannot cancel or replace the export.
+  t.f.state = t.f.state.apply(t.f.state.tr.insertText('Newer', 1));
+  t.preview.invalidate();
+  t.preview.accept(await t.f.capture());
+  await vi.advanceTimersByTimeAsync(1000);
+  expect(t.previewPort.render).not.toHaveBeenCalled();
+  job.resolve(
+    publicationResult({
+      identity: t.f.identity,
+      requestId: 1,
+      ...t.snapshot,
+      profile: 'us-letter-draft-v1',
+      fontSet: 'courier-prime-screenplain-0.12.0',
+      options: {},
+    }),
+  );
+  await exporting;
+  expect(t.controller.state.phase).toBe('succeeded');
+  expect(t.controller.state.message).toContain('version 1');
+  expect(t.controller.busy).toBe(false);
+  expect(t.port.publish).toHaveBeenCalledOnce();
+  // A published capture is consumed, not cancelled.
+  expect(t.port.cancel).not.toHaveBeenCalled();
+  expect(
+    t.changed.mock.calls.map(([state]) => (state as { phase: string }).phase),
+  ).not.toContain('review');
+  // proceed() has nothing to continue once the direct export has finished.
+  await t.controller.proceed(true);
+  expect(t.port.publish).toHaveBeenCalledOnce();
+  t.preview.dispose();
+});
+it('protects then reviews exact capture before selecting; typing cannot cancel or replace export', async () => {
+  const t = await setup(REVIEW);
   t.preview.open();
   await t.controller.start(t.capture);
   expect(t.controller.state.phase).toBe('review');
@@ -146,27 +189,52 @@ it('protects then reviews exact capture before selecting; typing cannot cancel o
   );
   t.preview.dispose();
 });
-it('requires informed acknowledgment for omissions and structural warnings', async () => {
-  const t = await setup('INT. LAB - DAY\n\nA [[private note]] light.\n');
+it('AUDIT-D04 summarises omitted notes, sections and advisories without asking for review', async () => {
+  const t = await setup(
+    '# Act\n\nINT. LAB - DAY\n\nA [[private note]] light.\n\n\n\n\nMore.\n',
+  );
   await t.controller.start(t.capture);
-  expect(
-    t.controller.state.report?.issues.some((i) => i.code === 'SC005'),
-  ).toBe(true);
-  await t.controller.proceed(false);
-  expect(t.port.select).not.toHaveBeenCalled();
-  await t.controller.proceed(true);
   expect(t.controller.state.phase).toBe('succeeded');
+  expect(t.port.select).toHaveBeenCalledOnce();
+  const report = t.controller.state.report!;
+  expect(report.issues.map((issue) => issue.severity)).toEqual(['advisory']);
+  expect(report.exportAssessment).toMatchObject({
+    status: 'verified',
+    omissions: { notes: { count: 1 }, sections: { count: 1 } },
+  });
   t.preview.dispose();
 });
+it.each([
+  ['structural warning', 'INT. LAB - DAY\n\nAn *unpaired star.\n', 'SC004'],
+  ['unclosed note', 'INT. LAB - DAY\n\nA light.\n\n[[never closed\n', 'SC005'],
+  [
+    'unknown title field',
+    'Archive: Extra\n\nINT. LAB - DAY\n\nA light.\n',
+    'SC005',
+  ],
+  ['renderer-dropped text', 'INT. LAB - DAY\n\n#1 DAD mug sits.\n', 'SC005'],
+])(
+  'still requires informed acknowledgment for %s',
+  async (_name, source, code) => {
+    const t = await setup(source);
+    await t.controller.start(t.capture);
+    expect(t.controller.state.phase).toBe('review');
+    expect(t.controller.state.report?.issues.map((i) => i.code)).toContain(
+      code,
+    );
+    await t.controller.proceed(false);
+    expect(t.port.select).not.toHaveBeenCalled();
+    await t.controller.proceed(true);
+    expect(t.controller.state.phase).toBe('succeeded');
+    t.preview.dispose();
+  },
+);
 it.each(['missing', 'wrong identity', 'missing layout', 'truncated'])(
   'unavailable assessment %s never selects or publishes',
   async (reason) => {
     const t = await setup(
       reason === 'truncated'
-        ? Array.from(
-            { length: 1002 },
-            () => '!A [[private note]] light.\n\n',
-          ).join('')
+        ? Array.from({ length: 1002 }, () => '!A {{raw}} light.\n\n').join('')
         : 'INT. LAB - DAY #1#\n\nA light.\n',
     );
     if (reason === 'missing')
@@ -191,10 +259,15 @@ it.each(['missing', 'wrong identity', 'missing layout', 'truncated'])(
     t.preview.dispose();
   },
 );
-it.each(['capture', 'assessment', 'picker', 'render'])(
-  'cancellation during %s writes nothing even after late replies',
-  async (phase) => {
-    const t = await setup();
+it.each(
+  ['capture', 'assessment', 'picker', 'render'].flatMap((phase) => [
+    [phase, 'direct', undefined],
+    [phase, 'reviewed', REVIEW],
+  ]) as [string, string, string | undefined][],
+)(
+  'cancellation during %s (%s) writes nothing even after late replies',
+  async (phase, _path, source) => {
+    const t = await setup(source);
     const wait = deferred<unknown>();
     if (phase === 'capture')
       t.capture = vi.fn(() => wait.promise as ReturnType<typeof t.capture>);
@@ -214,9 +287,16 @@ it.each(['capture', 'assessment', 'picker', 'render'])(
     await vi.advanceTimersByTimeAsync(0);
     let proceed: Promise<void> | undefined;
     if (['picker', 'render'].includes(phase)) {
-      await start;
-      proceed = t.controller.proceed(true);
-      await vi.advanceTimersByTimeAsync(0);
+      if (source) {
+        await start;
+        expect(t.controller.state.phase).toBe('review');
+        proceed = t.controller.proceed(true);
+      }
+      await vi.waitFor(() =>
+        expect(t.controller.state.phase).toBe(
+          phase === 'picker' ? 'selecting' : 'rendering',
+        ),
+      );
     }
     await t.controller.cancel();
     wait.resolve(
@@ -250,9 +330,8 @@ it.each(['capture', 'assessment', 'picker', 'render'])(
 );
 it('picker cancellation and renderer glyph refusal leave source and destination untouched', async () => {
   const t = await setup();
-  await t.controller.start(t.capture);
   t.port.select = vi.fn(async () => null);
-  await t.controller.proceed(true);
+  await t.controller.start(t.capture);
   expect(t.controller.state.phase).toBe('cancelled');
   expect(t.port.publish).not.toHaveBeenCalled();
   t.port.select = vi.fn(async () => ({
@@ -260,23 +339,20 @@ it('picker cancellation and renderer glyph refusal leave source and destination 
     fileName: 'Draft.pdf',
     replacesExisting: false,
   }));
-  await t.controller.start(t.capture);
   t.port.render = vi.fn(async () => {
     throw new Error('glyph-coverage-or-shaping');
   });
-  await t.controller.proceed(true);
+  await t.controller.start(t.capture);
   expect(t.controller.state.phase).toBe('failed');
   expect(t.port.publish).not.toHaveBeenCalled();
   t.preview.dispose();
 });
 it('atomic publication is noncancellable and names its captured version', async () => {
   const t = await setup();
-  await t.controller.start(t.capture);
   const pending = deferred<PdfExportReceipt>();
   t.port.publish = vi.fn(() => pending.promise);
-  const job = t.controller.proceed(true);
-  await vi.advanceTimersByTimeAsync(0);
-  expect(t.controller.state.phase).toBe('publishing');
+  const job = t.controller.start(t.capture);
+  await vi.waitFor(() => expect(t.controller.state.phase).toBe('publishing'));
   await t.controller.cancel();
   expect(t.controller.state.phase).toBe('publishing');
   pending.resolve({
@@ -298,13 +374,12 @@ it('atomic publication is noncancellable and names its captured version', async 
 });
 it('malformed publication receipt never announces success', async () => {
   const t = await setup();
-  await t.controller.start(t.capture);
   const publish = t.port.publish;
   t.port.publish = vi.fn(async (r) => {
     const p = await publish(r);
     return { ...p, result: { ...p.result, version: 999 } };
   });
-  await t.controller.proceed(true);
+  await t.controller.start(t.capture);
   expect(t.controller.state.phase).toBe('failed');
   expect(t.controller.state.receipt).toBeNull();
   t.preview.dispose();
@@ -323,7 +398,7 @@ it('native adapter sends strict tokens without frontend destination paths', asyn
   expect(invoke).toHaveBeenLastCalledWith('cancel_pdf_export', { request });
 });
 it('keeps a cancelled run busy until native authorities are retired before recapture', async () => {
-  const t = await setup();
+  const t = await setup(REVIEW);
   await t.controller.start(t.capture);
   const retired = deferred<void>();
   t.port.cancel = vi.fn(() => retired.promise);

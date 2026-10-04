@@ -36,16 +36,20 @@ def run(d):
     assert d.script("return document.querySelector('.publication-preview pre')?.textContent.includes('THE SIGNAL');")
     d.screenshot('integrated-preview')
     d.click('Export PDF', actions=True)
-    d.wait(lambda: 'Review captured version' in d.script("return document.querySelector('.export-pdf-panel')?.textContent||'';"), 'Integrated captured review', timeout=60)
+    # AUDIT-D04: a capture with nothing to review goes straight to the picker.
+    export_panel = lambda: d.script("return document.querySelector('.export-pdf-panel')?.textContent||'';")
+    d.wait(lambda: 'Review captured version' in export_panel() or 'Choose a destination for version' in export_panel(), 'Integrated captured export', timeout=60)
+    reviewed = 'Review captured version' in export_panel()
     assert 'stale' in status(), status()
     captured = max(metadata['version'] for metadata, content in d.journal_records() if content == source)
     assert preview['version'] == captured, (preview, captured)
     # Supported corpus has no blocking publication limitation. Structural advice
     # may still require the ordinary explicit review acknowledgment.
-    if d.script("return !!document.querySelector('.export-pdf-panel input[type=checkbox]');"):
-        checkbox = d.find('//section[@aria-label="PDF export"]//input[@type="checkbox"]')
-        d.command('POST', '/element/' + checkbox + '/click', {})
-    d.click('Choose PDF destination')
+    if reviewed:
+        if d.script("return !!document.querySelector('.export-pdf-panel input[type=checkbox]');"):
+            checkbox = d.find('//section[@aria-label="PDF export"]//input[@type="checkbox"]')
+            d.command('POST', '/element/' + checkbox + '/click', {})
+        d.click('Choose PDF destination')
     destination = d.ROOT / 'files/Integrated.pdf'
     d.picker(destination)
     d.wait(lambda: 'Exported Integrated.pdf' in d.script("return document.querySelector('.export-pdf-panel')?.textContent||'';"), 'Integrated verified export', timeout=90)

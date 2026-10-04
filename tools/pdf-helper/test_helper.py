@@ -146,6 +146,24 @@ class HelperTest(unittest.TestCase):
             ['_this_ ', []], ['under', ['Underline']], [' ', []],
             ['bold', ['Bold']], [' ', []], ['italic', ['Italic']], [' *stars*', []]])
 
+    def test_assessment_oracle_printed_text(self):
+        # AUDIT-D04: the shared corpus states what the frozen pipeline prints and
+        # omits. Babel's export assessment is checked against the same cases.
+        corpus = json.loads((REPO / 'fixtures/assessment/oracle.json').read_text(encoding='utf-8'))
+        for index, case in enumerate(corpus['cases']):
+            with self.subTest(case=case['name']):
+                output = self.out_dir / f'oracle-{index}.pdf'
+                code, _, stderr = run(request(output, profile=corpus['profile']),
+                                      case['source'].encode('utf-8'))
+                self.assertEqual(code, 0, stderr)
+                text = ' '.join(subprocess.run(['pdftotext', '-raw', str(output), '-'],
+                                               capture_output=True, text=True,
+                                               check=True).stdout.split())
+                for printed in case['prints']:
+                    self.assertIn(' '.join(printed.split()), text)
+                for omitted in case['omits']:
+                    self.assertNotIn(omitted, text)
+
     def test_scene_headings_keep_source_order(self):
         for name in M1_PAGES:
             source = (CORPUS / name).read_bytes()

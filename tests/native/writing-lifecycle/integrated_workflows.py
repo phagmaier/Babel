@@ -91,7 +91,14 @@ def run(d):
 
     click('Script Check', True)
     d.wait(lambda: 'SC001' in d.body() and 'SC002' in d.body(), 'Incomplete speech warnings')
-    assert 'Export assessment unavailable' in d.body() and 'SC005' in d.body() and 'SC008' in d.body()
+    # Production truth since M5-04: the bundled helper verifies the assessment.
+    # "unavailable" here means the binary found no pdf-helper resource directory
+    # (a copied binary outside a target/release folder with .cargo-lock); that
+    # is a harness fault, not an accepted result. See README.
+    assert 'Export support assessed' in d.body(), 'Export assessment unavailable: binary has no usable pdf-helper beside it'
+    assert 'SC005' in d.body() and 'SC008' in d.body()
+    # AUDIT-D04: the closed note and boneyard are one summary line, not issues.
+    assert 'Not printed by this profile: 1 note (1 line), 1 boneyard (1 line).' in d.body()
     click('Go to issue')
     d.wait(lambda: d.script("return getSelection().toString()==='ALICE' && document.activeElement?.classList.contains('ProseMirror');"), 'Exact warning selection')
     click('Close Script Check'); save()

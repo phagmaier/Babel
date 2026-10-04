@@ -18,7 +18,7 @@ def run(d):
     def ready():
         d.wait(lambda: d.script("return [...document.querySelectorAll('[aria-label=\"Screenplay actions\"] button')].some(b=>b.textContent==='Export PDF'&&!b.disabled);"), 'Native Export PDF command enabled', timeout=60)
 
-    def review(palette=False):
+    def start(palette=False):
         ready()
         if palette:
             d.click('Command Palette')
@@ -26,7 +26,19 @@ def run(d):
             item=d.wait(lambda:d.find('//li[@role="option"][starts-with(normalize-space(.),"Export PDF")]'),'Native palette export command')
             d.command('POST','/element/'+item+'/click',{})
         else: d.click('Export PDF', actions=True)
+
+    def review(palette=False):
+        # A capture with a warning or limitation stops for an informed decision.
+        start(palette)
         d.wait(lambda: 'Review captured version' in panel(), 'Exact protected capture review', timeout=60)
+
+    def direct(palette=False):
+        # AUDIT-D04: nothing to review, so the protected capture goes straight
+        # to the native destination picker; no review step or checkbox exists.
+        start(palette)
+        d.wait(lambda: 'Choose a destination for version' in panel(), 'Clean capture goes straight to the destination picker', timeout=60)
+        assert 'Review captured version' not in panel()
+        assert not d.script("return !!document.querySelector('.export-pdf-panel input[type=checkbox]') || [...document.querySelectorAll('.export-pdf-panel button')].some(b=>b.textContent==='Choose PDF destination');")
 
     def success(name):
         d.wait(lambda: 'Exported '+name in panel(), 'Verified native PDF receipt', timeout=90)
@@ -44,17 +56,15 @@ def run(d):
     ready(); editor = d.editor()
     d.click('PDF preview', actions=True)
     d.wait(lambda: 'preview version' in d.script("return document.querySelector('[aria-label=\"Publication page count\"]').textContent;"), 'Authoritative preview before export', timeout=90)
-    review(palette=True)
-    assert not d.script("return !!document.querySelector('.export-pdf-panel input[type=checkbox]');")
-    d.screenshot('export-review')
-    d.click('Cancel export'); ready()
-    assert 'cancelled' in panel() and {p.name: p.read_bytes() for p in (d.ROOT/'files').glob('*.pdf')} == existing_pdfs
-    review(); d.click('Choose PDF destination'); d.picker()
+    direct(palette=True)
+    d.screenshot('export-direct')
+    d.picker()
     d.wait(lambda: 'cancelled' in panel(), 'GTK picker cancellation writes nothing')
+    ready()
     assert {p.name: p.read_bytes() for p in (d.ROOT/'files').glob('*.pdf')} == existing_pdfs
-    review(); d.script('window.holdExport=true;')
+    d.script('window.holdExport=true;'); direct()
     capture_version=max(metadata['version'] for metadata,content in d.journal_records() if content == source)
-    d.click('Choose PDF destination'); destination = d.ROOT/'files/Captured.pdf'; d.picker(destination)
+    destination = d.ROOT/'files/Captured.pdf'; d.picker(destination)
     d.wait(lambda: d.script("return typeof window.releaseExport==='function';"), 'Actual native export result held', timeout=90)
     assert not destination.exists()
     action = d.find("//div[contains(@class,'ProseMirror')]/p[@data-kind='action' and normalize-space(.)='A lamp glows.']")
@@ -75,7 +85,7 @@ def run(d):
     d.wait(lambda: f'preview version {saved_version}' in d.script("return document.querySelector('[aria-label=\"Publication page count\"]').textContent;"), 'Preview resumes with later protected version', timeout=90)
     report.append({'captureWhileTyping':receipt,'actualPages':pages})
     # Actual destination replacement retains independently readable previous PDF.
-    previous = destination.read_bytes(); review(); d.click('Choose PDF destination'); d.picker(destination,overwrite=True); success('Captured.pdf')
+    previous = destination.read_bytes(); direct(); d.picker(destination,overwrite=True); success('Captured.pdf')
     receipt = d.script('return window.exportEvents.at(-1);')
     assert receipt['result']['version'] >= saved_version and receipt['result']['sourceSha256'] == hashlib.sha256(later).hexdigest() and receipt['publication']['previousFileName']
     assert (destination.parent/receipt['publication']['previousFileName']).read_bytes() == previous
@@ -83,12 +93,12 @@ def run(d):
     report.append({'atomicReplacement':receipt})
     # Native refusal paths use the real picker, with no caller path authority.
     for refused in [target,d.ROOT/'data/app.babel.screenwriter/Refused.pdf']:
-        before = target.read_bytes(); review();d.click('Choose PDF destination');d.picker(refused,overwrite=refused.exists())
+        before = target.read_bytes(); direct();d.picker(refused,overwrite=refused.exists())
         d.wait(lambda: 'needs attention' in panel(), 'Protected native destination refusal', timeout=60)
         assert target.read_bytes() == before
         if refused != target: assert not refused.exists()
     # Permission changed after native selection, before publish; old PDF intact.
-    review(); d.script('window.holdExport=true;delete window.releaseExport;'); d.click('Choose PDF destination');d.picker(destination,overwrite=True)
+    d.script('window.holdExport=true;delete window.releaseExport;'); direct();d.picker(destination,overwrite=True)
     d.wait(lambda: d.script("return typeof window.releaseExport==='function';"), 'Real result held before permission fault', timeout=90)
     old = destination.read_bytes(); destination.parent.chmod(0o500)
     try:
@@ -98,21 +108,35 @@ def run(d):
     d.click('Save',actions=True);d.audit(target,later)
     d.screenshot('export-status')
     d.close_session()
-    # Content omissions require an unchecked decision; strict glyph refusal stays.
-    for name,manuscript,should_render in [('omissions',b'INT. ROOM - DAY\n\nA lamp glows.\n\n[[Private omitted note]]\n',True),('glyphs','INT. ROOM - DAY\n\nA lamp 😀 glows.\n'.encode(),False)]:
+    # AUDIT-D04: a closed note is summarised and needs no decision. Text the
+    # renderer would drop still needs an unchecked decision; glyph refusal stays.
+    file = d.ROOT/'files/omissions.fountain';manuscript = b'INT. ROOM - DAY\n\nA lamp glows.\n\n[[Private omitted note]]\n'
+    file.write_bytes(manuscript);d.click('Open Fountain',actions=True);d.picker(file);direct()
+    assert 'Not printed by this profile: 1 note (1 line).' in panel() and 'SC005' not in panel(), panel()
+    d.screenshot('export-omissions-direct')
+    pdf=d.ROOT/'files/omissions.pdf';d.picker(pdf);success('omissions.pdf')
+    exported = subprocess.check_output(['pdftotext',str(pdf),'-'],text=True)
+    assert 'A lamp glows.' in exported and 'Private omitted' not in exported
+    d.click('Save',actions=True);d.audit(file,manuscript);d.close_session()
+    for name,manuscript,code,should_render in [('dropped',b'INT. ROOM - DAY\n\nA lamp glows.\n\n#1 DAD mug sits on the desk.\n','SC005',True),('glyphs','INT. ROOM - DAY\n\nA lamp 😀 glows.\n'.encode(),'SC008',False)]:
         file = d.ROOT/'files'/f'{name}.fountain';file.write_bytes(manuscript)
         d.click('Open Fountain',actions=True);d.picker(file);review()
-        assert ('SC005' if should_render else 'SC008') in panel()
+        assert code in panel()
         assert not d.script("return document.querySelector('.export-pdf-panel input').checked;")
         assert d.script("return [...document.querySelectorAll('.export-pdf-panel button')].find(b=>b.textContent==='Choose PDF destination').disabled;")
+        # Cancelling the review writes nothing; the next export recaptures.
+        d.click('Cancel export'); ready()
+        assert 'cancelled' in panel() and not (d.ROOT/'files'/f'{name}.pdf').exists()
+        review()
         acknowledge();d.screenshot('export-'+name+'-review')
         d.click('Choose PDF destination');pdf=d.ROOT/'files'/f'{name}.pdf';d.picker(pdf)
         if should_render:
             success(name+'.pdf');exported = subprocess.check_output(['pdftotext',str(pdf),'-'],text=True)
-            assert 'A lamp glows.' in exported and 'Private omitted' not in exported
+            # The acknowledged limitation is real: the pinned renderer drops this line.
+            assert 'A lamp glows.' in exported and 'DAD mug' not in exported
         else:
             d.wait(lambda: 'needs attention' in panel(), 'Actual glyph renderer refusal',timeout=90);assert not pdf.exists()
         d.click('Save',actions=True);d.audit(file,manuscript);d.close_session()
     d.script('window.__TAURI_INTERNALS__.callbacks.set=window.exportOriginalSet;')
     (d.ROOT/'pdf-export.json').write_text(json.dumps(report,indent=2)+'\n')
-    print('PASS native PDF export capture/review/GTK cancel/replacement/protected-path/failure/glyph refusal/source isolation',flush=True)
+    print('PASS native PDF export direct capture/GTK cancel/replacement/protected-path/failure/omission summary/gated review+cancel/glyph refusal/source isolation',flush=True)

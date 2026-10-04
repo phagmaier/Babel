@@ -207,7 +207,7 @@ it('creates no issues for an empty draft and declines document-level navigation'
 });
 
 it('shows verified blocking export limitations with provenance and cannot hide or dismiss them', async () => {
-  const f = await fixture('Archive: Extra\n\n!中文 😀\n', {
+  const f = await fixture('Archive: Extra\n\n!中文 😀 [[aside]]\n\n# Act\n', {
     assess: async () => ({ identity, layout: [] }),
   });
   const before = Array.from(captureEditor(f.view.state).source);
@@ -237,6 +237,13 @@ it('shows verified blocking export limitations with provenance and cannot hide o
     'export limitations',
   );
   expect(screen.getByText(/us-letter-draft-v1 · Screenplain/)).toBeTruthy();
+  // AUDIT-D04: omitted notes and sections are one summary line, not issues.
+  expect(
+    screen.getByText(
+      'Not printed by this profile: 1 note (1 line), 1 section heading.',
+    ),
+  ).toBeTruthy();
+  expect(screen.queryByText(/omits note content/)).toBeNull();
   fireEvent.click(screen.getByLabelText('Show warnings'));
   fireEvent.click(screen.getByLabelText('Show advisories'));
   ui.rerender(

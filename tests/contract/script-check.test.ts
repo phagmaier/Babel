@@ -74,6 +74,14 @@ it('groups raw and unclosed constructs into SC004 review findings', () => {
   expect(codes('!Clean body.\n')).toEqual([]);
 });
 
+it('AUDIT-D04 reads through closed inline notes instead of reporting raw text or a dialogue-less cue', () => {
+  expect(codes('MAYA\nHello. [[check tone]]\nMore.\n')).toEqual([]);
+  expect(codes('!A lamp /* cut */ glows.\n')).toEqual([]);
+  // Hidden content that opens a line, or does not close on it, stays reviewable.
+  expect(codes('MAYA\n[[beat]] Hello.\n')).toContain('SC004');
+  expect(codes('!Start [[note\ncontinues]] tail.\n')).toContain('SC004');
+});
+
 function harness(source: string) {
   const state = createEditorState(new TextEncoder().encode(source));
   const stamp = () => ({

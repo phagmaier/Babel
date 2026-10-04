@@ -1,6 +1,12 @@
+import { parseFountain } from './fountainCodec';
 import { parseInline } from './fountainInline';
+import { isEscaped, unescapedIndex } from './fountainSyntax';
 import coverage from './publicationCoverage.json';
-import type { StyledText, FountainDocument } from './fountainModel';
+import type {
+  StyledText,
+  FountainDocument,
+  HiddenRegion,
+} from './fountainModel';
 import type { CheckIssue } from './scriptCheck';
 
 export const PUBLICATION_ASSESSMENT_IDENTITY: AssessmentIdentity =
@@ -25,6 +31,27 @@ export interface LayoutProbe {
   readonly endLine: number;
   readonly source: string;
 }
+export type OmissionKind = 'note' | 'boneyard' | 'section' | 'synopsis';
+export interface OmissionTotal {
+  /** Omitted elements of this kind. */
+  readonly count: number;
+  /** Physical source lines those elements touch. */
+  readonly lines: number;
+}
+/** Content Fountain defines as non-printing and the frozen renderer omits.
+ * Reported once; it is not an issue and needs no acknowledgement. */
+export interface PublicationOmissions {
+  readonly notes: OmissionTotal;
+  readonly boneyards: OmissionTotal;
+  readonly sections: OmissionTotal;
+  readonly synopses: OmissionTotal;
+  /** Every omitted element in document order. */
+  readonly ranges: readonly {
+    readonly kind: OmissionKind;
+    readonly line: number;
+    readonly endLine: number;
+  }[];
+}
 export type ExportAssessment =
   | {
       readonly status: 'unavailable';
@@ -38,9 +65,32 @@ export type ExportAssessment =
       readonly sourceSha256: string;
       readonly issues: readonly CheckIssue[];
       readonly truncated: boolean;
+      readonly omissions: PublicationOmissions;
       /** Content assessment is not an exported PDF or a page-count receipt. */
       readonly layout: 'verified' | 'unavailable';
     };
+const plural = (count: number, one: string, many: string) =>
+  `${count} ${count === 1 ? one : many}`;
+/** One sentence for panels; empty when nothing is omitted. */
+export function describeOmissions(omissions: PublicationOmissions): string {
+  const hidden = (total: OmissionTotal, one: string, many: string) =>
+    total.count
+      ? `${plural(total.count, one, many)} (${plural(total.lines, 'line', 'lines')})`
+      : '';
+  const parts = [
+    hidden(omissions.notes, 'note', 'notes'),
+    hidden(omissions.boneyards, 'boneyard', 'boneyards'),
+    omissions.sections.count
+      ? plural(omissions.sections.count, 'section heading', 'section headings')
+      : '',
+    omissions.synopses.count
+      ? plural(omissions.synopses.count, 'synopsis', 'synopses')
+      : '',
+  ].filter(Boolean);
+  return parts.length
+    ? `Not printed by this profile: ${parts.join(', ')}.`
+    : '';
+}
 export interface AssessmentContext {
   readonly identity: AssessmentIdentity | null;
   readonly version: number;
@@ -74,11 +124,95 @@ export function matchingAssessmentIdentity(
   }
 }
 
+const hiddenMarkers = ['[[', ']]', '/*', '*/'] as const;
+export interface AssessmentView {
+  /** The document as the frozen renderer reads it. Line indexes match the
+   * original; byte offsets do not, so issue targets use the original lines. */
+  readonly document: FountainDocument;
+  /** Lines whose closed single-line hidden spans were read through. */
+  readonly stripped: ReadonlySet<number>;
+}
+const views = new WeakMap<FountainDocument, AssessmentView>();
+/** The codec protects any line mixing hidden and visible text as raw. The
+ * renderer simply drops closed notes and boneyards, so assessment (never the
+ * editor or the source) reads such a line without them when they follow visible
+ * text and close on that line. Everything else stays raw and gated. */
+export function assessmentView(document: FountainDocument): AssessmentView {
+  const cached = views.get(document);
+  if (cached) return cached;
+  let view: AssessmentView = { document, stripped: new Set() };
+  if (!document.readOnlyReason && document.hiddenRegions.length) {
+    const inline = new Map<number, HiddenRegion[]>();
+    const excluded = new Set<number>();
+    for (const region of document.hiddenRegions) {
+      const single = region.count === 1 && region.closed && !region.ambiguous;
+      for (let at = region.from; at < region.from + region.count; at++) {
+        if (!single) excluded.add(at);
+        else inline.set(at, [...(inline.get(at) ?? []), region]);
+      }
+    }
+    const bytes = document.bytes;
+    const decoder = new TextDecoder();
+    const cuts: HiddenRegion[] = [];
+    const stripped = new Set<number>();
+    for (const [index, regions] of inline) {
+      const line = document.lines[index]!;
+      const lead = line.sourceText.trimStart();
+      if (
+        line.kind !== 'raw' ||
+        excluded.has(index) ||
+        lead.startsWith('[[') ||
+        lead.startsWith('/*')
+      )
+        continue;
+      let from = line.sourceStart;
+      let rest = '';
+      for (const region of regions) {
+        rest += decoder.decode(bytes.subarray(from, region.sourceStart));
+        from = region.sourceEnd;
+      }
+      rest += decoder.decode(bytes.subarray(from, line.contentEnd));
+      if (
+        rest.trim() === '' ||
+        rest.includes('{{') ||
+        hiddenMarkers.some((marker) => unescapedIndex(rest, marker) >= 0)
+      )
+        continue;
+      stripped.add(index);
+      cuts.push(...regions);
+    }
+    if (cuts.length) {
+      cuts.sort((a, b) => a.sourceStart - b.sourceStart);
+      const kept = new Uint8Array(
+        bytes.length -
+          cuts.reduce((sum, cut) => sum + cut.sourceEnd - cut.sourceStart, 0),
+      );
+      let from = 0;
+      let to = 0;
+      for (const cut of cuts) {
+        kept.set(bytes.subarray(from, cut.sourceStart), to);
+        to += cut.sourceStart - from;
+        from = cut.sourceEnd;
+      }
+      kept.set(bytes.subarray(from), to);
+      const parsed = parseFountain(kept);
+      if (
+        !parsed.readOnlyReason &&
+        parsed.lines.length === document.lines.length
+      )
+        view = { document: parsed, stripped };
+    }
+  }
+  views.set(document, view);
+  return view;
+}
+
 /** Layout-dependent constructs are checked by the same frozen pipeline in memory.
  * The codec owns boundaries; the renderer cannot choose or omit the targets. */
 export function assessmentLayoutProbes(
-  document: FountainDocument,
+  source: FountainDocument,
 ): readonly LayoutProbe[] {
+  const document = assessmentView(source).document;
   const probes: LayoutProbe[] = [];
   const paired = new Set<string>();
   for (const group of document.dialogueGroups) {
@@ -148,8 +282,85 @@ const layoutFeatures = new Set([
   'scene-number-width',
   'glyph-coverage-or-shaping',
 ]);
-export function evaluateExportAssessment(
+// Hidden text the pinned renderer removes although the codec shows it as
+// printed. Its boneyard pattern matches anywhere, including title fields, and
+// its note pattern matches within a paragraph; neither honours a backslash
+// before the two-character marker. Escaping each bracket separately is
+// honoured by both and is not reported.
+function rendererOnlyHidden(
   document: FountainDocument,
+  paragraphAt: ReadonlyMap<number, readonly number[]>,
+): { message: string; line: number; endLine: number }[] {
+  const lines = document.lines;
+  if (
+    !lines.some(
+      (row) =>
+        ((row.kind === 'title' || row.kind === 'titleContinuation') &&
+          row.sourceText.includes('/*')) ||
+        hiddenMarkers.some((marker) => row.sourceText.includes('\\' + marker)),
+    )
+  )
+    return [];
+  const found: { message: string; line: number; endLine: number }[] = [];
+  const scan = (
+    rows: readonly number[],
+    pattern: RegExp,
+    describe: (titled: boolean) => string,
+  ) => {
+    const starts: number[] = [];
+    let text = '';
+    for (const row of rows) {
+      starts.push(text.length);
+      text += lines[row]!.sourceText + '\n';
+    }
+    const rowAt = (offset: number) => {
+      let low = 0;
+      let high = starts.length - 1;
+      while (low < high) {
+        const middle = (low + high + 1) >> 1;
+        if (starts[middle]! <= offset) low = middle;
+        else high = middle - 1;
+      }
+      return rows[low]!;
+    };
+    for (const match of text.matchAll(pattern)) {
+      const end = match.index + match[0].length;
+      const first = rowAt(match.index);
+      const titled = ['title', 'titleContinuation'].includes(
+        lines[first]!.kind,
+      );
+      if (titled || isEscaped(text, match.index) || isEscaped(text, end - 2))
+        found.push({
+          message: describe(titled),
+          line: first,
+          endLine: rowAt(end - 1),
+        });
+    }
+  };
+  scan(
+    lines.map((_, index) => index),
+    /\/\*[\s\S]*?\*\//g,
+    (titled) =>
+      titled
+        ? 'The profile removes boneyard text even inside a title field; this field would not print as written.'
+        : 'The profile ignores the backslash before a boneyard marker and would drop this text up to the next closing marker.',
+  );
+  for (const rows of new Set(paragraphAt.values()))
+    if (!['title', 'titleContinuation'].includes(lines[rows[0]!]!.kind))
+      scan(
+        rows,
+        /\[\[[\s\S]*?\]\]/g,
+        () =>
+          'The profile ignores the backslash before a note marker and would drop this text up to the next closing marker.',
+      );
+  return found;
+}
+
+/** Mirrors the pinned renderer's section rule: 1–6 `#` at the line start. */
+const rendererSection = /^(#{1,6})\s*([^#].*)$/;
+const blankSource = (text: string) => text === '' || text === ' ';
+export function evaluateExportAssessment(
+  source: FountainDocument,
   context?: AssessmentContext,
 ): ExportAssessment {
   if (
@@ -158,7 +369,7 @@ export function evaluateExportAssessment(
     !Number.isSafeInteger(context.version) ||
     context.version <= 0 ||
     !/^[a-f0-9]{64}$/.test(context.sourceSha256) ||
-    document.readOnlyReason
+    source.readOnlyReason
   )
     return Object.freeze({
       status: 'unavailable',
@@ -167,6 +378,8 @@ export function evaluateExportAssessment(
       provenance:
         'ADR 0037 / us-letter-draft-v1; no export success is implied.',
     });
+  // Roles come from the renderer's reading; byte targets from the author's source.
+  const { document, stripped } = assessmentView(source);
   const issues: CheckIssue[] = [];
   let truncated = false;
   const add = (
@@ -179,8 +392,8 @@ export function evaluateExportAssessment(
       truncated = true;
       return;
     }
-    const first = document.lines[line]!;
-    const last = document.lines[endLine]!;
+    const first = source.lines[line]!;
+    const last = source.lines[endLine]!;
     issues.push(
       Object.freeze({
         code,
@@ -199,33 +412,124 @@ export function evaluateExportAssessment(
       }),
     );
   };
-  const omitted = new Set<number>();
-  const unsupported = new Set([
-    'section',
-    'synopsis',
-    'note',
-    'boneyard',
-    'raw',
-  ]);
-  for (const region of document.hiddenRegions) {
-    add(
-      'SC005',
-      `The profile omits ${region.kind} content.`,
-      region.from,
-      region.from + region.count - 1,
-    );
-    for (let i = region.from; i < region.from + region.count; i++)
-      if (document.lines[i]!.kind !== 'raw') omitted.add(i);
+  // The profile parses physical paragraphs. Primary-codec force markers can
+  // appear without blank separators; those source-safe cases need an explicit
+  // limitation instead of letting the renderer silently change their roles.
+  const paragraphAt = new Map<number, readonly number[]>();
+  for (let from = 0; from < document.lines.length;) {
+    if (blankSource(document.lines[from]!.sourceText)) {
+      from++;
+      continue;
+    }
+    let end = from + 1;
+    while (
+      end < document.lines.length &&
+      !blankSource(document.lines[end]!.sourceText)
+    )
+      end++;
+    const rows = Array.from({ length: end - from }, (_, i) => from + i);
+    for (const row of rows) paragraphAt.set(row, rows);
+    from = end;
   }
-  document.lines.forEach((row, line) => {
-    if (unsupported.has(row.kind) && !omitted.has(line)) {
+  // The renderer's hidden-text patterns ignore backslashes and title fields.
+  const escaped = new Set<number>();
+  for (const found of rendererOnlyHidden(source, paragraphAt)) {
+    add('SC005', found.message, found.line, found.endLine);
+    for (let at = found.line; at <= found.endLine; at++) escaped.add(at);
+  }
+  const ranges: { kind: OmissionKind; line: number; endLine: number }[] = [];
+  const omitted = new Set<number>();
+  for (const region of source.hiddenRegions) {
+    const last = region.from + region.count - 1;
+    let complete = region.closed && !region.ambiguous;
+    for (let at = region.from; complete && at <= last; at++) {
+      const kind = source.lines[at]!.kind;
+      complete =
+        !escaped.has(at) &&
+        (kind === 'note' || kind === 'boneyard' || stripped.has(at));
+    }
+    if (complete)
+      ranges.push({ kind: region.kind, line: region.from, endLine: last });
+    else
       add(
         'SC005',
-        `The profile ${row.kind === 'raw' ? 'cannot verify raw' : 'omits ' + row.kind} content.`,
+        `This ${region.kind} is unclosed, ambiguous or shares a line with printed text; the profile may print or drop text around it.`,
+        region.from,
+        last,
+      );
+    for (let at = region.from; at <= last; at++)
+      if (document.lines[at]!.kind !== 'raw' && !stripped.has(at))
+        omitted.add(at);
+  }
+  // Sections and synopses are summarised only where the renderer omits them
+  // too: a paragraph made only of section lines and the synopses that follow
+  // them, or a one-line synopsis directly after a heading or such a paragraph.
+  const sectionParagraphs = new Set<readonly number[]>();
+  for (const rows of new Set(paragraphAt.values()))
+    if (
+      rows.every(
+        (row, index) =>
+          rendererSection.test(document.lines[row]!.sourceText) ||
+          (index > 0 && document.lines[row]!.sourceText.startsWith('=')),
+      )
+    )
+      sectionParagraphs.add(rows);
+  const attachable = new Set<number>();
+  document.lines.forEach((row, line) => {
+    if (omitted.has(line) || row.kind === 'blank') return;
+    const rows = paragraphAt.get(line) ?? [line];
+    const inSections = sectionParagraphs.has(rows);
+    if (row.kind === 'raw') {
+      add('SC005', 'The profile cannot verify raw content.', line);
+      return;
+    }
+    if (row.kind === 'section' || row.kind === 'synopsis') {
+      let previous = line - 1;
+      while (previous >= 0 && blankSource(document.lines[previous]!.sourceText))
+        previous--;
+      const renderedAway =
+        inSections ||
+        (row.kind === 'synopsis' &&
+          rows.length === 1 &&
+          row.sourceText.startsWith('=') &&
+          attachable.has(previous));
+      if (renderedAway) {
+        ranges.push({ kind: row.kind, line, endLine: line });
+        omitted.add(line);
+        attachable.add(line);
+      } else
+        add(
+          'SC005',
+          row.kind === 'section'
+            ? 'The profile would print this section marker as text: start it at the line start with 1–6 # and keep section lines in their own paragraph.'
+            : 'The profile would print this synopsis as text: place it directly after a scene heading or section.',
+          line,
+        );
+      return;
+    }
+    if (
+      row.kind === 'sceneHeading' &&
+      rows.length === 1 &&
+      !/^\s/.test(row.sourceText)
+    )
+      attachable.add(line);
+    if (row.kind === 'title' || row.kind === 'titleContinuation') return;
+    if (inSections)
+      add(
+        'SC005',
+        'The profile would treat this line as a section heading and omit it.',
         line,
       );
-      if (row.kind !== 'raw') omitted.add(line);
-    }
+    else if (
+      row.kind !== 'pageBreak' &&
+      rows.length === 1 &&
+      row.sourceText.startsWith('=')
+    )
+      add(
+        'SC005',
+        'The profile may treat this line as a synopsis and omit it.',
+        line,
+      );
   });
   for (const field of document.titleFields) {
     const key = field.key.toLowerCase();
@@ -239,29 +543,6 @@ export function evaluateExportAssessment(
       for (let i = field.from; i < field.from + field.count; i++)
         omitted.add(i);
     }
-  }
-  // The profile parses physical paragraphs. Primary-codec force markers can
-  // appear without blank separators; those source-safe cases need an explicit
-  // limitation instead of letting the renderer silently change their roles.
-  const paragraphAt = new Map<number, readonly number[]>();
-  for (let from = 0; from < document.lines.length;) {
-    if (
-      document.lines[from]!.sourceText === '' ||
-      document.lines[from]!.sourceText === ' '
-    ) {
-      from++;
-      continue;
-    }
-    let end = from + 1;
-    while (
-      end < document.lines.length &&
-      document.lines[end]!.sourceText !== '' &&
-      document.lines[end]!.sourceText !== ' '
-    )
-      end++;
-    const rows = Array.from({ length: end - from }, (_, i) => from + i);
-    for (const row of rows) paragraphAt.set(row, rows);
-    from = end;
   }
   const titleEnd = document.titleFields.at(-1);
   if (titleEnd) {
@@ -390,7 +671,7 @@ export function evaluateExportAssessment(
     }
     for (const miss of misses) add('SC008', miss + '.', line);
   });
-  const probes = assessmentLayoutProbes(document);
+  const probes = assessmentLayoutProbes(source);
   const layoutCurrent =
     Array.isArray(context.layout) &&
     context.layout.length === probes.length &&
@@ -410,6 +691,17 @@ export function evaluateExportAssessment(
       }
     });
   issues.sort((a, b) => a.line! - b.line! || a.code.localeCompare(b.code));
+  ranges.sort((a, b) => a.line - b.line || a.endLine - b.endLine);
+  const total = (kind: OmissionKind): OmissionTotal => {
+    const lines = new Set<number>();
+    let count = 0;
+    for (const range of ranges)
+      if (range.kind === kind) {
+        count++;
+        for (let at = range.line; at <= range.endLine; at++) lines.add(at);
+      }
+    return Object.freeze({ count, lines: lines.size });
+  };
   return Object.freeze({
     status: 'verified',
     provenance: PUBLICATION_ASSESSMENT_IDENTITY,
@@ -417,6 +709,13 @@ export function evaluateExportAssessment(
     sourceSha256: context.sourceSha256,
     issues: Object.freeze(issues),
     truncated,
+    omissions: Object.freeze({
+      notes: total('note'),
+      boneyards: total('boneyard'),
+      sections: total('section'),
+      synopses: total('synopsis'),
+      ranges: Object.freeze(ranges.map((range) => Object.freeze(range))),
+    }),
     layout: layoutCurrent ? 'verified' : 'unavailable',
   });
 }

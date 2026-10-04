@@ -1,4 +1,5 @@
 import {
+  assessmentView,
   evaluateExportAssessment,
   type AssessmentContext,
   type ExportAssessment,
@@ -77,9 +78,12 @@ function issue(
  * Blank lines, empty cues and unfinished drafting are not issues.
  */
 export function evaluateScriptCheck(
-  document: FountainDocument,
+  source: FountainDocument,
   context?: AssessmentContext,
 ): CheckReport {
+  // Structure is judged as the renderer reads it: a closed inline note beside
+  // visible text does not turn a speech into raw text. Line indexes are shared.
+  const document = assessmentView(source).document;
   const issues: CheckIssue[] = [];
   const push = (found: CheckIssue) => {
     if (issues.length < MAX_CHECK_ISSUES) issues.push(found);
@@ -246,7 +250,7 @@ export function evaluateScriptCheck(
     index = end + 1;
   }
 
-  const exportAssessment = evaluateExportAssessment(document, context);
+  const exportAssessment = evaluateExportAssessment(source, context);
   const blocking =
     exportAssessment.status === 'verified' ? exportAssessment.issues : [];
   // Structural findings cannot consume the entire display budget and hide
@@ -260,4 +264,9 @@ export function evaluateScriptCheck(
     truncated: issues.length + blocking.length >= MAX_CHECK_ISSUES,
     exportAssessment,
   });
+}
+
+/** Export stops for review only when something needs an informed decision. */
+export function requiresExportReview(report: CheckReport): boolean {
+  return report.issues.some((issue) => issue.severity !== 'advisory');
 }

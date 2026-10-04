@@ -5,6 +5,7 @@ import {
   type CheckState,
 } from '../application/scriptCheck';
 import type { CheckIssue } from '../domain/scriptCheck';
+import { describeOmissions } from '../domain/exportAssessment';
 
 const codeLabels: Record<CheckIssue['code'], string> = {
   SC001: 'Cue without dialogue',
@@ -40,6 +41,10 @@ export function ScriptCheckPanel({
   const visible = visibleIssues(state);
   const blockers = visible.filter((issue) => issue.severity === 'blocking');
   const assessment = state.report?.exportAssessment;
+  const omitted =
+    assessment?.status === 'verified'
+      ? describeOmissions(assessment.omissions)
+      : '';
   const warnings = visible.filter((issue) => issue.severity === 'warning');
   const advisories = visible.filter((issue) => issue.severity === 'advisory');
   const navigable = current && controller.isCurrent(state.projection);
@@ -168,6 +173,7 @@ export function ScriptCheckPanel({
               This check does not certify a PDF export. Saving remains
               available.
             </p>
+            {omitted && <p>{omitted}</p>}
             <p>
               {assessment.provenance.profile} · Screenplain{' '}
               {assessment.provenance.renderer.screenplain} / ReportLab{' '}

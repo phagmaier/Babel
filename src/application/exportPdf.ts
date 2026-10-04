@@ -9,7 +9,11 @@ import type { PublicationPreviewController } from './publicationPreview';
 import type { ExportAssessmentPort } from './exportAssessment';
 import { assessmentLayoutProbes } from '../domain/exportAssessment';
 import { parseFountain } from '../domain/fountainCodec';
-import { evaluateScriptCheck, type CheckReport } from '../domain/scriptCheck';
+import {
+  evaluateScriptCheck,
+  requiresExportReview,
+  type CheckReport,
+} from '../domain/scriptCheck';
 import { sameIdentity, validHash } from './persistenceState';
 export interface PdfCaptureReceipt {
   identity: DocumentIdentity;
@@ -172,11 +176,18 @@ export class ExportPdfController {
         throw new Error(
           'Publication assessment is unavailable or incomplete. No PDF was exported.',
         );
-      this.set({
-        phase: 'review',
-        report,
-        message: `Review captured version ${snapshot.version}. Later edits will stay in the editor.`,
-      });
+      if (requiresExportReview(report)) {
+        this.set({
+          phase: 'review',
+          report,
+          message: `Review captured version ${snapshot.version}. Later edits will stay in the editor.`,
+        });
+        return;
+      }
+      // Nothing needs a decision: omitted non-printing elements are summarised
+      // in the panel and the capture goes straight to the destination picker.
+      this.set({ report });
+      await this.publishCapture(serial);
     } catch (error) {
       if (this.live(serial)) this.failure(error);
     } finally {
@@ -200,71 +211,11 @@ export class ExportPdfController {
       report.exportAssessment.layout !== 'verified'
     )
       return;
-    if (report.issues.some((i) => i.severity !== 'advisory') && !acknowledged)
-      return;
+    if (requiresExportReview(report) && !acknowledged) return;
     const serial = this.serial;
     this.working = true;
-    const { snapshot, receipt } = this.capture;
-    const authority = {
-      identity: receipt.identity,
-      captureToken: receipt.captureToken,
-    };
     try {
-      this.set({
-        phase: 'selecting',
-        message: `Choose a destination for version ${snapshot.version}…`,
-      });
-      const target = await this.port.select(authority);
-      if (!this.live(serial)) return;
-      if (!target) {
-        this.cancelled = true;
-        this.set({
-          phase: 'cancelled',
-          message: 'PDF export cancelled. No destination was written.',
-        });
-        return;
-      }
-      this.set({
-        phase: 'rendering',
-        message: `Rendering captured version ${snapshot.version}…`,
-      });
-      const result = await this.publication.renderExport(
-        snapshot,
-        (request: PublicationRequest) =>
-          this.port.render({ ...authority, requestId: request.requestId }),
-      );
-      if (!this.live(serial)) return;
-      this.set({
-        phase: 'publishing',
-        message: `Writing ${target.fileName} atomically. Publication has started; cancellation is unavailable.`,
-      });
-      const published = await this.port.publish({
-        ...authority,
-        destinationToken: target.token,
-        requestId: result.requestId,
-        artifact: result.artifact,
-        acknowledged: true,
-      });
-      if (
-        !sameIdentity(published.result.identity, receipt.identity) ||
-        published.result.version !== snapshot.version ||
-        published.result.sourceSha256 !== snapshot.sourceSha256 ||
-        published.result.requestId !== result.requestId ||
-        published.result.artifact !== result.artifact ||
-        published.result.pageCount !== result.pageCount ||
-        !validHash(published.publication.pdfSha256) ||
-        published.publication.byteLength <= 0 ||
-        published.publication.fileName !== target.fileName
-      )
-        throw new Error(
-          'The publication receipt could not be verified. Inspect the selected destination before retrying.',
-        );
-      this.set({
-        phase: 'succeeded',
-        receipt: published,
-        message: `Exported ${target.fileName} · version ${result.version} · ${result.pageCount} ${result.pageCount === 1 ? 'page' : 'pages'}.${published.publication.previousFileName ? ' Previous PDF retained as ' + published.publication.previousFileName + '.' : ''}`,
-      });
-      this.capture = null;
+      await this.publishCapture(serial);
     } catch (error) {
       if (this.live(serial)) this.failure(error);
     } finally {
@@ -272,6 +223,69 @@ export class ExportPdfController {
       this.working = false;
       this.set({});
     }
+  }
+  /** Destination, render and atomic publication of the protected capture. */
+  private async publishCapture(serial: number) {
+    const { snapshot, receipt } = this.capture!;
+    const authority = {
+      identity: receipt.identity,
+      captureToken: receipt.captureToken,
+    };
+    this.set({
+      phase: 'selecting',
+      message: `Choose a destination for version ${snapshot.version}…`,
+    });
+    const target = await this.port.select(authority);
+    if (!this.live(serial)) return;
+    if (!target) {
+      this.cancelled = true;
+      this.set({
+        phase: 'cancelled',
+        message: 'PDF export cancelled. No destination was written.',
+      });
+      return;
+    }
+    this.set({
+      phase: 'rendering',
+      message: `Rendering captured version ${snapshot.version}…`,
+    });
+    const result = await this.publication.renderExport(
+      snapshot,
+      (request: PublicationRequest) =>
+        this.port.render({ ...authority, requestId: request.requestId }),
+    );
+    if (!this.live(serial)) return;
+    this.set({
+      phase: 'publishing',
+      message: `Writing ${target.fileName} atomically. Publication has started; cancellation is unavailable.`,
+    });
+    const published = await this.port.publish({
+      ...authority,
+      destinationToken: target.token,
+      requestId: result.requestId,
+      artifact: result.artifact,
+      acknowledged: true,
+    });
+    if (
+      !sameIdentity(published.result.identity, receipt.identity) ||
+      published.result.version !== snapshot.version ||
+      published.result.sourceSha256 !== snapshot.sourceSha256 ||
+      published.result.requestId !== result.requestId ||
+      published.result.artifact !== result.artifact ||
+      published.result.pageCount !== result.pageCount ||
+      !validHash(published.publication.pdfSha256) ||
+      published.publication.byteLength <= 0 ||
+      published.publication.fileName !== target.fileName
+    )
+      throw new Error(
+        'The publication receipt could not be verified. Inspect the selected destination before retrying.',
+      );
+    this.set({
+      phase: 'succeeded',
+      receipt: published,
+      message: `Exported ${target.fileName} · version ${result.version} · ${result.pageCount} ${result.pageCount === 1 ? 'page' : 'pages'}.${published.publication.previousFileName ? ' Previous PDF retained as ' + published.publication.previousFileName + '.' : ''}`,
+    });
+    this.capture = null;
   }
   private failure(error: unknown) {
     const reason =

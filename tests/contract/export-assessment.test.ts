@@ -7,10 +7,14 @@ import {
 } from '../../src/domain/fountainCodec';
 import {
   assessmentLayoutProbes,
+  describeOmissions,
   evaluateExportAssessment,
   PUBLICATION_ASSESSMENT_IDENTITY as identity,
 } from '../../src/domain/exportAssessment';
-import { evaluateScriptCheck } from '../../src/domain/scriptCheck';
+import {
+  evaluateScriptCheck,
+  requiresExportReview,
+} from '../../src/domain/scriptCheck';
 import {
   ScriptCheckController,
   visibleIssues,
@@ -35,7 +39,27 @@ it('maps the independently reviewed omission corpus using codec boundaries and p
   const result = evaluateExportAssessment(doc, context);
   expect(result.status).toBe('verified');
   if (result.status !== 'verified') throw new Error('unavailable');
-  expect(result.issues.map((issue) => issue.line)).toEqual([0, 2, 3, 7, 9]);
+  // The independently reviewed omitted lines are unchanged; AUDIT-D04 only
+  // splits them into the gated unknown title field and the non-blocking summary.
+  expect(result.issues.map((issue) => issue.line)).toEqual([0]);
+  expect(
+    result.omissions.ranges.map((range) => [
+      range.kind,
+      range.line,
+      range.endLine,
+    ]),
+  ).toEqual([
+    ['section', 2, 2],
+    ['synopsis', 3, 3],
+    ['note', 7, 7],
+    ['boneyard', 9, 9],
+  ]);
+  expect(
+    [
+      ...result.issues.map((issue) => issue.line),
+      ...result.omissions.ranges.map((range) => range.line),
+    ].sort((a, b) => a! - b!),
+  ).toEqual([0, 2, 3, 7, 9]);
   expect(
     result.issues.every(
       (issue) =>
@@ -97,7 +121,11 @@ it('checks actual glyph tables in every emphasis face; accents and supported sym
 
 it('uses source locations for raw content and reports omissions without checking hidden glyphs', () => {
   expect(assess('[[中文 😀]]\n/* العربية */\n!Body.\n')).toMatchObject({
-    issues: [{ code: 'SC005' }, { code: 'SC005' }],
+    issues: [],
+    omissions: {
+      notes: { count: 1, lines: 1 },
+      boneyards: { count: 1, lines: 1 },
+    },
   });
   expect(assess('{{raw}}\n')).toMatchObject({ issues: [{ code: 'SC005' }] });
   expect(
@@ -267,12 +295,23 @@ it('reports unavailable on native failure and respects the result bound without 
   );
   f.controller.dispose();
   const result = evaluateScriptCheck(
-    parse(Array(1002).fill('# Section\n').join('')),
+    parse(Array(1002).fill('{{raw}}\n').join('')),
     context,
   );
   expect(result.truncated).toBe(true);
   expect(result.issues).toHaveLength(1000);
   expect(result.exportAssessment).toMatchObject({ truncated: true });
+  // Omitted elements are summarised and no longer consume the issue budget.
+  const sections = evaluateScriptCheck(
+    parse(Array(1002).fill('# Section\n').join('')),
+    context,
+  );
+  expect(sections.truncated).toBe(false);
+  expect(sections.issues).toEqual([]);
+  expect(sections.exportAssessment).toMatchObject({
+    truncated: false,
+    omissions: { sections: { count: 1002, lines: 1002 } },
+  });
 });
 
 it('declares codec/paragraph boundary mismatches instead of crediting silently changed roles', () => {
@@ -317,7 +356,9 @@ it('checks visible Unicode beside hidden content without treating omitted scalar
   const result = assess('!中文 [[hidden 😀]] tail.\n');
   expect(result.status).toBe('verified');
   if (result.status !== 'verified') throw new Error('unavailable');
-  expect(result.issues.some((issue) => issue.code === 'SC005')).toBe(true);
+  // The inline note is a summarised omission; only visible scalars are checked.
+  expect(result.issues.some((issue) => issue.code === 'SC005')).toBe(false);
+  expect(result.omissions.notes).toEqual({ count: 1, lines: 1 });
   const glyphs = result.issues.filter((issue) => issue.code === 'SC008');
   expect(glyphs).toHaveLength(2);
   expect(glyphs.map((issue) => issue.message).join(' ')).not.toContain(
@@ -347,4 +388,119 @@ it('reserves the bounded display budget for export blockers before structural wa
   expect(report.issues.every((issue) => issue.severity === 'blocking')).toBe(
     true,
   );
+});
+
+// AUDIT-D04. The same hand-authored corpus is checked against PDFs rendered by
+// the pinned helper in tools/pdf-helper/test_helper.py.
+const oracle = JSON.parse(
+  readFileSync('fixtures/assessment/oracle.json', 'utf8'),
+) as {
+  cases: {
+    name: string;
+    source: string;
+    clean: boolean;
+    blockingLines: number[];
+    omissions: Record<'notes' | 'boneyards' | 'sections' | 'synopses', number>;
+  }[];
+};
+it.each(oracle.cases)(
+  'AUDIT-D04 oracle: $name',
+  ({ source, clean, blockingLines, omissions }) => {
+    const doc = parse(source);
+    const before = Array.from(serializeFountain(doc));
+    const report = evaluateScriptCheck(doc, {
+      ...context,
+      layout: assessmentLayoutProbes(doc).map(() => null),
+    });
+    const assessment = report.exportAssessment;
+    if (assessment.status !== 'verified') throw new Error('unavailable');
+    expect(assessment.layout).toBe('verified');
+    expect(requiresExportReview(report)).toBe(!clean);
+    if (clean)
+      expect(
+        report.issues.filter((issue) => issue.severity !== 'advisory'),
+      ).toEqual([]);
+    for (const line of blockingLines)
+      expect(
+        assessment.issues.some(
+          (issue) =>
+            issue.severity === 'blocking' &&
+            issue.line !== null &&
+            issue.line <= line &&
+            line <= issue.endLine,
+        ),
+        `line ${line} must stay gated`,
+      ).toBe(true);
+    expect({
+      notes: assessment.omissions.notes.count,
+      boneyards: assessment.omissions.boneyards.count,
+      sections: assessment.omissions.sections.count,
+      synopses: assessment.omissions.synopses.count,
+    }).toEqual(omissions);
+    // Assessment never changes or re-serializes the author's bytes.
+    expect(Array.from(serializeFountain(doc))).toEqual(before);
+  },
+);
+
+it('AUDIT-D04 summarises omissions with counts and line totals in one sentence', () => {
+  const result = assess(
+    '# One\n\n# Two\n\n.INT. A - DAY\n\n= Beat.\n\n[[first\nsecond\nthird]]\n\n!Body [[aside]] text.\n\n/* cut\nmore */\n\n!End.\n',
+  );
+  if (result.status !== 'verified') throw new Error('unavailable');
+  expect(result.issues).toEqual([]);
+  expect(result.omissions).toMatchObject({
+    notes: { count: 2, lines: 4 },
+    boneyards: { count: 1, lines: 2 },
+    sections: { count: 2, lines: 2 },
+    synopses: { count: 1, lines: 1 },
+  });
+  expect(describeOmissions(result.omissions)).toBe(
+    'Not printed by this profile: 2 notes (4 lines), 1 boneyard (2 lines), 2 section headings, 1 synopsis.',
+  );
+  const none = assess('!Body.\n');
+  if (none.status !== 'verified') throw new Error('unavailable');
+  expect(describeOmissions(none.omissions)).toBe('');
+});
+
+it('AUDIT-D04 assesses a speech through its inline note and keeps original byte targets', () => {
+  const source =
+    '@MAYA\nYou kept the light on. [[check tone]]\nAfter everything.\n\n{{raw}}\n';
+  const doc = parse(source);
+  // The codec still protects the mixed line; only assessment sees through it.
+  expect(doc.lines[1]!.kind).toBe('raw');
+  const probes = assessmentLayoutProbes(doc);
+  expect(probes).toEqual([
+    {
+      line: 0,
+      endLine: 2,
+      source: '@MAYA\nYou kept the light on. \nAfter everything.\n',
+    },
+  ]);
+  const report = evaluateScriptCheck(doc, { ...context, layout: [null] });
+  expect(report.issues.map((issue) => [issue.code, issue.line])).toEqual([
+    ['SC004', 4],
+    ['SC005', 4],
+  ]);
+  const raw = report.issues.find((issue) => issue.code === 'SC005')!;
+  expect(raw.sourceStart).toBe(doc.lines[4]!.sourceStart);
+  expect(raw.sourceEnd).toBe(doc.lines[4]!.contentEnd);
+  expect(new TextDecoder().decode(doc.bytes)).toBe(source);
+});
+
+it('AUDIT-D04 keeps many inline notes exportable instead of truncating', () => {
+  const report = evaluateScriptCheck(
+    parse(
+      Array.from({ length: 1002 }, () => '!A [[private note]] light.\n\n').join(
+        '',
+      ),
+    ),
+    { ...context, layout: [] },
+  );
+  expect(report.truncated).toBe(false);
+  expect(report.issues).toEqual([]);
+  expect(report.exportAssessment).toMatchObject({
+    status: 'verified',
+    truncated: false,
+    omissions: { notes: { count: 1002, lines: 1002 } },
+  });
 });

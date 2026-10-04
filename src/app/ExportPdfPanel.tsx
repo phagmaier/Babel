@@ -3,6 +3,8 @@ import type {
   ExportPdfController,
   ExportPdfState,
 } from '../application/exportPdf';
+import { describeOmissions } from '../domain/exportAssessment';
+import { requiresExportReview } from '../domain/scriptCheck';
 export function ExportPdfPanel({
   controller,
   state,
@@ -14,14 +16,23 @@ export function ExportPdfPanel({
 }) {
   const [acknowledged, setAcknowledged] = useState(false);
   const issues = state.report?.issues ?? [];
-  const needsAcknowledgement = issues.some((i) => i.severity !== 'advisory');
+  const needsAcknowledgement =
+    !!state.report && requiresExportReview(state.report);
   const review = state.phase === 'review';
+  const assessment = state.report?.exportAssessment;
+  // Shown in every phase: a capture with nothing to review skips this panel's
+  // review step, and the author still sees what the profile leaves out.
+  const omitted =
+    assessment?.status === 'verified'
+      ? describeOmissions(assessment.omissions)
+      : '';
   return (
     <section className="export-pdf-panel" aria-label="PDF export">
       <h2>
         Export PDF{state.version ? ` · captured version ${state.version}` : ''}
       </h2>
       <p role="status">{state.message}</p>
+      {omitted && <p>{omitted}</p>}
       {review && (
         <>
           <p>
@@ -29,31 +40,24 @@ export function ExportPdfPanel({
             this protected capture; you can continue editing and saving.
           </p>
           <p>
-            Section and synopsis markers, notes, boneyards and page breaks
-            follow the selected profile. Reported omissions can be accepted;
-            glyph, shaping or layout refusals still prevent rendering.
+            Review the warnings and limitations below before choosing a
+            destination. Accepting them does not change the script; glyph,
+            shaping or layout refusals still prevent rendering.
           </p>
-          {issues.length ? (
-            <ol>
-              {issues.map((issue) => (
-                <li key={issue.key}>
-                  <strong>
-                    {issue.code} · {issue.severity}
-                    {issue.line !== null ? ` · line ${issue.line + 1}` : ''}
-                  </strong>
-                  : {issue.message} <span>{issue.explanation}</span>
-                  {issue.sourceStart !== undefined
-                    ? ` Source bytes ${issue.sourceStart}–${issue.sourceEnd}.`
-                    : ''}
-                </li>
-              ))}
-            </ol>
-          ) : (
-            <p>
-              No publication limitations or structural warnings were found in
-              this capture.
-            </p>
-          )}
+          <ol>
+            {issues.map((issue) => (
+              <li key={issue.key}>
+                <strong>
+                  {issue.code} · {issue.severity}
+                  {issue.line !== null ? ` · line ${issue.line + 1}` : ''}
+                </strong>
+                : {issue.message} <span>{issue.explanation}</span>
+                {issue.sourceStart !== undefined
+                  ? ` Source bytes ${issue.sourceStart}–${issue.sourceEnd}.`
+                  : ''}
+              </li>
+            ))}
+          </ol>
           {needsAcknowledgement && (
             <label>
               <input
@@ -62,7 +66,7 @@ export function ExportPdfPanel({
                 onChange={(event) => setAcknowledged(event.target.checked)}
               />{' '}
               I have reviewed the warnings and accept the reported limitations
-              or omissions for this PDF.
+              for this PDF.
             </label>
           )}
           <button

@@ -1,4 +1,4 @@
-# Current state — AUDIT-D03 complete (D03A + D03B)
+# Current state — AUDIT-D04 complete
 
 Date: 2026-10-04. Application: **babel**. Main; local commits only, no push.
 M0–M5 and bounded M6-01 work remain recorded complete. **M6-02, C1/F2 and
@@ -6,44 +6,43 @@ Local v1 admission remain open.**
 
 ## Task and work
 
-**AUDIT-D03B complete**, base `21a6180`: layout shell, second slice of D-03.
-[Brief](tasks/AUDIT-D03.md),
-[evidence](test-evidence/AUDIT.md#audit-d03b--writing-layout-shell).
-Windows at least 1100px wide get three columns under the sticky header: pinned
-navigator (Characters, Outline), script column, and a tools drawer (Spellcheck,
-Script Check, Find, Title page) that exists only while a tool is open. The
-window still scrolls the script. DOM/keyboard order is unchanged and the editor
-host is never remounted; narrower windows keep the single-column stack. Status,
-alerts and Save details share one header row so the in-memory alert no longer
-changes header height on a wide window. No schema, capture, command, IPC or
-persistence change; no native drill file changed.
-Paths: [view](../src/app/WritingView.tsx), [styles](../src/app/writing.css),
-[shell check](../tests/browser/shell-layout.mjs), [UX](ux.md#writing-layout-shell-audit-d03b).
+**AUDIT-D04 complete**, base `02dc86c`.
+[Brief](tasks/AUDIT-D04.md),
+[evidence](test-evidence/AUDIT.md#audit-d04--non-blocking-omissions-and-inline-note-assessment).
+Closed, unambiguous notes and boneyards, section headings and synopses are one
+non-blocking summary instead of SC005 issues. For assessment only, a line with
+closed single-line hidden spans after visible text keeps its role, so it no
+longer yields raw SC005/SC004 or a false SC001. A capture with no blocking
+issue and no warning goes straight to the destination picker; review and
+acknowledgement are otherwise unchanged. The summary is guarded where the
+pinned renderer and codec disagree: misplaced sections/synopses, `#`/`=`-led
+text the renderer drops, backslash-escaped hidden markers and title-line
+boneyards stay or become blocking. Codec, editor protection, source bytes,
+Rust, IPC, helper and pins are unchanged. SPEC S09.2 and ADR 0039 amended.
+Paths: [assessment](../src/domain/exportAssessment.ts), [corpus](../fixtures/assessment/oracle.json),
+[contract](screenplay-validation.md#audit-d04-omission-summary-and-inline-hidden-text).
 
-Tier 2: frontend **886/886**; Chromium shell and element geometry pass; Rust
-**273/273** one filesystem; format/lint/typecheck/build, clippy and default
-embedded release pass. Native WebKit **20/22 content, 19/22 strict** over
-presentation, outline, scene-moves, find, replace, script-check, spellcheck,
-title-page, characters, commands and editor-exit on tmpfs/Btrfs.
-Artifacts: `target/audit-d03/`.
+Tier 2: frontend **927/927**; 27-case corpus agrees on the renderer side (PDF
+text) and the assessment side; six injected faults detected; helper **14/14**;
+Rust **273/273** one filesystem; browser and default embedded release pass.
+Native WebKit **6/6 strict** pdf-export/script-check/publication-exit and
+**4/4 strict** daily-session/commands on tmpfs/Btrfs. Artifacts: `target/audit-d04/`.
 
-**AUDIT-D03A complete** (`21a6180`): EDIT-07 per-element indentation in a
-proportional 60-character column, CSS only;
-[evidence](test-evidence/AUDIT.md#audit-d03a--on-screen-screenplay-element-styling).
+**Harness fact found here:** a copied binary finds `pdf-helper` only in a folder
+ending `target/release` that holds `.cargo-lock`
+([README](../tests/native/writing-lifecycle/README.md)). Helper-less frozen
+copies made Script Check report "unavailable"; that was the D03B script-check
+failure and the SIMP-F daily-assessment finding. The daily-session drill's
+stale "unavailable" expectation is corrected.
 
-**Findings from D03 (open, no cause claimed):**
-
-- Script Check drill fails on both filesystems at `'Export support assessed'`
-  (panel shows `Export assessment unavailable`); the unchanged D03A binary fails
-  identically. Later Script Check native steps are unverified under the shell.
-- Btrfs presentation Find-viewport failure on the D02/D03A binaries no longer
-  occurs with the shell (2 runs). Consistent with the header-growth lead, but
-  the cause was not isolated.
-- Owned WebKit SIGABRT `free(): corrupted unsorted chunks`: **477772/start
-  4562349** (Btrfs forced teardown of a failed first candidate) and
-  **501063/start 4636728** (tmpfs editor-exit, content pass/strict fail). Cores
-  retained; same family as the M4 heap aborts.
-- The actions/picker block above the editor is still tall (about 480px).
+**AUDIT-D03 complete** (`21a6180`, `02dc86c`): EDIT-07 element indentation and
+the three-column writing shell;
+[evidence A](test-evidence/AUDIT.md#audit-d03a--on-screen-screenplay-element-styling),
+[evidence B](test-evidence/AUDIT.md#audit-d03b--writing-layout-shell). Open
+from D03: owned WebKit SIGABRT `free(): corrupted unsorted chunks`
+**477772/start 4562349** and **501063/start 4636728** (cores retained, no
+cause); Btrfs presentation Find-viewport failure no longer occurs with the
+shell, cause not isolated; the actions block above the editor is still tall.
 
 ## Retained findings and limits
 
@@ -82,7 +81,7 @@ file/read-only close; [brief](tasks/AUDIT-D06.md) and
 Earlier native 10/14 and baseline F6/Mozc failures remain historical evidence.
 **AUDIT-SIMP-F complete** (`200e375`); [brief](tasks/AUDIT-SIMP-F.md),
 [evidence](test-evidence/AUDIT.md#audit-simp-f--frontend-guard-and-native-dispatch-simplification).
-Its initial daily-assessment failure stays unresolved despite clean later runs.
+Its initial daily-assessment failure is explained by helper resolution (D-04 evidence).
 D02 also retains a combined frontend Replace-All assertion failure: unchanged
 isolated/current/complete reruns passed, without a cause/correction claim. An
 initial browser page-load timeout during matrix work passed on idle retry; no
@@ -101,15 +100,15 @@ copy/prune and capture-failure bundle policy remain separate open work.
 
 ## Next action and stopping point
 
-D03 work, evidence and handoff are committed locally on main; no push.
-**Stopped after D-03.** Remaining accepted DESIGN items without a brief: D-04
-(non-blocking export summary, inline-note `raw` fix), D-05 cheap variant, D-07
-oracle and D-09 page count. Suggested next: D-04, starting by reproducing the
-Script Check `Export assessment unavailable` failure, which sits on the same
-assessment path. Preserve the row schema/deferred rewrite, native crash findings
-and initial assessment failure. Never substitute injected composition for
-genuine IME. Unset `FORCE_COLOR` for `pnpm test:browser`. No full
-native/a11y/keyboard, SELinux, M6-02, C1/F2 or Local v1 admission closure.
+D04 work, evidence and handoff are committed locally on main; no push.
+**Stopped after D-04.** Open follow-up: AUDIT-D04-R1 (`FADE IN:` first line
+classified as a title field; needs a codec decision). Remaining accepted DESIGN
+items without a brief: D-05 cheap variant, D-07 oracle and D-09 page count.
+Run publication-dependent native modes with `target/release` in place or a
+helper-capable frozen layout. Preserve the row schema/deferred rewrite and
+native crash findings. Never substitute injected composition for genuine IME.
+Unset `FORCE_COLOR` for `pnpm test:browser`. No full native/a11y/keyboard,
+SELinux, M6-02, C1/F2 or Local v1 admission closure.
 
 [M6-02-R1](tasks/M6-02-R1.md) and supported-runtime
 [M6-01-R1](tasks/M6-01-R1.md) remain separate. Crash follow-up starts from retained

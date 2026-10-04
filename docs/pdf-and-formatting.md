@@ -62,8 +62,12 @@ receives an opaque native capture token; typing resumes for review and rendering
 Review names that captured version, shows all structural warnings and SC005/SC008
 source targets, and requires explicit acknowledgment of warnings/limitations.
 Unavailable, mismatched, truncated or incomplete assessments refuse export.
-Acknowledgment permits known omissions; the frozen helper still refuses unsupported
-glyphs, shaping and layout. Source Save is independently available.
+The frozen helper still refuses unsupported glyphs, shaping and layout. Source
+Save is independently available. Since AUDIT-D04, omitted notes, boneyards,
+section headings and synopses are one non-blocking summary line, and a capture
+with no blocking limitation and no warning skips review and opens the
+destination picker directly; see
+[validation](screenplay-validation.md#audit-d04-omission-summary-and-inline-hidden-text).
 
 Preview and export share one render controller, sequence and native queue.
 Preview admission pauses during export. Typing marks preview stale while export

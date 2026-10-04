@@ -22,8 +22,9 @@ Blank lines, unfinished dialogue, and incomplete drafting are not inherently inv
 SC005/SC008 are blocking **export** limitations, never Save/recovery gates.
 They are always visible, cannot be dismissed or hidden by structural/style
 filters, and offer no fixes. [Assessment](../src/domain/exportAssessment.ts)
-uses Babel's primary codec: sections, synopses, hidden notes/boneyards, unknown
-or extra title keys and raw/unverified regions are explicit limitations.
+uses Babel's primary codec: unknown or extra title keys and raw/unverified
+regions are explicit limitations. Sections, synopses and hidden notes/boneyards
+are reported as described under [AUDIT-D04](#audit-d04-omission-summary-and-inline-hidden-text).
 Supported title fields, lyrics and short dual dialogue remain supported.
 The renderer requires physical paragraphs: title/body separation, speech
 paragraphs, isolated headings/transitions/breaks and centered paragraphs are
@@ -63,3 +64,46 @@ results. Pending refresh says Updating. Findings cap at 1,000 with explicit
 truncation; no assessment is a successful PDF export receipt. M5-06 owns export
 review/decisions; M5-07 owns integrated publication acceptance.
 [Evidence](test-evidence/M5.md#m5-04--production-sc005sc008-assessment).
+
+## AUDIT-D04 omission summary and inline hidden text
+
+Closed, unambiguous notes and boneyards, section headings and synopses are
+non-printing in Fountain and omitted by the frozen renderer. A verified
+assessment reports them once as `omissions`: counts, physical line totals and
+ranges per kind. They are not issues, need no acknowledgement, cannot truncate
+the 1,000-issue budget and appear as one sentence in Script Check and in every
+phase of the export panel.
+
+The codec still protects a line that mixes hidden and visible text as raw.
+For assessment only, such a line is read as the renderer prints it when every
+hidden span on it is a closed, unambiguous single-line note or boneyard that
+follows visible text: the spans are dropped and the line keeps its role. Its
+speech stays one group, so it produces no raw SC005, no SC004 and no false
+SC001/SC002. Source bytes, editor protection and issue byte targets are those
+of the author's document. A line that begins with a hidden span, a region that
+spans lines beside visible text, `{{…}}`, stray markers and a line left blank
+by removal stay raw and gated.
+
+Still blocking: unknown or extra title fields; unclosed or ambiguous regions;
+paragraph limitations; glyph, shaping and layout refusals. Structural warnings
+SC001–SC004 still require review at export.
+
+The summary is only truthful where the renderer agrees, so these stay or
+become blocking SC005, each confirmed against the pinned renderer:
+
+- a section that the renderer would print as text (not at the line start, not
+  1–6 `#`, or sharing a paragraph with other text), and a synopsis not directly
+  after a scene heading or section;
+- a `#`-led or single `=`-led line the codec treats as printed text but the
+  renderer treats as a section or synopsis and drops;
+- a backslash before a two-character hidden marker (`\[[`, `\/*` and their
+  closers), which the renderer ignores, and a boneyard opener inside a title
+  field, which it removes. Escaping each bracket separately (`\[\[`) is honoured
+  by both and is not reported.
+
+[Shared corpus](../fixtures/assessment/oracle.json): the helper's Python tests
+check what the rendered PDF prints and omits; vitest checks the assessment for
+the same cases. [Evidence](test-evidence/AUDIT.md#audit-d04--non-blocking-omissions-and-inline-note-assessment).
+A first line `FADE IN:` is still classified as a title field and reported as an
+omitted unknown field although the renderer prints it; that codec
+classification is tracked separately.

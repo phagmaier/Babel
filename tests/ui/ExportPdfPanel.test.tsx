@@ -9,15 +9,17 @@ import { parseFountain } from '../../src/domain/fountainCodec';
 import { evaluateScriptCheck } from '../../src/domain/scriptCheck';
 import { PUBLICATION_ASSESSMENT_IDENTITY } from '../../src/domain/exportAssessment';
 afterEach(cleanup);
-const report = evaluateScriptCheck(
-  parseFountain(new TextEncoder().encode('!A [[private note]] light.\n')),
-  {
+const check = (source: string) =>
+  evaluateScriptCheck(parseFountain(new TextEncoder().encode(source)), {
     identity: PUBLICATION_ASSESSMENT_IDENTITY,
     version: 7,
     sourceSha256: 'a'.repeat(64),
     layout: [],
-  },
-);
+  });
+// One gated raw line beside omissions that only need the summary.
+const report = check('# Act\n\n!A [[private note]] light.\n\n{{raw}}\n');
+const SUMMARY =
+  'Not printed by this profile: 1 note (1 line), 1 section heading.';
 function fixture() {
   const proceed = vi.fn(),
     cancel = vi.fn();
@@ -47,6 +49,10 @@ it('shows exact version and source-target limitations, requiring explicit unchec
   );
   expect(screen.getByRole('heading').textContent).toContain('version 7');
   expect(screen.getAllByText(/Source bytes/).length).toBeGreaterThan(0);
+  // Omitted elements are stated once and are not listed as issues to accept.
+  expect(screen.getByText(SUMMARY)).toBeTruthy();
+  expect(screen.queryByText(/omits note content/)).toBeNull();
+  expect(screen.queryByText(/omits section content/)).toBeNull();
   const choose = screen.getByRole('button', {
     name: 'Choose PDF destination',
   }) as HTMLButtonElement;
@@ -94,4 +100,25 @@ it('allows cancellation before writing and explicitly disables it during publica
       .disabled,
   ).toBe(true);
   expect(screen.queryByRole('checkbox')).toBeNull();
+});
+it('AUDIT-D04 shows the omission summary without review controls when export goes straight to the picker', () => {
+  const t = fixture();
+  render(
+    <ExportPdfPanel
+      controller={t.controller}
+      state={{
+        ...t.state,
+        phase: 'selecting',
+        message: 'Choose a destination for version 7…',
+        report: check('# Act\n\n!A [[private note]] light.\n'),
+      }}
+      onDismiss={vi.fn()}
+    />,
+  );
+  expect(screen.getByText(SUMMARY)).toBeTruthy();
+  expect(screen.queryByRole('checkbox')).toBeNull();
+  expect(
+    screen.queryByRole('button', { name: 'Choose PDF destination' }),
+  ).toBeNull();
+  expect(screen.getByRole('button', { name: 'Cancel export' })).toBeTruthy();
 });

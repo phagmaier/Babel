@@ -44,5 +44,13 @@ fault/matrix/contracts and default-release native picker/review/cancel/failure
 drills on tmpfs/Btrfs. The owner resumed desktop testing before those drills.
 [M5-07](../test-evidence/M5.md#m5-07--integrated-publication-exit-and-separate-review)
 passes integrated/offline extracted-AppRun native tmpfs/Btrfs publication gates.
+
+Amendment (AUDIT-D04, 2026-10-04): informed review is required only when the
+assessment holds a blocking limitation or a structural warning. Closed,
+unambiguous notes and boneyards, section headings and synopses that the renderer
+omits are reported in a non-blocking summary, and a capture with nothing to
+review goes directly to destination selection. The native publish request, capture
+token and receipt verification are unchanged.
+
 Evidence still needed: other platforms and installed adoption; retention/cleanup
 UX and broader interruption/power-loss hardening remain later work.

@@ -30,7 +30,7 @@ def run(d):
     opened_ms = int((time.monotonic() - started) * 1000)
     for code in ['SC001', 'SC002', 'SC006']:
         assert code in d.script("return document.querySelector('.check-panel').textContent;"), code
-    assert 'Export support assessed' in d.body()
+    assert 'Export support assessed' in d.body(), 'Export assessment unavailable: binary has no usable pdf-helper beside it'
     assert 'export limitations' in d.body()
     panel = d.script("return document.querySelector('.check-panel').textContent;")
     assert 'SC005' in panel and 'SC008' not in panel, 'ASCII has content limitations but no glyph loss'
@@ -101,6 +101,9 @@ def run(d):
     for literal in ['SC005', 'SC008', 'dual-dialogue-overflow', 'U+4E2D', 'U+1F600', 'unsupported shaping', 'us-letter-draft-v1']:
         assert literal in panel, literal
     assert 'font is substituted' in panel
+    # AUDIT-D04: omitted non-printing elements are one summary, not issues.
+    assert 'Not printed by this profile: 1 note (1 line), 1 boneyard (1 line), 1 section heading, 1 synopsis.' in panel, panel
+    assert 'omits note content' not in panel and 'omits section content' not in panel
     assert d.editor() == before and second.read_bytes() == second_source
     assert not list((d.ROOT / 'cache').rglob('*.pdf')), 'assessment must not publish a PDF'
     # Blocking limitations remain visible when structural warnings are filtered.

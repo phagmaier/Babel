@@ -584,6 +584,8 @@ Fountain blank lines and unfinished drafting states are not automatically illega
 
 Save is never blocked just because Script Check reports a structural warning. A strict export profile may require acknowledgement of warnings, but preservation remains available. Anything that cannot be rendered without losing authored content needs an explicit user decision, not an automatic omission.
 
+Notes, boneyards, section headings and synopses are non-printing by Fountain's definition. Where the renderer omits exactly those elements, export states them once in a non-blocking summary with counts and line totals instead of asking for a decision, and an export with no blocking limitation and no structural warning proceeds directly to the destination choice. The explicit decision remains required for an unclosed or ambiguous hidden region, hidden text that shares a line it cannot be cleanly separated from, an unknown title field, and any text the renderer would drop or print differently from what the script shows.
+
 ### 09.3 Initial rule catalog
 
 Use stable codes, starting with:

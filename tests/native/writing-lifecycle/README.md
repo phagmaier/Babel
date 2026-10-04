@@ -29,7 +29,16 @@ AT-SPI Select action after location navigation; a disposed target fails without
 sending a key into the editor. The folder picker leaves GTK Recent with Alt+Home before entering the explicit disposable path; no personal file is opened.
 
 `BABEL_NATIVE_BINARY` can select an explicitly built default release binary
-outside `target/release`. Emergency copies use a dedicated empty fixture folder
+outside `target/release`. Tauri resolves resources beside the executable only
+when its folder path ends in `target/release` and holds Cargo's `.cargo-lock`
+marker; anywhere else it looks for an installed layout. A bare copied binary
+therefore has no `pdf-helper`: Script Check reports `Export assessment
+unavailable` and daily-session, script-check, pdf-export, publication and preview
+modes fail. Run `target/release` in place, or freeze into
+`<dir>/target/release/` containing the binary, an empty `.cargo-lock` and a
+copy of `target/release/pdf-helper`. Default builds are
+reproducible, so an in-place binary can be identified by its recorded SHA-256.
+Emergency copies use a dedicated empty fixture folder
 so GTK's directory-list navigation cannot select a nested manuscript fixture.
 Each mode first verifies that release CSP blocks a synthetic development-server
 fetch with a `connect-src` policy violation. The request is blocked by CSP;
@@ -61,7 +70,8 @@ remain separate gates.
 M5-06 export-only drills: after a default release build and keyboard-helper build,
 run `python3 tests/native/writing-lifecycle/drill.py /tmp --pdf-export`, then repeat
 with `$PWD/target`. These use actual WebKit/GTK/native helper
-and synthetic BOM/CRLF drafts: informed omissions/SC008 refusal, review/picker
+and synthetic BOM/CRLF drafts: direct export of a clean capture, the omission
+summary, informed review of renderer-dropped text and SC008 refusal, review/picker
 cancellation, capture while typing/Save, preview resumption, verified atomic
 replacement/previous PDF, protected-source/app-data refusal and destination
 permission failure. A delayed real render callback tests capture freshness; no
