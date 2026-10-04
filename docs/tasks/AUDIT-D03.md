@@ -1,6 +1,6 @@
 # AUDIT-D03 — screenplay element styling and layout shell
 
-Status: **slice A done 2026-10-04**; base `ffede1d`. Slice B not started.
+Status: **both slices done 2026-10-04**; slice A `21a6180` on base `ffede1d`, slice B on base `21a6180`.
 [Evidence](../test-evidence/AUDIT.md#audit-d03a--on-screen-screenplay-element-styling).
 Dependencies: DESIGN triage accepted D-03 (both slices before pilot); AUDIT-D02
 complete. Requirements: new EDIT-07; SPEC S07.1/S08.2, UX-01, EDIT-01/06.
@@ -27,15 +27,40 @@ Two slices, separately committed and evidenced; each stops at its own boundary.
   or persistence change. No new font asset (Courier Prime stays helper-only).
 - Dual dialogue stays single-column; non-printing kinds get no new treatment.
 
-## Slice B (AUDIT-D03B) — layout shell, M (next task; not started)
+## Slice B (AUDIT-D03B) — layout shell, M
 
-Sticky outline sidebar and one side drawer for Find/Script Check/Spelling/Title,
-keeping window scroll. Before editing, re-read the audit's listed touch points:
-focus-mode selectors (`writing.css`), window-scroll assumptions
-(`src/editor/presentation.ts`, `recentPosition.ts`, `WritingView.tsx`) and drills
-reading scroll geometry (`presentation_workflows.py`). Needs its own red mounted
-tests, focus/F6/Escape order checks and affected native modes on tmpfs/Btrfs.
-Does not depend on D-05 and must not pre-empt M6-02-R1.
+Status: **done 2026-10-04**; base `21a6180`.
+[Evidence](../test-evidence/AUDIT.md#audit-d03b--writing-layout-shell).
+
+- Wide windows: `main` becomes a three-column grid under the existing sticky
+  header. Left: sticky navigator (`.writing-sidebar`: Characters and counts,
+  Outline) with its own scroll. Centre: heading, actions, element picker,
+  recovery/export/preview panels, editor, close and snapshot panels. Right:
+  sticky tools drawer (`.writing-drawer`: Spellcheck, Script Check, Find, Title
+  page), rendered only while one is open. The window still scrolls the script.
+- DOM order is unchanged (actions, tools, navigator, editor, close/snapshots);
+  wrappers are plain `div`s so landmarks stay the panels. The keyed editor host
+  stays a direct child of `main` in every phase and is never remounted.
+- Narrow windows (under 1100px) keep today's single-column stack.
+- Focus mode hides the navigator and the same heading/controls as before; the
+  column collapses. Save, status and the toolbar exit stay.
+- Header stability: status, alerts and Save details share one wrapping row, so
+  the frequent "only in memory" alert no longer changes header height on a wide
+  window. The header height is published as `--writing-header` beside the
+  existing `scroll-padding-top` for the sticky columns.
+- No change to typewriter centring, recent-position, scroll-to-selection,
+  capture, commands, keys or persistence logic.
+
+Checks: red mounted tests first (regions, DOM order, drawer lifecycle, editor
+node identity, header variable set/cleared). Chromium shell geometry check in
+`pnpm test:browser` on production CSS (three columns, sticky columns under the
+header while the window scrolls, alert toggle does not move the script, focus
+mode, narrow stack, no horizontal overflow). Tier 2 shared gates; Rust on one
+filesystem (no native change). Native WebKit on tmpfs/Btrfs with the unchanged
+D03A binary as control for presentation: presentation, outline, scene-moves,
+find, replace, script-check, spellcheck, title-page, characters, commands,
+editor-exit. Update a drill expectation only where the accepted layout changes
+it, and record it. Does not depend on D-05 and must not pre-empt M6-02-R1.
 
 ## Do NOT do
 

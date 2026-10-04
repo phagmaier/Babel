@@ -1,36 +1,49 @@
-# Current state — AUDIT-D03A complete
+# Current state — AUDIT-D03 complete (D03A + D03B)
 
-Date: 2026-10-04. Application: **babel**. Main; local commit only, no push.
+Date: 2026-10-04. Application: **babel**. Main; local commits only, no push.
 M0–M5 and bounded M6-01 work remain recorded complete. **M6-02, C1/F2 and
 Local v1 admission remain open.**
 
 ## Task and work
 
-**AUDIT-D03A complete**, base `ffede1d`: first slice of accepted D-03.
+**AUDIT-D03B complete**, base `21a6180`: layout shell, second slice of D-03.
 [Brief](tasks/AUDIT-D03.md),
+[evidence](test-evidence/AUDIT.md#audit-d03b--writing-layout-shell).
+Windows at least 1100px wide get three columns under the sticky header: pinned
+navigator (Characters, Outline), script column, and a tools drawer (Spellcheck,
+Script Check, Find, Title page) that exists only while a tool is open. The
+window still scrolls the script. DOM/keyboard order is unchanged and the editor
+host is never remounted; narrower windows keep the single-column stack. Status,
+alerts and Save details share one header row so the in-memory alert no longer
+changes header height on a wide window. No schema, capture, command, IPC or
+persistence change; no native drill file changed.
+Paths: [view](../src/app/WritingView.tsx), [styles](../src/app/writing.css),
+[shell check](../tests/browser/shell-layout.mjs), [UX](ux.md#writing-layout-shell-audit-d03b).
+
+Tier 2: frontend **886/886**; Chromium shell and element geometry pass; Rust
+**273/273** one filesystem; format/lint/typecheck/build, clippy and default
+embedded release pass. Native WebKit **20/22 content, 19/22 strict** over
+presentation, outline, scene-moves, find, replace, script-check, spellcheck,
+title-page, characters, commands and editor-exit on tmpfs/Btrfs.
+Artifacts: `target/audit-d03/`.
+
+**AUDIT-D03A complete** (`21a6180`): EDIT-07 per-element indentation in a
+proportional 60-character column, CSS only;
 [evidence](test-evidence/AUDIT.md#audit-d03a--on-screen-screenplay-element-styling).
-New EDIT-07 (SPEC S06/S07.1): the writing column is at most 60 characters,
-centred, with cue/dialogue/parenthetical indents as fractions of the column,
-right-aligned transitions and centred centered text. CSS over `data-kind` only;
-no schema, capture, persistence or native change; no `text-transform`, generated
-text, wrap or page-fidelity claim. The red check also found the writing shell
-was 680px, not 920px (rule order); `.shell.writing` now applies 920px.
-Paths: [styles](../src/app/writing.css),
-[layout check](../tests/browser/element-layout.mjs), [UX](ux.md#screenplay-element-layout-audit-d03a).
 
-Tier 2: Chromium geometry check red then pass (100%/200%/narrow); frontend
-**885/885**; Rust **273/273** one filesystem; shared format/lint/typecheck/build,
-clippy and default embedded release pass. Native WebKit **9/10 content, 10/10
-crash audits clean** over presentation/editor-exit/outline/find/characters on
-tmpfs/Btrfs. Artifacts: `target/audit-d03/`.
+**Findings from D03 (open, no cause claimed):**
 
-**Open finding (pre-existing):** Btrfs presentation fails its Find-navigation
-viewport assertion (match centre 5px below the viewport) at 16s, before zoom/IME
-steps. The unchanged D02 binary fails identically; tmpfs passes for both. The
-full presentation mode had not run since D06 changed the header. No cause or
-correction claimed; unverified lead is the sticky header growing by one alert
-line after the scroll. Btrfs 200% zoom/IME geometry under the new layout is
-therefore unverified natively (tmpfs passed).
+- Script Check drill fails on both filesystems at `'Export support assessed'`
+  (panel shows `Export assessment unavailable`); the unchanged D03A binary fails
+  identically. Later Script Check native steps are unverified under the shell.
+- Btrfs presentation Find-viewport failure on the D02/D03A binaries no longer
+  occurs with the shell (2 runs). Consistent with the header-growth lead, but
+  the cause was not isolated.
+- Owned WebKit SIGABRT `free(): corrupted unsorted chunks`: **477772/start
+  4562349** (Btrfs forced teardown of a failed first candidate) and
+  **501063/start 4636728** (tmpfs editor-exit, content pass/strict fail). Cores
+  retained; same family as the M4 heap aborts.
+- The actions/picker block above the editor is still tall (about 480px).
 
 ## Retained findings and limits
 
@@ -88,15 +101,15 @@ copy/prune and capture-failure bundle policy remain separate open work.
 
 ## Next action and stopping point
 
-D03A work, evidence and handoff are committed locally on main; no push.
-**Stopped after D03A before D03B.** Next: AUDIT-D03B layout shell (sticky
-outline sidebar, side drawer, window scroll kept) per the brief. Start by
-reproducing the Btrfs presentation Find-viewport failure, since the shell
-changes the same header/scroll geometry; record red mounted tests before
-editing. Preserve the row schema/deferred rewrite, native crash findings and
-initial assessment failure. Never substitute injected composition for genuine
-IME. Unset `FORCE_COLOR` for `pnpm test:browser`. No full native/a11y/keyboard,
-SELinux, M6-02, C1/F2 or Local v1 admission closure.
+D03 work, evidence and handoff are committed locally on main; no push.
+**Stopped after D-03.** Remaining accepted DESIGN items without a brief: D-04
+(non-blocking export summary, inline-note `raw` fix), D-05 cheap variant, D-07
+oracle and D-09 page count. Suggested next: D-04, starting by reproducing the
+Script Check `Export assessment unavailable` failure, which sits on the same
+assessment path. Preserve the row schema/deferred rewrite, native crash findings
+and initial assessment failure. Never substitute injected composition for
+genuine IME. Unset `FORCE_COLOR` for `pnpm test:browser`. No full
+native/a11y/keyboard, SELinux, M6-02, C1/F2 or Local v1 admission closure.
 
 [M6-02-R1](tasks/M6-02-R1.md) and supported-runtime
 [M6-01-R1](tasks/M6-01-R1.md) remain separate. Crash follow-up starts from retained

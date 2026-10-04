@@ -367,7 +367,10 @@ export function WritingView({
     const root = document.documentElement;
     const previous = root.style.scrollPaddingTop;
     const measure = () => {
-      root.style.scrollPaddingTop = `${header.getBoundingClientRect().height + 8}px`;
+      const height = header.getBoundingClientRect().height;
+      root.style.scrollPaddingTop = `${height + 8}px`;
+      // Sticky navigator and tools columns sit under the measured header.
+      root.style.setProperty('--writing-header', `${height}px`);
     };
     measure();
     const observer =
@@ -378,6 +381,7 @@ export function WritingView({
     return () => {
       observer?.disconnect();
       root.style.scrollPaddingTop = previous;
+      root.style.removeProperty('--writing-header');
     };
   }, [phase]);
 
@@ -1732,8 +1736,9 @@ export function WritingView({
     dismissExport,
   } = usePublicationSession({ outline });
 
-  const hosts = (
-    <div key="writing-hosts">
+  // Shell regions keep the original keyboard order: actions, tools, navigator, editor.
+  const publicationPanels = (
+    <>
       {phase === 'active' &&
         exportState &&
         exportState.phase !== 'idle' &&
@@ -1752,6 +1757,10 @@ export function WritingView({
           onClose={closePreview}
         />
       )}
+    </>
+  );
+  const toolPanels = (
+    <>
       {phase === 'active' && showSpelling && (
         <SpellcheckPanel
           port={spelling}
@@ -1838,6 +1847,10 @@ export function WritingView({
           onClose={closeTitle}
         />
       )}
+    </>
+  );
+  const navigatorPanels = (
+    <div className="writing-sidebar">
       {phase === 'active' && (
         <CharacterPanel
           state={outline}
@@ -1855,7 +1868,6 @@ export function WritingView({
           onNavigate={navigateCharacter}
         />
       )}
-      {positionError && <p role="status">{positionError}</p>}
       {phase === 'active' && (
         <Outline
           state={outline}
@@ -1867,6 +1879,11 @@ export function WritingView({
           onNavigate={onOutlineNavigate}
         />
       )}
+    </div>
+  );
+  const hosts = (
+    <div key="writing-hosts" className="writing-body">
+      {positionError && <p role="status">{positionError}</p>}
       {move && (
         <MovePreview
           move={move}
@@ -1926,6 +1943,11 @@ export function WritingView({
     showCheck;
   const modeDisabled =
     busy || showClose || Boolean(view?.composing) || titleComposingRef.current;
+  const toolsOpen =
+    showSpelling ||
+    Boolean(showCheck && checkRef.current && checkState) ||
+    Boolean(findState?.enabled && findRef.current) ||
+    Boolean(showTitle && viewRef.current);
   return (
     <main
       className={`shell writing${presentation.settings.focus ? ' writing-focus' : ''}${presentation.settings.typewriter ? ' writing-typewriter' : ''}`}
@@ -1941,7 +1963,7 @@ export function WritingView({
             !titleComposingRef.current
           }
         />
-        <section aria-label="Protection status">
+        <section className="protection-status" aria-label="Protection status">
           <p role="status">
             {closeWorking
               ? 'Closing safely…'
@@ -1960,280 +1982,287 @@ export function WritingView({
           </details>
         </section>
       </div>
-      <CommandSurface
-        registry={registry}
-        context={commandContext}
-        execute={executeCommand}
-        navigation={paletteNavigation}
-        paletteRequested={paletteRequested}
-        onPaletteChange={setPaletteOpen}
-      />
-      <h1>Writing</h1>
-      <p className="focus-help">
-        F6 moves focus from the editor to screenplay actions. Tab then moves
-        between controls.
-      </p>
-      {active?.readOnly && (
-        <p role="alert">
-          {active.readOnlyReason} Save As can preserve a separate copy without
-          changing this source.
+      <div className="writing-top">
+        <CommandSurface
+          registry={registry}
+          context={commandContext}
+          execute={executeCommand}
+          navigation={paletteNavigation}
+          paletteRequested={paletteRequested}
+          onPaletteChange={setPaletteOpen}
+        />
+        <h1>Writing</h1>
+        <p className="focus-help">
+          F6 moves focus from the editor to screenplay actions. Tab then moves
+          between controls.
         </p>
-      )}
-      {externalNotice && <p role="status">{externalNotice}</p>}
-      {session?.externalChange && showExternal && (
-        <section aria-label="External source change">
-          <h2>External source change</h2>
-          <p>
-            {session.externalDirty
-              ? 'Your draft and the source file differ.'
-              : 'The source file changed outside Babel.'}{' '}
-            Reload keeps a safety snapshot and revision of your draft before
-            adopting the reviewed file. You can Undo Reload.
+        {active?.readOnly && (
+          <p role="alert">
+            {active.readOnlyReason} Save As can preserve a separate copy without
+            changing this source.
           </p>
-          <SourceComparison
-            draft={live?.source ?? []}
-            disk={session.externalChange.source ?? []}
-          />
+        )}
+        {externalNotice && <p role="status">{externalNotice}</p>}
+        {session?.externalChange && showExternal && (
+          <section aria-label="External source change">
+            <h2>External source change</h2>
+            <p>
+              {session.externalDirty
+                ? 'Your draft and the source file differ.'
+                : 'The source file changed outside Babel.'}{' '}
+              Reload keeps a safety snapshot and revision of your draft before
+              adopting the reviewed file. You can Undo Reload.
+            </p>
+            <SourceComparison
+              draft={live?.source ?? []}
+              disk={session.externalChange.source ?? []}
+            />
+            <button
+              type="button"
+              disabled={modeDisabled || !!commandUnavailable('reloadSource')}
+              onClick={() =>
+                void run(async () => {
+                  await session.reloadExternalSource();
+                  setShowExternal(false);
+                  refresh();
+                })
+              }
+            >
+              Reload reviewed source
+            </button>
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => setShowExternal(false)}
+            >
+              Keep editing
+            </button>
+            <button
+              type="button"
+              disabled={!!commandUnavailable('saveAs')}
+              onClick={() => executeCommand('saveAs')}
+            >
+              Save draft as a separate copy
+            </button>
+            <p>
+              Source saves stay blocked until Reload or Save As. The outside
+              file is kept intact.
+            </p>
+          </section>
+        )}
+        <div className="actions" aria-label="Screenplay actions">
           <button
             type="button"
-            disabled={modeDisabled || !!commandUnavailable('reloadSource')}
-            onClick={() =>
-              void run(async () => {
-                await session.reloadExternalSource();
-                setShowExternal(false);
-                refresh();
-              })
+            disabled={
+              !!commandUnavailable('checkExternal') ||
+              !ports.externalSource ||
+              active?.kind === 'unsaved' ||
+              active?.readOnly
             }
+            onClick={() => executeCommand('checkExternal')}
           >
-            Reload reviewed source
+            Check external changes
           </button>
           <button
             type="button"
-            disabled={busy}
-            onClick={() => setShowExternal(false)}
+            disabled={
+              !!commandUnavailable('reloadSource') || !session?.externalChange
+            }
+            onClick={() => executeCommand('reloadSource')}
           >
-            Keep editing
+            Reload source
+          </button>
+          <button
+            id="writing-save"
+            type="button"
+            disabled={!!commandUnavailable('save')}
+            onClick={() => executeCommand('save')}
+          >
+            {active?.kind === 'unsaved' ? 'Protect draft' : 'Save'}
           </button>
           <button
             type="button"
             disabled={!!commandUnavailable('saveAs')}
             onClick={() => executeCommand('saveAs')}
           >
-            Save draft as a separate copy
+            Save As
           </button>
-          <p>
-            Source saves stay blocked until Reload or Save As. The outside file
-            is kept intact.
+          <button
+            type="button"
+            disabled={!!commandUnavailable('exportFountain')}
+            onClick={() => executeCommand('exportFountain')}
+          >
+            Export Fountain copy
+          </button>
+          <button
+            type="button"
+            disabled={!!commandUnavailable('exportPdf')}
+            onClick={() => executeCommand('exportPdf')}
+          >
+            Export PDF
+          </button>
+          <button
+            type="button"
+            disabled={busy || !active}
+            onClick={() =>
+              session &&
+              active &&
+              void run(async () => {
+                const destination = await ports.entry.selectDestination(
+                  active.identity,
+                );
+                setCopyDestination(destination);
+                if (!destination)
+                  setError('The native dialog was cancelled. Nothing changed.');
+              })
+            }
+          >
+            Select copy destination
+          </button>
+          <button
+            type="button"
+            id="writing-find"
+            aria-expanded={Boolean(findState?.enabled)}
+            disabled={!!commandUnavailable('find')}
+            onClick={() => executeCommand('find')}
+          >
+            Find
+          </button>
+          <button
+            type="button"
+            id="writing-spellcheck"
+            aria-expanded={showSpelling}
+            disabled={!!commandUnavailable('spellcheck')}
+            onClick={() => executeCommand('spellcheck')}
+          >
+            Spellcheck
+          </button>
+          <button
+            type="button"
+            ref={previewButton}
+            id="writing-preview"
+            aria-expanded={previewState?.enabled ?? false}
+            disabled={
+              !ports.publication ||
+              busy ||
+              showClose ||
+              !active ||
+              titleDraftRef.current ||
+              titleComposingRef.current ||
+              commandComposing
+            }
+            onClick={openPreview}
+          >
+            PDF preview
+          </button>
+          <span role="status" aria-label="Publication page count">
+            {previewState?.message ?? 'Pages: open PDF preview'}
+          </span>
+          <button
+            type="button"
+            id="writing-check"
+            aria-expanded={showCheck}
+            disabled={!!commandUnavailable('scriptCheck')}
+            onClick={() => executeCommand('scriptCheck')}
+          >
+            Script Check
+          </button>
+          <button
+            id="writing-title"
+            ref={titleButtonRef}
+            aria-expanded={showTitle}
+            type="button"
+            disabled={!!commandUnavailable('titlePage') || showTitle}
+            onClick={() => executeCommand('titlePage')}
+          >
+            Title page
+          </button>
+          <button
+            type="button"
+            disabled={!!commandUnavailable('closeSession')}
+            onClick={() => executeCommand('closeSession')}
+          >
+            Close session
+          </button>
+          <button
+            type="button"
+            disabled={!!commandUnavailable('home')}
+            onClick={() => executeCommand('home')}
+          >
+            Home
+          </button>
+        </div>
+        {view && (
+          <EditorControls
+            state={view.state}
+            registry={registry}
+            focusTargetLabel="screenplay actions"
+            availability={commandUnavailable}
+            execute={executeCommand}
+          />
+        )}
+        {recoveryPending && (
+          <p role="alert">
+            Choose which draft to use before editing. Both drafts remain
+            protected. Inspect later lets you read the screenplay without
+            editing.
           </p>
-        </section>
-      )}
-      <div className="actions" aria-label="Screenplay actions">
-        <button
-          type="button"
-          disabled={
-            !!commandUnavailable('checkExternal') ||
-            !ports.externalSource ||
-            active?.kind === 'unsaved' ||
-            active?.readOnly
-          }
-          onClick={() => executeCommand('checkExternal')}
-        >
-          Check external changes
-        </button>
-        <button
-          type="button"
-          disabled={
-            !!commandUnavailable('reloadSource') || !session?.externalChange
-          }
-          onClick={() => executeCommand('reloadSource')}
-        >
-          Reload source
-        </button>
-        <button
-          id="writing-save"
-          type="button"
-          disabled={!!commandUnavailable('save')}
-          onClick={() => executeCommand('save')}
-        >
-          {active?.kind === 'unsaved' ? 'Protect draft' : 'Save'}
-        </button>
-        <button
-          type="button"
-          disabled={!!commandUnavailable('saveAs')}
-          onClick={() => executeCommand('saveAs')}
-        >
-          Save As
-        </button>
-        <button
-          type="button"
-          disabled={!!commandUnavailable('exportFountain')}
-          onClick={() => executeCommand('exportFountain')}
-        >
-          Export Fountain copy
-        </button>
-        <button
-          type="button"
-          disabled={!!commandUnavailable('exportPdf')}
-          onClick={() => executeCommand('exportPdf')}
-        >
-          Export PDF
-        </button>
-        <button
-          type="button"
-          disabled={busy || !active}
-          onClick={() =>
-            session &&
-            active &&
-            void run(async () => {
-              const destination = await ports.entry.selectDestination(
-                active.identity,
-              );
-              setCopyDestination(destination);
-              if (!destination)
-                setError('The native dialog was cancelled. Nothing changed.');
-            })
-          }
-        >
-          Select copy destination
-        </button>
-        <button
-          type="button"
-          id="writing-find"
-          aria-expanded={Boolean(findState?.enabled)}
-          disabled={!!commandUnavailable('find')}
-          onClick={() => executeCommand('find')}
-        >
-          Find
-        </button>
-        <button
-          type="button"
-          id="writing-spellcheck"
-          aria-expanded={showSpelling}
-          disabled={!!commandUnavailable('spellcheck')}
-          onClick={() => executeCommand('spellcheck')}
-        >
-          Spellcheck
-        </button>
-        <button
-          type="button"
-          ref={previewButton}
-          id="writing-preview"
-          aria-expanded={previewState?.enabled ?? false}
-          disabled={
-            !ports.publication ||
-            busy ||
-            showClose ||
-            !active ||
-            titleDraftRef.current ||
-            titleComposingRef.current ||
-            commandComposing
-          }
-          onClick={openPreview}
-        >
-          PDF preview
-        </button>
-        <span role="status" aria-label="Publication page count">
-          {previewState?.message ?? 'Pages: open PDF preview'}
-        </span>
-        <button
-          type="button"
-          id="writing-check"
-          aria-expanded={showCheck}
-          disabled={!!commandUnavailable('scriptCheck')}
-          onClick={() => executeCommand('scriptCheck')}
-        >
-          Script Check
-        </button>
-        <button
-          id="writing-title"
-          ref={titleButtonRef}
-          aria-expanded={showTitle}
-          type="button"
-          disabled={!!commandUnavailable('titlePage') || showTitle}
-          onClick={() => executeCommand('titlePage')}
-        >
-          Title page
-        </button>
-        <button
-          type="button"
-          disabled={!!commandUnavailable('closeSession')}
-          onClick={() => executeCommand('closeSession')}
-        >
-          Close session
-        </button>
-        <button
-          type="button"
-          disabled={!!commandUnavailable('home')}
-          onClick={() => executeCommand('home')}
-        >
-          Home
-        </button>
+        )}
+        {recoveryDiscoveryFailed && (
+          <p role="alert">
+            Recovery review is unavailable. Return Home and reopen to retry.
+          </p>
+        )}
+        {active && active.fingerprint && orderedRecovery.length > 0 && (
+          <>
+            {(recoveryPending || recoveryChoiceCompleted) &&
+              recoveryPanel(orderedRecovery[0]!)}
+            <details>
+              <summary>
+                Inspect{' '}
+                {recoveryPending
+                  ? 'other recovery generations'
+                  : 'retained recovery'}
+              </summary>
+              {(recoveryPending || recoveryChoiceCompleted
+                ? orderedRecovery.slice(1)
+                : orderedRecovery
+              ).map(recoveryPanel)}
+            </details>
+          </>
+        )}
+        {publicationPanels}
       </div>
-      {view && (
-        <EditorControls
-          state={view.state}
-          registry={registry}
-          focusTargetLabel="screenplay actions"
-          availability={commandUnavailable}
-          execute={executeCommand}
-        />
-      )}
-      {recoveryPending && (
-        <p role="alert">
-          Choose which draft to use before editing. Both drafts remain
-          protected. Inspect later lets you read the screenplay without editing.
-        </p>
-      )}
-      {recoveryDiscoveryFailed && (
-        <p role="alert">
-          Recovery review is unavailable. Return Home and reopen to retry.
-        </p>
-      )}
-      {active && active.fingerprint && orderedRecovery.length > 0 && (
-        <>
-          {(recoveryPending || recoveryChoiceCompleted) &&
-            recoveryPanel(orderedRecovery[0]!)}
-          <details>
-            <summary>
-              Inspect{' '}
-              {recoveryPending
-                ? 'other recovery generations'
-                : 'retained recovery'}
-            </summary>
-            {(recoveryPending || recoveryChoiceCompleted
-              ? orderedRecovery.slice(1)
-              : orderedRecovery
-            ).map(recoveryPanel)}
-          </details>
-        </>
-      )}
+      {toolsOpen && <div className="writing-drawer">{toolPanels}</div>}
+      {navigatorPanels}
       {hosts}
-
-      {session && session.active && showClose && !closeWorking && (
-        <ProtectedClosePanel
-          close={session.close}
-          untitled={!session.active.fingerprint && !session.active.readOnly}
-          statusToken={`${active?.liveVersion}:${saveDetails}:${onlyInMemory}`}
-          destination={copyDestination ?? undefined}
-          onCancel={() => {
-            closeRequestedRef.current = false;
-            windowCloseRef.current = false;
-            pendingSwitchRef.current = false;
-            setShowClose(false);
-            viewRef.current?.focus();
-          }}
-          onClosed={() => finishClose(session)}
-        />
-      )}
-      {active && !active.readOnly && !recoveryPending && checkpoint && (
-        <SnapshotPanel
-          port={snapshotPort}
-          current={checkpoint}
-          destination={copyDestination ?? undefined}
-          nextVersion={active.liveVersion + 1}
-          onRestored={() => refresh()}
-        />
-      )}
+      <div className="writing-tail">
+        {session && session.active && showClose && !closeWorking && (
+          <ProtectedClosePanel
+            close={session.close}
+            untitled={!session.active.fingerprint && !session.active.readOnly}
+            statusToken={`${active?.liveVersion}:${saveDetails}:${onlyInMemory}`}
+            destination={copyDestination ?? undefined}
+            onCancel={() => {
+              closeRequestedRef.current = false;
+              windowCloseRef.current = false;
+              pendingSwitchRef.current = false;
+              setShowClose(false);
+              viewRef.current?.focus();
+            }}
+            onClosed={() => finishClose(session)}
+          />
+        )}
+        {active && !active.readOnly && !recoveryPending && checkpoint && (
+          <SnapshotPanel
+            port={snapshotPort}
+            current={checkpoint}
+            destination={copyDestination ?? undefined}
+            nextVersion={active.liveVersion + 1}
+            onRestored={() => refresh()}
+          />
+        )}
+      </div>
     </main>
   );
 }

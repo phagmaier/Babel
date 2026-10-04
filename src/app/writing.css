@@ -2,6 +2,72 @@
 .shell.writing {
   max-width: 920px;
 }
+/* AUDIT-D03B shell: navigator | script | tools under the sticky header. The
+   window still scrolls the script; only the side columns scroll on their own.
+   DOM order is unchanged, so narrow windows fall back to the plain stack. */
+@media (min-width: 1100px) {
+  .shell.writing {
+    max-width: 1760px;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: start;
+  }
+  .shell.writing > * {
+    grid-column: 2;
+    min-width: 0;
+  }
+  .shell.writing > .writing-presentation {
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
+  .shell.writing > .writing-top {
+    grid-row: 2;
+  }
+  .shell.writing > .writing-body {
+    grid-row: 3;
+  }
+  .shell.writing > .writing-tail {
+    grid-row: 4;
+  }
+  .shell.writing > .writing-sidebar,
+  .shell.writing > .writing-drawer {
+    grid-row: 2 / 5;
+    position: sticky;
+    top: calc(var(--writing-header, 0px) + 12px);
+    max-height: calc(100vh - var(--writing-header, 0px) - 24px);
+    margin-top: 12px;
+    overflow: auto;
+  }
+  .shell.writing > .writing-sidebar {
+    grid-column: 1;
+    width: 20rem;
+    margin-right: 24px;
+  }
+  .shell.writing > .writing-drawer {
+    grid-column: 3;
+    width: 22rem;
+    margin-left: 24px;
+  }
+  /* One scroller per column: the sidebar, not a nested outline list. */
+  .writing-sidebar .outline-headings {
+    max-height: none;
+    overflow: visible;
+  }
+  /* Row controls stay on one line in the narrow column; the heading wraps at
+     words. Targets remain at least 28px. */
+  .writing-sidebar .outline-row button {
+    padding: 4px 8px;
+    min-height: 28px;
+  }
+  .writing-sidebar .outline-target {
+    flex: 1 1 0;
+    min-width: 6rem;
+  }
+  .writing-sidebar > :first-child,
+  .writing-drawer > :first-child {
+    margin-top: 0;
+  }
+}
 .writing h1 {
   font-size: 2rem;
   letter-spacing: normal;
@@ -142,12 +208,21 @@
 .writing-presentation p {
   margin-block: 6px;
 }
-.writing-focus > h1,
-.writing-focus > .focus-help,
-.writing-focus > .editor-controls,
+/* Status, alerts and details share one wrapping row, so an alert that comes
+   and goes while typing does not change the header height and move the script. */
+.protection-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 16px;
+}
+.writing-focus .writing-top > h1,
+.writing-focus .writing-top > .focus-help,
+.writing-focus .writing-top > .editor-controls,
+.shell.writing-focus > .writing-sidebar,
 .writing-focus .manuscript-outline,
 .writing-focus .character-panel,
-.writing-focus > .actions button:not(#writing-save) {
+.writing-focus .writing-top > .actions button:not(#writing-save) {
   display: none;
 }
 .writing-typewriter .ProseMirror {

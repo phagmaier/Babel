@@ -2956,3 +2956,65 @@ it('AUDIT-D06 cancelled untitled window close clears its destination before Home
   await waitFor(() => expect(closed).toHaveBeenCalledOnce());
   expect(native.closeWindow).not.toHaveBeenCalled();
 });
+
+it('AUDIT-D03B places the navigator and tool panels in shell regions without reordering or remounting the editor', async () => {
+  const fixture = fixturePorts({ picked: opened() });
+  const view = render(
+    <WritingView
+      ports={fixture.ports}
+      open={{ kind: 'picked' }}
+      onSessionClosed={vi.fn()}
+    />,
+  );
+  const actions = await screen.findByLabelText('Screenplay actions');
+  const main = actions.closest('main')!;
+  const editor = document.querySelector<HTMLElement>('.ProseMirror')!;
+  const host = screen.getByLabelText('Screenplay editor');
+  await waitFor(() =>
+    expect(document.querySelector('.manuscript-outline')).toBeTruthy(),
+  );
+  // The sticky header stays first; its measured height feeds the sticky columns.
+  expect(main.firstElementChild?.className).toBe('writing-presentation');
+  expect(
+    document.documentElement.style.getPropertyValue('--writing-header'),
+  ).toBe('0px');
+  const sidebar = main.querySelector(':scope > .writing-sidebar')!;
+  expect(sidebar.querySelector('.manuscript-outline')).toBeTruthy();
+  expect(sidebar.querySelector('.character-panel')).toBeTruthy();
+  expect(sidebar.getAttribute('role')).toBeNull();
+  const body = main.querySelector(':scope > .writing-body')!;
+  expect(host.parentElement).toBe(body);
+  expect(actions.parentElement).toBe(
+    main.querySelector(':scope > .writing-top'),
+  );
+  // No empty drawer region while every tool panel is closed.
+  expect(main.querySelector('.writing-drawer')).toBeNull();
+  fireEvent.click(screen.getByRole('button', { name: 'Find' }));
+  await waitFor(() =>
+    expect(document.querySelector('.find-panel')).toBeTruthy(),
+  );
+  const drawer = main.querySelector(':scope > .writing-drawer')!;
+  expect(drawer.querySelector('.find-panel')).toBeTruthy();
+  fireEvent.click(screen.getByRole('button', { name: 'Script Check' }));
+  await waitFor(() =>
+    expect(drawer.querySelector('.check-panel')).toBeTruthy(),
+  );
+  fireEvent.click(screen.getByRole('button', { name: 'Title page' }));
+  await waitFor(() =>
+    expect(drawer.querySelector('.title-page-panel')).toBeTruthy(),
+  );
+  // Keyboard order is unchanged: actions, tools, navigator, then the editor.
+  const follows = (first: Element, second: Element) =>
+    Boolean(
+      first.compareDocumentPosition(second) & Node.DOCUMENT_POSITION_FOLLOWING,
+    );
+  expect(follows(actions, drawer)).toBe(true);
+  expect(follows(drawer, sidebar)).toBe(true);
+  expect(follows(sidebar, host)).toBe(true);
+  expect(document.querySelector('.ProseMirror')).toBe(editor);
+  expect(screen.getByLabelText('Screenplay editor')).toBe(host);
+  view.unmount();
+  expect(
+    document.documentElement.style.getPropertyValue('--writing-header'),
+  ).toBe('');
+});

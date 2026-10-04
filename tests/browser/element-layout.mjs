@@ -11,7 +11,8 @@ const INDENTED = {
 };
 const CASES = [
   { name: '100% wide', width: 1280, zoom: 100, full: true },
-  { name: '200% wide', width: 1280, zoom: 200, full: false },
+  { name: '200% wide', width: 1280, zoom: 200, full: true },
+  { name: '200% medium', width: 1000, zoom: 200, full: false },
   { name: '100% narrow', width: 420, zoom: 100, full: false },
 ];
 const TOLERANCE = 1;
