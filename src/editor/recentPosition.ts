@@ -1,3 +1,4 @@
+import { isCurrent } from './state';
 import { TextSelection, type EditorState } from 'prosemirror-state';
 import type { EditorView } from 'prosemirror-view';
 import type {
@@ -5,7 +6,6 @@ import type {
   PositionAnchor,
 } from '../application/recentPosition';
 import type { ManuscriptStamp } from '../application/manuscriptProjection';
-import { editorOrigin, editorVersion } from './state';
 function resolve(state: EditorState, anchor: PositionAnchor): number | null {
   if (
     !Number.isInteger(anchor.row) ||
@@ -71,9 +71,7 @@ export function captureRecentPosition(
   if (
     view.isDestroyed ||
     view.composing ||
-    view.state.doc !== projection.doc ||
-    editorOrigin(view.state).session !== projection.session ||
-    editorVersion(view.state) !== projection.version ||
+    !isCurrent(view.state, projection) ||
     view.state.doc.childCount > 50_000
   )
     return null;

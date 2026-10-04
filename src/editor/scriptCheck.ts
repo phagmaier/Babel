@@ -1,8 +1,8 @@
+import { isCurrent, editorOrigin, editorVersion } from './state';
 import { Decoration, DecorationSet, type EditorView } from 'prosemirror-view';
 import { Plugin, TextSelection } from 'prosemirror-state';
 import type { ManuscriptProjection } from '../application/manuscriptProjection';
 import type { CheckIssue } from '../domain/scriptCheck';
-import { editorOrigin, editorVersion } from './state';
 
 export const CHECK_HIGHLIGHT_LIMIT = 500;
 const highlights = new WeakMap<
@@ -23,12 +23,7 @@ export const checkHighlightPlugin = new Plugin({
 });
 
 function current(view: EditorView, projection: ManuscriptProjection) {
-  return (
-    !view.isDestroyed &&
-    editorOrigin(view.state).session === projection.session &&
-    editorVersion(view.state) === projection.version &&
-    view.state.doc === projection.doc
-  );
+  return !view.isDestroyed && isCurrent(view.state, projection);
 }
 
 /**

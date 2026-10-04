@@ -1,4 +1,4 @@
-# Current state — AUDIT-SIMP-N complete
+# Current state — AUDIT-SIMP-F complete
 
 Date: 2026-10-03. Application: **babel**. Main; local commit only, no push.
 M0–M5 and bounded M6-01 investigation remain recorded complete. **M6-02 stays
@@ -6,26 +6,30 @@ unchecked; operation findings, C1/F2 and Local v1 admission remain open.**
 
 ## Task and work
 
-**AUDIT-SIMP-N complete**, base `653f037`. [Brief](tasks/AUDIT-SIMP-N.md).
-Accepted X-01/05/02/03: cost-aware DocumentError worker, one cfg-preserving
-handler list, shared test-only roots/IPC and private create/directory/destination
-checks/storage relation. Preserve payload-before-reserve, error/permit/lock
-behavior, parent/cleanup policies, modes and write/gate/fsync/read-back order.
-Picker/release/checkpoint/SaveFailure/PublicationError workers and lease open
-stay local; refuted shared-save-worker/write-verified proposals excluded.
-Legacy desktop temp root now honors its IPC selector; matrix includes the
-retained composition selector. No new dependencies, protocol or safety decision.
+**AUDIT-SIMP-F complete**, base `ef0ff02`. [Brief](tasks/AUDIT-SIMP-F.md).
+Cleanup/three throwing locks shared; 13 editor-state/9 stamp guards and six
+constructions share doc-first isCurrent/stampOf/sameStamp. One 31-code const
+owns the TS type/runtime list with Rust parity. Native table has 22 uniform modes;
+four special branches, partial guards and all original assertions retained.
+No DEV-03 fold-back, optional scroll/toolbar/refs work or native helper sharing.
 
-Tier 3: frontend **863/863**, focused Rust **183/183**, workspace **264/264 each
-on tmpfs/Btrfs**, retained feature **65/65 each**; default embedded release and
-feature builds, browser/static checks pass. Actual WebKit workflow-protection
-and audit-fixes **4/4 content + strict crash audits**; independent artifact audit
-**4 roots/58 frames/24 snapshots/4 safety refs/6 previous sources** passes.
-All 289 frozen files and 1,468 existing assertions retained; added three worker
-failure/budget tests. Non-Linux source cfg parity only; no actual target run.
-[Evidence/failures/limits](test-evidence/AUDIT.md#audit-simp-n--shared-native-workers-and-storagetest-primitives)
-owns commands, timing, compile/cleanup failures and corrected runs. Clean native
-samples do not close C1/F2, SELinux, M6-02 or Local v1 admission.
+Tier 2: frontend **867/867**, focused **64/64**, Rust **264/264** on tmpfs;
+static/browser/default embedded release and AST dispatch tests pass. All 22 native
+modes rerun: selected **21/22 successful**, **22/22 owned crash audits clean**.
+Commands/F6 failure reproduces on frozen `ef0ff02` frontend/native control.
+Initial daily assessment assertion failed, baseline/fresh candidate passed;
+cause unresolved. Missing pointer/wtype prerequisites rebuilt; failed runs kept.
+Title read-only inspection uses forced teardown, distinct from ordinary quit.
+Independent artifact audit passes; failed commands root excluded by its policy.
+[Evidence/failures/limits](test-evidence/AUDIT.md#audit-simp-f--frontend-guard-and-native-dispatch-simplification)
+owns 27 candidate attempts, controls, bytes/head audits, commands/timing and
+input bootstrap. No full native/a11y/IME, SELinux, C1/F2 or admission closure.
+All 661 retained files, explicit partial guards and native assertions intact.
+
+**AUDIT-SIMP-N complete** (`ef0ff02`, local; base `653f037`).
+[Brief](tasks/AUDIT-SIMP-N.md), [evidence/failures](test-evidence/AUDIT.md#audit-simp-n--shared-native-workers-and-storagetest-primitives).
+Shared workers/handler list/test roots/storage primitives; original policies and
+write order retained. Tier 3: workspace 264/264 +feature 65/65 each, native 4/4.
 
 **AUDIT-SLP-C complete** (`653f037`, local; base `186ea59`).
 [Brief](tasks/AUDIT-SLP-C.md), [evidence](test-evidence/AUDIT.md#audit-slp-c--unused-complex-codec-edit-apis).
@@ -76,10 +80,11 @@ M6-01 symptoms; causes remain open. M6-03 independent copy/prune has not started
 
 ## Next action and stopping point
 
-Completed AUDIT-SIMP-N; stopped before **AUDIT-SIMP-F**. Next continuation:
-draft its bounded brief for X-04 WritingView cleanup hoist/lock helper, X-06
-stamp helpers, X-08 error-code const and X-07 drill MODES table. Tier 1/2;
-no DEV-03 fold-back without owner call. D-06 remains a later separate brief.
+Completed AUDIT-SIMP-F/Wave 3; stopped before further DESIGN implementation.
+Next continuation: draft the bounded **D-06** plain-status/failure-only-close
+brief (C-04 dependency complete), preserving receipt/protection/close safety.
+Native commands/F6 and the initial daily assessment observation need separate
+reproduction/disposition; do not weaken their native assertions to mark green.
 Capture-failure draft-bundle fallback requires an owner decision/ADR + Tier 3.
 [M6-02-R1](tasks/M6-02-R1.md) remains separate; C1/F2 unchanged.
 

@@ -1,3 +1,4 @@
+import { sameStamp } from './manuscriptProjection';
 import type { DocumentIdentity } from './documents';
 import type {
   ManuscriptProjection,
@@ -58,9 +59,7 @@ export class PublicationPreviewController {
     const now = this.current();
     return (
       now &&
-      now.stamp.session === stamp.session &&
-      now.stamp.doc === stamp.doc &&
-      now.stamp.version === stamp.version &&
+      sameStamp(now.stamp, stamp) &&
       this.identity &&
       sameIdentity(now.identity, this.identity)
     );
@@ -145,14 +144,7 @@ export class PublicationPreviewController {
       this.timer = null;
       const projection = this.projection;
       const now = this.current();
-      if (
-        !projection ||
-        !now ||
-        now.stamp.doc !== projection.doc ||
-        now.stamp.session !== projection.session ||
-        now.stamp.version !== projection.version
-      )
-        return;
+      if (!projection || !now || !sameStamp(now.stamp, projection)) return;
       if (!this.identity || !sameIdentity(this.identity, now.identity)) {
         void this.controller?.close().catch(() => {});
         this.identity = now.identity;

@@ -1,3 +1,4 @@
+import { sameStamp } from '../application/manuscriptProjection';
 import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import type { ProjectionState } from '../application/manuscriptProjection';
 import type { OutlineItem } from '../domain/manuscriptIndex';
@@ -162,9 +163,7 @@ export const Outline = memo(function Outline({
                     intent.pointerId !== event.pointerId ||
                     !intent.projection ||
                     !projection ||
-                    intent.projection.session !== projection.session ||
-                    intent.projection.version !== projection.version ||
-                    intent.projection.doc !== projection.doc
+                    !sameStamp(intent.projection, projection)
                   )
                     return;
                   const row = document

@@ -1,3 +1,4 @@
+import { sameStamp } from './manuscriptProjection';
 import {
   assessmentLayoutProbes,
   type AssessmentContext,
@@ -69,14 +70,7 @@ export class ScriptCheckController {
   }
   isCurrent(projection = this.state.projection): boolean {
     const stamp = this.stamp();
-    return (
-      this.live &&
-      !!projection &&
-      !!stamp &&
-      stamp.session === projection.session &&
-      stamp.version === projection.version &&
-      stamp.doc === projection.doc
-    );
+    return this.live && !!projection && !!stamp && sameStamp(stamp, projection);
   }
   setProjection(source: ProjectionState) {
     this.source = source;

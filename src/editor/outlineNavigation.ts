@@ -1,7 +1,7 @@
+import { isCurrent } from './state';
 import type { EditorView } from 'prosemirror-view';
 import { TextSelection } from 'prosemirror-state';
 import type { ManuscriptProjection } from '../application/manuscriptProjection';
-import { editorOrigin, editorVersion } from './state';
 import {
   extractedContentStart,
   logicalByteAt,
@@ -14,13 +14,7 @@ export function navigateOutline(
   row: number,
   offset = 0,
 ): boolean {
-  if (
-    view.isDestroyed ||
-    view.composing ||
-    editorOrigin(view.state).session !== projection.session ||
-    editorVersion(view.state) !== projection.version ||
-    view.state.doc !== projection.doc
-  )
+  if (view.isDestroyed || view.composing || !isCurrent(view.state, projection))
     return false;
   const target = projection.rows[row];
   const node = view.state.doc.maybeChild(row);

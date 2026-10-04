@@ -1,8 +1,8 @@
+import { isCurrent, editorOrigin, editorVersion } from './state';
 import { Plugin, TextSelection } from 'prosemirror-state';
 import { Decoration, DecorationSet, type EditorView } from 'prosemirror-view';
 import type { ManuscriptProjection } from '../application/manuscriptProjection';
 import type { FindMatch } from '../domain/find';
-import { editorOrigin, editorVersion } from './state';
 import { logicalEditorOffset } from './outlineNavigation';
 export const FIND_HIGHLIGHT_LIMIT = 500;
 const highlights = new WeakMap<
@@ -23,12 +23,7 @@ export const findHighlightPlugin = new Plugin({
 });
 
 function current(view: EditorView, projection: ManuscriptProjection) {
-  return (
-    !view.isDestroyed &&
-    editorOrigin(view.state).session === projection.session &&
-    editorVersion(view.state) === projection.version &&
-    view.state.doc === projection.doc
-  );
+  return !view.isDestroyed && isCurrent(view.state, projection);
 }
 function range(projection: ManuscriptProjection, match: FindMatch) {
   const row = projection.rows[match.location.row];

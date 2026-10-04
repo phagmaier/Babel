@@ -1,3 +1,4 @@
+import { stampOf, isCurrent } from '../editor/state';
 import { useEffect, useRef, useState } from 'react';
 import type { EditorView } from 'prosemirror-view';
 import type { Node as ProseMirrorNode } from 'prosemirror-model';
@@ -5,7 +6,6 @@ import type { Selection as ProseMirrorSelection } from 'prosemirror-state';
 import { FindController, type FindState } from '../application/find';
 import type { ActiveInfo } from '../application/writingSession';
 import { navigateFind } from '../editor/find';
-import { editorOrigin, editorVersion } from '../editor/state';
 import { dispatchIsolated } from '../editor/formatting';
 import { prepareEditorReplace, type ReplacePlan } from '../editor/replace';
 
@@ -98,9 +98,7 @@ export function useFindSession(deps: FindSessionDeps): FindSession {
         operationRef.current ||
         frozenRef.current ||
         !view.hasFocus() ||
-        editorOrigin(view.state).session !== target.session ||
-        editorVersion(view.state) !== target.version ||
-        view.state.doc !== target.doc ||
+        !isCurrent(view.state, target) ||
         !view.state.selection.eq(target.selection)
       )
         return;
@@ -143,9 +141,7 @@ export function useFindSession(deps: FindSessionDeps): FindSession {
     ) {
       findScrollRef.current = {
         view,
-        session: editorOrigin(view.state).session,
-        version: editorVersion(view.state),
-        doc: view.state.doc,
+        ...stampOf(view.state),
         selection: view.state.selection,
       };
     }
@@ -189,9 +185,7 @@ export function useFindSession(deps: FindSessionDeps): FindSession {
     ) {
       findScrollRef.current = {
         view,
-        session: editorOrigin(view.state).session,
-        version: editorVersion(view.state),
-        doc: view.state.doc,
+        ...stampOf(view.state),
         selection: view.state.selection,
       };
     } else {

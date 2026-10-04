@@ -1,3 +1,4 @@
+import { DOCUMENT_ERROR_CODES } from './documents';
 /** Receipt-driven state only. Immutable snapshots belong to the editor/controller, not this state. */
 import type {
   CheckpointReceipt,
@@ -374,32 +375,6 @@ export function persistenceStatus(state: PersistenceState): PersistenceStatus {
   return state.fingerprint ? 'Changes pending' : 'Unsaved';
 }
 
-const errorCodes: readonly DocumentError['code'][] = [
-  'missingSource',
-  'permissionDenied',
-  'unsafePath',
-  'notRegularFile',
-  'sourceTooLarge',
-  'sourceChanged',
-  'identityStoreUnavailable',
-  'invalidHandle',
-  'identityMismatch',
-  'ownershipRequired',
-  'ownershipLost',
-  'tooManyDocuments',
-  'nativeUnavailable',
-  'recoveryNeedsAttention',
-  'invalidCheckpoint',
-  'staleRecoveryVersion',
-  'checkpointConflict',
-  'invalidSave',
-  'staleSaveVersion',
-  'saveConflict',
-  'saveQueueFull',
-  'saveNeedsAttention',
-  'historyNeedsAttention',
-  'io',
-];
 /** A response/failure cannot act on a different operation, even when per-session ids repeat. */
 export function rejected(
   state: PersistenceState,
@@ -419,7 +394,7 @@ export function rejected(
     value.version === operation.version &&
     object(value.error) &&
     typeof value.error.code === 'string' &&
-    errorCodes.includes(value.error.code as DocumentError['code']) &&
+    DOCUMENT_ERROR_CODES.includes(value.error.code as DocumentError['code']) &&
     ['retry', 'reopenOrSaveCopy', 'selectSourceAgain'].includes(
       String(value.error.action),
     )

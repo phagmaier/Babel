@@ -1,3 +1,8 @@
+import {
+  isCurrent,
+  applyEditorTransaction,
+  sourceMoveTransaction,
+} from './state';
 import type { EditorState, Transaction } from 'prosemirror-state';
 import type { EditorView } from 'prosemirror-view';
 import type { ManuscriptProjection } from '../application/manuscriptProjection';
@@ -7,12 +12,6 @@ import {
   type MoveRequest,
   type MoveReview,
 } from '../domain/sceneMoves';
-import {
-  applyEditorTransaction,
-  editorOrigin,
-  editorVersion,
-  sourceMoveTransaction,
-} from './state';
 import { captureEditor } from './sourceBridge';
 import { dispatchIsolated } from './formatting';
 
@@ -28,11 +27,7 @@ export function prepareEditorMove(
   projection: ManuscriptProjection,
   request: MoveRequest,
 ): PreparedMove {
-  if (
-    editorOrigin(state).session !== projection.session ||
-    editorVersion(state) !== projection.version ||
-    state.doc !== projection.doc
-  )
+  if (!isCurrent(state, projection))
     throw new Error(
       'Move preview is stale. Refresh the outline before moving.',
     );

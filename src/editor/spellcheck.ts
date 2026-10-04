@@ -1,7 +1,12 @@
+import {
+  isCurrent,
+  editorOrigin,
+  editorVersion,
+  applyEditorTransaction,
+} from './state';
 import { closeHistory } from 'prosemirror-history';
 import { Plugin, TextSelection, type EditorState } from 'prosemirror-state';
 import { Decoration, DecorationSet, type EditorView } from 'prosemirror-view';
-import { editorOrigin, editorVersion, applyEditorTransaction } from './state';
 import { captureEditor } from './sourceBridge';
 import type { SpellingScan, SpellingWord } from '../application/spellcheck';
 
@@ -49,12 +54,7 @@ export function correctSpelling(
   word: SpellingWord,
   replacement: string,
 ) {
-  if (
-    state.doc !== scan.doc ||
-    editorOrigin(state).session !== scan.session ||
-    editorVersion(state) !== scan.version ||
-    !scan.words.includes(word)
-  )
+  if (!isCurrent(state, scan) || !scan.words.includes(word))
     throw new Error(
       'Spelling suggestion is stale. Check again; source retained.',
     );

@@ -1,3 +1,4 @@
+import { isCurrent, applyEditorTransaction } from './state';
 import { closeHistory } from 'prosemirror-history';
 import { TextSelection, type EditorState } from 'prosemirror-state';
 import type { ManuscriptProjection } from '../application/manuscriptProjection';
@@ -5,7 +6,6 @@ import type { FindMatch, FindOptions } from '../domain/find';
 import { screenplaySchema } from './schema';
 import { captureEditor } from './sourceBridge';
 import { logicalEditorOffset } from './outlineNavigation';
-import { applyEditorTransaction, editorOrigin, editorVersion } from './state';
 
 /** Replacement text caps at the same bound as the find query it answers. */
 export const MAX_REPLACE_TEXT = 1024;
@@ -214,11 +214,7 @@ function checkEdit(state: EditorState, edit: ReplaceEdit): void {
 }
 
 function checkPlan(state: EditorState, plan: ReplacePlan): void {
-  if (
-    editorOrigin(state).session !== plan.session ||
-    editorVersion(state) !== plan.version ||
-    state.doc !== plan.doc
-  )
+  if (!isCurrent(state, plan))
     throw new Error('Replace preview is stale. Search again before replacing.');
 }
 

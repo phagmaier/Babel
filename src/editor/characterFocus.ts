@@ -1,8 +1,8 @@
+import { isCurrent, editorOrigin, editorVersion } from './state';
 import { Plugin } from 'prosemirror-state';
 import { Decoration, DecorationSet, type EditorView } from 'prosemirror-view';
 import type { ManuscriptProjection } from '../application/manuscriptProjection';
 import type { CharacterEntry } from '../domain/characterCounts';
-import { editorOrigin, editorVersion } from './state';
 export const CHARACTER_HIGHLIGHT_LIMIT = 1_000;
 const highlights = new WeakMap<
   object,
@@ -31,9 +31,7 @@ export function highlightCharacter(
     projection &&
     character &&
     projection.facts.characters.includes(character) &&
-    projection.doc === view.state.doc &&
-    projection.session === editorOrigin(view.state).session &&
-    projection.version === editorVersion(view.state)
+    isCurrent(view.state, projection)
   ) {
     const decorations: Decoration[] = [];
     for (const row of character.speechRows.slice(

@@ -1,3 +1,4 @@
+import { stampOf, isCurrent } from '../editor/state';
 import { useEffect, useRef, useState } from 'react';
 import type { EditorView } from 'prosemirror-view';
 import type { Node as ProseMirrorNode } from 'prosemirror-model';
@@ -9,7 +10,6 @@ import {
 } from '../application/scriptCheck';
 import type { CheckIssue } from '../domain/scriptCheck';
 import { navigateCheckIssue } from '../editor/scriptCheck';
-import { editorOrigin, editorVersion } from '../editor/state';
 
 /** Component-owned handles the check session reads. All are stable refs
  *  except the plain render values, which the hook re-reads every render —
@@ -104,9 +104,7 @@ export function useCheckSession(deps: CheckSessionDeps): CheckSession {
     }
     checkScrollRef.current = {
       view,
-      session: editorOrigin(view.state).session,
-      version: editorVersion(view.state),
-      doc: view.state.doc,
+      ...stampOf(view.state),
       selection: view.state.selection,
     };
   };
@@ -124,9 +122,7 @@ export function useCheckSession(deps: CheckSessionDeps): CheckSession {
         operationRef.current ||
         frozenRef.current ||
         !current.hasFocus() ||
-        editorOrigin(current.state).session !== target.session ||
-        editorVersion(current.state) !== target.version ||
-        current.state.doc !== target.doc ||
+        !isCurrent(current.state, target) ||
         !current.state.selection.eq(target.selection)
       )
         return;

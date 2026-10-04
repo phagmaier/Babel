@@ -42,38 +42,42 @@ export interface OpenDocument {
   fingerprint: DiskFingerprint | null;
 }
 
+export const DOCUMENT_ERROR_CODES = [
+  'missingSource',
+  'exportNeedsAttention',
+  'permissionDenied',
+  'unsafePath',
+  'notRegularFile',
+  'sourceTooLarge',
+  'sourceChanged',
+  'identityStoreUnavailable',
+  'invalidHandle',
+  'identityMismatch',
+  'ownershipRequired',
+  'ownershipLost',
+  'tooManyDocuments',
+  'nativeUnavailable',
+  'recoveryNeedsAttention',
+  'invalidCheckpoint',
+  'staleRecoveryVersion',
+  'checkpointConflict',
+  'invalidSave',
+  'staleSaveVersion',
+  'saveConflict',
+  'saveQueueFull',
+  'saveNeedsAttention',
+  'snapshotNeedsAttention',
+  'historyNeedsAttention',
+  'snapshotLimit',
+  'invalidSnapshot',
+  'invalidDestination',
+  'recentNeedsAttention',
+  'invalidRecentSelection',
+  'io',
+] as const;
+
 export interface DocumentError {
-  code:
-    | 'missingSource'
-    | 'permissionDenied'
-    | 'unsafePath'
-    | 'notRegularFile'
-    | 'sourceTooLarge'
-    | 'sourceChanged'
-    | 'identityStoreUnavailable'
-    | 'invalidHandle'
-    | 'identityMismatch'
-    | 'ownershipRequired'
-    | 'ownershipLost'
-    | 'tooManyDocuments'
-    | 'nativeUnavailable'
-    | 'recoveryNeedsAttention'
-    | 'invalidCheckpoint'
-    | 'staleRecoveryVersion'
-    | 'checkpointConflict'
-    | 'invalidSave'
-    | 'staleSaveVersion'
-    | 'saveConflict'
-    | 'saveQueueFull'
-    | 'saveNeedsAttention'
-    | 'snapshotNeedsAttention'
-    | 'historyNeedsAttention'
-    | 'snapshotLimit'
-    | 'invalidSnapshot'
-    | 'invalidDestination'
-    | 'recentNeedsAttention'
-    | 'invalidRecentSelection'
-    | 'io';
+  code: (typeof DOCUMENT_ERROR_CODES)[number];
   action: 'selectSourceAgain' | 'reopenOrSaveCopy' | 'retry';
 }
 

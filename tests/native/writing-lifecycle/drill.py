@@ -3,6 +3,7 @@ WebKitWebDriver drives the real WebView; wtype drives the real GTK pickers.
 Only descendants of this owned driver may receive compositor keyboard input.
 """
 import hashlib
+import importlib
 import json
 import os
 import signal
@@ -14,6 +15,48 @@ import tempfile
 import time
 import urllib.error
 import urllib.request
+
+MODES = (
+    (
+        ('--external-reload', 'external_reload', 'run'),
+        ('--persistence-paths', 'persistence_paths', 'run'),
+    ),
+    (
+        ('--daily-session', 'integrated_workflows', 'run'),
+        ('--spellcheck', 'spellcheck_workflows', 'run'),
+        ('--home', 'home_workflows', 'run'),
+        ('--find-timing', 'find_workflows', 'run_timing'),
+        ('--find', 'find_workflows', 'run'),
+        ('--replace', 'replace_workflows', 'run'),
+        ('--replace-smoke', 'replace_workflows', 'run_smoke'),
+        ('--commands', 'command_workflows', 'run'),
+        ('--characters', 'character_workflows', 'run'),
+    ),
+    (
+        ('--publication-preview', 'publication_preview', 'run'),
+        ('--publication-exit', 'publication_exit', 'run'),
+        ('--pdf-export', 'pdf_export', 'run'),
+        ('--script-check', 'scriptcheck_workflows', 'run'),
+        ('--title-page', 'title_page', 'run'),
+        ('--scene-moves', 'scene_moves', 'run'),
+        ('--workflow-protection', 'workflow_protection', 'run'),
+        ('--outline', 'outline_workflows', 'run'),
+        ('--recents', 'recent_projects', 'run'),
+    ),
+    (
+        ('--latency-review', 'editor_exit', 'review_latency'),
+        ('--capture-review', 'editor_exit', 'review_capture'),
+    ),
+)
+
+
+def dispatch_modes(modes):
+    for flag, module, function in modes:
+        if flag in sys.argv:
+            runner = getattr(importlib.import_module(module), function)
+            runner(sys.modules[__name__])
+            sys.exit(0)
+
 
 REPO = Path(__file__).resolve().parents[3]
 BASE = Path(sys.argv[1] if len(sys.argv) > 1 else '/tmp').resolve()
@@ -277,106 +320,22 @@ try:
       fetch('http://localhost:5173/__babel_audit_probe').catch(()=>{});""")
     wait(lambda:script("return window.auditBlocked.some(e=>e.uri.startsWith('http://localhost:5173') && e.directive==='connect-src');"),'Release CSP blocks development-server connections')
     print('PASS native release CSP excludes the development server',flush=True)
-    if '--external-reload' in sys.argv:
-        from external_reload import run as run_reload
-        run_reload(sys.modules[__name__])
-        sys.exit(0)
-    if '--persistence-paths' in sys.argv:
-        from persistence_paths import run as run_paths
-        run_paths(sys.modules[__name__])
-        sys.exit(0)
+    dispatch_modes(MODES[0])
     if '--persistence-two-instances' in sys.argv or '--persistence-two-instances-shared' in sys.argv:
         from persistence_paths import two_instances
         two_instances(sys.modules[__name__], shared_data='--persistence-two-instances-shared' in sys.argv)
         sys.exit(0)
-    if '--daily-session' in sys.argv:
-        from integrated_workflows import run as run_daily
-        run_daily(sys.modules[__name__])
-        sys.exit(0)
-    if '--spellcheck' in sys.argv:
-        from spellcheck_workflows import run as run_spellcheck
-        run_spellcheck(sys.modules[__name__])
-        sys.exit(0)
-    if '--home' in sys.argv:
-        from home_workflows import run as run_home
-        run_home(sys.modules[__name__])
-        sys.exit(0)
-    if '--find-timing' in sys.argv:
-        from find_workflows import run_timing
-        run_timing(sys.modules[__name__])
-        sys.exit(0)
-    if '--find' in sys.argv:
-        from find_workflows import run as run_find
-        run_find(sys.modules[__name__])
-        sys.exit(0)
-    if '--replace' in sys.argv:
-        from replace_workflows import run as run_replace
-        run_replace(sys.modules[__name__])
-        sys.exit(0)
-    if '--replace-smoke' in sys.argv:
-        from replace_workflows import run_smoke as run_replace_smoke
-        run_replace_smoke(sys.modules[__name__])
-        sys.exit(0)
-    if '--commands' in sys.argv:
-        from command_workflows import run as run_commands
-        run_commands(sys.modules[__name__])
-        sys.exit(0)
-    if '--characters' in sys.argv:
-        from character_workflows import run as run_characters
-        run_characters(sys.modules[__name__])
-        sys.exit(0)
+    dispatch_modes(MODES[1])
     if '--presentation' in sys.argv:
         from presentation_workflows import run as run_presentation
         control = sys.argv[sys.argv.index('--presentation-control') + 1] if '--presentation-control' in sys.argv else 'baseline'
         run_presentation(sys.modules[__name__], restart='--presentation-no-restart' not in sys.argv, control=control)
         sys.exit(0)
-    if '--publication-preview' in sys.argv:
-        from publication_preview import run as run_preview
-        run_preview(sys.modules[__name__])
-        sys.exit(0)
-    if '--publication-exit' in sys.argv:
-        from publication_exit import run as run_publication_exit
-        run_publication_exit(sys.modules[__name__])
-        sys.exit(0)
-    if '--pdf-export' in sys.argv:
-        from pdf_export import run as run_export
-        run_export(sys.modules[__name__])
-        sys.exit(0)
-    if '--script-check' in sys.argv:
-        from scriptcheck_workflows import run as run_check
-        run_check(sys.modules[__name__])
-        sys.exit(0)
-    if '--title-page' in sys.argv:
-        from title_page import run as run_title
-        run_title(sys.modules[__name__])
-        sys.exit(0)
-    if '--scene-moves' in sys.argv:
-        from scene_moves import run as run_moves
-        run_moves(sys.modules[__name__])
-        sys.exit(0)
-    if '--workflow-protection' in sys.argv:
-        from workflow_protection import run as run_workflow
-        run_workflow(sys.modules[__name__])
-        sys.exit(0)
-    if '--outline' in sys.argv:
-        from outline_workflows import run as run_outline
-        run_outline(sys.modules[__name__])
-        sys.exit(0)
-    if '--recents' in sys.argv:
-        from recent_projects import run as run_recents
-        run_recents(sys.modules[__name__])
-        sys.exit(0)
+    dispatch_modes(MODES[2])
     if '--audit-fixes' in sys.argv:
         from editor_exit import audit_fixes
         audit_fixes(sys.modules[__name__])
-    if '--latency-review' in sys.argv:
-        from editor_exit import review_latency
-        review_latency(sys.modules[__name__])
-        sys.exit(0)
-    if '--capture-review' in sys.argv:
-        from editor_exit import review_capture
-        review_capture(sys.modules[__name__])
-        sys.exit(0)
+    dispatch_modes(MODES[3])
     if '--editor-exit' in sys.argv:
         from editor_exit import run
         run(sys.modules[__name__])

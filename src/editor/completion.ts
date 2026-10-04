@@ -1,3 +1,4 @@
+import { stampOf, isCurrent, editorOrigin, editorVersion } from './state';
 import { closeHistory } from 'prosemirror-history';
 import {
   TextSelection,
@@ -15,7 +16,6 @@ import {
   withBuiltins,
   type LocalVocabulary,
 } from '../domain/completion';
-import { editorOrigin, editorVersion } from './state';
 
 export interface CompletionIndex {
   readonly doc: EditorState['doc'];
@@ -37,9 +37,7 @@ export function indexEditorCompletion(
   recent: ReadonlyMap<string, number> = new Map(),
 ): CompletionIndex {
   return Object.freeze({
-    doc: state.doc,
-    session: editorOrigin(state).session,
-    version: editorVersion(state),
+    ...stampOf(state),
     vocabulary: buildLocalVocabulary(
       state.doc.content.content.map((node) => ({
         kind: node.type.name,
@@ -60,9 +58,7 @@ export function offerEditorCompletion(
   if (
     !empty ||
     !$from.depth ||
-    index.doc !== state.doc ||
-    index.session !== editorOrigin(state).session ||
-    index.version !== editorVersion(state) ||
+    !isCurrent(state, index) ||
     editorOrigin(state).document.readOnlyReason
   )
     return null;

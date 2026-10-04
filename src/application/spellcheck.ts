@@ -1,7 +1,7 @@
+import { stampOf, isCurrent } from '../editor/state';
 import type { EditorState } from 'prosemirror-state';
 import type { EditorView } from 'prosemirror-view';
 import { cueName } from '../domain/completion';
-import { editorOrigin, editorVersion } from '../editor/state';
 import { correctSpelling, highlightSpelling } from '../editor/spellcheck';
 import { dispatchIsolated } from '../editor/formatting';
 
@@ -95,21 +95,14 @@ export function spellingScan(state: EditorState): SpellingScan {
     }
   });
   return Object.freeze({
-    doc: state.doc,
-    session: editorOrigin(state).session,
-    version: editorVersion(state),
+    ...stampOf(state),
     words: Object.freeze(words),
     omitted,
     limited,
   });
 }
 export function spellingCurrent(view: EditorView, scan: SpellingScan) {
-  return (
-    !view.isDestroyed &&
-    view.state.doc === scan.doc &&
-    editorOrigin(view.state).session === scan.session &&
-    editorVersion(view.state) === scan.version
-  );
+  return !view.isDestroyed && isCurrent(view.state, scan);
 }
 export interface SpellcheckState {
   status: SpellcheckReply | null;

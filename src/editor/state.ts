@@ -1,3 +1,4 @@
+import type { ManuscriptStamp } from '../application/manuscriptProjection';
 import { type Node as EditorNode } from 'prosemirror-model';
 import {
   history,
@@ -54,6 +55,20 @@ export function editorOrigin(state: EditorState): SourceOrigin {
   if (!origin)
     throw new TypeError('Expected a production screenplay EditorState');
   return origin;
+}
+export function stampOf(state: EditorState): ManuscriptStamp {
+  return {
+    session: editorOrigin(state).session,
+    version: editorVersion(state),
+    doc: state.doc,
+  };
+}
+export function isCurrent(state: EditorState, stamp: ManuscriptStamp): boolean {
+  return (
+    state.doc === stamp.doc &&
+    editorOrigin(state).session === stamp.session &&
+    editorVersion(state) === stamp.version
+  );
 }
 export function editorVersion(state: EditorState): number {
   return editorOrigin(state).version;

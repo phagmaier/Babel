@@ -14,6 +14,9 @@ export interface ManuscriptStamp {
   readonly version: number;
   readonly doc: EditorNode;
 }
+export function sameStamp(a: ManuscriptStamp, b: ManuscriptStamp): boolean {
+  return a.session === b.session && a.version === b.version && a.doc === b.doc;
+}
 export interface ManuscriptProjection extends ManuscriptStamp {
   readonly sourceSha256: string;
   readonly index: ManuscriptIndex;
@@ -55,15 +58,7 @@ export class ManuscriptProjectionController {
   }
   isCurrent(projection: ManuscriptProjection): boolean {
     const current = this.stamp();
-    return (
-      this.live &&
-      Boolean(
-        current &&
-        current.session === projection.session &&
-        current.version === projection.version &&
-        current.doc === projection.doc,
-      )
-    );
+    return this.live && Boolean(current && sameStamp(current, projection));
   }
   changedDraft() {
     if (!this.live) return;
@@ -96,9 +91,7 @@ export class ManuscriptProjectionController {
     if (
       !stamp ||
       stamp.version !== snapshot.version ||
-      stamp.session !== capturedStamp.session ||
-      stamp.version !== capturedStamp.version ||
-      stamp.doc !== capturedStamp.doc
+      !sameStamp(stamp, capturedStamp)
     )
       return;
     this.pending = { snapshot, stamp };
@@ -111,13 +104,7 @@ export class ManuscriptProjectionController {
       if (!pending || !this.live || sequence !== this.sequence) return;
       const { snapshot, stamp } = pending;
       const current = this.stamp();
-      if (
-        !current ||
-        current.session !== stamp.session ||
-        current.version !== stamp.version ||
-        current.doc !== stamp.doc
-      )
-        return;
+      if (!current || !sameStamp(current, stamp)) return;
       try {
         const previous = this.state.projection;
         const reuse =

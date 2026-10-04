@@ -1,3 +1,4 @@
+import { sameStamp } from './manuscriptProjection';
 import {
   defaultFindOptions,
   findSlices,
@@ -51,14 +52,7 @@ export class FindController {
   }
   isCurrent(projection = this.state.projection): boolean {
     const stamp = this.stamp();
-    return (
-      this.live &&
-      !!projection &&
-      !!stamp &&
-      stamp.session === projection.session &&
-      stamp.version === projection.version &&
-      stamp.doc === projection.doc
-    );
+    return this.live && !!projection && !!stamp && sameStamp(stamp, projection);
   }
   private cancel() {
     this.sequence++;

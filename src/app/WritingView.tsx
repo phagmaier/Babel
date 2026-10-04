@@ -1,3 +1,14 @@
+import {
+  stampOf,
+  isCurrent,
+  applyEditorTransaction,
+  createEditorState,
+  editorVersion,
+  editorOrigin,
+  sourceImportTransaction,
+  advanceEditorVersion,
+} from '../editor/state';
+import { sameStamp } from '../application/manuscriptProjection';
 import { SourceComparison } from './SourceComparison';
 import { PublicationPreview } from './PublicationPreview';
 import { ExportPdfPanel } from './ExportPdfPanel';
@@ -76,18 +87,11 @@ import {
 } from '../application/writingSession';
 import { localShortcutRegistry } from '../application/shortcuts';
 import {
-  applyEditorTransaction,
-  createEditorState,
-  editorVersion,
-  editorOrigin,
-} from '../editor/state';
-import {
   editorRecovery,
   metadataSelection,
 } from '../application/editorMetadata';
 import { mountScreenplayEditor } from '../editor/view';
 import { executeEditorCommand } from '../editor/shortcuts';
-import { sourceImportTransaction, advanceEditorVersion } from '../editor/state';
 import { dispatchIsolated } from '../editor/formatting';
 import { createCompletionPopup } from './CompletionPopup';
 import { EditorControls } from './EditorControls';
@@ -490,9 +494,7 @@ export function WritingView({
       const view = viewRef.current;
       return view && !view.isDestroyed
         ? {
-            session: editorOrigin(view.state).session,
-            version: editorVersion(view.state),
-            doc: view.state.doc,
+            ...stampOf(view.state),
           }
         : null;
     };
@@ -880,9 +882,7 @@ export function WritingView({
             boundaryRef.current === boundary &&
             current &&
             started &&
-            current.session === started.session &&
-            current.version === started.version &&
-            current.doc === started.doc
+            sameStamp(current, started)
           )
             projection.unavailable();
           throw failure;
@@ -1079,8 +1079,8 @@ export function WritingView({
         }
       }
     })();
+    let stop: (() => void) | undefined;
     if ('__TAURI_INTERNALS__' in window) {
-      let stop: (() => void) | undefined;
       void listen('protected-close-requested', () => {
         if (alive) {
           if (exportRef.current?.busy) {
@@ -1104,25 +1104,6 @@ export function WritingView({
         },
         () => undefined,
       );
-      return () => {
-        disposePosition();
-        alive = false;
-        moveAbortRef.current?.abort();
-        exporter?.dispose();
-        exportRef.current = null;
-        preview?.dispose();
-        previewRef.current = null;
-        projection.dispose();
-        find.dispose();
-        findRef.current = null;
-        checkRef.current?.dispose();
-        checkRef.current = null;
-        stop?.();
-        typewriter.destroy();
-        popupRef.current?.destroy();
-        viewRef.current?.destroy();
-        session.dispose();
-      };
     }
     return () => {
       disposePosition();
@@ -1137,6 +1118,7 @@ export function WritingView({
       findRef.current = null;
       checkRef.current?.dispose();
       checkRef.current = null;
+      stop?.();
       typewriter.destroy();
       popupRef.current?.destroy();
       viewRef.current?.destroy();
@@ -1337,14 +1319,23 @@ export function WritingView({
     refresh();
   };
 
+  const exclusive = async <T,>(action: () => Promise<T>): Promise<T> => {
+    if (operationRef.current)
+      throw new Error('Another writing action is pending');
+    operationRef.current = true;
+    try {
+      return await action();
+    } finally {
+      operationRef.current = false;
+      refresh();
+    }
+  };
+
   const snapshotPort = useMemo<SnapshotPort>(
     () => ({
       ...ports.snapshots,
-      restore: async (request) => {
-        if (operationRef.current)
-          throw new Error('Another writing action is pending');
-        operationRef.current = true;
-        try {
+      restore: async (request) =>
+        exclusive(async () => {
           return await sessionRef.current!.replaceFromNative(
             async (current, prepare) => {
               const read = await ports.snapshots.read({
@@ -1366,11 +1357,7 @@ export function WritingView({
               return { source: read.source, receipt };
             },
           );
-        } finally {
-          operationRef.current = false;
-          refresh();
-        }
-      },
+        }),
     }),
     [ports],
   );
@@ -1386,11 +1373,8 @@ export function WritingView({
         comparisons = result.catch(() => undefined);
         return result;
       },
-      recover: async (request) => {
-        if (operationRef.current)
-          throw new Error('Another writing action is pending');
-        operationRef.current = true;
-        try {
+      recover: async (request) =>
+        exclusive(async () => {
           return await sessionRef.current!.replaceFromNative(
             async (current, prepare) => {
               const preview = await ports.recovery.previewSelected({
@@ -1417,24 +1401,13 @@ export function WritingView({
               return { source: preview.source, receipt };
             },
           );
-        } finally {
-          operationRef.current = false;
-          refresh();
-        }
-      },
-      resolve: async (identity) => {
-        if (operationRef.current)
-          throw new Error('Another writing action is pending');
-        operationRef.current = true;
-        try {
+        }),
+      resolve: async (identity) =>
+        exclusive(async () => {
           return await sessionRef.current!.resolveNative(() =>
             ports.choices.resolve(identity),
           );
-        } finally {
-          operationRef.current = false;
-          refresh();
-        }
-      },
+        }),
     };
   }, [ports]);
 
@@ -1448,9 +1421,7 @@ export function WritingView({
       !!current &&
       !!projection &&
       outline.phase === 'current' &&
-      projection.doc === current.state.doc &&
-      projection.version === editorVersion(current.state) &&
-      projection.session === editorOrigin(current.state).session;
+      isCurrent(current.state, projection);
     return {
       route: 'writing',
       native: true,
