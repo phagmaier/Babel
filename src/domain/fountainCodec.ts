@@ -72,12 +72,35 @@ function physicalLines(bytes: Uint8Array, start: number): FountainLine[] {
   return lines;
 }
 
+/** A `Key: value` title row; force markers and indented keys are not keys. */
+function titleFieldMatch(raw: string): RegExpExecArray | null {
+  const field = /^([^:\r\n]+):[ \t]?(.*)$/.exec(raw);
+  return field && !/^\s/.test(field[1]!) && !/^[!@>.~#=]/.test(raw)
+    ? field
+    : null;
+}
+/** AUDIT-D04-R1: a leading `Key:` block is a title page only if some field has
+ * a value, on its key line or as an indented continuation. A block of empty
+ * fields (`FADE IN:`) is body text, as the pinned renderer reads it. */
+function leadingTitleHasValue(lines: readonly FountainLine[]): boolean {
+  let fields = 0;
+  for (const { sourceText: raw } of lines) {
+    if (raw.trim() === '') return false;
+    const field = titleFieldMatch(raw);
+    if (field) {
+      if (field[2]!.trim() !== '') return true;
+      fields++;
+    } else return fields > 0 && /^(?: {3,}|\t)/.test(raw);
+  }
+  return false;
+}
+
 function classify(
   lines: readonly FountainLine[],
   diagnostics: CodecDiagnostic[],
 ): FountainLine[] {
   const result: FountainLine[] = [];
-  let inTitle = true;
+  let inTitle = leadingTitleHasValue(lines);
   let speaker: number | undefined;
   let previousSpeaker: number | undefined;
   let hidden:
@@ -144,8 +167,8 @@ function classify(
       continue;
     }
     if (inTitle) {
-      const field = /^([^:\r\n]+):[ \t]?(.*)$/.exec(raw);
-      if (field && !/^\s/.test(field[1]!) && !/^[!@>.~#=]/.test(raw)) {
+      const field = titleFieldMatch(raw);
+      if (field) {
         emit('title', field[2]!, { titleKey: field[1] });
         continue;
       }

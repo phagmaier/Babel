@@ -1322,6 +1322,141 @@
         "A lamp glows."
       ],
       "omits": [],
+      "clean": true,
+      "blockingLines": [],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "title value of spaces only is body text on both sides",
+      "source": "Title:   \n\nINT. LAB - DAY\n\nA lamp glows.\n",
+      "prints": [
+        "Title:",
+        "INT. LAB - DAY",
+        "A lamp glows."
+      ],
+      "omits": [],
+      "clean": true,
+      "blockingLines": [],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "two empty keys read as a speech on both sides",
+      "source": "FADE IN:\nCUT TO:\n\nINT. LAB - DAY\n\nA lamp glows.\n",
+      "prints": [
+        "FADE IN:",
+        "CUT TO:",
+        "INT. LAB - DAY"
+      ],
+      "omits": [],
+      "clean": true,
+      "blockingLines": [],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "empty key with an indented value stays a title page",
+      "source": "Title:\n    Night Shift\n\nINT. LAB - DAY\n\nA lamp glows.\n",
+      "prints": [
+        "Night Shift",
+        "INT. LAB - DAY"
+      ],
+      "omits": [
+        "Title:"
+      ],
+      "clean": true,
+      "blockingLines": [],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "empty field beside a valued field stays a title page",
+      "source": "Draft date:\nTitle: Night Shift\n\nINT. LAB - DAY\n\nA lamp glows.\n",
+      "prints": [
+        "Night Shift",
+        "INT. LAB - DAY"
+      ],
+      "omits": [
+        "Draft date",
+        "Title:"
+      ],
+      "clean": true,
+      "blockingLines": [],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "value then an indented line is body text for the renderer",
+      "source": "Title: Night Shift\n    Part Two\nAuthor: Sam\n\nINT. LAB - DAY\n\nA lamp glows.\n",
+      "prints": [
+        "Title: Night Shift",
+        "Part Two",
+        "Author: Sam",
+        "INT. LAB - DAY"
+      ],
+      "omits": [],
+      "clean": false,
+      "blockingLines": [
+        0
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "value then a tab-indented line is body text for the renderer",
+      "source": "Title: Night Shift\n\tPart Two\n\nINT. LAB - DAY\n\nA lamp glows.\n",
+      "prints": [
+        "Title: Night Shift",
+        "Part Two",
+        "INT. LAB - DAY"
+      ],
+      "omits": [],
+      "clean": false,
+      "blockingLines": [
+        0
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      }
+    },
+    {
+      "name": "indented first key is a title page for the renderer",
+      "source": "  Title: Night Shift\n\nINT. LAB - DAY\n\nA lamp glows.\n",
+      "prints": [
+        "INT. LAB - DAY",
+        "A lamp glows."
+      ],
+      "omits": [
+        "Night Shift"
+      ],
       "clean": false,
       "blockingLines": [
         0

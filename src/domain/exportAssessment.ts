@@ -399,6 +399,34 @@ function rendererLineReading(
   return null;
 }
 
+/** Mirrors the pinned renderer's title-page reading of the opening block (its
+ * lines up to the first empty line, tabs expanded): every line is `Key: value`
+ * or an indented value under an empty key, a force marker cannot start it, and
+ * at least one value results. Returns the block length, or 0 for body text. */
+function rendererTitleLines(lines: readonly FountainLine[]): number {
+  const block: string[] = [];
+  for (const line of lines) {
+    let text = '';
+    for (const char of line.sourceText)
+      text += char === '\t' ? ' '.repeat(4 - (text.length % 4)) : char;
+    if (text === '') break;
+    block.push(text);
+  }
+  if (!block.length || /^[!@~.>#=]/.test(block[0]!)) return 0;
+  let values = 0;
+  for (let at = 0; at < block.length;) {
+    const field = /^([^:]+):\s*(.*)$/.exec(block[at++]!);
+    if (!field) return 0;
+    if (field[2]) values++;
+    else
+      while (at < block.length && /^\s{3,}./.test(block[at]!)) {
+        values++;
+        at++;
+      }
+  }
+  return values ? block.length : 0;
+}
+
 /** Mirrors the pinned renderer's section rule: 1–6 `#` at the line start. */
 const rendererSection = /^(#{1,6})\s*([^#].*)$/;
 const blankSource = (text: string) => text === '' || text === ' ';
@@ -588,6 +616,29 @@ export function evaluateExportAssessment(
     }
   }
   const titleEnd = document.titleFields.at(-1);
+  // AUDIT-D04-R1: the codec and the renderer must agree on whether the opening
+  // block is a title page. A boneyard there is removed first by the renderer and
+  // is reported separately; a missing separator is reported below.
+  const codecTitle = titleEnd ? titleEnd.from + titleEnd.count : 0;
+  const rendererTitle = rendererTitleLines(document.lines);
+  const opening = document.lines.slice(0, Math.max(codecTitle, rendererTitle));
+  if (!opening.some((row) => row.sourceText.includes('/*'))) {
+    const separated = (document.lines[codecTitle]?.sourceText ?? '') === '';
+    if (codecTitle && !rendererTitle && separated)
+      add(
+        'SC005',
+        'The profile does not read these lines as a title page; it would print every field, keys included, as script text.',
+        0,
+        codecTitle - 1,
+      );
+    else if (rendererTitle && !codecTitle)
+      add(
+        'SC005',
+        'The profile reads this opening block as a title page and would not print it as script text.',
+        0,
+        rendererTitle - 1,
+      );
+  }
   if (titleEnd) {
     const next = document.lines[titleEnd.from + titleEnd.count];
     if (next && next.sourceText !== '') {

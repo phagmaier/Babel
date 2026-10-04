@@ -379,7 +379,8 @@ describe('production sole editor/source boundary (pure contract, no native I/O)'
       ['\n!!\n', 1, 0, 2],
       ['\n@\n', 1, 0, 2],
       ['\n@@\n', 1, 0, 2],
-      ['Title: \n\n!body\n', 0, 0, 7],
+      // AUDIT-D04-R1: an empty field is a title only beside a valued one.
+      ['Title: \nAuthor: Sam\n\n!body\n', 0, 0, 7],
       ['\n## \n', 1, 0, 4],
     ] as const) {
       let state = createEditorState(bytes(literal));

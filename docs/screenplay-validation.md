@@ -116,6 +116,8 @@ renderer's differ (assessment only; codec classification is unchanged):
 [Shared corpus](../fixtures/assessment/oracle.json): the helper's Python tests
 check what the rendered PDF prints and omits; vitest checks the assessment for
 the same cases. [Evidence](test-evidence/AUDIT.md#audit-d04--non-blocking-omissions-and-inline-note-assessment).
-A first line `FADE IN:` is still classified as a title field and reported as an
-omitted unknown field although the renderer prints it; that codec
-classification is tracked separately.
+Since AUDIT-D04-R1 a first line `FADE IN:` (any leading block of empty `Key:`
+fields) is body text on both sides. The assessment also mirrors the renderer's
+title-page reading: an indented line after a valued key makes the renderer
+print the whole block, keys included, as script text, and an indented first
+key makes it a title page that prints nothing; both are blocking SC005.

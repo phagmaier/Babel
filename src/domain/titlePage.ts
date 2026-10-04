@@ -68,15 +68,18 @@ export function changeTitlePage(
   } else {
     const ending = document.lines.find((l) => l.newline)?.newline ?? '\n';
     // Validate a new field with the same checked codec contract as replacements.
+    // A valued first field keeps the seed a title page even for empty values;
+    // the result below must still be a title page in the real document.
     const seed = parseFountain(
-      new TextEncoder().encode('Title: seed' + ending),
+      new TextEncoder().encode('Seed: value' + ending + 'Title: seed' + ending),
     );
-    const added = replaceTitleField(
+    const replaced = replaceTitleField(
       seed,
-      seed.titleFields[0]!.id,
+      seed.titleFields[1]!.id,
       action.key,
       action.values,
     );
+    const added = { recovery: { lines: replaced.recovery.lines.slice(1) } };
     const end = document.titleFields.at(-1);
     const at = end ? end.from + end.count : 0;
     const fresh: Row[] = added.recovery.lines.map((row) => ({

@@ -79,7 +79,12 @@ it('maps the independently reviewed omission corpus using codec boundaries and p
     ),
   ).toMatchObject({
     status: 'verified',
-    issues: [{ code: 'SC005', line: 1, endLine: 2 }],
+    issues: [
+      // AUDIT-D04-R1: an indented line after a valued key makes the pinned
+      // renderer print the whole block, keys included, as script text.
+      { code: 'SC005', line: 0, endLine: 2 },
+      { code: 'SC005', line: 1, endLine: 2 },
+    ],
   });
 });
 
