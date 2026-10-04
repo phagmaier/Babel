@@ -1,118 +1,83 @@
-# Current state — AUDIT-D04 complete
+# Current state — audit session 2026-10-04 (cloud, no display)
 
-Date: 2026-10-04. Application: **babel**. Main; local commits only, no push.
+Date: 2026-10-04. Application: **babel**. Base `718c6e8`. Session commits on
+branch `claude/nifty-carson-adcfu6` (owner override: one commit per task).
 M0–M5 and bounded M6-01 work remain recorded complete. **M6-02, C1/F2 and
 Local v1 admission remain open.**
 
-## Task and work
+## This session
 
-**AUDIT-D04 complete**, base `02dc86c`.
-[Brief](tasks/AUDIT-D04.md),
+Host: Linux container, uid 0, no display, `target/` not in git (no retained
+artifacts, frozen binaries or IME prerequisites).
+[Baseline](test-evidence/AUDIT.md#session-baseline--cloud-container-2026-10-04):
+frontend 927/927, browser pass (orphaned Vite stopped by hand), helper 14/14,
+fmt/clippy pass, Rust 272/273 (root-only `safe_open` permission failure).
+
+Queue: AUDIT-D07 → AUDIT-D04-R2 → AUDIT-PARK → AUDIT-D04-R1 (owner-approved rule).
+
+- **AUDIT-D07 complete.** [Brief](tasks/AUDIT-D07.md),
+  [evidence](test-evidence/AUDIT.md#audit-d07--typed-scene-oracle). Typed-scene
+  oracle: `tests/contract/typed-scene.test.ts` +
+  `fixtures/assessment/typed-scene.json` +
+  `test_helper.py::test_typed_scene_oracle`. Four findings pinned and tracked as
+  **AUDIT-D07-F** in TODO (owner decisions; none fixed).
+
+## Needs native rerun (owner, with a display)
+
+- D-07 typed-export case: no drill mode exists; write one (type the fixture
+  scene, Export PDF, `pdftotext`) and run it on tmpfs/Btrfs.
+- Rust `cargo test --workspace` as a non-root user (baseline root failure).
+
+## Retained findings and limits (detail in linked evidence)
+
+**AUDIT-D04 complete** (`718c6e8`): non-blocking omission summary, inline
+hidden spans read through for assessment, renderer-disagreement guards;
 [evidence](test-evidence/AUDIT.md#audit-d04--non-blocking-omissions-and-inline-note-assessment).
-Closed, unambiguous notes and boneyards, section headings and synopses are one
-non-blocking summary instead of SC005 issues. For assessment only, a line with
-closed single-line hidden spans after visible text keeps its role, so it no
-longer yields raw SC005/SC004 or a false SC001. A capture with no blocking
-issue and no warning goes straight to the destination picker; review and
-acknowledgement are otherwise unchanged. The summary is guarded where the
-pinned renderer and codec disagree: misplaced sections/synopses, `#`/`=`-led
-text the renderer drops, backslash-escaped hidden markers and title-line
-boneyards stay or become blocking. Codec, editor protection, source bytes,
-Rust, IPC, helper and pins are unchanged. SPEC S09.2 and ADR 0039 amended.
-Paths: [assessment](../src/domain/exportAssessment.ts), [corpus](../fixtures/assessment/oracle.json),
-[contract](screenplay-validation.md#audit-d04-omission-summary-and-inline-hidden-text).
+Native 6/6 strict pdf-export/script-check/publication-exit and 4/4
+daily-session/commands there. Harness fact: a copied binary finds `pdf-helper`
+only in a folder ending `target/release` that holds `.cargo-lock`
+([README](../tests/native/writing-lifecycle/README.md)).
 
-Tier 2: frontend **927/927**; 27-case corpus agrees on the renderer side (PDF
-text) and the assessment side; six injected faults detected; helper **14/14**;
-Rust **273/273** one filesystem; browser and default embedded release pass.
-Native WebKit **6/6 strict** pdf-export/script-check/publication-exit and
-**4/4 strict** daily-session/commands on tmpfs/Btrfs. Artifacts: `target/audit-d04/`.
-
-**Harness fact found here:** a copied binary finds `pdf-helper` only in a folder
-ending `target/release` that holds `.cargo-lock`
-([README](../tests/native/writing-lifecycle/README.md)). Helper-less frozen
-copies made Script Check report "unavailable"; that was the D03B script-check
-failure and the SIMP-F daily-assessment finding. The daily-session drill's
-stale "unavailable" expectation is corrected.
-
-**AUDIT-D03 complete** (`21a6180`, `02dc86c`): EDIT-07 element indentation and
-the three-column writing shell;
-[evidence A](test-evidence/AUDIT.md#audit-d03a--on-screen-screenplay-element-styling),
-[evidence B](test-evidence/AUDIT.md#audit-d03b--writing-layout-shell). Open
-from D03: owned WebKit SIGABRT `free(): corrupted unsorted chunks`
-**477772/start 4562349** and **501063/start 4636728** (cores retained, no
-cause); Btrfs presentation Find-viewport failure no longer occurs with the
-shell, cause not isolated; the actions block above the editor is still tall.
-
-## Retained findings and limits
+**AUDIT-D03 complete** (`21a6180`, `02dc86c`); open: owned WebKit SIGABRT
+`free(): corrupted unsorted chunks` **477772/start 4562349** and **501063/start
+4636728** (cores retained, no cause); the actions block above the editor is
+still tall. [A](test-evidence/AUDIT.md#audit-d03a--on-screen-screenplay-element-styling),
+[B](test-evidence/AUDIT.md#audit-d03b--writing-layout-shell).
 
 **AUDIT-D02 complete** (`ffede1d`): strict identical-latest reopen, hash-bound
-explicit Keep, plain review before editing; no source receipt inferred and no
-journal automatically adopted, retired or deleted.
-[Brief](tasks/AUDIT-D02.md),
-[evidence](test-evidence/AUDIT.md#audit-d02--safe-reopen-reconciliation-and-recovery-choice).
-Final native 20/20 content, 19/20 strict; artifacts `target/audit-d02/`.
+Keep, plain review; no automatic adoption/retirement.
+[Evidence](test-evidence/AUDIT.md#audit-d02--safe-reopen-reconciliation-and-recovery-choice).
+Retained owned WebKit crashes: Btrfs SIGSEGV **335923/start 3571811**, tmpfs
+SIGSEGV **353321/start 3701248**, Btrfs SIGABRT **413296/start 3989180**; no
+cause, correction or C1/F2 disposition. D02 also retains a combined frontend
+Replace-All assertion failure that did not reproduce in isolation.
 
-D02's first broad candidate found and corrected the fresh-New review gate.
-Native character external-source review and title-page read-only predicates were
-updated for accepted behavior without dropping input/byte/Undo assertions.
-Corrected broad run: 18/20 content, 17/20 strict; missing caret after Keep exposed
-a focus regression on both filesystems. Owned-view focus, auxiliary authorship
-gates and own-session unresolved-transaction admission now have red/green tests.
-Its owned Btrfs WebKit SIGSEGV **335923/start 3571811**, 08:41:17 UTC, and the
-corrected tmpfs recovery-shutdown SIGSEGV **353321/start 3701248**, 09:02:47 UTC,
-coincide with parent disappearance during existing forced restart. Final Btrfs
-editor content passed but strict audit failed: owned WebKit **SIGABRT 413296/start
-3989180**, parent 413264/start 3989166, coarse core time 09:53:07 UTC in the same
-second as forced parent disappearance. Raw cores/PID/start/journal retained;
-no cause, correction or C1/F2 disposition. Clean reruns do not clear findings.
+**AUDIT-NATIVE-R1** (`e595393`): Save-first F6, read-only Mozc bind, owned GTK
+menu traversal; owned Btrfs SIGSEGV **251383/start 3043549** retained. Broader
+F6 and full native keyboard/a11y/IME remain unverified.
+[Evidence](test-evidence/AUDIT.md#audit-native-r1--f6-focus-and-private-mozc).
 
-**AUDIT-NATIVE-R1 complete** (`e595393`): Save-first F6, canonical read-only
-Mozc bind and observed owned GTK menu traversal.
-[Brief](tasks/AUDIT-NATIVE-R1.md),
-[evidence](test-evidence/AUDIT.md#audit-native-r1--f6-focus-and-private-mozc).
-Commands 2/2 strict; editor 2/2 content, 1/2 strict. Earlier owned Btrfs WebKit
-SIGSEGV **251383/start 3043549** remains retained. Broader read-only F6 and full
-native keyboard/a11y/IME remain unverified; clean controls cannot dispose crashes.
-
-**AUDIT-D06 complete** (`fcfade8`), receipt-derived plain status and protected
-file/read-only close; [brief](tasks/AUDIT-D06.md) and
-[evidence](test-evidence/AUDIT.md#audit-d06--plain-status-and-failure-only-close-prompts).
-Earlier native 10/14 and baseline F6/Mozc failures remain historical evidence.
-**AUDIT-SIMP-F complete** (`200e375`); [brief](tasks/AUDIT-SIMP-F.md),
-[evidence](test-evidence/AUDIT.md#audit-simp-f--frontend-guard-and-native-dispatch-simplification).
-Its initial daily-assessment failure is explained by helper resolution (D-04 evidence).
-D02 also retains a combined frontend Replace-All assertion failure: unchanged
-isolated/current/complete reruns passed, without a cause/correction claim. An
-initial browser page-load timeout during matrix work passed on idle retry; no
-timeout/assertion/config change or cause claim.
-Wave 0–3 closures and failures remain in TODO and linked audit evidence, including
-SLP-B's owned WebKit crash. `AUDIT.md` stays frozen. C356 enforcing SELinux/native
-highlight input is unverified; C04's unreproduced cache failure remains retained.
+**AUDIT-D06** (`fcfade8`) and **AUDIT-SIMP-F** (`200e375`) complete; earlier
+native failures remain historical evidence. Wave 0–3 closures and failures stay
+in TODO and the linked audit evidence, including SLP-B's owned WebKit crash.
+`AUDIT.md` stays frozen. C356 enforcing SELinux/native highlight input is
+unverified; C04's unreproduced cache failure remains retained.
 
 [M6-02](tasks/M6-02.md), [matrix](test-evidence/M6-02-matrix.md),
 [review](reviews/2026-10-03-m6-02-persistence-review.md) and
 [evidence](test-evidence/M6.md#m6-02--persistence-interruption-and-operation-investigation)
 retain original Save As/IME findings, shared-store lease scope and owned Btrfs
 SIGABRT after parent SIGKILL. Intact bytes/clean reruns do not close C1/F2.
-Path-loss is not unmount/power/controller/antivirus/sync acceptance. M6-03 independent
-copy/prune and capture-failure bundle policy remain separate open work.
+M6-03 independent copy/prune and capture-failure bundle policy remain open.
 
 ## Next action and stopping point
 
-D04 work, evidence and handoff are committed locally on main; no push.
-**Stopped after D-04.** Open follow-up: AUDIT-D04-R1 (`FADE IN:` first line
-classified as a title field; needs a codec decision). Remaining accepted DESIGN
-items without a brief: D-05 cheap variant, D-07 oracle and D-09 page count.
-Run publication-dependent native modes with `target/release` in place or a
-helper-capable frozen layout. Preserve the row schema/deferred rewrite and
-native crash findings. Never substitute injected composition for genuine IME.
-Unset `FORCE_COLOR` for `pnpm test:browser`. No full native/a11y/keyboard,
-SELinux, M6-02, C1/F2 or Local v1 admission closure.
-
-[M6-02-R1](tasks/M6-02-R1.md) and supported-runtime
-[M6-01-R1](tasks/M6-01-R1.md) remain separate. Crash follow-up starts from retained
-owned ledgers/cores and matched controls; C stays open before M6-14/16. Full S13,
-security/notices, target-native/screenreader/installed/manual update, backup/
-migration/owner pilot and Local v1 remain later gates. DEV-02 is owner-only.
-No M7, private-engine shipping, personal manuscript/credentials/upload work.
+Continue the session queue with AUDIT-D04-R2. Remaining accepted DESIGN items
+without a brief: D-05 cheap variant and D-09 page count. Run
+publication-dependent native modes with `target/release` in place or a
+helper-capable frozen layout. Never substitute injected composition for
+genuine IME. Unset `FORCE_COLOR` for `pnpm test:browser`. No full
+native/a11y/keyboard, SELinux, M6-02, C1/F2 or Local v1 closure.
+[M6-02-R1](tasks/M6-02-R1.md) and [M6-01-R1](tasks/M6-01-R1.md) remain separate;
+DEV-02 is owner-only. No M6/M7 work, private-engine shipping, personal
+manuscript/credentials/upload work.

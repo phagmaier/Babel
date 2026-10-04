@@ -843,3 +843,41 @@ Artifacts: `target/audit-d04/`. `FORCE_COLOR` unset for browser runs.
 **Parked D-04 observations.** Section-drop (`#1 DAD mug…`): confirmed on renderer and app, now a blocking limitation with native `pdftotext` proof. `FADE IN:` as the first line: confirmed on both sides (app: title field "FADE IN" and blocking "omits unknown or extra title field"; renderer: printed as action). Not changed here: it is codec title detection, which `docs/document-model.md` defines to allow empty values. Tracked in TODO.
 
 Omitted: mounted WritingView coverage of the direct export path (native only); other native modes; non-Linux, installed/AppImage layout, screenreader, full S13. The renderer mirror covers section, synopsis and hidden-marker rules only; other codec/renderer role differences (for example leading or trailing whitespace on headings and transitions) are unchanged. Dual dialogue, notes inside a speech paragraph and standalone hidden lines sharing a paragraph with text keep their existing treatment. No C1/F2, SELinux, M6-02 or Local v1 claim; earlier retained crashes remain open.
+
+## Session baseline — cloud container, 2026-10-04
+
+Base `718c6e8`; owner overrides for this session: one commit per task, no GUI,
+`target/` absent from git (no retained artifacts, frozen binaries or IME
+prerequisites). Host: Linux x86_64 container, ext4, **uid 0**, no display;
+node 26.7.0, pnpm 11.22.0, Rust 1.97.1, Python 3.11.15, Poppler 24.02.0. Logs
+were session scratch only and are not retained.
+
+- `pnpm install --frozen-lockfile` **pass**; `pnpm pdf-helper` **pass**, runtime tree `808d2276…`.
+- `pnpm check` **pass**, 927/927 tests in 62 files (no archived copies here).
+- `env -u FORCE_COLOR pnpm test:browser` — assertions **pass** ("Browser smoke passed"); the process then hung because `server.kill()` stops the `pnpm dev` wrapper but not its Vite child, which holds the pipe. Exit 0 after stopping that orphan by hand. Harness behavior on this host; script unchanged.
+- `pnpm test:pdf-helper` **14/14 pass**, 54 helper runs.
+- `cargo fmt --all -- --check` **pass**; `cargo clippy --workspace --all-targets --locked -- -D warnings` **pass**.
+- `cargo test --workspace --locked --no-fail-fast` — **272/273**; **environment failure** `safe_open::missing_permission_denied_oversized_and_nonregular_sources_are_typed_errors` (`safe_open.rs:50`): a mode-0 file is readable by uid 0. Needs a non-root rerun; no Rust change in this session.
+- Native WebKit, IME, keyboard and accessibility drills — **BLOCKED** (no display). Nothing native is claimed below.
+
+## AUDIT-D07 — typed-scene oracle
+
+[Brief](../tasks/AUDIT-D07.md), base `718c6e8`. Tier 1: tests, one new fixture
+and docs; no product source change. Mounted editor in JSDOM with the real
+completion popup and shortcut registry; not native proof.
+
+- Hand-written first: `fixtures/assessment/typed-scene.json` (bytes from S07.2 and the documented forced spellings, renderer paragraphs and pages from Fountain semantics) before either side ran.
+- `pnpm exec vitest run tests/contract/typed-scene.test.ts` first run — **fail (red)**: the oracle expected `Tab, Tab` to reach Scene Heading; the second Tab accepted the suggested cue "JON" (finding D07-F4). The scene now dismisses the suggestion with Escape; F4 is pinned on its own. A second red: the F4 pin missed that the stray trailing cue is also SC005-gated. Then **5/5 pass**.
+- Pinned: exact bytes, row kinds, speech and dual attachment, Enter consumed by the identical DAY/NIGHT suggestions (S07.6), lossless reopen, Ctrl+Z to zero bytes and Ctrl+Shift+Z back, Script Check `[]`, clean assessment and "Not printed by this profile: 1 note (2 lines), 1 section heading, 1 synopsis."
+- `python3 tools/pdf-helper/test_helper.py HelperTest.test_typed_scene_oracle` — **pass**: the pinned renderer's own paragraph classification equals the hand-written list (Slug, Action, DualDialog, Transition, Slug, Action, lyric Action, Centered, Section, PageBreak, Action); two pages; page text in order; markers, note, section and synopsis absent.
+- Injected faults (scratch script, sources restored byte-identical by SHA-256) — **6/6 detected**: no separator before new Action, empty-lyrics exit kept as lyrics, centered spelled as transition, Enter no longer accepting a suggestion (vitest); fixture without the separator before the first cue (renderer refuses an unpaired dual) and dual marker removed (helper).
+- `pnpm check` **pass**, 932/932 in 63 files; `pnpm test:pdf-helper` **15/15 pass**; `sh tools/lint-py.sh` **pass**, 83 files. Browser and Rust gates as in the session baseline (no runtime or Rust change).
+- Native typed-export case (type in the app, Export PDF, `pdftotext`) — **BLOCKED**: no display, and no drill mode exists for it yet.
+
+Findings, each pinned as found in `tests/contract/typed-scene.test.ts` and tracked in TODO; none fixed here:
+
+- **D07-F1** Character, Enter, Enter (empty Dialogue or after a Parenthetical) converts the placeholder to Action in place with no separator: `@MAYA\n!She leaves.\n`. The renderer prints `!She leaves.` as Maya's dialogue; Script Check gates it (SC001 plus two blocking SC005). S07.2 says a new Action paragraph gets a separator; S07.3 says the empty placeholder "changes" to Action, and `editor-keys.test.ts` pins the in-place bytes. Owner decision. The empty-lyrics exit has the same shape; its text prints intact inside the lyric paragraph.
+- **D07-F2** A note at the end of the document has no keyboard exit: Enter after `]]` is refused ("Note split needs two nonempty, safely delimited note lines"), and Ctrl+2/Tab refuse ("A note needs an explicit whole-region conversion"). S07.2's "explicit exit command" does not exist. Text typed there lands in the note and is omitted from the PDF (visible in the summary).
+- **D07-F3** Choosing Page Break on an empty row leaves the caret before `===`; Enter then inserts above it and typing gives `!x\n===\n`, which prints `===` as text (blocking SC005). `editor-shortcuts.test.ts` pins the caret offset; S07.2 says "position the caret after the nontext break node".
+- **D07-F4** On an empty cue the completion popup opens with every known name selected, so the second Tab of the S07.4 cycle (Action → Character → Scene Heading) accepts a name (S07.6) and leaves a stray cue (blocking SC005). Owner decision on the S07.4/S07.6 order.
+- Observations, not findings: Enter after a fully typed heading time (`DAY`, `NIGHT`) accepts the identical suggestion and needs a second Enter (S07.6 as written); the frozen profile's dual-column parenthetical wraps `(quietly)` as `(quietly` / `)` (layout only, profile frozen).
