@@ -1,6 +1,6 @@
 # ADR 0041 — Protected external Reload
 
-Status: Accepted. Date: 2026-10-03. Task: AUDIT-D08A.
+Status: Accepted direction; Accepted. Date: 2026-10-03. Task: AUDIT-D08A.
 Authority: [SPEC S10.7/S10.8](../../SPEC.md#s10), SAVE-05, INV-05/07/10/20.
 Extends [ADR 0017](0017-explicit-recovery-choices.md); [brief](../tasks/AUDIT-D08A.md).
 

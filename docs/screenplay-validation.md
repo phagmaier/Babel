@@ -158,3 +158,11 @@ wording; none was removed. New corpus cases state the renderer's own paragraph
 classes (`paragraphs`), which the helper test checks against the real parser
 and a vitest test checks against the mirror.
 [Evidence](test-evidence/AUDIT.md#audit-d04-r3--remaining-renderercodec-reading-differences).
+
+## Reading conformance gate
+
+Changes to codec spelling, export assessment, the parser mirror or renderer
+require the [standing differential gate](testing.md#differential-regression-gates)
+and shared independent oracle on both sides. Add a hand-written regression for
+each discovered divergence. A generated-source sweep supplements those cases;
+it does not establish layout/native fidelity or permit baseline retuning.

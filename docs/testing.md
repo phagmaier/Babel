@@ -18,6 +18,44 @@ Browser preview deliberately reports native IPC unavailable. A native smoke must
 
 Use the lowest tier in [development](development.md#check-tiers-use-the-lowest-tier-that-covers-the-change) that covers the change. Tier 1 is docs/text-only; Tier 2 is frontend/Rust logic with full shared gates; Tier 3 adds browser smoke, native drills, and the tmpfs/Btrfs matrix. Focused tests never replace required shared/milestone gates for behavior changes. Skipped Tier 3 items need a one-line rationale in evidence (for example, "no filesystem paths touched, single-filesystem shared run only"). Record elapsed time beside `pnpm check`, `cargo test --workspace`, and any native/matrix run.
 
+## Differential regression gates
+
+Any capture/codec/bridge spelling or renderer/assessment change runs
+`pnpm test:differential` after `pnpm pdf-helper`, plus its named focused tests
+and the shared [assessment oracle](../fixtures/assessment/oracle.json) on both
+sides (`pnpm test` and `pnpm test:pdf-helper`). The dedicated suite is separate
+from unit/UI discovery and runs in CI. A missing baseline/helper is a failure.
+
+- [Capture gate](../tests/differential/capture.test.ts): the full 16-context ×
+  53-text F4 single-row corpus, including natural headings/cues/transitions,
+  plus generated codec edits over BOM, LF/CRLF/CR/mixed endings and EOF.
+  Successes are compared to frozen F4-05 Git source: no new refusal and no
+  changed successful source bytes/line facts. New successes still require
+  independent semantic, exact-byte, reopen and Undo/Redo tests in their brief.
+- [Renderer gate](../tests/differential/renderer.test.ts): the shared oracle
+  plus 70,000 fixed-seed generated ASCII sources, comparing paragraph roles,
+  speech bracket flags, scene numbers and title-page decision with the actual
+  verified pinned parser. Also compare assessment admission to the frozen
+  control: no new unreported reading disagreement or false gate on an agreeing
+  clean source. Source-role heuristic candidates on the frozen control are reported for
+  independent review; accepted profile mappings (such as lyrics) may differ.
+  No new clean candidate is permitted. Parser/mirror comparisons must agree
+  for every admitted corpus source. This is parse-level, not layout/emphasis,
+  Unicode shaping, pixel or native verification.
+- Baseline `8084690` is loaded from Git by the dedicated test configuration;
+  no archived test suite is discovered. Advance it only in a reviewed task
+  that names changed outcomes and independent literal/semantic evidence.
+  Never regenerate expectations or move a baseline merely to clear a failure.
+- Every editor/capture gate includes synthetic externally authored/unforced
+  sources. Force-marked app-authored fixtures alone are insufficient.
+  A new unexplained refusal or disagreement blocks the relevant change until
+  reproduced, scoped in a brief and fixed or explicitly dispositioned.
+
+Optional retained reports: set `BABEL_DIFFERENTIAL_REPORT` to a fresh path
+prefix outside fixtures; the suite writes exclusive-create JSON summaries.
+`BABEL_DIFFERENTIAL_FAULT=capture`, `renderer` or `assessment` injects an in-memory fault
+in the dedicated suite only; all must fail. No product source is modified.
+
 ## Mandatory save faults (SPEC S15.2)
 
 Crash before/after temporary write and replacement, partial write, sync failure, disk full, corrupt journal tail, out-of-order acknowledgements, external edit, second instance, history failure, and interrupted restore/remote adoption. Every failure must preserve known good generations and report truthful status. Real filesystem process-termination tests complement, but do not universally prove, mock fault tests.

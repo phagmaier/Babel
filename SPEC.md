@@ -1,9 +1,9 @@
-# Screenwriter - Product and Engineering Specification
+# babel - Product and Engineering Specification
 
-Version: 1.0 starter specification  
-Prepared: September 27, 2026 (America/Los_Angeles)  
-Status: Approved product direction; implementation and technical proofs not yet completed  
-Working application name: **Screenwriter** (a placeholder, not a branding decision)
+Version: 1.2 living specification
+Prepared: September 27, 2026 (America/Los_Angeles)
+Status: Living product contract; verification and release admission tracked in repository evidence
+Application name: **babel** (owner decision; technical names are mapped in `docs/architecture.md`)
 
 > Build a beautiful, fast, offline desktop screenwriting application that protects the writer's work, uses ordinary Fountain files, produces professional screenplay PDFs, and eventually supports explicit upload/download between the writer's computers. Build the reliable local application before connecting real remote storage.
 
@@ -98,7 +98,7 @@ The central workflow is:
 
 Use a **Tauri 2 desktop shell, React, TypeScript, and Rust**. Tauri uses platform WebViews, so the frontend must be verified in the actual desktop runtime rather than only in a Chromium development browser. See [R03] and [R04].
 
-The user's exact operating systems have not been confirmed. Do not invent that information. During bootstrap, detect and record the build host; provisionally prioritize that host for an initial runnable build, without assuming it represents every target computer. Keep the design portable to Windows, macOS, and Linux. Native release support is earned by testing on each declared OS/architecture, not by choosing a cross-platform framework.
+The owner declared Linux for now on 2026-10-02 (ADR 0040). Exact release distributions/architectures still require confirmation and verification. Do not infer support from the development host. Keep the design portable to Windows, macOS, and Linux. Native release support is earned by testing on each declared OS/architecture, not by choosing a cross-platform framework.
 
 The finished application must run after installation without a development server or a terminal command. A frontend-only browser preview is a development convenience, not the delivered application. No Python, Node.js, Rust toolchain, or Git installation may be silently required on an end user's machine. Any eventual runtime dependency must be bundled or explicitly justified before the release gate.
 
@@ -1141,9 +1141,10 @@ Create only modules with actual bootstrap content or a genuine immediate boundar
 | `SPEC.md` | Product scope, requirement IDs, invariants, milestone gates | New requirements, scope disputes, bootstrap |
 | `AGENTS.md` | Short operating rules and routing | Every agent session |
 | `README.md` | What exists, how to start, current limitations | Human onboarding |
-| `TODO.md` | Dependency-ordered task status and acceptance references | Selecting bounded work |
-| `docs/index.md` | Documentation/code map and section links | Finding the right context |
-| `docs/current-state.md` | Compact current checkpoint and next action | Fresh session or compaction |
+| `TODO.md` | Milestone status and acceptance references; links to audit tracker | Dependencies and status |
+| `map.md` | Static repository navigation and code/document roots | Finding the right context |
+| `docs/index.md` | Compatibility entry linking to map.md | Existing inbound links |
+| `docs/current-state.md` | Compact checkpoint and sole continuation pointer, subject to user assignment and dependencies | Fresh session or compaction |
 | `docs/development.md` | Verified commands, versions, environment, platform prerequisites | Build/test/setup |
 | `docs/architecture.md` | Module boundaries, IPC, state ownership | Cross-cutting changes |
 | `docs/document-model.md` | Source/model ownership and fidelity contracts | Codec and editing |
@@ -1213,7 +1214,7 @@ Update it before a natural stop, a handoff, or known context pressure. Do not pa
 
 ### 18.4 Parallel work and review
 
-Parallelize only independent tasks with explicit file ownership. One coordinator owns shared task/status docs, dependency changes, interfaces, and integration. Prefer isolated branches/worktrees when available and approved; do not allow workers to overwrite each other's files in a shared working tree.
+Parallelize only independent tasks with explicit file ownership. One coordinator owns shared task/status docs, dependency changes, interfaces, and integration. The coordinator works and commits on main by default (AGENTS.md). Explicitly approved isolated workers may use branches/worktrees; shared-tree workers must have disjoint file ownership. Never amend a published commit or overwrite another worker's changes.
 
 Subagents return a compact summary of decisions, touched files, tests, and risks, not entire logs. Avoid recursive agents for routine tasks. After each milestone, run a separate review focused on requirement drift, data-loss paths, tests, and implementation/documentation agreement. Reviewer claims still require verification.
 
@@ -1253,7 +1254,7 @@ A proof is a bounded question with an exit criterion, not production feature imp
 
 ### 19.3 Defaults that do not need to block bootstrap
 
-Use the placeholder name Screenwriter, the actual host as provisional primary development platform, continuous editor as the product default, Letter as the first profile, a single frontend package, a small Rust workspace, no database for source content, no real remote account, and no telemetry.
+Use the owner-selected application name babel, the actual host as provisional primary development platform, continuous editor as the product default, Letter as the first profile, a single frontend package, a small Rust workspace, no database for source content, no real remote account, and no telemetry.
 
 Leave exact PDF engine, Git library, remote provider/authentication, provider-blind encryption, and verified platform coverage as explicit later decisions. This is intentional sequencing, not permission to ignore those tasks.
 
@@ -1318,3 +1319,5 @@ and Git fetch at https://git-scm.com/docs/git-fetch.
 
 - 1.0: Initial standalone specification, incorporating the agreed writing workflow, staged local/remote delivery, and explicit evidence/safety gates. No application implementation is included in this starter package.
 - 1.1 (2026-10-03): Removed the deleted `BOOTSTRAP_PROMPT.md` from the S17.1 structure listing. No requirement, invariant, or gate changed.
+
+- 1.2 (2026-10-05, INFRA-INSTRUCTIONS): Align the established babel name, Linux-first declaration, static navigation, single continuation pointer and main/approved-isolation workflow. No product behavior, safety invariant or release gate weakened.

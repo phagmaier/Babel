@@ -1,6 +1,6 @@
 # ADR 0038 — Bundled offline PDF viewer
 
-Status: Accepted for bounded Linux M5-05. Date: 2026-10-02.
+Status: Accepted direction; Accepted for bounded Linux M5-05. Date: 2026-10-02.
 
 Context: [M5-05](../tasks/M5-05.md), PDF-02 and INV-10/11/13/14 require
 read-only printed pages and exact-count freshness without a second paginator.

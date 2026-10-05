@@ -19,7 +19,10 @@
     "build": "tsc --noEmit && vite build",
     "pdf-helper": "python3 tools/pdf-helper/build.py",
     "test:pdf-helper": "python3 tools/pdf-helper/test_helper.py",
-    "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build"
+    "check": "pnpm check:guidance && pnpm check:links && pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build",
+    "check:links": "python3 tools/check-links.py --all",
+    "check:guidance": "python3 tools/check-guidance.py",
+    "test:differential": "vitest run --config tests/differential/vitest.config.ts"
   },
   "dependencies": {
     "@tauri-apps/api": "2.12.0",

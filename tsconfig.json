@@ -12,7 +12,10 @@
     "noUncheckedIndexedAccess": true,
     "noEmit": true,
     "allowImportingTsExtensions": true,
-    "types": ["vite/client", "vitest/globals", "node"]
+    "types": ["vite/client", "vitest/globals", "node"],
+    "paths": {
+      "@baseline/*": ["./src/*"]
+    }
   },
   "include": ["src", "tests", "prototypes", "vite.config.ts"]
 }

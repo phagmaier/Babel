@@ -1,6 +1,6 @@
 # ADR 0040: Linux first, preserve future portability
 
-Status: **Accepted owner direction**
+Status: **Accepted direction; Accepted owner direction**
 Date: 2026-10-02. Task: M6-01.
 
 ## Decision

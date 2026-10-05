@@ -97,26 +97,41 @@ and retained limitations: [DEV-01 evidence](test-evidence/M5.md#dev-01--laptop-d
 
 ## Commands
 
-| Goal                | Command                                                 | Scope                                               |
-| ------------------- | ------------------------------------------------------- | --------------------------------------------------- |
-| Install             | `pnpm install --frozen-lockfile`                        | Dependencies only                                   |
-| Browser preview     | `pnpm dev`                                              | Vite; native services absent                        |
-| Desktop development | `pnpm tauri dev`                                        | Real Tauri/WebKit runtime                           |
-| Format              | `pnpm format:check`                                     | Source/docs except excluded byte-sensitive inputs   |
-| Lint                | `pnpm lint`                                             | Frontend/tool JS/TS                                 |
-| Typecheck           | `pnpm typecheck`                                        | Strict TypeScript                                   |
-| Unit/UI             | `pnpm test`                                             | Vitest/JSDOM; native port injected                  |
-| Browser smoke       | `pnpm test:browser`                                     | System Chromium + Playwright core                   |
-| Frontend build      | `pnpm build`                                            | Typecheck + Vite                                    |
-| Aggregate           | `pnpm check`                                            | Format, lint, typecheck, tests, build               |
-| Rust format         | `cargo fmt --all -- --check`                            | Workspace                                           |
-| Rust lint           | `cargo clippy --workspace --all-targets -- -D warnings` | Workspace/native libs required                      |
-| Rust unit           | `cargo test --workspace`                                | Includes host command wiring                        |
-| Core unit           | `cargo test -p screenwriter-core`                       | No WebView                                          |
-| Desktop package     | `pnpm tauri build`                                      | Native package; platform prerequisite gate          |
-| PDF helper          | `pnpm pdf-helper`; `pnpm test:pdf-helper`               | M5-01 bundled renderer build/self-test              |
-| Link check          | `python3 tools/check-links.py`                          | Tracked Markdown relative-link check (Tier 1 gate)  |
-| Workspace matrix    | `python3 tools/run-workspace-matrix.py <tmpfs> <btrfs>` | Tier 3 `cargo test --workspace` on both filesystems |
+| Goal                | Command                                                 | Scope                                                                    |
+| ------------------- | ------------------------------------------------------- | ------------------------------------------------------------------------ |
+| Install             | `pnpm install --frozen-lockfile`                        | Dependencies only                                                        |
+| Browser preview     | `pnpm dev`                                              | Vite; native services absent                                             |
+| Desktop development | `pnpm tauri dev`                                        | Real Tauri/WebKit runtime                                                |
+| Format              | `pnpm format:check`                                     | Source/docs except excluded byte-sensitive inputs                        |
+| Lint                | `pnpm lint`                                             | Frontend/tool JS/TS                                                      |
+| Typecheck           | `pnpm typecheck`                                        | Strict TypeScript                                                        |
+| Unit/UI             | `pnpm test`                                             | Vitest/JSDOM; native port injected                                       |
+| Browser smoke       | `pnpm test:browser`                                     | System Chromium + Playwright core                                        |
+| Frontend build      | `pnpm build`                                            | Typecheck + Vite                                                         |
+| Aggregate           | `pnpm check`                                            | Format, lint, typecheck, tests, build                                    |
+| Rust format         | `cargo fmt --all -- --check`                            | Workspace                                                                |
+| Rust lint           | `cargo clippy --workspace --all-targets -- -D warnings` | Workspace/native libs required                                           |
+| Rust unit           | `cargo test --workspace`                                | Includes host command wiring                                             |
+| Core unit           | `cargo test -p screenwriter-core`                       | No WebView                                                               |
+| Desktop package     | `pnpm tauri build`                                      | Native package; platform prerequisite gate                               |
+| PDF helper          | `pnpm pdf-helper`; `pnpm test:pdf-helper`               | M5-01 bundled renderer build/self-test                                   |
+| Link check          | `pnpm check:links`                                      | Full tracked Markdown links/anchors (CI); changed links for local Tier 1 |
+| Workspace matrix    | `python3 tools/run-workspace-matrix.py <tmpfs> <btrfs>` | Tier 3 `cargo test --workspace` on both filesystems                      |
+
+`pnpm check` also runs full links and guidance budgets/status checks.
+`pnpm test` discovers only current contract/UI tests under `tests/`; archives
+under `target/` cannot inflate totals. `pnpm test:differential` is the separate
+[capture/renderer gate](testing.md#differential-regression-gates), requiring the
+verified helper and full Git history. `python3 -m unittest discover -s tests/tools -p 'test_*.py'`
+checks guidance failure detection.
+
+CI runs full links/guidance, frontend/unit/build, Rust format/core/workspace
+and Clippy, built-helper tests, differential probes, downloaded pinned
+Playwright Chromium smoke and the Linux desktop package build. Browser smoke
+remains Chromium, not native WebKit. CI does not run the owner-host IME/native
+writing drills, tmpfs/Btrfs matrix, installed/offline adoption or release pilot;
+those remain named task/release gates. Helper builds and native builds run
+sequentially. Git checkout includes history for the pinned differential control.
 
 M1-02 native editor and M1-06 composition pages were retired in
 [AUDIT-SLP-B](tasks/AUDIT-SLP-B.md); historical commands require the pre-deletion

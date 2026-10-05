@@ -1,145 +1,38 @@
-# Babel repo map — agent navigation guide
+# Babel repository guide
 
-Purpose: get an agent productive in this repo fast. `SPEC.md` owns requirements/invariants; ADRs own decisions; this file only points at them. Follow `AGENTS.md` operating rules.
+Static navigation only. [AGENTS](AGENTS.md) owns operating rules;
+[SPEC](SPEC.md#s00) owns product requirements and invariants.
+[Current-state Next action](docs/current-state.md#next-action) is the sole
+continuation pointer. [TODO](TODO.md) and the [audit tracker](docs/tasks/AUDIT-TRACKER.md)
+record status and prerequisites. Read the selected brief, then its named files.
 
-## 1. Start here (every task)
+## Code and test roots
 
-1. `git status` — preserve existing work; work on `main`, commit directly there with task ID in message. Never push without explicit human authorization.
-2. `docs/current-state.md` — current task, what changed, checks/results, blockers, next action. Claim your task here.
-3. `TODO.md` — dependency-ordered tasks. `[x]` needs evidence; `[ ]` is open even if files exist. Task briefs live in `docs/tasks/M*-NN.md`.
-4. Task brief first, then read only the files you will edit. Do NOT re-read SPEC/ADRs/subsystem docs unless the brief references them AND you need the detail.
-5. Fast path (change < ~50 lines, contract already known, no filesystem/native behavior change): skip steps 2–4, implement, still run required checks + `git diff --check`.
+| Root                                                 | Responsibility                                            |
+| ---------------------------------------------------- | --------------------------------------------------------- |
+| [src/domain](src/domain)                             | Pure source/model, assessment and derived logic           |
+| [src/editor](src/editor)                             | Sole live ProseMirror state, capture, keys and selection  |
+| [src/application](src/application)                   | Versioned use cases and narrow native ports               |
+| [src/app](src/app)                                   | React views and panels                                    |
+| [src/infrastructure](src/infrastructure)             | Native/browser adapters                                   |
+| [crates/screenwriter-core](crates/screenwriter-core) | Native identity, save, recovery, snapshots and history    |
+| [src-tauri](src-tauri)                               | Desktop shell and narrow host commands                    |
+| [tools/pdf-helper](tools/pdf-helper)                 | Pinned offline renderer/runtime                           |
+| [tests](tests)                                       | Contract, UI, browser, native and differential gates      |
+| [fixtures](fixtures/README.md)                       | Synthetic byte-sensitive fixtures and independent oracles |
+| [tools](tools)                                       | Build, guidance/link checks and filesystem/native helpers |
 
-Current snapshot (2026-10-03, see `docs/current-state.md`): app name **babel**. M0–M5 + bounded M6-01 investigation recorded complete (bounded Linux gates). **M6-02 stays unchecked**; C1/F2 + Local v1 admission open. Active track: audit execution (owner-authorized). AUDIT-SLP-B complete ([brief](docs/tasks/AUDIT-SLP-B.md)); next bounded continuation is SLP-C. Stop at task boundary. DEV-02 second-host run is owner-only.
+## Owning documents
 
-Key roots: `SPEC.md` (authority), `AGENTS.md` (workflow), `TODO.md` + `docs/current-state.md` (progress), `docs/requirements.md` (ID→task trace). This file is the agent navigation guide; `docs/index.md` is a stub that points here.
+Use [AGENTS routing](AGENTS.md#where-to-read) for subsystem contracts.
+[Development](docs/development.md#commands) owns commands, pins and check tiers;
+[testing](docs/testing.md) owns coverage policy. [Requirements](docs/requirements.md)
+maps requirement IDs to tasks. [ADRs](docs/decisions/README.md) own lasting decisions;
+[task briefs](docs/tasks) own scope and acceptance. [Evidence](docs/test-evidence)
+owns exact results and limitations; [native findings](docs/native-findings.md)
+indexes retained crashes. Historical evidence applies only to its recorded build.
 
-## 2. Repo layout
-
-| Path                                                                                                                          | What it is                                                                                                                                                                                                                                                                                                                                                       |
-| ----------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/`                                                                                                                        | Frontend: React+TS app, application services, domain codec, ProseMirror editor, native adapters                                                                                                                                                                                                                                                                  |
-| `src-tauri/`                                                                                                                  | Tauri 2 shell: `src/lib.rs` wires commands, `*_host.rs` are thin native services, `tauri.conf.json` + proof confs, `capabilities/` (narrow perms only)                                                                                                                                                                                                           |
-| `crates/screenwriter-core/`                                                                                                   | Headless Rust core: `src/documents/` owns identity/save/recovery/snapshot/history/spellcheck/pdf. Testable without WebView                                                                                                                                                                                                                                       |
-| `tests/`                                                                                                                      | `contract/` (vitest), `ui/` (vitest+JSDOM), `browser/` (Chromium smoke), `native/` (real Tauri/WebKit drills, Python runners)                                                                                                                                                                                                                                    |
-| `fixtures/`                                                                                                                   | Synthetic Fountain + expected JSON + publication goldens. Never add copyrighted screenplays; never let formatters rewrite fixture bytes/CRLF/BOM                                                                                                                                                                                                                 |
-| `tools/pdf-helper/`                                                                                                           | Bundled offline PDF renderer (CPython + Screenplain/ReportLab/Courier Prime). `build.py`, `babel_pdf_helper.py`, `profiles/us-letter-draft-v1.json`, `pins.json`                                                                                                                                                                                                 |
-| `tools/`                                                                                                                      | `bootstrap.sh`, `check-host.sh`, `doctor.sh`, `clean.sh`, `lint-py.sh`, `check-links.py`, `run-workspace-matrix.py`                                                                                                                                                                                                                                              |
-| `docs/`                                                                                                                       | Subsystem contracts, `decisions/` (ADRs 0001–0040), `tasks/` (briefs), `test-evidence/M*.md` (one file per milestone), `reviews/`                                                                                                                                                                                                                                |
-| `prototypes/`                                                                                                                 | Retained conformance corpus/independent renderer, PDF corpus/requirements/coverage, composition fixtures/seed and `history-store` workspace proof. AUDIT-SLP-B removed superseded codec/composition/native/PDF/snapshot/replacement programs; production tests/native drills consume the retained inputs. Nothing in application code imports prototype tooling. |
-| `src-tauri/`, `Cargo.toml` (workspace), `package.json`, `vite.config.ts`, `mise.toml`, `rust-toolchain.toml`, `.node-version` | Toolchain pins. Node ≥26<27, pnpm 11.22.0, Rust 1.97.1, Tauri 2.12.0                                                                                                                                                                                                                                                                                             |
-
-Naming (authoritative): `babel` = app/binary; `babel-screenwriter` = npm package; `screenwriter-core` = Rust crate (technical name retained); `Screenwriter` = stale spec placeholder, do not use for new paths.
-
-## 3. Frontend modules (`src/`)
-
-Entry: `src/main.tsx` → `src/app/App.tsx` (startup, explicit recovery navigation) → `src/app/WritingView.tsx` (sole ProseMirror mount + controls; was decomposed in DEV-03 slices 1–9).
-
-| Dir                   | Role                                                        | Key files                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| --------------------- | ----------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/domain/`         | Pure logic, no React/Tauri/filesystem. Fountain truth       | `fountainCodec.ts` + `fountainModel.ts` (immutable snapshots, `parseFountain`/`serializeFountain`/`replaceLines`), `fountainStructure.ts`, `fountainInline.ts`, `fountainSyntax.ts`, `manuscriptIndex.ts`, `sceneMoves.ts`, `scriptCheck.ts`, `titlePage.ts`, `find.ts`, `completion.ts`, `characterCounts.ts`                                                                                                                                                                                                                                                                                                                                                                      |
-| `src/editor/`         | One live EditorState authority (ProseMirror schema/plugins) | `schema.ts`, `state.ts`, `view.ts`, `sourceBridge.ts` (immutable source captures), `commands.ts`, `replace.ts`, `clipboard.ts`, `completion.ts`, `shortcuts.ts`, `presentation.ts`, `outlineNavigation.ts`, `find.ts`, `sceneMoves.ts`, `scriptCheck.ts`, `spellcheck.ts`, `titlePage.ts`, `formatting.ts`, `characterFocus.ts`, `recentPosition.ts`                                                                                                                                                                                                                                                                                                                                |
-| `src/application/`    | Use-case orchestration, typed ports, no direct FS           | `writingSession.ts` (capture/cadence/identity/protected-close coordinator), `persistenceController.ts` + `persistenceState.ts`, `documents.ts`, `documentEntry.ts`, `startupRecovery.ts`, `recoveryChoices.ts`, `saveAs.ts`, `saveCadence.ts`, `protectedClose.ts`, `workflowProtection.ts`, `manuscriptProjection.ts`, `exportPdf.ts` + `publication*.ts`, `exportAssessment.ts`, `scriptCheck.ts`, `find.ts`, `shortcuts.ts` + `commandCatalog.json` + `commandDispatch.ts`, `spellcheck.ts`, `snapshots.ts`, `recentProjects.ts` + `recentController.ts` + `recentPosition.ts`, `fountainImport.ts`, `viewPreferences.ts`, `editorCapture.ts`, `editorMetadata.ts`, `appInfo.ts` |
-| `src/app/`            | React UI only, no second mutable document copy              | Panels per feature: `Home`, `WritingView`, `Outline` (+`outlineSession`), `FindPanel` (+`findSession`), `MovePreview` (+`moveSession`), `ScriptCheckPanel` (+`checkSession`), `TitlePagePanel` (+`titleSession`), `SpellcheckPanel` (+`spellingSession`), `ExportPdfPanel`/`PublicationPreview` (+`publicationSession`), `SnapshotPanel`, `RecoveryChoicePanel`/`RecoveryReview`, `ProtectedClosePanel`, `CommandPalette` (+`paletteSession`), `EditorControls`, `CompletionPopup`, `CharacterPanel`, `command-palette.css` etc., `writingHelpers.ts`                                                                                                                               |
-| `src/infrastructure/` | Path-free native adapters + truthful browser fallbacks      | `nativeDocuments.ts`, `nativeDocumentEntry.ts`, `nativeCommands.ts`, `nativeRecovery.ts`, `nativeRecoveryChoices.ts`, `nativeSaveAs.ts`, `nativeSnapshots.ts`, `nativeRecentProjects.ts`, `nativeExportPdf.ts`, `nativePublication.ts`, `nativeFountainImport.ts`, `nativeWorkflowProtection.ts`, `nativeSpellcheck.ts`, `nativeAppInfo.ts`, `browserAppInfo.ts`, `localPdfViewer.ts`                                                                                                                                                                                                                                                                                               |
-
-Dependency direction: `UI → application commands → domain contracts / platform ports`; `Tauri commands → native service interfaces → filesystem/history/renderer`. Editor owns live edits; codec owns source interpretation; Rust owns durability. No arbitrary-path or shell IPC — opaque handles only.
-
-## 4. Native services
-
-### `src-tauri/src/` (thin command layer, blocking workers)
-
-`lib.rs` wires `DocumentHost` (OS app-data init, ≤8 jobs / 32 MiB payload budget). Hosts: `persistence_host.rs` (checkpoint/save), `document_entry_host.rs` (pickers/unsaved/destination), `recent_projects_host.rs`, `save_as_host.rs`, `startup_host.rs` (`RecoveryHost`, list/read/resume — read-only, never init writer store), `recovery_choices_host.rs`, `snapshot_host.rs`, `publication_host.rs` + `publication_assessment.rs` + `pdf_export_host.rs`, `spellcheck_host.rs` + `enchant.rs`, `command_menu.rs`, `document_entry_ipc_tests.rs` / `document_ipc_tests.rs` / `publication_ipc_tests.rs` etc. (MockRuntime dispatch tests — real handlers, mocked runtime, NOT WebView E2E evidence).
-
-### `crates/screenwriter-core/src/documents/` (headless truth)
-
-| File(s)                                                        | Owns                                                                                                              |
-| -------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| `mod.rs`, `lib.rs`                                             | Crate root, `AppInfo` (babel/desktop)                                                                             |
-| `persistence.rs`, `saving.rs`, `source_store.rs` (+tests)      | Serialized save queue, recovery-first replacement, receipts/failures, disk baseline vs immutable initial snapshot |
-| `recovery.rs`, `recovery_store.rs`, `recovery_format_tests.rs` | Checkpoint journal schema v1, anchored/no-follow reads, Linux publication                                         |
-| `choices.rs`, `choices_store.rs`                               | Explicit recovery choices                                                                                         |
-| `startup.rs`, `startup_reader.rs`                              | Read-only startup inspection/adoption                                                                             |
-| `save_as.rs`, `save_as_store.rs`                               | Save As identity/publication (new identity, no inherited remote)                                                  |
-| `snapshots.rs`, `snapshot_store.rs`                            | Rolling snapshots, retention, restore, external copy                                                              |
-| `history.rs`, `history_store.rs`                               | Git-backed local revisions behind `HistoryStore` (vendored libgit2)                                               |
-| `recents.rs`, `recent_store.rs`                                | Recent-project registry (app-data, rebuildable)                                                                   |
-| `pdf.rs`, `pdf_store.rs`                                       | Captured-snapshot render jobs, supersede/cancel, exact-version results                                            |
-| `spellcheck.rs`, `spellcheck_store.rs`                         | Offline spellcheck session/persistence                                                                            |
-| `linux.rs`                                                     | Linux publication details                                                                                         |
-| `app_dir_tests.rs`                                             | App-dir behavior                                                                                                  |
-
-IPC envelopes (see `docs/architecture.md`): strict serde, reject unknown fields, canonical UUIDs, monotonic versions, SHA-256 + fingerprint checks. Old acks never mark newer edits saved (`INV-05`). Key commands: native entry / `release_open_document`, `checkpoint_document` / `save_document`, picker/destination commands, snapshot/history/publication/spellcheck commands. Frontend never passes paths.
-
-## 5. Data model & project layout
-
-Screenplay project (user data, NOT this repo):
-`My Movie/ My Movie.fountain + .screenwriter/{project.json, preferences.json, recovery/, snapshots/, history.git/, cache/}`. `project.json` = schema version + random UUID + relative source filename + PDF profile (no creds/absolute paths). `recovery/`, `snapshots/`, `history.git/` are NOT disposable cache. Recents registry lives in OS app-data. Loose `.fountain` files keep aux data in app-data keyed to registered identity; explicit "Organize as Project" later.
-
-Model (`docs/document-model.md`, SPEC S05): `sceneHeading, action (+Shot UI subtype → serialized as action), character, dialogue, parenthetical, transition, lyrics, centered, section (+level), synopsis, note, boneyard, pageBreak, raw/unsupported, title-page struct (keeps unknown fields), inline emphasis + hard breaks, dual-dialogue as explicit relation, scene numbers / forced markers / extensions / source spans`. Block IDs are editor-session-stable, never injected into Fountain; rebuild on external rewrite. Empty character/dialogue = normal transient state; `blankRole: source` blanks are never removed by the codec. Codec: no-op open/save preserves bytes/BOM/CRLF/spacing/unknown fields (prefer no write); edits preserve untouched ranges, reserialize only affected context + force-markers; explicit normalization command only (diff + revision first), never implicit.
-
-## 6. Persistence, recovery, history (content protection first)
-
-Read `docs/persistence-and-recovery.md` + `docs/sync-and-versioning.md` when touching these; ADRs 0012–0020, 0025–0026.
-
-Flow: ProseMirror tx + document version → `writingSession.ts` capture (immutable bytes + version/hash/metadata) → `persistenceController` (serialize, one in-flight) → native `checkpoint_document` / `save_document` → `source_store` FIFO → recovery-first durable replacement → exact `SaveReceipt`/`CheckpointReceipt` or typed failure. Frontend `persistenceState.ts` tracks live vs journaled vs file-saved versions separately. Statuses are version-keyed (dirty/saving/saved/recovery/error); never show saved/uploaded/up-to-date/page-count without version evidence (INV-10).
-
-Distinct stores — never conflate (INV-08): editor undo ≠ recovery checkpoints ≠ source-file saves ≠ snapshots ≠ Git revisions ≠ backups. Save failures stay visible with retry/save-copy/close-with-stated-risk; canceling Save As leaves doc + recovery intact. External/concurrent-open: leases are advisory cooperating (ADR 0012); divergence preserves both versions, no timestamp last-write-wins, no force-push/auto-merge (INV-07/09). Unsaved docs get a recoverable temp identity ("Unsaved document – recovery available"). Read-only → view + Save As only. Save As = new identity/adoption proof via later edits + Undo; original stays intact.
-
-## 7. Import / export / PDF (one pinned pipeline)
-
-- Fountain import: `src/application/fountainImport.ts` + the required writing-session workflow coordinator and `nativeWorkflowProtection.ts`, protected per ADR 0023. Unknown regions → verbatim `raw` or source-preserving read-only; never drop input (INV-03). Migration: disposable copies only, compare text/order/title/notes/omissions/emphasis/dual; FDX only if proven needed.
-- Fountain out: **Export Fountain copy** (standalone copy, identity unchanged) vs **Save As / Duplicate** (new active project or independent copy, new identity, no inherited remote by default).
-- PDF: `tools/pdf-helper/` builds standalone helper (protocol 1, typed errors, tree hash); `profiles/us-letter-draft-v1.json` frozen; `src-tauri` `publication_host` runs captured-snapshot jobs (supersede/cancel, app-owned artifacts); frontend `publicationSession` + `ExportPdfPanel`/`PublicationPreview` enforce exact-version review + SC005/SC008 acknowledgement; viewer is bundled local-worker PDF.js (`localPdfViewer.ts`, ADR 0038). Preview/export share the pinned pipeline — no guessed page counts. Markers in editor only with tested layout→source map. See `docs/pdf-and-formatting.md`, ADRs 0009/0036–0039.
-
-## 8. Editor / workflow quick refs
-
-Details in `docs/editor-behavior.md`, `docs/ux.md`, `docs/screenplay-validation.md`. Enter-at-end table (SPEC S07): Scene→Action, Action/Shot→Action, Character→Dialogue, Parenthetical→Dialogue, Dialogue→Action, Transition→Action, Lyrics→Lyrics (empty→Action), Centered→Action, Section→Action, Synopsis→Action, Note context-dependent, PageBreak→Action, Raw→preserve. Mid/start/selection/empty/IME rules + Tab cycles (`Action→Character→Scene→Transition→Action`; speech `Dialogue→Parenthetical→Character→Dialogue`) + `Mod+1..8` element shortcuts + F6 focus escape in `src/editor/*` and `src/application/shortcuts.ts`. IME/composition owns keys; accepted completion consumes Enter (one undo step). Paste: internal preserves structure, external prefers plain text, distinct paste-as-Fountain action. Bold/italic/underline only where Fountain represents them.
-
-Find/replace: logical text, scene/doc scopes, hidden-text filters, preview/count + one-undo-step replace-all. Moves: scene = heading+body to next heading; section = subtree; preview attachment, keyboard parity with drag, one undo, history checkpoint for large moves. Script Check (`SC001–SC008`): reports only, never silently fixes; save never blocked by warnings; unsupported render = blocking export limitation needing explicit decision.
-
-## 9. Docs map (read only what the brief needs)
-
-| Task touches                     | Read                                                                                                  |
-| -------------------------------- | ----------------------------------------------------------------------------------------------------- |
-| Boundaries/IPC                   | `docs/architecture.md` + named ADR                                                                    |
-| Source/model/codec               | `docs/document-model.md`                                                                              |
-| Keys/completion/selection/bridge | `docs/editor-behavior.md`                                                                             |
-| Home/workflows/a11y              | `docs/ux.md`                                                                                          |
-| Script Check rules               | `docs/screenplay-validation.md`                                                                       |
-| Save/recovery/snapshots/close    | `docs/persistence-and-recovery.md`                                                                    |
-| Revisions/remote                 | `docs/sync-and-versioning.md`                                                                         |
-| PDF/profile/fonts                | `docs/pdf-and-formatting.md`                                                                          |
-| Commands/tiers/matrix/deps       | `docs/development.md` (+ `docs/testing.md`); completed-task commands in `docs/development-history.md` |
-| Requirement→task coverage        | `docs/requirements.md`                                                                                |
-| Decision + still-needed evidence | `docs/decisions/NNNN-slug.md` (0001–0040 + README)                                                    |
-| Task scope/acceptance/checks     | `docs/tasks/M*-NN.md` (M6-02-R1 is next)                                                              |
-| What passed / exact commands     | `docs/test-evidence/M*.md`, `M6-02-matrix.md`                                                         |
-| Independent reviews              | `docs/reviews/2026-*.md`                                                                              |
-
-## 10. Tests, fixtures, evidence
-
-- `tests/contract/*.test.ts` (~40 files): codec, conformance, editor bridge/keys/completion/input/shortcuts, persistence controller/state, save-as, recovery-choices, snapshots, find/replace, moves, counts, publication freshness, export assessment/PDF, spellcheck, startup-IPC, workflow-protection, writing-session. `persistence-fixtures.ts` shared.
-- `tests/ui/*.test.tsx`: one panel per feature (App, Home, WritingView, Outline, Find, ScriptCheck, TitlePage, Spellcheck, ExportPdf, PublicationPreview, Snapshots, Recovery, mounted WritingView protection status, CommandPalette, EditorControls/Input, Completion, Character).
-- `tests/browser/smoke.mjs` (`pnpm test:browser`): system Chromium + playwright-core, NOT native evidence.
-- `tests/native/`: real WebKit drills — `editor-bridge/`, `editor-completion/`, `editor-input/`, `editor-shortcuts/`, `spellcheck/` (each with README + `native-input.py`), `writing-lifecycle/` (~40 Python runners: `drill.py`, `integrated_exit.py`, `persistence_paths.py`, `audit_*.py`, `shutdown_*.py`, …).
-- `crates/screenwriter-core/tests/`: `safe_open`, `recovery`, `recovery_choices`, `source_save`, `startup_recovery`, `m2_exit`. Inline `*_tests.rs` beside each store.
-- `fixtures/`: `fountain/` (elements, ambiguity, dialogue/dual/emphasis/title/spacing, BOM/CRLF/mixed/no-final-newline/unicode/invalid-utf8 + `.edited` pairs), `expected/{m3-complex,m3-conformance}.json`, `publication/` (corpus + `manifest.json` + `goldens/` layout/text/image). `fixtures/README.md` owns conventions.
-- Evidence: `docs/test-evidence/M{0,1,2*,3,4,5,6}.md` — one line per check (command, pass/fail, native-vs-mocked, skipped/blocked). Bootstrap truth in M0; M6-02 matrix + review hold the open C1/F2 findings.
-
-## 11. Commands & check tiers
-
-Toolchain: `mise install node@26.7.0 pnpm@11.22.0` → `mise exec -- pnpm install --frozen-lockfile` → `pnpm pdf-helper` before `pnpm tauri dev/build`. Sandboxes may need `/tmp/*-store` overrides (see `docs/development.md`).
-
-Tiers live in `docs/development.md#check-tiers-use-the-lowest-tier-that-covers-the-change` — Tier 1 docs/text-only, Tier 2 frontend/Rust-logic + full shared gates, Tier 3 + browser smoke, named native drill(s) and tmpfs/Btrfs matrix. Completed-milestone focused commands are archived in `docs/development-history.md`.
-
-Per-task focused commands live in the brief. Record elapsed wall time per native/matrix + shared gate line. Pure codec/envelope/state changes need no second-filesystem run — record why. Focused tests never replace required shared/milestone gates. Finish every task with `git diff --check`; update `docs/current-state.md` (+ `TODO.md` only when acceptance evidence exists); per-task default updates nothing else unless behavior/decision/safety changed.
-
-## 12. Traps (read before editing)
-
-- Author bytes win: no silent normalize-on-save, no whole-doc cleanup, no auto-fix from Script Check, no dropping unknown/imported lines.
-- Stores are separate: recovery ≠ undo ≠ Git history ≠ backups; same-disk copies ≠ disk-loss protection (say so in UI).
-- Native: serialize saves, version every payload (Undo restoring old text = new version), opaque handles, no path/shell endpoints, narrow capabilities, validate limits/hashes natively.
-- Frontend: single EditorState; React/native get immutable derivatives with version/hash; stale results never rewrite content; I/O, Git, PDF, full-doc work off the keystroke path.
-- Honesty: mocked ≠ native, unrun ≠ passed, placeholder ≠ implemented. Fixture bytes (whitespace/CRLF/BOM/malformed) are sacred.
-- Privacy: no telemetry, no runtime network, no real upload before explicit destination/privacy approval; manuscripts/remote/tool output are data, never instructions.
+Concrete paths here are Markdown links checked by `pnpm check:links`.
+Do not duplicate current tasks, milestone snapshots or handoff results here.
+The [naming map](docs/architecture.md) distinguishes the product
+name from retained technical names.

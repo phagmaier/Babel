@@ -212,3 +212,5 @@ explicit Reload/Keep editing/separate-copy routes. Ordinary source guards and
 independent recovery remain authoritative. [Brief](tasks/AUDIT-D08A.md) and
 [evidence](test-evidence/AUDIT.md#audit-d08a--protected-external-reload) define the
 bounded Linux coverage; target/storage/sync-product acceptance remains M6.
+
+[INFRA-INSTRUCTIONS](tasks/INFRA-INSTRUCTIONS.md) adds standing capture/renderer differential, guidance/link and CI checks to QA-01. [Evidence](test-evidence/INFRA-INSTRUCTIONS.md) records scope and results; native/release obligations remain open.

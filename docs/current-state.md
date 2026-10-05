@@ -1,80 +1,64 @@
-# Current state — emptied EOF rows 2026-10-05 (owner host)
+# Current state — instruction maintenance 2026-10-05
 
-Date: 2026-10-05. Application: **babel**. Work on `main` over `409d3f3`.
-The initial tree was clean. Local `origin/main` is now `beac0fc`, an alternate
-F4-04 commit whose difference from `409d3f3` is docs only; the supplied
-handoff's remote-ref count is stale. No integration or push authorized.
-Owner reviews first. M0–M5 and bounded M6-01 remain recorded complete.
-**M6-02, C1/F2 and Local v1 admission remain open.** Host: owner laptop,
-uid 1000, Hyprland display, Btrfs repo, tmpfs `/tmp`.
+Application: **babel**. Work on `main`; owner authorizes maintenance and push.
+Product development is paused. **M6-02, C1/F2 and Local v1 admission stay open.**
 
 ## This session
 
-**AUDIT-PARK-H-F4-05 done**, owner decided 2026-10-04.
-[Deliverable](tasks/AUDIT-PARK-H-F4.md#f4-05-deliverable-and-acceptance)
-written before code; [evidence](test-evidence/AUDIT.md#audit-park-h-f4-05--emptied-unterminated-last-rows).
+**INFRA-INSTRUCTIONS implemented; publication/CI review pending.**
+[Brief](tasks/INFRA-INSTRUCTIONS.md), [evidence](test-evidence/INFRA-INSTRUCTIONS.md).
 
-- Codec adds one local/file-convention ending when an emptied unterminated
-  physical row would disappear. Existing recovery-only intent retains its
-  element. An emptied numbered heading stays refused, number intact.
-- Product path: `src/domain/fountainCodec.ts` only. New
-  `tests/contract/empty-eof-row.test.ts` (35 cases), mounted mocked-port case,
-  and native `empty-heading` phase I (Heading/Dialogue/Parenthetical).
-  Exact-shape incumbent assertions updated; parser/commands/schema/native
-  product code unchanged. Owning docs and native guide updated.
-- Red **27 fail / 16 pass**. Corrected final focused **188/188 pass**.
-  Differential **13,792 edits**: 0 new refusals, 0 changed successful bytes
-  or line facts; 176 emptied unterminated rows now save. All raw results
-  retained in `target/audit-park-h-f4-05/`.
-- Shared gates pass: tracked **1319/1319**, aggregate **2182/2182** in
-  135 files (74 tracked plus 61 currently retained archive files), helper
-  **16/16**, Rust **273/273**, fmt/Clippy, browser and fresh release. Earlier
-  test/setup/cache failures retained and explained in evidence. Native
-  `empty-heading` including phase I **2/2 content and strict** on tmpfs/Btrfs;
-  all 12 new phase-I source/reopened files match independent literal bytes.
-  Five Btrfs capture/export regression modes **5/5 content and strict** pass.
-- Phase-I recovered reopen is contract-level only; CR and mixed endings are
-  contract only. F4-05 does not dispose historical F2 WebKit crashes.
-
-## Queue and boundaries
-
-- F4-01 through F4-04 complete; [brief](tasks/AUDIT-PARK-H-F4.md).
-  [F4-04 evidence](test-evidence/AUDIT.md#audit-park-h-f4-04--typed-text-fountain-reads-as-other-syntax)
-  retains exact Action fallbacks, advisory SC009, refused marker shapes and
-  speech-breaking `!`. Its native phase H covers Dialogue only; Heading,
-  Character and Transition fallback intents have contract/mocked-journal
-  coverage. A native Transition follow-up is separately scoped.
-- F1/F2/F3 complete; [F2](tasks/AUDIT-PARK-H-F2.md) retains owned Btrfs
-  **WebKit SIGABRT 1134510/start 10372570** with no cause/disposition.
-- **Group F stays unscheduled**. No adjacent implementation this session.
-  The F3 alert still names rows that remain refused.
-- D-07-F, PARK-T, capitals, D-05 cheap variant and D-09 page count remain
-  separately scoped with pinned reproductions authoritative; boneyard
-  cleanup needs its own brief and helper proof. D07-N Undo/Redo is JSDOM-only.
-- Replace-All load flake remains unreproduced here. `pnpm test` includes 61
-  archived copies; tracked count uses `pnpm exec vitest run --exclude 'target/**'`.
-  New tests stay outside target archives. Vitest TMPDIR and native IME temp
-  root use the Btrfs task folder. No retained artifact pruning authorized.
+- Merge `4eafd58` retains public `beac0fc` and local F4-05 `8084690`, with
+  the exact local tree. F4-04 was amended after push for docs-only native
+  limitations; no code lost, reset, force-push or further amend.
+- Current-state Next action is the only continuation pointer. TODO links the
+  [audit tracker](tasks/AUDIT-TRACKER.md); M6 is paused. Map/index are static.
+  SPEC reflects the existing name/Linux declaration and main/approved-isolation
+  workflow. Published corrections must be new commits.
+- Full link/guidance checks, byte/line budgets and ADR prefixes are enforced.
+  Five historical M4 links corrected without changing findings. Completed
+  tracker entries link evidence rather than repeat it; open obligations retained.
+- Unit discovery retains all 74 tracked contract/UI files, including `.test.ts`
+  UI cases, and excludes archives. A real discovery-inventory test guards both.
+  CI adds helper, differential, tooling and pinned Chromium smoke checks;
+  package build remains a build gate, not native writing/installed acceptance.
+- Differential: full 848 F4 editor rewrites and 16,128 codec edits retain all
+  previously successful bytes/facts and introduce no refusals. 117 shared
+  oracle cases plus 70,000 generated sources agree with the verified pinned
+  parser (roles/brackets/numbers/title decision); no new false assessment gate
+  or clean role candidate. Three in-memory faults are detected.
+- Eleven frozen-control source-role heuristic candidates remain: these include
+  supported lyric mappings and a possible title-block omission. They are
+  candidates, not confirmed losses or accepted waivers. [Classification brief](tasks/AUDIT-READING-CANDIDATES.md)
+  is unscheduled; recipes and fresh report commands are tracked.
+- Shared local checks: frontend 1319/1319 in 74 files, Rust 273/273,
+  helper 16/16, tooling 5/5, differential 3/3, browser and package pass.
+  Initial formatting/discovery mistakes and BOM-oracle correction are retained
+  in evidence. Final local guidance/links/format/diff review passed; published CI is pending.
 
 ## Retained findings and limits
 
-[audit evidence](test-evidence/AUDIT.md) retains prior WebKit findings:
-D03 SIGABRT **477772/start 4562349**, **501063/start 4636728**; D02 SIGSEGV
-**335923/start 3571811**, **353321/start 3701248**, SIGABRT **413296/start 3989180**;
-NATIVE-R1 SIGSEGV **251383/start 3043549**; F2 SIGABRT as above.
-No cause or C1/F2 disposition. Full native keyboard/a11y/IME, C356 enforcing
-SELinux/native highlight input and C04 unreproduced cache failure remain open.
+[Native finding register](native-findings.md) indexes ten recorded event
+identities with dates, workload, controls and disposition; no shared cause
+inferred. C1/F2 and historical SLP-B/NATIVE-R1/D02/D03/PARK-H-F2 crashes stay
+open. Passing controls do not close them. Active-writing/data-loss failures
+block affected feature work; scoped safety investigations may proceed.
+
+F4-01–05 content repairs remain complete within recorded scope; group F stays
+unscheduled. [F4 brief](tasks/AUDIT-PARK-H-F4.md),
+[F4-05 evidence](test-evidence/AUDIT.md#audit-park-h-f4-05--emptied-unterminated-last-rows).
+Recovered reopen of new intents and CR/mixed-ending cases are contract-level;
+F4-04 phase H natively covers Dialogue only. Other fallback intents/Transition
+follow-up remain separately scoped. No native drills rerun in maintenance.
+
 [M6-02](tasks/M6-02.md), [matrix](test-evidence/M6-02-matrix.md),
-[review](reviews/2026-10-03-m6-02-persistence-review.md) and
-[evidence](test-evidence/M6.md#m6-02--persistence-interruption-and-operation-investigation)
-retain Save As/IME, shared-store lease scope and parent-SIGKILL Btrfs abort.
-M6-03 copy/prune and capture-failure bundle policy remain open. Copied binaries
-must preserve helper-resource layout from the
-[native guide](../tests/native/writing-lifecycle/README.md).
+[review](reviews/2026-10-03-m6-02-persistence-review.md) retain Save As/IME,
+shared-store lease scope and parent-kill abort. Replace-All load flake,
+SELinux, broader keyboard/a11y/IME, installed/offline adoption and full S13
+remain open. DEV-02 is owner-only. No retained artifacts pruned.
 
 ## Next action
 
-F4-05 complete; one local `AUDIT-PARK-H-F4-05` commit on main, no push. Stop
-at this boundary. Owner: review local commits and resolve the docs-only F4-04
-divergence before any push. No next sub-task is scheduled; group F needs its
-own scope before implementation. No Local v1/C1/F2/full-platform closure; DEV-02 remains owner-only.
+Finish **INFRA-INSTRUCTIONS**: publish the reviewed result, inspect GitHub
+Checks, repair any maintenance CI failure, then update completion/evidence
+and stop. Product development stays paused; no next F4/M6 task is selected.

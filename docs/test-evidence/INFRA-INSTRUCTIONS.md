@@ -1,0 +1,26 @@
+# INFRA-INSTRUCTIONS — guidance and verification maintenance
+
+Base `8084690`, public `beac0fc`, owner authorization 2026-10-05.
+[Brief](../tasks/INFRA-INSTRUCTIONS.md). Logs: `target/infra-instructions/`.
+No product/native implementation or fixture bytes changed.
+
+## History reconciliation
+
+- `git fetch origin`; `git merge --no-commit --no-ff origin/main`: seven conflicts, expected; resolved against inspected local content. Staged and unstaged diff versus `8084690` empty; merge `4eafd58` retains both parents and the exact local tree. No force/reset/amend.
+
+## Validation
+
+- Initial `pnpm check` **fail** (18.85s, `shared.log`): current-state formatting; corrected. First discovery restriction produced 1290/1290 in 72 files (`shared-final.log`), omitting two `.test.ts` UI suites; not accepted as the full gate. Final default-pattern mapping preserves them; discovery inventory check added.
+- `pnpm check` **pass**, 1319/1319 in all 74 tracked contract/UI files, full guidance/links/format/lint/typecheck/frontend build (`shared-complete.log`); no target archives. Final timed run recorded below. Existing Vite chunk-size warning retained.
+- `cargo fmt --all -- --check` **pass** (3.13s); `cargo clippy --workspace --all-targets --locked -- -D warnings` **pass** (71.06s); `cargo test --workspace --locked` **273/273 pass** (276.97s), one filesystem. Logs `rust-fmt.log`, `clippy.log`, `workspace.log`.
+- `pnpm pdf-helper` **pass** (5.75s); `pnpm test:pdf-helper` **16/16 pass** (37.13s), verified pinned runtime/PDF oracles. `pnpm test:browser` **pass**, Chromium only (47.03s); `pnpm tauri build` **pass**, Linux package build only (213.02s). Sequential build logs in task folder; no installed/native-writing claim.
+- `python3 -m unittest discover -s tests/tools -p 'test_*.py'` **5/5 pass** (`guidance-tests-final.log`): canonical status, stale pointer, budget/exception failures and actual Vitest discovery versus Git inventory, with a disposable excluded archive sentinel.
+- `BABEL_DIFFERENTIAL_REPORT=$PWD/target/infra-instructions/accepted-probe pnpm test:differential` **3/3 pass**, 21.23s (`differential-accepted.log`, exclusive-create JSON reports). Full F4 848 editor rewrites: 672 successes/176 retained refusals, 0 new refusals/changed successes. 16,128 codec edits: 0 new refusals or changed successful bytes/line facts. Frozen control is full Git identity of `8084690`; current pinned libraries shared, so dependency changes still require independent oracles.
+- Renderer parse-level differential **70,117/70,117 agree**, 59,045 distinct sources: 117 independent oracle sources plus 70,000 fixed-seed generated samples; 0 parser refusals/mirror disagreements/new false gates/new clean role candidates. Eleven baseline source-role heuristic candidates reported separately, not conformance failures or accepted waivers ([brief](../tasks/AUDIT-READING-CANDIDATES.md)); accepted profile mappings require semantic interpretation. No layout/emphasis/pixel/native or exhaustive Unicode claim.
+- In-memory `BABEL_DIFFERENTIAL_FAULT=capture` **detected**, 1/3 fails (`fault-capture.log`); `renderer` **detected**, 1/3 fails (`fault-renderer.log`); `assessment` **detected**, 1/1 fails (`fault-assessment.log`). Product source never modified. Guidance fault tests also detect stale pointers/status and undocumented budgets.
+- Early oracle batch omitted the helper's UTF-8 BOM stripping and reported one frozen-control BOM mismatch (`probe.renderer.json`); corrected against `babel_pdf_helper._read_source` before acceptance. Original report/log retained; final parser comparisons are zero mismatches. Discovery error, earlier green runs and failures were not deleted.
+- Separate read-only same-agent review **pass**: product/native/core source, lockfiles, helper/profile/pins, frozen root AUDIT.md/owning audit evidence and manuscript fixture bytes identical to `8084690`; M4 diff is exactly five relative-link corrections. This is not independent human/second-agent sign-off.
+- Skipped native writing/IME drills, second-filesystem workspace matrix and installed/offline acceptance: maintenance changes no product/native/IPC/store/dependency/packaging behavior. Historical C1/F2 and all retained crashes/gates stay open; raw artifacts untouched.
+
+- Final reviewed `mise exec node@26.7.0 pnpm@11.22.0 -- pnpm check` **pass** (93.35s, `shared-reviewed.log/json`), 1319/1319 in 74 files; final differential 3/3 and lint/typecheck pass after candidate-report clarification. Full links **1729 all resolve**, guidance **0 problems**, Python **89 compile**, checkbox/status migration and SPEC S03 bytes independently compared unchanged; `git diff --check` clean. Final doc-only results follow below.
+- Publication: owner-authorized normal push and GitHub Checks review pending; no task/release closure claimed yet.

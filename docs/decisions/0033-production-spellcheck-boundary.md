@@ -1,6 +1,6 @@
 # ADR 0033 — Explicit offline spelling and durable local vocabulary
 
-Status: Accepted for the provisional Linux implementation. Date: 2026-09-30.
+Status: Accepted direction; Accepted for the provisional Linux implementation. Date: 2026-09-30.
 Authority: [M4-12](../tasks/M4-12.md), [ADR 0032](0032-linux-native-spellcheck.md),
 SPEC S08.5/S13/S14, UX-02, INV-01/03/11/14/16/17/18.
 

@@ -19,6 +19,6 @@ On the recorded Omarchy Linux host, use Node 26.7.0, pnpm 11.22.0, Rust 1.97.1, 
 | Rust tests                      | `cargo test --workspace`                                |
 | Desktop package                 | `pnpm tauri build`                                      |
 
-The browser preview explicitly reports that native services are unavailable. Its smoke test does not verify Tauri IPC. The recorded host passed real Tauri/WebKit startup and an AppImage build. This sandbox needed temporary writable package caches for installation/build; see [M0 evidence](docs/test-evidence/M0.md) for exact commands and results. The AppImage has not been installed/offline-tested, other platforms are unverified, and CI has not run remotely.
+The browser preview explicitly reports that native services are unavailable. Its smoke test does not verify Tauri IPC. The recorded host passed real Tauri/WebKit startup and an AppImage build. This sandbox needed temporary writable package caches for installation/build; see [M0 evidence](docs/test-evidence/M0.md) for exact commands and results. The AppImage has not been installed/offline-tested, other platforms are unverified, and CI covers automated frontend/core, helper/browser and Linux build checks; native writing, filesystem-matrix and installed/offline acceptance remain task-scoped local gates.
 
 No application-code license has been chosen. Third-party package metadata and the native packaging implications are tracked in [development](docs/development.md); final notices are a later release task.

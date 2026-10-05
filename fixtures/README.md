@@ -10,3 +10,9 @@ retired the M1 prototype codec. Original fixture bytes/oracles stay unchanged.
 Each fixture must document purpose, requirement IDs, expected behavior, provenance, and encoding/newline properties. Git treats `fixtures/**` as binary for newline-conversion purposes, and formatters exclude the folder. Do not open/format/rewrite byte-sensitive fixtures casually. Large stress scripts should be generated from documented deterministic synthetic recipes, not actual author work. See [SPEC S06/S15](../SPEC.md#s06).
 
 The [M3-01 corpus](expected/README.md) adds 12 cases and nine complete edited-source oracles, a source/semantic contract suite and an isolated Screenplain AST/HTML comparison. These establish a bounded proof corpus; production codec/editor conformance remains open.
+
+Editor/capture acceptance includes unforced sources authored by hand or other
+tools; a force-marked-only corpus is insufficient. Follow the
+[differential policy](../docs/testing.md#differential-regression-gates).
+Generators live in tracked tests; their fixed seeds, scope and limits are
+reviewable without rewriting existing fixture bytes.

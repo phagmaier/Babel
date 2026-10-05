@@ -2,10 +2,11 @@
 """check-links.py — verify Markdown relative links resolve.
 
 Default scope is the Tier 1 gate from docs/development.md: tracked `*.md`
-files changed versus HEAD (staged, unstaged, and untracked). Historical
-evidence keeps known-stale links (e.g. M4.md `../src/...` targets); the
-changed-link scope leaves prior evidence untouched. Pass `--all` for a
-whole-repo sweep, or explicit paths to check only those files.
+files changed versus HEAD (staged, unstaged, and untracked). This limits
+local iteration; it does not exempt historical broken links. The aggregate
+check and CI use `--all` for every tracked Markdown file. Pass explicit
+paths to check only those files. Preserve historical findings when fixing
+navigation; use a pinned Git URL for a genuinely retired source path.
 
 Inline `[text](target)` / `![alt](target)` links are checked. External URLs
 (`http:`, `https:`, `mailto:`) are skipped. For relative targets the file

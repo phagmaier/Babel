@@ -12,3 +12,5 @@ Status vocabulary:
 | Superseded         | Replaced by a newer ADR (link it)                                         |
 
 Do not use an ADR to bypass `SPEC.md`; a newer accepted ADR that changes the spec must explicitly identify the spec change.
+
+Status lines begin with one vocabulary term; qualifiers retain bounded proof and historical limitations. `pnpm check:guidance` checks the prefix.

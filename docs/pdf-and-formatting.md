@@ -1,6 +1,6 @@
 # PDF and formatting
 
-Status: M1 proof recorded; renderer baseline is **conditional** (Screenplain + ReportLab, [ADR 0009](decisions/0009-pdf-renderer-baseline.md)). M5-01 bundles it as an offline standalone-CPython helper ([ADR 0036](decisions/0036-bundled-pdf-helper.md), [evidence](test-evidence/M5.md#m5-01--bundled-offline-renderer-helper)); M5-02 native service and M5-03 frozen profile are complete; M5-04 adds production assessment; M5-05 adds the offline authoritative viewer; export/integration remain M5-06/07. [SPEC S12](../SPEC.md#s12); PDF-01–04, INV-03/10/13/14.
+Status: M1 proof recorded; renderer baseline is **conditional** (Screenplain + ReportLab, [ADR 0009](decisions/0009-pdf-renderer-baseline.md)). M5-01 bundles it as an offline standalone-CPython helper ([ADR 0036](decisions/0036-bundled-pdf-helper.md), [evidence](test-evidence/M5.md#m5-01--bundled-offline-renderer-helper)); M5-02 native service and M5-03 frozen profile are complete; M5-04 adds production assessment; M5-05 adds the offline authoritative viewer; M5-06/07 record the bounded Linux export/integration gate; installed/platform admission remains open. [SPEC S12](../SPEC.md#s12); PDF-01–04, INV-03/10/13/14.
 
 Evaluate an existing offline renderer first; Screenplain was the initial candidate and is now the conditional M5 baseline per [ADR 0009](decisions/0009-pdf-renderer-baseline.md), not an unconditional engine. M1 compared supported elements, pagination, licensed font embedding, packaging without end-user Python/Node, determinism, source mapping, performance, and failure behavior. Do not create a custom paginator before evidence warrants it. The selected adapter takes immutable source bytes and source version/hash, project identity, layout-profile version, pinned font identities, and export options. It returns PDF, actual page count, renderer/profile/font identities, warnings, and only a genuinely supported source map.
 
@@ -94,3 +94,11 @@ late callbacks cannot write a destination. Once atomic publication starts,
 Cancel is disabled with an explicit status. This derivative workflow does not
 rewrite source, editor Undo or history. No upload, network or shell endpoint is
 added. Verification is recorded in [M5 evidence](test-evidence/M5.md#m5-06--captured-pdf-export).
+
+## Reading conformance gate
+
+Changes to codec spelling, export assessment, the parser mirror or renderer
+require the [standing differential gate](testing.md#differential-regression-gates)
+and shared independent oracle on both sides. Add a hand-written regression for
+each discovered divergence. A generated-source sweep supplements those cases;
+it does not establish layout/native fidelity or permit baseline retuning.

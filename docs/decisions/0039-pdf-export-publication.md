@@ -1,6 +1,6 @@
 # ADR 0039 — Captured PDF export and protected replacement
 
-Status: Accepted; bounded Linux implementation and native gate passed.
+Status: Accepted direction; Accepted; bounded Linux implementation and native gate passed.
 Date: 2026-10-02. [M5-06](../tasks/M5-06.md), PDF-01/02/04, INV-03/06/10/14.
 
 Export first checkpoints a frozen exact capture and receives a native opaque

@@ -1,6 +1,6 @@
 # ADR 0042 — Typed-as-other-syntax fallback saves only as Action or in-speech Dialogue
 
-Status: Accepted. Date: 2026-10-05. Task: AUDIT-PARK-H-F4-04. Authority: [SPEC S03/S05](../../SPEC.md#s03). Related: [ADR 0027](0027-uncapturable-draft-preservation.md), [brief](../tasks/AUDIT-PARK-H-F4.md#f4-04-deliverable-and-acceptance).
+Status: Accepted direction; Accepted. Date: 2026-10-05. Task: AUDIT-PARK-H-F4-04. Authority: [SPEC S03/S05](../../SPEC.md#s03). Related: [ADR 0027](0027-uncapturable-draft-preservation.md), [brief](../tasks/AUDIT-PARK-H-F4.md#f4-04-deliverable-and-acceptance).
 
 ## Decision
 
