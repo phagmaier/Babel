@@ -657,7 +657,7 @@ export function WritingView({
               if (!captureAgain && alive) {
                 captureAlert =
                   failure instanceof Error
-                    ? failure.message
+                    ? writingFailureMessage(failure)
                     : 'Edit could not be recorded';
                 setError(captureAlert);
               }

@@ -1,6 +1,9 @@
 import { TextSelection } from 'prosemirror-state';
 import type { EditorView } from 'prosemirror-view';
+import { elementChoices } from '../application/shortcuts';
 import type { SessionSelection } from '../application/writingSession';
+import { FountainEditError } from '../domain/fountainCodec';
+import { refusedRow } from '../editor/sourceBridge';
 
 /** Read the live editor selection as plain session offsets. */
 export function toSessionSelection(view: EditorView): SessionSelection | null {
@@ -10,8 +13,40 @@ export function toSessionSelection(view: EditorView): SessionSelection | null {
   };
 }
 
+const elementLabels: ReadonlyMap<string, string> = new Map(elementChoices);
+
+/**
+ * A draft Fountain cannot hold stops saving and recovery for everything typed
+ * after it. Name the row when the codec did, and always how to resume.
+ */
+function captureRefusalMessage(failure: FountainEditError): string {
+  const row = refusedRow(failure);
+  let stopped =
+    'Part of this draft cannot be saved as Fountain as it stands. Undo the latest changes to resume.';
+  if (row) {
+    const label = elementLabels.get(row.kind);
+    const scalars = Array.from(row.text);
+    const excerpt =
+      scalars.length > 48 ? `${scalars.slice(0, 48).join('')}…` : row.text;
+    const named = row.text
+      ? `${label ? `the ${label} ` : ''}“${excerpt}”`
+      : `an empty ${label ? `${label} ` : ''}row`;
+    const rule =
+      row.kind === 'parenthetical' && failure.code === 'invalid-edit'
+        ? ' A Parenthetical keeps all of its text inside one pair of parentheses.'
+        : '';
+    const resume = row.text
+      ? 'Change that row or Undo to resume.'
+      : 'Type its text or Undo to resume.';
+    stopped = `Row ${row.index + 1}, ${named}, cannot be saved as Fountain as it stands.${rule} ${resume}`;
+  }
+  return `Saving and recovery are paused. ${stopped} To keep the draft exactly as it is, use Close session, then Save Emergency Copy and close.`;
+}
+
 /** Human-readable failure text; the draft always stays open. */
 export function writingFailureMessage(failure: unknown): string {
+  if (failure instanceof FountainEditError && failure.code !== 'read-only')
+    return captureRefusalMessage(failure);
   if (failure instanceof Error) return failure.message;
   const value = failure as { code?: string; error?: { code?: string } } | null;
   const code = value?.error?.code ?? value?.code;

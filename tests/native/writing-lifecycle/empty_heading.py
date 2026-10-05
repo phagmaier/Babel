@@ -1,4 +1,5 @@
 """AUDIT-PARK-H-F2 native empty-heading intent and F1 hidden-row capture.
+AUDIT-PARK-H-F3 adds the alert that names a row Fountain cannot hold.
 
 Empty headings save as physical blanks with source-bound recovery intent.
 Trusted keys verify unrelated edits, exact journal metadata, owned SIGKILL,
@@ -13,6 +14,7 @@ import time
 from pathlib import Path
 
 CTRL, SHIFT, ENTER, END, HOME, NULL = '\ue009', '\ue008', '\ue007', '\ue010', '\ue011', '\ue000'
+BACKSPACE = '\ue003'
 
 
 def run(d):
@@ -254,4 +256,41 @@ def run(d):
         d.close_session()
         assert len(list((d.ROOT / 'copies').glob('*.draft.json'))) == 0, 'Hidden rows required an emergency bundle'
         print('PASS native new ' + label + ': empty and populated rows plus later edits saved and journaled; Undo stays capturable; exact reopen and ordinary close', flush=True)
+    # E. AUDIT-PARK-H-F3: text after a closed parenthetical is accepted by the
+    # editor but has no Fountain spelling. The alert names the row and how to
+    # resume; nothing typed meanwhile reaches the file or journal until then.
+    speech = b'@BOB\n(beat)\nHi there.\n\n!A lamp glows.\n'
+    target = d.ROOT / 'files' / 'refused-row.fountain'
+    target.write_bytes(speech)
+    open_file('BOB(beat)Hi there.A lamp glows.')
+    paused = ('Saving and recovery are paused. Row 2, the Parenthetical \u201c(beat) x\u201d, cannot be saved '
+              'as Fountain as it stands. A Parenthetical keeps all of its text inside one pair '
+              'of parentheses. Change that row or Undo to resume. To keep the draft exactly as it is, '
+              'use Close session, then Save Emergency Copy and close.')
+    click_row('parenthetical', '(beat)')
+    d.type_text(END + ' x')
+    d.wait(lambda: 'parenthetical:(beat) x' in rows(), 'Text typed after the closing parenthesis')
+    d.wait(lambda: paused in alerts(), 'Refused row named with how to resume')
+    click_row('action', 'A lamp glows.')
+    d.type_text(HOME + 'Storm. ')
+    d.wait(lambda: 'action:Storm. A lamp glows.' in rows(), 'Author text typed in another row while refused')
+    time.sleep(4)
+    assert target.read_bytes() == speech, target.read_bytes()
+    assert not journaled(b'Storm.'), 'Refused draft reached the journal'
+    assert status() == 'Changes pending', status()
+    assert alerts() == ['Newer changes exist only in memory until protection is confirmed.', paused], alerts()
+    report['refusedRow'] = {'status': status(), 'alerts': alerts(), 'sourceSaved': False, 'journaled': False}
+    d.screenshot('refused-row-named')
+    click_row('parenthetical', '(beat) x')
+    d.type_text(END + BACKSPACE + BACKSPACE)
+    d.wait(lambda: 'parenthetical:(beat)' in rows(), 'Named row changed back')
+    resumed = speech.replace(b'!A lamp', b'!Storm. A lamp')
+    d.audit(target, resumed)
+    d.wait(lambda: journaled(b'Storm.'), 'Text typed while refused journaled after resuming', timeout=30)
+    d.wait(lambda: 'Saved locally' in d.body(), 'Exact save acknowledged after resuming')
+    assert not alerts(), alerts()
+    report['refusedRow']['resumed'] = {'status': status(), 'saved': resumed.decode(), 'journaled': True}
+    d.close_session()
+    assert len(list((d.ROOT / 'copies').glob('*.draft.json'))) == 0, 'Resumed draft required an emergency bundle'
+    print('PASS native refused row: alert names the row and how to resume; nothing saved or journaled meanwhile; changing the row resumes with nothing lost', flush=True)
     (d.ROOT / 'empty-heading.json').write_text(json.dumps(report, indent=2) + '\n')

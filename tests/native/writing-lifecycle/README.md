@@ -924,6 +924,11 @@ rows, on a disposable screenplay:
   later edits also reach both protections. Undo through each region remains
   capturable; exact captured bytes reopen with the same rows and ordinary
   close succeeds. Removing wrappers still requires whole-region review.
+- E (AUDIT-PARK-H-F3): text typed after a closed parenthetical is refused by
+  capture. The protection alert names the row and how to resume, in exact
+  author wording; text typed elsewhere meanwhile is absent from the file and
+  journal. Changing the named row back saves and journals everything, and
+  ordinary close needs no bundle.
 
 The mode kills its own app once (`intentionalKillScenario`); the owned-process
 crash audit stays strict. Historical PARK-H failures and old A-C behavior remain

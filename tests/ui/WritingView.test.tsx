@@ -1875,15 +1875,13 @@ it('AUDIT-C02: a capture-failure alert clears once the draft captures again', as
   const start =
     view.state.doc.child(0).nodeSize + view.state.doc.child(1).nodeSize + 1;
   view.dispatch(view.state.tr.insertText('x', start));
-  expect(
-    (await screen.findByText(/Parenthetical must be wrapped/)).getAttribute(
-      'role',
-    ),
-  ).toBe('alert');
+  // AUDIT-PARK-H-F3: the alert names the row in author words.
+  const paused =
+    /Row 3, the Parenthetical “x\(softly\)”, cannot be saved as Fountain/;
+  expect((await screen.findByText(paused)).getAttribute('role')).toBe('alert');
+  expect(screen.queryByText(/Parenthetical must be wrapped/)).toBeNull();
   view.dispatch(view.state.tr.delete(start, start + 1));
-  await waitFor(() =>
-    expect(screen.queryByText(/Parenthetical must be wrapped/)).toBeNull(),
-  );
+  await waitFor(() => expect(screen.queryByText(paused)).toBeNull());
   expect(new TextDecoder().decode(captureEditor(view.state).source)).toBe(
     source,
   );
@@ -3218,3 +3216,60 @@ it.each([
   },
   20000,
 );
+
+it('AUDIT-PARK-H-F3 a refused row is named with how to resume; saving stays paused until it changes', async () => {
+  const f = await parkedDraft('@BOB\n(beat)\nHi.\n');
+  const { view, saved, journaled } = f;
+  const paused =
+    'Saving and recovery are paused. Row 2, the Parenthetical “(beat) x”, cannot be saved as Fountain as it stands. A Parenthetical keeps all of its text inside one pair of parentheses. Change that row or Undo to resume. To keep the draft exactly as it is, use Close session, then Save Emergency Copy and close.';
+  const protection = within(screen.getByLabelText('Protection status'));
+  const alerts = () =>
+    protection.queryAllByRole('alert').map((alert) => alert.textContent);
+
+  // An ordinary edit is captured and reaches the source file.
+  view.dispatch(view.state.tr.insertText(' Sure.', f.endOf(2)));
+  await waitFor(() => expect(saved.at(-1)).toBe('@BOB\n(beat)\nHi. Sure.\n'), {
+    timeout: 4000,
+  });
+  await waitFor(() => expect(f.status()).toBe('Saved locally'));
+  expect(alerts()).toEqual([]);
+
+  // The editor accepts text after the closing parenthesis; Fountain cannot hold it.
+  view.dispatch(view.state.tr.insertText(' x', f.endOf(1)));
+  expect(f.rows()[1]).toBe('parenthetical:(beat) x');
+  await waitFor(() => expect(alerts()).toContain(paused));
+  expect(screen.queryByText(/must be wrapped|round-trip/)).toBeNull();
+
+  // Author work typed in another row meanwhile is not saved or journaled.
+  view.dispatch(view.state.tr.insertText(' Fine.', f.endOf(2)));
+  const before = [saved.length, journaled.length];
+  await f.settle();
+  expect([saved.length, journaled.length]).toEqual(before);
+  expect(f.status()).toBe('Changes pending');
+  expect(alerts()).toEqual([
+    'Newer changes exist only in memory until protection is confirmed.',
+    paused,
+  ]);
+
+  // An explicit Save reports the same row in the same words.
+  fireEvent.click(
+    within(screen.getByLabelText('Screenplay actions')).getByRole('button', {
+      name: 'Save',
+    }),
+  );
+  await waitFor(() => expect(alerts()).toContain(paused));
+  expect(screen.queryByText(/must be wrapped|round-trip/)).toBeNull();
+  expect([saved.length, journaled.length]).toEqual(before);
+
+  // Changing the named row resumes capture; nothing typed meanwhile is lost.
+  view.dispatch(view.state.tr.delete(f.endOf(1) - 2, f.endOf(1)));
+  const resumed = '@BOB\n(beat)\nHi. Sure. Fine.\n';
+  await waitFor(() => expect(saved.at(-1)).toBe(resumed), { timeout: 4000 });
+  expect(journaled).toContain(resumed);
+  await waitFor(() => expect(f.status()).toBe('Saved locally'));
+  await waitFor(() => expect(alerts()).toEqual([]));
+  f.close();
+  await waitFor(() => expect(f.calls.released).toBe(1));
+  expect(screen.queryByText(/Close stopped/)).toBeNull();
+  expect(f.copy).not.toHaveBeenCalled();
+}, 20000);

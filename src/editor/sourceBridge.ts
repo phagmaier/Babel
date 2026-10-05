@@ -144,6 +144,32 @@ interface CapturedContent {
 }
 const capturedContents = new WeakMap<EditorCapture, CapturedContent>();
 
+/** The live row a refused capture could not write, for the author's alert. */
+export interface RefusedRow {
+  readonly index: number;
+  readonly kind: string;
+  readonly text: string;
+}
+const refusedRows = new WeakMap<object, RefusedRow>();
+export function refusedRow(error: unknown): RefusedRow | undefined {
+  return error instanceof Error ? refusedRows.get(error) : undefined;
+}
+/** `first` is the live row index of the first edit submitted to the codec. */
+function recordRefusedRow(error: unknown, state: EditorState, first: number) {
+  if (!(error instanceof FountainEditError) || error.edit === undefined) return;
+  const index = first + error.edit;
+  const node = state.doc.maybeChild(index);
+  if (node)
+    refusedRows.set(
+      error,
+      Object.freeze({
+        index,
+        kind: node.attrs.actionSubtype === 'shot' ? 'shot' : node.type.name,
+        text: node.textContent,
+      }),
+    );
+}
+
 /** Explicit deferred capture only. Live content comes from state.doc, never a source peer. */
 export function captureEditor(
   state: EditorState,
@@ -384,8 +410,10 @@ export function captureEditor(
           if (
             !(error instanceof FountainEditError) ||
             error.code !== 'neighbor-drift'
-          )
+          ) {
+            recordRefusedRow(error, state, newFrom);
             throw error;
+          }
           // Own the drifting row too. Rows between it and the edit are
           // unchanged, so old and new bounds move together; a protected
           // anchor is never crossed.
@@ -445,7 +473,10 @@ export function captureEditor(
             error.code === 'neighbor-drift'
               ? error.line
               : undefined;
-          if (drift === undefined) throw error;
+          if (drift === undefined) {
+            recordRefusedRow(error, state, from);
+            throw error;
+          }
           const lower = Math.min(from, drift);
           const upper = Math.max(to, drift);
           for (let index = lower; index <= upper; index++)

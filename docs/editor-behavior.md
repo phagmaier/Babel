@@ -68,6 +68,18 @@ Mid-row Character splits have portable cue source. A mid-row Parenthetical split
 
 Unforced source ([AUDIT-C01](tasks/AUDIT-C01.md)): when an edit changes the grammar context of an unchanged, unforced Scene Heading, Character, Transition or Action (typing on or deleting the blank row beside it, or Enter after it), deferred capture owns that neighbour and inserts only its forcing marker (`.`, `@`, `>`, `!`) into the authored spelling; indentation, scene-number bytes and every row the edit does not own stay byte-identical, and reverting the edit restores the unforced bytes. A Backspace/Delete join that would leave text after a closed parenthetical refuses. Still uncapturable, with the alert shown: Enter between the rows of one speech followed by typing (the Enter table belongs to AUDIT-D01), edits that regroup dual dialogue, and edits beside protected rows.
 
+Refusal wording ([AUDIT-PARK-H-F3](tasks/AUDIT-PARK-H-F3.md)): a refused capture
+is shown in author words, in the protection alert and after an explicit Save.
+It states that saving and recovery are paused, names the row (`Row N`, element
+label and quoted excerpt, or "an empty … row"), says to change that row or
+Undo, and points to Close session's emergency copy. The row is named only when
+the codec identifies the one submitted edit it cannot write; a refusal about a
+whole context names none. The named row is the one Fountain cannot hold, which
+can be a neighbour the edit stranded (the Dialogue under an emptied or
+converted first line, a dual cue beside a typed blank) rather than the row
+last typed in. Wording only: the drafts listed in the brief stay refused, and
+failures that are not codec refusals keep their own text.
+
 Backspace/Delete at a boundary remove an empty row or join editable text into one row. Same-type text retains its type; unlike nonempty text becomes Action except compatible speech continuations, which remain Dialogue. A nonempty speaker cue is never silently removed to join speech. Selections that cross a dialogue group or a note boundary refuse with a reason if a safe group-preserving join is unavailable. Explicit conversion retains text and refuses conversion that would detach a speaker; the visible picker/shortcut registry is supplied by M3-06.
 
 Closed, unambiguous standalone Note rows permit a literal mid-row Enter split with both delimiter halves intact. Unclosed, mixed or ambiguous notes remain protected. Delimiter-boundary splits that would create an ambiguous note row refuse. Raw/boneyard rows remain protected. Shift+Enter splits an editable Action or attached Dialogue into same-kind physical rows, retaining marks, row identities and speaker with one Undo/Redo event. Empty Dialogue break rows use Fountain's two-space spelling. A split that would turn speech into a parenthetical, a cross-row selection, unsupported types and protected rows refuse visibly. Deferred capture uses the codec's `replaceLineWithBreaks` for owned same-kind splits; no complete source capture runs on the key. The view's composition event sequence consumes the first Enter after compositionend even if that keydown says `isComposing=false`; a later separate Enter applies the table. Full real IME, paste and formatting interaction remains M3-08.

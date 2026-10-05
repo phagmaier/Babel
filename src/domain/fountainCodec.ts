@@ -39,10 +39,18 @@ export class FountainEditError extends Error {
     | 'unrepresentable';
   /** For `neighbor-drift`: the unowned line (pre-edit index) whose interpretation would change. */
   readonly line: number | undefined;
-  constructor(code: FountainEditError['code'], message: string, line?: number) {
+  /** When one submitted edit cannot be written: its offset among the edits. */
+  readonly edit: number | undefined;
+  constructor(
+    code: FountainEditError['code'],
+    message: string,
+    line?: number,
+    edit?: number,
+  ) {
     super(message);
     this.code = code;
     this.line = line;
+    this.edit = edit;
     this.name = 'FountainEditError';
   }
 }
@@ -802,7 +810,15 @@ export function replaceLines(
   );
   const spellings = edits.map((edit, index) => {
     const prior = priors[index];
-    const generated = sourceFor(edit, prior);
+    let generated: string;
+    try {
+      generated = sourceFor(edit, prior);
+    } catch (error) {
+      // Same refusal, naming which submitted edit has no source spelling.
+      throw error instanceof FountainEditError
+        ? new FountainEditError(error.code, error.message, error.line, index)
+        : error;
+    }
     if (
       prior &&
       prior.kind === edit.kind &&
@@ -898,6 +914,8 @@ function replaceSpelled(
           throw new FountainEditError(
             'round-trip',
             'Requested element cannot round-trip unambiguously; source remains unchanged',
+            undefined,
+            offset,
           );
         }
         const prior = priors[offset];
@@ -922,6 +940,8 @@ function replaceSpelled(
           throw new FountainEditError(
             'round-trip',
             'Requested element fields cannot round-trip unambiguously',
+            undefined,
+            offset,
           );
         if (edit.dualWith !== undefined)
           validateDualContext(
@@ -941,6 +961,8 @@ function replaceSpelled(
           throw new FountainEditError(
             'round-trip',
             'Requested dual group does not match source grouping',
+            undefined,
+            offset,
           );
         // Group relationship transformations need explicit ownership and intent.
         if (
@@ -954,6 +976,8 @@ function replaceSpelled(
           throw new FountainEditError(
             'round-trip',
             'Dual relationship transformation requires explicit owned group intent',
+            undefined,
+            offset,
           );
       }
     },
@@ -1248,6 +1272,8 @@ function validateDualContext(
       throw new FountainEditError(
         'unrepresentable',
         'Dual changes must own both complete groups without overlapping a third group',
+        undefined,
+        offset,
       );
   }
 }
