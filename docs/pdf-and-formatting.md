@@ -72,6 +72,15 @@ The profile prints scene headings and forced transitions in capitals and reads
 forcing markers and page breaks only at the start of a line; since
 AUDIT-D04-R2 assessment reports each such difference as a limitation.
 
+Since AUDIT-EXPORT-WARNINGS the export use case compares the rendered result's
+`unsupported-publication:*` warnings with what the captured assessment
+[announced](screenplay-validation.md#announced-omissions-and-the-helpers-warnings-audit-export-warnings).
+A warning the author was not told about, an unknown warning code or an
+unreadable warning list stops the export after rendering and before
+publication: the artifact is cancelled, the capture retired, no destination is
+written and the status names each category. There is no acceptance step,
+because the helper reports no location. Source, Save and recovery are untouched.
+
 Preview and export share one render controller, sequence and native queue.
 Preview admission pauses during export. Typing marks preview stale while export
 continues over immutable protected bytes; completion resumes the latest preview.

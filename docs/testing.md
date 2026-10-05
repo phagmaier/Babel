@@ -46,6 +46,16 @@ from unit/UI discovery and runs in CI. A missing baseline/helper is a failure.
   failure. Parser/mirror comparisons must agree
   for every admitted corpus source. This is parse-level, not layout/emphasis,
   Unicode shaping, pixel or native verification.
+- Warning gate, same file: the pinned helper's own `warnings()`
+  ([oracle tool](../tools/differential/warning_oracle.py)) over the
+  [export-warnings corpus](../fixtures/assessment/export-warnings.json), the
+  shared oracle and the same 70,000 sources. The helper must report exactly
+  the corpus's stated warnings, and every warning must be in the assessment's
+  `announced` set except for the corpus cases marked `exports: false`, which
+  are named open findings. Each category must be seen announced by an issue
+  and, where counted, by the summary. A counted omission the helper does not
+  warn about is reported, not asserted. Clear an open finding by reporting it
+  in the assessment and flipping its case, never by widening `announced`.
 - Baseline `8084690` is loaded from Git by the dedicated test configuration;
   no archived test suite is discovered. Advance it only in a reviewed task
   that names changed outcomes and independent literal/semantic evidence.
@@ -57,11 +67,12 @@ from unit/UI discovery and runs in CI. A missing baseline/helper is a failure.
 
 Optional retained reports: set `BABEL_DIFFERENTIAL_REPORT` to a fresh path
 prefix outside fixtures; the suite writes exclusive-create JSON summaries.
-The renderer report lists every candidate occurrence (`baselineRoleOccurrences`).
+The renderer report lists every candidate occurrence (`baselineRoleOccurrences`);
+the warning report lists every unannounced source.
 Reproducers under `tests/investigation/` run by name only, outside `pnpm test`,
 this gate and CI; one may stay red while its tracked finding is open. The
 reading-candidates reproducer is green since AUDIT-D04-R4.
-`BABEL_DIFFERENTIAL_FAULT=capture`, `renderer` or `assessment` injects an in-memory fault
+`BABEL_DIFFERENTIAL_FAULT=capture`, `renderer`, `assessment` or `announced` injects an in-memory fault
 in the dedicated suite only; all must fail. No product source is modified.
 
 ## Mandatory save faults (SPEC S15.2)

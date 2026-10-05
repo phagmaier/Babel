@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { afterEach, expect, it, vi } from 'vitest';
 import {
   ExportPdfController,
@@ -7,7 +8,10 @@ import {
 } from '../../src/application/exportPdf';
 import { PublicationPreviewController } from '../../src/application/publicationPreview';
 import type { CapturedSnapshot } from '../../src/application/persistenceController';
-import type { PublicationPreviewPort } from '../../src/application/publication';
+import type {
+  PublicationPreviewPort,
+  PublicationResult,
+} from '../../src/application/publication';
 import type { ExportAssessmentPort } from '../../src/application/exportAssessment';
 import { PUBLICATION_ASSESSMENT_IDENTITY } from '../../src/domain/exportAssessment';
 import {
@@ -414,5 +418,179 @@ it('keeps a cancelled run busy until native authorities are retired before recap
   expect(t.capture).toHaveBeenCalledTimes(2);
   expect(t.controller.state.phase).toBe('review');
   await t.controller.cancel();
+  t.preview.dispose();
+});
+
+// AUDIT-EXPORT-WARNINGS. The renderer says what it left out; anything the
+// captured assessment did not tell the author about stops before publication.
+// The corpus's `warnings` are checked against the pinned helper itself in
+// tests/differential/renderer.test.ts; here the render reply is injected.
+const warned = (...features: string[]) =>
+  features.map((feature) => ({
+    code: 'unsupported-publication:' + feature,
+    message: `This profile omits ${feature}; export assessment is required.`,
+  }));
+function renderWarns(t: Awaited<ReturnType<typeof setup>>, warnings: unknown) {
+  const render = t.port.render;
+  t.port.render = vi.fn(async (r) => ({
+    ...(await render(r)),
+    warnings: warnings as PublicationResult['warnings'],
+  }));
+}
+const phases = (t: Awaited<ReturnType<typeof setup>>) =>
+  t.changed.mock.calls.map(([state]) => (state as { phase: string }).phase);
+it('AUDIT-EXPORT-WARNINGS a renderer warning beside a clean assessment never reaches publication', async () => {
+  const t = await setup();
+  renderWarns(t, warned('unknown-title-fields'));
+  await t.controller.start(t.capture);
+  expect(t.controller.state.phase).toBe('failed');
+  expect(t.controller.state.message).toBe(
+    'PDF export needs attention: The renderer reported leaving out unknown title page fields, which the export check did not report. No PDF was written. Editing and Save remain available; no export success is confirmed.',
+  );
+  expect(t.controller.state.receipt).toBeNull();
+  expect(phases(t)).not.toContain('publishing');
+  expect(phases(t)).not.toContain('succeeded');
+  expect(t.port.publish).not.toHaveBeenCalled();
+  // The rendered artifact is discarded and the protected capture retired.
+  expect(t.previewPort.cancel).toHaveBeenCalledWith({
+    identity: t.f.identity,
+    requestId: 1,
+  });
+  expect(t.port.cancel).toHaveBeenCalledOnce();
+  expect(t.controller.busy).toBe(false);
+  // A later export recaptures and succeeds once the renderer agrees.
+  t.port.render = vi.fn(async (r) =>
+    publicationResult({
+      ...r,
+      ...t.snapshot,
+      profile: 'us-letter-draft-v1',
+      fontSet: 'courier-prime-screenplain-0.12.0',
+      options: {},
+    }),
+  );
+  await t.controller.start(t.capture);
+  expect(t.controller.state.phase).toBe('succeeded');
+  expect(t.capture).toHaveBeenCalledTimes(2);
+  t.preview.dispose();
+});
+it.each([
+  ['boneyards', 'boneyard text'],
+  ['notes', 'notes'],
+  ['sections', 'section headings'],
+  ['synopses', 'synopses'],
+  ['unknown-title-fields', 'unknown title page fields'],
+])(
+  'AUDIT-EXPORT-WARNINGS unannounced %s stops a clean capture and is named',
+  async (feature, name) => {
+    const t = await setup();
+    renderWarns(t, warned(feature));
+    await t.controller.start(t.capture);
+    expect(t.controller.state.phase).toBe('failed');
+    expect(t.controller.state.message).toContain(
+      `reported leaving out ${name}, which`,
+    );
+    expect(t.port.publish).not.toHaveBeenCalled();
+    expect(t.port.cancel).toHaveBeenCalledOnce();
+    t.preview.dispose();
+  },
+);
+const warningCorpus = JSON.parse(
+  readFileSync('fixtures/assessment/export-warnings.json', 'utf8'),
+) as {
+  cases: {
+    name: string;
+    source: string;
+    warnings: string[];
+    review: boolean;
+    exports: boolean;
+  }[];
+};
+it.each(warningCorpus.cases)(
+  'AUDIT-EXPORT-WARNINGS corpus: $name',
+  async ({ source, warnings, review, exports }) => {
+    const t = await setup(source);
+    renderWarns(t, warned(...warnings));
+    await t.controller.start(t.capture);
+    expect(phases(t).includes('review')).toBe(review);
+    if (review) {
+      expect(t.controller.state.phase).toBe('review');
+      await t.controller.proceed(true);
+    }
+    expect(t.controller.state.phase).toBe(exports ? 'succeeded' : 'failed');
+    expect(t.port.publish).toHaveBeenCalledTimes(exports ? 1 : 0);
+    if (!exports) {
+      expect(t.controller.state.message).toContain('No PDF was written');
+      expect(t.port.cancel).toHaveBeenCalledOnce();
+    }
+    t.preview.dispose();
+  },
+);
+it('AUDIT-EXPORT-WARNINGS an acknowledged limitation covers only its own kind', async () => {
+  const t = await setup('Archive: Extra\n\nINT. LAB - DAY\n\nA light.\n');
+  renderWarns(t, warned('notes', 'sections', 'unknown-title-fields'));
+  await t.controller.start(t.capture);
+  expect(t.controller.state.phase).toBe('review');
+  await t.controller.proceed(true);
+  expect(t.controller.state.phase).toBe('failed');
+  expect(t.controller.state.message).toContain(
+    'reported leaving out notes and section headings, which',
+  );
+  expect(t.controller.state.message).not.toContain('title page');
+  expect(t.port.publish).not.toHaveBeenCalled();
+  // The reviewed report stays visible beside the failure.
+  expect(t.controller.state.report?.issues.map((i) => i.code)).toContain(
+    'SC005',
+  );
+  t.preview.dispose();
+});
+it.each([
+  ['an unknown category', warned('lyrics'), '“lyrics”'],
+  ['a code without the prefix', [{ code: 'notes', message: '' }], '“notes”'],
+  ['a missing list', undefined, 'could not be compared'],
+  ['a list that is not a list', 'notes', 'could not be compared'],
+  ['an empty entry', [null], 'could not be compared'],
+  ['an entry without a code', [{ message: 'x' }], 'could not be compared'],
+  ['a code that is not text', [{ code: 5 }], 'could not be compared'],
+])(
+  'AUDIT-EXPORT-WARNINGS %s from the renderer is never taken as predicted',
+  async (_name, warnings, wording) => {
+    // Notes are announced here, so only the unreadable part can stop it.
+    const t = await setup('INT. LAB - DAY\n\nA lamp glows.\n\n[[Private]]\n');
+    renderWarns(
+      t,
+      Array.isArray(warnings) ? [...warned('notes'), ...warnings] : warnings,
+    );
+    await t.controller.start(t.capture);
+    expect(t.controller.state.phase).toBe('failed');
+    expect(t.controller.state.message).toContain(wording);
+    expect(t.controller.state.message).toContain('No PDF was written');
+    expect(t.port.publish).not.toHaveBeenCalled();
+    expect(t.port.cancel).toHaveBeenCalledOnce();
+    t.preview.dispose();
+  },
+);
+it('AUDIT-EXPORT-WARNINGS a mismatching result after cancellation stays cancelled', async () => {
+  const t = await setup();
+  const job = deferred<Awaited<ReturnType<ExportPdfPort['render']>>>();
+  t.port.render = vi.fn(() => job.promise);
+  const exporting = t.controller.start(t.capture);
+  await vi.waitFor(() => expect(t.controller.state.phase).toBe('rendering'));
+  await t.controller.cancel();
+  job.resolve({
+    ...publicationResult({
+      identity: t.f.identity,
+      requestId: 1,
+      ...t.snapshot,
+      profile: 'us-letter-draft-v1',
+      fontSet: 'courier-prime-screenplain-0.12.0',
+      options: {},
+    }),
+    warnings: warned('unknown-title-fields'),
+  });
+  await exporting;
+  expect(t.controller.state.phase).toBe('cancelled');
+  expect(phases(t)).not.toContain('failed');
+  expect(t.port.publish).not.toHaveBeenCalled();
+  expect(t.port.cancel).toHaveBeenCalledOnce();
   t.preview.dispose();
 });

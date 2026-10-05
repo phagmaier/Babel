@@ -1,38 +1,55 @@
 # Current state — next-agent handoff 2026-10-05
 
-Application: **babel**. Work/commit on `main`; maintenance was published.
-Product feature work is paused. AUDIT-D04-R4 is fixed and published at
-`f2ba0c5`; CI passed. **M6-02, C1/F2 and Local v1 admission stay open.**
+Application: **babel**. Work/commit on `main`; `f2ba0c5` is published and CI
+passed. AUDIT-EXPORT-WARNINGS is complete in local commits that are **not
+pushed**. Product feature work is paused. **M6-02, C1/F2 and Local v1 admission
+stay open.**
 
 ## This session
 
-**AUDIT-D04-R4 complete and published 2026-10-05.** The owner authorized the
-push; `f2ba0c5` passed both CI jobs ([run](https://github.com/phagmaier/Babel/actions/runs/37313877004)).
+**AUDIT-EXPORT-WARNINGS complete 2026-10-05, local only.**
+[Brief](tasks/AUDIT-EXPORT-WARNINGS.md),
+[evidence](test-evidence/AUDIT.md#audit-export-warnings--renderer-warnings-compared-at-export).
+The owner delegated the design; choices and reasons are in the brief.
+
+- Change: after rendering and before publication, `src/application/exportPdf.ts`
+  compares the helper's `unsupported-publication:*` warnings with a new
+  `announced` set from `src/domain/exportAssessment.ts`. A warning the author
+  was not told about, an unknown code or an unreadable list stops the export:
+  artifact cancelled, capture retired, nothing written, category named. There
+  is no acceptance path. Assessment issues and counts are unchanged.
+- The first design would have refused legitimate exports: a scratch sweep of
+  206,282 sources stopped 7,888, most often a commented-out block containing a
+  note. The revised rules stop 709: real disagreements and tangled markers.
+- **Three real omissions found; export now stops for them, none is fixed**
+  (retained PDFs): an indented opening `Key: [[note]]` line, and a slightly
+  indented `Key: value` line under a title field, with or without a boneyard.
+  Proposed as AUDIT-D04-R5. The stop names a category, not a line.
+- New: `fixtures/assessment/export-warnings.json` (33 hand-written cases read by
+  both sides), `tools/differential/warning_oracle.py`, a warning gate in
+  `tests/differential/renderer.test.ts`, fault mode `announced`, two real-helper
+  steps in the native `pdf-export` drill.
+- Checks: red 37/230, focused 254/254, differential 4/4 with all four faults
+  failing, helper 16/16, tooling 5/5, `pnpm check` 1422/1422, browser smoke,
+  fresh build, native `pdf-export script-check publication-exit title-page` 8/8
+  with clean crash audits on tmpfs and Btrfs. Rust gates and the workspace
+  matrix skipped: no Rust, IPC or filesystem path changed.
+- Limits: categories only; tuned on generated and hand-written sources, not a
+  real manuscript; the stop is native-verified for one source and category.
+- **Gate coverage:** replaying the renderer gate's generator shows 15 of its 30
+  tokens never appear (`[[note]]` among them), every line starts with one space
+  and sources have 2, 4 or 6 lines. Recorded under AUDIT-SWEEP-COVERAGE; seed
+  and baseline untouched.
+- Environment: a reboot emptied `/tmp`, so inodes are free again. The crate
+  cache `/tmp/babel-cargo` and the drill helpers `/tmp/babel-m3-08-keyboard` and
+  `/tmp/wtype` were recreated and vanish on the next reboot. The four file-picker
+  aborts of AUDIT-D04-R4's first native attempt stay open in the register.
+
+**AUDIT-D04-R4 complete and published 2026-10-05** at `f2ba0c5`.
 [Brief](tasks/AUDIT-D04-R4.md),
 [evidence](test-evidence/AUDIT.md#audit-d04-r4--boneyard-inside-the-renderers-opening-title-block).
-The owner delegated the open decisions; the agent chose gate option A and kept
-the helper-warning check separate.
-
-- Change: `src/domain/exportAssessment.ts` only. An opening block the renderer
-  reads as a title page and the codec does not is blocking SC005 with or
-  without a boneyard line in it. The field comparisons are skipped only where
-  a boneyard removed from a title field is already reported. Two sibling cases
-  found by probe (a literal `/*` in a title field) are covered too.
-- Oracle 117 → 127 hand-written cases, red first (8 failed). The renderer gate
-  lists ten reviewed sources exactly; baseline and seed unchanged. The by-name
-  reproducer in `tests/investigation/` is green (38/38).
-- Checks: focused 191/191, differential 3/3 with all faults failing, fixture
-  scan 0 added and 0 removed over 48 fixtures, helper 16/16, tooling 5/5,
-  `pnpm check` 1339/1339, browser smoke, fresh build, and native
-  `pdf-export script-check publication-exit title-page` 8/8 with clean crash
-  audits on tmpfs and Btrfs. Rust gates and the workspace matrix skipped: no
-  Rust or filesystem path changed. The new SC005 is not exercised natively.
-- **Environment, owner action:** `/tmp` has about 15,000 of 1,048,576 inodes
-  free; 61 retained `babel-native-ime-*` roots hold nearly all the rest. The
-  first native attempt hit zero: drills failed 0/8 and `babel-desktop` aborted
-  at the file picker four times (indexed in the register; the clean rerun does
-  not close them). Native runs must set `BABEL_NATIVE_IME_TEMP_ROOT`. Clearing
-  those roots, or rebooting, is the owner's call.
+An opening block the renderer reads as a title page and the codec does not is
+blocking SC005 with or without a boneyard line in it.
 
 **AUDIT-READING-CANDIDATES complete 2026-10-05.**
 [Brief](tasks/AUDIT-READING-CANDIDATES.md),
@@ -64,14 +81,8 @@ silent omissions, which AUDIT-D04-R4 fixes.
   or clean role candidate. Three in-memory faults are detected.
 - Eleven frozen-control source-role candidate occurrences stay in the report;
   they are classified above. The report now lists every occurrence.
-- Shared local checks: frontend 1319/1319 in 74 files, Rust 273/273,
-  helper 16/16, tooling 5/5, differential 3/3, browser and package pass.
-  Initial formatting/discovery mistakes and BOM-oracle correction are retained
-  in evidence. First published CI passed frontend/core/helper/differential/tooling,
-  then failed the browser harness's 15-second console-message startup wait.
-  Vite awaited startup/close replaces that wait. Both CI jobs passed at
-  `6225a41`, including browser, workspace tests and Linux package build;
-  failed run and repair results are retained in evidence.
+- Shared local checks and both CI jobs passed at `6225a41`. The first CI run's
+  browser-harness failure and its repair are retained in evidence.
 
 ## Retained findings and limits
 
@@ -96,12 +107,13 @@ remain open. DEV-02 is owner-only. No retained artifacts pruned.
 
 ## Next action
 
-**AUDIT-EXPORT-WARNINGS** — [brief](tasks/AUDIT-EXPORT-WARNINGS.md), **claimed
-and in progress 2026-10-05**, base `675685b`. Design, tier, focused commands
-and native drills are settled in the brief; no code has changed yet. It compares
-the helper's warnings with the assessment at export, so an omission the
-assessment does not predict cannot export silently. Before any native run check
-`df -i /tmp` and set `BABEL_NATIVE_IME_TEMP_ROOT`. Proposed after it:
-AUDIT-SWEEP-COVERAGE in the [tracker](tasks/AUDIT-TRACKER.md).
+**AUDIT-SWEEP-COVERAGE** — proposed in the [tracker](tasks/AUDIT-TRACKER.md),
+no brief yet. Write the brief first: a second, better-mixed generated corpus
+beside the frozen one, feeding both the reading gate and the warning gate; never
+change the existing seed, baseline or assertions. Then **AUDIT-D04-R5** (also
+proposed, no brief): report the three open findings as located limitations and
+flip their corpus cases. The owner may prefer R5 first; it is the smaller task.
+Before any native run check `df -i /tmp`, set `BABEL_NATIVE_IME_TEMP_ROOT`, and
+recreate the `/tmp` helpers if the host has rebooted.
 No M6/F4 continuation, group F, DEV-02 or release admission is selected.
-Each further push needs explicit owner authorization.
+Each push needs explicit owner authorization; this task's commits are unpushed.

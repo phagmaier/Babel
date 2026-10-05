@@ -169,6 +169,34 @@ classes (`paragraphs`), which the helper test checks against the real parser
 and a vitest test checks against the mirror.
 [Evidence](test-evidence/AUDIT.md#audit-d04-r3--remaining-renderercodec-reading-differences).
 
+### Announced omissions and the helper's warnings (AUDIT-EXPORT-WARNINGS)
+
+A verified assessment also states `announced`: the omission categories the
+author is told about, in the helper's `unsupported-publication:*` names
+(`boneyards`, `notes`, `sections`, `synopses`, `unknown-title-fields`). Export
+[stops](pdf-and-formatting.md#captured-pdf-export-m5-06) on a helper warning
+outside that set. Issues and counts are unchanged; a category is announced by:
+
+- a counted omission in the summary line;
+- a blocking limitation that says the profile omits or may omit that kind;
+- a limitation on a line the codec reads as a section or synopsis, even where
+  its wording says the line prints: the renderer omits it beside a boneyard it
+  deletes or past a note it skips, and such a line is non-printing either way;
+- hidden-text syntax inside lines already told about. The helper finds notes
+  and boneyards by pattern over the raw source, so it also reports a note
+  inside a counted boneyard, hidden text in an omitted title field, and note
+  brackets in a title value, which the renderer prints as written. An unclosed
+  or ambiguous region and a raw line are unverified and also announce a section
+  or synopsis line inside them.
+
+Categories only: an announcement does not prove extent and covers any warning
+in its category. A counted omission the helper does not warn about is not a
+mismatch (it does not warn about an empty synopsis line). Three omissions the
+assessment does not yet report are [open](tasks/AUDIT-EXPORT-WARNINGS.md#open-findings-this-comparison-now-stops);
+export stops for them.
+[Brief](tasks/AUDIT-EXPORT-WARNINGS.md),
+[evidence](test-evidence/AUDIT.md#audit-export-warnings--renderer-warnings-compared-at-export).
+
 ## Reading conformance gate
 
 Changes to codec spelling, export assessment, the parser mirror or renderer

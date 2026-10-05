@@ -1,8 +1,11 @@
 # AUDIT-EXPORT-WARNINGS — stop an export the renderer warns about and the check did not predict
 
-Status: **in progress 2026-10-05**; base `675685b`. The owner delegated the
-design decisions to the agent on 2026-10-05; the choices and their reasons are
-recorded below, before any code changed.
+Status: **done 2026-10-05**; base `675685b`.
+[Evidence](../test-evidence/AUDIT.md#audit-export-warnings--renderer-warnings-compared-at-export).
+The owner delegated the design decisions to the agent on 2026-10-05. The first
+choices were recorded before any code changed (`b2b9ed4`); a wider scratch
+sweep then showed two of them would refuse legitimate exports, and they were
+revised as stated below.
 Origin: [classification evidence](../test-evidence/AUDIT-READING-CANDIDATES.md#classification--2026-10-05).
 Requirements: SPEC S09.2, S12.2, INV-03; ADR 0037 limits and assessment handoff.
 
@@ -14,26 +17,40 @@ notes, sections, synopses and unknown title fields. By reading
 only on Script Check issues; only the preview panel shows helper warnings. For
 the AUDIT-D04-R4 sources the helper warned `unknown-title-fields` while the
 assessment was clean, and nothing compared the two. That fix closes the known
-shape. A comparison at export would stop the same class of omission whatever
-the assessment or its parser mirror misses next.
+shape. A comparison at export stops the same class of omission whatever the
+assessment or its parser mirror misses next.
 
 ## Design as settled
 
-Settled from the code and from a scratch probe that ran the pinned helper's
-`warnings()` beside the current assessment over the shared oracle, the tracked
-`.fountain` fixtures and the renderer gate's 70,000 generated sources (59,098
-distinct), plus hand-written edge cases. Counts are in the evidence.
+Settled from the code, from the pinned helper's own `warnings()` run beside the
+assessment over the shared oracle, the tracked fixtures and the gate's 70,000
+generated sources, and from a scratch sweep of 206,282 better-mixed sources.
+Counts and retained PDFs are in the evidence.
 
 - **What the assessment predicts: an announced set.** The verified assessment
   gains `announced`: the omission categories the author is told about, in the
-  helper's names. A category is announced by a counted omission in the summary
-  line, or by a blocking issue that says the profile omits or may omit that
-  kind. Issues and omission counts are unchanged. Reason: counts alone would
-  refuse exports the author has already reviewed. In the probe 1,988 sources
-  warn `unknown-title-fields` with no "unknown title field" issue (1,986 are the
-  opening-block limitation, 2 an indented key), and escaped or unclosed hidden
-  text and lines the renderer takes as a section or synopsis all warn with a
-  zero count. A public per-issue field was rejected: nothing else would read it.
+  helper's names. Issues and omission counts are unchanged (identical to base
+  for every corpus source). A category is announced by:
+  1. a counted omission in the summary line;
+  2. a blocking issue that says the profile omits or may omit that kind. Counts
+     alone are not enough: 1,988 corpus sources warn `unknown-title-fields`
+     with no "unknown title field" issue, and escaped or unclosed hidden text
+     and lines the renderer takes as a section or synopsis warn with a zero
+     count;
+  3. a limitation on a line the codec reads as a section or synopsis. Its
+     message may say the line prints while the renderer omits it (beside a
+     boneyard it deletes, or past a note it skips). A section or synopsis is
+     non-printing by SPEC S09 either way;
+  4. hidden-text syntax inside lines already told about. The helper finds notes
+     and boneyards by pattern over the raw source, so it also reports a note
+     inside a counted boneyard, hidden text inside an omitted title field, and
+     note brackets in a title value, which the renderer prints as written. An
+     unclosed or ambiguous region and a raw line are unverified: they also
+     announce a section or synopsis line they contain.
+
+  Rules 3 and 4 were added after the sweep: without them 7,888 of 206,282
+  sources stopped, most often a commented-out block that contains a note.
+
 - **One direction fails.** A renderer warning outside the announced set stops
   the export. A counted omission the renderer does not warn about does not.
   Reasons: the helper under-reports (an empty synopsis line, `# Act` then `=`,
@@ -46,8 +63,8 @@ distinct), plus hand-written edge cases. Counts are in the evidence.
 - **Outcome on mismatch.** No publication call. The rendered artifact is
   cancelled (native `cancel_publication` removes it), the capture is retired,
   and the export fails naming each category. There is no acceptance path: the
-  helper gives no location, so the author could not make an informed decision.
-  Source, Save and recovery are untouched.
+  helper gives no location, so the author could not make the informed decision
+  SPEC S09 requires. Source, Save and recovery are untouched.
 - **Unknown or unreadable warnings fail too.** A code outside the five known
   categories, or a warnings value that is not a list of coded entries, counts
   as unannounced.
@@ -55,37 +72,46 @@ distinct), plus hand-written edge cases. Counts are in the evidence.
   verified and before `publish`, against the report held for the same captured
   version and hash. Helper, profile, pins, codec, IPC and Rust are unchanged.
 - **Limits.** Categories only: matching categories do not prove matching
-  extent, and an acknowledged issue covers any warning in its category.
-  **Known false stop:** note brackets inside a title field
-  (`Title: Film [[x]]`). The renderer prints them as written; the helper warns
-  `notes` because its pattern scans the whole source. Export stops although
-  nothing is omitted. Explaining a warning away needs a new assessment rule, so
-  it is a proposed follow-up in the tracker, not part of this task.
+  extent, and an announcement covers any warning in its category. The stop
+  names a category, not a line. The announced rules were validated on generated
+  sources, not on a real manuscript.
+
+## Open findings this comparison now stops
+
+The sweep found real omissions the assessment does not report. Export now
+stops for each; none is fixed here, because a located limitation is an
+assessment rule. Retained PDFs are in the evidence; the proposed follow-up is
+AUDIT-D04-R5 in the [tracker](AUDIT-TRACKER.md).
+
+| Source                                    | Assessment                 | PDF                                  |
+| ----------------------------------------- | -------------------------- | ------------------------------------ |
+| ` FADE IN: [[cold open]]` as opening line | clean, "1 note"            | `FADE IN:` not printed               |
+| `Title: A Story` then ` Draft date: 1`    | "needs an empty line" only | ` Draft date: 1` not printed         |
+| the same with a boneyard in the title     | boneyard and empty line    | the same line not printed (R4 limit) |
 
 ## Acceptance
 
 - **Red first.** A render result carrying `unknown-title-fields` beside a clean
   assessment must not reach a successful export.
-- **`announced` contract cases.** Each category through the summary and through
-  a blocking issue; a clean source and issues that say text prints announce
-  nothing.
+- **Hand-authored corpus**, `fixtures/assessment/export-warnings.json`: each
+  case states the helper's warnings, what is announced, whether export reviews
+  first and whether a PDF may be published. Both sides read it.
 - **Export cases.** Each category unannounced: failed, no publish, render
-  cancelled, capture retired, message names the category. Each category
-  announced by the summary or by an acknowledged issue: succeeds. An
-  acknowledged issue of another category does not cover. Unknown code and
-  malformed warnings fail. A counted omission without a warning succeeds. A
-  mismatching result that arrives after cancellation stays cancelled. The known
-  false stop is pinned as a case with the helper's literal output.
-- **Corpus gate.** The renderer gate also asserts that every pinned-helper
-  warning is announced for each shared-oracle and generated source, that each
-  category is exercised both ways, and reports the reverse direction without
-  asserting it. `BABEL_DIFFERENTIAL_FAULT=announced` must fail it.
+  cancelled, capture retired, message names the category. An acknowledged issue
+  of another category does not cover. Unknown code and malformed warnings fail.
+  A counted omission without a warning succeeds. A mismatching result that
+  arrives after cancellation stays cancelled.
+- **Corpus gate.** The renderer gate also asserts that the pinned helper
+  reports exactly the corpus's warnings, that every helper warning is announced
+  for each shared-oracle and generated source except the named open findings,
+  and that each category is exercised both ways. The reverse direction is
+  reported, not asserted. `BABEL_DIFFERENTIAL_FAULT=announced` must fail it.
 - **Assessment unchanged.** Issues and omission counts are identical to base
-  `675685b` for every corpus source (scratch comparison).
+  `675685b` for every corpus source and tracked fixture (scratch comparison).
 - **Wording** reviewed in a panel test.
-- **Native.** `pdf-export` gains the known false stop as the only natural
-  trigger available: the real helper warns, the export stops, no PDF exists and
-  the saved source bytes are unchanged.
+- **Native.** `pdf-export` gains two steps with the real helper: a note inside
+  a boneyard exports directly, and the first open finding stops with no PDF and
+  unchanged saved bytes.
 
 ## Do NOT do
 

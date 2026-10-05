@@ -122,3 +122,26 @@ it('AUDIT-D04 shows the omission summary without review controls when export goe
   ).toBeNull();
   expect(screen.getByRole('button', { name: 'Cancel export' })).toBeTruthy();
 });
+it('AUDIT-EXPORT-WARNINGS states a stopped export in the status line with no way to accept it', () => {
+  const t = fixture();
+  const message =
+    'PDF export needs attention: The renderer reported leaving out notes and unknown title page fields, which the export check did not report. No PDF was written. Editing and Save remain available; no export success is confirmed.';
+  render(
+    <ExportPdfPanel
+      controller={{ ...t.controller, busy: false } as ExportPdfController}
+      state={{ ...t.state, phase: 'failed', message }}
+      onDismiss={vi.fn()}
+    />,
+  );
+  expect(screen.getByRole('status').textContent).toBe(message);
+  // What the check did report stays beside it; nothing offers to proceed.
+  expect(screen.getByText(SUMMARY)).toBeTruthy();
+  expect(screen.queryByRole('checkbox')).toBeNull();
+  expect(
+    screen.queryByRole('button', { name: 'Choose PDF destination' }),
+  ).toBeNull();
+  expect(screen.queryByRole('button', { name: 'Cancel export' })).toBeNull();
+  expect(
+    screen.getByRole('button', { name: 'Dismiss export status' }),
+  ).toBeTruthy();
+});

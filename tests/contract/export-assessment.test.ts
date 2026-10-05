@@ -672,3 +672,70 @@ it('AUDIT-D04 keeps many inline notes exportable instead of truncating', () => {
     omissions: { notes: { count: 1002, lines: 1002 } },
   });
 });
+
+// AUDIT-EXPORT-WARNINGS. What the author is told is what export may later hear
+// from the renderer. The corpus's `warnings` are checked against the pinned
+// helper in tests/differential/renderer.test.ts.
+const warningCorpus = JSON.parse(
+  readFileSync('fixtures/assessment/export-warnings.json', 'utf8'),
+) as {
+  cases: {
+    name: string;
+    source: string;
+    warnings: string[];
+    announced: string[];
+    review: boolean;
+    exports: boolean;
+  }[];
+};
+it.each(warningCorpus.cases)(
+  'AUDIT-EXPORT-WARNINGS announced: $name',
+  ({ source, warnings, announced, review, exports }) => {
+    // Sorted in the helper's order, so the lists compare directly.
+    expect([...announced].sort()).toEqual(announced);
+    const doc = parse(source);
+    const before = Array.from(serializeFountain(doc));
+    const report = evaluateScriptCheck(doc, {
+      ...context,
+      layout: assessmentLayoutProbes(doc).map(() => null),
+    });
+    const assessment = report.exportAssessment;
+    if (assessment.status !== 'verified') throw new Error('unavailable');
+    expect(assessment.announced).toEqual(announced);
+    expect(Object.isFrozen(assessment.announced)).toBe(true);
+    expect(requiresExportReview(report)).toBe(review);
+    // The corpus is consistent: a PDF may be published exactly when every
+    // renderer warning was announced.
+    expect(warnings.every((warning) => announced.includes(warning))).toBe(
+      exports,
+    );
+    // Whatever the summary line counts is announced.
+    const counted = {
+      boneyards: assessment.omissions.boneyards.count,
+      notes: assessment.omissions.notes.count,
+      sections: assessment.omissions.sections.count,
+      synopses: assessment.omissions.synopses.count,
+    };
+    for (const [category, count] of Object.entries(counted))
+      if (count) expect(announced).toContain(category);
+    expect(Array.from(serializeFountain(doc))).toEqual(before);
+  },
+);
+it('AUDIT-EXPORT-WARNINGS announces nothing for limitations that say the text prints', () => {
+  for (const [source, announced] of [
+    // Printed as text, as action, in capitals, or refused for its glyphs.
+    ['INT. LAB - DAY\n\nAn *unpaired star and {{raw}} text.\n', []],
+    ['int. lab - day\n\nA lamp glows.\n', []],
+    ['INT. LAB - DAY\n\nA lamp 😀 glows.\n', []],
+    ['Title: Film\nINT. LAB - DAY\n\nA lamp glows.\n', []],
+    // A section or synopsis is non-printing by definition: the limitation on
+    // it announces its own kind, should the renderer omit it after all.
+    ['INT. LAB - DAY\n\n# Act\nA lamp glows.\n', ['sections']],
+    ['INT. LAB - DAY\n\nA lamp glows.\n\n= Not attached.\n', ['synopses']],
+  ] as const) {
+    const result = assess(source);
+    if (result.status !== 'verified') throw new Error('unavailable');
+    expect(result.issues.length, source).toBeGreaterThan(0);
+    expect(result.announced, source).toEqual(announced);
+  }
+});

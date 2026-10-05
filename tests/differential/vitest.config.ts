@@ -67,6 +67,15 @@ export default defineConfig({
             'issues: Object.freeze(issues),',
             'issues: Object.freeze([]),',
           );
+        // AUDIT-EXPORT-WARNINGS: blocking issues stop announcing what they omit.
+        if (
+          fault === 'announced' &&
+          id.endsWith('/src/domain/exportAssessment.ts')
+        )
+          return readFileSync(id, 'utf8').replace(
+            'for (const category of omits) announced.add(category);',
+            '',
+          );
       },
     },
   ],

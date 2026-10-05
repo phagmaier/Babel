@@ -7,7 +7,11 @@ import type { CapturedSnapshot } from './persistenceController';
 import type { PublicationRequest, PublicationResult } from './publication';
 import type { PublicationPreviewController } from './publicationPreview';
 import type { ExportAssessmentPort } from './exportAssessment';
-import { assessmentLayoutProbes } from '../domain/exportAssessment';
+import {
+  assessmentLayoutProbes,
+  OMISSION_CATEGORIES,
+  type OmissionCategory,
+} from '../domain/exportAssessment';
 import { parseFountain } from '../domain/fountainCodec';
 import {
   evaluateScriptCheck,
@@ -76,6 +80,48 @@ export interface ExportPdfState {
   version: number | null;
   report: CheckReport | null;
   receipt: PdfExportReceipt | null;
+}
+const WARNING_PREFIX = 'unsupported-publication:';
+const omissionNames: Record<OmissionCategory, string> = {
+  boneyards: 'boneyard text',
+  notes: 'notes',
+  sections: 'section headings',
+  synopses: 'synopses',
+  'unknown-title-fields': 'unknown title page fields',
+};
+/**
+ * AUDIT-EXPORT-WARNINGS. What the renderer says it left out and the assessment
+ * of this exact capture did not announce, named for the author. Null when the
+ * two cannot be compared. Categories only: a match does not prove extent.
+ */
+function unannouncedOmissions(
+  result: PublicationResult,
+  report: CheckReport | null,
+): string[] | null {
+  const assessment = report?.exportAssessment;
+  const warnings: unknown = result.warnings;
+  if (
+    assessment?.status !== 'verified' ||
+    assessment.version !== result.version ||
+    assessment.sourceSha256 !== result.sourceSha256 ||
+    !Array.isArray(warnings) ||
+    !warnings.every((warning) => typeof warning?.code === 'string')
+  )
+    return null;
+  const names = new Set<string>();
+  for (const { code } of warnings as { code: string }[]) {
+    const feature = code.startsWith(WARNING_PREFIX)
+      ? code.slice(WARNING_PREFIX.length)
+      : null;
+    const category = OMISSION_CATEGORIES.find((known) => known === feature);
+    if (category && assessment.announced.includes(category)) continue;
+    names.add(
+      category
+        ? omissionNames[category]
+        : `an unrecognised item “${(feature ?? code).slice(0, 60)}”`,
+    );
+  }
+  return [...names];
 }
 export class ExportPdfController {
   state: ExportPdfState = {
@@ -255,6 +301,22 @@ export class ExportPdfController {
         this.port.render({ ...authority, requestId: request.requestId }),
     );
     if (!this.live(serial)) return;
+    // AUDIT-EXPORT-WARNINGS: an omission the renderer reports and the check
+    // did not announce stops here. The artifact is discarded and nothing is
+    // published; the renderer gives no location, so nothing can be accepted.
+    const unannounced = unannouncedOmissions(result, this.state.report);
+    if (unannounced === null || unannounced.length) {
+      await this.publication.cancelExportRender().catch(() => {});
+      throw new Error(
+        unannounced === null
+          ? 'The renderer’s report of what it left out could not be compared with the export check. No PDF was written'
+          : `The renderer reported leaving out ${
+              unannounced.length > 1
+                ? `${unannounced.slice(0, -1).join(', ')} and ${unannounced.at(-1)}`
+                : unannounced[0]
+            }, which the export check did not report. No PDF was written`,
+      );
+    }
     this.set({
       phase: 'publishing',
       message: `Writing ${target.fileName} atomically. Publication has started; cancellation is unavailable.`,

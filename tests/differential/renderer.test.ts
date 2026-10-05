@@ -255,3 +255,111 @@ it('shared corpus and 70,000 generated sources introduce no pinned-parser readin
       { flag: 'wx' },
     );
 });
+
+// AUDIT-EXPORT-WARNINGS. Export stops on a helper warning the assessment did
+// not announce, so every warning the pinned helper really reports here must be
+// announced: an unannounced one is a silent omission, or a stop the author
+// could never clear. The hand-authored corpus states its warnings literally
+// and names the open findings (`exports: false`), the only sources allowed to
+// stop. Clear one by reporting it in the assessment, never by widening
+// `announced`. The reverse direction is reported, not asserted: the helper
+// does not warn about an empty synopsis.
+it('shared corpora and 70,000 generated sources leave no pinned-helper warning unannounced beyond the named open findings', () => {
+  const read = (path: string) =>
+    JSON.parse(readFileSync(path, 'utf8')) as {
+      cases: { source: string; warnings?: string[]; exports?: boolean }[];
+    };
+  const shared = read('fixtures/assessment/oracle.json').cases;
+  const authored = read('fixtures/assessment/export-warnings.json').cases;
+  const inputs = [...authored, ...shared].map((c) => c.source);
+  inputs.push(...sources());
+  const reported = JSON.parse(
+    execFileSync('python3', ['tools/differential/warning_oracle.py'], {
+      input: JSON.stringify(inputs),
+      encoding: 'utf8',
+      maxBuffer: 64 * 1024 * 1024,
+      timeout: 150000,
+    }),
+  ) as (string[] | { refused: string })[];
+  expect(reported).toHaveLength(inputs.length);
+  const prefix = 'unsupported-publication:';
+  const categories: readonly string[] = assessment.OMISSION_CATEGORIES;
+  const seen = Object.fromEntries(
+    categories.map((category) => [category, { summary: 0, issue: 0 }]),
+  );
+  const unannounced: { source: string; missing: string[] }[] = [];
+  const unwarned: { source: string; counted: string[] }[] = [];
+  let refused = 0;
+  for (const [index, source] of inputs.entries()) {
+    const actual = reported[index]!;
+    if (!Array.isArray(actual)) {
+      refused++;
+      continue;
+    }
+    // An unprefixed or unknown code stays as it is and is never announced.
+    const warned = actual.map((code) =>
+      code.startsWith(prefix) ? code.slice(prefix.length) : code,
+    );
+    if (index < authored.length)
+      expect(warned, source).toEqual(authored[index]!.warnings);
+    const check = assessment.evaluateExportAssessment(
+      parseFountain(new TextEncoder().encode(source)),
+      {
+        identity: assessment.PUBLICATION_ASSESSMENT_IDENTITY,
+        version: 1,
+        sourceSha256: 'a'.repeat(64),
+      },
+    );
+    if (check.status !== 'verified') throw new Error('unavailable: ' + source);
+    const announced: readonly string[] = check.announced;
+    const counted = [
+      check.omissions.boneyards.count ? 'boneyards' : '',
+      check.omissions.notes.count ? 'notes' : '',
+      check.omissions.sections.count ? 'sections' : '',
+      check.omissions.synopses.count ? 'synopses' : '',
+    ].filter(Boolean);
+    const missing = warned.filter((category) => !announced.includes(category));
+    if (missing.length) unannounced.push({ source, missing });
+    for (const category of warned)
+      if (announced.includes(category))
+        seen[category]![counted.includes(category) ? 'summary' : 'issue']++;
+    const silent = counted.filter((category) => !warned.includes(category));
+    if (silent.length) unwarned.push({ source, counted: silent });
+  }
+  console.log(
+    JSON.stringify({
+      sources: inputs.length,
+      refused,
+      unannounced: unannounced.length,
+      unwarned: unwarned.length,
+      seen,
+    }),
+  );
+  expect(refused).toBe(0);
+  // Exactly the open findings the hand-authored corpus names, no other source.
+  const open = authored.filter((c) => c.exports === false);
+  expect(
+    unannounced.slice(0, open.length + 10).map((found) => found.source),
+  ).toEqual(open.map((c) => c.source));
+  // Not vacuous: each category is announced without a count, and each counted
+  // kind by the summary, somewhere the helper really warns.
+  for (const category of categories) {
+    expect(seen[category]!.issue, category).toBeGreaterThan(0);
+    if (category !== 'unknown-title-fields')
+      expect(seen[category]!.summary, category).toBeGreaterThan(0);
+  }
+  if (process.env.BABEL_DIFFERENTIAL_REPORT)
+    writeFileSync(
+      process.env.BABEL_DIFFERENTIAL_REPORT + '.warnings.json',
+      JSON.stringify({
+        sources: inputs.length,
+        uniqueSources: new Set(inputs).size,
+        refused,
+        unannounced,
+        announcedWhereWarned: seen,
+        countedButNotWarned: unwarned.length,
+        countedButNotWarnedExamples: unwarned.slice(0, 5),
+      }),
+      { flag: 'wx' },
+    );
+});

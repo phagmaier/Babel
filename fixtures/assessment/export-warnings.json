@@ -1,0 +1,418 @@
+{
+  "provenance": "Original synthetic cases authored for AUDIT-EXPORT-WARNINGS; no real manuscript.",
+  "purpose": "One hand-authored corpus read by two independent checkers. warnings is the exact set of unsupported-publication categories the pinned helper reports for the source (tests/differential/renderer.test.ts, through tools/differential/warning_oracle.py). announced, review and exports are checked against Babel's export assessment and export use case (tests/contract/export-assessment.test.ts, tests/contract/export-pdf.test.ts): announced is what the author is told about, in the summary line, in a blocking issue, or as hidden-text syntax inside lines already told about; review says whether export stops for an acknowledgement first; exports says whether a PDF may be published once the renderer returns those warnings. Cases named open finding are real omissions the assessment does not yet report: export stops for them, and each needs a located limitation before exports can become true.",
+  "profile": "us-letter-draft-v1",
+  "cases": [
+    {
+      "name": "nothing omitted",
+      "source": "INT. LAB - DAY\n\nA lamp glows.\n",
+      "warnings": [],
+      "announced": [],
+      "review": false,
+      "exports": true
+    },
+    {
+      "name": "note on its own line is summarised",
+      "source": "INT. LAB - DAY\n\nA lamp glows.\n\n[[Private note]]\n",
+      "warnings": [
+        "notes"
+      ],
+      "announced": [
+        "notes"
+      ],
+      "review": false,
+      "exports": true
+    },
+    {
+      "name": "boneyard on its own line is summarised",
+      "source": "INT. LAB - DAY\n\nA lamp glows.\n\n/* Old ending */\n\nThe end.\n",
+      "warnings": [
+        "boneyards"
+      ],
+      "announced": [
+        "boneyards"
+      ],
+      "review": false,
+      "exports": true
+    },
+    {
+      "name": "section heading is summarised",
+      "source": "# Act One\n\nINT. LAB - DAY\n\nA lamp glows.\n",
+      "warnings": [
+        "sections"
+      ],
+      "announced": [
+        "sections"
+      ],
+      "review": false,
+      "exports": true
+    },
+    {
+      "name": "synopsis under a heading is summarised",
+      "source": "INT. LAB - DAY\n\n= The lamp is introduced.\n\nA lamp glows.\n",
+      "warnings": [
+        "synopses"
+      ],
+      "announced": [
+        "synopses"
+      ],
+      "review": false,
+      "exports": true
+    },
+    {
+      "name": "all four summarised kinds together",
+      "source": "# Act One\n\n= Setup.\n\nINT. LAB - DAY\n\nA lamp [[check wattage]] glows.\n\n/* Old ending */\n\nThe end.\n",
+      "warnings": [
+        "boneyards",
+        "notes",
+        "sections",
+        "synopses"
+      ],
+      "announced": [
+        "boneyards",
+        "notes",
+        "sections",
+        "synopses"
+      ],
+      "review": false,
+      "exports": true
+    },
+    {
+      "name": "empty synopsis is counted and the renderer does not warn",
+      "source": "# Act\n=\n\nINT. LAB - DAY\n\nA lamp glows.\n",
+      "warnings": [
+        "sections"
+      ],
+      "announced": [
+        "sections",
+        "synopses"
+      ],
+      "review": false,
+      "exports": true
+    },
+    {
+      "name": "unknown title field",
+      "source": "Archive: Extra\n\nINT. LAB - DAY\n\nA light.\n",
+      "warnings": [
+        "unknown-title-fields"
+      ],
+      "announced": [
+        "unknown-title-fields"
+      ],
+      "review": true,
+      "exports": true
+    },
+    {
+      "name": "opening block the renderer takes as a title page",
+      "source": "FADE IN:\n\t\n\t/* bone */\n\nA lamp glows.\n",
+      "warnings": [
+        "boneyards",
+        "unknown-title-fields"
+      ],
+      "announced": [
+        "boneyards",
+        "unknown-title-fields"
+      ],
+      "review": true,
+      "exports": true
+    },
+    {
+      "name": "indented key the renderer takes as a separate title field",
+      "source": "Title: Night Shift\nContact: Sam\n    Tel: 555 0100\n\nINT. LAB - DAY\n\nA lamp glows.\n",
+      "warnings": [
+        "unknown-title-fields"
+      ],
+      "announced": [
+        "unknown-title-fields"
+      ],
+      "review": true,
+      "exports": true
+    },
+    {
+      "name": "backslash before a boneyard marker",
+      "source": "INT. LAB - DAY\n\nA \\/* literal */ lamp.\n",
+      "warnings": [
+        "boneyards"
+      ],
+      "announced": [
+        "boneyards"
+      ],
+      "review": true,
+      "exports": true
+    },
+    {
+      "name": "backslash before a note marker",
+      "source": "INT. LAB - DAY\n\nA \\[[literal]] lamp.\n",
+      "warnings": [
+        "notes"
+      ],
+      "announced": [
+        "notes"
+      ],
+      "review": true,
+      "exports": true
+    },
+    {
+      "name": "boneyard inside a title field",
+      "source": "Title: A /* hidden */ Story\n\nINT. LAB - DAY\n\nA lamp glows.\n",
+      "warnings": [
+        "boneyards"
+      ],
+      "announced": [
+        "boneyards"
+      ],
+      "review": true,
+      "exports": true
+    },
+    {
+      "name": "note left open across an empty line",
+      "source": "INT. LAB - DAY\n\n[[first\n\nsecond]]\n\nThe end.\n",
+      "warnings": [
+        "notes"
+      ],
+      "announced": [
+        "notes"
+      ],
+      "review": true,
+      "exports": true
+    },
+    {
+      "name": "unclosed note the renderer does not warn about",
+      "source": "INT. LAB - DAY\n\nA light.\n\n[[never closed\n",
+      "warnings": [],
+      "announced": [
+        "notes"
+      ],
+      "review": true,
+      "exports": true
+    },
+    {
+      "name": "line the renderer takes as a section heading",
+      "source": "INT. LAB - DAY\n\n#1 DAD mug sits on the desk.\n",
+      "warnings": [
+        "sections"
+      ],
+      "announced": [
+        "sections"
+      ],
+      "review": true,
+      "exports": true
+    },
+    {
+      "name": "line the renderer may take as a synopsis",
+      "source": "INT. LAB - DAY\n\n==== marker\n",
+      "warnings": [
+        "synopses"
+      ],
+      "announced": [
+        "synopses"
+      ],
+      "review": true,
+      "exports": true
+    },
+    {
+      "name": "spaced page break the renderer takes as a synopsis",
+      "source": "INT. LAB - DAY\n\n=== \n\nA lamp glows.\n",
+      "warnings": [
+        "synopses"
+      ],
+      "announced": [
+        "synopses"
+      ],
+      "review": true,
+      "exports": true
+    },
+    {
+      "name": "boneyard that leaves a section line standing alone",
+      "source": "Maya waits.\n\n#Act\n/* cut */\n\nShe leaves.\n",
+      "warnings": [
+        "boneyards",
+        "sections"
+      ],
+      "announced": [
+        "boneyards",
+        "sections"
+      ],
+      "review": true,
+      "exports": true
+    },
+    {
+      "name": "raw content announces no omission",
+      "source": "INT. LAB - DAY\n\n{{raw}} light.\n",
+      "warnings": [],
+      "announced": [],
+      "review": true,
+      "exports": true
+    },
+    {
+      "name": "note brackets in a title field print as written, and the renderer still warns",
+      "source": "Title: Film [[x]]\n\nINT. LAB - DAY\n\nA lamp glows.\n",
+      "warnings": [
+        "notes"
+      ],
+      "announced": [
+        "notes"
+      ],
+      "review": false,
+      "exports": true
+    },
+    {
+      "name": "note inside a boneyard",
+      "source": "INT. ROOM - DAY\n\nA lamp glows.\n\n/*\nOLD SCENE\n\n[[was better]]\n*/\n\nThe end.\n",
+      "warnings": [
+        "boneyards",
+        "notes"
+      ],
+      "announced": [
+        "boneyards",
+        "notes"
+      ],
+      "review": false,
+      "exports": true
+    },
+    {
+      "name": "boneyard inside a note",
+      "source": "INT. ROOM - DAY\n\nA lamp glows.\n\n[[later /* cut */ maybe]]\n\nThe end.\n",
+      "warnings": [
+        "boneyards",
+        "notes"
+      ],
+      "announced": [
+        "boneyards",
+        "notes"
+      ],
+      "review": false,
+      "exports": true
+    },
+    {
+      "name": "section the renderer omits beside a boneyard line it deletes",
+      "source": "A lamp glows.\n\n# Act One\n/* old */\n\nThe end.\n",
+      "warnings": [
+        "boneyards",
+        "sections"
+      ],
+      "announced": [
+        "boneyards",
+        "sections"
+      ],
+      "review": true,
+      "exports": true
+    },
+    {
+      "name": "synopsis the renderer attaches past a note",
+      "source": "INT. ROOM - DAY\n\n[[fix this scene]]\n\n= They argue.\n\nA lamp glows.\n",
+      "warnings": [
+        "notes",
+        "synopses"
+      ],
+      "announced": [
+        "notes",
+        "synopses"
+      ],
+      "review": true,
+      "exports": true
+    },
+    {
+      "name": "page break line the renderer takes as the synopsis of a section",
+      "source": "# Act\n===\n\nA lamp glows.\n",
+      "warnings": [
+        "sections",
+        "synopses"
+      ],
+      "announced": [
+        "sections",
+        "synopses"
+      ],
+      "review": true,
+      "exports": true
+    },
+    {
+      "name": "unclosed note ahead of a section",
+      "source": "INT. LAB - DAY\n\n[[open\n\n# Act Two\n\nA lamp glows.\n",
+      "warnings": [
+        "sections"
+      ],
+      "announced": [
+        "notes",
+        "sections"
+      ],
+      "review": true,
+      "exports": true
+    },
+    {
+      "name": "unclosed boneyard ahead of a section and a note",
+      "source": "INT. LAB - DAY\n\n/* open\n\n# Act Two\n\n[[n]]\n\nA lamp glows.\n",
+      "warnings": [
+        "notes",
+        "sections"
+      ],
+      "announced": [
+        "boneyards",
+        "notes",
+        "sections"
+      ],
+      "review": true,
+      "exports": true
+    },
+    {
+      "name": "raw line the renderer takes as a section",
+      "source": "# Act {{x}}\n\nA lamp glows.\n",
+      "warnings": [
+        "sections"
+      ],
+      "announced": [
+        "sections"
+      ],
+      "review": true,
+      "exports": true
+    },
+    {
+      "name": "title lines printed as script text lose their note",
+      "source": "Title: Film\n    = [[n]]\n\nA lamp glows.\n",
+      "warnings": [
+        "notes"
+      ],
+      "announced": [
+        "notes"
+      ],
+      "review": true,
+      "exports": true
+    },
+    {
+      "name": "open finding: indented opening key followed only by a note is dropped unannounced",
+      "source": " FADE IN: [[cold open]]\n\nINT. ROOM - DAY\n\nA lamp glows.\n",
+      "warnings": [
+        "notes",
+        "unknown-title-fields"
+      ],
+      "announced": [
+        "notes"
+      ],
+      "review": false,
+      "exports": false
+    },
+    {
+      "name": "open finding: slightly indented key below a title field is dropped unannounced",
+      "source": "Title: A Story\n Draft date: 1\n\nA lamp glows.\n",
+      "warnings": [
+        "unknown-title-fields"
+      ],
+      "announced": [],
+      "review": true,
+      "exports": false
+    },
+    {
+      "name": "open finding: the same key beside a boneyard in the title field",
+      "source": "Title: A /* hidden */ Story\n Draft date: 1\n\nA lamp glows.\n",
+      "warnings": [
+        "boneyards",
+        "unknown-title-fields"
+      ],
+      "announced": [
+        "boneyards"
+      ],
+      "review": true,
+      "exports": false
+    }
+  ]
+}

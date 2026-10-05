@@ -41,6 +41,22 @@ export interface LayoutProbe {
   readonly source: string;
 }
 export type OmissionKind = 'note' | 'boneyard' | 'section' | 'synopsis';
+/** What the frozen renderer leaves out, as its `unsupported-publication:*`
+ * warnings name it. */
+export const OMISSION_CATEGORIES = [
+  'boneyards',
+  'notes',
+  'sections',
+  'synopses',
+  'unknown-title-fields',
+] as const;
+export type OmissionCategory = (typeof OMISSION_CATEGORIES)[number];
+const summarised: Record<OmissionKind, OmissionCategory> = {
+  note: 'notes',
+  boneyard: 'boneyards',
+  section: 'sections',
+  synopsis: 'synopses',
+};
 export interface OmissionTotal {
   /** Omitted elements of this kind. */
   readonly count: number;
@@ -75,6 +91,11 @@ export type ExportAssessment =
       readonly issues: readonly CheckIssue[];
       readonly truncated: boolean;
       readonly omissions: PublicationOmissions;
+      /** Omission categories this assessment accounts for, as the helper
+       * names them: a counted omission above, a blocking issue about that
+       * kind, or hidden-text syntax inside lines already told about. Export
+       * stops on a renderer warning outside this set. */
+      readonly announced: readonly OmissionCategory[];
       /** Content assessment is not an exported PDF or a page-count receipt. */
       readonly layout: 'verified' | 'unavailable';
     };
@@ -296,10 +317,16 @@ const layoutFeatures = new Set([
 // its note pattern matches within a paragraph; neither honours a backslash
 // before the two-character marker. Escaping each bracket separately is
 // honoured by both and is not reported.
+interface HiddenFinding {
+  message: string;
+  line: number;
+  endLine: number;
+  omits: OmissionCategory;
+}
 function rendererOnlyHidden(
   document: FountainDocument,
   paragraphAt: ReadonlyMap<number, readonly number[]>,
-): { message: string; line: number; endLine: number }[] {
+): HiddenFinding[] {
   const lines = document.lines;
   if (
     !lines.some(
@@ -310,10 +337,11 @@ function rendererOnlyHidden(
     )
   )
     return [];
-  const found: { message: string; line: number; endLine: number }[] = [];
+  const found: HiddenFinding[] = [];
   const scan = (
     rows: readonly number[],
     pattern: RegExp,
+    omits: OmissionCategory,
     describe: (titled: boolean) => string,
   ) => {
     const starts: number[] = [];
@@ -343,12 +371,14 @@ function rendererOnlyHidden(
           message: describe(titled),
           line: first,
           endLine: rowAt(end - 1),
+          omits,
         });
     }
   };
   scan(
     lines.map((_, index) => index),
     /\/\*[\s\S]*?\*\//g,
+    'boneyards',
     (titled) =>
       titled
         ? 'The profile removes boneyard text even inside a title field; this field would not print as written.'
@@ -359,6 +389,7 @@ function rendererOnlyHidden(
       scan(
         rows,
         /\[\[[\s\S]*?\]\]/g,
+        'notes',
         () =>
           'The profile ignores the backslash before a note marker and would drop this text up to the next closing marker.',
       );
@@ -456,6 +487,8 @@ interface Disagreement {
   readonly message: string;
   readonly line: number;
   endLine: number;
+  /** Set where the renderer reads the lines as a kind it does not print. */
+  readonly omits: readonly OmissionCategory[];
 }
 /** Where the renderer's reading of one paragraph differs from the roles the
  * codec shows, with what the renderer would do. */
@@ -479,11 +512,17 @@ function rendererDisagreements(
   if (!differing.length) return [];
   const first = differing[0]!;
   const row = lines[rows[first]!]!;
+  const readAs = (role: RendererRole) =>
+    differing.some((index) => roles[index] === role);
   const whole = (message: string): Disagreement[] => [
     {
       message,
       line: rows[first]!,
       endLine: rows[differing.at(-1)!]!,
+      omits: [
+        ...(readAs('section') ? (['sections'] as const) : []),
+        ...(readAs('synopsis') ? (['synopses'] as const) : []),
+      ],
     },
   ];
   const codecBlank = (at: number) => lines[at]!.sourceText.trim() === '';
@@ -520,7 +559,13 @@ function rendererDisagreements(
           : `The profile reads this line as ${roleNames[roles[index]!]} inside the speech; it would not print as the script shows.`;
       if (last && last.message === message && last.endLine === rows[index - 1])
         last.endLine = rows[index]!;
-      else runs.push({ message, line: rows[index]!, endLine: rows[index]! });
+      else
+        runs.push({
+          message,
+          line: rows[index]!,
+          endLine: rows[index]!,
+          omits: [],
+        });
     }
     return runs;
   }
@@ -588,16 +633,36 @@ export function evaluateExportAssessment(
     );
   const issues: CheckIssue[] = [];
   let truncated = false;
+  // AUDIT-EXPORT-WARNINGS: what the author is told the profile leaves out.
+  const announced = new Set<OmissionCategory>();
+  // The helper finds notes and boneyards by pattern over the raw source, so it
+  // also reports hidden text inside lines the author is already told about:
+  // a counted omission, any limitation, or a title value, where the renderer
+  // prints note brackets as written. Those lines announce what their own text
+  // holds; unverified lines may also hold a section or synopsis it omits.
+  const tell = (from: number, to: number, unverified = false) => {
+    const rows = source.lines.slice(from, to + 1).map((row) => row.sourceText);
+    const text = rows.join('\n');
+    if (/\/\*[\s\S]*?\*\//.test(text)) announced.add('boneyards');
+    if (/\[\[[\s\S]*?\]\]/.test(text)) announced.add('notes');
+    if (!unverified) return;
+    if (rows.some((row) => rendererSection.test(row)))
+      announced.add('sections');
+    if (rows.some((row) => row.startsWith('='))) announced.add('synopses');
+  };
   const add = (
     code: 'SC005' | 'SC008',
     message: string,
     line: number,
     endLine = line,
+    omits: readonly OmissionCategory[] = [],
   ) => {
     if (issues.length >= LIMIT) {
       truncated = true;
       return;
     }
+    for (const category of omits) announced.add(category);
+    if (omits.length) tell(line, endLine);
     const first = source.lines[line]!;
     const last = source.lines[endLine]!;
     issues.push(
@@ -640,7 +705,7 @@ export function evaluateExportAssessment(
   // The renderer's hidden-text patterns ignore backslashes and title fields.
   const escaped = new Set<number>();
   for (const found of rendererOnlyHidden(source, paragraphAt)) {
-    add('SC005', found.message, found.line, found.endLine);
+    add('SC005', found.message, found.line, found.endLine, [found.omits]);
     for (let at = found.line; at <= found.endLine; at++) escaped.add(at);
   }
   const ranges: { kind: OmissionKind; line: number; endLine: number }[] = [];
@@ -654,15 +719,19 @@ export function evaluateExportAssessment(
         !escaped.has(at) &&
         (kind === 'note' || kind === 'boneyard' || stripped.has(at));
     }
-    if (complete)
+    if (complete) {
       ranges.push({ kind: region.kind, line: region.from, endLine: last });
-    else
+      tell(region.from, last);
+    } else {
+      tell(region.from, last, true);
       add(
         'SC005',
         `This ${region.kind} is unclosed, ambiguous or shares a line with printed text; the profile may print or drop text around it.`,
         region.from,
         last,
+        [summarised[region.kind]],
       );
+    }
     for (let at = region.from; at <= last; at++)
       if (document.lines[at]!.kind !== 'raw' && !stripped.has(at))
         omitted.add(at);
@@ -687,6 +756,7 @@ export function evaluateExportAssessment(
     const inSections = sectionParagraphs.has(rows);
     if (row.kind === 'raw') {
       add('SC005', 'The profile cannot verify raw content.', line);
+      tell(line, line, true);
       return;
     }
     if (row.kind === 'section' || row.kind === 'synopsis') {
@@ -708,12 +778,16 @@ export function evaluateExportAssessment(
         omitted.add(line);
         attachable.add(line);
       } else
+        // The renderer may omit it after all, beside a boneyard it deletes or
+        // past a note it skips; a section or synopsis is non-printing either way.
         add(
           'SC005',
           row.kind === 'section'
             ? 'The profile would print this section marker as text: start it at the line start with 1–6 # and keep section lines in their own paragraph.'
             : 'The profile would print this synopsis as text: place it directly after a scene heading or section.',
           line,
+          line,
+          [summarised[row.kind]],
         );
       return;
     }
@@ -729,6 +803,9 @@ export function evaluateExportAssessment(
         'SC005',
         'The profile would treat this line as a section heading and omit it.',
         line,
+        line,
+        // Below a section line, a line starting with “=” is its synopsis.
+        [rendererSection.test(row.sourceText) ? 'sections' : 'synopses'],
       );
     else if (
       row.kind !== 'pageBreak' &&
@@ -739,16 +816,20 @@ export function evaluateExportAssessment(
         'SC005',
         'The profile may treat this line as a synopsis and omit it.',
         line,
+        line,
+        ['synopses'],
       );
   });
   for (const field of document.titleFields) {
     const key = field.key.toLowerCase();
+    tell(field.from, field.from + field.count - 1);
     if (!titleKeys.has(key)) {
       add(
         'SC005',
         `The profile omits unknown or extra title field “${field.key}”.`,
         field.from,
         field.from + field.count - 1,
+        ['unknown-title-fields'],
       );
       for (let i = field.from; i < field.from + field.count; i++)
         omitted.add(i);
@@ -773,6 +854,7 @@ export function evaluateExportAssessment(
       'The profile reads this opening block as a title page and would not print it as script text.',
       0,
       rendererTitle.length - 1,
+      ['unknown-title-fields'],
     );
   else if (!hiddenReported) {
     const separated = (document.lines[codecTitle]?.sourceText ?? '') === '';
@@ -795,6 +877,7 @@ export function evaluateExportAssessment(
               `The profile reads this indented line as a separate title field, not as part of “${field.key}”, and would not print it.`,
               at,
               end,
+              ['unknown-title-fields'],
             );
             break;
           }
@@ -863,7 +946,15 @@ export function evaluateExportAssessment(
         line,
       );
     const reading = rendererLineReading(row, line, rows);
-    if (reading) add('SC005', reading, line);
+    // Its only page-break reading says the line may be omitted as a synopsis.
+    if (reading)
+      add(
+        'SC005',
+        reading,
+        line,
+        line,
+        row.kind === 'pageBreak' ? ['synopses'] : [],
+      );
   });
   // AUDIT-D04-R3: every remaining line whose printed role differs from the one
   // the script shows. A paragraph an earlier limitation already reports is
@@ -873,7 +964,7 @@ export function evaluateExportAssessment(
     const [first, last] = [paragraph.rows[0]!, paragraph.end];
     if (!reported.some(([from, to]) => from! <= last && first <= to!))
       for (const found of rendererDisagreements(paragraph, document.lines))
-        add('SC005', found.message, found.line, found.endLine);
+        add('SC005', found.message, found.line, found.endLine, found.omits);
   }
   const sourceBytes = document.hiddenRegions.length ? document.bytes : null;
   document.lines.forEach((row, line) => {
@@ -959,6 +1050,7 @@ export function evaluateExportAssessment(
     });
   issues.sort((a, b) => a.line! - b.line! || a.code.localeCompare(b.code));
   ranges.sort((a, b) => a.line - b.line || a.endLine - b.endLine);
+  for (const range of ranges) announced.add(summarised[range.kind]);
   const total = (kind: OmissionKind): OmissionTotal => {
     const lines = new Set<number>();
     let count = 0;
@@ -983,6 +1075,9 @@ export function evaluateExportAssessment(
       synopses: total('synopsis'),
       ranges: Object.freeze(ranges.map((range) => Object.freeze(range))),
     }),
+    announced: Object.freeze(
+      OMISSION_CATEGORIES.filter((category) => announced.has(category)),
+    ),
     layout: layoutCurrent ? 'verified' : 'unavailable',
   });
 }
