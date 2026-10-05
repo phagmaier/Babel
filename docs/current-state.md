@@ -1,13 +1,13 @@
-# Current state — capture-refusal wording 2026-10-04 (owner host)
+# Current state — refused-draft decomposition 2026-10-04 (owner host)
 
-Date: 2026-10-04. Application: **babel**. Work on `main` over base `5a707b8`;
-F1 and its predecessors are pushed at `origin/main`; F2 (`5a707b8`) and this
-session's F3 commit are local. No new push authorization. Owner delegated task
+Date: 2026-10-04. Application: **babel**. Work on `main` over base `2456c2c`;
+F1 and its predecessors are pushed at `origin/main`; F2 (`5a707b8`), F3
+(`2456c2c`) and this session's F4 commits are local. No new push authorization. Owner delegated task
 selection, wording and implementation decisions. M0–M5 and bounded M6-01
 remain recorded complete. **M6-02, C1/F2 and Local v1 admission remain open.**
 Host: owner laptop, uid 1000, Hyprland display, Btrfs repo, tmpfs `/tmp`.
 
-## This session
+## Previous session
 
 **AUDIT-PARK-H-F3 — done.** [Brief](tasks/AUDIT-PARK-H-F3.md),
 [evidence](test-evidence/AUDIT.md#audit-park-h-f3--actionable-capture-refusal-wording).
@@ -34,15 +34,21 @@ Host: owner laptop, uid 1000, Hyprland display, Btrfs repo, tmpfs `/tmp`.
   journals nothing typed meanwhile, and resumes with nothing lost once the row
   changes. One run per filesystem; it does not dispose the F2 SIGABRT.
 
-## Found here, not fixed — AUDIT-PARK-H-F4
+## AUDIT-PARK-H-F4 — decomposed, F4-01 claimed
 
-Ordinary typing can leave the whole draft unsaved and unjournaled until one
-row changes: text after a closed parenthetical (`(beat) x`), a `#number#`
-suffix or leading space or `.` typed in a Scene Heading, a Transition ending
-in `<`, a Character ending in ` ^`, a Section starting with a space, and the
-first Dialogue row of a speech emptied or converted. F3 only names the row.
-Capture decides the saved bytes, so a fix needs a contract-safe brief first;
-reproductions are pinned in `tests/contract/capture-refusal.test.ts`.
+[Brief and decomposition](tasks/AUDIT-PARK-H-F4.md). A wider probe (logs
+`target/audit-park-h-f4/`) refused **229 of 848** single-row cases plus 47
+structural ones. Ordinary typing such as a Dialogue row `(laughs) Oh no.`, or
+bold on a Scene Heading, leaves the whole draft unsaved and unjournaled until
+that row changes; F3 names the row.
+
+- **F4-01** (claimed): commands refuse with a reason instead of creating a
+  refused draft. **F4-02** (ready): two-space spelling for a speech row
+  emptied while its speech continues.
+- **F4-03, F4-04, F4-05** each wait on one owner decision recorded in the
+  brief: un-protecting lines that open with a parenthesis, saving a typed
+  element as Action or Dialogue with recovery-only intent, and bytes or
+  metadata for emptied numbered or last-line rows.
 
 ## Prior queue complete
 
@@ -60,8 +66,8 @@ reproductions are pinned in `tests/contract/capture-refusal.test.ts`.
 
 ## Open — agent work and separate decisions
 
-- **AUDIT-PARK-H-F4** above: write the brief and decide per shape between
-  refusing the input, a portable spelling, or recovery-only intent.
+- **AUDIT-PARK-H-F4** above: F4-01 and F4-02 are agent work; F4-03 to F4-05
+  need the owner decisions in the brief.
 - D-07-F, PARK-T, capitals, D-05 cheap variant and D-09 page count remain
   separately scoped. Record a contract-safe decision/brief before fixing;
   pinned reproductions and requirement contradictions remain authoritative.
@@ -92,6 +98,6 @@ must preserve helper-resource layout from the
 
 ## Next action
 
-This continuation stops after one F3 task-ID commit on main. Next agent writes
-the AUDIT-PARK-H-F4 brief, or takes another separately scoped item above.
-No push. No Local v1/C1/F2/full-platform closure; DEV-02 remains owner-only.
+Finish AUDIT-PARK-H-F4-01, then F4-02. Ask the owner for the F4-03 to F4-05
+decisions. No push. No Local v1/C1/F2/full-platform closure; DEV-02 remains
+owner-only.
