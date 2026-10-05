@@ -1,12 +1,13 @@
 # Current state — next-agent handoff 2026-10-05
 
 Application: **babel**. Work/commit on `main`; maintenance was published.
-Product feature work is paused. AUDIT-D04-R4 is fixed and committed locally,
-not pushed. **M6-02, C1/F2 and Local v1 admission stay open.**
+Product feature work is paused. AUDIT-D04-R4 is fixed and published at
+`f2ba0c5`; CI passed. **M6-02, C1/F2 and Local v1 admission stay open.**
 
 ## This session
 
-**AUDIT-D04-R4 complete 2026-10-05; committed locally, not pushed.**
+**AUDIT-D04-R4 complete and published 2026-10-05.** The owner authorized the
+push; `f2ba0c5` passed both CI jobs ([run](https://github.com/phagmaier/Babel/actions/runs/37313877004)).
 [Brief](tasks/AUDIT-D04-R4.md),
 [evidence](test-evidence/AUDIT.md#audit-d04-r4--boneyard-inside-the-renderers-opening-title-block).
 The owner delegated the open decisions; the agent chose gate option A and kept
@@ -100,6 +101,7 @@ Settle its design section, then name the tier, focused commands and native
 drills in the brief before coding. It compares the helper's warnings with the
 assessment at export, so an omission the assessment does not predict cannot
 export silently. Before any native run check `df -i /tmp` and set
-`BABEL_NATIVE_IME_TEMP_ROOT`.
+`BABEL_NATIVE_IME_TEMP_ROOT`. Proposed after it: AUDIT-SWEEP-COVERAGE in the
+[tracker](tasks/AUDIT-TRACKER.md).
 No M6/F4 continuation, group F, DEV-02 or release admission is selected.
-Push needs explicit owner authorization.
+Each further push needs explicit owner authorization.
