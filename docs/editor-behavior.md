@@ -75,10 +75,29 @@ label and quoted excerpt, or "an empty … row"), says to change that row or
 Undo, and points to Close session's emergency copy. The row is named only when
 the codec identifies the one submitted edit it cannot write; a refusal about a
 whole context names none. The named row is the one Fountain cannot hold, which
-can be a neighbour the edit stranded (the Dialogue under an emptied or
-converted first line, a dual cue beside a typed blank) rather than the row
+can be a neighbour the edit stranded (the Dialogue under an emptied first
+line, a dual cue beside a typed blank) rather than the row
 last typed in. Wording only: the drafts listed in the brief stay refused, and
 failures that are not codec refusals keep their own text.
+
+Command refusals ([AUDIT-PARK-H-F4-01](tasks/AUDIT-PARK-H-F4.md)): a formatting
+or conversion command refuses, with a reason and no change, when it would
+leave a row capture cannot write. Emphasis cannot begin a Scene Heading,
+whether applied to a selection or set as a stored mark at the row start; it
+can begin anywhere after the first character. A Dialogue or Parenthetical row
+cannot become a non-speech element while unselected, nonempty rows of the same
+speech follow, because Fountain would read those rows as Action; selecting the
+rest of the speech converts it together. A row cannot become an element that
+cannot hold its text, such as a Scene Heading from text that does not start
+with a letter or digit or that ends in `#1#`. Each command asks the codec
+about the one changed row read alone, as a three-line synthetic source. It
+never parses the manuscript or runs a capture, so the synchronous-dispatch
+rule above holds. A row that already has no spelling can still be converted,
+since that repairs it.
+The Tab cycle stops at such an element with the same reason instead of passing
+through it; Shift+Tab and the picker still reach the others.
+Typed text is never refused here, so the typed shapes in the brief stay
+refused by capture, and the mid-row Parenthetical split above is unchanged.
 
 Backspace/Delete at a boundary remove an empty row or join editable text into one row. Same-type text retains its type; unlike nonempty text becomes Action except compatible speech continuations, which remain Dialogue. A nonempty speaker cue is never silently removed to join speech. Selections that cross a dialogue group or a note boundary refuse with a reason if a safe group-preserving join is unavailable. Explicit conversion retains text and refuses conversion that would detach a speaker; the visible picker/shortcut registry is supplied by M3-06.
 

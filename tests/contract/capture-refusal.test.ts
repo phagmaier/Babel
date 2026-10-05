@@ -169,21 +169,18 @@ describe('AUDIT-PARK-H-F3 the bridge records the live row', () => {
     });
   });
 
-  it('names the row left unwritable when the bridge had to own a neighbour', () => {
-    // Converting the first Dialogue row strands the one below it: that row,
-    // not the converted one, is what Fountain cannot hold as Dialogue.
-    const state = converted(caret(open('@BOB\nOne.\nTwo.\n'), 1, 0), 'action');
-    expect(rows(state)).toEqual([
-      'character:BOB',
-      'action:One.',
-      'dialogue:Two.',
+  it('no longer reaches a converted first Dialogue row: the command refuses it', () => {
+    // AUDIT-PARK-H-F4-01. This case used to strand the Dialogue below and
+    // name it; the emptied row in the next case still shows that attribution.
+    const state = caret(open('@BOB\nOne.\nTwo.\n'), 1, 0);
+    const result = convertEditorSelection(state, 'action');
+    expect([result.transaction, result.reason]).toEqual([
+      undefined,
+      'Convert the rest of the speech together; Fountain ends dialogue at another element',
     ]);
-    const error = refusal(() => captureEditor(state));
-    expect(refusedRow(error)).toEqual({
-      index: 2,
-      kind: 'dialogue',
-      text: 'Two.',
-    });
+    expect(new TextDecoder().decode(captureEditor(state).source)).toBe(
+      '@BOB\nOne.\nTwo.\n',
+    );
   });
 
   it('names the stranded row under an emptied Dialogue, and an emptied numbered heading itself', () => {

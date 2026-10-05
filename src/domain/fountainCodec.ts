@@ -1175,6 +1175,33 @@ export function replaceLine(
   return replaceLines(document, index, 1, [edit]);
 }
 
+/**
+ * Whether one nonempty row keeps its element and text through its generated
+ * spelling, read alone under a cue (`inSpeech`) or between blank lines. An
+ * incomplete draft counts, as it does in a checked edit. A cheap pre-check
+ * for explicit commands; capture remains the authority.
+ */
+export function spellsAlone(edit: LineEdit, inSpeech: boolean): boolean {
+  let source: string;
+  try {
+    source = sourceFor(edit, undefined);
+  } catch {
+    return false;
+  }
+  const lines = parseFountain(
+    encoder.encode(`${inSpeech ? '@A' : ''}\n${source}\n\n`),
+  ).lines;
+  const line = lines[1];
+  if (lines.length !== 3 || !line) return false;
+  const intent = draftIntent(edit);
+  const draft = intent === edit.kind && compatibleDraft(line, intent);
+  return (
+    (draft || (line.kind === edit.kind && line.editable)) &&
+    line.text === edit.text &&
+    line.sceneNumber === (edit.sceneNumber ?? undefined)
+  );
+}
+
 function sourceContext(
   document: FountainDocument,
   from: number,

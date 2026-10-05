@@ -1,57 +1,68 @@
-# Current state — refused-draft decomposition 2026-10-04 (owner host)
+# Current state — refused-draft commands 2026-10-04 (owner host)
 
 Date: 2026-10-04. Application: **babel**. Work on `main` over base `2456c2c`;
 F1 and its predecessors are pushed at `origin/main`; F2 (`5a707b8`), F3
-(`2456c2c`) and this session's F4 commits are local. No new push authorization. Owner delegated task
-selection, wording and implementation decisions. M0–M5 and bounded M6-01
-remain recorded complete. **M6-02, C1/F2 and Local v1 admission remain open.**
+(`2456c2c`), the F4 brief (`a9287ed`) and this session's F4-01 commit are
+local. No new push authorization. Owner delegated task selection, wording and
+implementation decisions. M0–M5 and bounded M6-01 remain recorded complete.
+**M6-02, C1/F2 and Local v1 admission remain open.**
 Host: owner laptop, uid 1000, Hyprland display, Btrfs repo, tmpfs `/tmp`.
 
-## Previous session
+## This session
 
-**AUDIT-PARK-H-F3 — done.** [Brief](tasks/AUDIT-PARK-H-F3.md),
-[evidence](test-evidence/AUDIT.md#audit-park-h-f3--actionable-capture-refusal-wording).
+**AUDIT-PARK-H-F4 decomposed; F4-01 done.**
+[Brief](tasks/AUDIT-PARK-H-F4.md),
+[probe evidence](test-evidence/AUDIT.md#audit-park-h-f4--refused-drafts-probe-and-decomposition),
+[F4-01 evidence](test-evidence/AUDIT.md#audit-park-h-f4-01--commands-refuse-instead-of-creating-a-refused-draft).
 
-- A refused capture now tells the author that saving and recovery are paused,
-  which row cannot be saved (`Row N`, element, quoted excerpt, or "an empty …
-  row"), to change that row or Undo, and that Close session offers an
-  emergency copy. The protection alert and an explicit Save use the same text.
-- The row is the codec's, not a guess: `FountainEditError.edit` is the offset
-  of the one submitted edit it cannot write (`src/domain/fountainCodec.ts`),
-  `refusedRow` maps it to the live row (`src/editor/sourceBridge.ts`), and
-  `writingFailureMessage` words it (`src/app/writingHelpers.ts`). A refusal
-  about a whole context names no row. Codes, messages, the refused set and
-  every captured byte are unchanged; no native, IPC or Rust change.
-- The named row is the one Fountain cannot hold. That can be a stranded
-  neighbour (the Dialogue below an emptied first line) rather than the row
-  typed in; tests pin this as found.
-- Red 11 fail / 3 pass, then green. Tracked frontend **1149/1149**, aggregate
-  2012/2012 with archives, helper **16/16**, Rust **273/273**, browser and
-  fresh release pass; binary `41fd4a0d…`. One incumbent test (`AUDIT-C02`
-  alert clears) pinned the old raw text and was flipped deliberately.
-- Native `empty-heading` mode with a new refused-row phase, tmpfs and Btrfs:
-  **2/2 content, 2/2 strict**. The real app shows the exact alert, saves and
-  journals nothing typed meanwhile, and resumes with nothing lost once the row
-  changes. One run per filesystem; it does not dispose the F2 SIGABRT.
+- Probe (logs `target/audit-park-h-f4/`): capture refused **229 of 848**
+  single-row cases plus 47 structural ones. Ordinary typing such as a Dialogue
+  row `(laughs) Oh no.` leaves the whole draft unsaved and unjournaled until
+  that row changes; F3 names the row. The reach is wider than F3 listed.
+- F4-01: formatting and conversion commands refuse with a reason instead of
+  creating such a draft. Emphasis cannot begin a Scene Heading (selection or
+  stored mark at the row start). A speech row cannot leave its speech while
+  nonempty rows of it follow. A row cannot become an element that cannot hold
+  its text. Each asks the codec about one row read alone
+  (`spellsAlone` in `src/domain/fountainCodec.ts`, `rowSpells` in
+  `src/editor/sourceBridge.ts`); no capture runs in a command.
+- Unchanged: the codec's accepted and refused set, parser rules, messages,
+  recovery metadata and every captured byte; no native, IPC or Rust change.
+  Typed shapes stay refused by capture.
+- Consequences to know: Select All plus bold is refused when the selection
+  starts a Scene Heading. The Tab cycle stops at an element that cannot hold
+  the row's text; Shift+Tab and the picker still work.
+- Withdrawn: refusing Enter inside a Parenthetical. M3-05 documents that split
+  as accepted with the emergency copy as its route, and three incumbent tests
+  pin it. It is tracked in the brief's group F.
+- Checks: red 5 fail / 6 pass, then green. An old-against-new differential over
+  27,069 command cases shows 1,642 refused drafts closed, **0** commands that
+  saved before now refused and 0 changed reasons. Tracked frontend
+  **1159/1159**, aggregate 2022/2022 with archives, helper **16/16**, Rust
+  **273/273**, browser and fresh release pass; binary `8b153538…`. One F3
+  test that built its draft through the old conversion was flipped
+  deliberately. No native drill: no saved byte or native boundary changed.
 
-## AUDIT-PARK-H-F4 — decomposed, F4-01 claimed
+## Waiting on the owner
 
-[Brief and decomposition](tasks/AUDIT-PARK-H-F4.md). A wider probe (logs
-`target/audit-park-h-f4/`) refused **229 of 848** single-row cases plus 47
-structural ones. Ordinary typing such as a Dialogue row `(laughs) Oh no.`, or
-bold on a Scene Heading, leaves the whole draft unsaved and unjournaled until
-that row changes; F3 names the row.
+Each decision is set out in the [brief](tasks/AUDIT-PARK-H-F4.md#decisions).
 
-- **F4-01** (claimed): commands refuse with a reason instead of creating a
-  refused draft. **F4-02** (ready): two-space spelling for a speech row
-  emptied while its speech continues.
-- **F4-03, F4-04, F4-05** each wait on one owner decision recorded in the
-  brief: un-protecting lines that open with a parenthesis, saving a typed
-  element as Action or Dialogue with recovery-only intent, and bytes or
-  metadata for emptied numbered or last-line rows.
+- **F4-03**: speech text that opens with a parenthesis. Saving it with
+  recovery-only intent is ready to build, but alone it leaves the author's own
+  line read-only after an ordinary reopen, because the parser protects such
+  lines. Recommended together with un-protecting them.
+- **F4-04**: typed text Fountain reads as other syntax. Recommended: save the
+  exact text as Action or Dialogue, keep the typed element in recovery only,
+  and tell the author. That is a saved-format choice and needs an ADR.
+- **F4-05**: an emptied numbered heading, and a draft row emptied on a last
+  line with no line ending.
 
 ## Prior queue complete
 
+- **AUDIT-PARK-H-F3**: [brief](tasks/AUDIT-PARK-H-F3.md),
+  [evidence](test-evidence/AUDIT.md#audit-park-h-f3--actionable-capture-refusal-wording).
+  The refusal alert names the row and how to resume; native `empty-heading`
+  2/2 content and strict on tmpfs and Btrfs.
 - **AUDIT-PARK-H-F2**: [brief](tasks/AUDIT-PARK-H-F2.md),
   [evidence](test-evidence/AUDIT.md#audit-park-h-f2--empty-scene-heading-recovery-intent).
   Empty unnumbered headings capture as blanks with recovery intent. Primary
@@ -66,8 +77,9 @@ that row changes; F3 names the row.
 
 ## Open — agent work and separate decisions
 
-- **AUDIT-PARK-H-F4** above: F4-01 and F4-02 are agent work; F4-03 to F4-05
-  need the owner decisions in the brief.
+- **AUDIT-PARK-H-F4-02** (ready): spell a Dialogue or Parenthetical row
+  emptied while its speech continues as Fountain's two-space dialogue line.
+  It changes saved bytes, so it needs the capture-sensitive native modes.
 - D-07-F, PARK-T, capitals, D-05 cheap variant and D-09 page count remain
   separately scoped. Record a contract-safe decision/brief before fixing;
   pinned reproductions and requirement contradictions remain authoritative.
@@ -75,10 +87,12 @@ that row changes; F3 names the row.
 - Replace-All load flake remains unreproduced here. `pnpm test` includes 61
   archived copies; tracked count uses `pnpm exec vitest run --exclude 'target/**'`.
   Keep new tests outside target archives.
-- `/tmp` has 20436 of 1048576 inodes free, held by retained native artifacts
-  from this and earlier sessions. Nothing was removed; pruning is the owner's
-  call (M6-03 copy/prune policy). Point `BABEL_NATIVE_IME_TEMP_ROOT` at a
-  Btrfs task folder for native runs.
+- `/tmp` has 19,071 of 1,048,576 inodes free, held by retained native
+  artifacts from earlier sessions. Nothing was removed; pruning is the owner's
+  call (M6-03 copy/prune policy). Every Vitest run also leaves a cache
+  directory there (21 random characters, one `client` folder); set `TMPDIR`
+  to a task folder under `target/` for Vitest runs, and point
+  `BABEL_NATIVE_IME_TEMP_ROOT` at a Btrfs task folder for native runs.
 
 ## Retained findings and limits
 
@@ -98,6 +112,6 @@ must preserve helper-resource layout from the
 
 ## Next action
 
-Finish AUDIT-PARK-H-F4-01, then F4-02. Ask the owner for the F4-03 to F4-05
-decisions. No push. No Local v1/C1/F2/full-platform closure; DEV-02 remains
-owner-only.
+Owner: answer F4-03, F4-04 and F4-05 in the brief. Next agent: AUDIT-PARK-H-F4-02,
+or the decided sub-task. No push. No Local v1/C1/F2/full-platform closure;
+DEV-02 remains owner-only.

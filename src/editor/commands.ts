@@ -1,4 +1,4 @@
-import type { ElementChoice } from '../application/shortcuts';
+import { elementChoices, type ElementChoice } from '../application/shortcuts';
 import { closeHistory } from 'prosemirror-history';
 import { Fragment, type Node as EditorNode } from 'prosemirror-model';
 import {
@@ -7,6 +7,7 @@ import {
   type Transaction,
 } from 'prosemirror-state';
 import { screenplaySchema } from './schema';
+import { rowSpells } from './sourceBridge';
 import { authorizeStructuralTransaction, editorOrigin } from './state';
 
 export type SmartKey = 'Enter' | 'ShiftEnter' | 'Backspace' | 'Delete';
@@ -31,6 +32,7 @@ const refused = (reason: string): EditorCommandResult => ({
   reason,
 });
 const ordinary: EditorCommandResult = { handled: false };
+const elementLabels: ReadonlyMap<string, string> = new Map(elementChoices);
 
 function rowStart(
   state: { readonly doc: EditorState['doc'] },
@@ -717,6 +719,26 @@ export function convertEditorSelection(
     return refused(
       'Hidden conversion needs delimiter-free literal text; styled content is retained',
     );
+  // Fountain ends a speech at the first row that is not part of it, so the
+  // nonempty rows below would stop being Dialogue. An empty one stays a draft.
+  if (
+    !['character', 'dialogue', 'parenthetical'].includes(kind) &&
+    rows.some(
+      (node) =>
+        node.attrs.speechOf &&
+        state.doc.content.content.some(
+          (other) =>
+            !selectedIds.has(other.attrs.id) &&
+            other.attrs.speechOf === node.attrs.speechOf &&
+            other.textContent !== '' &&
+            state.doc.content.content.indexOf(other) >
+              state.doc.content.content.indexOf(node),
+        ),
+    )
+  )
+    return refused(
+      'Convert the rest of the speech together; Fountain ends dialogue at another element',
+    );
   const converted = rows.map((node, index) => {
     const hiddenText = `${index === 0 ? (kind === 'note' ? '[[' : '/*') : ''}${node.textContent}${index === rows.length - 1 ? (kind === 'note' ? ']]' : '*/') : ''}`;
     const content = hidden
@@ -743,6 +765,17 @@ export function convertEditorSelection(
   });
   if (converted.every((node, index) => node.eq(rows[index]!)))
     return { handled: true };
+  // A row that has no spelling already may still be converted: that repairs it.
+  if (
+    !hidden &&
+    rows.some(
+      (node, index) =>
+        node.textContent && rowSpells(node) && !rowSpells(converted[index]!),
+    )
+  )
+    return refused(
+      `This text cannot be saved as ${elementLabels.get(requested) ?? 'that element'} in Fountain; the row is unchanged`,
+    );
   const result = replaceRows(
     state,
     start.index,

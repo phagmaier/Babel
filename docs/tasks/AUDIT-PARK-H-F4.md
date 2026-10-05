@@ -1,7 +1,9 @@
 # AUDIT-PARK-H-F4 — drafts that still stop saving
 
-Status: **decomposed 2026-10-04**; base `2456c2c`. F4-01 and F4-02 are ready
-agent work. F4-03, F4-04 and F4-05 each need one owner decision first.
+Status: **decomposed 2026-10-04**; base `2456c2c`. **F4-01 done** at base
+`a9287ed`, [evidence](../test-evidence/AUDIT.md#audit-park-h-f4-01--commands-refuse-instead-of-creating-a-refused-draft).
+F4-02 is ready agent work. F4-03, F4-04 and F4-05 each need one owner decision
+first.
 Dependencies: AUDIT-PARK-H, F1, F2 and F3 complete. The owner delegated task
 selection, wording and implementation decisions on 2026-10-04; that covers
 extending a mechanism the contract already documents, not a new saved-format
@@ -18,14 +20,14 @@ stepwise typing, structure and end-of-file cases add 47 more. The reach is
 wider than F3 listed. Each shape below is accepted by the editor and refused
 by capture, so nothing typed anywhere is saved or journaled until it changes.
 
-| Group | Shape                                                                                                                                                                                                                                                                                  |
-| ----- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| A     | A command creates it: bold, italic or underline from a Scene Heading's first character; a speech row converted while rows of that speech follow; a row converted to an element that cannot hold its text; Enter inside a Parenthetical.                                                |
-| B     | A Dialogue or Parenthetical row emptied while rows of that speech follow. Fountain ends the speech at the blank; the row named is the one below.                                                                                                                                       |
-| C     | Speech text that opens with a parenthesis. A Dialogue row is refused from the closing parenthesis on: `(laughs)`, `(laughs) Oh no.`. A Parenthetical is refused with any text after it: `(beat) x`.                                                                                    |
-| D     | Typed text Fountain reads as other syntax. Scene Heading not starting with a letter or digit (`'TIL DAWN`, `"X"`, leading space or `.`), or ending in `#1#`. Dialogue starting with `.x`, `!`, `@`, `>`, `~`, `# `, `=`. Character ending `^`. Transition ending `<`. `{{` in any row. |
-| E     | An empty row that needs bytes it does not have. A numbered heading emptied (the number has no line). A heading, Dialogue or Parenthetical emptied on a last line with no line ending.                                                                                                  |
-| F     | Dual dialogue: typing on the blank row between paired cues, or converting inside a pair. Section or Synopsis starting with a space. Parenthetical text before its opening parenthesis.                                                                                                 |
+| Group | Shape                                                                                                                                                                                                                                                                                       |
+| ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A     | A command creates it: bold, italic or underline from a Scene Heading's first character; a speech row converted while rows of that speech follow; a row converted to an element that cannot hold its text.                                                                                   |
+| B     | A Dialogue or Parenthetical row emptied while rows of that speech follow. Fountain ends the speech at the blank; the row named is the one below.                                                                                                                                            |
+| C     | Speech text that opens with a parenthesis. A Dialogue row is refused from the closing parenthesis on: `(laughs)`, `(laughs) Oh no.`. A Parenthetical is refused with any text after it: `(beat) x`.                                                                                         |
+| D     | Typed text Fountain reads as other syntax. Scene Heading not starting with a letter or digit (`'TIL DAWN`, `"X"`, leading space or `.`), or ending in `#1#`. Dialogue starting with `.x`, `!`, `@`, `>`, `~`, `# `, `=`. Character ending `^`. Transition ending `<`. `{{` in any row.      |
+| E     | An empty row that needs bytes it does not have. A numbered heading emptied (the number has no line). A heading, Dialogue or Parenthetical emptied on a last line with no line ending.                                                                                                       |
+| F     | Dual dialogue: typing on the blank row between paired cues, or converting inside a pair. Section or Synopsis starting with a space. Parenthetical text before its opening parenthesis. Enter inside a Parenthetical: accepted on purpose since M3-05, with the emergency copy as its route. |
 
 Group C is ordinary writing and the most frequent. Group A is one shortcut.
 
@@ -46,16 +48,19 @@ Group C is ordinary writing and the most frequent. Group A is one shortcut.
    element is refused, for a selection and for a stored mark at a row start.
    The check asks the codec about that one row; no grammar rule is copied.
 2. Conversion: a speech row cannot become a non-speech element while
-   unselected rows of the same speech follow; a row cannot become an element
-   that cannot hold its text. A row that already has no spelling may still be
-   converted, since that is how the author repairs it.
-3. Enter strictly inside a Parenthetical, or a selection ending inside one, is
-   refused.
-4. Every refusal leaves the document, selection and Undo history unchanged
+   unselected, nonempty rows of the same speech follow; a row cannot become an
+   element that cannot hold its text. A row that already has no spelling may
+   still be converted, since that is how the author repairs it.
+3. Every refusal leaves the document, selection and Undo history unchanged
    and shows a reason. Commands that captured before still capture the same
    bytes.
-5. Red tests before the fix for each command, then one contract case per
+4. Red tests before the fix for each command, then one contract case per
    shape showing the row before the command still captures.
+
+Withdrawn during the task: refusing Enter inside a Parenthetical. Three
+incumbent tests and the editor-behavior contract pin that split as accepted,
+with the emergency copy as its route. Changing it is a contract change, so it
+moved to group F.
 
 ## Do NOT do
 

@@ -7,6 +7,7 @@ import {
   replaceLineWithBreaks,
   setDualDialogue,
   serializeFountain,
+  spellsAlone,
 } from '../domain/fountainCodec';
 import { richView, sourceForInline } from '../domain/fountainInline';
 import type {
@@ -121,6 +122,14 @@ function editForNode(node: EditorNode, prior?: FountainLine): LineEdit {
         }
       : {}),
   };
+}
+
+/**
+ * Whether a nonempty live row has a Fountain spelling as its own element.
+ * Commands ask this before changing a row; they never run a capture.
+ */
+export function rowSpells(node: EditorNode): boolean {
+  return spellsAlone(editForNode(node), Boolean(node.attrs.speechOf));
 }
 
 function matchingOrigin(node: EditorNode, line: FountainLine | undefined) {
