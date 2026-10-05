@@ -1,9 +1,10 @@
 # Current state — dev review session 2026-10-04 (owner host)
 
-Date: 2026-10-04. Application: **babel**. Branch `dev`: the four cloud-session
-commits `30f05d8`..`a22f01f` over `main` `718c6e8`, plus one review commit.
-Not merged or pushed. M0–M5 and bounded M6-01 work remain recorded complete.
-**M6-02, C1/F2 and Local v1 admission remain open.**
+Date: 2026-10-04. Application: **babel**. The four cloud-session commits
+`30f05d8`..`a22f01f` and the review commit `08e4b82` were fast-forwarded from
+`dev` into `main` and `main` was pushed on the owner's instruction. M0–M5 and
+bounded M6-01 work remain recorded complete. **M6-02, C1/F2 and Local v1
+admission remain open.**
 
 ## This session — AUDIT-DEV-REVIEW (review of `dev` before merge)
 
@@ -85,11 +86,11 @@ after parent SIGKILL. M6-03 copy/prune and capture-failure bundle policy open.
 
 ## Next action
 
-Owner: review the `dev` review commit, then merge `dev` to `main` (no push
-without authorization) and decide the open items above. Agent: AUDIT-D04-R3
-brief, a native typed-export drill mode for D-07, then the accepted DESIGN
-items without a brief (D-05 cheap variant with AUDIT-PARK-T facts, D-09 page
-count). Never substitute injected composition for genuine IME; unset
+Owner: decide the open items above. Agent, in order: AUDIT-D04-R3 brief and
+sweep, a native typed-export drill mode for D-07, a native reproduction of the
+parked empty Scene Heading capture, then the accepted DESIGN items without a
+brief (D-05 cheap variant with AUDIT-PARK-T facts, D-09 page count). Work on
+`main`; no push without authorization. Never substitute injected composition for genuine IME; unset
 `FORCE_COLOR` for `pnpm test:browser`. No full native/a11y/keyboard, SELinux,
 M6-02, C1/F2 or Local v1 closure; [M6-02-R1](tasks/M6-02-R1.md) and
 [M6-01-R1](tasks/M6-01-R1.md) remain separate; DEV-02 is owner-only. No M6/M7
