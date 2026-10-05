@@ -5,7 +5,7 @@ Product development is paused. **M6-02, C1/F2 and Local v1 admission stay open.*
 
 ## This session
 
-**INFRA-INSTRUCTIONS published; browser-harness CI repair pending.**
+**INFRA-INSTRUCTIONS complete, published and CI verified.**
 [Brief](tasks/INFRA-INSTRUCTIONS.md), [evidence](test-evidence/INFRA-INSTRUCTIONS.md).
 
 - Merge `4eafd58` retains public `beac0fc` and local F4-05 `8084690`, with
@@ -36,7 +36,9 @@ Product development is paused. **M6-02, C1/F2 and Local v1 admission stay open.*
   Initial formatting/discovery mistakes and BOM-oracle correction are retained
   in evidence. First published CI passed frontend/core/helper/differential/tooling,
   then failed the browser harness's 15-second console-message startup wait.
-  Vite awaited startup/close replaces that wait; rerun pending.
+  Vite awaited startup/close replaces that wait. Both CI jobs passed at
+  `6225a41`, including browser, workspace tests and Linux package build;
+  failed run and repair results are retained in evidence.
 
 ## Retained findings and limits
 
@@ -61,6 +63,6 @@ remain open. DEV-02 is owner-only. No retained artifacts pruned.
 
 ## Next action
 
-Finish **INFRA-INSTRUCTIONS**: validate and publish the browser-harness
-repair, inspect GitHub Checks, then update completion/evidence
-and stop. Product development stays paused; no next F4/M6 task is selected.
+Stop after **INFRA-INSTRUCTIONS**. Product development stays paused;
+no next F4/M6 task is selected. A resumed product task must have a bounded
+brief and satisfy its dependencies, readiness checks and retained gates.

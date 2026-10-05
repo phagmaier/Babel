@@ -54,7 +54,7 @@ M6-03 and Local v1 admission remains binding when selected.
 
 ## Audit status
 
-- [ ] **INFRA-INSTRUCTIONS** — owner-authorized guidance/tooling maintenance. [Brief](docs/tasks/INFRA-INSTRUCTIONS.md), [evidence](docs/test-evidence/INFRA-INSTRUCTIONS.md).
+- [x] **INFRA-INSTRUCTIONS** — guidance/tooling maintenance complete; both published CI jobs passed. [Brief](docs/tasks/INFRA-INSTRUCTIONS.md), [evidence](docs/test-evidence/INFRA-INSTRUCTIONS.md).
 
 The [audit tracker](docs/tasks/AUDIT-TRACKER.md) owns audit checkboxes,
 wave prerequisites and open owner decisions. [Current-state Next action](docs/current-state.md#next-action)
