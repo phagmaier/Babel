@@ -108,4 +108,4 @@ T-03 (resume path, ~20-line composition), T-04 (8 `WritingSession` guard tests),
   - [x] **AUDIT-PARK-H-F4-04** — [evidence](../test-evidence/AUDIT.md#audit-park-h-f4-04--typed-text-fountain-reads-as-other-syntax).
   - [x] **AUDIT-PARK-H-F4-05** — [evidence](../test-evidence/AUDIT.md#audit-park-h-f4-05--emptied-unterminated-last-rows).
 
-- [ ] **AUDIT-READING-CANDIDATES** — unscheduled classification of eleven frozen-control role candidates; accepted lyric mappings versus possible title-block omissions. [Brief](AUDIT-READING-CANDIDATES.md). No fix authorized by this row.
+- [ ] **AUDIT-READING-CANDIDATES** — selected next for classification of eleven frozen-control candidate occurrences; lyric mappings versus possible title-block omissions. [Brief](AUDIT-READING-CANDIDATES.md), [handoff](../handoffs/2026-10-05-reading-candidates.md), [evidence](../test-evidence/AUDIT-READING-CANDIDATES.md). No product fix authorized.

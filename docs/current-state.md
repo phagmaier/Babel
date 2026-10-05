@@ -1,9 +1,17 @@
-# Current state — instruction maintenance 2026-10-05
+# Current state — next-agent handoff 2026-10-05
 
-Application: **babel**. Work on `main`; owner authorizes maintenance and push.
-Product development is paused. **M6-02, C1/F2 and Local v1 admission stay open.**
+Application: **babel**. Work/commit on `main`; maintenance was published.
+Product feature work is paused; next assignment is classification only.
+**M6-02, C1/F2 and Local v1 admission stay open.**
 
 ## This session
+
+**Next-agent handoff prepared; classification not started.**
+[Assignment](handoffs/2026-10-05-reading-candidates.md),
+[brief](tasks/AUDIT-READING-CANDIDATES.md),
+[preparation evidence](test-evidence/AUDIT-READING-CANDIDATES.md).
+Owner asked for the recommended next task and fresh-agent context. Selected
+bounded semantic classification before any product correction or new feature.
 
 **INFRA-INSTRUCTIONS complete, published and CI verified.**
 [Brief](tasks/INFRA-INSTRUCTIONS.md), [evidence](test-evidence/INFRA-INSTRUCTIONS.md).
@@ -27,10 +35,11 @@ Product development is paused. **M6-02, C1/F2 and Local v1 admission stay open.*
   oracle cases plus 70,000 generated sources agree with the verified pinned
   parser (roles/brackets/numbers/title decision); no new false assessment gate
   or clean role candidate. Three in-memory faults are detected.
-- Eleven frozen-control source-role heuristic candidates remain: these include
+- Eleven frozen-control source-role heuristic candidate occurrences remain: these include
   supported lyric mappings and a possible title-block omission. They are
   candidates, not confirmed losses or accepted waivers. [Classification brief](tasks/AUDIT-READING-CANDIDATES.md)
-  is unscheduled; recipes and fresh report commands are tracked.
+  is selected for the next agent. The report shows only five examples; collect
+  the full occurrence list and deduplicate before classification. Recipes are tracked.
 - Shared local checks: frontend 1319/1319 in 74 files, Rust 273/273,
   helper 16/16, tooling 5/5, differential 3/3, browser and package pass.
   Initial formatting/discovery mistakes and BOM-oracle correction are retained
@@ -63,6 +72,8 @@ remain open. DEV-02 is owner-only. No retained artifacts pruned.
 
 ## Next action
 
-Stop after **INFRA-INSTRUCTIONS**. Product development stays paused;
-no next F4/M6 task is selected. A resumed product task must have a bounded
-brief and satisfy its dependencies, readiness checks and retained gates.
+**AUDIT-READING-CANDIDATES** — execute the [owner-provided handoff](handoffs/2026-10-05-reading-candidates.md).
+Finish literal expectations/readiness, claim, classify every distinct candidate,
+retain independent red evidence for any real discrepancy and write its bounded
+fix brief. Update evidence/tracker/handoff; commit locally and stop without push.
+No product fix, M6/F4 continuation or release admission is selected.
