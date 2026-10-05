@@ -918,12 +918,15 @@ editor cannot capture exists, on a disposable screenplay:
   saved.
 - C: a heading typed into the row resumes capture and saves everything typed
   meanwhile.
-- D: a new Note row (Enter, Element picker) in the opened screenplay is not
-  captured even with text; nothing typed after it is saved or journaled,
-  converting it back is refused, and only Undo back past it resumes capture.
+- D (AUDIT-PARK-H-F1): new Note and Omitted material rows (Enter, Element
+  picker) in the opened screenplay save and journal both empty and populated;
+  later edits also reach both protections. Undo through each region remains
+  capturable; exact captured bytes reopen with the same rows and ordinary
+  close succeeds. Removing wrappers still requires whole-region review.
 
 The mode kills its own app once (`intentionalKillScenario`); the owned-process
-crash audit stays strict. A fix flips these assertions; do not weaken them.
+crash audit stays strict. A-C remain pinned as found; the owner-authorized F1
+fix flips only D. Do not weaken the other assertions.
 
 ```sh
 BABEL_SHUTDOWN_MODE=ordinary python3 tests/native/writing-lifecycle/isolated_ime.py target/audit-simp-f/prerequisites/prefix -- python3 tests/native/writing-lifecycle/integrated_exit.py /tmp "$PWD/target" --output target/<new-dir> --modes empty-heading

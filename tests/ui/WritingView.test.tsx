@@ -3164,54 +3164,56 @@ it('AUDIT-PARK-H an empty Scene Heading row stops capture: nothing typed meanwhi
   );
 }, 20000);
 
-it('AUDIT-PARK-H a new Note row in an opened screenplay is never captured: later edits are not saved, converting back is refused, and only Undo resumes', async () => {
-  const f = await parkedDraft('!Alpha.\n');
-  const { view, saved, journaled } = f;
-  const picker = screen.getByLabelText('Element');
+it.each([
+  ['note', '[[]]', '[[remember]]'],
+  ['boneyard', '/**/', '/*remember*/'],
+])(
+  'AUDIT-PARK-H-F1 a new %s row and later edits save and journal; close succeeds',
+  async (kind, empty, populated) => {
+    const f = await parkedDraft('!Alpha.\n');
+    const { view, saved, journaled } = f;
+    const picker = screen.getByLabelText('Element');
 
-  // Enter, the Element picker's Note, then the note's text.
-  f.caret(f.endOf(0));
-  fireEvent.keyDown(view.dom, { key: 'Enter' });
-  fireEvent.change(picker, { target: { value: 'note' } });
-  view.dispatch(view.state.tr.insertText('remember'));
-  const noted = ['action:', 'note:[[remember]]'];
-  expect(f.rows()).toEqual(['action:Alpha.', ...noted]);
-  expect(() => captureEditor(view.state)).toThrow(
-    /Hidden conversion lost its contiguous source ownership/,
-  );
-  const alert = await screen.findByText(/Hidden conversion lost/);
-  expect(alert.getAttribute('role')).toBe('alert');
+    f.caret(f.endOf(0));
+    fireEvent.keyDown(view.dom, { key: 'Enter' });
+    fireEvent.change(picker, { target: { value: kind } });
+    expect(f.rows()).toEqual(['action:Alpha.', 'action:', `${kind}:${empty}`]);
+    const emptySource = `!Alpha.\n\n${empty}\n`;
+    expect(new TextDecoder().decode(captureEditor(view.state).source)).toBe(
+      emptySource,
+    );
+    await waitFor(() => expect(saved.at(-1)).toBe(emptySource), {
+      timeout: 4000,
+    });
+    expect(journaled).toContain(emptySource);
 
-  // Unlike the empty heading, text in the row does not help: everything typed
-  // from here on stays unsaved and unjournaled.
-  const before = [saved.length, journaled.length];
-  view.dispatch(view.state.tr.insertText('Gamma. ', 1));
-  await f.settle();
-  expect([saved.length, journaled.length]).toEqual(before);
-  expect(f.status()).toBe('Changes pending');
+    view.dispatch(view.state.tr.insertText('remember'));
+    view.dispatch(view.state.tr.insertText('Gamma. ', 1));
+    const final = `!Gamma. Alpha.\n\n${populated}\n`;
+    await waitFor(() => expect(saved.at(-1)).toBe(final), { timeout: 4000 });
+    expect(journaled).toContain(final);
+    expect(f.rows()).toEqual([
+      'action:Gamma. Alpha.',
+      'action:',
+      `${kind}:${populated}`,
+    ]);
+    expect(screen.queryByText(/Hidden conversion lost/)).toBeNull();
+    await waitFor(() => expect(f.status()).toBe('Saved locally'));
 
-  // The note cannot be turned back into Action to keep its text.
-  f.caret(f.endOf(2) - 2);
-  fireEvent.change(picker, { target: { value: 'action' } });
-  await screen.findByText(/A note needs an explicit whole-region conversion/);
-  expect(f.rows()).toEqual(['action:Gamma. Alpha.', ...noted]);
-
-  f.close();
-  await screen.findByText(/Close stopped\. Newer changes exist only in memory/);
-  expect(f.calls.released).toBe(0);
-
-  // Undo back past the note is the only way to capture again; the note and
-  // the text typed after it are gone from what is saved.
-  for (
-    let guard = 0;
-    f.rows().some((row) => row.startsWith('note:')) && guard < 10;
-    guard++
-  )
-    fireEvent.keyDown(view.dom, { key: 'z', ctrlKey: true });
-  expect(f.rows()).toEqual(['action:Alpha.', 'action:', 'action:']);
-  await waitFor(() => expect(saved.at(-1)).toBe('!Alpha.\n\n\n'), {
-    timeout: 4000,
-  });
-  expect(saved.some((source) => /remember|Gamma/.test(source))).toBe(false);
-  expect(journaled.some((source) => /remember|Gamma/.test(source))).toBe(false);
-}, 20000);
+    // Removing wrappers remains a separate reviewed operation; the refusal
+    // retains the complete captured source and does not interrupt saving.
+    f.caret(f.endOf(2) - 2);
+    fireEvent.change(picker, { target: { value: 'action' } });
+    await screen.findByText(
+      /(?:note needs an explicit|Omitted source requires a reviewed) whole-region conversion/,
+    );
+    expect(new TextDecoder().decode(captureEditor(view.state).source)).toBe(
+      final,
+    );
+    f.close();
+    await waitFor(() => expect(f.calls.released).toBe(1));
+    expect(f.copy).not.toHaveBeenCalled();
+    expect(screen.queryByText(/Close stopped/)).toBeNull();
+  },
+  20000,
+);

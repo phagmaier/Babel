@@ -14,6 +14,7 @@ import type {
   FountainDocument,
   FountainLine,
   LineEdit,
+  SourceLineEdit,
   StyledText,
 } from '../domain/fountainModel';
 import { editorOrigin, editorVersion, nodeRuns } from './state';
@@ -200,7 +201,7 @@ export function captureEditor(
       noteRows.map((node) => String(node.attrs.id)),
     );
   }
-  // Newly authored hidden conversions own a complete, contiguous set of existing rows.
+  // Newly authored hidden conversions own a complete region, with old and/or new rows.
   // Reuse the codec's checked concrete transaction; no unverified syntax enters a capture.
   const hiddenGroups = new Map<string, EditorNode[]>();
   for (const node of state.doc.content.content) {
@@ -214,19 +215,30 @@ export function captureEditor(
     }
   }
   for (const rows of [...hiddenGroups.values()].reverse()) {
-    const from =
-      document.lines.length === 0
-        ? 0
-        : document.lines.findIndex((line) => line.id === rows[0]!.attrs.id);
     const priorIndices = rows
       .map((node) =>
         document.lines.findIndex((line) => line.id === node.attrs.id),
       )
       .filter((index) => index >= 0);
-    if (
-      from < 0 ||
-      priorIndices.some((index, offset) => index !== from + offset)
-    )
+    // A wholly new region has no source row yet. Place it after the nearest
+    // surviving predecessor; structural reconciliation below adds any other
+    // new rows between that anchor and this region without retyping old source.
+    let from = priorIndices[0] ?? 0;
+    if (priorIndices.length === 0) {
+      const preceding = state.doc.content.content.slice(
+        0,
+        state.doc.content.content.indexOf(rows[0]!),
+      );
+      for (const node of preceding.reverse()) {
+        const index = document.lines.findIndex(
+          (line) => line.id === node.attrs.id,
+        );
+        if (index < 0) continue;
+        from = index + 1;
+        break;
+      }
+    }
+    if (priorIndices.some((index, offset) => index !== from + offset))
       throw new FountainEditError(
         'unrepresentable',
         'Hidden conversion lost its contiguous source ownership',
@@ -237,17 +249,35 @@ export function captureEditor(
       )
     )
       continue;
-    document = replaceKnownSourceContext(
-      document,
-      from,
-      priorIndices.length,
-      rows.map((node) => ({
-        source: node.textContent,
-        text: node.textContent,
-        kind: node.type.name as 'note' | 'boneyard',
-      })),
-      rows.map((node) => String(node.attrs.id)),
-    );
+    const edits: SourceLineEdit[] = rows.map((node) => ({
+      source: node.textContent,
+      text: node.textContent,
+      kind: node.type.name as 'note' | 'boneyard',
+    }));
+    const ids = rows.map((node) => String(node.attrs.id));
+    let count = priorIndices.length;
+    const preceding = document.lines[from - 1];
+    if (
+      count === 0 &&
+      from === document.lines.length &&
+      preceding?.newline === ''
+    ) {
+      // The codec requires EOF insertion to own the missing break boundary.
+      // Keep the preceding row's exact spelling and let its checked transaction
+      // add the break while retaining the source's unterminated EOF convention.
+      from--;
+      count++;
+      edits.unshift({
+        source: preceding.sourceText,
+        text: preceding.text,
+        kind: preceding.kind,
+        titleKey: preceding.titleKey,
+        sceneNumber: preceding.sceneNumber,
+        sectionLevel: preceding.sectionLevel,
+      });
+      ids.unshift(preceding.id);
+    }
+    document = replaceKnownSourceContext(document, from, count, edits, ids);
   }
   const base = document;
   const structural =

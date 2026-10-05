@@ -12,9 +12,8 @@ import { createEditorState } from '../../src/editor/state';
 import { mountScreenplayEditor } from '../../src/editor/view';
 
 // AUDIT-PARK-H. Pinned as found, not as wanted. In a screenplay opened from
-// source, three Element choices on a new row leave a draft the editor cannot
-// capture, and so cannot save or journal: an empty Scene Heading, until it has
-// text; a new Note or Omitted material row, even with text. What the
+// source, an empty Scene Heading cannot capture until it has text. F1 fixes
+// the new Note/Omitted material cases previously pinned as uncapturable. What the
 // application does meanwhile is pinned in tests/ui/WritingView.test.tsx and
 // tests/native/writing-lifecycle/empty_heading.py.
 let view: EditorView;
@@ -77,8 +76,6 @@ afterEach(() => {
 
 const uncapturable: Record<string, RegExp> = {
   sceneHeading: /cannot round-trip unambiguously/,
-  note: /Hidden conversion lost its contiguous source ownership/,
-  boneyard: /Hidden conversion lost its contiguous source ownership/,
 };
 
 describe('AUDIT-PARK-H empty rows the editor cannot capture (pinned as found)', () => {
@@ -107,14 +104,14 @@ describe('AUDIT-PARK-H empty rows the editor cannot capture (pinned as found)', 
     ['note', 'note:[[X]]', '[[X]]'],
     ['boneyard', 'boneyard:/*X*/', '/*X*/'],
   ])(
-    'a new %s row stays uncapturable with text; only a fresh document or an existing row works',
+    'AUDIT-PARK-H-F1 a new %s row captures with text, as do fresh documents and existing rows',
     (id, row, spelling) => {
       mount('!Alpha.\n');
       newRow(id);
       view.dispatch(view.state.tr.insertText('X'));
       vi.runOnlyPendingTimers();
       expect(lastRow()).toBe(row);
-      expect(() => captureEditor(view.state)).toThrow(uncapturable[id]);
+      expect(source()).toBe(`!Alpha.\n\n${spelling}\n`);
       popup.destroy();
       view.destroy();
       document.body.replaceChildren();

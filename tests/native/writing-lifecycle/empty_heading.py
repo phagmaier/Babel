@@ -3,8 +3,8 @@ cannot capture.
 
 An empty Scene Heading row created after text (Enter, Ctrl+1) has no Fountain
 spelling, so the draft cannot be captured until the row has text (phases A-C).
-A new Note row in a screenplay opened from a file cannot be captured even with
-text in it (phase D, found while confirming the first).
+AUDIT-PARK-H-F1: new Note and Omitted material rows in an opened screenplay
+now capture, save and journal, empty or with text (phase D).
 
 Pinned as found, not as wanted. The drill answers what the real app does with
 text typed elsewhere meanwhile: source save, recovery journal, an owned
@@ -19,7 +19,6 @@ from pathlib import Path
 
 CTRL, ENTER, END, HOME, NULL = '\ue009', '\ue007', '\ue010', '\ue011', '\ue000'
 REFUSAL = 'cannot round-trip unambiguously'
-NOTE_REFUSAL = 'Hidden conversion lost its contiguous source ownership'
 
 
 def run(d):
@@ -167,52 +166,73 @@ def run(d):
     d.close_session()
     print('PASS native empty heading row: one heading typed resumes capture and saves everything typed meanwhile', flush=True)
 
-    # D. Found while confirming A-C: in a screenplay opened from a file, a new
-    # Note row stays uncapturable even with text in it. Nothing typed after it
-    # is saved or journaled, and only Undo back past the note restores capture.
-    target = d.ROOT / 'files' / 'new-note.fountain'
-    target.write_bytes(opened)
-    open_file('INT. ROOM - DAYA lamp glows.')
-    click_row('action', 'A lamp glows.')
-    d.type_text(END + ' It hums.')
-    d.audit(target, first)
-    d.wait(lambda: 'Saved locally' in d.body(), 'Ordinary edit saved before the note')
-    d.type_text(ENTER)
-    option = d.find('//select[@id="screenplay-element"]/option[@value="note"]')
-    d.command('POST', '/element/' + option + '/click', {})
-    d.wait(lambda: 'note:[[]]' in rows(), 'New Note row after text')
-    d.type_text('remember the storm')
-    d.wait(lambda: 'note:[[remember the storm]]' in rows(), 'Text typed into the new note')
-    d.wait(lambda: any(NOTE_REFUSAL in alert for alert in alerts()), 'Capture refusal is shown to the author')
-    time.sleep(3)
-    settled = target.read_bytes()
-    assert b'remember' not in settled and settled.startswith(first.rstrip(b'\n')), settled
-    # The journal directory is shared by this drill's documents: use text
-    # no earlier phase typed.
-    type_elsewhere('A lamp glows. It hums.', 'Dusk. ')
-    assert target.read_bytes() == settled
-    assert not journaled(b'Dusk. ') and not journaled(b'remember the storm')
-    report['newNote'] = {'status': status(), 'alerts': alerts(), 'settled': settled.decode(), 'sourceSaved': False, 'journaled': False}
-    d.screenshot('new-note-unprotected')
-    # Converting the note back is refused, so the text cannot be kept that way.
-    click_row('note', '[[remember the storm]]')
-    option = d.find('//select[@id="screenplay-element"]/option[@value="action"]')
-    d.command('POST', '/element/' + option + '/click', {})
-    d.wait(lambda: any('whole-region conversion' in alert for alert in alerts()), 'Converting the new note back is refused')
-    assert 'note:[[remember the storm]]' in rows()
-    # Undo until the note row is gone: capture resumes without the note or the
-    # text typed after it.
-    for _ in range(40):
-        if not any(row.startswith('note:') for row in rows()):
-            break
-        d.type_text(CTRL + 'z' + NULL)
-        time.sleep(.15)
-    assert not any(row.startswith('note:') for row in rows()), rows()
-    d.wait(lambda: not any(NOTE_REFUSAL in alert for alert in alerts()), 'Capture refusal clears after Undo', timeout=30)
-    d.wait(lambda: 'Saved locally' in d.body(), 'Capture and save resume after Undo', timeout=30)
-    after_undo = target.read_bytes()
-    assert b'remember' not in after_undo and b'Dusk.' not in after_undo, after_undo
-    report['newNote']['afterUndo'] = {'rows': rows(), 'saved': after_undo.decode()}
-    d.close_session()
+    # D. AUDIT-PARK-H-F1: both new hidden row types capture, empty and
+    # populated, and later edits reach source and journal. Each document uses
+    # distinct markers because the recovery journal directory is shared.
+    for kind, label, empty, populated, marker in [
+        ('note', 'Note', '[[]]', '[[remember the storm]]', 'Dusk. '),
+        ('boneyard', 'Omitted material', '/**/', '/*remember the rain*/', 'Dawn. '),
+    ]:
+        target = d.ROOT / 'files' / ('new-' + kind + '.fountain')
+        target.write_bytes(opened)
+        open_file('INT. ROOM - DAYA lamp glows.')
+        click_row('action', 'A lamp glows.')
+        d.type_text(END + ' It hums.')
+        d.audit(target, first)
+        d.wait(lambda: 'Saved locally' in d.body(), 'Ordinary edit saved before ' + label)
+        d.type_text(ENTER)
+        option = d.find('//select[@id="screenplay-element"]/option[@value="' + kind + '"]')
+        d.command('POST', '/element/' + option + '/click', {})
+        d.wait(lambda: kind + ':' + empty in rows(), 'New empty ' + label + ' row after text')
+        empty_source = first + b'\n' + empty.encode() + b'\n'
+        d.audit(target, empty_source)
+        d.wait(lambda: journaled(empty.encode()), 'Empty ' + label + ' journaled', timeout=30)
+        assert not alerts(), alerts()
+        d.type_text(populated[2:-2])
+        d.wait(lambda: kind + ':' + populated in rows(), 'Text typed into new ' + label)
+        populated_source = first + b'\n' + populated.encode() + b'\n'
+        d.audit(target, populated_source)
+        type_elsewhere('A lamp glows. It hums.', marker)
+        final = populated_source.replace(b'!A lamp', b'!' + marker.encode() + b'A lamp')
+        d.audit(target, final)
+        d.wait(lambda: journaled(marker.encode()) and journaled(populated.encode()),
+               label + ' and later text journaled', timeout=30)
+        d.wait(lambda: 'Saved locally' in d.body(), 'Exact save acknowledged after ' + label)
+        assert not alerts(), alerts()
+        captured = target.read_bytes()
+        report[kind] = {'status': status(), 'alerts': alerts(), 'saved': final.decode(), 'sourceSaved': True, 'journaled': True}
+        d.screenshot('new-' + kind + '-protected')
+        # Removing wrappers still requires a reviewed whole-region operation.
+        click_row(kind, populated)
+        option = d.find('//select[@id="screenplay-element"]/option[@value="action"]')
+        d.command('POST', '/element/' + option + '/click', {})
+        d.wait(lambda: any('whole-region conversion' in alert for alert in alerts()),
+               'Converting ' + label + ' back remains refused')
+        assert kind + ':' + populated in rows() and target.read_bytes() == final
+        # Every intermediate Undo state remains capturable. The existing
+        # conversion refusal is separate from the protection-status alerts.
+        for _ in range(40):
+            if not any(row.startswith(kind + ':') for row in rows()):
+                break
+            d.type_text(CTRL + 'z' + NULL)
+            time.sleep(.15)
+        assert not any(row.startswith(kind + ':') for row in rows()), rows()
+        d.wait(lambda: 'Saved locally' in d.body(), 'Save after Undo through ' + label, timeout=30)
+        after_undo = first + b'\n\n'
+        d.audit(target, after_undo)
+        report[kind]['afterUndo'] = {'rows': rows(), 'saved': after_undo.decode()}
+        d.close_session()
+        # Open the independently observed captured bytes: same literal row,
+        # same later edit, exact no-op source, ordinary close without a bundle.
+        # A fresh path isolates reopen from the old managed file's journal and
+        # source baseline after Undo; overwriting that file tests divergence.
+        target = d.ROOT / 'files' / ('reopened-' + kind + '.fountain')
+        target.write_bytes(captured)
+        open_file('INT. ROOM - DAY' + marker + 'A lamp glows. It hums.' + populated)
+        assert rows() == ['sceneHeading:INT. ROOM - DAY', 'action:',
+                          'action:' + marker + 'A lamp glows. It hums.', 'action:', kind + ':' + populated], rows()
+        assert target.read_bytes() == final
+        d.close_session()
+        assert len(list((d.ROOT / 'copies').glob('*.draft.json'))) == 1, 'Hidden rows required an emergency bundle'
+        print('PASS native new ' + label + ': empty and populated rows plus later edits saved and journaled; Undo stays capturable; exact reopen and ordinary close', flush=True)
     (d.ROOT / 'empty-heading.json').write_text(json.dumps(report, indent=2) + '\n')
-    print('PASS native new note row in an opened screenplay: never captured; nothing after it saved or journaled; convert-back refused; only Undo resumes', flush=True)
