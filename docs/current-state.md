@@ -1,68 +1,76 @@
-# Current state — speech parenthesis rows 2026-10-04 (owner host)
+# Current state — other-syntax fallback 2026-10-05 (owner host)
 
-Date: 2026-10-04. Application: **babel**. Work on `main` over base `15d5da8`.
-`origin/main` is at `10650c0`; the F4-02 and F4-03 commits are local. No new
-push authorization. Owner delegated task selection, wording and
-implementation decisions. M0–M5 and bounded M6-01 remain recorded complete.
-**M6-02, C1/F2 and Local v1 admission remain open.**
-Host: owner laptop, uid 1000, Hyprland display, Btrfs repo, tmpfs `/tmp`.
+Date: 2026-10-05. Application: **babel**. Work on `main` over base `3d55fca`.
+`origin/main` is at `10650c0`; the F4-02, F4-03 and F4-04 commits are local
+(the last pending). No new push authorization. Owner delegated task
+selection, wording and implementation decisions. M0–M5 and bounded M6-01
+remain recorded complete. **M6-02, C1/F2 and Local v1 admission remain
+open.** Host: owner laptop, uid 1000, Hyprland display, Btrfs repo, tmpfs
+`/tmp`.
 
 ## This session
 
 **Owner decisions taken 2026-10-04** for F4-03, F4-04 and F4-05, recorded in
-the [brief](tasks/AUDIT-PARK-H-F4.md#decisions).
+the [brief](tasks/AUDIT-PARK-H-F4.md#decisions). **F4-04 done**, with its
+deliverable section in the brief and [ADR 0042](decisions/0042-other-syntax-fallback-container.md)
+written before code.
 
-**AUDIT-PARK-H-F4-03 done.**
-[Deliverable](tasks/AUDIT-PARK-H-F4.md#f4-03-deliverable-and-acceptance),
-[evidence](test-evidence/AUDIT.md#audit-park-h-f4-03--speech-that-opens-with-a-parenthesis).
+**AUDIT-PARK-H-F4-04 done.**
+[Deliverable](tasks/AUDIT-PARK-H-F4.md#f4-04-deliverable-and-acceptance),
+[evidence](test-evidence/AUDIT.md#audit-park-h-f4-04--typed-text-fountain-reads-as-other-syntax).
 
-- Speech that opens with a parenthesis no longer pauses saving. Dialogue
-  `(laughs) Oh no.` is ordinary Dialogue. A Dialogue row `(laughs)` and a
-  Parenthetical `(beat) x` are written exactly and keep their element as
-  recovery-only intent; the file alone opens as Fountain reads them.
-- Opening a file: a speech or Action line that begins with a closed
-  parenthetical is editable where it was read-only. Bytes, element and text
-  are unchanged. A parenthesis that never closes stays protected.
-- Paths: `src/domain/fountainCodec.ts`; one rule sentence in
-  `src/app/writingHelpers.ts`. Tests: `tests/contract/speech-parenthesis.test.ts`
-  (new), one mounted case in `WritingView.test.tsx`, phase G in
-  `tests/native/writing-lifecycle/empty_heading.py`. Docs: document-model,
-  editor-behavior, native README.
-- The F3 alert examples moved: `(beat) x` now saves, so ten incumbent cases
-  and native phase E use text before a Parenthetical's opening parenthesis
-  (`x (beat)`), which stays refused. Its alert now says "A Parenthetical
-  starts with an opening parenthesis." The codec refusal keeps `invalid-edit`
-  with the message "Parenthetical must begin with an opening parenthesis".
-- Checks: red 22 fail / 3 pass, final tests on the base 30 fail, then 79/79.
-  Old-against-new differential over 27,260 captures: **0** new refusals,
-  **0** changed bytes or line facts, **3,139** refused drafts now save, 1,949
-  save the same bytes with a row now editable; no typed row reopens
-  read-only. Tracked frontend **1221/1221**, aggregate 2084/2084 with
-  archives, helper **16/16**, Rust **273/273**, browser and fresh release
-  pass; binary `2bdf3fcf…`. Native `empty-heading` with the new phase **2/2
-  content and strict** on tmpfs and Btrfs; `pdf-export`, `script-check`,
-  `publication-exit`, `title-page`, `typed-export` **5/5** on Btrfs only
-  (regression of unchanged paths; no Tier 3 trigger).
-- Limits: recovered reopen of the new intents is contract-level only. Export
-  review still blocks on a speech line that starts with `(` (SC005, print
-  profile reading); Script Check no longer lists the unprotected line. Join,
-  hard-break and conversion commands keep their parenthesis refusals.
+- Typed text Fountain reads as other syntax saves with its exact bytes
+  where those bytes are one editable Action line: headings (`'TIL DAWN`,
+  `x #1#`), characters (`BOB ^`), transitions (`CUT<`) and Dialogue
+  starting with `!` (the only Action-forcing marker). The typed element is
+  recovery-only intent; `DraftKind` gains `transition`, schema version
+  unchanged. Each such row carries one advisory SC009 naming it.
+- A `!` that would end a speech mid-list refuses at its own offset, naming
+  the typed row; untouched following rows are never rewritten. Marker texts
+  that would reopen as a cue, heading, section or other restructuring
+  element stay refused, as do `{{`/hidden/raw shapes and F4-03/group F
+  parentheses. Three F3 tests moved their refusal example (`x #1#` to
+  `# hey`); no command outcome changed.
+- Paths: `src/domain/fountainCodec.ts`, `src/domain/scriptCheck.ts`,
+  `src/app/ScriptCheckPanel.tsx`, `src/domain/fountainModel.ts`,
+  `src/application/editorMetadata.ts`. Tests:
+  `tests/contract/other-syntax-fallback.test.ts` (new, 61 cases), one
+  mounted case in `WritingView.test.tsx`, phase H in
+  `tests/native/writing-lifecycle/empty_heading.py`. Docs: brief, ADR-0042,
+  document-model, editor-behavior, native README.
+- Checks: red on base product files 31 fail / 110 pass, same command on the
+  fix 141/141. Differential over 690 captures: **0** new refusals, **0**
+  changed bytes or line facts, **28** refused drafts now save (each with
+  intent and exact bytes). Tracked frontend **1283/1283**, aggregate
+  3368/3368 with archives, helper **16/16**, Rust **273/273**, browser and
+  fresh release pass (binary `68ebca11…`; post-hoc rebuild differs by build
+  timestamps only, sources cmp-identical). Native `empty-heading` with
+  phase H **2/2 content and strict** on tmpfs and Btrfs; `pdf-export`,
+  `script-check`, `publication-exit`, `title-page`, `typed-export` **5/5**
+  on Btrfs only (regression of unchanged paths; no Tier 3 trigger).
+- Limits: recovered reopen of the new intents is contract-level only.
+  Reopened without recovery the row is Action. A `!` row orphans its cue
+  (SC001 warns) and export review still blocks on the broken speech
+  paragraph (SC005 pair), as with F4-03 rows. Browser gate first failed
+  cold (optimizer cache deleted) on base and fix alike, then passed warm;
+  native runs need the owner display variables, failing before any phase
+  without them.
 
 ## Ready next
 
-- **F4-04** (decided): save typed text Fountain reads as other syntax as
-  Action or Dialogue, typed element in recovery only, non-blocking notice
-  naming the row. Needs its deliverable section in the brief and an ADR for
-  the saved-format choice before code.
-- **F4-05** (decided): add a line ending in the file's own convention when a
-  row is emptied on an unterminated last line. An emptied numbered heading
-  stays refused.
+- **F4-05** (decided): a row emptied on a last line with no line ending
+  gains a line ending in the file's own convention. An emptied numbered
+  heading stays refused. Needs its deliverable section in the brief before
+  code.
 
 ## Prior queue complete
 
+- **AUDIT-PARK-H-F4-03**: [evidence](test-evidence/AUDIT.md#audit-park-h-f4-03--speech-that-opens-with-a-parenthesis).
+  Speech opening with a parenthesis saves as typed; closed-parenthetical
+  lines are editable on open.
 - **AUDIT-PARK-H-F4-02**: [evidence](test-evidence/AUDIT.md#audit-park-h-f4-02--emptied-speech-rows-keep-their-speech).
-  A Dialogue or Parenthetical row emptied above the rest of its speech saves
-  as the two-space dialogue line with recovery-only intent.
+  A speech row emptied above the rest of its speech saves as the two-space
+  dialogue line with recovery-only intent.
 - **AUDIT-PARK-H-F4-01**: [brief](tasks/AUDIT-PARK-H-F4.md),
   [evidence](test-evidence/AUDIT.md#audit-park-h-f4-01--commands-refuse-instead-of-creating-a-refused-draft).
   Commands refuse with a reason instead of creating a refused draft.
@@ -84,14 +92,13 @@ the [brief](tasks/AUDIT-PARK-H-F4.md#decisions).
 ## Open — agent work and separate decisions
 
 - **AUDIT-PARK-H-F4** group F is unscheduled; the F3 alert names the row.
-- D-07-F, PARK-T, capitals, D-05 cheap variant and D-09 page count remain
-  separately scoped. Record a contract-safe decision/brief before fixing;
-  pinned reproductions and requirement contradictions remain authoritative.
-- Optional boneyard assessment cleanup requires separate brief and helper proof.
+  D-07-F, PARK-T, capitals, D-05 cheap variant and D-09 page count remain
+  separately scoped with pinned reproductions authoritative; boneyard
+  cleanup needs its own brief and helper proof.
 - Replace-All load flake remains unreproduced here. `pnpm test` includes 61
   archived copies; tracked count uses `pnpm exec vitest run --exclude 'target/**'`.
   Keep new tests outside target archives.
-- `/tmp` has 18,352 of 1,048,576 inodes free, held by retained native
+- `/tmp` has 18,350 of 1,048,576 inodes free, held by retained native
   artifacts from earlier sessions and this one's tmpfs run. Nothing was
   removed; pruning is the owner's call (M6-03 copy/prune policy). Set `TMPDIR`
   to a task folder under `target/` for Vitest runs, and point
@@ -115,6 +122,6 @@ must preserve helper-resource layout from the
 
 ## Next action
 
-Owner: review the local F4-02 and F4-03 commits before any push. Next agent:
-**F4-04**, starting with its deliverable section and ADR, then F4-05. No Local
-v1/C1/F2/full-platform closure; DEV-02 remains owner-only.
+Owner: review the local F4-02, F4-03 and F4-04 commits before any push.
+Next agent: **F4-05**, starting with its deliverable section, then code. No
+Local v1/C1/F2/full-platform closure; DEV-02 remains owner-only.

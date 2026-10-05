@@ -45,9 +45,14 @@ export function editorRecovery(
     const actionSubtype = item.actionSubtype;
     if (
       (intendedKind !== undefined &&
-        !['sceneHeading', 'character', 'dialogue', 'parenthetical'].includes(
-          String(intendedKind),
-        )) ||
+        ![
+          'sceneHeading',
+          'character',
+          'dialogue',
+          'parenthetical',
+          // AUDIT-PARK-H-F4-04: transition fallback intent.
+          'transition',
+        ].includes(String(intendedKind))) ||
       (actionSubtype !== undefined && actionSubtype !== 'shot')
     )
       return undefined;

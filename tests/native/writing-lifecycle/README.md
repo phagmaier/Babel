@@ -945,6 +945,11 @@ rows, on a disposable screenplay:
   drops its intent. The saved bytes alone reopen as two Dialogue rows, and the
   line that begins with a closed parenthetical takes an edit and saves it.
   The recovered reopen of these intents is contract-level only, as in F.
+- H (AUDIT-PARK-H-F4-04): a Dialogue row starting with `!` saves as typed
+  where those bytes are one Action line, journaling with sparse Dialogue
+  intent; text typed elsewhere meanwhile reaches both. The saved bytes alone
+  reopen as an editable Action row that takes an edit and saves it. The
+  recovered reopen of this intent is contract-level only, as in F.
 
 The mode kills its own app once (`intentionalKillScenario`); the owned-process
 crash audit stays strict. Historical PARK-H failures and old A-C behavior remain
