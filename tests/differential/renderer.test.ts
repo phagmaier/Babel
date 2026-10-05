@@ -106,6 +106,23 @@ function sources() {
   return generated;
 }
 
+// AUDIT-D04-R4. The frozen control passes these clean although the pinned
+// renderer drops or re-reads their opening block (retained PDFs; the oracle
+// states what prints). Gating them is the reviewed correction, not a false
+// gate. The list is exact: no other source may move, and none may move back.
+const correctedByD04R4 = [
+  ' FADE IN:\n\t\n /* bone */\t\n',
+  ' FADE IN: \n\t\n /* bone */\t\n',
+  ' CUT TO:\t\n\t\n /* bone */\t\n',
+  ' CUT TO: \n\t\n /* bone */\t\n',
+  ' CUT TO:  \n\t\n /* bone */\t\n',
+  ' FADE IN:\n\t\n /* bone */\t\n\nA lamp glows.\n',
+  'FADE IN:\n\t\n\t/* bone */\n\nA lamp glows.\n',
+  'FADE IN:\n\t\n\t/* bone */\n    Maya waits.\n\nA lamp glows.\n',
+  'Title: Night \\/* Shift\n    Sub: late\n\nA lamp glows.\n',
+  'Title: Night \\/* Shift\n    late edition\n\nA lamp glows.\n',
+];
+
 it('shared corpus and 70,000 generated sources introduce no pinned-parser reading disagreement', () => {
   const corpus = JSON.parse(
     readFileSync('fixtures/assessment/oracle.json', 'utf8'),
@@ -122,6 +139,7 @@ it('shared corpus and 70,000 generated sources introduce no pinned-parser readin
   expect(oracle).toHaveLength(inputs.length);
   const regressions: unknown[] = [];
   const falseGates: unknown[] = [];
+  const corrected: string[] = [];
   const assessmentRegressions: unknown[] = [];
   let baselineRoleCandidates = 0;
   const baselineRoleExamples: unknown[] = [];
@@ -161,7 +179,7 @@ it('shared corpus and 70,000 generated sources introduce no pinned-parser readin
       JSON.stringify(old) === JSON.stringify(actual) &&
       !clean(nowCheck)
     )
-      falseGates.push(source);
+      (correctedByD04R4.includes(source) ? corrected : falseGates).push(source);
     const oldCleanDifference =
       clean(oldCheck) &&
       (JSON.stringify(old) !== JSON.stringify(actual) ||
@@ -215,6 +233,7 @@ it('shared corpus and 70,000 generated sources introduce no pinned-parser readin
   expect(regressions.slice(0, 10)).toEqual([]);
   expect(falseGates.slice(0, 10)).toEqual([]);
   expect(assessmentRegressions.slice(0, 10)).toEqual([]);
+  expect([...new Set(corrected)].sort()).toEqual([...correctedByD04R4].sort());
   if (process.env.BABEL_DIFFERENTIAL_REPORT)
     writeFileSync(
       process.env.BABEL_DIFFERENTIAL_REPORT + '.renderer.json',
@@ -226,6 +245,7 @@ it('shared corpus and 70,000 generated sources introduce no pinned-parser readin
         existing: existing.length,
         newDisagreements: regressions.length,
         newFalseGates: falseGates.length,
+        reviewedCorrections: corrected.length,
         newCleanDisagreements: assessmentRegressions.length,
         existingExamples: existing.slice(0, 5),
         baselineRoleCandidates,

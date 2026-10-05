@@ -39,7 +39,11 @@ from unit/UI discovery and runs in CI. A missing baseline/helper is a failure.
   control: no new unreported reading disagreement or false gate on an agreeing
   clean source. Source-role heuristic candidates on the frozen control are reported for
   independent review; accepted profile mappings (such as lyrics) may differ.
-  No new clean candidate is permitted. Parser/mirror comparisons must agree
+  No new clean candidate is permitted. AUDIT-D04-R4 names ten sources the
+  frozen control passes clean and the correction gates; the gate asserts that
+  list exactly, so no other source may become gated and none may revert. Extend
+  it only with retained PDF evidence and an oracle case, never to clear a
+  failure. Parser/mirror comparisons must agree
   for every admitted corpus source. This is parse-level, not layout/emphasis,
   Unicode shaping, pixel or native verification.
 - Baseline `8084690` is loaded from Git by the dedicated test configuration;
@@ -55,7 +59,8 @@ Optional retained reports: set `BABEL_DIFFERENTIAL_REPORT` to a fresh path
 prefix outside fixtures; the suite writes exclusive-create JSON summaries.
 The renderer report lists every candidate occurrence (`baselineRoleOccurrences`).
 Reproducers under `tests/investigation/` run by name only, outside `pnpm test`,
-this gate and CI; one may stay red while its tracked finding is open.
+this gate and CI; one may stay red while its tracked finding is open. The
+reading-candidates reproducer is green since AUDIT-D04-R4.
 `BABEL_DIFFERENTIAL_FAULT=capture`, `renderer` or `assessment` injects an in-memory fault
 in the dedicated suite only; all must fail. No product source is modified.
 

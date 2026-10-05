@@ -188,6 +188,28 @@
       "hidden": ["bone"],
       "italic": [],
       "upright": ["FADE IN:", "Maya waits.", "A lamp glows."]
+    },
+    {
+      "id": "P5",
+      "class": "scope",
+      "occurrences": [],
+      "note": "Hand-written for AUDIT-D04-R4, sibling arm: both sides read a title page; an escaped boneyard opener with no closer sits in the field, and an indented Key: value line continues it.",
+      "source": "Title: Night \\/* Shift\n    Sub: late\n\nA lamp glows.\n",
+      "visible": ["Sub: late", "A lamp glows."],
+      "hidden": [],
+      "italic": [],
+      "upright": ["A lamp glows."]
+    },
+    {
+      "id": "P6",
+      "class": "scope",
+      "occurrences": [],
+      "note": "Hand-written for AUDIT-D04-R4, sibling arm: the codec reads a title field with an indented continuation; an escaped boneyard opener with no closer sits in the field.",
+      "source": "Title: Night \\/* Shift\n    late edition\n\nA lamp glows.\n",
+      "visible": ["late edition", "A lamp glows."],
+      "hidden": ["Title:"],
+      "italic": [],
+      "upright": ["A lamp glows."]
     }
   ]
 }

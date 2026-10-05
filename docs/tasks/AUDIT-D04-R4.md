@@ -1,8 +1,11 @@
 # AUDIT-D04-R4 — boneyard inside the renderer's opening title block
 
-Status: **proposed 2026-10-05; not started.** A product fix needs selection
-through [current-state](../current-state.md#next-action) and the owner decision
-under [Gate handling](#gate-handling-owner-decision-before-coding).
+Status: **done 2026-10-05**; base `7efc80d`.
+[Evidence](../test-evidence/AUDIT.md#audit-d04-r4--boneyard-inside-the-renderers-opening-title-block).
+The owner delegated both open decisions to
+the agent on 2026-10-05 ("do whatever you think is best"): gate handling is
+**option A** below, chosen by the agent; the helper-warning question stays
+outside this fix as proposed task [AUDIT-EXPORT-WARNINGS](AUDIT-EXPORT-WARNINGS.md).
 Origin: [AUDIT-READING-CANDIDATES](AUDIT-READING-CANDIDATES.md),
 [evidence](../test-evidence/AUDIT-READING-CANDIDATES.md#classification--2026-10-05).
 Dependencies: AUDIT-D04-R1 and AUDIT-D04-R3 complete.
@@ -82,6 +85,15 @@ gate's predicate; not executed against a fix.
 Either way [policy](../testing.md#differential-regression-gates) applies: no
 baseline or predicate change merely to clear a failure, no seed change.
 
+**As built: A, refined.** The sibling-arm probes found two more sources that
+are clean on the frozen control and print differently (P5, P6: a literal `/*`
+with no closer in a title field hid an unprinted indented `Key: value` line and
+a block printed as script text). Both have a codec title, so a "no title" rule
+cannot name them. The gate carries a literal list of ten sources (S3–S7, P1,
+P2, P4, P5, P6) and asserts the newly gated set equals it exactly, after every
+earlier assertion. Baseline, seed and earlier assertions are unchanged. P5 and
+P6 joined the matrix before the fix; no earlier expectation changed.
+
 ## Do NOT do
 
 Change codec classification, the parser mirror's reading, Rust, IPC, the
@@ -102,6 +114,9 @@ reported lines, `pnpm check` and `pnpm test:browser`. Rust gates unchanged:
 no Rust path is touched. Native, after a fresh build, on tmpfs and Btrfs: the
 `pdf-export script-check publication-exit title-page` modes of
 `integrated_exit.py`, invoked as recorded in
-[AUDIT-D04-R3 evidence](../test-evidence/AUDIT.md#audit-d04-r3--remaining-renderercodec-reading-differences);
+[AUDIT-D04-R3 evidence](../test-evidence/AUDIT.md#audit-d04-r3--remaining-renderercodec-reading-differences)
+with `BABEL_NATIVE_IME_TEMP_ROOT` set to a task-owned Btrfs directory, as the
+[native guide](../../tests/native/writing-lifecycle/README.md) requires once
+retained `/tmp` roots exhaust inodes. Check `df -i /tmp` first;
 confirm prerequisites before the run and record any skip with its reason.
 Record evidence, update tracker and current-state, one commit, no push.

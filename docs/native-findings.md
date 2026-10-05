@@ -36,8 +36,10 @@ snapshot-specific. No historical event is closed by this maintenance task.
 | D03B, PID 477772/start 4562349        | 2026-10-04 04:26:23 PDT                        | Failed presentation candidate, Btrfs forced teardown SIGABRT; corrupted-unsorted-chunks signature. [Evidence](test-evidence/AUDIT.md#audit-d03b--writing-layout-shell)                   | Product CSS failure corrected; that does not dispose the crash.                                                           |
 | D03B, PID 501063/start 4636728        | 2026-10-04 04:40:16 PDT                        | tmpfs editor-exit content pass, SIGABRT; corrupted-unsorted-chunks signature. [Evidence](test-evidence/AUDIT.md#audit-d03b--writing-layout-shell)                                        | Exact crash phase requires ledger review; cause/disposition open. Do not classify as ordinary close from the mode name.   |
 | PARK-H-F2, PID 1134510/start 10372570 | 2026-10-04 20:34:35 PDT                        | Btrfs empty-heading owned-kill first session SIGABRT, before later ordinary-close markers. [Evidence](test-evidence/AUDIT.md#audit-park-h-f2--empty-scene-heading-recovery-intent)       | Frozen F1 control and F2 replay each clean; primary strict failure remains. Stack evidence is not attribution.            |
+| D04-R4, PID 1545216/start 13646967    | 2026-10-05 05:40:09 PDT                        | Btrfs, 4 modes: SIGABRT at first file picker, `/tmp` at 0 free inodes; 3 more PIDs in [evidence](test-evidence/AUDIT.md#audit-d04-r4--boneyard-inside-the-renderers-opening-title-block) | Rerun with the IME view on Btrfs clean 8/8; cause not established. Owner review; clear `/tmp` inodes.                     |
 
-These are event identities, not ten established independent defects. M6 C1/F2,
+These are event identities, not established independent defects; the newest
+row covers four aborts in one run with `/tmp` out of inodes. M6 C1/F2,
 M6-02, installed/native platform coverage and Local v1 admission remain open.
 Other non-crash failures (IME/Save As, Replace-All flake, SELinux and publication
 cache) remain in their owning briefs/evidence; this register does not retire them.

@@ -2853,6 +2853,297 @@
           ]
         ]
       ]
+    },
+    {
+      "name": "boneyard line folded into the opening title block prints nothing",
+      "source": " FADE IN:\n\t\n /* bone */\t\n",
+      "prints": [],
+      "omits": [
+        "FADE IN:",
+        "bone"
+      ],
+      "clean": false,
+      "blockingLines": [
+        0
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 1,
+        "sections": 0,
+        "synopses": 0
+      },
+      "paragraphs": [],
+      "title": [
+        " fade in"
+      ]
+    },
+    {
+      "name": "boneyard line after CUT TO: with a trailing tab is folded into the title block",
+      "source": " CUT TO:\t\n\t\n /* bone */\t\n",
+      "prints": [],
+      "omits": [
+        "CUT TO:",
+        "bone"
+      ],
+      "clean": false,
+      "blockingLines": [
+        0
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 1,
+        "sections": 0,
+        "synopses": 0
+      },
+      "paragraphs": [],
+      "title": [
+        " cut to"
+      ]
+    },
+    {
+      "name": "boneyard line after CUT TO: with two trailing spaces is folded into the title block",
+      "source": " CUT TO:  \n\t\n /* bone */\t\n",
+      "prints": [],
+      "omits": [
+        "CUT TO:",
+        "bone"
+      ],
+      "clean": false,
+      "blockingLines": [
+        0
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 1,
+        "sections": 0,
+        "synopses": 0
+      },
+      "paragraphs": [],
+      "title": [
+        " cut to"
+      ]
+    },
+    {
+      "name": "opening block with a boneyard line is not printed while the body after it is",
+      "source": " FADE IN:\n\t\n /* bone */\t\n\nA lamp glows.\n",
+      "prints": [
+        "A lamp glows."
+      ],
+      "omits": [
+        "FADE IN:",
+        "bone"
+      ],
+      "clean": false,
+      "blockingLines": [
+        0
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 1,
+        "sections": 0,
+        "synopses": 0
+      },
+      "paragraphs": [
+        [
+          "Action",
+          [
+            "A lamp glows."
+          ]
+        ]
+      ],
+      "title": [
+        " fade in"
+      ]
+    },
+    {
+      "name": "unindented FADE IN: above a tab-led boneyard line is not printed",
+      "source": "FADE IN:\n\t\n\t/* bone */\n\nA lamp glows.\n",
+      "prints": [
+        "A lamp glows."
+      ],
+      "omits": [
+        "FADE IN:",
+        "bone"
+      ],
+      "clean": false,
+      "blockingLines": [
+        0
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 1,
+        "sections": 0,
+        "synopses": 0
+      },
+      "paragraphs": [
+        [
+          "Action",
+          [
+            "A lamp glows."
+          ]
+        ]
+      ],
+      "title": [
+        "Fade in"
+      ]
+    },
+    {
+      "name": "indented line below the boneyard is taken into the title block too",
+      "source": "FADE IN:\n\t\n\t/* bone */\n    Maya waits.\n\nA lamp glows.\n",
+      "prints": [
+        "A lamp glows."
+      ],
+      "omits": [
+        "FADE IN:",
+        "Maya waits.",
+        "bone"
+      ],
+      "clean": false,
+      "blockingLines": [
+        0,
+        3
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 1,
+        "sections": 0,
+        "synopses": 0
+      },
+      "paragraphs": [
+        [
+          "Action",
+          [
+            "A lamp glows."
+          ]
+        ]
+      ],
+      "title": [
+        "Fade in"
+      ]
+    },
+    {
+      "name": "empty separator keeps FADE IN: printed above a boneyard line",
+      "source": " FADE IN:\n\n /* bone */\t\n",
+      "prints": [
+        "FADE IN:"
+      ],
+      "omits": [
+        "bone"
+      ],
+      "clean": true,
+      "blockingLines": [],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 1,
+        "sections": 0,
+        "synopses": 0
+      },
+      "paragraphs": [
+        [
+          "Action",
+          [
+            " FADE IN:"
+          ]
+        ],
+        [
+          "Action",
+          [
+            ""
+          ]
+        ]
+      ]
+    },
+    {
+      "name": "tab-only line under FADE IN: makes a title page that prints nothing",
+      "source": " FADE IN:\n\t\n",
+      "prints": [],
+      "omits": [
+        "FADE IN:"
+      ],
+      "clean": false,
+      "blockingLines": [
+        0
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      },
+      "paragraphs": [],
+      "title": [
+        " fade in"
+      ]
+    },
+    {
+      "name": "escaped boneyard opener in a title field does not hide an indented key line",
+      "source": "Title: Night \\/* Shift\n    Sub: late\n\nA lamp glows.\n",
+      "prints": [
+        "Night \\/* Shift",
+        "A lamp glows."
+      ],
+      "omits": [
+        "Sub",
+        "late"
+      ],
+      "clean": false,
+      "blockingLines": [
+        1
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      },
+      "paragraphs": [
+        [
+          "Action",
+          [
+            "A lamp glows."
+          ]
+        ]
+      ],
+      "title": [
+        "Title",
+        "    sub"
+      ]
+    },
+    {
+      "name": "escaped boneyard opener in a title field does not hide a block printed as script text",
+      "source": "Title: Night \\/* Shift\n    late edition\n\nA lamp glows.\n",
+      "prints": [
+        "Title: Night \\/* Shift",
+        "late edition",
+        "A lamp glows."
+      ],
+      "omits": [],
+      "clean": false,
+      "blockingLines": [
+        0,
+        1
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      },
+      "paragraphs": [
+        [
+          "Action",
+          [
+            "Title: Night \\/* Shift",
+            "    late edition"
+          ]
+        ],
+        [
+          "Action",
+          [
+            "A lamp glows."
+          ]
+        ]
+      ]
     }
   ]
 }

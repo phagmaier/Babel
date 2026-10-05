@@ -153,11 +153,15 @@ limitation already reports that paragraph. This covers:
   whose capitals do not come before its first bracket (`(MAYA)`), or a line
   whose capitals do (`MAYA (to Jon) quietly`); `TO:` with no capitals before it.
 
-**Open, [AUDIT-D04-R4](tasks/AUDIT-D04-R4.md):** the title-page comparison is
-skipped when a line of the opening block contains `/*`. Where the codec reads
-no title and the renderer folds a boneyard line into a title block, the
-assessment is clean and the block's visible lines are not printed.
-[Evidence](test-evidence/AUDIT-READING-CANDIDATES.md#classification--2026-10-05).
+[AUDIT-D04-R4](tasks/AUDIT-D04-R4.md) closes a gap in that comparison: it was
+skipped whenever a line of the opening block contained `/*`. A boneyard on its
+own line can leave whitespace the renderer reads as a title value, so the lines
+around it join a title block the codec does not see and are not printed; that
+is now blocking SC005 over the whole block. The field comparisons are skipped
+only where the renderer removes a boneyard from a codec title field, which is
+reported on its own. A literal `/*` with no closer no longer hides an indented
+`Key: value` line or a block the renderer prints as script text.
+[Evidence](test-evidence/AUDIT.md#audit-d04-r4--boneyard-inside-the-renderers-opening-title-block).
 
 Existing limitations beside a boneyard still over-report with their old
 wording; none was removed. New corpus cases state the renderer's own paragraph

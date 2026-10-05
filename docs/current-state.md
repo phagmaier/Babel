@@ -1,33 +1,43 @@
 # Current state — next-agent handoff 2026-10-05
 
 Application: **babel**. Work/commit on `main`; maintenance was published.
-Product feature work is paused. One export-assessment finding, AUDIT-D04-R4,
-is confirmed and unfixed. **M6-02, C1/F2 and Local v1 admission stay open.**
+Product feature work is paused. AUDIT-D04-R4 is fixed and committed locally,
+not pushed. **M6-02, C1/F2 and Local v1 admission stay open.**
 
 ## This session
 
-**AUDIT-READING-CANDIDATES complete 2026-10-05; committed locally, not pushed.**
-[Brief](tasks/AUDIT-READING-CANDIDATES.md),
-[evidence](test-evidence/AUDIT-READING-CANDIDATES.md#classification--2026-10-05),
-[fix brief](tasks/AUDIT-D04-R4.md). No product, helper, fixture, baseline or seed change.
+**AUDIT-D04-R4 complete 2026-10-05; committed locally, not pushed.**
+[Brief](tasks/AUDIT-D04-R4.md),
+[evidence](test-evidence/AUDIT.md#audit-d04-r4--boneyard-inside-the-renderers-opening-title-block).
+The owner delegated the open decisions; the agent chose gate option A and kept
+the helper-warning check separate.
 
-- Eleven occurrences are seven sources. Two (oracle 36, 111) are the supported
-  lyric mapping: clean, italic, no `~`. Five (nine occurrences) are a confirmed
-  silent omission: ` FADE IN:` or ` CUT TO:`, a tab-only line and a boneyard
-  line give a verified, clean assessment naming one boneyard, and a blank page.
-- Hand-written probes widen the shape: an unindented first line, body text
-  after the block and a second visible line are dropped too. Without the
-  boneyard line the same source is blocked correctly.
-- Paths: report-only `baselineRoleOccurrences` in the renderer gate; by-name
-  reproducer in `tests/investigation/` with `tools/investigation/render_samples.py`,
-  red by design (8 failed, 26 passed) until R4 lands.
-- Checks: focused 171/171, differential 3/3 with all three faults failing,
-  helper 16/16, tooling 5/5, `pnpm check` pass. Rust, browser, native and
-  matrix gates skipped: none of those paths changed. Nothing here is native
-  verification.
-- For the owner: R4's fix blocks nine sweep occurrences the differential gate
-  would count as new false gates (two options in the brief). Export review
-  ignores the helper's `unknown-title-fields` warning; unscoped.
+- Change: `src/domain/exportAssessment.ts` only. An opening block the renderer
+  reads as a title page and the codec does not is blocking SC005 with or
+  without a boneyard line in it. The field comparisons are skipped only where
+  a boneyard removed from a title field is already reported. Two sibling cases
+  found by probe (a literal `/*` in a title field) are covered too.
+- Oracle 117 → 127 hand-written cases, red first (8 failed). The renderer gate
+  lists ten reviewed sources exactly; baseline and seed unchanged. The by-name
+  reproducer in `tests/investigation/` is green (38/38).
+- Checks: focused 191/191, differential 3/3 with all faults failing, fixture
+  scan 0 added and 0 removed over 48 fixtures, helper 16/16, tooling 5/5,
+  `pnpm check` 1339/1339, browser smoke, fresh build, and native
+  `pdf-export script-check publication-exit title-page` 8/8 with clean crash
+  audits on tmpfs and Btrfs. Rust gates and the workspace matrix skipped: no
+  Rust or filesystem path changed. The new SC005 is not exercised natively.
+- **Environment, owner action:** `/tmp` has about 15,000 of 1,048,576 inodes
+  free; 61 retained `babel-native-ime-*` roots hold nearly all the rest. The
+  first native attempt hit zero: drills failed 0/8 and `babel-desktop` aborted
+  at the file picker four times (indexed in the register; the clean rerun does
+  not close them). Native runs must set `BABEL_NATIVE_IME_TEMP_ROOT`. Clearing
+  those roots, or rebooting, is the owner's call.
+
+**AUDIT-READING-CANDIDATES complete 2026-10-05.**
+[Brief](tasks/AUDIT-READING-CANDIDATES.md),
+[evidence](test-evidence/AUDIT-READING-CANDIDATES.md#classification--2026-10-05).
+Eleven occurrences were seven sources: two supported lyric mappings and five
+silent omissions, which AUDIT-D04-R4 fixes.
 
 **INFRA-INSTRUCTIONS complete, published and CI verified.**
 [Brief](tasks/INFRA-INSTRUCTIONS.md), [evidence](test-evidence/INFRA-INSTRUCTIONS.md).
@@ -64,8 +74,8 @@ is confirmed and unfixed. **M6-02, C1/F2 and Local v1 admission stay open.**
 
 ## Retained findings and limits
 
-[Native finding register](native-findings.md) indexes ten recorded event
-identities with dates, workload, controls and disposition; no shared cause
+[Native finding register](native-findings.md) indexes eleven rows of recorded
+event identities with dates, workload, controls and disposition; no shared cause
 inferred. C1/F2 and historical SLP-B/NATIVE-R1/D02/D03/PARK-H-F2 crashes stay
 open. Passing controls do not close them. Active-writing/data-loss failures
 block affected feature work; scoped safety investigations may proceed.
@@ -85,10 +95,11 @@ remain open. DEV-02 is owner-only. No retained artifacts pruned.
 
 ## Next action
 
-**AUDIT-D04-R4** — [brief](tasks/AUDIT-D04-R4.md). First get the owner's
-gate-handling decision (option A recommended there). Then add the red oracle
-cases, make the finding a blocking SC005 and run the gates and native drills
-the brief names. Until it lands, a clean export assessment does not guarantee
-that an opening block with a boneyard line in it is printed.
+**AUDIT-EXPORT-WARNINGS** — [brief](tasks/AUDIT-EXPORT-WARNINGS.md), proposed.
+Settle its design section, then name the tier, focused commands and native
+drills in the brief before coding. It compares the helper's warnings with the
+assessment at export, so an omission the assessment does not predict cannot
+export silently. Before any native run check `df -i /tmp` and set
+`BABEL_NATIVE_IME_TEMP_ROOT`.
 No M6/F4 continuation, group F, DEV-02 or release admission is selected.
 Push needs explicit owner authorization.

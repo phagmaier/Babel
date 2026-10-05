@@ -757,16 +757,24 @@ export function evaluateExportAssessment(
   const titleEnd = document.titleFields.at(-1);
   // AUDIT-D04-R1: the codec and the renderer must agree on whether the opening
   // block is a title page. The renderer removes boneyards first, so one on its
-  // own line ends its block early (AUDIT-D04-R3). One inside a title field is
-  // reported separately and the comparison is skipped. A missing separator is
-  // reported below.
+  // own line ends its block early (AUDIT-D04-R3), or leaves whitespace the
+  // renderer reads as a value and so joins a title block the codec does not
+  // see (AUDIT-D04-R4). A boneyard the renderer removes from a title field is
+  // reported above, and only then are the field comparisons skipped. A missing
+  // separator is reported below.
   const codecTitle = titleEnd ? titleEnd.from + titleEnd.count : 0;
   const rendererTitle = rendered.title;
-  const opening = document.lines.slice(
-    0,
-    Math.max(codecTitle, rendererTitle?.length ?? 0),
-  );
-  if (!opening.some((row) => row.sourceText.includes('/*'))) {
+  const openingEnd = Math.max(codecTitle, rendererTitle?.length ?? 0);
+  let hiddenReported = false;
+  for (let at = 0; at < openingEnd; at++) hiddenReported ||= escaped.has(at);
+  if (rendererTitle && !codecTitle)
+    add(
+      'SC005',
+      'The profile reads this opening block as a title page and would not print it as script text.',
+      0,
+      rendererTitle.length - 1,
+    );
+  else if (!hiddenReported) {
     const separated = (document.lines[codecTitle]?.sourceText ?? '') === '';
     if (codecTitle && !rendererTitle && separated)
       add(
@@ -774,13 +782,6 @@ export function evaluateExportAssessment(
         'The profile does not read these lines as a title page; it would print every field, keys included, as script text.',
         0,
         codecTitle - 1,
-      );
-    else if (rendererTitle && !codecTitle)
-      add(
-        'SC005',
-        'The profile reads this opening block as a title page and would not print it as script text.',
-        0,
-        rendererTitle.length - 1,
       );
     else if (rendererTitle)
       // After a valued key the renderer reads every line as a key, so an

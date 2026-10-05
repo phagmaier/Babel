@@ -65,6 +65,9 @@ unmarked action, supported title field) and hand-written scope probes P1–P3
 (body text after S3, unindented first line, boneyard between title fields) are
 in the matrix. Scope probes bound a possible fix; they are not sweep candidates.
 P4 (a second visible line under the boneyard) was added after the first run.
+P5 and P6 (sibling arms, a literal `/*` in a title field) were added for
+AUDIT-D04-R4. Corpus indexes above are for the 117-case oracle; AUDIT-D04-R4
+appended ten cases, so generated indexes are ten higher since.
 
 **Invariant under test** (SPEC S09.2, INV-03; ADR 0037 lyrics): when the
 assessment is verified with no blocking issue, the helper's PDF prints every
@@ -72,7 +75,7 @@ listed visible string and no hidden string, lyric text is italic and other
 text is not. A blocking SC005 satisfies it by reporting. Expectations come
 from Fountain semantics and those clauses, not from the codec, mirror or renderer.
 
-Probe (needs `pnpm pdf-helper` and Poppler; red while AUDIT-D04-R4 is open):
+Probe (needs `pnpm pdf-helper` and Poppler; green since AUDIT-D04-R4):
 
 ```sh
 BABEL_READING_ROOT="$(mktemp -d "$PWD/target/audit-reading-candidates-XXXXXXXX")" \
