@@ -100,22 +100,22 @@ Find/replace: logical text, scene/doc scopes, hidden-text filters, preview/count
 
 ## 9. Docs map (read only what the brief needs)
 
-| Task touches                     | Read                                               |
-| -------------------------------- | -------------------------------------------------- |
-| Boundaries/IPC                   | `docs/architecture.md` + named ADR                 |
-| Source/model/codec               | `docs/document-model.md`                           |
-| Keys/completion/selection/bridge | `docs/editor-behavior.md`                          |
-| Home/workflows/a11y              | `docs/ux.md`                                       |
-| Script Check rules               | `docs/screenplay-validation.md`                    |
-| Save/recovery/snapshots/close    | `docs/persistence-and-recovery.md`                 |
-| Revisions/remote                 | `docs/sync-and-versioning.md`                      |
-| PDF/profile/fonts                | `docs/pdf-and-formatting.md`                       |
-| Commands/tiers/matrix/deps       | `docs/development.md` (+ `docs/testing.md`)        |
-| Requirement→task coverage        | `docs/requirements.md`                             |
-| Decision + still-needed evidence | `docs/decisions/NNNN-slug.md` (0001–0040 + README) |
-| Task scope/acceptance/checks     | `docs/tasks/M*-NN.md` (M6-02-R1 is next)           |
-| What passed / exact commands     | `docs/test-evidence/M*.md`, `M6-02-matrix.md`      |
-| Independent reviews              | `docs/reviews/2026-*.md`                           |
+| Task touches                     | Read                                                                                                  |
+| -------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| Boundaries/IPC                   | `docs/architecture.md` + named ADR                                                                    |
+| Source/model/codec               | `docs/document-model.md`                                                                              |
+| Keys/completion/selection/bridge | `docs/editor-behavior.md`                                                                             |
+| Home/workflows/a11y              | `docs/ux.md`                                                                                          |
+| Script Check rules               | `docs/screenplay-validation.md`                                                                       |
+| Save/recovery/snapshots/close    | `docs/persistence-and-recovery.md`                                                                    |
+| Revisions/remote                 | `docs/sync-and-versioning.md`                                                                         |
+| PDF/profile/fonts                | `docs/pdf-and-formatting.md`                                                                          |
+| Commands/tiers/matrix/deps       | `docs/development.md` (+ `docs/testing.md`); completed-task commands in `docs/development-history.md` |
+| Requirement→task coverage        | `docs/requirements.md`                                                                                |
+| Decision + still-needed evidence | `docs/decisions/NNNN-slug.md` (0001–0040 + README)                                                    |
+| Task scope/acceptance/checks     | `docs/tasks/M*-NN.md` (M6-02-R1 is next)                                                              |
+| What passed / exact commands     | `docs/test-evidence/M*.md`, `M6-02-matrix.md`                                                         |
+| Independent reviews              | `docs/reviews/2026-*.md`                                                                              |
 
 ## 10. Tests, fixtures, evidence
 
@@ -131,13 +131,9 @@ Find/replace: logical text, scene/doc scopes, hidden-text filters, preview/count
 
 Toolchain: `mise install node@26.7.0 pnpm@11.22.0` → `mise exec -- pnpm install --frozen-lockfile` → `pnpm pdf-helper` before `pnpm tauri dev/build`. Sandboxes may need `/tmp/*-store` overrides (see `docs/development.md`).
 
-| Tier          | When                                                                                                                                                                       | Run                                                                                                                                                                |
-| ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Tier 1 fast   | Docs/comment/text-only, no logic/persistence/IPC/native                                                                                                                    | `prettier --check` touched + local-link check + `git diff --check` (+lint/typecheck if TS touched)                                                                 |
-| Tier 2 shared | Frontend-only or Rust-unit-only, no matrix triggers                                                                                                                        | Tier 1 + focused vitest/cargo paths + full `pnpm test`, `lint`, `typecheck`, `build`, `cargo fmt --check`, `cargo clippy -- -D warnings`, `cargo test --workspace` |
-| Tier 3 matrix | Touches `crates/.../documents/` save/recovery/journal/snapshot/history/identity/lease, `src-tauri/src/` IPC/dialogs, sync/interruption, metadata/paths, packaging, or gate | Tier 2 + `pnpm test:browser` + named native drill(s) + tmpfs **and** Btrfs matrix (`BABEL_*_TEST_ROOT=$PWD`, `CARGO_HOME=/tmp/babel-cargo … --locked`)             |
+Tiers live in `docs/development.md#check-tiers-use-the-lowest-tier-that-covers-the-change` — Tier 1 docs/text-only, Tier 2 frontend/Rust-logic + full shared gates, Tier 3 + browser smoke, named native drill(s) and tmpfs/Btrfs matrix. Completed-milestone focused commands are archived in `docs/development-history.md`.
 
-Per-task focused commands live in the brief + `docs/development.md` task table. Record elapsed wall time per native/matrix + shared gate line. Pure codec/envelope/state changes need no second-filesystem run — record why. Focused tests never replace required shared/milestone gates. Finish every task with `git diff --check`; update `docs/current-state.md` (+ `TODO.md` only when acceptance evidence exists); per-task default updates nothing else unless behavior/decision/safety changed.
+Per-task focused commands live in the brief. Record elapsed wall time per native/matrix + shared gate line. Pure codec/envelope/state changes need no second-filesystem run — record why. Focused tests never replace required shared/milestone gates. Finish every task with `git diff --check`; update `docs/current-state.md` (+ `TODO.md` only when acceptance evidence exists); per-task default updates nothing else unless behavior/decision/safety changed.
 
 ## 12. Traps (read before editing)
 

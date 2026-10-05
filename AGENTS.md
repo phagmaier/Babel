@@ -52,7 +52,7 @@ Keep changes task-scoped and preserve module boundaries. Prefer verified librari
 
 Implement behavior tests including failures/undo where relevant. Use synthetic fixtures, temporary directories and disposable remotes. Never test on the owner's only manuscript or auto-discover/use personal credentials.
 
-Use `docs/development.md` commands and check tiers for changed behavior/acceptance gates. Docs-only: formatting, changed local-link checks, `git diff --check`; executable checks if commands/config change. Code: required focused/shared tests, formatting, lint/typecheck, relevant builds and native/UI checks. Focused tests cannot replace required shared/milestone gates for behavior changes; Tier 1 fast-path skips need a one-line rationale in evidence.
+Use `docs/development.md` commands and check tiers for changed behavior/acceptance gates. Each task brief states its tier, exact focused commands, named native drill modes (if any), and skips with a one-line rationale. Run focused commands while iterating; run the full tier gate once before commit. Docs-only: formatting, changed local-link checks, `git diff --check`; executable checks if commands/config change. Code: required focused/shared tests, formatting, lint/typecheck, relevant builds and native/UI checks. Focused tests cannot replace required shared/milestone gates for behavior changes; Tier 1 fast-path skips need a one-line rationale in evidence.
 
 Filesystem matrix (Tier 3): replacement/recovery/journal/history publication, sync/interruption, identity publication, leases and native metadata/path behavior; triggers are listed in `docs/development.md`. Pure codec/envelope/state tests need no second filesystem run. Record coverage/omissions; never disable a check or broaden permissions just to get green output.
 
@@ -62,7 +62,7 @@ Preserve fixture bytes: formatters/Git must not rewrite Fountain whitespace, CRL
 
 ## Context efficiency and handoffs
 
-Use targeted searches and bounded reads. Keep verbose logs outside routinely loaded docs; summarize exact failures. Do not dump repositories, lockfiles or generated output, or change global settings/install plugins to compensate for poor context use.
+Use targeted searches and bounded reads. Keep verbose logs outside routinely loaded docs; summarize exact failures. Never read `docs/test-evidence/M*.md` or `AUDIT.md` wholesale; open the brief's anchored section only. Do not dump repositories, lockfiles or generated output, or change global settings/install plugins to compensate for poor context use.
 
 Before stopping/handoff, update `docs/current-state.md`: task, work, paths, checks/results, blockers, next action; under ~120 lines / 8 KiB, linking commands/host/detail in evidence. If the owner forbids editing another coordinator's files, leave them untouched; record base commit, paths, checks and next action in a task-local report.
 
@@ -74,7 +74,7 @@ Claim tasks in `docs/current-state.md`. Work on `main` and commit completed work
 
 ## Permissions and stopping
 
-Proceed on reversible, in-scope defaults. No unrelated deletion/overwrite, force-reset, unauthorized commit/push/publish, cloud resources, spending, global settings or privileged packages.
+Proceed on reversible, in-scope defaults. No unrelated deletion/overwrite, force-reset, unauthorized commit/push/publish, cloud resources, spending, global settings or privileged packages. Routine disk hygiene is allowed without asking: `sh tools/clean.sh --apply` (safe disposables only); `--include-evidence` and `--include-dev` need owner approval.
 
 For missing prerequisites record failed command and next safe step; continue independent work, leaving affected gates blocked. Escalate privacy/destructive/cost decisions.
 
