@@ -2,6 +2,7 @@
 AUDIT-PARK-H-F3 adds the alert that names a row Fountain cannot hold.
 AUDIT-PARK-H-F4-02 adds a Dialogue row emptied above the rest of its speech.
 AUDIT-PARK-H-F4-03 adds speech rows that open with a parenthesis.
+AUDIT-PARK-H-F4-04 adds a Dialogue row starting with `!`, saved as typed.
 
 Empty headings save as physical blanks with source-bound recovery intent.
 Trusted keys verify unrelated edits, exact journal metadata, owned SIGKILL,
@@ -439,4 +440,54 @@ def run(d):
     report['speechParenthesis']['sourceOnlyReopen'] = {'rows': 'two editable Dialogue rows', 'saved': edited.decode()}
     assert len(list((d.ROOT / 'copies').glob('*.draft.json'))) == 0, 'Speech parenthesis rows required an emergency bundle'
     print('PASS native speech parenthesis: text after a Parenthetical and a wrapped Dialogue saved and journaled with sparse intent; later text and typing on save exact bytes; source-only reopen is editable', flush=True)
+    # H. AUDIT-PARK-H-F4-04: typed text Fountain reads as other syntax saves
+    # as typed where those bytes are one Action line. A Dialogue row starting
+    # with `!` is Fountain's action with sparse Dialogue intent; the draft
+    # keeps saving and journaling with no alert.
+    speech = b'@BOB\nHi there.\n\n!A lamp glows.\n'
+    target = d.ROOT / 'files' / 'other-syntax-fallback.fountain'
+    target.write_bytes(speech)
+    open_file('BOBHi there.A lamp glows.')
+    click_row('dialogue', 'Hi there.')
+    d.type_text(HOME + '!')
+    d.wait(lambda: 'dialogue:!Hi there.' in rows(), 'Forcing marker typed at the Dialogue start')
+    marked = b'@BOB\n!Hi there.\n\n!A lamp glows.\n'
+    d.audit(target, marked)
+    exclaim = [{'index': 1, 'intendedKind': 'dialogue'}]
+    marked_record = d.wait(lambda: checkpoint(marked, exclaim),
+                           'Exact `!` text and sparse Dialogue intent journaled', timeout=30)
+    d.wait(lambda: 'Saved locally' in d.body(), 'Forcing-marker Dialogue exact save acknowledged')
+    assert not alerts(), alerts()
+    click_row('action', 'A lamp glows.')
+    d.type_text(HOME + 'Rain. ')
+    d.wait(lambda: 'action:Rain. A lamp glows.' in rows(), 'Author text typed in another row meanwhile')
+    later = marked.replace(b'!A lamp', b'!Rain. A lamp')
+    d.audit(target, later)
+    later_record = d.wait(lambda: checkpoint(later, exclaim, marked_record),
+                          'Later text journaled with the Dialogue intent', timeout=30)
+    d.wait(lambda: 'Saved locally' in d.body(), 'Later text saved beside the fallback row')
+    assert not alerts(), alerts()
+    report['otherSyntaxFallback'] = {'status': status(), 'alerts': alerts(), 'sourceSaved': True,
+                                    'journaled': True, 'saved': later.decode(), 'intent': exclaim}
+    d.screenshot('other-syntax-fallback-protected')
+    d.close_session()
+    # The saved bytes alone open as Fountain reads them: an editable Action
+    # row, with exact no-op source and an ordinary close.
+    target = d.ROOT / 'files' / 'reopened-other-syntax-fallback.fountain'
+    target.write_bytes(later)
+    open_file('BOBHi there.Rain. A lamp glows.')
+    assert rows() == ['character:BOB', 'action:Hi there.', 'action:',
+                      'action:Rain. A lamp glows.'], rows()
+    assert target.read_bytes() == later
+    click_row('action', 'Hi there.')
+    d.type_text(END + '!')
+    d.wait(lambda: 'action:Hi there.!' in rows(), 'Reopened Action row stays editable')
+    edited = later.replace(b'!Hi there.\n', b'!Hi there.!\n')
+    d.audit(target, edited)
+    d.wait(lambda: 'Saved locally' in d.body(), 'Edit to the reopened row exact save acknowledged')
+    assert not alerts(), alerts()
+    d.close_session()
+    report['otherSyntaxFallback']['sourceOnlyReopen'] = {'rows': 'editable Action row', 'saved': edited.decode()}
+    assert len(list((d.ROOT / 'copies').glob('*.draft.json'))) == 0, 'Other-syntax fallback row required an emergency bundle'
+    print('PASS native other-syntax fallback: `!` Dialogue saved and journaled with sparse intent; later text saves exact bytes; source-only reopen is an editable Action', flush=True)
     (d.ROOT / 'empty-heading.json').write_text(json.dumps(report, indent=2) + '\n')

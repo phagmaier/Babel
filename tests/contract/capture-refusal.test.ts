@@ -100,11 +100,13 @@ describe('AUDIT-PARK-H-F3 the codec names the edit it cannot write', () => {
       0,
     ]);
     const scene = parseFountain(bytes('!Alpha.\n\n!Omega.\n'));
+    // AUDIT-PARK-H-F4-04: a heading ending in `#1#` now saves as Action, so
+    // the example uses a heading that reads as a section, which refuses.
     const mismatch = refusal(() =>
       replaceLines(scene, 0, 3, [
         { kind: 'action', text: 'Later. Alpha.' },
         { kind: 'blank', text: '' },
-        { kind: 'sceneHeading', text: 'x #1#' },
+        { kind: 'sceneHeading', text: '# hey' },
       ]),
     );
     expect([mismatch.code, mismatch.message, mismatch.edit]).toEqual([
@@ -153,20 +155,22 @@ describe('AUDIT-PARK-H-F3 the bridge records the live row', () => {
   });
 
   it('names the refused row inside a changed range that spans other edited rows', () => {
+    // AUDIT-PARK-H-F4-04: a heading ending in `#1#` now saves, so the
+    // example uses `# hey`, which still has no Action reading as a heading.
     let state = entered(caret(open('!Alpha.\n'), 0, -1));
-    state = typed(converted(state, 'sceneHeading'), 'x #1#');
+    state = typed(converted(state, 'sceneHeading'), '# hey');
     state = typed(caret(state, 0, 0), 'Later. ');
     expect(rows(state)).toEqual([
       'action:Later. Alpha.',
       'action:',
-      'sceneHeading:x #1#',
+      'sceneHeading:# hey',
     ]);
     const error = refusal(() => captureEditor(state));
     expect([error.code, error.message]).toEqual(['round-trip', roundTrip]);
     expect(refusedRow(error)).toEqual({
       index: 2,
       kind: 'sceneHeading',
-      text: 'x #1#',
+      text: '# hey',
     });
   });
 
@@ -250,9 +254,10 @@ describe('AUDIT-PARK-H-F3 author wording', () => {
         copy,
     );
     let heading = entered(caret(open('!Alpha.\n'), 0, -1));
-    heading = typed(converted(heading, 'sceneHeading'), 'x #1#');
+    // AUDIT-PARK-H-F4-04: `x #1#` now saves as Action; `# hey` still refuses.
+    heading = typed(converted(heading, 'sceneHeading'), '# hey');
     expect(message(heading)).toBe(
-      'Saving and recovery are paused. Row 3, the Scene Heading “x #1#”, cannot be saved as Fountain as it stands. Change that row or Undo to resume.' +
+      'Saving and recovery are paused. Row 3, the Scene Heading “# hey”, cannot be saved as Fountain as it stands. Change that row or Undo to resume.' +
         copy,
     );
   });

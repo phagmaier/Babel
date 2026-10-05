@@ -3383,3 +3383,44 @@ it('AUDIT-PARK-H-F4-02 a Dialogue row emptied above the rest of its speech keeps
   expect(screen.queryByText(/Close stopped/)).toBeNull();
   expect(f.copy).not.toHaveBeenCalled();
 }, 20000);
+
+it('AUDIT-PARK-H-F4-04 typed text Fountain reads as action keeps the draft saved and journaled; close succeeds', async () => {
+  const f = await parkedDraft('@BOB\nHi.\n\n!Alpha.\n');
+  const { view, saved, journaled } = f;
+  const protection = within(screen.getByLabelText('Protection status'));
+  const alerts = () =>
+    protection.queryAllByRole('alert').map((alert) => alert.textContent);
+
+  // A `!` typed at the Dialogue start is Fountain's action line; the
+  // Dialogue element is recovery-only intent on it.
+  view.dispatch(view.state.tr.insertText('!', f.endOf(1) - 3));
+  expect(f.rows()[1]).toBe('dialogue:!Hi.');
+  const marked = '@BOB\n!Hi.\n\n!Alpha.\n';
+  await waitFor(() => expect(saved.at(-1)).toBe(marked), { timeout: 4000 });
+  await waitFor(() => expect(journaled).toContain(marked), { timeout: 4000 });
+  const intent = [{ index: 1, intendedKind: 'dialogue' }];
+  expect(f.journaledDrafts.get(marked)).toEqual(intent);
+
+  // Text typed in another row meanwhile is real author work: it reaches the
+  // source and recovery, with no paused alert.
+  view.dispatch(view.state.tr.insertText(' Beta.', f.endOf(3)));
+  const later = '@BOB\n!Hi.\n\n!Alpha. Beta.\n';
+  await waitFor(() => expect(saved.at(-1)).toBe(later), { timeout: 4000 });
+  await waitFor(() => expect(journaled).toContain(later), { timeout: 4000 });
+  expect(f.journaledDrafts.get(later)).toEqual(intent);
+  await waitFor(() => expect(f.status()).toBe('Saved locally'));
+  expect(alerts()).toEqual([]);
+
+  // Deleting the `!` makes ordinary Dialogue and drops the row's intent.
+  view.dispatch(view.state.tr.delete(f.endOf(1) - 4, f.endOf(1) - 3));
+  const spoken = '@BOB\nHi.\n\n!Alpha. Beta.\n';
+  await waitFor(() => expect(saved.at(-1)).toBe(spoken), { timeout: 4000 });
+  await waitFor(() => expect(journaled).toContain(spoken), { timeout: 4000 });
+  expect(f.journaledDrafts.get(spoken)).toEqual([]);
+  await waitFor(() => expect(f.status()).toBe('Saved locally'));
+  expect(alerts()).toEqual([]);
+  f.close();
+  await waitFor(() => expect(f.calls.released).toBe(1));
+  expect(screen.queryByText(/Close stopped/)).toBeNull();
+  expect(f.copy).not.toHaveBeenCalled();
+}, 20000);

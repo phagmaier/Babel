@@ -16,6 +16,7 @@ const codeLabels: Record<CheckIssue['code'], string> = {
   SC008: 'Font or shaping limitation',
   SC006: 'Duplicate scene number',
   SC007: 'Suspicious spacing',
+  SC009: 'Saved with recovery-only element',
 };
 
 export function ScriptCheckPanel({

@@ -108,6 +108,24 @@ The publication gate is separate and unchanged: the pinned renderer reads a
 speech line that starts with `(` as a parenthetical, so such Dialogue stays
 blocking SC005 until reviewed.
 
+[AUDIT-PARK-H-F4-04](tasks/AUDIT-PARK-H-F4.md) (owner decision 2026-10-04,
+[ADR 0042](decisions/0042-other-syntax-fallback-container.md)) covers typed
+text Fountain reads as another element. Where the exact bytes parse as one
+editable Action line, `replaceLines` writes them exactly and keeps the typed
+`sceneHeading`, `character` or `transition` as recovery-only `intendedKind`;
+a `dialogue` starting with `!` is written exactly as an Action line with
+intent `dialogue`. With any of these intents the row's `text` is the line's
+exact `sourceText`. Exact recovery restores the element and text; read
+without it, the line is Fountain's Action. Only Action (or Dialogue still
+inside its speech) is used: a marker text that would reopen as a cue,
+heading, section or other restructuring element stays refused, as does a `!`
+that would end a speech mid-list (no context-preserving spelling exists and
+rows the author did not touch are never rewritten). `DraftKind` gains
+`transition`; the recovery schema version is unchanged. Every such row
+carries one advisory Script Check issue (SC009) naming the row; advisory
+never gates export, though the print profile may still note where its own
+speech-paragraph reading differs.
+
 Invalid UTF-8 opens read-only with all bytes retained. The primary edit API protects unknown extensions, mixed hidden/visible content, title fields/continuations and notes/boneyards, including blank rows and unclosed tails. Standard standalone regions retain their line projection; uncertain mixed regions stay raw. Primary parsing honors indentation, Unicode cue names/extensions, scene-number syntax and trailing-space transition ambiguity; explicit forcing syntax outranks inferred speech/title syntax. M3-03 adds the complete-context APIs below; no proof/renderer omission authorizes source loss.
 
 ## M3-03 complex source structures and editing

@@ -114,6 +114,21 @@ stays refused, and its alert says "A Parenthetical starts with an opening
 parenthesis." Script Check no longer flags the unprotected line; export
 review still does, because the print profile reads it as a parenthetical.
 
+Typed text Fountain reads as other syntax
+([AUDIT-PARK-H-F4-04](tasks/AUDIT-PARK-H-F4.md), owner decision 2026-10-04,
+[ADR 0042](decisions/0042-other-syntax-fallback-container.md)): such rows no
+longer pause saving where their exact bytes are one editable Action line. A
+Scene Heading such as `'TIL DAWN`, a Character such as `BOB ^`, a Transition
+such as `CUT<` and a Dialogue starting with `!` save exactly as typed, as an
+Action row with the typed element as recovery-only intent; opened from the
+file alone the row is Action. A `!` that would end a speech mid-list still
+pauses the draft and names the typed row: following rows the author did not
+touch are never rewritten. Marker texts that would reopen as a cue, heading,
+section or other restructuring element stay refused with the named-row
+alert. Every saved row carries one dismissible Script Check advisory naming
+it; warnings and export review are unchanged (an orphaned cue still warns,
+and the print profile still notes a broken speech paragraph).
+
 Command refusals ([AUDIT-PARK-H-F4-01](tasks/AUDIT-PARK-H-F4.md)): a formatting
 or conversion command refuses, with a reason and no change, when it would
 leave a row capture cannot write. Emphasis cannot begin a Scene Heading,

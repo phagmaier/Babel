@@ -5,10 +5,18 @@ import {
   type ExportAssessment,
 } from './exportAssessment';
 export type { ExportAssessment } from './exportAssessment';
-import type { FountainDocument } from './fountainModel';
+import type { FountainDocument, FountainLine } from './fountainModel';
 
 export type CheckCode =
-  'SC001' | 'SC002' | 'SC003' | 'SC004' | 'SC005' | 'SC008' | 'SC006' | 'SC007';
+  | 'SC001'
+  | 'SC002'
+  | 'SC003'
+  | 'SC004'
+  | 'SC005'
+  | 'SC008'
+  | 'SC006'
+  | 'SC007'
+  | 'SC009';
 export type CheckSeverity = 'blocking' | 'warning' | 'advisory';
 export interface CheckIssue {
   readonly code: CheckCode;
@@ -51,6 +59,8 @@ const explanations: Record<CheckCode, string> = {
     'A scene number appears more than once. Numbers are advisory unless a chosen workflow requires uniqueness.',
   SC007:
     'Three or more consecutive blank lines may be unintended spacing. Single and double blanks are never flagged.',
+  SC009:
+    'The row is saved exactly as Fountain reads it; the typed element is recovery-only and returns when the draft reopens with its metadata. Nothing was normalized or removed.',
 };
 
 function issue(
@@ -70,6 +80,42 @@ function issue(
     endLine,
     hasFix: false,
   });
+}
+
+/**
+ * AUDIT-PARK-H-F4-04: the non-blocking notice for a row saved as Action (or
+ * in-speech Dialogue) with its typed element in recovery only. Only the
+ * fallback pairs qualify, mirroring the codec's compatibility exactly.
+ */
+function fallbackNotice(
+  line: FountainLine,
+): { typed: string; filed: string; excerpt: string } | undefined {
+  const names: Partial<Record<FountainLine['kind'], string>> = {
+    sceneHeading: 'Scene Heading',
+    character: 'Character',
+    dialogue: 'Dialogue',
+    transition: 'Transition',
+    action: 'Action',
+  };
+  const excerpt = (() => {
+    const trimmed = line.text.trim();
+    return trimmed.length > 40 ? trimmed.slice(0, 40) + '…' : trimmed;
+  })();
+  if (
+    line.intendedKind === 'dialogue' &&
+    line.kind === 'action' &&
+    /^\s*!/.test(line.sourceText)
+  )
+    return { typed: 'Dialogue', filed: names.action!, excerpt };
+  if (
+    (line.intendedKind === 'sceneHeading' ||
+      line.intendedKind === 'character' ||
+      line.intendedKind === 'transition') &&
+    line.kind === 'action' &&
+    !/^\s*[!(]/.test(line.sourceText)
+  )
+    return { typed: names[line.intendedKind]!, filed: names.action!, excerpt };
+  return undefined;
 }
 
 /**
@@ -248,6 +294,24 @@ export function evaluateScriptCheck(
         ),
       );
     index = end + 1;
+  }
+
+  // AUDIT-PARK-H-F4-04: rows saved as Action (or in-speech Dialogue) with
+  // the typed element kept in recovery only carry one non-blocking notice
+  // each, naming the row. Only the fallback pairs qualify; earlier intent
+  // rows (emptied speech, parenthesis shapes) are unchanged and silent.
+  for (const [index, line] of source.lines.entries()) {
+    const notice = fallbackNotice(line);
+    if (notice)
+      push(
+        issue(
+          'SC009',
+          'advisory',
+          `Row ${index + 1}, ${notice.typed} “${notice.excerpt}”, is saved as ${notice.filed}; the typed element is kept in recovery only.`,
+          index,
+          index,
+        ),
+      );
   }
 
   const exportAssessment = evaluateExportAssessment(source, context);

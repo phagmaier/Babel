@@ -468,9 +468,22 @@ function compatibleDraft(
 ): boolean {
   if (intent === undefined) return true;
   if (
-    !['sceneHeading', 'character', 'dialogue', 'parenthetical'].includes(intent)
+    ![
+      'sceneHeading',
+      'character',
+      'dialogue',
+      'parenthetical',
+      // AUDIT-PARK-H-F4-04: transition joins the intents a typed row can
+      // keep in recovery (see typedAsAction). No other kind can.
+      'transition',
+    ].includes(intent)
   )
     return false;
+  // AUDIT-PARK-H-F4-04: typed text Fountain reads as action is written
+  // exactly; the typed element is recovery-only intent (see typedAsAction).
+  // This shape is disjoint from the empty-row intents below (action lines
+  // are never blank), so it goes first.
+  if (typedAsAction(line, intent)) return true;
   if (intent === 'sceneHeading')
     return line.kind === 'blank' && line.text === '';
   if (intent === 'character')
@@ -498,7 +511,15 @@ function typedInSpeech(
   intent: FountainLine['intendedKind'],
 ): boolean {
   const source = line.sourceText;
-  if (intent === 'dialogue') return line.kind === 'parenthetical';
+  // AUDIT-PARK-H-F4-04: a Dialogue starting with `!` is Fountain's action
+  // line. `!` is the only forcing marker whose element is Action, so it is
+  // the only Dialogue shape this fallback holds; the row text stays the
+  // exact source. Other markers force a restructuring element and refuse.
+  if (intent === 'dialogue')
+    return (
+      line.kind === 'parenthetical' ||
+      (line.kind === 'action' && /^\s*!/.test(source))
+    );
   if (intent !== 'parenthetical' || !source.startsWith('(')) return false;
   return line.kind === 'parenthetical'
     ? !wrapped.test(source)
@@ -507,13 +528,64 @@ function typedInSpeech(
         !unclosed.test(source);
 }
 
+/**
+ * AUDIT-PARK-H-F4-04: typed text Fountain reads as an Action line is written
+ * exactly, with the typed element as recovery-only intent. Only plain
+ * action bytes qualify: a consumed `!` marker would hide typed text on a
+ * marker-free reopen, and a leading parenthesis belongs to the F4-03 and
+ * group F shapes. Everything else Fountain would read here (cue, heading,
+ * section and the rest) restructures or hides the row, so those refuse.
+ */
+function typedAsAction(
+  line: FountainLine,
+  intent: FountainLine['intendedKind'],
+): boolean {
+  if (
+    intent !== 'sceneHeading' &&
+    intent !== 'character' &&
+    intent !== 'transition'
+  )
+    return false;
+  return (
+    line.kind === 'action' && !line.marker && !/^\s*[!(]/.test(line.sourceText)
+  );
+}
+
 /** The row text a draft intent gives its line. */
 function draftText(
   line: FountainLine,
   intent: FountainLine['intendedKind'],
 ): string {
   if (emptiedInSpeech(line, intent)) return '';
-  return typedInSpeech(line, intent) ? line.sourceText : line.text;
+  return typedInSpeech(line, intent) || typedAsAction(line, intent)
+    ? line.sourceText
+    : line.text;
+}
+
+/**
+ * AUDIT-PARK-H-F4-04: a typed row Fountain reads as another element may be
+ * written exactly, with its element as recovery-only intent — but only where
+ * the exact bytes are one editable Action line. Dialogue goes through the
+ * ordinary attempt (its generated spelling already is the exact text); other
+ * kinds need an explicit exact-text retry because their generated spellings
+ * add forcing markers. Marker-consumed (`!`), parenthesis-led, empty and
+ * field-carrying edits are never eligible; the retry itself rechecks the
+ * reading, so anything Fountain still reads otherwise keeps its refusal.
+ */
+function exactFallback(edit: LineEdit | undefined): boolean {
+  if (
+    edit === undefined ||
+    (edit.kind !== 'sceneHeading' &&
+      edit.kind !== 'character' &&
+      edit.kind !== 'transition') ||
+    edit.text === '' ||
+    edit.sceneNumber !== undefined ||
+    edit.sectionLevel !== undefined ||
+    edit.dualWith !== undefined ||
+    /^\s*[!(]/.test(edit.text)
+  )
+    return false;
+  return true;
 }
 
 /**
@@ -551,6 +623,10 @@ function draftIntent(edit: LineEdit): FountainLine['intendedKind'] {
     !wrapped.test(edit.text)
   )
     return edit.kind;
+  // AUDIT-PARK-H-F4-04: a Dialogue starting with `!` reads as Fountain's
+  // action line (generated and exact spellings are the same text, so the
+  // ordinary attempt carries it). Compatibility rechecks the reading.
+  if (edit.kind === 'dialogue' && /^\s*!/.test(edit.text)) return edit.kind;
   return undefined;
 }
 
@@ -908,7 +984,10 @@ export function replaceLines(
       return [prior.sourceText, generated];
     return [generated];
   });
-  const attempt = (candidates: readonly (readonly string[])[]) => {
+  const attempt = (
+    candidates: readonly (readonly string[])[],
+    fallback?: ReadonlySet<number>,
+  ) => {
     const choice = candidates.map(() => 0);
     for (;;) {
       let mismatch: number | undefined;
@@ -924,6 +1003,7 @@ export function replaceLines(
           (offset) => {
             mismatch = offset;
           },
+          fallback,
         );
       } catch (error) {
         if (
@@ -953,6 +1033,42 @@ export function replaceLines(
       while (speech(edits[next]) && edits[next]!.text === '') next++;
       return speech(edits[next]);
     });
+    const emptiedRefusal =
+      refusal instanceof FountainEditError &&
+      refusal.code === 'round-trip' &&
+      continued.includes(true);
+    // AUDIT-PARK-H-F4-04: a typed row Fountain reads as another element is
+    // written exactly where those bytes are one editable Action line, with
+    // the typed element as recovery-only intent (see exactFallback). Only
+    // the refused row is respelled, and only with the exact text: an edit
+    // that was written before is never respelled, and generated spellings
+    // never carry this intent. A mixed emptied-and-fallback capture stays
+    // refused; each fallback keeps its own refusal below.
+    const fallback =
+      refusal instanceof FountainEditError &&
+      refusal.code === 'round-trip' &&
+      refusal.edit !== undefined &&
+      exactFallback(edits[refusal.edit])
+        ? new Set([refusal.edit])
+        : undefined;
+    if (fallback && !emptiedRefusal) {
+      try {
+        return attempt(
+          spellings.map((candidates, index) =>
+            fallback.has(index) ? [edits[index]!.text] : candidates,
+          ),
+          fallback,
+        );
+      } catch (error) {
+        // What still stops the exact bytes stands; otherwise the refusal
+        // names the row that was refused first.
+        throw error instanceof FountainEditError &&
+          error.edit !== undefined &&
+          fallback.has(error.edit)
+          ? refusal
+          : error;
+      }
+    }
     if (
       !(refusal instanceof FountainEditError) ||
       refusal.code !== 'round-trip' ||
@@ -1007,6 +1123,7 @@ function replaceSpelled(
   priors: readonly (FountainLine | undefined)[],
   sources: readonly string[],
   mismatched: (offset: number) => void,
+  fallback?: ReadonlySet<number>,
 ): FountainDocument {
   return transactSource(
     document,
@@ -1033,6 +1150,25 @@ function replaceSpelled(
             offset,
           );
         }
+        // AUDIT-PARK-H-F4-04: a `!` Dialogue saved as Action ends its
+        // speech. Where rows of that speech follow, the typed row itself is
+        // refused here — before neighbor-drift expansion could name a row
+        // the author did not touch. Plain Action fallbacks are transparent
+        // to speech tracking and never need this.
+        if (
+          edit.kind === 'dialogue' &&
+          line.kind === 'action' &&
+          line.intendedKind === 'dialogue' &&
+          count === sources.length &&
+          after.lines.length === document.lines.length &&
+          breaksFollowingSpeech(document, after, from + offset)
+        )
+          throw new FountainEditError(
+            'round-trip',
+            'Requested element cannot round-trip unambiguously; source remains unchanged',
+            undefined,
+            offset,
+          );
         const prior = priors[offset];
         const expectedNumber =
           edit.kind === 'sceneHeading'
@@ -1098,7 +1234,32 @@ function replaceSpelled(
     },
     edits,
     retainedIds,
+    fallback,
   );
+}
+
+/**
+ * AUDIT-PARK-H-F4-04: whether a fallback row would end a speech rows after
+ * it still belong to. Only the rows until the next blank can be affected;
+ * each must keep its kind and its speech. The caller already ensured the
+ * two documents have the same length with positions aligned.
+ */
+function breaksFollowingSpeech(
+  before: FountainDocument,
+  after: FountainDocument,
+  index: number,
+): boolean {
+  for (let next = index + 1; next < before.lines.length; next++) {
+    const prior = before.lines[next]!;
+    if (prior.kind === 'blank') break;
+    const line = after.lines[next]!;
+    if (
+      line.kind !== prior.kind ||
+      (line.speechOf === undefined) !== (prior.speechOf === undefined)
+    )
+      return true;
+  }
+  return false;
 }
 
 function transactSource(
@@ -1109,6 +1270,7 @@ function transactSource(
   validate: (after: FountainDocument) => void,
   intents?: readonly LineEdit[],
   retainedIds?: readonly string[],
+  fallback?: ReadonlySet<number>,
 ): FountainDocument {
   const bytes = snapshots.get(document)!;
   const owned = document.lines.slice(from, from + count);
@@ -1176,8 +1338,15 @@ function transactSource(
           ? owned[index - from]
           : document.lines[index - sources.length + count];
     const edit = inside ? intents?.[index - from] : undefined;
-    const intendedKind = edit
-      ? draftIntent(edit)
+    // AUDIT-PARK-H-F4-04: an exact-text retry carries the typed element as
+    // intent; generated spellings never do (see exactFallback). The retry
+    // itself rechecks the reading through compatibleDraft. The cast is safe:
+    // this branch runs only for exactFallback edits, whose kinds are all
+    // DraftKind values.
+    const intendedKind: FountainLine['intendedKind'] = edit
+      ? fallback?.has(index - from)
+        ? (edit.kind as FountainLine['intendedKind'])
+        : draftIntent(edit)
       : inside && previous?.sourceText !== line.sourceText
         ? undefined
         : previous?.intendedKind;

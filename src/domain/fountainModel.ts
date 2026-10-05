@@ -24,7 +24,14 @@ export type EditableKind = Exclude<
 >;
 export type Newline = '' | '\n' | '\r' | '\r\n';
 export type DraftKind =
-  'sceneHeading' | 'character' | 'dialogue' | 'parenthetical';
+  | 'sceneHeading'
+  | 'character'
+  | 'dialogue'
+  | 'parenthetical'
+  // AUDIT-PARK-H-F4-04: a typed Transition Fountain reads as Action keeps
+  // its element in recovery only. Additive; the recovery schema is versioned
+  // separately and unchanged.
+  | 'transition';
 
 export interface FountainLine {
   readonly id: string;

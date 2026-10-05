@@ -6,8 +6,8 @@ Status: **decomposed 2026-10-04**; base `2456c2c`. **F4-01 done** at base
 The owner decided F4-03, F4-04 and F4-05 on 2026-10-04 (table below).
 **F4-03 done** at base `15d5da8`,
 [evidence](../test-evidence/AUDIT.md#audit-park-h-f4-03--speech-that-opens-with-a-parenthesis).
-F4-04 and F4-05 are decided and ready; each still needs its deliverable
-section here before code.
+F4-04 is decided with its deliverable section below. F4-05 is decided and
+ready; it still needs its deliverable section here before code.
 Dependencies: AUDIT-PARK-H, F1, F2 and F3 complete. The owner delegated task
 selection, wording and implementation decisions on 2026-10-04; that covers
 extending a mechanism the contract already documents, not a new saved-format
@@ -108,6 +108,41 @@ moved to group F.
 5. Left refused and pinned: an imported unclosed parenthesis and an emptied
    row above one; Parenthetical text before its parenthesis; group D to F.
 
+## F4-04 deliverable and acceptance
+
+1. Saving, with no recovery schema change (`DraftKind` gains `transition`,
+   the only typed element that never had an intent value):
+   typed `sceneHeading`, `character` or `transition` whose exact bytes parse
+   as one editable Action line is written exactly, with the typed element as
+   recovery-only intent and the row text taken from the exact source. Typed
+   `dialogue` starting with `!` (the only forcing marker whose element is
+   Action) is written exactly as an Action line with recovery-only intent
+   `dialogue`. Exact recovery restores the element and text; the file alone
+   opens as Fountain reads it (an Action row, `!`-stripped where a forcing
+   marker applied). A first-of-two (or otherwise speech-breaking) `!`
+   Dialogue still refuses through neighbor-drift: no context-preserving
+   spelling exists, and following rows the author did not touch are never
+   rewritten to keep it.
+2. Notice: every row saved under rule 1 carries one advisory Script Check
+   issue (SC009) naming the row number, the typed element and the element
+   on disk. Advisory never gates export. No new modal, alert or status text;
+   the F3 refusal alert is unchanged.
+3. Every capture that saved before saves the same bytes and intent.
+   Refusals keep their codes and messages. Commands keep their rules; where
+   capture now succeeds an outcome may change and is pinned deliberately.
+   Still refused and pinned: marker-forcing shapes whose exact bytes read
+   as a restructuring or non-printing element (`@x`, `>x`, `>x<`, `~x`,
+   `# x`, `=x`, `= x`, `===`, `.x` as Dialogue or Heading); a Character
+   `^` that keeps or joins a speech; any `{{`, hidden or raw shape; any
+   parenthesis shape owned by F4-03 or group F; group F and F4-05 shapes.
+4. Red tests before the fix for each saved shape, stepwise typing, exact
+   recovery, sparse metadata, selection mapping, Undo/Redo and typing on
+   after recovery (intent drops where the text becomes ordinary); SC009
+   naming; Script Check and the export gate on the new rows; a mounted
+   save and checkpoint test; an old-against-new differential over typed
+   drafts.
+5. Left refused and pinned: everything in rule 3, and groups E (F4-05) to F.
+
 ## Do NOT do (F4-01)
 
 Change the codec's accepted or refused set, parser classification, error
@@ -120,6 +155,15 @@ F4-05; change native code; rewrite fixtures or frozen root AUDIT.md; push.
 Change parser classification, error codes or messages, the recovery metadata
 schema or any byte of a capture that saved before; run a capture on the
 typing path or inside a command; implement F4-03 to F4-05 or group F; change
+native code; rewrite fixtures or frozen root AUDIT.md; push.
+
+## Do NOT do (F4-04)
+
+Change any other parser classification, the recovery metadata schema or any
+codec error code or message; unprotect an unclosed parenthesis or any raw,
+title or hidden region; change a command's rule; run a capture on the
+typing path or inside a command; save a row as anything but Action (or
+Dialogue still inside its speech); implement F4-05 or group F; change
 native code; rewrite fixtures or frozen root AUDIT.md; push.
 
 ## Do NOT do (F4-03)
@@ -158,6 +202,22 @@ AUDIT-PARK-H`. Shared gates as F4-01. Native through `integrated_exit.py`:
 and Btrfs; `pdf-export script-check publication-exit title-page typed-export`
 on Btrfs only. Skipped: the tmpfs/Btrfs workspace matrix, because no native,
 IPC or filesystem path changes.
+
+F4-04, Tier 2 frontend plus named native modes (codec change; saved bytes
+change; one new advisory Script Check code, no codec error change).
+Focused: `pnpm exec vitest run --exclude 'target/**'
+tests/contract/other-syntax-fallback.test.ts
+tests/contract/capture-refusal.test.ts
+tests/contract/emptied-speech-row.test.ts
+tests/contract/speech-parenthesis.test.ts tests/ui/WritingView.test.tsx -t
+AUDIT-PARK-H`. Shared gates as F4-01. Native through `integrated_exit.py`:
+`empty-heading` (new phase H) on tmpfs and Btrfs, since it saves and
+journals the new bytes; `pdf-export script-check publication-exit
+title-page typed-export` on Btrfs only, as regression of unchanged capture
+paths. Skipped: the tmpfs/Btrfs workspace matrix, because no native, IPC
+or filesystem path changes; a native owned-kill recovery of the new
+intents, because the mode's single owned kill stays in phase A (recovered
+reopen is contract level only).
 
 Update editor-behavior, TODO/current-state and append-only audit evidence.
 One task-ID commit per sub-task on main; finish `git diff --check` and stop.
