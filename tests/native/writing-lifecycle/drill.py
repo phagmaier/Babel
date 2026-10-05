@@ -37,6 +37,7 @@ MODES = (
         ('--publication-preview', 'publication_preview', 'run'),
         ('--publication-exit', 'publication_exit', 'run'),
         ('--pdf-export', 'pdf_export', 'run'),
+        ('--typed-export', 'typed_export', 'run'),
         ('--script-check', 'scriptcheck_workflows', 'run'),
         ('--title-page', 'title_page', 'run'),
         ('--scene-moves', 'scene_moves', 'run'),

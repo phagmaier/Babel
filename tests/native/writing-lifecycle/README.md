@@ -883,3 +883,24 @@ required; genuine composition is not replaced by injected events. Build/shared
 tests remain idle during native timing. [D-02 evidence](../../../docs/test-evidence/AUDIT.md#audit-d02--safe-reopen-reconciliation-and-recovery-choice)
 records candidate identity, failed attempts and strict/content distinctions.
 Historical C1/F2 and admission findings remain open.
+
+## AUDIT-D07-N typed export
+
+`--typed-export` types the S07.2 scene of
+`fixtures/assessment/typed-scene.json` into the default production app from an
+empty document: trusted WebDriver keys (Ctrl+1/6/7/8, Tab, Enter, Escape, End),
+the Element picker for Centered, Section, Synopsis, Page Break and Note, and the
+visible command button for dual dialogue. It waits for the two scene-heading
+time suggestions Enter must accept, and uses the D07-F3/F4 workarounds the
+JSDOM oracle uses. It then checks the editor rows and speech/dual pairing,
+saves through the native Save As picker and compares the file with the fixture
+bytes, exports through the native destination picker with no review step, and
+checks the receipt's source hash, `pdfinfo` page count and per-page
+`pdftotext` against the fixture's `pages` and `omits`. Scripts only observe the
+DOM and IPC replies; no editor-state hook or native command is called.
+
+```sh
+BABEL_SHUTDOWN_MODE=ordinary python3 tests/native/writing-lifecycle/isolated_ime.py target/audit-simp-f/prerequisites/prefix -- python3 tests/native/writing-lifecycle/integrated_exit.py /tmp "$PWD/target" --output target/<new-dir> --modes typed-export
+```
+
+[D-07-N evidence](../../../docs/test-evidence/AUDIT.md#audit-d07-n--native-typed-export-drill).

@@ -1046,3 +1046,20 @@ are the authority; vitest is the assessment side.
 - `RUSTUP_TOOLCHAIN=1.97.1 mise exec node@26.7.0 pnpm@11.22.0 -- pnpm tauri build --no-bundle` **pass**; binary `3578c0b8…` (`target/audit-d04-r3/binary.sha256`). Rust gates not rerun for this task: nothing under `crates/` or `src-tauri/` changed.
 - Native, binary in place, live Hyprland session: `BABEL_SHUTDOWN_MODE=ordinary python3 tests/native/writing-lifecycle/isolated_ime.py target/audit-simp-f/prerequisites/prefix -- python3 tests/native/writing-lifecycle/integrated_exit.py /tmp $PWD/target --output target/audit-d04-r3/native --modes pdf-export script-check publication-exit title-page` — **8/8 content, 8/8 owned crash audits clean**, 461s (`native.log`, `native/results.json`, ledgers and journals), on tmpfs and Btrfs.
 - Limits: existing limitations beside a boneyard still over-report with their old wording (a forced heading between two boneyard lines is still told it "needs a separate paragraph", though the renderer reads it alone); none was removed. The probe compares roles, text and scene numbers at parse level, not emphasis styling or layout. The mirror uses JavaScript's whitespace set, which differs from Python's for U+001C–U+001F, U+0085 and U+FEFF inside a line; not probed.
+
+## AUDIT-D07-N — native typed-export drill
+
+[Brief](../tasks/AUDIT-D07-N.md), base `c36c7d7`. Tier 1: one native drill
+mode, harness wiring and docs; no product source, fixture, Rust, IPC, helper,
+profile or pin change. Host and binary as in AUDIT-D04-R3 (`3578c0b8…`, built
+from that commit's tree; `sha256sum -c` still matches). Native proof on the live
+Hyprland session: real WebKit/GTK, no mocked port.
+
+- New mode `drill.py --typed-export` (`tests/native/writing-lifecycle/typed_export.py`), accepted by `integrated_exit.py --modes typed-export`. Trusted WebDriver keys, the Element picker and the visible dual-dialogue command button; scripts only read the DOM and IPC replies.
+- First run on tmpfs — **pass** (22s) with no change to the drill: the 33 editor rows equal the fixture's; JON is paired with MAYA; Enter accepted exactly the `DAY` and `NIGHT` suggestions; the empty cue offered `JON`, `MAYA` and Escape dismissed it (D07-F4); End moved the caret past `===` (D07-F3).
+- Saved through the native Save As picker: 285 bytes, sha256 `ecb508da…`, equal to the fixture source (hash computed independently from the JSON).
+- Export PDF went straight to the destination picker with no review step and showed "Not printed by this profile: 1 note (2 lines), 1 section heading, 1 synopsis."; the receipt's source hash is `ecb508da…` and the PDF's hash equals the receipt's; `pdfinfo` 2 pages = receipt = fixture; per-page `pdftotext -raw` holds every fixture line in order and none of the nine `omits`.
+- Injected faults (fixture edited in place, restored by SHA-256; one tmpfs run each) — **4/4 detected at the intended check**: one wrong source byte ("Exact file bytes"), one wrong page line (ordered text), one wrong row kind (rows), a printed phrase listed in `omits` (omits).
+- Matrix: `BABEL_SHUTDOWN_MODE=ordinary python3 tests/native/writing-lifecycle/isolated_ime.py target/audit-simp-f/prerequisites/prefix -- python3 tests/native/writing-lifecycle/integrated_exit.py /tmp $PWD/target --output target/audit-d07-n/native --modes typed-export` — **2/2 content, 2/2 owned crash audits clean**, 45s (tmpfs 21.6s, Btrfs 23.3s); the same saved hash on both.
+- `python3 -m py_compile` on the touched harness files and `sh tools/lint-py.sh` **pass**. No product source changed, so the frontend, helper, browser and build results stand as recorded under AUDIT-D04-R3.
+- Not covered natively: Undo/Redo of the typed scene (JSDOM oracle only). D07-F1..F4 remain with the owner; the drill uses the same workarounds as the oracle.

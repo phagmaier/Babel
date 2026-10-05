@@ -25,12 +25,21 @@ Host: owner laptop, uid 1000, Hyprland display, Btrfs repo, tmpfs `/tmp`.
   publication-exit, title-page on tmpfs and Btrfs — **8/8 content, 8/8 crash
   audits clean**.
 
-**Queued next, in order:** AUDIT-D07-N native typed-export drill; AUDIT-PARK-H
-empty Scene Heading capture, confirm first.
+**AUDIT-D07-N — done.** [Brief](tasks/AUDIT-D07-N.md);
+[evidence](test-evidence/AUDIT.md#audit-d07-n--native-typed-export-drill).
+
+- New native mode `drill.py --typed-export`, also a mode of
+  `integrated_exit.py`: types `fixtures/assessment/typed-scene.json` into the
+  real app from an empty document, saves, exports and checks `pdftotext`.
+- tmpfs and Btrfs **2/2**, crash audits clean; saved bytes equal the fixture
+  (`ecb508da…`); 2 pages; 4/4 injected fixture faults detected. No product
+  source change; same binary `3578c0b8…`.
+
+**Queued next:** AUDIT-PARK-H empty Scene Heading capture, confirm first.
 
 ## Still unverified
 
-- D-07 typed-export case in the native app (AUDIT-D07-N, in progress).
+- Undo/Redo of the typed scene in the native app (JSDOM oracle only).
 - Existing limitations beside a boneyard over-report with their old wording
   (not removed in R3).
 - `pnpm test` on this host also runs 61 archived test copies under
@@ -76,7 +85,7 @@ after parent SIGKILL. M6-03 copy/prune and capture-failure bundle policy open.
 
 ## Next action
 
-Agent: AUDIT-D07-N, then AUDIT-PARK-H. Owner: decide the open items above.
+Agent: AUDIT-PARK-H. Owner: decide the open items above.
 Work on `main`; no push without authorization. Never substitute injected
 composition for genuine IME; unset `FORCE_COLOR` for `pnpm test:browser`. No
 full native/a11y/keyboard, SELinux, M6-02, C1/F2 or Local v1 closure;
