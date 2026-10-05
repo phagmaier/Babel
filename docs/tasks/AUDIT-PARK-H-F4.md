@@ -3,7 +3,11 @@
 Status: **decomposed 2026-10-04**; base `2456c2c`. **F4-01 done** at base
 `a9287ed`, [evidence](../test-evidence/AUDIT.md#audit-park-h-f4-01--commands-refuse-instead-of-creating-a-refused-draft).
 **F4-02 done** at base `10650c0`, [evidence](../test-evidence/AUDIT.md#audit-park-h-f4-02--emptied-speech-rows-keep-their-speech).
-F4-03, F4-04 and F4-05 each need one owner decision first.
+The owner decided F4-03, F4-04 and F4-05 on 2026-10-04 (table below).
+**F4-03 done** at base `15d5da8`,
+[evidence](../test-evidence/AUDIT.md#audit-park-h-f4-03--speech-that-opens-with-a-parenthesis).
+F4-04 and F4-05 are decided and ready; each still needs its deliverable
+section here before code.
 Dependencies: AUDIT-PARK-H, F1, F2 and F3 complete. The owner delegated task
 selection, wording and implementation decisions on 2026-10-04; that covers
 extending a mechanism the contract already documents, not a new saved-format
@@ -33,14 +37,14 @@ Group C is ordinary writing and the most frequent. Group A is one shortcut.
 
 ## Decisions
 
-| Sub-task | Group | Decision                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| -------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| F4-01    | A     | **Ready.** The command refuses with a reason, as conversion and join commands already do. No saved byte, parser rule or capture path changes.                                                                                                                                                                                                                                                                                                                                                                            |
-| F4-02    | B     | **Done.** Spell the emptied row as Fountain's two-space dialogue line, which the break command already writes. Needs its own red tests for intent, recovery and selection mapping.                                                                                                                                                                                                                                                                                                                                       |
-| F4-03    | C     | **Owner decision.** Saving the exact text with recovery-only intent extends the documented incomplete-parenthesis draft and needs no new format. Alone it is a trap: the parser protects any speech or Action line that opens with a parenthesis and is not one wrapped pair, so the author's own line reopens read-only. Recommended: do both, and stop protecting a line that merely begins with a closed parenthetical. That changes how existing files open (bytes and element unchanged, the row becomes editable). |
-| F4-04    | D     | **Owner decision.** Three options per shape: save the exact text as Action or Dialogue with the typed element kept only in recovery, and tell the author; refuse the keystroke; or read more syntax (accept `.` before emphasis, read a typed `#1#` as the scene number). The first is uniform and matches S05.5 but saves a visible Scene Heading as Action, a lasting format choice that needs an ADR. Recommended: the first, with a non-blocking notice naming the row.                                              |
-| F4-05    | E     | **Owner decision.** A numbered empty heading needs the number carried in draft metadata (a new optional field). An emptied last line needs a line ending the file did not have. Both change a documented limit.                                                                                                                                                                                                                                                                                                          |
-| —        | F     | Not scheduled. Tracked here; the F3 alert names the row.                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| Sub-task | Group | Decision                                                                                                                                                                                                                                                                                                                                                                                         |
+| -------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| F4-01    | A     | **Ready.** The command refuses with a reason, as conversion and join commands already do. No saved byte, parser rule or capture path changes.                                                                                                                                                                                                                                                    |
+| F4-02    | B     | **Done.** Spell the emptied row as Fountain's two-space dialogue line, which the break command already writes. Needs its own red tests for intent, recovery and selection mapping.                                                                                                                                                                                                               |
+| F4-03    | C     | **Owner decided 2026-10-04: save and unprotect.** Save the exact text with recovery-only intent, and stop protecting a line that merely begins with a closed parenthetical. Existing files: such a line was read-only and becomes editable; bytes and element are unchanged. An unclosed `(laughs` keeps its handling. Saving alone was rejected: the author's own line would reopen read-only.  |
+| F4-04    | D     | **Owner decided 2026-10-04: save as Action or Dialogue.** Save the exact text as Action (Dialogue inside a speech), keep the typed element only in recovery, and show a non-blocking notice naming the row. Reopened without recovery the row is Action or Dialogue. A lasting saved-format choice: write the ADR with the task. Refusing the keystroke and reading more syntax were not chosen. |
+| F4-05    | E     | **Owner decided 2026-10-04: line ending only.** When a row is emptied on a last line with no line ending, add a line ending in the file's own convention so the row still exists. An emptied numbered heading stays refused: the number is authored text and S05.5 keeps authored text in the Fountain file, not in recovery metadata.                                                           |
+| —        | F     | Not scheduled. Tracked here; the F3 alert names the row.                                                                                                                                                                                                                                                                                                                                         |
 
 ## F4-01 deliverable and acceptance
 
@@ -77,6 +81,33 @@ moved to group F.
 4. Left refused and pinned: an emptied row above a protected row (F4-03
    shape) and a row emptied on a last line with no line ending (F4-05).
 
+## F4-03 deliverable and acceptance
+
+1. Opening a file: a speech or Action line that opens with `(` and has a
+   closing `)` somewhere is an ordinary editable row with no
+   `malformed-parenthetical` diagnostic. Its bytes, element and text are
+   unchanged. A line with no closing parenthesis stays protected as before.
+2. Saving, with the existing `intendedKind` values and no schema change:
+   - Dialogue `(laughs) Oh no.` needs no intent once rule 1 holds.
+   - Dialogue that Fountain reads as a parenthetical (`(laughs)`, edge
+     spaces ignored) is written exactly; the line is `parenthetical` with
+     recovery-only intent `dialogue` and the exact text.
+   - A Parenthetical with text after its closing parenthesis (`(beat) x`,
+     `(beat) `) is written exactly with recovery-only intent `parenthetical`.
+     Exact recovery restores the element and text; the file alone opens as
+     Fountain reads it.
+3. Every capture that saved before saves the same bytes and intent, except
+   that a draft holding a line rule 1 unprotects may now own it. Refusals keep
+   their codes. A Parenthetical whose text does not open with `(` stays
+   refused (group F) and is the F3 alert's example from now on.
+4. Red tests before the fix for each shape, stepwise typing, exact recovery,
+   sparse metadata, selection mapping, Undo/Redo and typing on after
+   recovery; opened-file tests for rule 1 including a no-op capture; Script
+   Check and the export gate on the unprotected line; a mounted save and
+   checkpoint test; an old-against-new differential over typed drafts.
+5. Left refused and pinned: an imported unclosed parenthesis and an emptied
+   row above one; Parenthetical text before its parenthesis; group D to F.
+
 ## Do NOT do (F4-01)
 
 Change the codec's accepted or refused set, parser classification, error
@@ -90,6 +121,15 @@ Change parser classification, error codes or messages, the recovery metadata
 schema or any byte of a capture that saved before; run a capture on the
 typing path or inside a command; implement F4-03 to F4-05 or group F; change
 native code; rewrite fixtures or frozen root AUDIT.md; push.
+
+## Do NOT do (F4-03)
+
+Change any other parser classification, the recovery metadata schema or any
+error code; unprotect an unclosed parenthesis or any raw, title or hidden
+region; change a command's rule (join, hard break and conversion keep their
+refusals); run a capture on the typing path or inside a command; implement
+F4-04, F4-05 or group F; change native code; rewrite fixtures or frozen root
+AUDIT.md; push.
 
 ## Checks and stopping
 
@@ -107,6 +147,17 @@ Btrfs, since it saves and journals the new bytes; `pdf-export script-check
 publication-exit title-page typed-export` on Btrfs only, as regression of
 unchanged capture paths. Skipped: the tmpfs/Btrfs workspace matrix, because no
 native, IPC or filesystem path changes.
+
+F4-03, Tier 2 frontend plus named native modes (codec change; saved bytes and
+the opened reading change). Focused: `pnpm exec vitest run --exclude
+'target/**' tests/contract/speech-parenthesis.test.ts
+tests/contract/capture-refusal.test.ts
+tests/contract/emptied-speech-row.test.ts tests/ui/WritingView.test.tsx -t
+AUDIT-PARK-H`. Shared gates as F4-01. Native through `integrated_exit.py`:
+`empty-heading` (phase E moves to the group F example, new phase G) on tmpfs
+and Btrfs; `pdf-export script-check publication-exit title-page typed-export`
+on Btrfs only. Skipped: the tmpfs/Btrfs workspace matrix, because no native,
+IPC or filesystem path changes.
 
 Update editor-behavior, TODO/current-state and append-only audit evidence.
 One task-ID commit per sub-task on main; finish `git diff --check` and stop.

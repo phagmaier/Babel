@@ -54,7 +54,7 @@ IDs survive ordinary replacements and untouched range shifts. Additional lines g
 
 Recovery inventory schema 1 includes BOM, an allocation high-water mark and every line's ID, offsets, literal text/ending, optional Shot subtype and incomplete intent. It applies only to an exact matching source inventory with unique valid IDs and compatible intent. Invalid/stale metadata yields `recovery-mismatch` and is ignored without changing source. The inventory is derived immutable draft metadata for the later editor/persistence bridge; it is not a second live manuscript or a new native file format. M3-04/08/10 implement selection/composition anchoring and capture bounds; M3-13 verifies their bounded default-app integration.
 
-Empty character text is authored as `@`, diagnosed as an incomplete cue. An empty dialogue/parenthetical intention can annotate an existing empty source row without changing its bytes; another Fountain reader sees the portable blank. Newly authored incomplete `(` parenthetical/speech text remains exact source with recovery intent and an external-ambiguity diagnostic, can continue typing, and can complete into ordinary grammar. Matching recovery restores that ability. Imported malformed parentheses without matching intent remain protected; conversion is not implicitly accepted. A draft that would reinterpret later speech must explicitly own that speech. An empty replacement at unterminated EOF that would erase its physical row is refused with an exact-copy route; virtual editor placeholders remain the later bridge's responsibility.
+Empty character text is authored as `@`, diagnosed as an incomplete cue. An empty dialogue/parenthetical intention can annotate an existing empty source row without changing its bytes; another Fountain reader sees the portable blank. Newly authored incomplete `(` parenthetical/speech text remains exact source with recovery intent and an external-ambiguity diagnostic, can continue typing, and can complete into ordinary grammar. Matching recovery restores that ability. An imported parenthesis that never closes remains protected without matching intent; conversion is not implicitly accepted (a line that closes it is ordinary text, see AUDIT-PARK-H-F4-03 below). A draft that would reinterpret later speech must explicitly own that speech. An empty replacement at unterminated EOF that would erase its physical row is refused with an exact-copy route; virtual editor placeholders remain the later bridge's responsibility.
 
 [AUDIT-PARK-H-F2](tasks/AUDIT-PARK-H-F2.md) adds empty Scene Heading intent
 on an actually empty physical blank, without emitting a bare `.`. Capture
@@ -83,6 +83,30 @@ into the row replaces the two spaces and drops the intent. An unchanged
 emptied row keeps its two spaces when a wider edit owns it. Not covered: a
 protected row below the emptied one, and a row emptied on a last line with
 no line ending.
+
+[AUDIT-PARK-H-F4-03](tasks/AUDIT-PARK-H-F4.md) (owner decision 2026-10-04)
+covers speech text that opens with a parenthesis. Reading: a speech or
+Action line that opens with `(` and has a `)` anywhere is an ordinary
+editable `dialogue` or `action` line with no `malformed-parenthetical`
+diagnostic; before, any such line that was not one wrapped pair was
+protected. Its bytes, kind and text are as before. Only a line whose
+parenthesis never closes stays protected. Writing: `replaceLines` writes the
+typed text exactly and keeps the typed element as recovery-only
+`intendedKind` where Fountain reads the line otherwise. Dialogue that is one
+wrapped pair once edge spaces are ignored (`(laughs)`) is a `parenthetical`
+line with intent `dialogue`. A Parenthetical that continues after its
+closing parenthesis (`(beat) x`) is a `dialogue` line, or `action` outside a
+speech, with intent `parenthetical`; one followed only by spaces (`(beat) `)
+stays a `parenthetical` line with that intent. With either intent the row's
+`text` is the line's exact `sourceText`. Dialogue such as `(laughs) Oh no.`
+is ordinary and carries none. Exact recovery restores the element and text;
+read without it, the line is what Fountain says. The schema and its intent
+values are unchanged, and no capture that saved before changes. A
+Parenthetical must still open with `(`: text before it is refused
+(`invalid-edit`, "Parenthetical must begin with an opening parenthesis").
+The publication gate is separate and unchanged: the pinned renderer reads a
+speech line that starts with `(` as a parenthetical, so such Dialogue stays
+blocking SC005 until reviewed.
 
 Invalid UTF-8 opens read-only with all bytes retained. The primary edit API protects unknown extensions, mixed hidden/visible content, title fields/continuations and notes/boneyards, including blank rows and unclosed tails. Standard standalone regions retain their line projection; uncertain mixed regions stay raw. Primary parsing honors indentation, Unicode cue names/extensions, scene-number syntax and trailing-space transition ambiguity; explicit forcing syntax outranks inferred speech/title syntax. M3-03 adds the complete-context APIs below; no proof/renderer omission authorizes source loss.
 

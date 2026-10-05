@@ -1,6 +1,7 @@
 """AUDIT-PARK-H-F2 native empty-heading intent and F1 hidden-row capture.
 AUDIT-PARK-H-F3 adds the alert that names a row Fountain cannot hold.
 AUDIT-PARK-H-F4-02 adds a Dialogue row emptied above the rest of its speech.
+AUDIT-PARK-H-F4-03 adds speech rows that open with a parenthesis.
 
 Empty headings save as physical blanks with source-bound recovery intent.
 Trusted keys verify unrelated edits, exact journal metadata, owned SIGKILL,
@@ -15,7 +16,7 @@ import time
 from pathlib import Path
 
 CTRL, SHIFT, ENTER, END, HOME, NULL = '\ue009', '\ue008', '\ue007', '\ue010', '\ue011', '\ue000'
-BACKSPACE = '\ue003'
+BACKSPACE, DELETE = '\ue003', '\ue017'
 
 
 def run(d):
@@ -257,20 +258,21 @@ def run(d):
         d.close_session()
         assert len(list((d.ROOT / 'copies').glob('*.draft.json'))) == 0, 'Hidden rows required an emergency bundle'
         print('PASS native new ' + label + ': empty and populated rows plus later edits saved and journaled; Undo stays capturable; exact reopen and ordinary close', flush=True)
-    # E. AUDIT-PARK-H-F3: text after a closed parenthetical is accepted by the
-    # editor but has no Fountain spelling. The alert names the row and how to
-    # resume; nothing typed meanwhile reaches the file or journal until then.
+    # E. AUDIT-PARK-H-F3: text before a Parenthetical's opening parenthesis is
+    # accepted by the editor but has no Fountain spelling. The alert names the
+    # row and how to resume; nothing typed meanwhile reaches the file or
+    # journal until then. (Text after the closing parenthesis saves: phase G.)
     speech = b'@BOB\n(beat)\nHi there.\n\n!A lamp glows.\n'
     target = d.ROOT / 'files' / 'refused-row.fountain'
     target.write_bytes(speech)
     open_file('BOB(beat)Hi there.A lamp glows.')
-    paused = ('Saving and recovery are paused. Row 2, the Parenthetical \u201c(beat) x\u201d, cannot be saved '
-              'as Fountain as it stands. A Parenthetical keeps all of its text inside one pair '
-              'of parentheses. Change that row or Undo to resume. To keep the draft exactly as it is, '
+    paused = ('Saving and recovery are paused. Row 2, the Parenthetical \u201cx (beat)\u201d, cannot be saved '
+              'as Fountain as it stands. A Parenthetical starts with an opening parenthesis. '
+              'Change that row or Undo to resume. To keep the draft exactly as it is, '
               'use Close session, then Save Emergency Copy and close.')
     click_row('parenthetical', '(beat)')
-    d.type_text(END + ' x')
-    d.wait(lambda: 'parenthetical:(beat) x' in rows(), 'Text typed after the closing parenthesis')
+    d.type_text(HOME + 'x ')
+    d.wait(lambda: 'parenthetical:x (beat)' in rows(), 'Text typed before the opening parenthesis')
     d.wait(lambda: paused in alerts(), 'Refused row named with how to resume')
     click_row('action', 'A lamp glows.')
     d.type_text(HOME + 'Storm. ')
@@ -282,8 +284,8 @@ def run(d):
     assert alerts() == ['Newer changes exist only in memory until protection is confirmed.', paused], alerts()
     report['refusedRow'] = {'status': status(), 'alerts': alerts(), 'sourceSaved': False, 'journaled': False}
     d.screenshot('refused-row-named')
-    click_row('parenthetical', '(beat) x')
-    d.type_text(END + BACKSPACE + BACKSPACE)
+    click_row('parenthetical', 'x (beat)')
+    d.type_text(HOME + DELETE + DELETE)
     d.wait(lambda: 'parenthetical:(beat)' in rows(), 'Named row changed back')
     resumed = speech.replace(b'!A lamp', b'!Storm. A lamp')
     d.audit(target, resumed)
@@ -363,4 +365,78 @@ def run(d):
     report['emptiedSpeechRow']['sourceOnlyReopen'] = 'dialogue with two spaces'
     assert len(list((d.ROOT / 'copies').glob('*.draft.json'))) == 0, 'Emptied speech row required an emergency bundle'
     print('PASS native emptied speech row: two-space line and Dialogue intent saved and journaled; later text, typing, Undo and Redo save exact bytes; source-only reopen and ordinary close', flush=True)
+    # G. AUDIT-PARK-H-F4-03: speech that opens with a parenthesis saves as
+    # typed. Text after a Parenthetical's closing parenthesis is Fountain
+    # Dialogue with sparse Parenthetical intent; a Dialogue row that is one
+    # wrapped pair is Fountain's parenthetical with sparse Dialogue intent.
+    speech = b'@BOB\n(beat)\nHi there.\n\n!A lamp glows.\n'
+    target = d.ROOT / 'files' / 'speech-parenthesis.fountain'
+    target.write_bytes(speech)
+    open_file('BOB(beat)Hi there.A lamp glows.')
+    click_row('parenthetical', '(beat)')
+    d.type_text(END + ' softly')
+    d.wait(lambda: 'parenthetical:(beat) softly' in rows(), 'Text typed after the closing parenthesis')
+    after = speech.replace(b'(beat)\n', b'(beat) softly\n')
+    d.audit(target, after)
+    aside = [{'index': 1, 'intendedKind': 'parenthetical'}]
+    after_record = d.wait(lambda: checkpoint(after, aside),
+                          'Exact text and sparse Parenthetical intent journaled', timeout=30)
+    d.wait(lambda: 'Saved locally' in d.body(), 'Text after the parenthesis exact save acknowledged')
+    assert not alerts(), alerts()
+    click_row('dialogue', 'Hi there.')
+    d.type_text(END + BACKSPACE * 9 + '(laughs)')
+    d.wait(lambda: 'dialogue:(laughs)' in rows(), 'Dialogue row rewritten as one wrapped pair')
+    wrapped = after.replace(b'Hi there.\n', b'(laughs)\n')
+    d.audit(target, wrapped)
+    both = aside + [{'index': 2, 'intendedKind': 'dialogue'}]
+    wrapped_record = d.wait(lambda: checkpoint(wrapped, both, after_record),
+                            'Wrapped pair and sparse Dialogue intent journaled', timeout=30)
+    d.wait(lambda: 'Saved locally' in d.body(), 'Wrapped Dialogue exact save acknowledged')
+    assert not alerts(), alerts()
+    click_row('action', 'A lamp glows.')
+    d.type_text(HOME + 'Rain. ')
+    d.wait(lambda: 'action:Rain. A lamp glows.' in rows(), 'Author text typed in another row meanwhile')
+    later = wrapped.replace(b'!A lamp', b'!Rain. A lamp')
+    d.audit(target, later)
+    later_record = d.wait(lambda: checkpoint(later, both, wrapped_record),
+                          'Later text journaled with both intents', timeout=30)
+    d.wait(lambda: 'Saved locally' in d.body(), 'Later text saved beside the parenthesis rows')
+    assert not alerts(), alerts()
+    report['speechParenthesis'] = {'status': status(), 'alerts': alerts(), 'sourceSaved': True,
+                                   'journaled': True, 'saved': later.decode(), 'intent': both}
+    d.screenshot('speech-parenthesis-protected')
+    # Typing on makes ordinary Dialogue and drops that row's intent.
+    click_row('dialogue', '(laughs)')
+    d.type_text(END + ' Oh no.')
+    d.wait(lambda: 'dialogue:(laughs) Oh no.' in rows(), 'Text typed after the wrapped pair')
+    spoken = later.replace(b'(laughs)\n', b'(laughs) Oh no.\n')
+    d.audit(target, spoken)
+    spoken_record = d.wait(lambda: checkpoint(spoken, aside, later_record),
+                           'Ordinary Dialogue drops its sparse intent', timeout=30)
+    d.wait(lambda: 'Saved locally' in d.body(), 'Ordinary Dialogue exact save acknowledged')
+    assert not alerts(), alerts()
+    report['speechParenthesis']['typed'] = {
+        'saved': spoken.decode(),
+        'versions': [after_record['version'], wrapped_record['version'], later_record['version'],
+                     spoken_record['version']]}
+    d.close_session()
+    # The saved bytes alone open as Fountain reads them, with exact no-op
+    # source. A line that begins with a closed parenthetical is editable.
+    target = d.ROOT / 'files' / 'reopened-speech-parenthesis.fountain'
+    target.write_bytes(spoken)
+    open_file('BOB(beat) softly(laughs) Oh no.Rain. A lamp glows.')
+    assert rows() == ['character:BOB', 'dialogue:(beat) softly', 'dialogue:(laughs) Oh no.', 'action:',
+                      'action:Rain. A lamp glows.'], rows()
+    assert target.read_bytes() == spoken
+    click_row('dialogue', '(laughs) Oh no.')
+    d.type_text(END + ' Why?')
+    d.wait(lambda: 'dialogue:(laughs) Oh no. Why?' in rows(), 'Reopened line that begins with a closed parenthetical is editable')
+    edited = spoken.replace(b'Oh no.\n', b'Oh no. Why?\n')
+    d.audit(target, edited)
+    d.wait(lambda: 'Saved locally' in d.body(), 'Edit to the reopened line exact save acknowledged')
+    assert not alerts(), alerts()
+    d.close_session()
+    report['speechParenthesis']['sourceOnlyReopen'] = {'rows': 'two editable Dialogue rows', 'saved': edited.decode()}
+    assert len(list((d.ROOT / 'copies').glob('*.draft.json'))) == 0, 'Speech parenthesis rows required an emergency bundle'
+    print('PASS native speech parenthesis: text after a Parenthetical and a wrapped Dialogue saved and journaled with sparse intent; later text and typing on save exact bytes; source-only reopen is editable', flush=True)
     (d.ROOT / 'empty-heading.json').write_text(json.dumps(report, indent=2) + '\n')

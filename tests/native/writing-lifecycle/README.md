@@ -924,11 +924,13 @@ rows, on a disposable screenplay:
   later edits also reach both protections. Undo through each region remains
   capturable; exact captured bytes reopen with the same rows and ordinary
   close succeeds. Removing wrappers still requires whole-region review.
-- E (AUDIT-PARK-H-F3): text typed after a closed parenthetical is refused by
-  capture. The protection alert names the row and how to resume, in exact
-  author wording; text typed elsewhere meanwhile is absent from the file and
-  journal. Changing the named row back saves and journals everything, and
-  ordinary close needs no bundle.
+- E (AUDIT-PARK-H-F3): text typed before a Parenthetical's opening
+  parenthesis is refused by capture. The protection alert names the row and
+  how to resume, in exact author wording; text typed elsewhere meanwhile is
+  absent from the file and journal. Changing the named row back saves and
+  journals everything, and ordinary close needs no bundle. Until
+  AUDIT-PARK-H-F4-03 this phase typed after the closing parenthesis, which
+  now saves (phase G).
 - F (AUDIT-PARK-H-F4-02): a Dialogue row emptied above the rest of its speech
   saves as the two-space dialogue line and journals with sparse Dialogue
   intent on that line; text typed elsewhere meanwhile reaches both. Typing
@@ -936,6 +938,13 @@ rows, on a disposable screenplay:
   The saved bytes alone reopen as an ordinary two-space Dialogue row. The
   recovered reopen of this intent is contract-level only: the mode's single
   owned kill stays in phase A.
+- G (AUDIT-PARK-H-F4-03): text typed after a Parenthetical's closing
+  parenthesis, and a Dialogue row rewritten as one wrapped pair, save as typed
+  and journal with sparse Parenthetical and Dialogue intent on those lines;
+  text typed elsewhere meanwhile reaches both. Typing on in the Dialogue row
+  drops its intent. The saved bytes alone reopen as two Dialogue rows, and the
+  line that begins with a closed parenthetical takes an edit and saves it.
+  The recovered reopen of these intents is contract-level only, as in F.
 
 The mode kills its own app once (`intentionalKillScenario`); the owned-process
 crash audit stays strict. Historical PARK-H failures and old A-C behavior remain

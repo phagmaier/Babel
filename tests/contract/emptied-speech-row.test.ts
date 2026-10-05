@@ -636,34 +636,35 @@ describe('AUDIT-PARK-H-F4-02 shapes left refused', () => {
 
   it('another refused row in the same draft is the one named', () => {
     // The emptied row no longer strands the speech, so `Two.` is not named.
-    // Speech text after a closing parenthesis (F4-03 shape) stays refused.
-    let state = emptied(open('@BOB\nOne.\nTwo.\nThree.\n'), 1);
-    state = typed(caret(state, 3, 0, -1), '(laughs) Oh no.');
+    // AUDIT-PARK-H-F4-03 saves speech text after a closing parenthesis; text
+    // before a Parenthetical's opening one (group F) stays refused.
+    let state = emptied(open('@BOB\nOne.\nTwo.\n(beat)\n'), 1);
+    state = typed(caret(state, 3, 0), 'x ');
     expect(rows(state)).toEqual([
       'character:BOB',
       'dialogue:',
       'dialogue:Two.',
-      'dialogue:(laughs) Oh no.',
+      'parenthetical:x (beat)',
     ]);
     const error = refusal(() => captureEditor(state));
     expect([error.code, error.message]).toEqual([
-      'round-trip',
-      'Requested element cannot round-trip unambiguously; source remains unchanged',
+      'invalid-edit',
+      'Parenthetical must begin with an opening parenthesis',
     ]);
     expect(refusedRow(error)).toEqual({
       index: 3,
-      kind: 'dialogue',
-      text: '(laughs) Oh no.',
+      kind: 'parenthetical',
+      text: 'x (beat)',
     });
-    // The same text typed over the row directly below is named there, as before.
+    // The same text typed in the row directly below is named there, as before.
     const adjacent = typed(
-      caret(emptied(open('@BOB\nOne.\nTwo.\n'), 1), 2, 0, -1),
-      '(laughs) Oh no.',
+      caret(emptied(open('@BOB\nOne.\n(beat)\n'), 1), 2, 0),
+      'x ',
     );
     expect(refusedRow(refusal(() => captureEditor(adjacent)))).toEqual({
       index: 2,
-      kind: 'dialogue',
-      text: '(laughs) Oh no.',
+      kind: 'parenthetical',
+      text: 'x (beat)',
     });
   });
 });

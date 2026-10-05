@@ -1879,7 +1879,7 @@ it('AUDIT-C02: a capture-failure alert clears once the draft captures again', as
   const paused =
     /Row 3, the Parenthetical “x\(softly\)”, cannot be saved as Fountain/;
   expect((await screen.findByText(paused)).getAttribute('role')).toBe('alert');
-  expect(screen.queryByText(/Parenthetical must be wrapped/)).toBeNull();
+  expect(screen.queryByText(/Parenthetical must begin/)).toBeNull();
   view.dispatch(view.state.tr.delete(start, start + 1));
   await waitFor(() => expect(screen.queryByText(paused)).toBeNull());
   expect(new TextDecoder().decode(captureEditor(view.state).source)).toBe(
@@ -3228,7 +3228,7 @@ it('AUDIT-PARK-H-F3 a refused row is named with how to resume; saving stays paus
   const f = await parkedDraft('@BOB\n(beat)\nHi.\n');
   const { view, saved, journaled } = f;
   const paused =
-    'Saving and recovery are paused. Row 2, the Parenthetical “(beat) x”, cannot be saved as Fountain as it stands. A Parenthetical keeps all of its text inside one pair of parentheses. Change that row or Undo to resume. To keep the draft exactly as it is, use Close session, then Save Emergency Copy and close.';
+    'Saving and recovery are paused. Row 2, the Parenthetical “x (beat)”, cannot be saved as Fountain as it stands. A Parenthetical starts with an opening parenthesis. Change that row or Undo to resume. To keep the draft exactly as it is, use Close session, then Save Emergency Copy and close.';
   const protection = within(screen.getByLabelText('Protection status'));
   const alerts = () =>
     protection.queryAllByRole('alert').map((alert) => alert.textContent);
@@ -3241,11 +3241,12 @@ it('AUDIT-PARK-H-F3 a refused row is named with how to resume; saving stays paus
   await waitFor(() => expect(f.status()).toBe('Saved locally'));
   expect(alerts()).toEqual([]);
 
-  // The editor accepts text after the closing parenthesis; Fountain cannot hold it.
-  view.dispatch(view.state.tr.insertText(' x', f.endOf(1)));
-  expect(f.rows()[1]).toBe('parenthetical:(beat) x');
+  // The editor accepts text before the opening parenthesis; a Fountain
+  // parenthetical cannot hold it (AUDIT-PARK-H-F4-03 saves text after it).
+  view.dispatch(view.state.tr.insertText('x ', f.endOf(1) - 6));
+  expect(f.rows()[1]).toBe('parenthetical:x (beat)');
   await waitFor(() => expect(alerts()).toContain(paused));
-  expect(screen.queryByText(/must be wrapped|round-trip/)).toBeNull();
+  expect(screen.queryByText(/must begin|round-trip/)).toBeNull();
 
   // Author work typed in another row meanwhile is not saved or journaled.
   view.dispatch(view.state.tr.insertText(' Fine.', f.endOf(2)));
@@ -3265,16 +3266,75 @@ it('AUDIT-PARK-H-F3 a refused row is named with how to resume; saving stays paus
     }),
   );
   await waitFor(() => expect(alerts()).toContain(paused));
-  expect(screen.queryByText(/must be wrapped|round-trip/)).toBeNull();
+  expect(screen.queryByText(/must begin|round-trip/)).toBeNull();
   expect([saved.length, journaled.length]).toEqual(before);
 
   // Changing the named row resumes capture; nothing typed meanwhile is lost.
-  view.dispatch(view.state.tr.delete(f.endOf(1) - 2, f.endOf(1)));
+  view.dispatch(view.state.tr.delete(f.endOf(1) - 8, f.endOf(1) - 6));
   const resumed = '@BOB\n(beat)\nHi. Sure. Fine.\n';
   await waitFor(() => expect(saved.at(-1)).toBe(resumed), { timeout: 4000 });
   expect(journaled).toContain(resumed);
   await waitFor(() => expect(f.status()).toBe('Saved locally'));
   await waitFor(() => expect(alerts()).toEqual([]));
+  f.close();
+  await waitFor(() => expect(f.calls.released).toBe(1));
+  expect(screen.queryByText(/Close stopped/)).toBeNull();
+  expect(f.copy).not.toHaveBeenCalled();
+}, 20000);
+
+it('AUDIT-PARK-H-F4-03 speech that opens with a parenthesis keeps the draft saved and journaled; close succeeds', async () => {
+  const f = await parkedDraft('@BOB\n(beat)\nHi.\n\n!Alpha.\n');
+  const { view, saved, journaled } = f;
+  const protection = within(screen.getByLabelText('Protection status'));
+  const alerts = () =>
+    protection.queryAllByRole('alert').map((alert) => alert.textContent);
+
+  // Text after the closing parenthesis is written as typed. Fountain reads
+  // the line as Dialogue; the Parenthetical element is recovery intent.
+  view.dispatch(view.state.tr.insertText(' x', f.endOf(1)));
+  expect(f.rows()[1]).toBe('parenthetical:(beat) x');
+  const after = '@BOB\n(beat) x\nHi.\n\n!Alpha.\n';
+  await waitFor(() => expect(saved.at(-1)).toBe(after), { timeout: 4000 });
+  await waitFor(() => expect(journaled).toContain(after), { timeout: 4000 });
+  expect(f.journaledDrafts.get(after)).toEqual([
+    { index: 1, intendedKind: 'parenthetical' },
+  ]);
+
+  // A Dialogue row that is one wrapped pair is Fountain's parenthetical;
+  // the Dialogue element is recovery intent on it.
+  view.dispatch(
+    view.state.tr.insertText('(laughs)', f.endOf(2) - 3, f.endOf(2)),
+  );
+  expect(f.rows()[2]).toBe('dialogue:(laughs)');
+  const wrapped = '@BOB\n(beat) x\n(laughs)\n\n!Alpha.\n';
+  await waitFor(() => expect(saved.at(-1)).toBe(wrapped), { timeout: 4000 });
+  await waitFor(() => expect(journaled).toContain(wrapped), { timeout: 4000 });
+  const intent = [
+    { index: 1, intendedKind: 'parenthetical' },
+    { index: 2, intendedKind: 'dialogue' },
+  ];
+  expect(f.journaledDrafts.get(wrapped)).toEqual(intent);
+
+  // Text typed in another row meanwhile is real author work: it reaches
+  // the source and recovery, with no paused alert.
+  view.dispatch(view.state.tr.insertText(' Beta.', f.endOf(4)));
+  const later = '@BOB\n(beat) x\n(laughs)\n\n!Alpha. Beta.\n';
+  await waitFor(() => expect(saved.at(-1)).toBe(later), { timeout: 4000 });
+  await waitFor(() => expect(journaled).toContain(later), { timeout: 4000 });
+  expect(f.journaledDrafts.get(later)).toEqual(intent);
+  await waitFor(() => expect(f.status()).toBe('Saved locally'));
+  expect(alerts()).toEqual([]);
+
+  // Typing on makes ordinary Dialogue and drops that row's intent.
+  view.dispatch(view.state.tr.insertText(' Oh no.', f.endOf(2)));
+  const spoken = '@BOB\n(beat) x\n(laughs) Oh no.\n\n!Alpha. Beta.\n';
+  await waitFor(() => expect(saved.at(-1)).toBe(spoken), { timeout: 4000 });
+  await waitFor(() => expect(journaled).toContain(spoken), { timeout: 4000 });
+  expect(f.journaledDrafts.get(spoken)).toEqual([
+    { index: 1, intendedKind: 'parenthetical' },
+  ]);
+  await waitFor(() => expect(f.status()).toBe('Saved locally'));
+  expect(alerts()).toEqual([]);
   f.close();
   await waitFor(() => expect(f.calls.released).toBe(1));
   expect(screen.queryByText(/Close stopped/)).toBeNull();

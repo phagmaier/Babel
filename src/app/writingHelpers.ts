@@ -33,7 +33,7 @@ function captureRefusalMessage(failure: FountainEditError): string {
       : `an empty ${label ? `${label} ` : ''}row`;
     const rule =
       row.kind === 'parenthetical' && failure.code === 'invalid-edit'
-        ? ' A Parenthetical keeps all of its text inside one pair of parentheses.'
+        ? ' A Parenthetical starts with an opening parenthesis.'
         : '';
     const resume = row.text
       ? 'Change that row or Undo to resume.'

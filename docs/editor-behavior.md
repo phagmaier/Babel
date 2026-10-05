@@ -91,7 +91,28 @@ Captures that saved before keep their bytes: an emptied last row of a speech
 is still a blank line. Where another row of the draft has no spelling, that
 row is now the one named instead of the Dialogue below the emptied row. Still
 refused: an emptied row above a protected row, and the drafts in the brief's
-groups C to F.
+groups D to F.
+
+Speech that opens with a parenthesis
+([AUDIT-PARK-H-F4-03](tasks/AUDIT-PARK-H-F4.md), owner decision 2026-10-04):
+such rows no longer pause saving. A Dialogue row `(laughs) Oh no.` saves as
+ordinary Dialogue. A Dialogue row that is only a wrapped pair, `(laughs)`,
+and a Parenthetical row with text after its closing parenthesis, `(beat) x`,
+save exactly as typed; the row keeps its element as recovery-only intent,
+restored by exact recovery. Opened from the file alone, the first is a
+Parenthetical and the second a Dialogue row, as Fountain reads them. Every
+keystroke on the way saves, and typing on drops the intent once Fountain
+agrees with the row. A line in an opened file that begins with a closed
+parenthetical is an ordinary editable row; it used to be read-only. A line
+whose parenthesis never closes is still read-only unless its draft intent is
+recovered. Commands keep their rules: a join that would leave text after a
+closed parenthetical, a hard break in Dialogue that would start a row with
+a parenthesis, and conversion of such text to or from Parenthetical still
+refuse, and they now give those reasons for a row that used to answer only
+that it was protected. A Parenthetical whose text does not open with `(`
+stays refused, and its alert says "A Parenthetical starts with an opening
+parenthesis." Script Check no longer flags the unprotected line; export
+review still does, because the print profile reads it as a parenthetical.
 
 Command refusals ([AUDIT-PARK-H-F4-01](tasks/AUDIT-PARK-H-F4.md)): a formatting
 or conversion command refuses, with a reason and no change, when it would

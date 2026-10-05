@@ -103,6 +103,13 @@ function leadingTitleHasValue(lines: readonly FountainLine[]): boolean {
   return false;
 }
 
+/**
+ * AUDIT-PARK-H-F4-03: only a parenthesis that never closes is protected. A
+ * line that merely begins with a closed parenthetical is ordinary text.
+ */
+const unclosed = /^\([^)]*$/;
+const wrapped = /^\([^)]*\)$/;
+
 function classify(
   lines: readonly FountainLine[],
   diagnostics: CodecDiagnostic[],
@@ -318,8 +325,8 @@ function classify(
       continue;
     }
     if (speaker !== undefined) {
-      const parenthetical = /^\([^)]*\)$/.test(trimmed);
-      const malformed = trimmed.startsWith('(') && !parenthetical;
+      const parenthetical = wrapped.test(trimmed);
+      const malformed = unclosed.test(trimmed);
       emit(
         parenthetical ? 'parenthetical' : 'dialogue',
         parenthetical ? trimmed : raw,
@@ -349,7 +356,7 @@ function classify(
     ) {
       emit('transition', leadingTrimmed);
     } else {
-      const malformed = trimmed.startsWith('(') && !/^\([^)]*\)$/.test(trimmed);
+      const malformed = unclosed.test(trimmed);
       emit('action', raw, { editable: !malformed });
       if (malformed)
         diagnose(
@@ -470,13 +477,43 @@ function compatibleDraft(
     return line.kind === 'character' && line.text === '';
   if (line.kind === 'blank' && line.text === '') return true;
   if (emptiedInSpeech(line, intent)) return true;
-  const incomplete = /^\([^)]*$/.test(line.text);
+  if (typedInSpeech(line, intent)) return true;
+  const incomplete = unclosed.test(line.text);
   if (intent === 'dialogue') return line.kind === 'dialogue' && incomplete;
   return (
     intent === 'parenthetical' &&
     incomplete &&
     (line.kind === 'dialogue' || line.kind === 'action')
   );
+}
+
+/**
+ * AUDIT-PARK-H-F4-03: speech text that opens with a parenthesis is written
+ * exactly as typed. Where Fountain reads the line as the other speech
+ * element, or drops spaces after a wrapped pair, the typed element is
+ * recovery-only intent and the row holds the line's exact text.
+ */
+function typedInSpeech(
+  line: FountainLine,
+  intent: FountainLine['intendedKind'],
+): boolean {
+  const source = line.sourceText;
+  if (intent === 'dialogue') return line.kind === 'parenthetical';
+  if (intent !== 'parenthetical' || !source.startsWith('(')) return false;
+  return line.kind === 'parenthetical'
+    ? !wrapped.test(source)
+    : (line.kind === 'dialogue' || line.kind === 'action') &&
+        !line.marker &&
+        !unclosed.test(source);
+}
+
+/** The row text a draft intent gives its line. */
+function draftText(
+  line: FountainLine,
+  intent: FountainLine['intendedKind'],
+): string {
+  if (emptiedInSpeech(line, intent)) return '';
+  return typedInSpeech(line, intent) ? line.sourceText : line.text;
 }
 
 /**
@@ -501,7 +538,17 @@ function draftIntent(edit: LineEdit): FountainLine['intendedKind'] {
   if (edit.kind === 'character' && edit.text === '') return 'character';
   if (
     (edit.kind === 'dialogue' || edit.kind === 'parenthetical') &&
-    (edit.text === '' || /^\([^)]*$/.test(edit.text))
+    (edit.text === '' || unclosed.test(edit.text))
+  )
+    return edit.kind;
+  // AUDIT-PARK-H-F4-03: Dialogue Fountain reads as a parenthetical, and a
+  // Parenthetical that goes on after its closing parenthesis.
+  if (edit.kind === 'dialogue' && wrapped.test(edit.text.trim()))
+    return edit.kind;
+  if (
+    edit.kind === 'parenthetical' &&
+    edit.text.startsWith('(') &&
+    !wrapped.test(edit.text)
   )
     return edit.kind;
   return undefined;
@@ -568,7 +615,7 @@ function applyRecovery(
     return {
       ...line,
       id: entry.id,
-      text: emptiedInSpeech(line, entry.intendedKind) ? '' : line.text,
+      text: draftText(line, entry.intendedKind),
       speechOf:
         line.speechOf === undefined ? undefined : idMap.get(line.speechOf),
       intendedKind: entry.intendedKind,
@@ -736,10 +783,10 @@ function sourceFor(edit: LineEdit, previous: FountainLine | undefined): string {
     case 'dialogue':
       return edit.text;
     case 'parenthetical':
-      if (edit.text !== '' && !/^\([^)]*(?:\))?$/.test(edit.text))
+      if (edit.text !== '' && !edit.text.startsWith('('))
         throw new FountainEditError(
           'invalid-edit',
-          'Parenthetical must be wrapped or an incomplete opening parenthesis',
+          'Parenthetical must begin with an opening parenthesis',
         );
       return edit.text;
     case 'transition':
@@ -1139,7 +1186,7 @@ function transactSource(
       id: inside
         ? (retainedIds?.[index - from] ?? previous?.id ?? allocate())
         : previous!.id,
-      text: emptiedInSpeech(line, intendedKind) ? '' : line.text,
+      text: draftText(line, intendedKind),
       intendedKind,
       editable:
         intendedKind && compatibleDraft(line, intendedKind)
@@ -1266,7 +1313,7 @@ export function spellsAlone(edit: LineEdit, inSpeech: boolean): boolean {
   const draft = intent === edit.kind && compatibleDraft(line, intent);
   return (
     (draft || (line.kind === edit.kind && line.editable)) &&
-    line.text === edit.text &&
+    draftText(line, draft ? intent : undefined) === edit.text &&
     line.sceneNumber === (edit.sceneNumber ?? undefined)
   );
 }

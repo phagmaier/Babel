@@ -82,8 +82,9 @@ const rows = (state: EditorState) =>
 
 const roundTrip =
   'Requested element cannot round-trip unambiguously; source remains unchanged';
-const wrapped =
-  'Parenthetical must be wrapped or an incomplete opening parenthesis';
+// AUDIT-PARK-H-F4-03: text after a closing parenthesis now saves, so the
+// examples here use text before the opening one, which stays refused.
+const opening = 'Parenthetical must begin with an opening parenthesis';
 const copy =
   ' To keep the draft exactly as it is, use Close session, then Save Emergency Copy and close.';
 
@@ -91,11 +92,11 @@ describe('AUDIT-PARK-H-F3 the codec names the edit it cannot write', () => {
   it('a per-edit refusal carries that edit offset with its code and message unchanged', () => {
     const speech = parseFountain(bytes('@BOB\n(beat)\nHi.\n'));
     const invalid = refusal(() =>
-      replaceLine(speech, 1, { kind: 'parenthetical', text: '(beat) x' }),
+      replaceLine(speech, 1, { kind: 'parenthetical', text: 'x (beat)' }),
     );
     expect([invalid.code, invalid.message, invalid.edit]).toEqual([
       'invalid-edit',
-      wrapped,
+      opening,
       0,
     ]);
     const scene = parseFountain(bytes('!Alpha.\n\n!Omega.\n'));
@@ -140,14 +141,14 @@ describe('AUDIT-PARK-H-F3 the codec names the edit it cannot write', () => {
 });
 
 describe('AUDIT-PARK-H-F3 the bridge records the live row', () => {
-  it('names the single row typed after a closed parenthetical', () => {
-    const state = typed(caret(open('@BOB\n(beat)\nHi.\n'), 1, -1), ' x');
+  it("names the single row typed before a Parenthetical's opening parenthesis", () => {
+    const state = typed(caret(open('@BOB\n(beat)\nHi.\n'), 1, 0), 'x ');
     const error = refusal(() => captureEditor(state));
-    expect([error.code, error.message]).toEqual(['invalid-edit', wrapped]);
+    expect([error.code, error.message]).toEqual(['invalid-edit', opening]);
     expect(refusedRow(error)).toEqual({
       index: 1,
       kind: 'parenthetical',
-      text: '(beat) x',
+      text: 'x (beat)',
     });
   });
 
@@ -196,11 +197,14 @@ describe('AUDIT-PARK-H-F3 the bridge records the live row', () => {
       '@BOB\n  \nTwo.\n',
     );
     // A row below that has no spelling of its own is still the one named.
-    const below = typed(caret(speech, 2, 0, -1), '(laughs) Oh no.');
+    const below = typed(
+      caret(emptied(open('@BOB\nOne.\n(beat)\nTwo.\n'), 1), 2, 0),
+      'x ',
+    );
     expect(refusedRow(refusal(() => captureEditor(below)))).toEqual({
       index: 2,
-      kind: 'dialogue',
-      text: '(laughs) Oh no.',
+      kind: 'parenthetical',
+      text: 'x (beat)',
     });
     const numbered = emptied(open('!Alpha.\n\n.HALL #12#\n'), 2);
     expect(refusedRow(refusal(() => captureEditor(numbered)))).toEqual({
@@ -223,9 +227,9 @@ describe('AUDIT-PARK-H-F3 the bridge records the live row', () => {
 
   it('a row that is changed back captures the same bytes as before', () => {
     const original = '@BOB\n(beat)\nHi.\n';
-    const refused = typed(caret(open(original), 1, -1), ' x');
-    expect(() => captureEditor(refused)).toThrow(wrapped);
-    const selected = caret(refused, 1, -3, -1);
+    const refused = typed(caret(open(original), 1, 0), 'x ');
+    expect(() => captureEditor(refused)).toThrow(opening);
+    const selected = caret(refused, 1, 0, 2);
     const repaired = applyEditorTransaction(
       selected,
       selected.tr.deleteSelection(),
@@ -241,10 +245,8 @@ describe('AUDIT-PARK-H-F3 author wording', () => {
     writingFailureMessage(refusal(() => captureEditor(state)));
 
   it('names the row, its element and text, how to resume and the copy route', () => {
-    expect(
-      message(typed(caret(open('@BOB\n(beat)\nHi.\n'), 1, -1), ' x')),
-    ).toBe(
-      'Saving and recovery are paused. Row 2, the Parenthetical “(beat) x”, cannot be saved as Fountain as it stands. A Parenthetical keeps all of its text inside one pair of parentheses. Change that row or Undo to resume.' +
+    expect(message(typed(caret(open('@BOB\n(beat)\nHi.\n'), 1, 0), 'x '))).toBe(
+      'Saving and recovery are paused. Row 2, the Parenthetical “x (beat)”, cannot be saved as Fountain as it stands. A Parenthetical starts with an opening parenthesis. Change that row or Undo to resume.' +
         copy,
     );
     let heading = entered(caret(open('!Alpha.\n'), 0, -1));
@@ -262,18 +264,18 @@ describe('AUDIT-PARK-H-F3 author wording', () => {
     );
     // AUDIT-PARK-H-F4-02: the emptied Dialogue above saves; the alert is
     // about the row that still has no spelling.
-    const speech = emptied(open('@BOB\nOne.\nTwo.\n'), 1);
-    expect(message(typed(caret(speech, 2, 0, -1), '(laughs) Oh no.'))).toBe(
-      'Saving and recovery are paused. Row 3, the Dialogue “(laughs) Oh no.”, cannot be saved as Fountain as it stands. Change that row or Undo to resume.' +
+    const speech = emptied(open('@BOB\nOne.\n(beat)\nTwo.\n'), 1);
+    expect(message(typed(caret(speech, 2, 0), 'x '))).toBe(
+      'Saving and recovery are paused. Row 3, the Parenthetical “x (beat)”, cannot be saved as Fountain as it stands. A Parenthetical starts with an opening parenthesis. Change that row or Undo to resume.' +
         copy,
     );
   });
 
   it('shortens a long row to an excerpt without splitting a character', () => {
-    const long = '(' + '😀'.repeat(60) + ') x';
+    const long = 'x' + '😀'.repeat(60);
     const state = typed(caret(open('@BOB\n(beat)\nHi.\n'), 1, 0, -1), long);
     expect(message(state)).toContain(
-      `Row 2, the Parenthetical “(${'😀'.repeat(47)}…”, cannot`,
+      `Row 2, the Parenthetical “x${'😀'.repeat(47)}…”, cannot`,
     );
   });
 
@@ -291,15 +293,12 @@ describe('AUDIT-PARK-H-F3 author wording', () => {
       ),
     ).toBe(generic);
     for (const state of [
-      typed(caret(open('@BOB\n(beat)\nHi.\n'), 1, -1), ' x'),
-      typed(
-        caret(emptied(open('@BOB\nOne.\nTwo.\n'), 1), 2, 0, -1),
-        '(laughs) Oh no.',
-      ),
+      typed(caret(open('@BOB\n(beat)\nHi.\n'), 1, 0), 'x '),
+      typed(caret(emptied(open('@BOB\nOne.\n(beat)\nTwo.\n'), 1), 2, 0), 'x '),
       emptied(open('!Alpha.\n\n.HALL'), 2),
     ])
       expect(message(state)).not.toMatch(
-        /round-trip|unambiguous|must be wrapped|source remains|intended source line/,
+        /round-trip|unambiguous|must begin|source remains|intended source line/,
       );
   });
 
