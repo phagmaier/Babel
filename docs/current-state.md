@@ -35,11 +35,30 @@ Host: owner laptop, uid 1000, Hyprland display, Btrfs repo, tmpfs `/tmp`.
   (`ecb508da…`); 2 pages; 4/4 injected fixture faults detected. No product
   source change; same binary `3578c0b8…`.
 
-**Queued next:** AUDIT-PARK-H empty Scene Heading capture, confirm first.
+**AUDIT-PARK-H — done; findings open.** [Brief](tasks/AUDIT-PARK-H.md);
+[evidence](test-evidence/AUDIT.md#audit-park-h--empty-scene-heading-capture).
+
+- The parked observation is **confirmed** in the mounted editor and the real
+  app. While an empty Scene Heading row sits after text, capture stops: nothing
+  typed elsewhere is saved or journaled and an owned SIGKILL loses it. Close
+  refuses and the draft-bundle copy preserves it; one character resumes.
+- **Found while confirming (H1, serious):** in a screenplay opened from a
+  file, a new Note or Omitted material row is never captured, even with text.
+  Nothing typed after it is saved or journaled; only Undo back past it resumes.
+- Pinned as found: `tests/contract/empty-row-capture.test.ts`, two
+  `WritingView` tests, native mode `--empty-heading` (tmpfs and Btrfs 2/2).
+  No product source change: the cause is in editor capture, which decides the
+  saved bytes. Tracked as **AUDIT-PARK-H-F**.
+
+Final tree: `pnpm check` pass, tracked frontend **1100/1100**, helper
+**16/16**, browser pass, Rust gates pass (see evidence). Native typed-export
+and empty-heading rerun together: **4/4**, crash audits clean.
 
 ## Still unverified
 
 - Undo/Redo of the typed scene in the native app (JSDOM oracle only).
+- H1 for an Omitted material row in the native app (JSDOM only; the Note row
+  is native-confirmed).
 - Existing limitations beside a boneyard over-report with their old wording
   (not removed in R3).
 - `pnpm test` on this host also runs 61 archived test copies under
@@ -48,6 +67,8 @@ Host: owner laptop, uid 1000, Hyprland display, Btrfs repo, tmpfs `/tmp`.
 
 ## Open — owner decisions or briefs
 
+- **AUDIT-PARK-H-F** (new): H1 new Note/Omitted material row stops all saving
+  in an opened screenplay; H2 empty Scene Heading row; H3 alert wording.
 - **AUDIT-D07-F**: F1 empty Dialogue/Lyrics exit without separator, F2 no
   keyboard exit from a note at document end, F3 Page Break caret before `===`,
   F4 empty-cue suggestions capture the element-cycle Tab.
@@ -85,7 +106,9 @@ after parent SIGKILL. M6-03 copy/prune and capture-failure bundle policy open.
 
 ## Next action
 
-Agent: AUDIT-PARK-H. Owner: decide the open items above.
+Owner: decide AUDIT-PARK-H-F first (H1 loses work in ordinary use), then the
+other open items. Agent: the queue is finished; D-05 cheap variant and D-09
+wait on those decisions.
 Work on `main`; no push without authorization. Never substitute injected
 composition for genuine IME; unset `FORCE_COLOR` for `pnpm test:browser`. No
 full native/a11y/keyboard, SELinux, M6-02, C1/F2 or Local v1 closure;

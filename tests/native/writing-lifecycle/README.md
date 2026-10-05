@@ -904,3 +904,29 @@ BABEL_SHUTDOWN_MODE=ordinary python3 tests/native/writing-lifecycle/isolated_ime
 ```
 
 [D-07-N evidence](../../../docs/test-evidence/AUDIT.md#audit-d07-n--native-typed-export-drill).
+
+## AUDIT-PARK-H uncapturable rows
+
+`--empty-heading` pins, as found, what the production app does while a row the
+editor cannot capture exists, on a disposable screenplay:
+
+- A: Enter then Ctrl+1 after text leaves an empty Scene Heading row; text typed
+  in another row is neither saved nor journaled; this driver's own app is
+  killed and the reopened file holds only the last save.
+- B: the same state; Close session stops, and the emergency copy writes a
+  `.draft.json` bundle holding the unsaved rows without marking the source
+  saved.
+- C: a heading typed into the row resumes capture and saves everything typed
+  meanwhile.
+- D: a new Note row (Enter, Element picker) in the opened screenplay is not
+  captured even with text; nothing typed after it is saved or journaled,
+  converting it back is refused, and only Undo back past it resumes capture.
+
+The mode kills its own app once (`intentionalKillScenario`); the owned-process
+crash audit stays strict. A fix flips these assertions; do not weaken them.
+
+```sh
+BABEL_SHUTDOWN_MODE=ordinary python3 tests/native/writing-lifecycle/isolated_ime.py target/audit-simp-f/prerequisites/prefix -- python3 tests/native/writing-lifecycle/integrated_exit.py /tmp "$PWD/target" --output target/<new-dir> --modes empty-heading
+```
+
+[PARK-H evidence](../../../docs/test-evidence/AUDIT.md#audit-park-h--empty-scene-heading-capture).

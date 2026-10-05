@@ -3056,3 +3056,162 @@ it('AUDIT-PARK replace-all takes no snapshot or workflow protection; one Undo re
     ),
   );
 });
+
+// AUDIT-PARK-H: pinned as found, not as wanted. Some new rows have no Fountain
+// spelling the editor can capture, and while one exists nothing is captured.
+async function parkedDraft(original: string) {
+  const { ports, calls } = fixturePorts({ picked: auditDocument(original) });
+  const text = (source: readonly number[]) =>
+    new TextDecoder().decode(Uint8Array.from(source));
+  const saved: string[] = [];
+  const journaled: string[] = [];
+  const checkpoint = ports.documents.checkpoint;
+  ports.documents.checkpoint = async (request) => {
+    journaled.push(text(request.source));
+    return checkpoint(request);
+  };
+  ports.documents.save = async (request) => {
+    saved.push(text(request.source));
+    return auditReceipt(request.version, request.source);
+  };
+  const copy = vi.spyOn(ports.snapshots, 'copy');
+  const view = await auditView(ports);
+  const endOf = (row: number) => {
+    let at = 0;
+    for (let index = 0; index < row; index++)
+      at += view.state.doc.child(index).nodeSize;
+    return at + view.state.doc.child(row).nodeSize - 1;
+  };
+  return {
+    calls,
+    saved,
+    journaled,
+    copy,
+    view,
+    endOf,
+    rows: () =>
+      view.state.doc.content.content.map(
+        (node) => `${node.type.name}:${node.textContent}`,
+      ),
+    caret: (at: number) =>
+      view.dispatch(
+        view.state.tr.setSelection(TextSelection.create(view.state.doc, at)),
+      ),
+    status: () =>
+      within(screen.getByLabelText('Protection status')).getByRole('status')
+        .textContent,
+    /** Longer than the cadence's two-second dirty ceiling. */
+    settle: () => new Promise((resolve) => setTimeout(resolve, 2600)),
+    close: () =>
+      fireEvent.click(
+        within(screen.getByLabelText('Screenplay actions')).getByRole(
+          'button',
+          { name: 'Close session' },
+        ),
+      ),
+  };
+}
+
+it('AUDIT-PARK-H an empty Scene Heading row stops capture: nothing typed meanwhile is saved or journaled, close stops, and one character resumes it', async () => {
+  const f = await parkedDraft('!Alpha.\n');
+  const { view, saved, journaled } = f;
+
+  // An ordinary edit is captured and reaches the source file.
+  view.dispatch(view.state.tr.insertText(' Beta.', f.endOf(0)));
+  await waitFor(() => expect(saved.at(-1)).toBe('!Alpha. Beta.\n'), {
+    timeout: 4000,
+  });
+
+  // Enter, then Ctrl+1: the empty heading row cannot be captured. Enter adds
+  // the separator row S07.2 asks for and the new row after it.
+  f.caret(f.endOf(0));
+  fireEvent.keyDown(view.dom, { key: 'Enter' });
+  fireEvent.keyDown(view.dom, { key: '1', ctrlKey: true });
+  const empty = ['action:', 'sceneHeading:'];
+  expect(f.rows()).toEqual(['action:Alpha. Beta.', ...empty]);
+  expect(() => captureEditor(view.state)).toThrow(
+    /cannot round-trip unambiguously/,
+  );
+  const alert = await screen.findByText(/cannot round-trip unambiguously/);
+  expect(alert.getAttribute('role')).toBe('alert');
+
+  // Text typed in another row while the heading is empty is real author work.
+  // No save and no checkpoint request of any version is made meanwhile.
+  const before = [saved.length, journaled.length];
+  view.dispatch(view.state.tr.insertText('Gamma. ', 1));
+  expect(f.rows()[0]).toBe('action:Gamma. Alpha. Beta.');
+  await f.settle();
+  expect([saved.length, journaled.length]).toEqual(before);
+  expect(screen.getByText(/cannot round-trip unambiguously/)).toBeTruthy();
+  expect(f.status()).toBe('Changes pending');
+
+  // Protected close refuses to drop it and names the risk.
+  f.close();
+  await screen.findByText(/Close stopped\. Newer changes exist only in memory/);
+  expect(f.calls.released).toBe(0);
+  expect(f.copy).not.toHaveBeenCalled();
+  expect(f.rows()).toEqual(['action:Gamma. Alpha. Beta.', ...empty]);
+
+  // One character in the heading makes the draft capturable again: the alert
+  // clears and everything typed meanwhile is saved.
+  view.dispatch(view.state.tr.insertText('X', f.endOf(2)));
+  await waitFor(
+    () => expect(saved.at(-1)).toBe('!Gamma. Alpha. Beta.\n\n.X\n'),
+    { timeout: 4000 },
+  );
+  await waitFor(() =>
+    expect(screen.queryByText(/cannot round-trip unambiguously/)).toBeNull(),
+  );
+}, 20000);
+
+it('AUDIT-PARK-H a new Note row in an opened screenplay is never captured: later edits are not saved, converting back is refused, and only Undo resumes', async () => {
+  const f = await parkedDraft('!Alpha.\n');
+  const { view, saved, journaled } = f;
+  const picker = screen.getByLabelText('Element');
+
+  // Enter, the Element picker's Note, then the note's text.
+  f.caret(f.endOf(0));
+  fireEvent.keyDown(view.dom, { key: 'Enter' });
+  fireEvent.change(picker, { target: { value: 'note' } });
+  view.dispatch(view.state.tr.insertText('remember'));
+  const noted = ['action:', 'note:[[remember]]'];
+  expect(f.rows()).toEqual(['action:Alpha.', ...noted]);
+  expect(() => captureEditor(view.state)).toThrow(
+    /Hidden conversion lost its contiguous source ownership/,
+  );
+  const alert = await screen.findByText(/Hidden conversion lost/);
+  expect(alert.getAttribute('role')).toBe('alert');
+
+  // Unlike the empty heading, text in the row does not help: everything typed
+  // from here on stays unsaved and unjournaled.
+  const before = [saved.length, journaled.length];
+  view.dispatch(view.state.tr.insertText('Gamma. ', 1));
+  await f.settle();
+  expect([saved.length, journaled.length]).toEqual(before);
+  expect(f.status()).toBe('Changes pending');
+
+  // The note cannot be turned back into Action to keep its text.
+  f.caret(f.endOf(2) - 2);
+  fireEvent.change(picker, { target: { value: 'action' } });
+  await screen.findByText(/A note needs an explicit whole-region conversion/);
+  expect(f.rows()).toEqual(['action:Gamma. Alpha.', ...noted]);
+
+  f.close();
+  await screen.findByText(/Close stopped\. Newer changes exist only in memory/);
+  expect(f.calls.released).toBe(0);
+
+  // Undo back past the note is the only way to capture again; the note and
+  // the text typed after it are gone from what is saved.
+  for (
+    let guard = 0;
+    f.rows().some((row) => row.startsWith('note:')) && guard < 10;
+    guard++
+  )
+    fireEvent.keyDown(view.dom, { key: 'z', ctrlKey: true });
+  expect(f.rows()).toEqual(['action:Alpha.', 'action:', 'action:']);
+  await waitFor(() => expect(saved.at(-1)).toBe('!Alpha.\n\n\n'), {
+    timeout: 4000,
+  });
+  expect(saved.some((source) => /remember|Gamma/.test(source))).toBe(false);
+  expect(journaled.some((source) => /remember|Gamma/.test(source))).toBe(false);
+}, 20000);
