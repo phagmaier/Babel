@@ -56,6 +56,15 @@ Recovery inventory schema 1 includes BOM, an allocation high-water mark and ever
 
 Empty character text is authored as `@`, diagnosed as an incomplete cue. An empty dialogue/parenthetical intention can annotate an existing empty source row without changing its bytes; another Fountain reader sees the portable blank. Newly authored incomplete `(` parenthetical/speech text remains exact source with recovery intent and an external-ambiguity diagnostic, can continue typing, and can complete into ordinary grammar. Matching recovery restores that ability. Imported malformed parentheses without matching intent remain protected; conversion is not implicitly accepted. A draft that would reinterpret later speech must explicitly own that speech. An empty replacement at unterminated EOF that would erase its physical row is refused with an exact-copy route; virtual editor placeholders remain the later bridge's responsibility.
 
+[AUDIT-PARK-H-F2](tasks/AUDIT-PARK-H-F2.md) adds empty Scene Heading intent
+on an actually empty physical blank, without emitting a bare `.`. Capture
+and checkpoint retain the type through exact-source sparse metadata; explicit
+recovery restores it. Source-only reopen shows the portable blank. Completion
+drops the intent and uses ordinary heading syntax. Nonempty/protected source,
+whitespace content, retained scene numbers and row-erasing EOF edits do not
+gain this compatibility. A zero-byte virtual placeholder retains its existing
+behavior; its picker choice has no physical recovery row.
+
 Invalid UTF-8 opens read-only with all bytes retained. The primary edit API protects unknown extensions, mixed hidden/visible content, title fields/continuations and notes/boneyards, including blank rows and unclosed tails. Standard standalone regions retain their line projection; uncertain mixed regions stay raw. Primary parsing honors indentation, Unicode cue names/extensions, scene-number syntax and trailing-space transition ambiguity; explicit forcing syntax outranks inferred speech/title syntax. M3-03 adds the complete-context APIs below; no proof/renderer omission authorizes source loss.
 
 ## M3-03 complex source structures and editing

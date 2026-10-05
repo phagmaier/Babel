@@ -23,7 +23,8 @@ export type EditableKind = Exclude<
   'title' | 'titleContinuation' | 'note' | 'boneyard' | 'raw'
 >;
 export type Newline = '' | '\n' | '\r' | '\r\n';
-export type DraftKind = 'character' | 'dialogue' | 'parenthetical';
+export type DraftKind =
+  'sceneHeading' | 'character' | 'dialogue' | 'parenthetical';
 
 export interface FountainLine {
   readonly id: string;

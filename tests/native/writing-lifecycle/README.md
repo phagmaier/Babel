@@ -905,19 +905,20 @@ BABEL_SHUTDOWN_MODE=ordinary python3 tests/native/writing-lifecycle/isolated_ime
 
 [D-07-N evidence](../../../docs/test-evidence/AUDIT.md#audit-d07-n--native-typed-export-drill).
 
-## AUDIT-PARK-H uncapturable rows
+## AUDIT-PARK-H empty-heading intent and hidden rows
 
-`--empty-heading` pins, as found, what the production app does while a row the
-editor cannot capture exists, on a disposable screenplay:
+`--empty-heading` verifies the F2 empty-heading intent repair and F1 hidden
+rows, on a disposable screenplay:
 
 - A: Enter then Ctrl+1 after text leaves an empty Scene Heading row; text typed
-  in another row is neither saved nor journaled; this driver's own app is
-  killed and the reopened file holds only the last save.
-- B: the same state; Close session stops, and the emergency copy writes a
-  `.draft.json` bundle holding the unsaved rows without marking the source
-  saved.
-- C: a heading typed into the row resumes capture and saves everything typed
-  meanwhile.
+  elsewhere saves and journals with exact-source sparse heading intent.
+  Kill this driver's own app, then explicitly resume the independently
+  inspected checkpoint and verify its bytes, empty heading type and retained
+  original checkpoint.
+- B: ordinary protected close succeeds while the heading stays empty. Opening
+  source alone shows its portable blank; no automatic metadata adoption.
+- C: completion and trusted Undo/Redo save exact bytes and current intent at
+  every step. Completion removes the sparse heading intent.
 - D (AUDIT-PARK-H-F1): new Note and Omitted material rows (Enter, Element
   picker) in the opened screenplay save and journal both empty and populated;
   later edits also reach both protections. Undo through each region remains
@@ -925,8 +926,13 @@ editor cannot capture exists, on a disposable screenplay:
   close succeeds. Removing wrappers still requires whole-region review.
 
 The mode kills its own app once (`intentionalKillScenario`); the owned-process
-crash audit stays strict. A-C remain pinned as found; the owner-authorized F1
-fix flips only D. Do not weaken the other assertions.
+crash audit stays strict. Historical PARK-H failures and old A-C behavior remain
+in evidence and commit `fc43779`; F2 deliberately changes their acceptance.
+The separate emergency-bundle and malformed-source protections remain intact.
+When retained `/tmp` artifacts exhaust inodes, set
+`BABEL_NATIVE_IME_TEMP_ROOT` to an existing task-owned Btrfs directory. Only
+the private IME wrapper/view moves there; app/file roots still exercise the
+requested tmpfs/Btrfs matrix, with the same isolation mounts.
 
 ```sh
 BABEL_SHUTDOWN_MODE=ordinary python3 tests/native/writing-lifecycle/isolated_ime.py target/audit-simp-f/prerequisites/prefix -- python3 tests/native/writing-lifecycle/integrated_exit.py /tmp "$PWD/target" --output target/<new-dir> --modes empty-heading

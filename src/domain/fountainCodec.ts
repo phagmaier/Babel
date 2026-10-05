@@ -452,8 +452,12 @@ function compatibleDraft(
   intent: FountainLine['intendedKind'],
 ): boolean {
   if (intent === undefined) return true;
-  if (!['character', 'dialogue', 'parenthetical'].includes(intent))
+  if (
+    !['sceneHeading', 'character', 'dialogue', 'parenthetical'].includes(intent)
+  )
     return false;
+  if (intent === 'sceneHeading')
+    return line.kind === 'blank' && line.text === '';
   if (intent === 'character')
     return line.kind === 'character' && line.text === '';
   if (line.kind === 'blank' && line.text === '') return true;
@@ -467,6 +471,7 @@ function compatibleDraft(
 }
 
 function draftIntent(edit: LineEdit): FountainLine['intendedKind'] {
+  if (edit.kind === 'sceneHeading' && edit.text === '') return 'sceneHeading';
   if (edit.kind === 'character' && edit.text === '') return 'character';
   if (
     (edit.kind === 'dialogue' || edit.kind === 'parenthetical') &&
@@ -696,6 +701,7 @@ function sourceFor(edit: LineEdit, previous: FountainLine | undefined): string {
           : edit.sceneNumber;
       if (number != null && !/^[\p{L}\p{N}.-]+$/u.test(number))
         throw new FountainEditError('invalid-edit', 'Invalid scene number');
+      if (edit.text === '' && number == null) return '';
       return `.${edit.text}${number == null ? '' : ` #${number}#`}`;
     }
     case 'character':

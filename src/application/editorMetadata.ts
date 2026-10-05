@@ -45,7 +45,7 @@ export function editorRecovery(
     const actionSubtype = item.actionSubtype;
     if (
       (intendedKind !== undefined &&
-        !['character', 'dialogue', 'parenthetical'].includes(
+        !['sceneHeading', 'character', 'dialogue', 'parenthetical'].includes(
           String(intendedKind),
         )) ||
       (actionSubtype !== undefined && actionSubtype !== 'shot')

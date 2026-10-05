@@ -1,15 +1,10 @@
-"""AUDIT-PARK-H native confirmation on disposable content: rows the editor
-cannot capture.
+"""AUDIT-PARK-H-F2 native empty-heading intent and F1 hidden-row capture.
 
-An empty Scene Heading row created after text (Enter, Ctrl+1) has no Fountain
-spelling, so the draft cannot be captured until the row has text (phases A-C).
-AUDIT-PARK-H-F1: new Note and Omitted material rows in an opened screenplay
-now capture, save and journal, empty or with text (phase D).
-
-Pinned as found, not as wanted. The drill answers what the real app does with
-text typed elsewhere meanwhile: source save, recovery journal, an owned
-SIGKILL, protected close, and resumption. Synthetic text only; only this
-driver's own app is killed. Input is trusted; scripts only observe.
+Empty headings save as physical blanks with source-bound recovery intent.
+Trusted keys verify unrelated edits, exact journal metadata, owned SIGKILL,
+explicit resume, completion, Undo/Redo and ordinary protected close. F1's
+Note/Omitted material byte/journal/Undo/reopen checks remain intact.
+Only disposable content and owned app processes are used.
 """
 import json
 import os
@@ -17,8 +12,7 @@ import signal
 import time
 from pathlib import Path
 
-CTRL, ENTER, END, HOME, NULL = '\ue009', '\ue007', '\ue010', '\ue011', '\ue000'
-REFUSAL = 'cannot round-trip unambiguously'
+CTRL, SHIFT, ENTER, END, HOME, NULL = '\ue009', '\ue008', '\ue007', '\ue010', '\ue011', '\ue000'
 
 
 def run(d):
@@ -30,11 +24,16 @@ def run(d):
     def rows():
         return d.script("return [...document.querySelectorAll('.ProseMirror > p')].map(p => p.dataset.kind + ':' + p.textContent);")
 
-    def chord(key):
+    def chord(key, shift=False):
         d.script("document.querySelector('.ProseMirror').focus();")
-        d.command('POST', '/actions', {'actions': [{'type': 'key', 'id': 'empty-heading-chord', 'actions': [
-            {'type': 'keyDown', 'value': CTRL}, {'type': 'keyDown', 'value': key},
-            {'type': 'keyUp', 'value': key}, {'type': 'keyUp', 'value': CTRL}]}]})
+        actions = [{'type': 'keyDown', 'value': CTRL}]
+        if shift:
+            actions.append({'type': 'keyDown', 'value': SHIFT})
+        actions.extend([{'type': 'keyDown', 'value': key}, {'type': 'keyUp', 'value': key}])
+        if shift:
+            actions.append({'type': 'keyUp', 'value': SHIFT})
+        actions.append({'type': 'keyUp', 'value': CTRL})
+        d.command('POST', '/actions', {'actions': [{'type': 'key', 'id': 'empty-heading-chord', 'actions': actions}]})
 
     def click_row(kind, text):
         row = d.find(f"//div[contains(@class,'ProseMirror')]/p[@data-kind='{kind}' and normalize-space(.)={json.dumps(text)}]")
@@ -48,6 +47,13 @@ def run(d):
 
     def journaled(needle):
         return any(needle in source for _, source in d.journal_records())
+
+    def checkpoint(source, intent, after=None):
+        candidates = [m for m, saved in d.journal_records()
+                      if saved == source and m['draftMetadata']['drafts'] == intent
+                      and (after is None or (m['documentId'] == after['documentId']
+                                            and m['version'] > after['version']))]
+        return max(candidates, key=lambda m: m['version'], default=None)
 
     def open_file(expected_text):
         d.click('Open Fountain', actions=True)
@@ -66,10 +72,11 @@ def run(d):
         d.type_text(ENTER)
         chord('1')
         d.wait(lambda: 'sceneHeading:' in rows(), 'Empty Scene Heading row after text')
-        d.wait(lambda: any(REFUSAL in alert for alert in alerts()), 'Capture refusal is shown to the author')
-        # Past the cadence's two-second ceiling: whatever will be saved, is.
-        time.sleep(3)
-        return target.read_bytes()
+        expected = saved + b'\n\n'
+        d.audit(target, expected)
+        d.wait(lambda: 'Saved locally' in d.body(), 'Empty heading exact save acknowledged')
+        assert not alerts(), alerts()
+        return expected
 
     def type_elsewhere(action, marker):
         click_row('action', action)
@@ -77,24 +84,33 @@ def run(d):
         d.wait(lambda: rows()[2] == 'action:' + marker + action, 'Author text typed in another row')
         time.sleep(4)
 
-    # A. Text typed elsewhere while the row is empty is neither saved nor
-    # journaled; an owned SIGKILL then loses it. The file keeps its last save.
+    # A. The empty heading keeps unrelated text saved and journaled. Metadata
+    # is inspected independently from checksummed frames, before an owned kill.
     target.write_bytes(opened)
     open_file('INT. ROOM - DAYA lamp glows.')
     first = opened.replace(b'glows.', b'glows. It hums.')
     settled = empty_heading('A lamp glows.', ' It hums.', first)
-    report['settledAfterEmptyRow'] = settled.decode()
-    assert settled.startswith(first.rstrip(b'\n')), settled
+    assert settled == first + b'\n\n', settled
     type_elsewhere('A lamp glows. It hums.', 'Dim. ')
-    assert target.read_bytes() == settled, target.read_bytes()
-    assert not journaled(b'Dim. '), 'text typed while the row is empty reached the journal'
-    assert any(REFUSAL in alert for alert in alerts()), alerts()
-    report['whileEmpty'] = {'status': status(), 'alerts': alerts(), 'sourceSaved': False, 'journaled': False}
-    d.screenshot('empty-heading-unprotected')
+    expected = settled.replace(b'!A lamp', b'!Dim. A lamp')
+    d.audit(target, expected)
+    intent = [{'index': 4, 'intendedKind': 'sceneHeading'}]
+    record = d.wait(lambda: checkpoint(expected, intent),
+                    'Exact empty-heading bytes and sparse intent journaled', timeout=30)
+    d.wait(lambda: 'Saved locally' in d.body(), 'Unrelated edits saved while heading stays empty')
+    assert not alerts(), alerts()
+    assert rows() == ['sceneHeading:INT. ROOM - DAY', 'action:',
+                      'action:Dim. A lamp glows. It hums.', 'action:', 'sceneHeading:'], rows()
+    report['whileEmpty'] = {'status': status(), 'alerts': alerts(), 'sourceSaved': True,
+                            'journaled': True, 'saved': expected.decode(), 'intent': intent}
+    d.screenshot('empty-heading-protected')
     apps = [c for c in d.owned_clients() if c.get('class') == 'babel-desktop']
     assert apps
     owned_pid = apps[0]['pid']
     assert Path(f'/proc/{owned_pid}/comm').read_text().strip() == 'babel-desktop'
+    kill = {'pid': owned_pid, 'wallTime': time.time()}
+    print('OWNED_KILL', json.dumps(kill), flush=True)
+    report['ownedKill'] = kill
     os.kill(owned_pid, signal.SIGKILL)
     time.sleep(.4)
     try:
@@ -103,68 +119,71 @@ def run(d):
         pass
     d.SESSION = None
     d.new_session()
-    assert target.read_bytes() == settled and not journaled(b'Dim. ')
-    d.click('Open Fountain', actions=True)
+    assert target.read_bytes() == expected
+    resume = d.wait(lambda: d.find(f"//li[./h3[normalize-space(.)='Draft {record['documentId']}']]/ul/li[p[contains(.,'generation {record['generation']} ·')]]//button[normalize-space(.)='Resume as new draft']"),
+                    'Exact retained generation discovered after owned kill', timeout=60)
+    d.command('POST', '/element/' + resume + '/click', {})
+    d.wait(lambda: rows() == ['sceneHeading:INT. ROOM - DAY', 'action:',
+                             'action:Dim. A lamp glows. It hums.', 'action:', 'sceneHeading:'],
+           'Explicit recovery restores full text and empty heading type', timeout=60)
+    d.wait(lambda: d.recovery_ready(), 'Fresh resumed draft durably protected', timeout=30)
+    assert any(m['documentId'] == record['documentId'] and source == expected and
+               m['draftMetadata']['drafts'] == intent for m, source in d.journal_records())
+    assert any(m['documentId'] != record['documentId'] and source == expected and
+               m['draftMetadata']['drafts'] == intent for m, source in d.journal_records())
+    target = d.ROOT / 'files' / 'resumed-empty-heading.fountain'
+    d.click('Save As', actions=True)
     d.picker(target)
-    d.wait(lambda: 'A lamp glows. It hums.' in (d.editor_text() or ''), 'Reopened after the owned kill', timeout=60)
-    assert 'Dim.' not in d.editor_text() and 'Dim.' not in d.body()
-    report['afterKill'] = {'editor': d.editor_text(), 'lost': 'Dim. '}
-    print('PASS native empty heading row: text typed elsewhere is not saved or journaled; owned SIGKILL loses it; last save intact', flush=True)
+    d.audit(target, expected)
+    d.wait(lambda: 'Saved locally' in d.body(), 'Resumed draft source save acknowledged')
+    assert rows()[-1] == 'sceneHeading:', rows()
+    report['afterKill'] = {'editor': d.editor_text(), 'intentRestored': True,
+                           'originalCheckpointRetained': True}
+    print('PASS native empty heading: unrelated text saved and journaled; owned SIGKILL then explicit resume restores bytes and heading intent', flush=True)
 
-    # B. Protected close refuses to drop the same text; the designed draft
-    # bundle preserves it without marking the source saved.
-    d.wait(lambda: d.script("return [...document.querySelectorAll('[aria-label=\"Screenplay actions\"] button')].some(b=>b.textContent==='Close session'&&!b.disabled);"),
-           'Reopened session ready', timeout=60)
-    reopened = d.editor_text()
-    second_action = 'A lamp glows. It hums.'
-    second = settled.replace(b'It hums.', b'It hums. Still.')
-    settled = empty_heading(second_action, ' Still.', second)
-    type_elsewhere(second_action + ' Still.', 'Dim. ')
-    assert target.read_bytes() == settled and not journaled(b'Dim. ')
-    d.click('Close session', actions=True)
-    d.wait(lambda: 'Close stopped.' in d.body(), 'Protected close stops')
-    assert 'Newer changes exist only in memory' in d.body()
-    assert 'Dim. ' + second_action in d.editor_text()
-    d.screenshot('empty-heading-close-stopped')
-    d.click('Select copy destination', actions=True)
-    d.picker(d.ROOT / 'copies')
-    d.wait(lambda: d.script("return [...document.querySelectorAll('button')].find(b=>b.textContent.trim()==='Save Emergency Copy and close')?.disabled === false;"),
-           'Native emergency destination selected')
-    d.click('Save Emergency Copy and close')
-    d.wait(lambda: 'Start writing' in d.body(), 'Draft bundle allows close', timeout=60)
-    bundles = [path for path in (d.ROOT / 'copies').iterdir() if path.name.endswith('.draft.json')]
-    assert len(bundles) == 1, list((d.ROOT / 'copies').iterdir())
-    bundle = json.loads(bundles[0].read_text(encoding='utf-8'))
-    assert bundle['schema'] == 'babel-draft-copy-v1'
-    assert 'Dim. ' + second_action + ' Still.' in json.dumps(bundle['rows'])
-    assert target.read_bytes() == settled
-    report['closeStopped'] = {'bundle': bundles[0].name, 'rows': len(bundle['rows']), 'sourceUnchanged': True, 'reopenedText': reopened}
-    print('PASS native empty heading row: close stops; draft bundle holds the unsaved text; source not marked saved', flush=True)
+    # B. Ordinary close is safe even while the heading remains empty. Opening
+    # source alone shows its portable blank; no automatic metadata adoption.
+    d.close_session()
+    open_file('INT. ROOM - DAYDim. A lamp glows. It hums.')
+    assert rows()[-1] == 'action:', rows()
+    assert target.read_bytes() == expected
+    d.close_session()
+    report['ordinaryClose'] = {'sourceSaved': True, 'bundleRequired': False,
+                               'sourceOnlyReopen': 'blank'}
+    print('PASS native empty heading: ordinary protected close succeeds; source-only reopen is a blank', flush=True)
 
-    # C. One heading typed into the row makes the draft capturable again and
-    # everything typed meanwhile is saved.
-    open_file(reopened.replace('It hums.', 'It hums. Still.'))
-    third_action = second_action + ' Still.'
-    third = settled.replace(b'Still.', b'Still. Again.')
-    settled = empty_heading(third_action, ' Again.', third)
-    type_elsewhere(third_action + ' Again.', 'Dim. ')
-    assert target.read_bytes() == settled and not journaled(b'Dim. ')
+    # C. Completing, Undoing and Redoing the heading capture current bytes and
+    # intent at each step; no stale recovery metadata survives completion.
+    target = d.ROOT / 'files' / 'complete-empty-heading.fountain'
+    target.write_bytes(opened)
+    open_file('INT. ROOM - DAYA lamp glows.')
+    settled = empty_heading('A lamp glows.', ' It hums.', first)
+    type_elsewhere('A lamp glows. It hums.', 'Night. ')
+    empty_source = settled.replace(b'!A lamp', b'!Night. A lamp')
+    d.audit(target, empty_source)
     click_row('sceneHeading', '')
     d.type_text('HALL')
-    # A heading typed without a prefix is saved with the forced spelling.
-    wanted = [b'\n!Dim. A lamp glows. It hums. Still. Again.\n', b'\n.HALL\n']
-    try:
-        d.wait(lambda: all(part in target.read_bytes() for part in wanted), 'Everything typed meanwhile reaches the source file', timeout=30)
-    except AssertionError:
-        print('SAVED', repr(target.read_bytes()), flush=True)
-        raise
-    final = target.read_bytes()
-    d.wait(lambda: not any(REFUSAL in alert for alert in alerts()), 'Capture refusal clears')
-    d.wait(lambda: 'Saved locally' in d.body(), 'Resumed save acknowledged')
-    assert journaled(b'Dim. ')
-    report['resumed'] = {'saved': final.decode()}
+    complete = empty_source[:-1] + b'.HALL\n'
+    d.audit(target, complete)
+    complete_record = d.wait(lambda: checkpoint(complete, []),
+                             'Completed heading drops sparse intent', timeout=30)
+    d.type_text(CTRL + 'z' + NULL)
+    d.wait(lambda: rows()[-1] == 'sceneHeading:', 'Undo returns to empty heading')
+    d.audit(target, empty_source)
+    undo_record = d.wait(lambda: checkpoint(empty_source, intent, complete_record),
+                         'Newer Undo empty heading intent journaled', timeout=30)
+    chord('z', shift=True)
+    d.wait(lambda: rows()[-1] == 'sceneHeading:HALL', 'Redo completes heading again')
+    d.audit(target, complete)
+    redo_record = d.wait(lambda: checkpoint(complete, [], undo_record),
+                         'Newer Redo completed heading journaled', timeout=30)
+    d.wait(lambda: 'Saved locally' in d.body(), 'Redo exact save acknowledged')
+    assert not alerts(), alerts()
+    report['completed'] = {'saved': complete.decode(), 'undoSaved': empty_source.decode(),
+                           'redoSaved': complete.decode(), 'completedIntent': [],
+                           'versions': [complete_record['version'], undo_record['version'], redo_record['version']]}
     d.close_session()
-    print('PASS native empty heading row: one heading typed resumes capture and saves everything typed meanwhile', flush=True)
+    print('PASS native empty heading: completion and Undo/Redo save and journal exact current bytes and intent', flush=True)
 
     # D. AUDIT-PARK-H-F1: both new hidden row types capture, empty and
     # populated, and later edits reach source and journal. Each document uses
@@ -233,6 +252,6 @@ def run(d):
                           'action:' + marker + 'A lamp glows. It hums.', 'action:', kind + ':' + populated], rows()
         assert target.read_bytes() == final
         d.close_session()
-        assert len(list((d.ROOT / 'copies').glob('*.draft.json'))) == 1, 'Hidden rows required an emergency bundle'
+        assert len(list((d.ROOT / 'copies').glob('*.draft.json'))) == 0, 'Hidden rows required an emergency bundle'
         print('PASS native new ' + label + ': empty and populated rows plus later edits saved and journaled; Undo stays capturable; exact reopen and ordinary close', flush=True)
     (d.ROOT / 'empty-heading.json').write_text(json.dumps(report, indent=2) + '\n')

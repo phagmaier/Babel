@@ -61,7 +61,10 @@ def main():
         parser.error('Fcitx service already owned; do not replace it')
     if (Path.home() / '.mozc').exists():
         parser.error('legacy personal Mozc profile exists; isolation not assured')
-    root = Path(tempfile.mkdtemp(prefix='babel-native-ime-', dir='/tmp'))
+    # The retained /usr view uses many inodes. A task-owned Btrfs root avoids
+    # exhausting tmpfs without deleting earlier evidence or widening mounts.
+    temp_root = Path(os.environ.get('BABEL_NATIVE_IME_TEMP_ROOT', '/tmp')).resolve(strict=True)
+    root = Path(tempfile.mkdtemp(prefix='babel-native-ime-', dir=temp_root))
     for name in ['config/fcitx5', 'data', 'cache']:
         (root / name).mkdir(parents=True)
     profile = '[Groups/0]\nName=Default\nDefault Layout=us\nDefaultIM=keyboard-us\n'

@@ -3057,8 +3057,8 @@ it('AUDIT-PARK replace-all takes no snapshot or workflow protection; one Undo re
   );
 });
 
-// AUDIT-PARK-H: pinned as found, not as wanted. Some new rows have no Fountain
-// spelling the editor can capture, and while one exists nothing is captured.
+// AUDIT-PARK-H follow-ups: supported new rows capture without blocking other
+// authored text. These mounted UI tests use mocked native ports.
 async function parkedDraft(original: string) {
   const { ports, calls } = fixturePorts({ picked: auditDocument(original) });
   const text = (source: readonly number[]) =>
@@ -3112,7 +3112,7 @@ async function parkedDraft(original: string) {
   };
 }
 
-it('AUDIT-PARK-H an empty Scene Heading row stops capture: nothing typed meanwhile is saved or journaled, close stops, and one character resumes it', async () => {
+it('AUDIT-PARK-H-F2 an empty Scene Heading keeps unrelated edits saved and journaled; completion and ordinary close succeed', async () => {
   const f = await parkedDraft('!Alpha.\n');
   const { view, saved, journaled } = f;
 
@@ -3122,38 +3122,32 @@ it('AUDIT-PARK-H an empty Scene Heading row stops capture: nothing typed meanwhi
     timeout: 4000,
   });
 
-  // Enter, then Ctrl+1: the empty heading row cannot be captured. Enter adds
-  // the separator row S07.2 asks for and the new row after it.
+  // Enter, then Ctrl+1: the heading is a physical blank with recovery intent.
+  // Enter adds the S07.2 separator and new row after it.
   f.caret(f.endOf(0));
   fireEvent.keyDown(view.dom, { key: 'Enter' });
   fireEvent.keyDown(view.dom, { key: '1', ctrlKey: true });
   const empty = ['action:', 'sceneHeading:'];
   expect(f.rows()).toEqual(['action:Alpha. Beta.', ...empty]);
-  expect(() => captureEditor(view.state)).toThrow(
-    /cannot round-trip unambiguously/,
+  expect(captureEditor(view.state).document.lines[2]!.intendedKind).toBe(
+    'sceneHeading',
   );
-  const alert = await screen.findByText(/cannot round-trip unambiguously/);
-  expect(alert.getAttribute('role')).toBe('alert');
+  await waitFor(() => expect(saved.at(-1)).toBe('!Alpha. Beta.\n\n\n'), {
+    timeout: 4000,
+  });
 
   // Text typed in another row while the heading is empty is real author work.
-  // No save and no checkpoint request of any version is made meanwhile.
-  const before = [saved.length, journaled.length];
+  // It must reach both the source and recovery while the heading stays empty.
   view.dispatch(view.state.tr.insertText('Gamma. ', 1));
   expect(f.rows()[0]).toBe('action:Gamma. Alpha. Beta.');
-  await f.settle();
-  expect([saved.length, journaled.length]).toEqual(before);
-  expect(screen.getByText(/cannot round-trip unambiguously/)).toBeTruthy();
-  expect(f.status()).toBe('Changes pending');
-
-  // Protected close refuses to drop it and names the risk.
-  f.close();
-  await screen.findByText(/Close stopped\. Newer changes exist only in memory/);
-  expect(f.calls.released).toBe(0);
-  expect(f.copy).not.toHaveBeenCalled();
+  const expected = '!Gamma. Alpha. Beta.\n\n\n';
+  await waitFor(() => expect(saved.at(-1)).toBe(expected), { timeout: 4000 });
+  expect(journaled).toContain(expected);
+  await waitFor(() => expect(f.status()).toBe('Saved locally'));
+  expect(screen.queryByText(/cannot round-trip unambiguously/)).toBeNull();
   expect(f.rows()).toEqual(['action:Gamma. Alpha. Beta.', ...empty]);
 
-  // One character in the heading makes the draft capturable again: the alert
-  // clears and everything typed meanwhile is saved.
+  // Completion drops sparse intent and saves an ordinary forced heading.
   view.dispatch(view.state.tr.insertText('X', f.endOf(2)));
   await waitFor(
     () => expect(saved.at(-1)).toBe('!Gamma. Alpha. Beta.\n\n.X\n'),
@@ -3162,6 +3156,13 @@ it('AUDIT-PARK-H an empty Scene Heading row stops capture: nothing typed meanwhi
   await waitFor(() =>
     expect(screen.queryByText(/cannot round-trip unambiguously/)).toBeNull(),
   );
+  expect(
+    captureEditor(view.state).document.lines[2]!.intendedKind,
+  ).toBeUndefined();
+  f.close();
+  await waitFor(() => expect(f.calls.released).toBe(1));
+  expect(screen.queryByText(/Close stopped/)).toBeNull();
+  expect(f.copy).not.toHaveBeenCalled();
 }, 20000);
 
 it.each([

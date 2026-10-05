@@ -47,6 +47,13 @@ Ordinary typing and direct supported mark transactions use ProseMirror history. 
 
 Call `captureEditor` only outside synchronous input/dispatch. It derives source through atomic adjacent-row context edits, retaining exact untouched bytes and original no-op syntax. `EditorCaptureBoundary` schedules that work and hashing after dispatch, bounds two active requests, returns frozen compatible persistence snapshots and validates version/session ownership. `isCurrent` is checked again before applying a derived result; no capture method changes the live state. Receipt/status UI must compare directly against the editor's latest version while hashing is pending; production controller/cadence integration is M3-10.
 
+An empty Scene Heading after text captures as a physical blank with
+hash-bound recovery-only heading intent. Edits elsewhere keep saving and
+journaling while it stays empty. Explicit recovery restores the type;
+source-only reopen shows a blank. Completing it removes the empty intent.
+This does not relax capture refusals for incompatible/protected source or
+persist a zero-byte virtual placeholder's picker choice.
+
 Selection anchors bind editor ID/source index, UTF-16 offset, UTF-8 byte offset and grapheme index/intra-grapheme offset. A surrogate-splitting selection refuses capture rather than guessing bytes. Escapes and emphasis delimiter gaps have an explicit left-boundary mapping. Protected/unknown source is copied verbatim; invalid encoding has no fabricated Unicode selection map. If grammar/styles cannot round-trip, the live draft stays in EditorState and `copyEditorDraft` returns current rows/styles plus exact original bytes. It must not be called a latest Fountain save; the current M3-12-R1 workflow presents the refusal and offers a verified labeled native draft-bundle copy.
 
 [Contract tests](../tests/contract/editor-bridge.test.ts) and [synthetic native harness](../tests/native/editor-bridge/README.md) cover no-op corpus bytes, primary fields/rich edits, IDs/anchors, protected/forged content, virtual/invalid source, undo/version and asynchronous failure/staleness. Native WebKit evidence is a declared typing/selection/capture subset, not real IME, structural commands, native writing, printed layout or production activation.

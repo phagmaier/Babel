@@ -11,11 +11,9 @@ import { captureEditor } from '../../src/editor/sourceBridge';
 import { createEditorState } from '../../src/editor/state';
 import { mountScreenplayEditor } from '../../src/editor/view';
 
-// AUDIT-PARK-H. Pinned as found, not as wanted. In a screenplay opened from
-// source, an empty Scene Heading cannot capture until it has text. F1 fixes
-// the new Note/Omitted material cases previously pinned as uncapturable. What the
-// application does meanwhile is pinned in tests/ui/WritingView.test.tsx and
-// tests/native/writing-lifecycle/empty_heading.py.
+// AUDIT-PARK-H follow-ups: F1 captures new Note/Omitted material rows;
+// F2 retains an empty Scene Heading's type as exact-source recovery intent.
+// Mounted UI and native save/journal behavior have separate evidence.
 let view: EditorView;
 let popup: ReturnType<typeof createCompletionPopup>;
 
@@ -74,20 +72,13 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-const uncapturable: Record<string, RegExp> = {
-  sceneHeading: /cannot round-trip unambiguously/,
-};
-
-describe('AUDIT-PARK-H empty rows the editor cannot capture (pinned as found)', () => {
+describe('AUDIT-PARK-H supported empty row capture', () => {
   it.each(elementChoices.map(([id]) => id))(
     'a new empty %s row after text',
     (id) => {
       mount('!Alpha.\n');
       newRow(id);
-      const refusal = uncapturable[id];
-      if (refusal) expect(() => captureEditor(view.state)).toThrow(refusal);
-      // Every other choice captures, and keeps the text typed before it.
-      else expect(source().startsWith('!Alpha.\n\n')).toBe(true);
+      expect(source().startsWith('!Alpha.\n\n')).toBe(true);
     },
   );
 
