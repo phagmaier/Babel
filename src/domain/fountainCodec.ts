@@ -469,12 +469,30 @@ function compatibleDraft(
   if (intent === 'character')
     return line.kind === 'character' && line.text === '';
   if (line.kind === 'blank' && line.text === '') return true;
+  if (emptiedInSpeech(line, intent)) return true;
   const incomplete = /^\([^)]*$/.test(line.text);
   if (intent === 'dialogue') return line.kind === 'dialogue' && incomplete;
   return (
     intent === 'parenthetical' &&
     incomplete &&
     (line.kind === 'dialogue' || line.kind === 'action')
+  );
+}
+
+/**
+ * AUDIT-PARK-H-F4-02: an emptied Dialogue or Parenthetical row kept inside its
+ * speech is Fountain's two-space dialogue line. With that intent the two
+ * spaces are its spelling and the row holds no text; read alone, the line is
+ * the ordinary two-space Dialogue.
+ */
+function emptiedInSpeech(
+  line: FountainLine,
+  intent: FountainLine['intendedKind'],
+): boolean {
+  return (
+    (intent === 'dialogue' || intent === 'parenthetical') &&
+    line.kind === 'dialogue' &&
+    line.sourceText === '  '
   );
 }
 
@@ -550,6 +568,7 @@ function applyRecovery(
     return {
       ...line,
       id: entry.id,
+      text: emptiedInSpeech(line, entry.intendedKind) ? '' : line.text,
       speechOf:
         line.speechOf === undefined ? undefined : idMap.get(line.speechOf),
       intendedKind: entry.intendedKind,
@@ -832,33 +851,82 @@ export function replaceLines(
       return [
         ...new Set([prior.sourceText, forcedSpelling(prior), generated]),
       ].filter((spelling) => spelling !== undefined);
+    // A row already emptied inside its speech keeps its two spaces.
+    if (
+      prior &&
+      edit.text === '' &&
+      prior.intendedKind === edit.kind &&
+      emptiedInSpeech(prior, prior.intendedKind)
+    )
+      return [prior.sourceText, generated];
     return [generated];
   });
-  const choice = spellings.map(() => 0);
-  for (;;) {
-    let mismatch: number | undefined;
+  const attempt = (candidates: readonly (readonly string[])[]) => {
+    const choice = candidates.map(() => 0);
+    for (;;) {
+      let mismatch: number | undefined;
+      try {
+        return replaceSpelled(
+          document,
+          from,
+          count,
+          edits,
+          retainedIds,
+          priors,
+          candidates.map((spelling, index) => spelling[choice[index]!]!),
+          (offset) => {
+            mismatch = offset;
+          },
+        );
+      } catch (error) {
+        if (
+          mismatch === undefined ||
+          !(error instanceof FountainEditError) ||
+          error.code !== 'round-trip' ||
+          choice[mismatch]! + 1 >= candidates[mismatch]!.length
+        )
+          throw error;
+        choice[mismatch]!++;
+      }
+    }
+  };
+  try {
+    return attempt(spellings);
+  } catch (refusal) {
+    // AUDIT-PARK-H-F4-02: an emptied Dialogue or Parenthetical row is a blank
+    // line, which ends its speech. Only when that leaves these edits with no
+    // spelling, and nonempty rows of the speech follow the row among them, it
+    // takes the two-space dialogue line instead. An edit that was written
+    // before is never respelled.
+    const speech = (edit: LineEdit | undefined) =>
+      edit?.kind === 'dialogue' || edit?.kind === 'parenthetical';
+    const continued = edits.map((edit, index) => {
+      if (!speech(edit) || edit.text !== '') return false;
+      let next = index + 1;
+      while (speech(edits[next]) && edits[next]!.text === '') next++;
+      return speech(edits[next]);
+    });
+    if (
+      !(refusal instanceof FountainEditError) ||
+      refusal.code !== 'round-trip' ||
+      !continued.includes(true)
+    )
+      throw refusal;
     try {
-      return replaceSpelled(
-        document,
-        from,
-        count,
-        edits,
-        retainedIds,
-        priors,
-        spellings.map((candidates, index) => candidates[choice[index]!]!),
-        (offset) => {
-          mismatch = offset;
-        },
+      return attempt(
+        spellings.map((candidates, index) =>
+          continued[index] ? ['  '] : candidates,
+        ),
       );
     } catch (error) {
-      if (
-        mismatch === undefined ||
-        !(error instanceof FountainEditError) ||
-        error.code !== 'round-trip' ||
-        choice[mismatch]! + 1 >= spellings[mismatch]!.length
-      )
-        throw error;
-      choice[mismatch]!++;
+      // Two spaces that are not read as this speech change nothing: the
+      // refusal stands as it was. Otherwise what still stops the edit is
+      // whatever remains once the speech is kept together.
+      throw error instanceof FountainEditError &&
+        error.edit !== undefined &&
+        continued[error.edit]
+        ? refusal
+        : error;
     }
   }
 }
@@ -1071,6 +1139,7 @@ function transactSource(
       id: inside
         ? (retainedIds?.[index - from] ?? previous?.id ?? allocate())
         : previous!.id,
+      text: emptiedInSpeech(line, intendedKind) ? '' : line.text,
       intendedKind,
       editable:
         intendedKind && compatibleDraft(line, intendedKind)

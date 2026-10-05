@@ -65,6 +65,25 @@ whitespace content, retained scene numbers and row-erasing EOF edits do not
 gain this compatibility. A zero-byte virtual placeholder retains its existing
 behavior; its picker choice has no physical recovery row.
 
+[AUDIT-PARK-H-F4-02](tasks/AUDIT-PARK-H-F4.md) keeps a speech together when a
+Dialogue or Parenthetical row inside it is emptied. A blank line would end the
+speech, so `replaceLines` refuses an edit that owns such a row and nonempty
+rows of the speech below it. Only then does it write the emptied row as
+Fountain's two-space dialogue line, the spelling `replaceLineWithBreaks`
+already uses, and it never respells an edit that was written before: the last
+row of a speech, a speech emptied whole and a row whose followers leave the
+speech stay blank lines with intent. The line is `dialogue` with
+`sourceText` of two spaces and recovery-only `intendedKind` `dialogue` or
+`parenthetical`; with that intent its `text` is empty. Exact recovery restores
+the element and the empty row. Read without it, the line is the ordinary
+two-space Dialogue. No other intent fits that line, and two spaces outside a
+speech are a blank. A one-row edit still reports `neighbor-drift` for the
+speech it would reinterpret; the caller owns that speech first. Text typed
+into the row replaces the two spaces and drops the intent. An unchanged
+emptied row keeps its two spaces when a wider edit owns it. Not covered: a
+protected row below the emptied one, and a row emptied on a last line with
+no line ending.
+
 Invalid UTF-8 opens read-only with all bytes retained. The primary edit API protects unknown extensions, mixed hidden/visible content, title fields/continuations and notes/boneyards, including blank rows and unclosed tails. Standard standalone regions retain their line projection; uncertain mixed regions stay raw. Primary parsing honors indentation, Unicode cue names/extensions, scene-number syntax and trailing-space transition ambiguity; explicit forcing syntax outranks inferred speech/title syntax. M3-03 adds the complete-context APIs below; no proof/renderer omission authorizes source loss.
 
 ## M3-03 complex source structures and editing

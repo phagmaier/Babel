@@ -1,5 +1,6 @@
 """AUDIT-PARK-H-F2 native empty-heading intent and F1 hidden-row capture.
 AUDIT-PARK-H-F3 adds the alert that names a row Fountain cannot hold.
+AUDIT-PARK-H-F4-02 adds a Dialogue row emptied above the rest of its speech.
 
 Empty headings save as physical blanks with source-bound recovery intent.
 Trusted keys verify unrelated edits, exact journal metadata, owned SIGKILL,
@@ -293,4 +294,73 @@ def run(d):
     d.close_session()
     assert len(list((d.ROOT / 'copies').glob('*.draft.json'))) == 0, 'Resumed draft required an emergency bundle'
     print('PASS native refused row: alert names the row and how to resume; nothing saved or journaled meanwhile; changing the row resumes with nothing lost', flush=True)
+
+    # F. AUDIT-PARK-H-F4-02: a Dialogue row emptied above the rest of its
+    # speech is written as Fountain's two-space dialogue line, so the draft
+    # keeps saving and journaling. The row's element is sparse intent on it.
+    speech = b'@BOB\nOne.\nTwo more.\n\n!A lamp glows.\n'
+    target = d.ROOT / 'files' / 'emptied-speech-row.fountain'
+    target.write_bytes(speech)
+    open_file('BOBOne.Two more.A lamp glows.')
+    click_row('dialogue', 'One.')
+    d.type_text(END + BACKSPACE * 4)
+    kept = ['character:BOB', 'dialogue:', 'dialogue:Two more.', 'action:']
+    d.wait(lambda: rows() == kept + ['action:A lamp glows.'], 'First Dialogue row emptied above its speech')
+    emptied = b'@BOB\n  \nTwo more.\n\n!A lamp glows.\n'
+    d.audit(target, emptied)
+    intent = [{'index': 1, 'intendedKind': 'dialogue'}]
+    emptied_record = d.wait(lambda: checkpoint(emptied, intent),
+                            'Two-space line and sparse Dialogue intent journaled', timeout=30)
+    d.wait(lambda: 'Saved locally' in d.body(), 'Emptied speech row exact save acknowledged')
+    assert not alerts(), alerts()
+    click_row('action', 'A lamp glows.')
+    d.type_text(HOME + 'Rain. ')
+    d.wait(lambda: rows() == kept + ['action:Rain. A lamp glows.'], 'Author text typed in another row while the speech row is empty')
+    later = emptied.replace(b'!A lamp', b'!Rain. A lamp')
+    d.audit(target, later)
+    later_record = d.wait(lambda: checkpoint(later, intent, emptied_record),
+                          'Later text journaled with the row still empty', timeout=30)
+    d.wait(lambda: 'Saved locally' in d.body(), 'Later text saved while the speech row stays empty')
+    assert not alerts(), alerts()
+    report['emptiedSpeechRow'] = {'status': status(), 'alerts': alerts(), 'sourceSaved': True,
+                                  'journaled': True, 'saved': later.decode(), 'intent': intent}
+    d.screenshot('emptied-speech-row-protected')
+    # Text typed into the row replaces the two spaces and drops the intent;
+    # Undo and Redo save and journal the current bytes and intent each time.
+    click_row('dialogue', '')
+    d.type_text('Hi.')
+    d.wait(lambda: rows()[1] == 'dialogue:Hi.', 'Text typed into the emptied row')
+    spoken = later.replace(b'\n  \n', b'\nHi.\n')
+    d.audit(target, spoken)
+    spoken_record = d.wait(lambda: checkpoint(spoken, [], later_record),
+                           'Typed row drops sparse intent', timeout=30)
+    d.type_text(CTRL + 'z' + NULL)
+    d.wait(lambda: rows()[1] == 'dialogue:', 'Undo returns to the empty speech row')
+    d.audit(target, later)
+    undo_record = d.wait(lambda: checkpoint(later, intent, spoken_record),
+                         'Newer Undo two-space line and intent journaled', timeout=30)
+    chord('z', shift=True)
+    d.wait(lambda: rows()[1] == 'dialogue:Hi.', 'Redo types the row again')
+    d.audit(target, spoken)
+    redo_record = d.wait(lambda: checkpoint(spoken, [], undo_record),
+                         'Newer Redo ordinary speech journaled', timeout=30)
+    d.wait(lambda: 'Saved locally' in d.body(), 'Redo exact save acknowledged')
+    assert not alerts(), alerts()
+    report['emptiedSpeechRow']['typed'] = {
+        'saved': spoken.decode(), 'undoSaved': later.decode(), 'redoSaved': spoken.decode(),
+        'versions': [emptied_record['version'], later_record['version'], spoken_record['version'],
+                     undo_record['version'], redo_record['version']]}
+    d.close_session()
+    # The saved bytes alone open as the ordinary two-space Dialogue row, with
+    # exact no-op source and an ordinary close; no metadata is adopted.
+    target = d.ROOT / 'files' / 'reopened-emptied-speech-row.fountain'
+    target.write_bytes(later)
+    open_file('BOB  Two more.Rain. A lamp glows.')
+    assert rows() == ['character:BOB', 'dialogue:  ', 'dialogue:Two more.', 'action:',
+                      'action:Rain. A lamp glows.'], rows()
+    assert target.read_bytes() == later
+    d.close_session()
+    report['emptiedSpeechRow']['sourceOnlyReopen'] = 'dialogue with two spaces'
+    assert len(list((d.ROOT / 'copies').glob('*.draft.json'))) == 0, 'Emptied speech row required an emergency bundle'
+    print('PASS native emptied speech row: two-space line and Dialogue intent saved and journaled; later text, typing, Undo and Redo save exact bytes; source-only reopen and ordinary close', flush=True)
     (d.ROOT / 'empty-heading.json').write_text(json.dumps(report, indent=2) + '\n')

@@ -183,19 +183,24 @@ describe('AUDIT-PARK-H-F3 the bridge records the live row', () => {
     );
   });
 
-  it('names the stranded row under an emptied Dialogue, and an emptied numbered heading itself', () => {
-    // The empty Dialogue is a recoverable draft; the row below it is what
-    // can no longer be Dialogue once a blank line ends the speech.
+  it('no longer reaches an emptied Dialogue with speech below it; names an emptied numbered heading itself', () => {
+    // AUDIT-PARK-H-F4-02. The blank line used to end the speech and the
+    // Dialogue below was named; the row is now the two-space dialogue line.
     const speech = emptied(open('@BOB\nOne.\nTwo.\n'), 1);
     expect(rows(speech)).toEqual([
       'character:BOB',
       'dialogue:',
       'dialogue:Two.',
     ]);
-    expect(refusedRow(refusal(() => captureEditor(speech)))).toEqual({
+    expect(new TextDecoder().decode(captureEditor(speech).source)).toBe(
+      '@BOB\n  \nTwo.\n',
+    );
+    // A row below that has no spelling of its own is still the one named.
+    const below = typed(caret(speech, 2, 0, -1), '(laughs) Oh no.');
+    expect(refusedRow(refusal(() => captureEditor(below)))).toEqual({
       index: 2,
       kind: 'dialogue',
-      text: 'Two.',
+      text: '(laughs) Oh no.',
     });
     const numbered = emptied(open('!Alpha.\n\n.HALL #12#\n'), 2);
     expect(refusedRow(refusal(() => captureEditor(numbered)))).toEqual({
@@ -255,8 +260,11 @@ describe('AUDIT-PARK-H-F3 author wording', () => {
       'Saving and recovery are paused. Row 3, an empty Scene Heading row, cannot be saved as Fountain as it stands. Type its text or Undo to resume.' +
         copy,
     );
-    expect(message(emptied(open('@BOB\nOne.\nTwo.\n'), 1))).toBe(
-      'Saving and recovery are paused. Row 3, the Dialogue “Two.”, cannot be saved as Fountain as it stands. Change that row or Undo to resume.' +
+    // AUDIT-PARK-H-F4-02: the emptied Dialogue above saves; the alert is
+    // about the row that still has no spelling.
+    const speech = emptied(open('@BOB\nOne.\nTwo.\n'), 1);
+    expect(message(typed(caret(speech, 2, 0, -1), '(laughs) Oh no.'))).toBe(
+      'Saving and recovery are paused. Row 3, the Dialogue “(laughs) Oh no.”, cannot be saved as Fountain as it stands. Change that row or Undo to resume.' +
         copy,
     );
   });
@@ -284,7 +292,10 @@ describe('AUDIT-PARK-H-F3 author wording', () => {
     ).toBe(generic);
     for (const state of [
       typed(caret(open('@BOB\n(beat)\nHi.\n'), 1, -1), ' x'),
-      emptied(open('@BOB\nOne.\nTwo.\n'), 1),
+      typed(
+        caret(emptied(open('@BOB\nOne.\nTwo.\n'), 1), 2, 0, -1),
+        '(laughs) Oh no.',
+      ),
       emptied(open('!Alpha.\n\n.HALL'), 2),
     ])
       expect(message(state)).not.toMatch(

@@ -1,47 +1,48 @@
-# Current state — refused-draft commands 2026-10-04 (owner host)
+# Current state — emptied speech rows 2026-10-04 (owner host)
 
-Date: 2026-10-04. Application: **babel**. Work on `main` over base `2456c2c`;
-F1 and its predecessors are pushed at `origin/main`; F2 (`5a707b8`), F3
-(`2456c2c`), the F4 brief (`a9287ed`) and this session's F4-01 commit are
-local. No new push authorization. Owner delegated task selection, wording and
+Date: 2026-10-04. Application: **babel**. Work on `main` over base `10650c0`,
+which is even with `origin/main`; this session's F4-02 commit is local. No new
+push authorization. Owner delegated task selection, wording and
 implementation decisions. M0–M5 and bounded M6-01 remain recorded complete.
 **M6-02, C1/F2 and Local v1 admission remain open.**
 Host: owner laptop, uid 1000, Hyprland display, Btrfs repo, tmpfs `/tmp`.
 
 ## This session
 
-**AUDIT-PARK-H-F4 decomposed; F4-01 done.**
-[Brief](tasks/AUDIT-PARK-H-F4.md),
-[probe evidence](test-evidence/AUDIT.md#audit-park-h-f4--refused-drafts-probe-and-decomposition),
-[F4-01 evidence](test-evidence/AUDIT.md#audit-park-h-f4-01--commands-refuse-instead-of-creating-a-refused-draft).
+**AUDIT-PARK-H-F4-02 done.**
+[Brief](tasks/AUDIT-PARK-H-F4.md#f4-02-deliverable-and-acceptance),
+[evidence](test-evidence/AUDIT.md#audit-park-h-f4-02--emptied-speech-rows-keep-their-speech).
 
-- Probe (logs `target/audit-park-h-f4/`): capture refused **229 of 848**
-  single-row cases plus 47 structural ones. Ordinary typing such as a Dialogue
-  row `(laughs) Oh no.` leaves the whole draft unsaved and unjournaled until
-  that row changes; F3 names the row. The reach is wider than F3 listed.
-- F4-01: formatting and conversion commands refuse with a reason instead of
-  creating such a draft. Emphasis cannot begin a Scene Heading (selection or
-  stored mark at the row start). A speech row cannot leave its speech while
-  nonempty rows of it follow. A row cannot become an element that cannot hold
-  its text. Each asks the codec about one row read alone
-  (`spellsAlone` in `src/domain/fountainCodec.ts`, `rowSpells` in
-  `src/editor/sourceBridge.ts`); no capture runs in a command.
-- Unchanged: the codec's accepted and refused set, parser rules, messages,
-  recovery metadata and every captured byte; no native, IPC or Rust change.
-  Typed shapes stay refused by capture.
-- Consequences to know: Select All plus bold is refused when the selection
-  starts a Scene Heading. The Tab cycle stops at an element that cannot hold
-  the row's text; Shift+Tab and the picker still work.
-- Withdrawn: refusing Enter inside a Parenthetical. M3-05 documents that split
-  as accepted with the emergency copy as its route, and three incumbent tests
-  pin it. It is tracked in the brief's group F.
-- Checks: red 5 fail / 6 pass, then green. An old-against-new differential over
-  27,069 command cases shows 1,642 refused drafts closed, **0** commands that
-  saved before now refused and 0 changed reasons. Tracked frontend
-  **1159/1159**, aggregate 2022/2022 with archives, helper **16/16**, Rust
-  **273/273**, browser and fresh release pass; binary `8b153538…`. One F3
-  test that built its draft through the old conversion was flipped
-  deliberately. No native drill: no saved byte or native boundary changed.
+- A Dialogue or Parenthetical row emptied while nonempty rows of its speech
+  follow no longer pauses saving. It is written as Fountain's two-space
+  dialogue line, which the break command already writes, so the rows below
+  stay speech. The row's element and emptiness are recovery-only intent on
+  that line; the file alone opens as a Dialogue holding two spaces.
+- Paths: `src/domain/fountainCodec.ts` is the only product change. Tests:
+  `tests/contract/emptied-speech-row.test.ts` (new), three flipped F3 examples
+  in `capture-refusal.test.ts`, one mounted case in `WritingView.test.tsx`,
+  phase F in `tests/native/writing-lifecycle/empty_heading.py`. Docs:
+  document-model and editor-behavior.
+- How: `replaceLines` uses the two-space line only for an edit it would
+  otherwise refuse, so every capture that saved before keeps its bytes. The
+  bridge, commands, parser classification, error codes and messages, the
+  metadata schema, native, IPC and Rust are unchanged.
+- Checks: red 32 fail / 21 pass, then 53/53. An old-against-new differential
+  over 31,440 captures: **0** saved captures changed, **0** new refusals,
+  **5,698** refused drafts now save. Tracked frontend **1195/1195**, aggregate
+  2058/2058 with archives, helper **16/16**, Rust **273/273**, browser and
+  fresh release pass; binary `89f90603…`. Native `empty-heading` with the new
+  phase **2/2 content and strict** on tmpfs and Btrfs; `pdf-export`,
+  `script-check`, `publication-exit`, `title-page`, `typed-export` **5/5** on
+  Btrfs only (regression of unchanged paths; no Tier 3 trigger).
+- Limits: the recovered reopen of this intent is contract-level only (the
+  mode's one owned kill stays in phase A). An unchanged emptied row keeps its
+  two spaces, so one live draft can save `two spaces, blank` after a recovery
+  and `blank, blank` in one session; both recover alike. A draft with another
+  unwritable row now names that row.
+- Pinned, not fixed: an emptied row above a protected unclosed parenthesis
+  stays refused with no row named (F4-03 shape). Base behaviour seen in
+  passing: an empty Shot row recovers as Action.
 
 ## Waiting on the owner
 
@@ -59,6 +60,9 @@ Each decision is set out in the [brief](tasks/AUDIT-PARK-H-F4.md#decisions).
 
 ## Prior queue complete
 
+- **AUDIT-PARK-H-F4-01**: [brief](tasks/AUDIT-PARK-H-F4.md),
+  [evidence](test-evidence/AUDIT.md#audit-park-h-f4-01--commands-refuse-instead-of-creating-a-refused-draft).
+  Commands refuse with a reason instead of creating a refused draft.
 - **AUDIT-PARK-H-F3**: [brief](tasks/AUDIT-PARK-H-F3.md),
   [evidence](test-evidence/AUDIT.md#audit-park-h-f3--actionable-capture-refusal-wording).
   The refusal alert names the row and how to resume; native `empty-heading`
@@ -77,9 +81,7 @@ Each decision is set out in the [brief](tasks/AUDIT-PARK-H-F4.md#decisions).
 
 ## Open — agent work and separate decisions
 
-- **AUDIT-PARK-H-F4-02** (ready): spell a Dialogue or Parenthetical row
-  emptied while its speech continues as Fountain's two-space dialogue line.
-  It changes saved bytes, so it needs the capture-sensitive native modes.
+- **AUDIT-PARK-H-F4-03/04/05**: blocked on the decisions above; group F unscheduled.
 - D-07-F, PARK-T, capitals, D-05 cheap variant and D-09 page count remain
   separately scoped. Record a contract-safe decision/brief before fixing;
   pinned reproductions and requirement contradictions remain authoritative.
@@ -87,8 +89,8 @@ Each decision is set out in the [brief](tasks/AUDIT-PARK-H-F4.md#decisions).
 - Replace-All load flake remains unreproduced here. `pnpm test` includes 61
   archived copies; tracked count uses `pnpm exec vitest run --exclude 'target/**'`.
   Keep new tests outside target archives.
-- `/tmp` has 19,071 of 1,048,576 inodes free, held by retained native
-  artifacts from earlier sessions. Nothing was removed; pruning is the owner's
+- `/tmp` has 18,730 of 1,048,576 inodes free, held by retained native
+  artifacts from earlier sessions and this one's tmpfs run. Nothing was removed; pruning is the owner's
   call (M6-03 copy/prune policy). Every Vitest run also leaves a cache
   directory there (21 random characters, one `client` folder); set `TMPDIR`
   to a task folder under `target/` for Vitest runs, and point
@@ -112,6 +114,7 @@ must preserve helper-resource layout from the
 
 ## Next action
 
-Owner: answer F4-03, F4-04 and F4-05 in the brief. Next agent: AUDIT-PARK-H-F4-02,
-or the decided sub-task. No push. No Local v1/C1/F2/full-platform closure;
-DEV-02 remains owner-only.
+Owner: answer F4-03, F4-04 and F4-05 in the brief, and review the local F4-02
+commit before any push. Next agent: the decided sub-task; no F4 agent work is
+ready without a decision. No Local v1/C1/F2/full-platform closure; DEV-02
+remains owner-only.

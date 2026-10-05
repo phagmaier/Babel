@@ -3063,9 +3063,14 @@ async function parkedDraft(original: string) {
     new TextDecoder().decode(Uint8Array.from(source));
   const saved: string[] = [];
   const journaled: string[] = [];
+  const journaledDrafts = new Map<string, unknown>();
   const checkpoint = ports.documents.checkpoint;
   ports.documents.checkpoint = async (request) => {
     journaled.push(text(request.source));
+    journaledDrafts.set(
+      text(request.source),
+      (request.draftMetadata as { drafts?: unknown } | null)?.drafts,
+    );
     return checkpoint(request);
   };
   ports.documents.save = async (request) => {
@@ -3084,6 +3089,8 @@ async function parkedDraft(original: string) {
     calls,
     saved,
     journaled,
+    /** Sparse draft intent of the latest checkpoint for exact source text. */
+    journaledDrafts,
     copy,
     view,
     endOf,
@@ -3268,6 +3275,49 @@ it('AUDIT-PARK-H-F3 a refused row is named with how to resume; saving stays paus
   expect(journaled).toContain(resumed);
   await waitFor(() => expect(f.status()).toBe('Saved locally'));
   await waitFor(() => expect(alerts()).toEqual([]));
+  f.close();
+  await waitFor(() => expect(f.calls.released).toBe(1));
+  expect(screen.queryByText(/Close stopped/)).toBeNull();
+  expect(f.copy).not.toHaveBeenCalled();
+}, 20000);
+
+it('AUDIT-PARK-H-F4-02 a Dialogue row emptied above the rest of its speech keeps the draft saved and journaled; close succeeds', async () => {
+  const f = await parkedDraft('@BOB\nOne.\nTwo.\n\n!Alpha.\n');
+  const { view, saved, journaled } = f;
+  const protection = within(screen.getByLabelText('Protection status'));
+  const alerts = () =>
+    protection.queryAllByRole('alert').map((alert) => alert.textContent);
+
+  // The emptied row is Fountain's two-space dialogue line, so the speech
+  // below it stays speech; its element and emptiness are recovery intent.
+  view.dispatch(view.state.tr.delete(f.endOf(1) - 4, f.endOf(1)));
+  const live = ['character:BOB', 'dialogue:', 'dialogue:Two.', 'action:'];
+  expect(f.rows()).toEqual([...live, 'action:Alpha.']);
+  const empty = '@BOB\n  \nTwo.\n\n!Alpha.\n';
+  await waitFor(() => expect(saved.at(-1)).toBe(empty), { timeout: 4000 });
+  await waitFor(() => expect(journaled).toContain(empty), { timeout: 4000 });
+  const intent = [{ index: 1, intendedKind: 'dialogue' }];
+  expect(f.journaledDrafts.get(empty)).toEqual(intent);
+
+  // Text typed in another row while that row stays empty is real author
+  // work: it reaches the source and recovery, with no paused alert.
+  view.dispatch(view.state.tr.insertText(' Beta.', f.endOf(4)));
+  const expected = '@BOB\n  \nTwo.\n\n!Alpha. Beta.\n';
+  await waitFor(() => expect(saved.at(-1)).toBe(expected), { timeout: 4000 });
+  await waitFor(() => expect(journaled).toContain(expected), { timeout: 4000 });
+  expect(f.journaledDrafts.get(expected)).toEqual(intent);
+  await waitFor(() => expect(f.status()).toBe('Saved locally'));
+  expect(alerts()).toEqual([]);
+  expect(f.rows()).toEqual([...live, 'action:Alpha. Beta.']);
+
+  // Text typed into the row replaces the two spaces and drops the intent.
+  view.dispatch(view.state.tr.insertText('Hi.', f.endOf(1)));
+  const spoken = '@BOB\nHi.\nTwo.\n\n!Alpha. Beta.\n';
+  await waitFor(() => expect(saved.at(-1)).toBe(spoken), { timeout: 4000 });
+  await waitFor(() => expect(journaled).toContain(spoken), { timeout: 4000 });
+  expect(f.journaledDrafts.get(spoken)).toEqual([]);
+  await waitFor(() => expect(f.status()).toBe('Saved locally'));
+  expect(alerts()).toEqual([]);
   f.close();
   await waitFor(() => expect(f.calls.released).toBe(1));
   expect(screen.queryByText(/Close stopped/)).toBeNull();

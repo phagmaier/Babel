@@ -929,6 +929,13 @@ rows, on a disposable screenplay:
   author wording; text typed elsewhere meanwhile is absent from the file and
   journal. Changing the named row back saves and journals everything, and
   ordinary close needs no bundle.
+- F (AUDIT-PARK-H-F4-02): a Dialogue row emptied above the rest of its speech
+  saves as the two-space dialogue line and journals with sparse Dialogue
+  intent on that line; text typed elsewhere meanwhile reaches both. Typing
+  into the row, Undo and Redo save and journal the current bytes and intent.
+  The saved bytes alone reopen as an ordinary two-space Dialogue row. The
+  recovered reopen of this intent is contract-level only: the mode's single
+  owned kill stays in phase A.
 
 The mode kills its own app once (`intentionalKillScenario`); the owned-process
 crash audit stays strict. Historical PARK-H failures and old A-C behavior remain

@@ -75,10 +75,23 @@ label and quoted excerpt, or "an empty … row"), says to change that row or
 Undo, and points to Close session's emergency copy. The row is named only when
 the codec identifies the one submitted edit it cannot write; a refusal about a
 whole context names none. The named row is the one Fountain cannot hold, which
-can be a neighbour the edit stranded (the Dialogue under an emptied first
-line, a dual cue beside a typed blank) rather than the row
-last typed in. Wording only: the drafts listed in the brief stay refused, and
-failures that are not codec refusals keep their own text.
+can be a neighbour the edit stranded (a dual cue beside a typed blank) rather
+than the row last typed in. Wording only: the drafts listed in the brief stay
+refused, and failures that are not codec refusals keep their own text.
+
+Emptied speech rows ([AUDIT-PARK-H-F4-02](tasks/AUDIT-PARK-H-F4.md)): a
+Dialogue or Parenthetical row emptied while nonempty rows of its speech follow
+no longer pauses saving. Deferred capture writes it as Fountain's two-space
+dialogue line, as Shift+Enter does for an empty break row, so the rows below
+stay in the speech. The live row stays empty and keeps its element; both are
+recovery-only intent, restored by exact recovery, and the caret in the row
+maps to the end of its two spaces. Opened from the file alone, the row is a
+Dialogue holding two spaces. Typing into the row writes ordinary text.
+Captures that saved before keep their bytes: an emptied last row of a speech
+is still a blank line. Where another row of the draft has no spelling, that
+row is now the one named instead of the Dialogue below the emptied row. Still
+refused: an emptied row above a protected row, and the drafts in the brief's
+groups C to F.
 
 Command refusals ([AUDIT-PARK-H-F4-01](tasks/AUDIT-PARK-H-F4.md)): a formatting
 or conversion command refuses, with a reason and no change, when it would
