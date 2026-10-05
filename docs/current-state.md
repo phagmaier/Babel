@@ -96,12 +96,12 @@ remain open. DEV-02 is owner-only. No retained artifacts pruned.
 
 ## Next action
 
-**AUDIT-EXPORT-WARNINGS** — [brief](tasks/AUDIT-EXPORT-WARNINGS.md), proposed.
-Settle its design section, then name the tier, focused commands and native
-drills in the brief before coding. It compares the helper's warnings with the
-assessment at export, so an omission the assessment does not predict cannot
-export silently. Before any native run check `df -i /tmp` and set
-`BABEL_NATIVE_IME_TEMP_ROOT`. Proposed after it: AUDIT-SWEEP-COVERAGE in the
-[tracker](tasks/AUDIT-TRACKER.md).
+**AUDIT-EXPORT-WARNINGS** — [brief](tasks/AUDIT-EXPORT-WARNINGS.md), **claimed
+and in progress 2026-10-05**, base `675685b`. Design, tier, focused commands
+and native drills are settled in the brief; no code has changed yet. It compares
+the helper's warnings with the assessment at export, so an omission the
+assessment does not predict cannot export silently. Before any native run check
+`df -i /tmp` and set `BABEL_NATIVE_IME_TEMP_ROOT`. Proposed after it:
+AUDIT-SWEEP-COVERAGE in the [tracker](tasks/AUDIT-TRACKER.md).
 No M6/F4 continuation, group F, DEV-02 or release admission is selected.
 Each further push needs explicit owner authorization.
