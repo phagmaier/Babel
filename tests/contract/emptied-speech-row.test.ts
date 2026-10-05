@@ -608,7 +608,7 @@ describe('AUDIT-PARK-H-F4-02 the editor saves a draft with an emptied speech row
 });
 
 describe('AUDIT-PARK-H-F4-02 shapes left refused', () => {
-  it('a protected row below, an emptied numbered heading and an emptied last line are unchanged', () => {
+  it('a protected row below and an emptied numbered heading stay refused; an emptied last line now saves', () => {
     // F4-03 shape: the parser protects an imported unclosed parenthesis, so
     // the emptied row cannot own it.
     const guarded = emptied(open('@BOB\nOne.\n(beat\n'), 1);
@@ -625,13 +625,8 @@ describe('AUDIT-PARK-H-F4-02 shapes left refused', () => {
       kind: 'sceneHeading',
       text: '',
     });
-    const last = refusal(() =>
-      captureEditor(emptied(open('@BOB\nOne.\nTwo.'), 2)),
-    );
-    expect(last.message).toBe(
-      'Edit cannot retain every intended source line (empty EOF needs a line ending)',
-    );
-    expect(refusedRow(last)).toBeUndefined();
+    // AUDIT-PARK-H-F4-05 retains the last physical row with one line ending.
+    expect(saved(emptied(open('@BOB\nOne.\nTwo.'), 2))).toBe('@BOB\nOne.\n\n');
   });
 
   it('another refused row in the same draft is the one named', () => {

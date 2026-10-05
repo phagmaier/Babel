@@ -204,8 +204,20 @@ describe('AUDIT-PARK-H-F2 empty heading source and recovery intent', () => {
     ).toBeUndefined();
   });
 
-  it('empty unterminated EOF and a retained production number remain refused', () => {
-    for (const original of ['.HALL', '.HALL #12#\n']) {
+  it('AUDIT-PARK-H-F4-05 retains empty unterminated EOF; a production number stays refused', () => {
+    const unnumbered = parseFountain(bytes('.HALL'));
+    const blank = replaceLine(unnumbered, 0, {
+      kind: 'sceneHeading',
+      text: '',
+    });
+    expect([...blank.bytes]).toEqual([...bytes('\n')]);
+    expect(blank.lines[0]).toMatchObject({
+      id: unnumbered.lines[0]!.id,
+      kind: 'blank',
+      intendedKind: 'sceneHeading',
+    });
+    expect([...unnumbered.bytes]).toEqual([...bytes('.HALL')]);
+    for (const original of ['.HALL #12#', '.HALL #12#\n']) {
       const before = parseFountain(bytes(original));
       expect(() =>
         replaceLine(before, 0, { kind: 'sceneHeading', text: '' }),

@@ -91,7 +91,17 @@ Captures that saved before keep their bytes: an emptied last row of a speech
 is still a blank line. Where another row of the draft has no spelling, that
 row is now the one named instead of the Dialogue below the emptied row. Still
 refused: an emptied row above a protected row, and the drafts in the brief's
-groups D to F.
+group F and other pinned refusals.
+
+Emptied last rows ([AUDIT-PARK-H-F4-05](tasks/AUDIT-PARK-H-F4.md), owner
+decision 2026-10-04): an unterminated last physical row emptied by the author
+gains one ending in the existing local/file convention, falling back to LF
+only when the file has no ending. It stays a physical blank with its element
+as existing recovery-only intent; saving, journaling and other edits continue.
+Exact recovery restores the element and caret; source-only reopen keeps the
+blank. Undo restores the original unterminated bytes. An emptied numbered
+heading stays refused and named: the scene number is authored text and
+cannot live only in recovery. Already successful captures keep their bytes.
 
 Speech that opens with a parenthesis
 ([AUDIT-PARK-H-F4-03](tasks/AUDIT-PARK-H-F4.md), owner decision 2026-10-04):

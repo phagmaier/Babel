@@ -951,6 +951,12 @@ rows, on a disposable screenplay:
   reopen as an editable Action row that takes an edit and saves it. The
   recovered reopen of this intent is contract-level only, as in F.
 
+- I (AUDIT-PARK-H-F4-05): a Scene Heading (BOM/CRLF), Dialogue (LF) and
+  Parenthetical (CRLF) emptied at unterminated EOF each retain one physical
+  blank with the file's ending and sparse intent. Text typed elsewhere saves
+  and journals; source-only reopen retains the blank and ordinary close
+  succeeds. Recovered reopen of these intents is contract-level only, as in F.
+
 The mode kills its own app once (`intentionalKillScenario`); the owned-process
 crash audit stays strict. Historical PARK-H failures and old A-C behavior remain
 in evidence and commit `fc43779`; F2 deliberately changes their acceptance.

@@ -589,12 +589,14 @@ describe('draft recovery, malformed input and snapshot isolation', () => {
     ).toContain('(drafting onward\n');
   });
 
-  it('refuses deleting an empty intended EOF line without an ending, leaving an exact copy route', () => {
+  it('AUDIT-PARK-H-F4-05 retains an emptied EOF Dialogue with one ending and the original copy', () => {
     const before = parse('\n@Zoë\nSignal.');
-    expectFailure(
-      () => replaceLine(before, 2, { kind: 'dialogue', text: '' }),
-      'round-trip',
-    );
+    const after = replaceLine(before, 2, { kind: 'dialogue', text: '' });
+    expect(source(after)).toBe('\n@Zoë\n\n');
+    expect(after.lines[2]).toMatchObject({
+      kind: 'blank',
+      intendedKind: 'dialogue',
+    });
     expect(source(before)).toBe('\n@Zoë\nSignal.');
   });
 

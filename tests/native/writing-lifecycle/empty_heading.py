@@ -3,6 +3,7 @@ AUDIT-PARK-H-F3 adds the alert that names a row Fountain cannot hold.
 AUDIT-PARK-H-F4-02 adds a Dialogue row emptied above the rest of its speech.
 AUDIT-PARK-H-F4-03 adds speech rows that open with a parenthesis.
 AUDIT-PARK-H-F4-04 adds a Dialogue row starting with `!`, saved as typed.
+AUDIT-PARK-H-F4-05 keeps an emptied unterminated last row with one ending.
 
 Empty headings save as physical blanks with source-bound recovery intent.
 Trusted keys verify unrelated edits, exact journal metadata, owned SIGKILL,
@@ -490,4 +491,50 @@ def run(d):
     report['otherSyntaxFallback']['sourceOnlyReopen'] = {'rows': 'editable Action row', 'saved': edited.decode()}
     assert len(list((d.ROOT / 'copies').glob('*.draft.json'))) == 0, 'Other-syntax fallback row required an emergency bundle'
     print('PASS native other-syntax fallback: `!` Dialogue saved and journaled with sparse intent; later text saves exact bytes; source-only reopen is an editable Action', flush=True)
+    # I. AUDIT-PARK-H-F4-05: emptying an unterminated last row retains its
+    # physical line with the file's ending. Check the three formerly refused
+    # elements independently, including BOM/CRLF, through trusted input.
+    report['emptyEofRows'] = []
+    for kind, label, ending, bom, body in [
+        ('sceneHeading', 'HALL', b'\r\n', b'\xef\xbb\xbf', b'.HALL'),
+        ('dialogue', 'Hello.', b'\n', b'', b'@BOB\nHello.'),
+        ('parenthetical', '(beat)', b'\r\n', b'', b'@BOB\r\n(beat)'),
+    ]:
+        prefix = bom + b'!A lamp glows.' + ending + ending
+        original = prefix + body
+        target = d.ROOT / 'files' / ('empty-eof-' + kind + '.fountain')
+        target.write_bytes(original)
+        open_file('A lamp glows.' + ('' if kind == 'sceneHeading' else 'BOB') + label)
+        row = 2 if kind == 'sceneHeading' else 3
+        assert target.read_bytes() == original
+        click_row(kind, label)
+        d.type_text(END + BACKSPACE * len(label))
+        d.wait(lambda: rows()[row] == kind + ':', 'Unterminated EOF ' + kind + ' emptied')
+        blank = prefix + (b'' if kind == 'sceneHeading' else b'@BOB' + ending) + ending
+        d.audit(target, blank)
+        intent = [{'index': row, 'intendedKind': kind}]
+        blank_record = d.wait(lambda: checkpoint(blank, intent), 'EOF blank and intent journaled', timeout=30)
+        d.wait(lambda: 'Saved locally' in d.body(), 'EOF blank exact save acknowledged')
+        assert not alerts(), alerts()
+        click_row('action', 'A lamp glows.')
+        d.type_text(HOME + 'Rain. ')
+        later = blank.replace(b'!A lamp', b'!Rain. A lamp')
+        d.audit(target, later)
+        d.wait(lambda: checkpoint(later, intent, blank_record), 'Other text beside empty EOF journaled', timeout=30)
+        d.wait(lambda: 'Saved locally' in d.body(), 'Other text beside empty EOF saved')
+        assert not alerts(), alerts()
+        entry = {'kind': kind, 'saved': later.decode('utf-8-sig'), 'intent': intent,
+                 'sourceSaved': True, 'journaled': True, 'alerts': alerts()}
+        d.screenshot('empty-eof-' + kind)
+        d.close_session()
+        target = d.ROOT / 'files' / ('reopened-empty-eof-' + kind + '.fountain')
+        target.write_bytes(later)
+        open_file('Rain. A lamp glows.' + ('' if kind == 'sceneHeading' else 'BOB'))
+        assert rows()[row] == 'action:', rows()
+        assert target.read_bytes() == later
+        d.close_session()
+        entry['sourceOnlyReopen'] = 'physical blank, ordinary close'
+        report['emptyEofRows'].append(entry)
+    assert len(list((d.ROOT / 'copies').glob('*.draft.json'))) == 0, 'Empty EOF required an emergency bundle'
+    print('PASS native empty EOF: Heading, Dialogue and Parenthetical keep one file-convention ending and sparse intent; other text saves/journals; source-only blank reopen and ordinary close', flush=True)
     (d.ROOT / 'empty-heading.json').write_text(json.dumps(report, indent=2) + '\n')

@@ -46,7 +46,7 @@ The [corpus/oracle guide](../fixtures/expected/README.md) and [harness](../proto
 
 The document, line arrays/fields, diagnostics and recovery inventory are frozen. Bytes are private; both the `bytes` accessor and `serializeFountain(document)` return owned copies. A no-op returns exact bytes; serialization accepts only codec-owned documents. There is no mutable raw peer, network/filesystem work, native persistence ABI change, dependency addition or whole-source cleanup.
 
-`replaceLine` and `replaceLines(document, from, count, edits)` form atomic transactions over declared physical-line context, including bounded insertion/deletion. Draft text cannot contain CR/LF or unpaired UTF-16 surrogates; each replacement owns one physical line. Existing per-line endings are retained; extra lines inherit the edited context's ending, falling back to a nearby/file ending and then LF. A replaced EOF retains its final-ending convention. Appending after an unterminated line must own that line explicitly. New sources default to BOM-free UTF-8/LF.
+`replaceLine` and `replaceLines(document, from, count, edits)` form atomic transactions over declared physical-line context, including bounded insertion/deletion. Draft text cannot contain CR/LF or unpaired UTF-16 surrogates; each replacement owns one physical line. Existing per-line endings are retained; extra lines inherit the edited context's ending, falling back to a nearby/file ending and then LF. A replaced EOF retains its final-ending convention, except that an emptied physical row receives one local/file ending so it still exists. Appending after an unterminated line must own that line explicitly. New sources default to BOM-free UTF-8/LF.
 
 Generated standard forcing markers preserve an explicit primary type; unchanged line content/fields retain original spelling and indentation even in a wider transaction. Scene numbers/section levels can be changed explicitly; `sceneNumber: null` removes a number. Omitted fields retain compatible prior fields. `actionSubtype: null` clears Shot without rewriting source. Reparse must reproduce requested content, type and fields. Every undeclared neighbor retains its full interpreted content/fields, editable status, draft intent, Shot subtype and speech/dual target ID. Drift refuses the entire edit with a typed `FountainEditError`, leaving the prior snapshot and its exact copy route intact. A caller must explicitly include affected cue/speech context rather than silently retype it.
 
@@ -54,15 +54,14 @@ IDs survive ordinary replacements and untouched range shifts. Additional lines g
 
 Recovery inventory schema 1 includes BOM, an allocation high-water mark and every line's ID, offsets, literal text/ending, optional Shot subtype and incomplete intent. It applies only to an exact matching source inventory with unique valid IDs and compatible intent. Invalid/stale metadata yields `recovery-mismatch` and is ignored without changing source. The inventory is derived immutable draft metadata for the later editor/persistence bridge; it is not a second live manuscript or a new native file format. M3-04/08/10 implement selection/composition anchoring and capture bounds; M3-13 verifies their bounded default-app integration.
 
-Empty character text is authored as `@`, diagnosed as an incomplete cue. An empty dialogue/parenthetical intention can annotate an existing empty source row without changing its bytes; another Fountain reader sees the portable blank. Newly authored incomplete `(` parenthetical/speech text remains exact source with recovery intent and an external-ambiguity diagnostic, can continue typing, and can complete into ordinary grammar. Matching recovery restores that ability. An imported parenthesis that never closes remains protected without matching intent; conversion is not implicitly accepted (a line that closes it is ordinary text, see AUDIT-PARK-H-F4-03 below). A draft that would reinterpret later speech must explicitly own that speech. An empty replacement at unterminated EOF that would erase its physical row is refused with an exact-copy route; virtual editor placeholders remain the later bridge's responsibility.
+Empty character text is authored as `@`, diagnosed as an incomplete cue. An empty dialogue/parenthetical intention can annotate an existing empty source row without changing its bytes; another Fountain reader sees the portable blank. Newly authored incomplete `(` parenthetical/speech text remains exact source with recovery intent and an external-ambiguity diagnostic, can continue typing, and can complete into ordinary grammar. Matching recovery restores that ability. An imported parenthesis that never closes remains protected without matching intent; conversion is not implicitly accepted (a line that closes it is ordinary text, see AUDIT-PARK-H-F4-03 below). A draft that would reinterpret later speech must explicitly own that speech. An empty replacement at unterminated EOF receives one local/file ending so its physical row survives ([AUDIT-PARK-H-F4-05](tasks/AUDIT-PARK-H-F4.md)); virtual editor placeholders remain the bridge's responsibility.
 
 [AUDIT-PARK-H-F2](tasks/AUDIT-PARK-H-F2.md) adds empty Scene Heading intent
 on an actually empty physical blank, without emitting a bare `.`. Capture
 and checkpoint retain the type through exact-source sparse metadata; explicit
 recovery restores it. Source-only reopen shows the portable blank. Completion
 drops the intent and uses ordinary heading syntax. Nonempty/protected source,
-whitespace content, retained scene numbers and row-erasing EOF edits do not
-gain this compatibility. A zero-byte virtual placeholder retains its existing
+whitespace content and retained scene numbers do not gain this compatibility. A zero-byte virtual placeholder retains its existing
 behavior; its picker choice has no physical recovery row.
 
 [AUDIT-PARK-H-F4-02](tasks/AUDIT-PARK-H-F4.md) keeps a speech together when a
@@ -80,9 +79,9 @@ two-space Dialogue. No other intent fits that line, and two spaces outside a
 speech are a blank. A one-row edit still reports `neighbor-drift` for the
 speech it would reinterpret; the caller owns that speech first. Text typed
 into the row replaces the two spaces and drops the intent. An unchanged
-emptied row keeps its two spaces when a wider edit owns it. Not covered: a
-protected row below the emptied one, and a row emptied on a last line with
-no line ending.
+emptied row keeps its two spaces when a wider edit owns it. A protected row
+below the emptied one stays refused; F4-05 now retains a row emptied at
+unterminated EOF with one local/file ending.
 
 [AUDIT-PARK-H-F4-03](tasks/AUDIT-PARK-H-F4.md) (owner decision 2026-10-04)
 covers speech text that opens with a parenthesis. Reading: a speech or

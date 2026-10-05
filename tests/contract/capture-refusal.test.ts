@@ -118,16 +118,8 @@ describe('AUDIT-PARK-H-F3 the codec names the edit it cannot write', () => {
   });
 
   it('a refusal about the whole context or an unowned neighbour names no edit', () => {
-    const eof = refusal(() =>
-      replaceLine(parseFountain(bytes('.HALL')), 0, {
-        kind: 'sceneHeading',
-        text: '',
-      }),
-    );
-    expect([eof.code, eof.edit]).toEqual(['round-trip', undefined]);
-    expect(eof.message).toBe(
-      'Edit cannot retain every intended source line (empty EOF needs a line ending)',
-    );
+    // AUDIT-PARK-H-F4-05 now retains an emptied EOF row. The existing
+    // unowned-neighbour shape below still has no single refused edit.
     const drift = refusal(() =>
       replaceLine(parseFountain(bytes('@BOB\nOne.\nTwo.\n')), 1, {
         kind: 'action',
@@ -219,10 +211,10 @@ describe('AUDIT-PARK-H-F3 the bridge records the live row', () => {
   });
 
   it('records no row when the codec names no single edit', () => {
-    const state = emptied(open('!Alpha.\n\n.HALL'), 2);
+    const state = emptied(open('@BOB\nOne.\n(beat'), 1);
     const error = refusal(() => captureEditor(state));
     expect(error.message).toBe(
-      'Edit cannot retain every intended source line (empty EOF needs a line ending)',
+      'Edit would change neighboring Fountain interpretation; include affected lines explicitly',
     );
     expect(refusedRow(error)).toBeUndefined();
     expect(refusedRow(new Error('unrelated'))).toBeUndefined();
@@ -288,7 +280,7 @@ describe('AUDIT-PARK-H-F3 author wording', () => {
     const generic =
       'Saving and recovery are paused. Part of this draft cannot be saved as Fountain as it stands. Undo the latest changes to resume.' +
       copy;
-    expect(message(emptied(open('!Alpha.\n\n.HALL'), 2))).toBe(generic);
+    expect(message(emptied(open('@BOB\nOne.\n(beat'), 1))).toBe(generic);
     expect(
       writingFailureMessage(
         new FountainEditError(
@@ -300,7 +292,7 @@ describe('AUDIT-PARK-H-F3 author wording', () => {
     for (const state of [
       typed(caret(open('@BOB\n(beat)\nHi.\n'), 1, 0), 'x '),
       typed(caret(emptied(open('@BOB\nOne.\n(beat)\nTwo.\n'), 1), 2, 0), 'x '),
-      emptied(open('!Alpha.\n\n.HALL'), 2),
+      emptied(open('@BOB\nOne.\n(beat'), 1),
     ])
       expect(message(state)).not.toMatch(
         /round-trip|unambiguous|must begin|source remains|intended source line/,

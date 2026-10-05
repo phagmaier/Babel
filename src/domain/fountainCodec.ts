@@ -1283,13 +1283,16 @@ function transactSource(
   const start = document.lines[from]?.sourceStart ?? bytes.length;
   const end = owned.at(-1)?.sourceEnd ?? start;
   // Preserve existing endings per line and EOF convention. New contexts inherit a local ending.
+  // AUDIT-PARK-H-F4-05: an empty unterminated EOF would erase its physical
+  // row on reparse. It needs one local/file ending, just like a new blank.
   const endings = sources.map((_, index) => {
     if (
       index === sources.length - 1 &&
       count > 0 &&
       from + count === document.lines.length
     )
-      return sources[index] === '' && sources.length > count
+      return sources[index] === '' &&
+        (sources.length > count || owned.at(-1)!.newline === '')
         ? defaultNewline
         : owned.at(-1)!.newline;
     return owned[index]?.newline || defaultNewline;

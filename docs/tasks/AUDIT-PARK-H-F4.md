@@ -6,8 +6,9 @@ Status: **decomposed 2026-10-04**; base `2456c2c`. **F4-01 done** at base
 The owner decided F4-03, F4-04 and F4-05 on 2026-10-04 (table below).
 **F4-03 done** at base `15d5da8`,
 [evidence](../test-evidence/AUDIT.md#audit-park-h-f4-03--speech-that-opens-with-a-parenthesis).
-F4-04 is decided with its deliverable section below. F4-05 is decided and
-ready; it still needs its deliverable section here before code.
+**F4-04 done** at `409d3f3`. **F4-05 done** over that base,
+[evidence](../test-evidence/AUDIT.md#audit-park-h-f4-05--emptied-unterminated-last-rows);
+its deliverable section below was written before code. Group F is unscheduled.
 Dependencies: AUDIT-PARK-H, F1, F2 and F3 complete. The owner delegated task
 selection, wording and implementation decisions on 2026-10-04; that covers
 extending a mechanism the contract already documents, not a new saved-format
@@ -143,6 +144,36 @@ moved to group F.
    drafts.
 5. Left refused and pinned: everything in rule 3, and groups E (F4-05) to F.
 
+## F4-05 deliverable and acceptance
+
+1. When emptying the last physical row of an unterminated file would erase
+   that row, write one line ending using the codec's existing local/file
+   convention (LF only when no ending exists). Keep the physical row and
+   its existing recovery-only element intent. No other source byte or
+   parser classification changes; already capturable edits keep their
+   exact bytes, including their EOF convention.
+2. An emptied numbered heading stays refused, with the number retained in
+   the original source and the row named by the existing alert. The number
+   is authored text (S05.5); recovery cannot substitute for it. Protected
+   source, malformed input, neighbor drift and group F keep their guards.
+3. Red tests before the fix in a new contract suite: LF/CRLF/CR and mixed
+   endings, BOM and a one-line file, exact/sparse recovery, source-only
+   reopen, selection mapping, Undo/Redo, typing on after recovery, repeated
+   capture and unrelated edits; numbered-heading failure tests. Update the
+   three F3 refusal examples only where they use this now-supported shape.
+4. A mounted save/checkpoint/ordinary-close test, native `empty-heading`
+   phase I for an unterminated last row, and an old-against-new differential
+   that reports every newly accepted shape and checks old successful bytes
+   and line facts. No adjacent group F work.
+
+## Do NOT do (F4-05)
+
+Change parser classification, recovery schema, error codes/messages or a
+command's rule; remove a scene number or store it only in recovery; change
+bytes of a previously successful capture; run capture on the typing path;
+implement group F; change native product code; rewrite fixtures or frozen
+root AUDIT.md; push.
+
 ## Do NOT do (F4-01)
 
 Change the codec's accepted or refused set, parser classification, error
@@ -218,6 +249,23 @@ paths. Skipped: the tmpfs/Btrfs workspace matrix, because no native, IPC
 or filesystem path changes; a native owned-kill recovery of the new
 intents, because the mode's single owned kill stays in phase A (recovered
 reopen is contract level only).
+
+F4-05, Tier 2 frontend plus named native modes (codec line-ending change).
+Focused: `pnpm exec vitest run --exclude 'target/**'
+tests/contract/empty-eof-row.test.ts tests/contract/capture-refusal.test.ts
+tests/contract/emptied-speech-row.test.ts
+tests/contract/other-syntax-fallback.test.ts
+tests/contract/speech-parenthesis.test.ts tests/ui/WritingView.test.tsx -t
+AUDIT-PARK-H` (also the two updated EOF cases in
+`tests/contract/empty-heading-intent.test.ts` and
+`tests/contract/production-fountain.test.ts`). Shared gates as F4-01.
+Native through `integrated_exit.py`:
+`empty-heading` (new phase I) on tmpfs and Btrfs; `pdf-export script-check
+publication-exit title-page typed-export` on Btrfs only. Skip the
+tmpfs/Btrfs workspace matrix: no native, IPC or filesystem path changes.
+The phase A owned kill stays there; recovery of phase I intent is contract
+level only. Use a task-local TMPDIR for Vitest and Btrfs IME temp root;
+retain failures and do not prune artifacts.
 
 Update editor-behavior, TODO/current-state and append-only audit evidence.
 One task-ID commit per sub-task on main; finish `git diff --check` and stop.

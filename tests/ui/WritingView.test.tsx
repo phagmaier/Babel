@@ -3384,6 +3384,29 @@ it('AUDIT-PARK-H-F4-02 a Dialogue row emptied above the rest of its speech keeps
   expect(f.copy).not.toHaveBeenCalled();
 }, 20000);
 
+it('AUDIT-PARK-H-F4-05 an emptied unterminated EOF keeps the draft saved and journaled; close succeeds', async () => {
+  const f = await parkedDraft('!Alpha.\r\n\r\n.HALL');
+  const protection = within(screen.getByLabelText('Protection status'));
+  f.view.dispatch(f.view.state.tr.delete(f.endOf(2) - 4, f.endOf(2)));
+  expect(f.rows()[2]).toBe('sceneHeading:');
+  const blank = '!Alpha.\r\n\r\n\r\n';
+  await waitFor(() => expect(f.saved.at(-1)).toBe(blank), { timeout: 4000 });
+  await waitFor(() => expect(f.journaled).toContain(blank), { timeout: 4000 });
+  const intent = [{ index: 2, intendedKind: 'sceneHeading' }];
+  expect(f.journaledDrafts.get(blank)).toEqual(intent);
+  f.view.dispatch(f.view.state.tr.insertText(' Beta.', f.endOf(0)));
+  const later = '!Alpha. Beta.\r\n\r\n\r\n';
+  await waitFor(() => expect(f.saved.at(-1)).toBe(later), { timeout: 4000 });
+  await waitFor(() => expect(f.journaled).toContain(later), { timeout: 4000 });
+  expect(f.journaledDrafts.get(later)).toEqual(intent);
+  await waitFor(() => expect(f.status()).toBe('Saved locally'));
+  expect(protection.queryAllByRole('alert')).toEqual([]);
+  f.close();
+  await waitFor(() => expect(f.calls.released).toBe(1));
+  expect(screen.queryByText(/Close stopped/)).toBeNull();
+  expect(f.copy).not.toHaveBeenCalled();
+}, 20000);
+
 it('AUDIT-PARK-H-F4-04 typed text Fountain reads as action keeps the draft saved and journaled; close succeeds', async () => {
   const f = await parkedDraft('@BOB\nHi.\n\n!Alpha.\n');
   const { view, saved, journaled } = f;
