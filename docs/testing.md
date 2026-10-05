@@ -60,6 +60,20 @@ from unit/UI discovery and runs in CI. A missing baseline/helper is a failure.
   no archived test suite is discovered. Advance it only in a reviewed task
   that names changed outcomes and independent literal/semantic evidence.
   Never regenerate expectations or move a baseline merely to clear a failure.
+- [Supplemental gates](../tests/differential/mixed-renderer.test.ts) feed both
+  pinned oracles the same second 70,000 sources from
+  [Mulberry32 seed `0x5eed04`](../tests/differential/generated-corpus.ts),
+  alongside the unchanged frozen runs above. Coverage guards require all 60
+  tokens, whitespace/row-count choices, token pairs and token/position/opening
+  combinations; an independent replay pins the corpus bytes. This wider set
+  exposes existing refusals and reading/warning gaps. Their
+  [reviewed inventory](../tests/differential/mixed-findings.json) pins exact
+  ordered source/outcome sets by count and hash, with literal R4 corrections;
+  it retains failures, not publication acceptance. No new reading regression,
+  clean disagreement, unknown warning or warning refusal is allowed. Every
+  existing mismatch must retain the frozen facts. Fixes require independent
+  literal evidence and a scoped inventory update; do not regenerate for green.
+  [Brief](tasks/AUDIT-SWEEP-COVERAGE.md) records the limits and review.
 - Every editor/capture gate includes synthetic externally authored/unforced
   sources. Force-marked app-authored fixtures alone are insufficient.
   A new unexplained refusal or disagreement blocks the relevant change until
@@ -69,6 +83,9 @@ Optional retained reports: set `BABEL_DIFFERENTIAL_REPORT` to a fresh path
 prefix outside fixtures; the suite writes exclusive-create JSON summaries.
 The renderer report lists every candidate occurrence (`baselineRoleOccurrences`);
 the warning report lists every unannounced source.
+Supplemental `.mixed-renderer.json` and `.mixed-warnings.json` reports retain
+separate corpus identity/choice counts and every refusal, disagreement,
+admission change, candidate and unannounced source, including duplicates.
 Reproducers under `tests/investigation/` run by name only, outside `pnpm test`,
 this gate and CI; one may stay red while its tracked finding is open. The
 reading-candidates reproducer is green since AUDIT-D04-R4.

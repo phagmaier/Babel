@@ -1,49 +1,44 @@
 # Current state — next-agent handoff 2026-10-05
 
 Application: **babel**. Work/commit on `main`; `f2ba0c5` is published and CI
-passed. AUDIT-EXPORT-WARNINGS is complete in local commits that are **not
-pushed**. Product feature work is paused. **M6-02, C1/F2 and Local v1 admission
+passed. AUDIT-EXPORT-WARNINGS and AUDIT-SWEEP-COVERAGE are complete in local
+commits that are **not pushed**. Product feature work is paused. **M6-02, C1/F2 and Local v1 admission
 stay open.**
 
 ## This session
 
+**AUDIT-SWEEP-COVERAGE complete 2026-10-05, local only.**
+[Brief](tasks/AUDIT-SWEEP-COVERAGE.md),
+[evidence](test-evidence/AUDIT.md#audit-sweep-coverage--second-mixed-generated-corpus).
+
+- Added a second 70,000-source corpus (Mulberry32 `0x5eed04`) to both pinned
+  reading and warning oracles. All 60 tokens and 3,600 pairs occur; 60,837
+  distinct sources. The frozen generator, seed, baseline and assertions are
+  byte-identical. Paths: `tests/differential/generated-corpus.ts`,
+  `mixed-renderer.test.ts`, `mixed-findings.json`, contract coverage guards;
+  `docs/testing.md` describes the supplemental gates.
+- Coverage limits retained explicitly: 634 unpaired-dual preparation refusals,
+  398 note-only-title + six overlapping-marker reading disagreements already
+  present on frozen/current, and 333 unannounced warnings (330 title fields,
+  two notes, one boneyard). Exact source/outcome sets pinned, full reports
+  reproducible. No new reading/clean regression among accepted sources;
+  refused sources do not enter reading/assessment comparisons. No product fix.
+- Checks: recorded red 3/3, focused 228/228, differential 6/6, all four faults
+  rejected, helper 16/16, tooling 5/5, `pnpm check` 1425/1425. Native/browser,
+  Rust and filesystem gates skipped for test-only scope; no new PDF/native
+  fidelity claim. Marker gaps need a separate future brief; R5 is next.
+
 **AUDIT-EXPORT-WARNINGS complete 2026-10-05, local only.**
 [Brief](tasks/AUDIT-EXPORT-WARNINGS.md),
 [evidence](test-evidence/AUDIT.md#audit-export-warnings--renderer-warnings-compared-at-export).
-The owner delegated the design; choices and reasons are in the brief.
-
-- Change: after rendering and before publication, `src/application/exportPdf.ts`
-  compares the helper's `unsupported-publication:*` warnings with a new
-  `announced` set from `src/domain/exportAssessment.ts`. A warning the author
-  was not told about, an unknown code or an unreadable list stops the export:
-  artifact cancelled, capture retired, nothing written, category named. There
-  is no acceptance path. Assessment issues and counts are unchanged.
-- The first design would have refused legitimate exports: a scratch sweep of
-  206,282 sources stopped 7,888, most often a commented-out block containing a
-  note. The revised rules stop 709: real disagreements and tangled markers.
-- **Three real omissions found; export now stops for them, none is fixed**
-  (retained PDFs): an indented opening `Key: [[note]]` line, and a slightly
-  indented `Key: value` line under a title field, with or without a boneyard.
-  Proposed as AUDIT-D04-R5. The stop names a category, not a line.
-- New: `fixtures/assessment/export-warnings.json` (33 hand-written cases read by
-  both sides), `tools/differential/warning_oracle.py`, a warning gate in
-  `tests/differential/renderer.test.ts`, fault mode `announced`, two real-helper
-  steps in the native `pdf-export` drill.
-- Checks: red 37/230, focused 254/254, differential 4/4 with all four faults
-  failing, helper 16/16, tooling 5/5, `pnpm check` 1422/1422, browser smoke,
-  fresh build, native `pdf-export script-check publication-exit title-page` 8/8
-  with clean crash audits on tmpfs and Btrfs. Rust gates and the workspace
-  matrix skipped: no Rust, IPC or filesystem path changed.
-- Limits: categories only; tuned on generated and hand-written sources, not a
-  real manuscript; the stop is native-verified for one source and category.
-- **Gate coverage:** replaying the renderer gate's generator shows 15 of its 30
-  tokens never appear (`[[note]]` among them), every line starts with one space
-  and sources have 2, 4 or 6 lines. Recorded under AUDIT-SWEEP-COVERAGE; seed
-  and baseline untouched.
-- Environment: a reboot emptied `/tmp`, so inodes are free again. The crate
-  cache `/tmp/babel-cargo` and the drill helpers `/tmp/babel-m3-08-keyboard` and
-  `/tmp/wtype` were recreated and vanish on the next reboot. The four file-picker
-  aborts of AUDIT-D04-R4's first native attempt stay open in the register.
+Export stops on unknown/unreadable or unannounced helper warnings, names the
+category, cancels the artifact and retires the capture. No acceptance path.
+Three retained PDF omissions remain for R5: an indented note-only opening key,
+a slightly indented key beneath a title field, and the same beside a boneyard.
+The stop is natively verified for one source/category; categories do not prove
+extent. Prior check/native results and scratch sweeps remain in evidence.
+A reboot emptied `/tmp`; recreated Cargo/drill caches vanish on reboot.
+AUDIT-D04-R4's four first-attempt file-picker aborts remain open.
 
 **AUDIT-D04-R4 complete and published 2026-10-05** at `f2ba0c5`.
 [Brief](tasks/AUDIT-D04-R4.md),
@@ -107,13 +102,14 @@ remain open. DEV-02 is owner-only. No retained artifacts pruned.
 
 ## Next action
 
-**AUDIT-SWEEP-COVERAGE** — proposed in the [tracker](tasks/AUDIT-TRACKER.md),
-no brief yet. Write the brief first: a second, better-mixed generated corpus
-beside the frozen one, feeding both the reading gate and the warning gate; never
-change the existing seed, baseline or assertions. Then **AUDIT-D04-R5** (also
-proposed, no brief): report the three open findings as located limitations and
-flip their corpus cases. The owner may prefer R5 first; it is the smaller task.
+**AUDIT-D04-R5** — proposed in the [tracker](tasks/AUDIT-TRACKER.md), no brief
+yet. Write its bounded brief first: report the three existing omissions as
+located blocking limitations and flip their hand-authored corpus cases. Never
+widen `announced` to clear them. Account for supplemental title-source inventory
+changes with independent literal/PDF evidence; retained marker gaps need a
+separate future brief. AUDIT-SWEEP-COVERAGE is complete; this run stops at its
+local commit and does not start R5.
 Before any native run check `df -i /tmp`, set `BABEL_NATIVE_IME_TEMP_ROOT`, and
 recreate the `/tmp` helpers if the host has rebooted.
 No M6/F4 continuation, group F, DEV-02 or release admission is selected.
-Each push needs explicit owner authorization; this task's commits are unpushed.
+Each push needs explicit owner authorization; local task commits are unpushed.

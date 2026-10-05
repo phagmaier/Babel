@@ -1,0 +1,54 @@
+{
+  "corpusSha256": "d67a2b81fa7924ec2eb73248da69f450354ee6029b2fdb4aefa86b72020583fb",
+  "review": "AUDIT-SWEEP-COVERAGE: retained failing outcomes, not successful-publication expectations. Full source inventories are regenerated in .mixed-renderer.json and .mixed-warnings.json. Preserve frozen 8084690 and its original assertions. Fixes need their own literal/PDF evidence and scoped inventory update.",
+  "admissionChanges": [
+    {
+      "source": "\tTitle:  \n    /**/\t\n",
+      "finding": "AUDIT-D04-R4: opening whitespace value or indented unknown key joined by a boneyard; reviewed correction, not a new false gate."
+    },
+    {
+      "source": "    Title:\t\n\t/* bone */\n",
+      "finding": "AUDIT-D04-R4: opening whitespace value or indented unknown key joined by a boneyard; reviewed correction, not a new false gate."
+    },
+    {
+      "source": " TO: \n\t\n    /**/\t\n",
+      "finding": "AUDIT-D04-R4: opening whitespace value or indented unknown key joined by a boneyard; reviewed correction, not a new false gate."
+    },
+    {
+      "source": "\tTitle:  \n    /**/  \n\n (beat\r\n\r\n\t**(beat)**\t\r\n    Title: /* t */ Film  \n**(beat)**\r\n    A /* b */ c.\t\n",
+      "finding": "AUDIT-D04-R4: opening whitespace value or indented unknown key joined by a boneyard; reviewed correction, not a new false gate."
+    }
+  ],
+  "retained": {
+    "unpaired-dual": {
+      "count": 634,
+      "sha256": "31d701278e3140760964fe27e294c73abda05575bf3a4d57cd54695f2a13e1b5",
+      "finding": "Pinned prepare rejects every source with unpaired-dual-dialogue; no layout/PDF claim."
+    },
+    "title-reading": {
+      "count": 398,
+      "sha256": "db6f69c9aa92bf569a5c8a104ccb5540df3aaec0c842fdb66e7184ebfa589183",
+      "finding": "AUDIT-D04-R5 scope: note-only Key value stripped before mirrored reading; title decision differs on frozen and current. Exact instances retained, not fixed."
+    },
+    "marker-paragraphs": {
+      "count": 6,
+      "sha256": "02e96646909c0d0720b6efbedaf1cdfa17e4bbda0e507f8d66e515f067cff6d1",
+      "finding": "Overlapping note/boneyard markers: six paragraph-count disagreements present on frozen and current; require a separate future brief, not R5 implementation here."
+    },
+    "unannounced-unknown-title-fields": {
+      "count": 330,
+      "sha256": "96be342595cf26b6db5c298a71028e0ae9f462e3f1b8ca697a33b8fafd032f9f",
+      "finding": "AUDIT-D04-R5 opening note-only key/indented title-field omissions."
+    },
+    "unannounced-notes": {
+      "count": 2,
+      "sha256": "bac97937f976fb8bbf50ccc7f0f93f474b305d59711de1d4c31b39477366dbe9",
+      "finding": "Overlapping unclosed markers, already observed in AUDIT-EXPORT-WARNINGS scratch sweep; exact instances retained for separate future scope."
+    },
+    "unannounced-boneyards": {
+      "count": 1,
+      "sha256": "cfd54f036c6c62a257f7520715fe911ef67951c7da348c1726a0bfcbc8cbf594",
+      "finding": "Overlapping unclosed markers, already observed in AUDIT-EXPORT-WARNINGS scratch sweep; exact instances retained for separate future scope."
+    }
+  }
+}
