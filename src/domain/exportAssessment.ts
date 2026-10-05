@@ -2,9 +2,17 @@ import { parseFountain } from './fountainCodec';
 import { parseInline } from './fountainInline';
 import { isEscaped, unescapedIndex } from './fountainSyntax';
 import coverage from './publicationCoverage.json';
+import {
+  expandTabs,
+  rendererReading,
+  rendererSection,
+  type RendererParagraph,
+  type RendererRole,
+} from './rendererReading';
 import type {
   StyledText,
   FountainDocument,
+  FountainKind,
   FountainLine,
   HiddenRegion,
 } from './fountainModel';
@@ -357,19 +365,6 @@ function rendererOnlyHidden(
   return found;
 }
 
-/** Python's `str.expandtabs(4)`: the pinned renderer expands every line's
- * tabs to four-column stops before it reads the line. */
-function expandTabs(text: string): string {
-  let expanded = '';
-  let column = 0;
-  for (const char of text) {
-    const width = char === '\t' ? 4 - (column % 4) : 1;
-    expanded += char === '\t' ? ' '.repeat(width) : char;
-    column += width;
-  }
-  return expanded;
-}
-
 // AUDIT-D04-R2. The codec reads forcing markers after indentation, page breaks
 // with surrounding whitespace and cues ending in two spaces; the pinned
 // renderer does not, and it prints headings and forced transitions in capitals.
@@ -426,39 +421,143 @@ function rendererLineReading(
   return null;
 }
 
-/** Mirrors the pinned renderer's title-page reading of the opening block (its
- * lines up to the first empty line, tabs expanded): every line is `Key: value`
- * or an indented value under an empty key, a force marker cannot start it, and
- * at least one value results. Returns the block length and the lines read as
- * keys, or null for body text. */
-function rendererTitleBlock(
+// AUDIT-D04-R3. What the renderer prints for each codec line kind. Kinds that
+// print nothing or are assessed elsewhere have no entry and are not compared.
+const printedAs: Partial<Record<FountainKind, RendererRole>> = {
+  sceneHeading: 'heading',
+  action: 'action',
+  lyrics: 'action',
+  character: 'cue',
+  dialogue: 'dialogue',
+  parenthetical: 'parenthetical',
+  transition: 'transition',
+  centered: 'centered',
+  section: 'section',
+  synopsis: 'synopsis',
+  pageBreak: 'pageBreak',
+};
+const roleNames: Record<RendererRole, string> = {
+  heading: 'a scene heading',
+  action: 'action',
+  centered: 'centered text',
+  cue: 'a character cue',
+  dialogue: 'dialogue',
+  parenthetical: 'a parenthetical',
+  transition: 'a transition',
+  section: 'a section heading',
+  synopsis: 'a synopsis',
+  pageBreak: 'a page break',
+};
+const quoted = (text: string) => {
+  const trimmed = text.trim();
+  return `“${trimmed.length > 40 ? trimmed.slice(0, 40) + '…' : trimmed}”`;
+};
+interface Disagreement {
+  readonly message: string;
+  readonly line: number;
+  endLine: number;
+}
+/** Where the renderer's reading of one paragraph differs from the roles the
+ * codec shows, with what the renderer would do. */
+function rendererDisagreements(
+  paragraph: RendererParagraph,
   lines: readonly FountainLine[],
-): { length: number; keys: ReadonlySet<number> } | null {
-  const block: string[] = [];
-  for (const line of lines) {
-    const text = expandTabs(line.sourceText);
-    if (text === '') break;
-    block.push(text);
+): Disagreement[] {
+  const { rows, roles, texts } = paragraph;
+  const differs = (index: number) => {
+    const row = lines[rows[index]!]!;
+    const shown = printedAs[row.kind];
+    // An empty line prints as space whatever its role.
+    if (shown === undefined || texts[index]!.trim() === '') return false;
+    return (
+      shown !== roles[index] ||
+      (shown === 'heading' &&
+        (row.sceneNumber ?? '').toUpperCase() !== (paragraph.sceneNumber ?? ''))
+    );
+  };
+  const differing = rows.map((_, index) => index).filter(differs);
+  if (!differing.length) return [];
+  const first = differing[0]!;
+  const row = lines[rows[first]!]!;
+  const whole = (message: string): Disagreement[] => [
+    {
+      message,
+      line: rows[first]!,
+      endLine: rows[differing.at(-1)!]!,
+    },
+  ];
+  const codecBlank = (at: number) => lines[at]!.sourceText.trim() === '';
+  // The two sides draw this paragraph's edges differently: the renderer reads
+  // through a line of spaces or tabs, and a boneyard it deleted beside the
+  // paragraph left an empty line the codec does not see.
+  const joined = rows.some(codecBlank);
+  const split = [rows[0]! - 1, paragraph.end + 1].some(
+    (at) => at >= 0 && at < lines.length && !codecBlank(at),
+  );
+  const alone =
+    'The profile deletes a boneyard on its own line and leaves an empty line there, so this line stands alone: ';
+  const cue = quoted(texts[0]!);
+  const text = texts[first]!;
+  if (paragraph.kind === 'speech' && first === 0) {
+    const reason = split
+      ? `The profile deletes a boneyard on its own line and leaves an empty line there, so a paragraph starts at ${cue}: it would read that as a character cue and print these lines as a speech.`
+      : joined
+        ? `The profile ends a paragraph only at an empty line or a single space. It would read through the line of spaces or tabs here, take ${cue} as a character cue and print these lines as one speech.`
+        : row.kind === 'lyrics'
+          ? `The profile reads a first line in capitals as a character cue even when it is a lyric: it would print ${cue} with its “~” as a cue and the lines below it as dialogue.`
+          : `The profile reads ${cue} as a character cue because the text before its first bracket is in capitals: it would print these lines as a speech.`;
+    return whole(reason);
   }
-  if (!block.length || /^[!@~.>#=]/.test(block[0]!)) return null;
-  const keys = new Set<number>();
-  let values = 0;
-  for (let at = 0; at < block.length;) {
-    const field = /^([^:]+):\s*(.*)$/.exec(block[at]!);
-    if (!field) return null;
-    keys.add(at++);
-    if (field[2]) values++;
-    else
-      while (at < block.length && /^\s{3,}./.test(block[at]!)) {
-        values++;
-        at++;
-      }
+  if (paragraph.kind === 'speech') {
+    // The cue agrees; the renderer's bracket rule decides each line below it.
+    const runs: Disagreement[] = [];
+    for (const index of differing) {
+      const last = runs.at(-1);
+      const message =
+        roles[index] === 'parenthetical' &&
+        lines[rows[index]!]!.kind === 'dialogue'
+          ? 'The profile treats a speech line that starts with “(”, even inside emphasis markers, as a parenthetical, and every line after it until one ends with “)”: it would print this dialogue with the parenthetical indent.'
+          : `The profile reads this line as ${roleNames[roles[index]!]} inside the speech; it would not print as the script shows.`;
+      if (last && last.message === message && last.endLine === rows[index - 1])
+        last.endLine = rows[index]!;
+      else runs.push({ message, line: rows[index]!, endLine: rows[index]! });
+    }
+    return runs;
   }
-  return values ? { length: block.length, keys } : null;
+  let message: string;
+  if (row.kind === 'character' && first === 0)
+    message = `The profile reads a character cue only where capitals come before its first bracket: it would print ${cue} and the speech below it as action.`;
+  else if (paragraph.kind === 'heading' && row.kind !== 'sceneHeading')
+    message = text.startsWith('.')
+      ? 'The profile reads a line that starts with a single period as a scene heading: it would drop the period and print the rest in capitals as a heading.'
+      : split
+        ? alone + 'it would print it as a scene heading.'
+        : 'The profile reads this line as a scene heading and would print it in capitals as one.';
+  else if (paragraph.kind === 'heading')
+    message = paragraph.sceneNumber
+      ? `The profile reads “#${paragraph.sceneNumber}#” at the end of this heading as a scene number, with or without a space before it and whatever spaces follow: it would print ${paragraph.sceneNumber} in the margins and leave it out of the heading.`
+      : 'The profile does not read a scene number in this heading; it would print it as part of the heading.';
+  else if (paragraph.kind === 'transition')
+    message = split
+      ? alone + 'it would print it as a transition.'
+      : 'The profile reads this line as a transition and would print it as one.';
+  else if (paragraph.kind === 'sections')
+    message =
+      (split
+        ? alone + 'it would treat it'
+        : 'The profile would treat this line') +
+      ' as a section heading and omit it.';
+  else if (row.kind === 'sceneHeading' && rows.length === 1)
+    message =
+      'The profile reads a scene heading only where INT, EXT, EST, INT/EXT or I/E is followed by a period, or by a space and more text: it would print this line as action.';
+  else if (row.kind === 'transition' && rows.length === 1)
+    message =
+      'The profile reads a transition only where capital letters come before the closing “TO:”: it would print this line as action.';
+  else
+    message = `The profile reads this line as ${roleNames[roles[first]!]}; it would not print as the script shows.`;
+  return whole(message);
 }
 
-/** Mirrors the pinned renderer's section rule: 1–6 `#` at the line start. */
-const rendererSection = /^(#{1,6})\s*([^#].*)$/;
 const blankSource = (text: string) => text === '' || text === ' ';
 export function evaluateExportAssessment(
   source: FountainDocument,
@@ -481,6 +580,12 @@ export function evaluateExportAssessment(
     });
   // Roles come from the renderer's reading; byte targets from the author's source.
   const { document, stripped } = assessmentView(source);
+  const rendered = rendererReading(document.lines);
+  const roleAt = new Map<number, RendererRole>();
+  for (const paragraph of rendered.paragraphs)
+    paragraph.rows.forEach((row, index) =>
+      roleAt.set(row, paragraph.roles[index]!),
+    );
   const issues: CheckIssue[] = [];
   let truncated = false;
   const add = (
@@ -588,12 +693,16 @@ export function evaluateExportAssessment(
       let previous = line - 1;
       while (previous >= 0 && blankSource(document.lines[previous]!.sourceText))
         previous--;
+      // The renderer attaches a synopsis only to a heading or section it
+      // read itself; one it reads as anything else is printed.
+      const role = roleAt.get(line);
       const renderedAway =
-        inSections ||
-        (row.kind === 'synopsis' &&
-          rows.length === 1 &&
-          row.sourceText.startsWith('=') &&
-          attachable.has(previous));
+        (inSections ||
+          (row.kind === 'synopsis' &&
+            rows.length === 1 &&
+            row.sourceText.startsWith('=') &&
+            attachable.has(previous))) &&
+        (role === undefined || role === 'section' || role === 'synopsis');
       if (renderedAway) {
         ranges.push({ kind: row.kind, line, endLine: line });
         omitted.add(line);
@@ -647,11 +756,12 @@ export function evaluateExportAssessment(
   }
   const titleEnd = document.titleFields.at(-1);
   // AUDIT-D04-R1: the codec and the renderer must agree on whether the opening
-  // block is a title page. The renderer removes boneyards first, which this
-  // mirror does not model: one inside a title field is reported separately and
-  // the comparison is skipped. A missing separator is reported below.
+  // block is a title page. The renderer removes boneyards first, so one on its
+  // own line ends its block early (AUDIT-D04-R3). One inside a title field is
+  // reported separately and the comparison is skipped. A missing separator is
+  // reported below.
   const codecTitle = titleEnd ? titleEnd.from + titleEnd.count : 0;
-  const rendererTitle = rendererTitleBlock(document.lines);
+  const rendererTitle = rendered.title;
   const opening = document.lines.slice(
     0,
     Math.max(codecTitle, rendererTitle?.length ?? 0),
@@ -754,6 +864,16 @@ export function evaluateExportAssessment(
     const reading = rendererLineReading(row, line, rows);
     if (reading) add('SC005', reading, line);
   });
+  // AUDIT-D04-R3: every remaining line whose printed role differs from the one
+  // the script shows. A paragraph an earlier limitation already reports is
+  // left to that limitation.
+  const reported = issues.map((issue) => [issue.line!, issue.endLine]);
+  for (const paragraph of rendered.paragraphs) {
+    const [first, last] = [paragraph.rows[0]!, paragraph.end];
+    if (!reported.some(([from, to]) => from! <= last && first <= to!))
+      for (const found of rendererDisagreements(paragraph, document.lines))
+        add('SC005', found.message, found.line, found.endLine);
+  }
   const sourceBytes = document.hiddenRegions.length ? document.bytes : null;
   document.lines.forEach((row, line) => {
     if (omitted.has(line) || row.kind === 'blank' || row.kind === 'pageBreak')

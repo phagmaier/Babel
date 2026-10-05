@@ -127,7 +127,34 @@ print the whole block, keys included, as script text, and an indented first
 key makes it a title page that prints nothing; both are blocking SC005. So is
 an indented `Key: value` line after a valued key where both sides still read a
 title page: the codec shows it as part of that field, the renderer reads a
-separate field and never prints it. The mirror does not model the renderer's
-boneyard removal in the opening block; that and the other remaining
-differences are listed under
-[AUDIT-D04-R3](test-evidence/AUDIT.md#audit-dev-review--dev-branch-review-before-merge).
+separate field and never prints it.
+
+AUDIT-D04-R3 replaces case-by-case guessing with a
+[mirror of the pinned parser](../src/domain/rendererReading.ts): boneyards
+removed from the whole text before lines are split, tabs expanded, paragraphs
+ended only by an empty line or a single space, notes removed inside a
+paragraph, then each paragraph read in the renderer's own order. The assessment
+compares that reading with the codec's line kinds and reports any line whose
+printed role or scene number differs as blocking SC005, unless an earlier
+limitation already reports that paragraph. This covers:
+
+- a boneyard on its own line, which the renderer deletes and replaces with an
+  empty line, so the line beside it becomes a heading, transition, speech or a
+  dropped section, and the opening `Key:` block ends early;
+- a line of a tab, two or more spaces or another whitespace character, which
+  does not end a paragraph (two spaces inside a speech agree on both sides);
+- a speech line starting with `(`, even inside emphasis markers, which stays a
+  parenthetical with every line after it until one ends with `)`;
+- `#12#` with no space before it or spaces after it, still a scene number;
+- a heading prefix followed only by whitespace or by a non-space separator,
+  printed as action, and a synopsis below it, which is then printed too;
+- a line starting with a single period (`. hello`), printed as a heading
+  without the period; an all-capitals first lyric line, read as a cue; a cue
+  whose capitals do not come before its first bracket (`(MAYA)`), or a line
+  whose capitals do (`MAYA (to Jon) quietly`); `TO:` with no capitals before it.
+
+Existing limitations beside a boneyard still over-report with their old
+wording; none was removed. New corpus cases state the renderer's own paragraph
+classes (`paragraphs`), which the helper test checks against the real parser
+and a vitest test checks against the mirror.
+[Evidence](test-evidence/AUDIT.md#audit-d04-r3--remaining-renderercodec-reading-differences).

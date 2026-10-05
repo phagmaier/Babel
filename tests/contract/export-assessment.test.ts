@@ -488,6 +488,128 @@ it('AUDIT-DEV-REVIEW reports an empty @ cue only where the renderer prints it, a
   ]);
 });
 
+// AUDIT-D04-R3: reasons and ranges the shared corpus cannot show. Every renderer
+// reading here was confirmed with a parse-level probe of the pinned runtime.
+it('AUDIT-D04-R3 states why the printed role differs, on the lines that differ', () => {
+  const messages = (source: string) => {
+    const result = assess(source);
+    if (result.status !== 'verified') throw new Error('unavailable');
+    return result.issues.map((issue) => [
+      issue.line,
+      issue.endLine,
+      issue.message,
+    ]);
+  };
+  const has = (text: string) => expect.stringContaining(text);
+  // A deleted boneyard leaves an empty line: the line beside it stands alone.
+  expect(messages('A lamp.\n/* cut */\nINT. LAB - DAY\n\nIt hums.\n')).toEqual([
+    [2, 2, has('deletes a boneyard on its own line')],
+  ]);
+  expect(messages('A lamp.\n/* cut */\nINT. LAB - DAY\n\nIt hums.\n')).toEqual([
+    [2, 2, has('print it as a scene heading')],
+  ]);
+  expect(messages('A lamp.\n/* cut */\nFADE TO:\n')).toEqual([
+    [2, 2, has('print it as a transition')],
+  ]);
+  expect(messages('A lamp.\n\n#Act\n/* cut */\n')).toEqual([
+    [2, 2, has('treat it as a section heading and omit it')],
+  ]);
+  expect(messages('A lamp.\n/* cut */\nMAYA\nHello.\n')).toEqual([
+    [2, 3, has('a paragraph starts at “MAYA”')],
+  ]);
+  // The first line of the deleted boneyard is the one above the heading.
+  expect(messages('A lamp.\n/* a\nb\nc */\nEXT. ROOF\n')).toEqual([
+    [4, 4, has('print it as a scene heading')],
+  ]);
+  // Two boneyards on one line leave one space: still an empty line.
+  expect(messages('A lamp.\n\n/* a */ /* b */\nEXT. ROOF\n')).toContainEqual([
+    3,
+    3,
+    has('print it as a scene heading'),
+  ]);
+  // A line of spaces, a tab or a no-break space does not end the paragraph.
+  for (const blank of ['   ', '\t', ' \t', '\u00a0'])
+    expect(messages(`A lamp.\n\nMAYA\n${blank}\nShe waits.\n`)).toEqual([
+      [2, 4, has('read through the line of spaces or tabs')],
+    ]);
+  // An empty line and a single space do, on both sides.
+  for (const blank of ['', ' '])
+    expect(messages(`A lamp.\n\nMAYA\n${blank}\nShe waits.\n`)).toEqual([]);
+  // The bracket rule runs per speech and reports each run of lines.
+  expect(messages('MAYA\n(a\nb)\nHello.\n(c\nd\n')).toEqual([
+    [1, 2, has('until one ends with “)”')],
+    [4, 5, has('until one ends with “)”')],
+  ]);
+  expect(messages('MAYA\nHi.\n\nJON ^\n(a\nb\n')).toEqual([
+    [4, 5, has('parenthetical indent')],
+  ]);
+  // Emphasis around the bracket does not hide it; an escaped star does.
+  for (const line of ['*(low)*', '**(low)**', '_(low)_', '_*(low)*_'])
+    expect(messages(`MAYA\n${line}\nHello.\n`)).toEqual([
+      [1, 1, has('even inside emphasis markers')],
+    ]);
+  for (const line of ['\\*(low)\\*', 'x (low)', '*x* (low)'])
+    expect(messages(`MAYA\n${line}\nHello.\n`)).toEqual([]);
+  // Scene numbers: the renderer needs no space before and allows any after.
+  for (const heading of ['INT. LAB #7# ', 'INT. LAB#7#', 'INT. LAB #7#\t'])
+    expect(messages(`${heading}\n\nA lamp.\n`)).toEqual([
+      [0, 0, has('print 7 in the margins')],
+    ]);
+  expect(messages('INT. LAB #7#\n\nA lamp.\n')).toEqual([]);
+  // A bare prefix, or one followed by anything but a space or period.
+  for (const heading of ['INT ', 'EXT\t', 'I/E  ', 'INT/EXT ', 'INT\u00a0LAB'])
+    expect(messages(`${heading}\n\nA lamp.\n`)).toEqual([
+      [0, 0, has('followed by a period, or by a space and more text')],
+    ]);
+  for (const heading of ['INT.', 'INT. ', 'INT./EXT ', 'I/E. '])
+    expect(messages(`${heading}\n\nA lamp.\n`)).toEqual([]);
+  // A single period forces a heading for the renderer, whatever follows it.
+  for (const line of ['. hello', '.-- later', '."Quote"', '. #1#'])
+    expect(messages(`A lamp.\n\n${line}\n\nIt hums.\n`)).toEqual([
+      [2, 2, has('starts with a single period')],
+    ]);
+  for (const line of ['.', '. ', '..', '...and then'])
+    expect(messages(`A lamp.\n\n${line}\n\nIt hums.\n`)).toEqual([]);
+  // The period is the reason even beside a boneyard.
+  expect(messages('/* b */\n. hello\n')).toEqual([
+    [1, 1, has('starts with a single period')],
+  ]);
+  // Cue rules: capitals before the first bracket, lyric or not.
+  expect(messages('A lamp.\n\n~LA LA\n~la la\n')).toEqual([
+    [2, 3, has('even when it is a lyric')],
+  ]);
+  expect(messages('A lamp.\n\n~LA LA\n')).toEqual([]);
+  expect(messages('MAYA (to Jon) quietly\nHello.\n')).toEqual([
+    [0, 1, has('the text before its first bracket is in capitals')],
+  ]);
+  expect(messages('(MAYA)\nHello.\n')).toEqual([
+    [0, 1, has('only where capitals come before its first bracket')],
+  ]);
+  for (const line of ['TO:', ' TO:', '3 TO:'])
+    expect(messages(`A lamp.\n\n${line}\n\nIt hums.\n`)).toEqual([
+      [2, 2, has('capital letters come before the closing “TO:”')],
+    ]);
+  // A paragraph an earlier limitation reports is left to it.
+  expect(messages('.INT. A - DAY\n!Action.\n')).toHaveLength(1);
+  // The opening block: a boneyard on its own line ends it for the renderer.
+  expect(messages(' Title: Night\n/* b */\nMaya waits.\n')).toEqual([
+    [0, 0, has('reads this opening block as a title page')],
+  ]);
+  expect(messages(' Title: Night\n  /* b */\nMaya waits.\n')).toEqual([]);
+});
+
+it('AUDIT-D04-R3 does not summarise a section or synopsis the renderer prints', () => {
+  // "INT " is action for the renderer, so the synopsis below it is printed.
+  const printed = assess('INT \n\n= Maya decides.\n\nA lamp.\n');
+  if (printed.status !== 'verified') throw new Error('unavailable');
+  expect(printed.omissions.synopses.count).toBe(0);
+  expect(printed.issues.map((issue) => issue.line)).toEqual([0, 2]);
+  const attached = assess('INT.\n\n= Maya decides.\n\nA lamp.\n');
+  if (attached.status !== 'verified') throw new Error('unavailable');
+  expect(attached.omissions.synopses.count).toBe(1);
+  expect(attached.issues).toEqual([]);
+});
+
 it('AUDIT-D04 summarises omissions with counts and line totals in one sentence', () => {
   const result = assess(
     '# One\n\n# Two\n\n.INT. A - DAY\n\n= Beat.\n\n[[first\nsecond\nthird]]\n\n!Body [[aside]] text.\n\n/* cut\nmore */\n\n!End.\n',

@@ -1602,6 +1602,1257 @@
         "sections": 0,
         "synopses": 0
       }
+    },
+    {
+      "name": "boneyard line directly above a heading-shaped line leaves it in its own paragraph",
+      "source": "A lamp glows.\n\n/* cut this */\nINT. LAB - DAY\n\nIt hums.\n",
+      "prints": [
+        "A lamp glows.",
+        "INT. LAB - DAY",
+        "It hums."
+      ],
+      "omits": [
+        "cut this"
+      ],
+      "clean": false,
+      "blockingLines": [
+        3
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 1,
+        "sections": 0,
+        "synopses": 0
+      },
+      "paragraphs": [
+        [
+          "Action",
+          [
+            "A lamp glows."
+          ]
+        ],
+        [
+          "Slug",
+          "INT. LAB - DAY"
+        ],
+        [
+          "Action",
+          [
+            "It hums."
+          ]
+        ]
+      ]
+    },
+    {
+      "name": "boneyard line below a hash line makes it a section the renderer drops",
+      "source": "Maya waits.\n\n#Act\n/* cut */\n\nShe leaves.\n",
+      "prints": [
+        "Maya waits.",
+        "She leaves."
+      ],
+      "omits": [
+        "Act",
+        "cut"
+      ],
+      "clean": false,
+      "blockingLines": [
+        2
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 1,
+        "sections": 0,
+        "synopses": 0
+      },
+      "paragraphs": [
+        [
+          "Action",
+          [
+            "Maya waits."
+          ]
+        ],
+        [
+          "Section",
+          "Act",
+          1
+        ],
+        [
+          "Action",
+          [
+            "She leaves."
+          ]
+        ]
+      ]
+    },
+    {
+      "name": "boneyard line above a cue-shaped line makes a speech",
+      "source": "A lamp glows.\n/* cut */\nMAYA\nHello there.\n",
+      "prints": [
+        "A lamp glows.",
+        "MAYA",
+        "Hello there."
+      ],
+      "omits": [
+        "cut"
+      ],
+      "clean": false,
+      "blockingLines": [
+        2,
+        3
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 1,
+        "sections": 0,
+        "synopses": 0
+      },
+      "paragraphs": [
+        [
+          "Action",
+          [
+            "A lamp glows."
+          ]
+        ],
+        [
+          "Dialog",
+          "MAYA",
+          [
+            [
+              false,
+              "Hello there."
+            ]
+          ]
+        ]
+      ]
+    },
+    {
+      "name": "boneyard line above a transition-shaped line makes a transition",
+      "source": "A lamp glows.\n/* cut */\nCUT TO:\n\nIt hums.\n",
+      "prints": [
+        "A lamp glows.",
+        "CUT TO:",
+        "It hums."
+      ],
+      "omits": [
+        "cut */"
+      ],
+      "clean": false,
+      "blockingLines": [
+        2
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 1,
+        "sections": 0,
+        "synopses": 0
+      },
+      "paragraphs": [
+        [
+          "Action",
+          [
+            "A lamp glows."
+          ]
+        ],
+        [
+          "Transition",
+          "CUT TO:"
+        ],
+        [
+          "Action",
+          [
+            "It hums."
+          ]
+        ]
+      ]
+    },
+    {
+      "name": "multi-line boneyard above a heading-shaped line leaves one empty line",
+      "source": "A lamp glows.\n/* old\ndraft */\nEXT. ROOF - NIGHT\n\nIt hums.\n",
+      "prints": [
+        "A lamp glows.",
+        "EXT. ROOF - NIGHT",
+        "It hums."
+      ],
+      "omits": [
+        "old",
+        "draft"
+      ],
+      "clean": false,
+      "blockingLines": [
+        3
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 1,
+        "sections": 0,
+        "synopses": 0
+      },
+      "paragraphs": [
+        [
+          "Action",
+          [
+            "A lamp glows."
+          ]
+        ],
+        [
+          "Slug",
+          "EXT. ROOF - NIGHT"
+        ],
+        [
+          "Action",
+          [
+            "It hums."
+          ]
+        ]
+      ]
+    },
+    {
+      "name": "boneyard line with one stray space still leaves a paragraph break",
+      "source": "A lamp glows.\n /* cut */\nINT. LAB - DAY\n\nIt hums.\n",
+      "prints": [
+        "A lamp glows.",
+        "INT. LAB - DAY",
+        "It hums."
+      ],
+      "omits": [
+        "cut"
+      ],
+      "clean": false,
+      "blockingLines": [
+        2
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 1,
+        "sections": 0,
+        "synopses": 0
+      },
+      "paragraphs": [
+        [
+          "Action",
+          [
+            "A lamp glows."
+          ]
+        ],
+        [
+          "Slug",
+          "INT. LAB - DAY"
+        ],
+        [
+          "Action",
+          [
+            "It hums."
+          ]
+        ]
+      ]
+    },
+    {
+      "name": "boneyard line with two stray spaces does not break the paragraph",
+      "source": "A lamp glows.\n  /* cut */\nINT. LAB - DAY\n\nIt hums.\n",
+      "prints": [
+        "A lamp glows.",
+        "INT. LAB - DAY",
+        "It hums."
+      ],
+      "omits": [
+        "cut"
+      ],
+      "clean": true,
+      "blockingLines": [],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 1,
+        "sections": 0,
+        "synopses": 0
+      },
+      "paragraphs": [
+        [
+          "Action",
+          [
+            "A lamp glows.",
+            "",
+            "INT. LAB - DAY"
+          ]
+        ],
+        [
+          "Action",
+          [
+            "It hums."
+          ]
+        ]
+      ]
+    },
+    {
+      "name": "boneyard between empty lines changes no role",
+      "source": "A lamp glows.\n\n/* cut */\n\nINT. LAB - DAY\n\nIt hums.\n",
+      "prints": [
+        "A lamp glows.",
+        "INT. LAB - DAY",
+        "It hums."
+      ],
+      "omits": [
+        "cut"
+      ],
+      "clean": true,
+      "blockingLines": [],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 1,
+        "sections": 0,
+        "synopses": 0
+      },
+      "paragraphs": [
+        [
+          "Action",
+          [
+            "A lamp glows."
+          ]
+        ],
+        [
+          "Slug",
+          "INT. LAB - DAY"
+        ],
+        [
+          "Action",
+          [
+            "It hums."
+          ]
+        ]
+      ]
+    },
+    {
+      "name": "boneyard line ends the opening key block early for the renderer",
+      "source": " Title: Night Shift\n/* old */\nMaya waits.\n",
+      "prints": [
+        "Maya waits."
+      ],
+      "omits": [
+        "Night Shift",
+        "old"
+      ],
+      "clean": false,
+      "blockingLines": [
+        0
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 1,
+        "sections": 0,
+        "synopses": 0
+      },
+      "paragraphs": [
+        [
+          "Action",
+          [
+            "Maya waits."
+          ]
+        ]
+      ],
+      "title": [
+        " title"
+      ]
+    },
+    {
+      "name": "tab-only line does not end the paragraph for the renderer",
+      "source": "INT. LAB - DAY\n\nMAYA\n\t\nShe waits.\n",
+      "prints": [
+        "INT. LAB - DAY",
+        "MAYA",
+        "She waits."
+      ],
+      "omits": [],
+      "clean": false,
+      "blockingLines": [
+        2,
+        4
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      },
+      "paragraphs": [
+        [
+          "Slug",
+          "INT. LAB - DAY"
+        ],
+        [
+          "Dialog",
+          "MAYA",
+          [
+            [
+              false,
+              ""
+            ],
+            [
+              false,
+              "She waits."
+            ]
+          ]
+        ]
+      ]
+    },
+    {
+      "name": "line of three spaces after a capitals line makes it a cue",
+      "source": "A lamp glows.\n\nMAYA\n   \n\nIt hums.\n",
+      "prints": [
+        "A lamp glows.",
+        "MAYA",
+        "It hums."
+      ],
+      "omits": [],
+      "clean": false,
+      "blockingLines": [
+        2
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      },
+      "paragraphs": [
+        [
+          "Action",
+          [
+            "A lamp glows."
+          ]
+        ],
+        [
+          "Dialog",
+          "MAYA",
+          [
+            [
+              false,
+              ""
+            ]
+          ]
+        ],
+        [
+          "Action",
+          [
+            "It hums."
+          ]
+        ]
+      ]
+    },
+    {
+      "name": "two-space line inside a speech continues it on both sides",
+      "source": "MAYA\nHello.\n  \nMore.\n",
+      "prints": [
+        "MAYA",
+        "Hello.",
+        "More."
+      ],
+      "omits": [],
+      "clean": true,
+      "blockingLines": [],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      },
+      "paragraphs": [
+        [
+          "Dialog",
+          "MAYA",
+          [
+            [
+              false,
+              "Hello."
+            ],
+            [
+              false,
+              ""
+            ],
+            [
+              false,
+              "More."
+            ]
+          ]
+        ]
+      ]
+    },
+    {
+      "name": "line of spaces between two action lines changes no role",
+      "source": "A lamp glows.\n   \nIt hums.\n",
+      "prints": [
+        "A lamp glows.",
+        "It hums."
+      ],
+      "omits": [],
+      "clean": true,
+      "blockingLines": [],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      },
+      "paragraphs": [
+        [
+          "Action",
+          [
+            "A lamp glows.",
+            "",
+            "It hums."
+          ]
+        ]
+      ]
+    },
+    {
+      "name": "unclosed parenthetical keeps the speech in parenthetical style",
+      "source": "MAYA\n(beat\nHello there.\n",
+      "prints": [
+        "MAYA",
+        "(beat",
+        "Hello there."
+      ],
+      "omits": [],
+      "clean": false,
+      "blockingLines": [
+        1,
+        2
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      },
+      "paragraphs": [
+        [
+          "Dialog",
+          "MAYA",
+          [
+            [
+              true,
+              "(beat"
+            ],
+            [
+              true,
+              "Hello there."
+            ]
+          ]
+        ]
+      ]
+    },
+    {
+      "name": "unclosed parenthetical under a forced cue",
+      "source": "@maya\n(beat\n",
+      "prints": [
+        "maya",
+        "(beat"
+      ],
+      "omits": [
+        "@"
+      ],
+      "clean": false,
+      "blockingLines": [
+        1
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      },
+      "paragraphs": [
+        [
+          "Dialog",
+          "maya",
+          [
+            [
+              true,
+              "(beat"
+            ]
+          ]
+        ]
+      ]
+    },
+    {
+      "name": "parenthetical closed on a later line",
+      "source": "MAYA\n(beat\nmore)\nHello there.\n",
+      "prints": [
+        "MAYA",
+        "(beat",
+        "more)",
+        "Hello there."
+      ],
+      "omits": [],
+      "clean": false,
+      "blockingLines": [
+        1,
+        2
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      },
+      "paragraphs": [
+        [
+          "Dialog",
+          "MAYA",
+          [
+            [
+              true,
+              "(beat"
+            ],
+            [
+              true,
+              "more)"
+            ],
+            [
+              false,
+              "Hello there."
+            ]
+          ]
+        ]
+      ]
+    },
+    {
+      "name": "parenthetical followed by words on its line stays open",
+      "source": "MAYA\n(beat) Hello.\nMore.\n",
+      "prints": [
+        "MAYA",
+        "(beat) Hello.",
+        "More."
+      ],
+      "omits": [],
+      "clean": false,
+      "blockingLines": [
+        1,
+        2
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      },
+      "paragraphs": [
+        [
+          "Dialog",
+          "MAYA",
+          [
+            [
+              true,
+              "(beat) Hello."
+            ],
+            [
+              true,
+              "More."
+            ]
+          ]
+        ]
+      ]
+    },
+    {
+      "name": "parenthetical inside emphasis markers is a parenthetical for the renderer",
+      "source": "MAYA\n*(sotto)*\nHello there.\n",
+      "prints": [
+        "MAYA",
+        "(sotto)",
+        "Hello there."
+      ],
+      "omits": [
+        "*"
+      ],
+      "clean": false,
+      "blockingLines": [
+        1
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      },
+      "paragraphs": [
+        [
+          "Dialog",
+          "MAYA",
+          [
+            [
+              true,
+              "(sotto)"
+            ],
+            [
+              false,
+              "Hello there."
+            ]
+          ]
+        ]
+      ]
+    },
+    {
+      "name": "dialogue ending in a bracket stays dialogue",
+      "source": "MAYA\nHello (beat)\nMore.\n",
+      "prints": [
+        "MAYA",
+        "Hello (beat)",
+        "More."
+      ],
+      "omits": [],
+      "clean": true,
+      "blockingLines": [],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      },
+      "paragraphs": [
+        [
+          "Dialog",
+          "MAYA",
+          [
+            [
+              false,
+              "Hello (beat)"
+            ],
+            [
+              false,
+              "More."
+            ]
+          ]
+        ]
+      ]
+    },
+    {
+      "name": "scene number followed by a space is still a scene number for the renderer",
+      "source": "EXT. ROOF - NIGHT #12# \n\nRain.\n",
+      "prints": [
+        "EXT. ROOF - NIGHT",
+        "12",
+        "Rain."
+      ],
+      "omits": [
+        "#12#"
+      ],
+      "clean": false,
+      "blockingLines": [
+        0
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      },
+      "paragraphs": [
+        [
+          "Slug",
+          "EXT. ROOF - NIGHT",
+          "12"
+        ],
+        [
+          "Action",
+          [
+            "Rain."
+          ]
+        ]
+      ]
+    },
+    {
+      "name": "scene number without a space before it is a scene number for the renderer",
+      "source": "EXT. ROOF - NIGHT#12#\n\nRain.\n",
+      "prints": [
+        "EXT. ROOF - NIGHT",
+        "12",
+        "Rain."
+      ],
+      "omits": [
+        "#12#"
+      ],
+      "clean": false,
+      "blockingLines": [
+        0
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      },
+      "paragraphs": [
+        [
+          "Slug",
+          "EXT. ROOF - NIGHT",
+          "12"
+        ],
+        [
+          "Action",
+          [
+            "Rain."
+          ]
+        ]
+      ]
+    },
+    {
+      "name": "forced heading with a scene number followed by a space",
+      "source": ".ROOF #12# \n\nRain.\n",
+      "prints": [
+        "ROOF",
+        "12",
+        "Rain."
+      ],
+      "omits": [
+        "#12#",
+        ".ROOF"
+      ],
+      "clean": false,
+      "blockingLines": [
+        0
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      },
+      "paragraphs": [
+        [
+          "Slug",
+          "ROOF",
+          "12"
+        ],
+        [
+          "Action",
+          [
+            "Rain."
+          ]
+        ]
+      ]
+    },
+    {
+      "name": "spaced hashes are not a scene number on either side",
+      "source": "EXT. ROOF - NIGHT # 12 #\n\nRain.\n",
+      "prints": [
+        "EXT. ROOF - NIGHT # 12 #",
+        "Rain."
+      ],
+      "omits": [],
+      "clean": true,
+      "blockingLines": [],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      },
+      "paragraphs": [
+        [
+          "Slug",
+          "EXT. ROOF - NIGHT # 12 #"
+        ],
+        [
+          "Action",
+          [
+            "Rain."
+          ]
+        ]
+      ]
+    },
+    {
+      "name": "bare heading prefix with a trailing space prints as action",
+      "source": "INT \n\nA lamp glows.\n",
+      "prints": [
+        "INT",
+        "A lamp glows."
+      ],
+      "omits": [],
+      "clean": false,
+      "blockingLines": [
+        0
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      },
+      "paragraphs": [
+        [
+          "Action",
+          [
+            "INT"
+          ]
+        ],
+        [
+          "Action",
+          [
+            "A lamp glows."
+          ]
+        ]
+      ]
+    },
+    {
+      "name": "bare heading prefix with a trailing tab prints as action",
+      "source": "A lamp glows.\n\nEXT\t\n\nIt hums.\n",
+      "prints": [
+        "A lamp glows.",
+        "EXT",
+        "It hums."
+      ],
+      "omits": [],
+      "clean": false,
+      "blockingLines": [
+        2
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      },
+      "paragraphs": [
+        [
+          "Action",
+          [
+            "A lamp glows."
+          ]
+        ],
+        [
+          "Action",
+          [
+            "EXT"
+          ]
+        ],
+        [
+          "Action",
+          [
+            "It hums."
+          ]
+        ]
+      ]
+    },
+    {
+      "name": "synopsis after a bare heading prefix is printed",
+      "source": "INT \n\n= Maya decides.\n\nA lamp glows.\n",
+      "prints": [
+        "INT",
+        "= Maya decides.",
+        "A lamp glows."
+      ],
+      "omits": [],
+      "clean": false,
+      "blockingLines": [
+        0,
+        2
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      },
+      "paragraphs": [
+        [
+          "Action",
+          [
+            "INT"
+          ]
+        ],
+        [
+          "Action",
+          [
+            "= Maya decides."
+          ]
+        ],
+        [
+          "Action",
+          [
+            "A lamp glows."
+          ]
+        ]
+      ]
+    },
+    {
+      "name": "heading prefix with a period and nothing else is a heading on both sides",
+      "source": "INT.\n\nA lamp glows.\n",
+      "prints": [
+        "INT.",
+        "A lamp glows."
+      ],
+      "omits": [],
+      "clean": true,
+      "blockingLines": [],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      },
+      "paragraphs": [
+        [
+          "Slug",
+          "INT."
+        ],
+        [
+          "Action",
+          [
+            "A lamp glows."
+          ]
+        ]
+      ]
+    },
+    {
+      "name": "all-capitals first lyric line makes the lyric paragraph a speech",
+      "source": "A lamp glows.\n\n~LA LA LA\n~dee dee dee\n",
+      "prints": [
+        "A lamp glows.",
+        "~LA LA LA",
+        "~dee dee dee"
+      ],
+      "omits": [],
+      "clean": false,
+      "blockingLines": [
+        2,
+        3
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      },
+      "paragraphs": [
+        [
+          "Action",
+          [
+            "A lamp glows."
+          ]
+        ],
+        [
+          "Dialog",
+          "~LA LA LA",
+          [
+            [
+              false,
+              "~dee dee dee"
+            ]
+          ]
+        ]
+      ]
+    },
+    {
+      "name": "lyric paragraph starting in mixed case stays a lyric",
+      "source": "A lamp glows.\n\n~La la la\n~DEE DEE DEE\n",
+      "prints": [
+        "A lamp glows.",
+        "La la la",
+        "DEE DEE DEE"
+      ],
+      "omits": [
+        "~"
+      ],
+      "clean": true,
+      "blockingLines": [],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      },
+      "paragraphs": [
+        [
+          "Action",
+          [
+            "A lamp glows."
+          ]
+        ],
+        [
+          "Action",
+          [
+            "La la la",
+            "DEE DEE DEE"
+          ]
+        ]
+      ]
+    },
+    {
+      "name": "line starting with a period and a space is a heading for the renderer",
+      "source": "A lamp glows.\n\n. . . and then nothing.\n\nIt hums.\n",
+      "prints": [
+        "A lamp glows.",
+        ". . AND THEN NOTHING.",
+        "It hums."
+      ],
+      "omits": [
+        "and then nothing"
+      ],
+      "clean": false,
+      "blockingLines": [
+        2
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      },
+      "paragraphs": [
+        [
+          "Action",
+          [
+            "A lamp glows."
+          ]
+        ],
+        [
+          "Slug",
+          ". . AND THEN NOTHING."
+        ],
+        [
+          "Action",
+          [
+            "It hums."
+          ]
+        ]
+      ]
+    },
+    {
+      "name": "line starting with three periods is action on both sides",
+      "source": "A lamp glows.\n\n...and then nothing.\n\nIt hums.\n",
+      "prints": [
+        "A lamp glows.",
+        "...and then nothing.",
+        "It hums."
+      ],
+      "omits": [],
+      "clean": true,
+      "blockingLines": [],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      },
+      "paragraphs": [
+        [
+          "Action",
+          [
+            "A lamp glows."
+          ]
+        ],
+        [
+          "Action",
+          [
+            "...and then nothing."
+          ]
+        ],
+        [
+          "Action",
+          [
+            "It hums."
+          ]
+        ]
+      ]
+    },
+    {
+      "name": "cue wholly in brackets is not a cue for the renderer",
+      "source": "(MAYA)\nHello there.\n",
+      "prints": [
+        "(MAYA)",
+        "Hello there."
+      ],
+      "omits": [],
+      "clean": false,
+      "blockingLines": [
+        0,
+        1
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      },
+      "paragraphs": [
+        [
+          "Action",
+          [
+            "(MAYA)",
+            "Hello there."
+          ]
+        ]
+      ]
+    },
+    {
+      "name": "capitals before a bracket make a cue for the renderer whatever follows",
+      "source": "MAYA (to Jon) quietly\nHello there.\n",
+      "prints": [
+        "MAYA (to Jon) quietly",
+        "Hello there."
+      ],
+      "omits": [],
+      "clean": false,
+      "blockingLines": [
+        0,
+        1
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      },
+      "paragraphs": [
+        [
+          "Dialog",
+          "MAYA (to Jon) quietly",
+          [
+            [
+              false,
+              "Hello there."
+            ]
+          ]
+        ]
+      ]
+    },
+    {
+      "name": "TO: alone is not a transition for the renderer",
+      "source": "A lamp glows.\n\nTO:\n\nIt hums.\n",
+      "prints": [
+        "A lamp glows.",
+        "TO:",
+        "It hums."
+      ],
+      "omits": [],
+      "clean": false,
+      "blockingLines": [
+        2
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      },
+      "paragraphs": [
+        [
+          "Action",
+          [
+            "A lamp glows."
+          ]
+        ],
+        [
+          "Action",
+          [
+            "TO:"
+          ]
+        ],
+        [
+          "Action",
+          [
+            "It hums."
+          ]
+        ]
+      ]
     }
   ]
 }

@@ -1,44 +1,38 @@
-# Current state — dev review session 2026-10-04 (owner host)
+# Current state — audit queue session 2026-10-04 (owner host)
 
-Date: 2026-10-04. Application: **babel**. The four cloud-session commits
-`30f05d8`..`a22f01f` and the review commit `08e4b82` were fast-forwarded from
-`dev` into `main` and `main` was pushed on the owner's instruction. M0–M5 and
-bounded M6-01 work remain recorded complete. **M6-02, C1/F2 and Local v1
-admission remain open.**
-
-## This session — AUDIT-DEV-REVIEW (review of `dev` before merge)
-
-[Evidence](test-evidence/AUDIT.md#audit-dev-review--dev-branch-review-before-merge).
+Date: 2026-10-04. Application: **babel**. Work is on `main` over `bb0fd45`;
+nothing from this session is pushed. M0–M5 and bounded M6-01 work remain
+recorded complete. **M6-02, C1/F2 and Local v1 admission remain open.**
 Host: owner laptop, uid 1000, Hyprland display, Btrfs repo, tmpfs `/tmp`.
 
-- **As pulled:** every shared gate passes — frontend 999/999 tracked tests,
-  helper 15/15, browser, `cargo fmt`/`clippy`, Rust **273/273 as non-root**.
-  The two edited pre-existing tests are not weakened; no Rust, IPC, helper,
-  profile, font or pin change.
-- **Differential probe** (30,000 generated sources against the pinned
-  renderer): `dev` gates nothing that `main` read correctly, and cuts
-  clean-but-different sources from 3,753 to 357.
-- **Fixed in review, red first** (`src/domain/exportAssessment.ts`, assessment
-  only): cues ending in a tab, a lone `>`, spaced empty `@` cues, and an
-  indented `Key: value` after a valued title key. Corpus 76 → 83; 115 left.
-  Two limitation messages corrected against the renderer. 7/7 faults detected.
-- **Final:** `pnpm check` pass, frontend **1007/1007** tracked, helper
-  **15/15**, browser pass.
-- **Native, binary in place** (`aefcae53…`, built from the reviewed tree):
-  `integrated_exit.py --modes pdf-export script-check publication-exit
-title-page` on tmpfs and Btrfs — **8/8 content, 8/8 owned crash audits
-  clean**, 470s (`target/audit-dev-review/native`).
+## This session
 
-Cloud-session tasks, unchanged and covered by the gates above:
-[AUDIT-D07](tasks/AUDIT-D07.md) typed-scene oracle,
-[AUDIT-D04-R2](tasks/AUDIT-D04-R2.md) renderer/codec sweep,
-[AUDIT-PARK](tasks/AUDIT-PARK.md) parking verdicts and
-[AUDIT-D04-R1](tasks/AUDIT-D04-R1.md) all-empty `Key:` block is body text.
+**AUDIT-D04-R3 — done.** [Brief](tasks/AUDIT-D04-R3.md);
+[evidence](test-evidence/AUDIT.md#audit-d04-r3--remaining-renderercodec-reading-differences).
+
+- The export check no longer passes sources the PDF prints in another role:
+  the five queued classes and seven more the probes found. Assessment only;
+  codec classification, Rust, IPC, helper, profile and pins unchanged.
+- `src/domain/rendererReading.ts` mirrors the pinned parser;
+  `src/domain/exportAssessment.ts` reports each line whose printed role or
+  scene number differs. Corpus 83 → 117; helper checks text and paragraph
+  classes.
+- Differential probe on 70,000 generated sources: clean-but-different
+  2,495 → 0; none of the 14,146 clean-and-equal sources newly gated; mirror
+  equal to the parser on all. 16/16 injected faults detected.
+- `pnpm check` pass, tracked frontend **1080/1080**, helper **16/16**, browser
+  pass. Native binary `3578c0b8…` in place: pdf-export, script-check,
+  publication-exit, title-page on tmpfs and Btrfs — **8/8 content, 8/8 crash
+  audits clean**.
+
+**Queued next, in order:** AUDIT-D07-N native typed-export drill; AUDIT-PARK-H
+empty Scene Heading capture, confirm first.
 
 ## Still unverified
 
-- D-07 typed-export case in the native app: no drill mode exists (type the
-  fixture scene, Export PDF, `pdftotext`). JSDOM and helper proof only.
+- D-07 typed-export case in the native app (AUDIT-D07-N, in progress).
+- Existing limitations beside a boneyard over-report with their old wording
+  (not removed in R3).
 - `pnpm test` on this host also runs 61 archived test copies under
   `target/audit-simp-f/baseline-source`; use `--exclude 'target/**'` for the
   tracked count.
@@ -51,15 +45,11 @@ Cloud-session tasks, unchanged and covered by the gates above:
 - **AUDIT-PARK-T**: D-05 replace-all protection and snapshot cap; duplicate
   draft after a failed resume.
 - **Capitals guard**: lowercase headings and forced transitions block export
-  because the editor shows them as typed and the PDF prints capitals. Showing
-  them in capitals in the editor would let the guard go; one guard to remove.
-- **AUDIT-D04-R3**: five remaining renderer/codec classes (whitespace-only
-  separators, unclosed parentheticals, spaced scene numbers, bare heading
-  prefix, boneyard-only lines). All predate this branch.
-- Parked, unverified: an empty Scene Heading row after text cannot be captured
-  until a character is typed (JSDOM, same on `main`).
+  because the editor shows them as typed and the PDF prints capitals. Keep,
+  drop, or show capitals in the editor and then drop.
+- D-05 cheap variant and D-09 page count wait on the decisions above.
 - Replace-All test failure under load (1/10 in the cloud, D02's retained
-  failure): not reproduced here in four full runs; cause still unknown.
+  failure): not reproduced on this host; cause still unknown.
 
 ## Retained findings and limits (detail in linked evidence)
 
@@ -86,12 +76,10 @@ after parent SIGKILL. M6-03 copy/prune and capture-failure bundle policy open.
 
 ## Next action
 
-Owner: decide the open items above. Agent, in order: AUDIT-D04-R3 brief and
-sweep, a native typed-export drill mode for D-07, a native reproduction of the
-parked empty Scene Heading capture, then the accepted DESIGN items without a
-brief (D-05 cheap variant with AUDIT-PARK-T facts, D-09 page count). Work on
-`main`; no push without authorization. Never substitute injected composition for genuine IME; unset
-`FORCE_COLOR` for `pnpm test:browser`. No full native/a11y/keyboard, SELinux,
-M6-02, C1/F2 or Local v1 closure; [M6-02-R1](tasks/M6-02-R1.md) and
-[M6-01-R1](tasks/M6-01-R1.md) remain separate; DEV-02 is owner-only. No M6/M7
-work, private-engine shipping, personal manuscript/credentials/upload work.
+Agent: AUDIT-D07-N, then AUDIT-PARK-H. Owner: decide the open items above.
+Work on `main`; no push without authorization. Never substitute injected
+composition for genuine IME; unset `FORCE_COLOR` for `pnpm test:browser`. No
+full native/a11y/keyboard, SELinux, M6-02, C1/F2 or Local v1 closure;
+[M6-02-R1](tasks/M6-02-R1.md) and [M6-01-R1](tasks/M6-01-R1.md) remain
+separate; DEV-02 is owner-only. No M6/M7 work, private-engine shipping,
+personal manuscript/credentials/upload work.
