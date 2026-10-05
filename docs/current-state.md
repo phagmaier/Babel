@@ -5,7 +5,7 @@ Product development is paused. **M6-02, C1/F2 and Local v1 admission stay open.*
 
 ## This session
 
-**INFRA-INSTRUCTIONS implemented; publication/CI review pending.**
+**INFRA-INSTRUCTIONS published; browser-harness CI repair pending.**
 [Brief](tasks/INFRA-INSTRUCTIONS.md), [evidence](test-evidence/INFRA-INSTRUCTIONS.md).
 
 - Merge `4eafd58` retains public `beac0fc` and local F4-05 `8084690`, with
@@ -34,7 +34,9 @@ Product development is paused. **M6-02, C1/F2 and Local v1 admission stay open.*
 - Shared local checks: frontend 1319/1319 in 74 files, Rust 273/273,
   helper 16/16, tooling 5/5, differential 3/3, browser and package pass.
   Initial formatting/discovery mistakes and BOM-oracle correction are retained
-  in evidence. Final local guidance/links/format/diff review passed; published CI is pending.
+  in evidence. First published CI passed frontend/core/helper/differential/tooling,
+  then failed the browser harness's 15-second console-message startup wait.
+  Vite awaited startup/close replaces that wait; rerun pending.
 
 ## Retained findings and limits
 
@@ -59,6 +61,6 @@ remain open. DEV-02 is owner-only. No retained artifacts pruned.
 
 ## Next action
 
-Finish **INFRA-INSTRUCTIONS**: publish the reviewed result, inspect GitHub
-Checks, repair any maintenance CI failure, then update completion/evidence
+Finish **INFRA-INSTRUCTIONS**: validate and publish the browser-harness
+repair, inspect GitHub Checks, then update completion/evidence
 and stop. Product development stays paused; no next F4/M6 task is selected.

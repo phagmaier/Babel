@@ -14,6 +14,8 @@ housekeeping result to be pushed. Product development stays paused.
   policy without changing product requirements or admitting Local v1.
 - Fix five M4 relative links; exclude archived tests; automate full links,
   guidance checks, browser smoke and helper tests in CI with honest scope.
+  Browser harness startup/cleanup may be repaired if the new CI gate fails;
+  existing browser assertions remain intact.
 - Track deterministic capture and renderer differential gates. Compare
   capture against the frozen F4-05 Git source, not generated expectations;
   compare the mirror to the pinned renderer and retain shared literal oracles.

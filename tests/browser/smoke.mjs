@@ -1,30 +1,22 @@
 import { chromium } from 'playwright-core';
+import { createServer } from 'vite';
 import { readFile, mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { resolve, join } from 'node:path';
-import { spawn, spawnSync } from 'node:child_process';
+import { spawnSync } from 'node:child_process';
 import process from 'node:process';
 import console from 'node:console';
 import { checkElementLayout } from './element-layout.mjs';
 import { checkShellLayout } from './shell-layout.mjs';
 
-const server = spawn('pnpm', ['dev', '--host', '127.0.0.1'], { stdio: 'pipe' });
+let server;
 let browser;
 const pdfRoot = await mkdtemp(join(tmpdir(), 'babel-viewer-smoke-'));
 try {
-  await new Promise((resolve, reject) => {
-    const timeout = globalThis.setTimeout(
-      () => reject(new Error('Vite did not start')),
-      15000,
-    );
-    server.stdout.on('data', (chunk) => {
-      if (chunk.toString().includes('Local:')) {
-        globalThis.clearTimeout(timeout);
-        resolve();
-      }
-    });
-    server.on('exit', (code) => reject(new Error(`Vite exited ${code}`)));
+  server = await createServer({
+    server: { host: '127.0.0.1', port: 5173, strictPort: true },
   });
+  await server.listen();
   browser = await chromium.launch({
     executablePath: process.env.CHROMIUM_PATH || '/usr/bin/chromium',
     headless: true,
@@ -104,6 +96,6 @@ try {
   console.log('Browser smoke passed; screenshot: /tmp/babel-m0-browser.png');
 } finally {
   await browser?.close();
-  server.kill();
+  await server?.close();
   await rm(pdfRoot, { recursive: true, force: true });
 }
