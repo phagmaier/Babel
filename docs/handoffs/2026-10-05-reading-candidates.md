@@ -1,5 +1,10 @@
 # Next-agent assignment — AUDIT-READING-CANDIDATES
 
+**Executed 2026-10-05; do not run again.** Result and checks:
+[evidence](../test-evidence/AUDIT-READING-CANDIDATES.md#classification--2026-10-05).
+Follow-up: [AUDIT-D04-R4](../tasks/AUDIT-D04-R4.md). The text below is the
+assignment as given.
+
 Begin one bounded investigation in `/home/phagmaier/Code/Babel`:
 **AUDIT-READING-CANDIDATES**, classifying existing source-role candidates.
 This assignment authorizes investigation, synthetic probes, test-only reporting

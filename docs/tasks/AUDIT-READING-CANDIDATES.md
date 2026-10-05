@@ -1,6 +1,10 @@
 # AUDIT-READING-CANDIDATES — classify baseline source-role candidates
 
-Selected next for bounded classification 2026-10-05; no product fix authorized.
+Status: **classified 2026-10-05**; no product change.
+[Evidence](../test-evidence/AUDIT-READING-CANDIDATES.md#classification--2026-10-05).
+Eleven occurrences are seven sources: two supported lyric mappings and five
+confirmed silent omissions of visible text behind a clean assessment, with
+retained red evidence and fix brief [AUDIT-D04-R4](AUDIT-D04-R4.md).
 [Owner handoff](../handoffs/2026-10-05-reading-candidates.md) supplies context,
 commands, completion and stopping boundaries. Origin:
 [INFRA-INSTRUCTIONS](INFRA-INSTRUCTIONS.md) standing generated-source gate.
@@ -60,6 +64,7 @@ Controls K1–K6 (ordinary body, empty-line separator, no boneyard, lone lyric,
 unmarked action, supported title field) and hand-written scope probes P1–P3
 (body text after S3, unindented first line, boneyard between title fields) are
 in the matrix. Scope probes bound a possible fix; they are not sweep candidates.
+P4 (a second visible line under the boneyard) was added after the first run.
 
 **Invariant under test** (SPEC S09.2, INV-03; ADR 0037 lyrics): when the
 assessment is verified with no blocking issue, the helper's PDF prints every
@@ -67,7 +72,7 @@ listed visible string and no hidden string, lyric text is italic and other
 text is not. A blocking SC005 satisfies it by reporting. Expectations come
 from Fountain semantics and those clauses, not from the codec, mirror or renderer.
 
-Probe (lands with the results commit; needs `pnpm pdf-helper` and Poppler):
+Probe (needs `pnpm pdf-helper` and Poppler; red while AUDIT-D04-R4 is open):
 
 ```sh
 BABEL_READING_ROOT="$(mktemp -d "$PWD/target/audit-reading-candidates-XXXXXXXX")" \

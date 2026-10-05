@@ -125,6 +125,9 @@ it('shared corpus and 70,000 generated sources introduce no pinned-parser readin
   const assessmentRegressions: unknown[] = [];
   let baselineRoleCandidates = 0;
   const baselineRoleExamples: unknown[] = [];
+  // Report only: every occurrence, so review can deduplicate and account for
+  // each one. It changes no predicate, assertion, seed or baseline.
+  const baselineRoleOccurrences: unknown[] = [];
   const existing: unknown[] = [];
   let equal = 0,
     refused = 0;
@@ -169,6 +172,12 @@ it('shared corpus and 70,000 generated sources introduce no pinned-parser readin
         differs(nowView, nowReading));
     if (oldCleanDifference) {
       baselineRoleCandidates++;
+      baselineRoleOccurrences.push({
+        index,
+        origin: index < corpus.cases.length ? 'oracle' : 'generated',
+        source,
+        current: nowCleanDifference,
+      });
       if (baselineRoleExamples.length < 5)
         baselineRoleExamples.push({
           source,
@@ -221,6 +230,7 @@ it('shared corpus and 70,000 generated sources introduce no pinned-parser readin
         existingExamples: existing.slice(0, 5),
         baselineRoleCandidates,
         baselineRoleExamples,
+        baselineRoleOccurrences,
       }),
       { flag: 'wx' },
     );

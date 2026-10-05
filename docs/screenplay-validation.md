@@ -153,6 +153,12 @@ limitation already reports that paragraph. This covers:
   whose capitals do not come before its first bracket (`(MAYA)`), or a line
   whose capitals do (`MAYA (to Jon) quietly`); `TO:` with no capitals before it.
 
+**Open, [AUDIT-D04-R4](tasks/AUDIT-D04-R4.md):** the title-page comparison is
+skipped when a line of the opening block contains `/*`. Where the codec reads
+no title and the renderer folds a boneyard line into a title block, the
+assessment is clean and the block's visible lines are not printed.
+[Evidence](test-evidence/AUDIT-READING-CANDIDATES.md#classification--2026-10-05).
+
 Existing limitations beside a boneyard still over-report with their old
 wording; none was removed. New corpus cases state the renderer's own paragraph
 classes (`paragraphs`), which the helper test checks against the real parser

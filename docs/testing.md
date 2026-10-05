@@ -53,6 +53,9 @@ from unit/UI discovery and runs in CI. A missing baseline/helper is a failure.
 
 Optional retained reports: set `BABEL_DIFFERENTIAL_REPORT` to a fresh path
 prefix outside fixtures; the suite writes exclusive-create JSON summaries.
+The renderer report lists every candidate occurrence (`baselineRoleOccurrences`).
+Reproducers under `tests/investigation/` run by name only, outside `pnpm test`,
+this gate and CI; one may stay red while its tracked finding is open.
 `BABEL_DIFFERENTIAL_FAULT=capture`, `renderer` or `assessment` injects an in-memory fault
 in the dedicated suite only; all must fail. No product source is modified.
 
