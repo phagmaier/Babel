@@ -1,0 +1,182 @@
+{
+  "purpose": "AUDIT-READING-CANDIDATES sample matrix. Synthetic sources only. Expectations were written by hand from Fountain semantics, SPEC S09.2 and ADR 0037 before any sample was rendered; none is generated from the codec, the assessment, the parser mirror or the renderer.",
+  "invariant": "When the export assessment is verified with no blocking issue, the PDF from the pinned helper prints every `visible` string and no `hidden` string, `italic` strings use an italic face and `upright` strings do not. A blocked assessment satisfies the invariant by reporting.",
+  "samples": [
+    {
+      "id": "S1",
+      "class": "candidate",
+      "occurrences": [36],
+      "note": "Shared oracle case 36: a lyric line directly below action.",
+      "source": "INT. LAB - DAY\n\nA lamp.\n~La la\n",
+      "visible": ["INT. LAB - DAY", "A lamp.", "La la"],
+      "hidden": ["~"],
+      "italic": ["La la"],
+      "upright": ["A lamp."]
+    },
+    {
+      "id": "S2",
+      "class": "candidate",
+      "occurrences": [111],
+      "note": "Shared oracle case 111: a two-line lyric paragraph.",
+      "source": "A lamp glows.\n\n~La la la\n~DEE DEE DEE\n",
+      "visible": ["A lamp glows.", "La la la", "DEE DEE DEE"],
+      "hidden": ["~"],
+      "italic": ["La la la", "DEE DEE DEE"],
+      "upright": ["A lamp glows."]
+    },
+    {
+      "id": "S3",
+      "class": "candidate",
+      "occurrences": [6019, 56100, 57114],
+      "note": "Indented FADE IN:, a tab-only line, then a boneyard on its own line.",
+      "source": " FADE IN:\n\t\n /* bone */\t\n",
+      "visible": ["FADE IN:"],
+      "hidden": ["bone"],
+      "italic": [],
+      "upright": ["FADE IN:"]
+    },
+    {
+      "id": "S4",
+      "class": "candidate",
+      "occurrences": [7963],
+      "note": "As S3 with CUT TO: and a trailing tab.",
+      "source": " CUT TO:\t\n\t\n /* bone */\t\n",
+      "visible": ["CUT TO:"],
+      "hidden": ["bone"],
+      "italic": [],
+      "upright": ["CUT TO:"]
+    },
+    {
+      "id": "S5",
+      "class": "candidate",
+      "occurrences": [18055, 66441],
+      "note": "As S3 with CUT TO: and one trailing space.",
+      "source": " CUT TO: \n\t\n /* bone */\t\n",
+      "visible": ["CUT TO:"],
+      "hidden": ["bone"],
+      "italic": [],
+      "upright": ["CUT TO:"]
+    },
+    {
+      "id": "S6",
+      "class": "candidate",
+      "occurrences": [34346],
+      "note": "As S3 with CUT TO: and two trailing spaces.",
+      "source": " CUT TO:  \n\t\n /* bone */\t\n",
+      "visible": ["CUT TO:"],
+      "hidden": ["bone"],
+      "italic": [],
+      "upright": ["CUT TO:"]
+    },
+    {
+      "id": "S7",
+      "class": "candidate",
+      "occurrences": [37680, 49188],
+      "note": "As S3 with one trailing space.",
+      "source": " FADE IN: \n\t\n /* bone */\t\n",
+      "visible": ["FADE IN:"],
+      "hidden": ["bone"],
+      "italic": [],
+      "upright": ["FADE IN:"]
+    },
+    {
+      "id": "K1",
+      "class": "control",
+      "occurrences": [],
+      "note": "Ordinary visible body text.",
+      "source": "FADE IN:\n\nA lamp glows.\n",
+      "visible": ["FADE IN:", "A lamp glows."],
+      "hidden": [],
+      "italic": [],
+      "upright": ["FADE IN:", "A lamp glows."]
+    },
+    {
+      "id": "K2",
+      "class": "control",
+      "occurrences": [],
+      "note": "S3 with a truly empty separator line: the boneyard is the only omission.",
+      "source": " FADE IN:\n\n /* bone */\t\n",
+      "visible": ["FADE IN:"],
+      "hidden": ["bone"],
+      "italic": [],
+      "upright": ["FADE IN:"]
+    },
+    {
+      "id": "K3",
+      "class": "control",
+      "occurrences": [],
+      "note": "S3 without the boneyard line.",
+      "source": " FADE IN:\n\t\n",
+      "visible": ["FADE IN:"],
+      "hidden": [],
+      "italic": [],
+      "upright": ["FADE IN:"]
+    },
+    {
+      "id": "K4",
+      "class": "control",
+      "occurrences": [],
+      "note": "A lyric paragraph on its own.",
+      "source": "~La la la\n",
+      "visible": ["La la la"],
+      "hidden": ["~"],
+      "italic": ["La la la"],
+      "upright": []
+    },
+    {
+      "id": "K5",
+      "class": "control",
+      "occurrences": [],
+      "note": "S1's paragraph without the lyric marker: the same words as plain action.",
+      "source": "A lamp.\nLa la\n",
+      "visible": ["A lamp.", "La la"],
+      "hidden": [],
+      "italic": [],
+      "upright": ["A lamp.", "La la"]
+    },
+    {
+      "id": "K6",
+      "class": "control",
+      "occurrences": [],
+      "note": "A supported title field prints its value on a title page, not its key.",
+      "source": "Title: Night Shift\n\nA lamp glows.\n",
+      "visible": ["Night Shift", "A lamp glows."],
+      "hidden": ["Title:"],
+      "italic": [],
+      "upright": ["A lamp glows."]
+    },
+    {
+      "id": "P1",
+      "class": "scope",
+      "occurrences": [],
+      "note": "Hand-written, not a sweep candidate: S3 followed by ordinary body text.",
+      "source": " FADE IN:\n\t\n /* bone */\t\n\nA lamp glows.\n",
+      "visible": ["FADE IN:", "A lamp glows."],
+      "hidden": ["bone"],
+      "italic": [],
+      "upright": ["FADE IN:", "A lamp glows."]
+    },
+    {
+      "id": "P2",
+      "class": "scope",
+      "occurrences": [],
+      "note": "Hand-written, not a sweep candidate: unindented first line and a tab before the boneyard.",
+      "source": "FADE IN:\n\t\n\t/* bone */\n\nA lamp glows.\n",
+      "visible": ["FADE IN:", "A lamp glows."],
+      "hidden": ["bone"],
+      "italic": [],
+      "upright": ["FADE IN:", "A lamp glows."]
+    },
+    {
+      "id": "P3",
+      "class": "scope",
+      "occurrences": [],
+      "note": "Hand-written, not a sweep candidate: a boneyard line between two supported title fields.",
+      "source": "Title: Night Shift\n/* old */\nAuthor: Sam\n\nA lamp glows.\n",
+      "visible": ["Night Shift", "Sam", "A lamp glows."],
+      "hidden": ["old", "Author:"],
+      "italic": [],
+      "upright": ["A lamp glows."]
+    }
+  ]
+}

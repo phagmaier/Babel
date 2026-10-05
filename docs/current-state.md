@@ -6,9 +6,11 @@ Product feature work is paused; next assignment is classification only.
 
 ## This session
 
-**Next-agent handoff prepared; classification not started.**
+**AUDIT-READING-CANDIDATES claimed 2026-10-05; classification in progress.**
+Eleven occurrences are seven distinct sources; literal expectations and probe
+command are in the brief. No sample rendered yet, no defect confirmed.
 [Assignment](handoffs/2026-10-05-reading-candidates.md),
-[brief](tasks/AUDIT-READING-CANDIDATES.md),
+[brief](tasks/AUDIT-READING-CANDIDATES.md#sample-matrix-and-literal-expectations),
 [preparation evidence](test-evidence/AUDIT-READING-CANDIDATES.md).
 Owner asked for the recommended next task and fresh-agent context. Selected
 bounded semantic classification before any product correction or new feature.

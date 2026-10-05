@@ -39,6 +39,51 @@ expectations first. Evidence belongs in
 [development tiers](../development.md#check-tiers-use-the-lowest-tier-that-covers-the-change);
 tracked test/reporting changes include `pnpm check`, with omissions justified.
 
+## Sample matrix and literal expectations
+
+Written 2026-10-05 before any sample was rendered. Report-only instrumentation
+in the renderer gate (`baselineRoleOccurrences`; predicate, seed, assertions and
+baseline untouched) lists all eleven occurrences: **seven distinct sources**.
+Executable copy with exact bytes: [matrix](../../tests/investigation/reading-candidates.json).
+
+| ID  | Occurrences (corpus index) | Source (JSON-escaped)                        | Script shows as printed                           | Must not print |
+| --- | -------------------------- | -------------------------------------------- | ------------------------------------------------- | -------------- |
+| S1  | 1 (oracle 36)              | `INT. LAB - DAY\n\nA lamp.\n~La la\n`        | heading, `A lamp.`, italic `La la`                | `~`            |
+| S2  | 1 (oracle 111)             | `A lamp glows.\n\n~La la la\n~DEE DEE DEE\n` | `A lamp glows.`, italic `La la la`, `DEE DEE DEE` | `~`            |
+| S3  | 3 (6019, 56100, 57114)     | ` FADE IN:\n\t\n /* bone */\t\n`             | `FADE IN:`                                        | `bone`         |
+| S4  | 1 (7963)                   | ` CUT TO:\t\n\t\n /* bone */\t\n`            | `CUT TO:`                                         | `bone`         |
+| S5  | 2 (18055, 66441)           | ` CUT TO: \n\t\n /* bone */\t\n`             | `CUT TO:`                                         | `bone`         |
+| S6  | 1 (34346)                  | ` CUT TO:  \n\t\n /* bone */\t\n`            | `CUT TO:`                                         | `bone`         |
+| S7  | 2 (37680, 49188)           | ` FADE IN: \n\t\n /* bone */\t\n`            | `FADE IN:`                                        | `bone`         |
+
+Controls K1–K6 (ordinary body, empty-line separator, no boneyard, lone lyric,
+unmarked action, supported title field) and hand-written scope probes P1–P3
+(body text after S3, unindented first line, boneyard between title fields) are
+in the matrix. Scope probes bound a possible fix; they are not sweep candidates.
+
+**Invariant under test** (SPEC S09.2, INV-03; ADR 0037 lyrics): when the
+assessment is verified with no blocking issue, the helper's PDF prints every
+listed visible string and no hidden string, lyric text is italic and other
+text is not. A blocking SC005 satisfies it by reporting. Expectations come
+from Fountain semantics and those clauses, not from the codec, mirror or renderer.
+
+Probe (lands with the results commit; needs `pnpm pdf-helper` and Poppler):
+
+```sh
+BABEL_READING_ROOT="$(mktemp -d "$PWD/target/audit-reading-candidates-XXXXXXXX")" \
+  pnpm exec vitest run --config tests/investigation/vitest.config.ts
+```
+
+It renders each sample through helper protocol 1 into the fresh root, keeps
+source, PDF, receipt, stderr and `pdftotext -layout` text, and records codec
+rows/title fields, assessment status/issues/omissions, mirror and actual pinned
+parser readings and per-line font and indent. It runs by name only: outside
+`pnpm test`, the differential gate and CI. Required before commit: the focused
+command above, `pnpm test:differential`, `pnpm test:pdf-helper`, tooling
+discovery (`python3 -m unittest discover -s tests/tools -p 'test_*.py'`) and
+`pnpm check`. Skipped: Rust, browser, native and matrix gates (no product,
+Rust, DOM or filesystem path changes).
+
 Record accepted profile mappings with existing contract/evidence references;
 any real discrepancy gets a red independent regression and a narrowed fix
 brief before changing behavior. Do not suppress SC005, change the pinned
