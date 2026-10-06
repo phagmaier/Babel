@@ -192,7 +192,7 @@ export function FindPanel({
       </p>
       <p role="status" aria-live="polite">
         {current
-          ? `${state.matches.length} matches${active ? `; ${state.active + 1} of ${state.matches.length}` : ''}. ${state.message}`
+          ? `${state.matches.length} ${state.matches.length === 1 ? 'match' : 'matches'}${active ? `; ${state.active + 1} of ${state.matches.length}` : ''}. ${state.message}`
           : state.message}
       </p>
       <button
