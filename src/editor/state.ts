@@ -86,6 +86,38 @@ export function advanceEditorVersion(
   adoptedVersions.set(transaction, version);
   return transaction;
 }
+/**
+ * Capture-only derivation for recovery: row `index` retyped to `kind`, or
+ * omitted when `kind` is null (empty rows only), with the same session,
+ * version and every other row's text. Never dispatched or shown; null if refused.
+ */
+export function retypedForCapture(
+  state: EditorState,
+  index: number,
+  kind: string | null,
+): EditorState | null {
+  const node = state.doc.maybeChild(index);
+  const type = kind === null ? null : screenplaySchema.nodes[kind];
+  if (!node || type === undefined || node.attrs.protected || node.type === type)
+    return null;
+  if (type === null && (node.textContent || state.doc.childCount < 2))
+    return null;
+  let position = 0;
+  for (let at = 0; at < index; at++) position += state.doc.child(at).nodeSize;
+  let transaction = state.tr.setMeta('addToHistory', false);
+  try {
+    transaction =
+      type === null
+        ? transaction.delete(position, position + node.nodeSize)
+        : transaction.setNodeMarkup(position, type, node.attrs);
+  } catch {
+    return null;
+  }
+  authorizeStructuralTransaction(transaction, editorOrigin(state).nextId);
+  adoptedVersions.set(transaction, editorVersion(state));
+  const result = state.applyTransaction(transaction);
+  return result.transactions.length === 1 ? result.state : null;
+}
 export function nodeRuns(node: EditorNode): StyledText[] {
   const runs: StyledText[] = [];
   node.forEach((child) => {

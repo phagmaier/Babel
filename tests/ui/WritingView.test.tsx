@@ -3519,11 +3519,11 @@ it.each([
   20000,
 );
 
-it('AUDIT-PARK-H-F3 a refused row is named with how to resume; saving stays paused until it changes', async () => {
+it('AUDIT-PARK-H-F3 / CAPTURE-RECOVERY a refused row is named; recovery keeps journaling while source saving stays paused', async () => {
   const f = await parkedDraft('@BOB\n(beat)\nHi.\n');
   const { view, saved, journaled } = f;
   const paused =
-    'Saving and recovery are paused. Row 2, the Parenthetical “x (beat)”, cannot be saved as Fountain as it stands. A Parenthetical starts with an opening parenthesis. Change that row or Undo to resume. To keep the draft exactly as it is, use Close session, then Save Emergency Copy and close.';
+    'Saving the file is paused; recovery still protects all of your text. Row 2, the Parenthetical “x (beat)”, cannot be saved as Fountain as it stands. A Parenthetical starts with an opening parenthesis. Change that row or Undo to resume. If babel closes unexpectedly, recovery reopens row 2 as Dialogue.';
   const protection = within(screen.getByLabelText('Protection status'));
   const alerts = () =>
     protection.queryAllByRole('alert').map((alert) => alert.textContent);
@@ -3543,18 +3543,23 @@ it('AUDIT-PARK-H-F3 a refused row is named with how to resume; saving stays paus
   await waitFor(() => expect(alerts()).toContain(paused));
   expect(screen.queryByText(/must begin|round-trip/)).toBeNull();
 
-  // Author work typed in another row meanwhile is not saved or journaled.
+  // Author work typed in another row meanwhile reaches the recovery journal
+  // (the refused row as Dialogue, its text intact); the source file is never
+  // written from that recovery-only copy (ADR 0044).
   view.dispatch(view.state.tr.insertText(' Fine.', f.endOf(2)));
-  const before = [saved.length, journaled.length];
+  const protectedCopy = '@BOB\nx (beat)\nHi. Sure. Fine.\n';
+  await waitFor(() => expect(journaled).toContain(protectedCopy), {
+    timeout: 4000,
+  });
   await f.settle();
-  expect([saved.length, journaled.length]).toEqual(before);
-  expect(f.status()).toBe('Changes pending');
-  expect(alerts()).toEqual([
-    'Newer changes exist only in memory until protection is confirmed.',
-    paused,
-  ]);
+  const savedBefore = saved.length;
+  expect(saved.at(-1)).toBe('@BOB\n(beat)\nHi. Sure.\n');
+  expect(saved).not.toContain(protectedCopy);
+  expect(f.status()).toBe('Recovery protected; file save pending');
+  expect(alerts()).toEqual([paused]);
 
-  // An explicit Save reports the same row in the same words.
+  // An explicit Save reports the same row in the same words and still
+  // writes nothing to the source file.
   fireEvent.click(
     within(screen.getByLabelText('Screenplay actions')).getByRole('button', {
       name: 'Save',
@@ -3562,7 +3567,8 @@ it('AUDIT-PARK-H-F3 a refused row is named with how to resume; saving stays paus
   );
   await waitFor(() => expect(alerts()).toContain(paused));
   expect(screen.queryByText(/must begin|round-trip/)).toBeNull();
-  expect([saved.length, journaled.length]).toEqual(before);
+  await f.settle();
+  expect(saved.length).toBe(savedBefore);
 
   // Changing the named row resumes capture; nothing typed meanwhile is lost.
   view.dispatch(view.state.tr.delete(f.endOf(1) - 8, f.endOf(1) - 6));

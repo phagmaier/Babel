@@ -8,6 +8,9 @@
  * fresh native flush on explicit save (native duplicates sync/verify without
  * replacement); timer saves skip already-saved versions.
  *
+ * A recovery-only snapshot (a draft Fountain refused) is journaled but never
+ * written to the source file; the next faithful capture resumes source saving.
+ *
  * A failed dispatch never re-arms itself: the failure stays visible in
  * persistence state and only a newer edit or an explicit flush retries, so a
  * persistently failing disk is not hammered at cadence. Snapshot/copy errors
@@ -288,7 +291,7 @@ export class SaveCadence {
 
   private sourceNeeded(): boolean {
     const snapshot = this.latest;
-    if (snapshot === null) return false;
+    if (snapshot === null || snapshot.recoveryOnly) return false;
     const state = this.controller.state;
     return (
       (snapshot.version > state.fileSavedVersion ||
@@ -303,7 +306,7 @@ export class SaveCadence {
   /** Explicit flush requests a fresh native flush even for unchanged sources. */
   private sourceRequested(): boolean {
     const snapshot = this.latest;
-    if (snapshot === null) return false;
+    if (snapshot === null || snapshot.recoveryOnly) return false;
     const state = this.controller.state;
     return (
       state.writable &&

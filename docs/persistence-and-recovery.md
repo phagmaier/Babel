@@ -486,3 +486,22 @@ Missing or unreadable files leave recovery and separate-copy routes available.
 [ADR 0041](decisions/0041-protected-external-reload.md),
 [brief](tasks/AUDIT-D08A.md),
 [evidence](test-evidence/AUDIT.md#audit-d08a--protected-external-reload).
+
+## Recovery independent of capture refusals
+
+[ADR 0044](decisions/0044-recovery-independent-of-capture.md), CAPTURE-RECOVERY.
+When deferred capture refuses a draft Fountain cannot hold, the capture
+boundary still derives a **recovery-only snapshot**: on a never-dispatched copy
+of the editor state each refused row is retyped (Dialogue inside a speech,
+otherwise Action; an empty row is omitted) until the codec serializes it. The
+snapshot keeps the live version, every row's text, BOM/line endings and
+protected regions, and is hash-bound like any capture. The original refusal is
+rethrown unchanged, so Save, Save As, export, PDF and close still refuse.
+
+The writing session notes that snapshot to the cadence, which journals it on
+its normal timers and on explicit Save. The cadence never dispatches a source
+save for it and the controller rejects one; status reads "Recovery protected;
+file save pending". The next faithful capture resumes source saving. Limits: a
+refusal that names no row, or a row whose retype the codec still refuses,
+produces no recovery-only snapshot and keeps the earlier paused behavior with
+the emergency-copy route.

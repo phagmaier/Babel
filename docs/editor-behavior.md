@@ -70,9 +70,13 @@ Unforced source ([AUDIT-C01](tasks/AUDIT-C01.md)): when an edit changes the gram
 
 Refusal wording ([AUDIT-PARK-H-F3](tasks/AUDIT-PARK-H-F3.md)): a refused capture
 is shown in author words, in the protection alert and after an explicit Save.
-It states that saving and recovery are paused, names the row (`Row N`, element
-label and quoted excerpt, or "an empty … row"), says to change that row or
-Undo, and points to Close session's emergency copy. The row is named only when
+When a recovery-only copy exists ([ADR 0044](decisions/0044-recovery-independent-of-capture.md))
+it states that saving the file is paused while recovery still protects all of
+the text, and which element the first refused row reopens as after a crash.
+Otherwise it states that saving and recovery are paused and points to Close
+session's emergency copy. Both name the row (`Row N`, element
+label and quoted excerpt, or "an empty … row") and say to change that row or
+Undo. The row is named only when
 the codec identifies the one submitted edit it cannot write; a refusal about a
 whole context names none. The named row is the one Fountain cannot hold, which
 can be a neighbour the edit stranded (a dual cue beside a typed blank) rather

@@ -4,6 +4,7 @@ import { elementChoices } from '../application/shortcuts';
 import type { SessionSelection } from '../application/writingSession';
 import { FountainEditError } from '../domain/fountainCodec';
 import { refusedRow } from '../editor/sourceBridge';
+import { refusalRecovery } from '../application/editorCapture';
 
 /** Read the live editor selection as plain session offsets. */
 export function toSessionSelection(view: EditorView): SessionSelection | null {
@@ -16,8 +17,9 @@ export function toSessionSelection(view: EditorView): SessionSelection | null {
 const elementLabels: ReadonlyMap<string, string> = new Map(elementChoices);
 
 /**
- * A draft Fountain cannot hold stops saving and recovery for everything typed
- * after it. Name the row when the codec did, and always how to resume.
+ * A draft Fountain cannot hold pauses source saving. Recovery keeps journaling
+ * a recovery-only copy when one exists (ADR 0044). Name the row when the codec
+ * did, and always how to resume.
  */
 function captureRefusalMessage(failure: FountainEditError): string {
   const row = refusedRow(failure);
@@ -39,6 +41,15 @@ function captureRefusalMessage(failure: FountainEditError): string {
       ? 'Change that row or Undo to resume.'
       : 'Type its text or Undo to resume.';
     stopped = `Row ${row.index + 1}, ${named}, cannot be saved as Fountain as it stands.${rule} ${resume}`;
+  }
+  const recovery = refusalRecovery(failure);
+  if (recovery) {
+    const first = recovery.retyped[0];
+    const kept =
+      first && first.kind !== 'omitted'
+        ? ` If babel closes unexpectedly, recovery reopens row ${first.row.index + 1} as ${elementLabels.get(first.kind)}.`
+        : '';
+    return `Saving the file is paused; recovery still protects all of your text. ${stopped}${kept}`;
   }
   return `Saving and recovery are paused. ${stopped} To keep the draft exactly as it is, use Close session, then Save Emergency Copy and close.`;
 }

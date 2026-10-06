@@ -1,8 +1,11 @@
 import type { EditorState } from 'prosemirror-state';
+import { FountainEditError } from '../domain/fountainCodec';
 import {
   captureEditor,
+  captureForRecovery,
   copyEditorDraft,
   type EditorCapture,
+  type RecoveryRetype,
 } from '../editor/sourceBridge';
 import { editorOrigin, editorVersion } from '../editor/state';
 import type { CapturedSnapshot } from './persistenceController';
@@ -20,6 +23,26 @@ export interface CaptureResult {
   readonly snapshot: CapturedEditorSnapshot;
 }
 type Hasher = (source: Uint8Array) => Promise<string>;
+
+interface RefusalRecovery {
+  readonly snapshot: CapturedEditorSnapshot;
+  readonly retyped: readonly RecoveryRetype[];
+}
+const refusalRecoveries = new WeakMap<object, RefusalRecovery>();
+/**
+ * The recovery-only snapshot a refused capture still produced, if any. The
+ * refusal itself is rethrown unchanged, so every faithful-capture consumer
+ * (Save, Save As, export, close) keeps refusing; only journaling uses this.
+ */
+export function recoverySnapshotOf(
+  error: unknown,
+): CapturedEditorSnapshot | undefined {
+  return refusalRecovery(error)?.snapshot;
+}
+/** Rows the recovery-only snapshot retyped, in refusal order. */
+export function refusalRecovery(error: unknown): RefusalRecovery | undefined {
+  return error instanceof Error ? refusalRecoveries.get(error) : undefined;
+}
 export async function sha256(source: Uint8Array): Promise<string> {
   const digest = await crypto.subtle.digest(
     'SHA-256',
@@ -103,6 +126,7 @@ export class EditorCaptureBoundary {
     const prior = this.origins.get(snapshot);
     const state = this.getState();
     if (
+      snapshot.recoveryOnly ||
       !prior ||
       prior.doc !== state.doc ||
       editorOrigin(prior).session !== editorOrigin(state).session
@@ -200,8 +224,45 @@ export class EditorCaptureBoundary {
     let state = this.getState();
     await this.defer(afterPaint);
     if (latest) state = this.getState();
-    const capture = captureEditor(state, this.previousCapture);
+    let capture: EditorCapture;
+    try {
+      capture = captureEditor(state, this.previousCapture);
+    } catch (error) {
+      await this.attachRecovery(state, error);
+      throw error;
+    }
     this.previousCapture = capture;
+    const snapshot = await this.snapshotFor(state, capture);
+    return Object.freeze({
+      status: this.isCurrent(snapshot) ? 'current' : 'stale',
+      snapshot,
+    });
+  }
+  /** Journaling must not depend on Fountain representability (ADR 0044). */
+  private async attachRecovery(
+    state: EditorState,
+    error: unknown,
+  ): Promise<void> {
+    if (!(error instanceof FountainEditError)) return;
+    try {
+      const fallback = captureForRecovery(state, error);
+      if (fallback)
+        refusalRecoveries.set(
+          error,
+          Object.freeze({
+            snapshot: await this.snapshotFor(state, fallback.capture, true),
+            retyped: fallback.retyped,
+          }),
+        );
+    } catch {
+      // No recovery copy: the original refusal still reaches the author.
+    }
+  }
+  private async snapshotFor(
+    state: EditorState,
+    capture: EditorCapture,
+    recoveryOnly = false,
+  ): Promise<CapturedEditorSnapshot> {
     const bytes = capture.source;
     if (bytes.length > MAX_SOURCE_BYTES)
       throw new RangeError('Editor capture exceeds native source bound');
@@ -248,11 +309,9 @@ export class EditorCaptureBoundary {
       sourceSha256,
       draftMetadata,
       capture,
+      ...(recoveryOnly ? { recoveryOnly: true as const } : {}),
     });
     this.origins.set(snapshot, state);
-    return Object.freeze({
-      status: this.isCurrent(snapshot) ? 'current' : 'stale',
-      snapshot,
-    });
+    return snapshot;
   }
 }

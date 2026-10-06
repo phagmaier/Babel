@@ -29,6 +29,11 @@ export interface CapturedSnapshot {
   readonly source: readonly number[];
   readonly sourceSha256: string;
   readonly draftMetadata: JsonValue;
+  /**
+   * Recovery journal only: a draft Fountain refused, with refused rows retyped
+   * so their text survives. Never written to the source file (ADR 0044).
+   */
+  readonly recoveryOnly?: true;
 }
 function metadataIsJson(value: unknown, depth = 0): boolean {
   if (depth > 64) return false;
@@ -103,6 +108,10 @@ export class PersistenceController {
   }
   /** Every explicit call dispatches a fresh native flush, including exact duplicates. */
   save(snapshot: CapturedSnapshot): Promise<SaveReceipt> {
+    if (snapshot.recoveryOnly)
+      return Promise.reject(
+        new Error('A recovery-only capture is never saved as the source file'),
+      );
     return this.submit('sourceFile', snapshot) as Promise<SaveReceipt>;
   }
   /**

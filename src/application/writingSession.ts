@@ -29,7 +29,7 @@ import type { CadenceClock, FlushSummary, SaveStage } from './saveCadence';
 import { realClock, SaveCadence } from './saveCadence';
 import type { SaveAsPort, SaveStorageRelation } from './saveAs';
 import type { SnapshotPort } from './snapshots';
-import { sha256 } from './editorCapture';
+import { recoverySnapshotOf, sha256 } from './editorCapture';
 import { verifiedEditorMetadata } from './editorMetadata';
 import {
   validateWorkflowReceipt,
@@ -372,10 +372,32 @@ export class WritingSession {
     // reject the second identical version.
     const cadence = this.cadence;
     const controller = this.controller!;
-    const snapshot = await this.editor.capture();
+    let snapshot: CapturedSnapshot;
+    try {
+      snapshot = await this.editor.capture();
+    } catch (error) {
+      if (cadence === this.cadence) this.journalRefused(error);
+      throw error;
+    }
     if (cadence !== this.cadence) return;
     if (snapshot.version > controller.state.liveVersion)
       cadence.noteEdit(snapshot);
+  }
+
+  /**
+   * A draft Fountain refused still reaches the recovery journal through its
+   * recovery-only snapshot; source saving stays paused until a faithful
+   * capture (ADR 0044). The refusal is rethrown by the caller.
+   */
+  private journalRefused(error: unknown): void {
+    const fallback = recoverySnapshotOf(error);
+    if (
+      fallback &&
+      this.cadence &&
+      this.controller &&
+      fallback.version > this.controller.state.liveVersion
+    )
+      this.cadence.noteEdit(fallback);
   }
 
   async openNew(): Promise<void> {
@@ -465,6 +487,8 @@ export class WritingSession {
       );
       return summary;
     } catch (error) {
+      // Save still refuses an unrepresentable draft, but protects it first.
+      if (recoverySnapshotOf(error) && this.cadence) await this.cadence.flush();
       this.observeSave(
         { stage: 'save-rejected', version: this.editor.getVersion() },
         invocation,
@@ -832,7 +856,13 @@ export class WritingSession {
   }
 
   private async synchronize(): Promise<CapturedSnapshot> {
-    const snapshot = await this.editor.capture();
+    let snapshot: CapturedSnapshot;
+    try {
+      snapshot = await this.editor.capture();
+    } catch (error) {
+      this.journalRefused(error);
+      throw error;
+    }
     const state = this.controller!.state;
     if (snapshot.version > state.liveVersion) this.cadence!.noteEdit(snapshot);
     else matchLive(state, snapshot, 'capture');

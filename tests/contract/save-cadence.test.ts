@@ -559,3 +559,33 @@ it('AUDIT-PARK at the snapshot limit rolling snapshots stop and nothing prunes a
     lastRollingVersion: null,
   });
 });
+
+it('CAPTURE-RECOVERY journals a recovery-only snapshot but never writes it to the source file', async () => {
+  const { t, p, controller, scheduler } = cadence();
+  scheduler.noteEdit({ ...snapshot(1), recoveryOnly: true });
+  await t.advance(2000);
+  await scheduler.settle();
+  expect(p.checkpoints.map((c) => c.version)).toEqual([1]);
+  expect(p.saves).toEqual([]);
+  expect(scheduler.describe().status).toBe(
+    'Recovery protected; file save pending',
+  );
+  // An explicit flush protects recovery and still writes nothing.
+  scheduler.noteEdit({ ...snapshot(2, true), recoveryOnly: true });
+  expect(await scheduler.flush()).toMatchObject({
+    recovered: true,
+    saved: false,
+  });
+  expect(p.checkpoints.map((c) => c.version)).toEqual([1, 2]);
+  expect(p.saves).toEqual([]);
+  // The controller itself refuses a recovery-only source save.
+  await expect(
+    controller.save({ ...snapshot(2, true), recoveryOnly: true }),
+  ).rejects.toThrow('never saved as the source file');
+  // The next faithful capture resumes source saving.
+  scheduler.noteEdit(snapshot(3));
+  await t.advance(2000);
+  await scheduler.settle();
+  expect(p.saves.map((s) => s.version)).toEqual([3]);
+  expect(scheduler.describe().status).toBe('Saved locally');
+});

@@ -260,18 +260,19 @@ def run(d):
         d.close_session()
         assert len(list((d.ROOT / 'copies').glob('*.draft.json'))) == 0, 'Hidden rows required an emergency bundle'
         print('PASS native new ' + label + ': empty and populated rows plus later edits saved and journaled; Undo stays capturable; exact reopen and ordinary close', flush=True)
-    # E. AUDIT-PARK-H-F3: text before a Parenthetical's opening parenthesis is
-    # accepted by the editor but has no Fountain spelling. The alert names the
-    # row and how to resume; nothing typed meanwhile reaches the file or
-    # journal until then. (Text after the closing parenthesis saves: phase G.)
+    # E. AUDIT-PARK-H-F3 / CAPTURE-RECOVERY (ADR 0044): text before a
+    # Parenthetical's opening parenthesis is accepted by the editor but has no
+    # Fountain spelling. The alert names the row and how to resume; the file is
+    # not written meanwhile, but recovery journals every row's text (the
+    # refused row as Dialogue). (Text after the closing parenthesis saves: phase G.)
     speech = b'@BOB\n(beat)\nHi there.\n\n!A lamp glows.\n'
     target = d.ROOT / 'files' / 'refused-row.fountain'
     target.write_bytes(speech)
     open_file('BOB(beat)Hi there.A lamp glows.')
-    paused = ('Saving and recovery are paused. Row 2, the Parenthetical \u201cx (beat)\u201d, cannot be saved '
-              'as Fountain as it stands. A Parenthetical starts with an opening parenthesis. '
-              'Change that row or Undo to resume. To keep the draft exactly as it is, '
-              'use Close session, then Save Emergency Copy and close.')
+    paused = ('Saving the file is paused; recovery still protects all of your text. Row 2, the Parenthetical '
+              '\u201cx (beat)\u201d, cannot be saved as Fountain as it stands. A Parenthetical starts with an '
+              'opening parenthesis. Change that row or Undo to resume. If babel closes unexpectedly, '
+              'recovery reopens row 2 as Dialogue.')
     click_row('parenthetical', '(beat)')
     d.type_text(HOME + 'x ')
     d.wait(lambda: 'parenthetical:x (beat)' in rows(), 'Text typed before the opening parenthesis')
@@ -279,12 +280,12 @@ def run(d):
     click_row('action', 'A lamp glows.')
     d.type_text(HOME + 'Storm. ')
     d.wait(lambda: 'action:Storm. A lamp glows.' in rows(), 'Author text typed in another row while refused')
+    d.wait(lambda: journaled(b'Storm.'), 'Text typed while refused journaled as a recovery-only copy', timeout=30)
     time.sleep(4)
     assert target.read_bytes() == speech, target.read_bytes()
-    assert not journaled(b'Storm.'), 'Refused draft reached the journal'
-    assert status() == 'Changes pending', status()
-    assert alerts() == ['Newer changes exist only in memory until protection is confirmed.', paused], alerts()
-    report['refusedRow'] = {'status': status(), 'alerts': alerts(), 'sourceSaved': False, 'journaled': False}
+    assert status() == 'Recovery protected; file save pending', status()
+    assert alerts() == [paused], alerts()
+    report['refusedRow'] = {'status': status(), 'alerts': alerts(), 'sourceSaved': False, 'journaled': True}
     d.screenshot('refused-row-named')
     click_row('parenthetical', 'x (beat)')
     d.type_text(HOME + DELETE + DELETE)
@@ -297,7 +298,7 @@ def run(d):
     report['refusedRow']['resumed'] = {'status': status(), 'saved': resumed.decode(), 'journaled': True}
     d.close_session()
     assert len(list((d.ROOT / 'copies').glob('*.draft.json'))) == 0, 'Resumed draft required an emergency bundle'
-    print('PASS native refused row: alert names the row and how to resume; nothing saved or journaled meanwhile; changing the row resumes with nothing lost', flush=True)
+    print('PASS native refused row: alert names the row and how to resume; file untouched but journaled meanwhile; changing the row resumes with nothing lost', flush=True)
 
     # F. AUDIT-PARK-H-F4-02: a Dialogue row emptied above the rest of its
     # speech is written as Fountain's two-space dialogue line, so the draft

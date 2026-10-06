@@ -18,7 +18,12 @@ import type {
   SourceLineEdit,
   StyledText,
 } from '../domain/fountainModel';
-import { editorOrigin, editorVersion, nodeRuns } from './state';
+import {
+  editorOrigin,
+  editorVersion,
+  nodeRuns,
+  retypedForCapture,
+} from './state';
 
 const encoder = new TextEncoder();
 const decoder = new TextDecoder('utf-8', { ignoreBOM: true });
@@ -177,6 +182,54 @@ function recordRefusedRow(error: unknown, state: EditorState, first: number) {
         text: node.textContent,
       }),
     );
+}
+
+/** A refused row and the kind its recovery-only copy uses; empty rows are omitted. */
+export interface RecoveryRetype {
+  readonly row: RefusedRow;
+  readonly kind: 'dialogue' | 'action' | 'omitted';
+}
+/** Bounded retries: each pass retypes one more refused row. */
+const MAX_RECOVERY_RETYPES = 32;
+
+/**
+ * Recovery-only capture of a draft Fountain refused. Each refused row is
+ * retyped on a never-dispatched copy (Dialogue inside a speech, else Action;
+ * an empty row, which has no text to keep, is omitted) until the draft
+ * serializes, so every row's text reaches the journal. The result must never
+ * be written to the source file. Null when no retype helps.
+ */
+export function captureForRecovery(
+  state: EditorState,
+  failure: unknown,
+): { capture: EditorCapture; retyped: readonly RecoveryRetype[] } | null {
+  let current = state;
+  let error = failure;
+  const retyped: RecoveryRetype[] = [];
+  for (let attempt = 0; attempt < MAX_RECOVERY_RETYPES; attempt++) {
+    const row = refusedRow(error);
+    if (!row) return null;
+    const node = current.doc.child(row.index);
+    const kind = !node.textContent
+      ? 'omitted'
+      : node.attrs.speechOf
+        ? 'dialogue'
+        : 'action';
+    const next = retypedForCapture(
+      current,
+      row.index,
+      kind === 'omitted' ? null : kind,
+    );
+    if (!next) return null;
+    retyped.push(Object.freeze({ row, kind }));
+    current = next;
+    try {
+      return { capture: captureEditor(current), retyped };
+    } catch (retry) {
+      error = retry;
+    }
+  }
+  return null;
 }
 
 /** Explicit deferred capture only. Live content comes from state.doc, never a source peer. */
