@@ -37,7 +37,7 @@ Agents decide scope, priority, risk and gates themselves ([ADR 0043](docs/decisi
 - [ ] **M6-11 Full responsiveness and long-session baseline** — Deps: M6-04/06/08/10. [Brief](docs/tasks/M6-11.md).
 - [ ] **M6-12 Measured responsiveness correction** — Deps: M6-11. [Brief](docs/tasks/M6-12.md).
 - [ ] **M6-13 Declared-target native and accessibility matrix** — Deps: M6-02/09/10/12. [Brief](docs/tasks/M6-13.md).
-- [ ] **M6-14 Installed offline package and manual update checks** — AppImage build, cold FUSE launch and mounted-package offline writing/PDF/restore passed ([laptop pilot](docs/test-evidence/M6-16-2026-10-06.md)); earlier dependency audits retained. Remaining: desktop registration/install, packaged spellcheck. [Brief](docs/tasks/M6-14.md).
+- [ ] **M6-14 Installed offline package and manual update checks** — Per-user install, desktop-entry launch and packaged spellcheck passed; packaged spelling and save-picker defects fixed ([evidence](docs/test-evidence/M6-14-2026-10-06.md), [ADR 0045](docs/decisions/0045-user-install-and-packaged-spelling.md)). Remaining: manual update drill, notices. [Brief](docs/tasks/M6-14.md).
 - [ ] **M6-15 Disposable migration and independent backup restore** — Deps: M6-04/08/14. [Brief](docs/tasks/M6-15.md).
 - [ ] **M6-16 Agent-run writing pilot and Local v1 release review** — Bounded laptop pilot complete; all 12 S15.5 steps reconciled, packaged writing/restore passed ([evidence](docs/test-evidence/M6-16-2026-10-06.md)). Admission review remains after M6-03/14; deferred tasks do not block it. [Brief](docs/tasks/M6-16.md).
 

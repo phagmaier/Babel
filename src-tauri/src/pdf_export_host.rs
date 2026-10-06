@@ -62,7 +62,7 @@ fn pick_pdf() -> Option<PathBuf> {
 }
 #[cfg(not(test))]
 fn pick_pdf() -> Option<PathBuf> {
-    rfd::FileDialog::new()
+    file_dialog()
         .set_title("Export PDF")
         .add_filter("PDF screenplay", &["pdf"])
         .set_file_name("Untitled.pdf")

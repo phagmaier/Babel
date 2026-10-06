@@ -30,6 +30,41 @@ The backup uses tmpfs versus Btrfs on the same laptop: no independent physical
 disk/power-loss claim. This is a short scripted agent session, not the full
 IME/a11y/S13/migration/install/admission gate. [Evidence](../../../docs/test-evidence/M6-16-2026-10-06.md).
 
+## M6-14 installed package
+
+Build the package (`pnpm tauri build`) and the input helpers first. All paths
+are disposable; nothing is written to the owner's applications folder.
+
+```sh
+python3 tools/check-package-spellcheck.py target/release/bundle/appimage/babel.AppDir
+python3 tests/native/writing-lifecycle/installed_launch.py /absolute/btrfs/root --output target/m6-14-launch-new
+python3 tools/run-packaged-pilot.py /absolute/btrfs/root --output target/m6-14-hidden-new \
+  --appimage "/absolute/install dir/babel_0.0.1_amd64-<hash>.AppImage" --hide-development \
+  --modes picker-start spellcheck typed-export recovery-shutdown local-pilot publication-exit
+python3 tools/run-packaged-pilot.py /absolute/btrfs/root --output target/m6-14-nodict-new \
+  --appimage "/absolute/install dir/babel_0.0.1_amd64-<hash>.AppImage" \
+  --mask /usr/share/hunspell /usr/share/myspell --modes spellcheck-unavailable
+```
+
+`installed_launch.py` installs with [`tools/install-desktop.py`](../../../tools/install-desktop.py)
+into a fresh profile whose home, data and install paths contain spaces and
+non-ASCII text, validates the entry, and starts it by name through GIO
+(`gtk-launch`): no terminal, WebDriver or extracted folder, and the AppImage
+mounts itself. It checks the window class against the entry, the FUSE
+executable, no development PATH entries and no internet sockets, takes a
+screenshot, closes the window ordinarily, checks exit, mount release and the
+crash journal, then uninstalls and confirms the entry no longer starts.
+
+`--appimage` points the offline runner at an installed package.
+`--hide-development` starts only the app through bubblewrap with toolchains,
+caches, sources and system interpreters hidden; `--mask` hides the named
+system folders. The wrapper proves its masks before the package starts and
+dies with the driver. `picker-start` gives Save As a bare filename and
+requires the file in the drill's own home folder. `spellcheck-unavailable`
+requires the visible missing-dictionary state, a disabled Check and an exact
+Save. `spellcheck` records the Enchant/Hunspell objects the app loaded.
+[Evidence](../../../docs/test-evidence/M6-14-2026-10-06.md).
+
 ## Original production drill
 
 Run on the reference Linux/Hyprland host with installed WebKitWebDriver, wtype,

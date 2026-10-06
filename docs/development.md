@@ -114,6 +114,8 @@ and retained limitations: [DEV-01 evidence](test-evidence/M5.md#dev-01--laptop-d
 | Rust unit           | `cargo test --workspace`                                | Includes host command wiring                                             |
 | Core unit           | `cargo test -p screenwriter-core`                       | No WebView                                                               |
 | Desktop package     | `pnpm tauri build`                                      | Native package; platform prerequisite gate                               |
+| Package spelling    | `python3 tools/check-package-spellcheck.py <AppDir>`    | Bundled Enchant finds its bundled Hunspell provider (CI)                 |
+| User install        | `python3 tools/install-desktop.py install`              | Per-user copy and launcher entry; `status`, `uninstall`                  |
 | PDF helper          | `pnpm pdf-helper`; `pnpm test:pdf-helper`               | M5-01 bundled renderer build/self-test                                   |
 | Link check          | `pnpm check:links`                                      | Full tracked Markdown links/anchors (CI); changed links for local Tier 1 |
 | Workspace matrix    | `python3 tools/run-workspace-matrix.py <tmpfs> <btrfs>` | Focused command via `--`; full workspace at integration/release          |
@@ -138,7 +140,22 @@ M1-02 native editor and M1-06 composition pages were retired in
 Git snapshot. Production native editor drills retain the composition-proof
 fixture backend and use their own configs under `tests/native/`.
 
-Do not interpret `pnpm test` or `pnpm test:browser` as native IPC verification. M0 ran `pnpm tauri dev` and the release binary on the recorded host; the real WebKit window showed `babel 0.0.1 · native desktop host connected`, with manuscript actions disabled. App-only screenshots are listed in [M0 evidence](test-evidence/M0.md). Later native E2E must exercise real file operations and failure paths. The built AppImage has not itself been installed/offline-tested.
+Do not interpret `pnpm test` or `pnpm test:browser` as native IPC verification. M0 ran `pnpm tauri dev` and the release binary on the recorded host; the real WebKit window showed `babel 0.0.1 · native desktop host connected`, with manuscript actions disabled. App-only screenshots are listed in [M0 evidence](test-evidence/M0.md). Later native E2E must exercise real file operations and failure paths.
+
+The AppImage has been installed per user and started from its desktop entry
+([M6-14 evidence](test-evidence/M6-14-2026-10-06.md), [ADR 0045](decisions/0045-user-install-and-packaged-spelling.md)).
+Three packaging facts are easy to break:
+
+- Enchant finds provider modules beside its own library. `pnpm tauri build`
+  therefore runs `tools/stage-spellcheck-provider.py`, which stages the
+  Hunspell provider and library of the linked Enchant for
+  `bundle.linux.appimage.files`. Dictionaries stay a host prerequisite.
+- The package runs with its working directory inside its read-only mount,
+  and its bundled WebKit resolves helper processes against it. Never change
+  directory in the app; native pickers get an explicit start folder instead.
+- Default release-binary runs do not exercise either point. A packaging,
+  spelling or picker change needs the packaged modes in the
+  [native guide](../tests/native/writing-lifecycle/README.md#m6-14-installed-package).
 
 ## Agent pilot without WebDriver
 

@@ -189,6 +189,23 @@ fn end_web_content_before_close<R: tauri::Runtime>(window: &tauri::Window<R>) ->
     webview.with_webview(|platform| platform.inner().terminate_web_process())
 }
 
+/// The writer's home folder when usable; otherwise the toolkit's own default.
+fn picker_start(home: Option<std::path::PathBuf>) -> Option<std::path::PathBuf> {
+    home.filter(|directory| directory.is_absolute() && directory.is_dir())
+}
+
+/// Every native picker starts here. GTK opens a save picker in the process
+/// working directory, which inside the AppImage is its read-only package
+/// mount. The bundled WebKit resolves its helper processes against that
+/// directory, so the process must not change directory instead.
+#[cfg(not(test))]
+fn file_dialog() -> rfd::FileDialog {
+    match picker_start(std::env::home_dir()) {
+        Some(directory) => rfd::FileDialog::new().set_directory(directory),
+        None => rfd::FileDialog::new(),
+    }
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let documents = DocumentHost::default();
@@ -356,6 +373,15 @@ mod tests {
     #[test]
     fn command_exposes_core_build_information() {
         assert_eq!(app_info(), screenwriter_core::app_info());
+    }
+
+    #[test]
+    fn pickers_start_in_an_existing_home_or_keep_the_toolkit_default() {
+        let home = std::env::temp_dir();
+        assert_eq!(picker_start(Some(home.clone())), Some(home.clone()));
+        assert_eq!(picker_start(Some(home.join("babel-absent-home"))), None);
+        assert_eq!(picker_start(Some("relative-home".into())), None);
+        assert_eq!(picker_start(None), None);
     }
 }
 

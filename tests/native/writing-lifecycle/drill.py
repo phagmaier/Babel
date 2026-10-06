@@ -25,6 +25,8 @@ MODES = (
     (
         ('--daily-session', 'integrated_workflows', 'run'),
         ('--spellcheck', 'spellcheck_workflows', 'run'),
+        ('--spellcheck-unavailable', 'spellcheck_unavailable', 'run'),
+        ('--picker-start', 'picker_start', 'run'),
         ('--home', 'home_workflows', 'run'),
         ('--find-timing', 'find_workflows', 'run_timing'),
         ('--find', 'find_workflows', 'run'),
@@ -78,6 +80,10 @@ ENV = os.environ.copy()
 ENV.update(TAURI_WEBVIEW_AUTOMATION='true', XDG_DATA_HOME=str(ROOT / 'data'),
            XDG_CONFIG_HOME=str(ROOT / 'config'), XDG_CACHE_HOME=str(ROOT / 'cache'),
            GSETTINGS_BACKEND='memory')
+if '--picker-start' in sys.argv:
+    # A bare-filename Save As must land in this disposable home, never the owner's.
+    (ROOT / 'home').mkdir(mode=0o700)
+    ENV['HOME'] = str(ROOT / 'home')
 if any(mode in sys.argv for mode in ['--spellcheck', '--characters', '--commands']):
     # GTK's built-in context ID bypasses an inherited Fcitx wildcard cache.
     ENV['GTK_IM_MODULE'] = 'gtk-im-context-simple'

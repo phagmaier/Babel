@@ -113,7 +113,7 @@ pub(super) fn pick_source_file() -> Option<PathBuf> {
 /// Native file picker runs on the calling blocking worker, never the UI thread.
 #[cfg(not(test))]
 pub(super) fn pick_source_file() -> Option<PathBuf> {
-    rfd::FileDialog::new()
+    file_dialog()
         .add_filter("Fountain screenplay", &["fountain"])
         .set_title("Open Fountain screenplay")
         .pick_file()
@@ -128,7 +128,7 @@ fn pick_destination_folder() -> Option<PathBuf> {
 /// Native folder picker runs on the calling blocking worker, never the UI thread.
 #[cfg(not(test))]
 fn pick_destination_folder() -> Option<PathBuf> {
-    rfd::FileDialog::new()
+    file_dialog()
         .set_title("Choose destination folder")
         .pick_folder()
 }

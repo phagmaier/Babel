@@ -35,6 +35,21 @@ pnpm tauri build         # produces the AppImage
 For development, `pnpm tauri dev` runs the app with live reload; `pnpm dev`
 is a browser-only preview without saving or PDF.
 
+## Install for your user
+
+```sh
+python3 tools/install-desktop.py install     # adds babel to your app launcher
+python3 tools/install-desktop.py uninstall   # removes only what it installed
+```
+
+The installer copies the AppImage to `~/.local/opt/babel` and writes one
+launcher entry in `~/.local/share/applications`. It needs no root and changes
+no system setting; an update keeps the previous package beside the new one.
+Uninstalling never touches your scripts, recovery data or preferences.
+Starting an AppImage needs FUSE (`fuse3`). Spellcheck needs a Hunspell
+dictionary on the system (Arch: `hunspell-en_us`); without one babel says so
+and everything else keeps working.
+
 ## Try it safely
 
 Work on a **copy** of a script. Files stay plain Fountain, so any Fountain app

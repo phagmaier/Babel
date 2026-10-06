@@ -98,3 +98,7 @@ Enchant development/linker files to build and its runtime library/provider and
 language resources to run. Full notices, installed/offline package validation,
 other platforms/languages, long-session costs, broad assistive technology and
 M4-15 integration review remain open. No full S13 or Local v1 adoption claim.
+
+Packaging refinement 2026-10-06: [ADR 0045](0045-user-install-and-packaged-spelling.md)
+bundles the same Hunspell provider and library inside the AppImage, because a
+bundled Enchant cannot see a host provider. Dictionaries remain host resources.

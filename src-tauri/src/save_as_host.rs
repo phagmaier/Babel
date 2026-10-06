@@ -79,7 +79,7 @@ fn pick_save_file() -> Option<PathBuf> {
 /// Native save dialog runs on the calling blocking worker, never the UI thread.
 #[cfg(not(test))]
 fn pick_save_file() -> Option<PathBuf> {
-    rfd::FileDialog::new()
+    file_dialog()
         .add_filter("Fountain screenplay", &["fountain"])
         .set_file_name("Untitled.fountain")
         .set_title("Save screenplay as")

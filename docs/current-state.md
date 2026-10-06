@@ -2,94 +2,108 @@
 
 Application: **babel**, local-first Linux screenwriting (Tauri/React/Rust).
 Agents decide under [ADR 0043](decisions/0043-agent-decision-authority.md).
-Branch: `main`. The bounded M6-16 laptop pilot is complete; Local v1 admission
-and desktop installation remain open. No adjacent implementation was started.
+Branch: `main`. The package now installs per user, starts from its desktop
+entry and has working spellcheck. Local v1 admission remains open.
 
 ## This session
 
-**M6-16 pilot remainder** ([brief](tasks/M6-16.md),
-[evidence](test-evidence/M6-16-2026-10-06.md)) reconciled all twelve SPEC S15.5
-steps and completed the packaged writing/restore cases on the development laptop.
+**M6-14 install and packaged spellcheck** ([brief](tasks/M6-14.md),
+[evidence](test-evidence/M6-14-2026-10-06.md),
+[ADR 0045](decisions/0045-user-install-and-packaged-spelling.md)).
 
-- FUSE mounted externally, then packaged AppRun/WebKit/GTK/IPC ran offline
-  with normal mapped UID 1000, zero capabilities and private synthetic profiles.
-  This differs from direct cold FUSE launch and desktop registration.
-- New/all-elements/completion/Enter, three-scene writing, title/dialogue edits,
-  scene move, Find/Replace, snapshots and former-current-draft restore passed.
-  Exact authored source, BOM/CRLF/unknown-key/note/omission, Save/Undo/Redo and
-  ordinary close/restart/preferences/reopen verified.
-- Packaged permission-denied save, latest acknowledged checkpoint after owned
-  SIGKILL/restart, external divergence and exact emergency copy passed. The
-  laptop is non-root; the cloud root-bypass limitation does not apply here.
-- Backup copied to separate tmpfs; working Btrfs directory made unavailable;
-  restart/open backup/Save As to fresh Btrfs/close/reopen passed exact bytes.
-  Independent Screenplain reader verified exported Fountain title/dialogue/order.
-- Same-capture packaged PDF preview/export matched two-page layout/raster;
-  omission/refusal/failure/source isolation passed. Pages/screenshots inspected.
-- Four required package modes have clean passing runs. Final harness rerun:
-  `typed-export`/`local-pilot` 2/2, zero crash events/surviving native processes.
-  New Python syntax, touched-doc format/links/guidance/diff checks passed.
-- Short writing session: 278 authored words, 1,526 trusted typed characters;
-  frame proxy p95/max 15/21 ms. Separate 2,400-row preview workload preserved
-  all 120 physical inputs, proxy p95/max 25/33 ms. Not full S13/compositor proof.
-- No production/dependency/build change. Vite entry/watch fix preserved. Added
-  repeatable packaged runner/pilot/artifact auditor; corrected obsolete M6-16
-  process gates. README status updated, pre-release/backup caution retained.
+- **Defect fixed: packaged spellcheck never worked.** Enchant finds provider
+  modules beside its own library and the bundle had none, so the package
+  showed every language unavailable on any host. Earlier passes used the
+  unbundled release binary. The build now stages the Hunspell provider and
+  library into the AppImage (`tools/stage-spellcheck-provider.py`); CI runs
+  `tools/check-package-spellcheck.py` after the package build.
+- **Defect fixed: save pickers opened in the read-only package folder.** The
+  package's working directory is its mount (its WebKit needs that), so a
+  bare-filename Save As was refused. All four native pickers now start in the
+  home folder. A/B: same drill fails on the old package, passes on the new.
+- **New: `tools/install-desktop.py`** (`install`, `status`, `uninstall`).
+  Per-user copy plus one launcher entry; no root or system setting; every
+  package keeps its own file; uninstall removes only unchanged files it
+  recorded and never app data. Refuses a path containing `%` (GLib rejects it).
+- Desktop-entry launch verified: fresh profile with spaces/non-ASCII paths,
+  entry validated, started by name through GIO, FUSE self-mount, window class
+  matches the entry, Home rendered with the native host connected, no
+  internet sockets, ordinary close, mount released, clean uninstall.
+- Installed final package, development toolchains/caches/sources/interpreters
+  hidden from the app, loopback only: `picker-start`, `typed-export`,
+  `recovery-shutdown`, `local-pilot` and `publication-exit` pass in one run
+  and `spellcheck` in two separate runs, all with clean process and crash
+  audits. The running app loaded Enchant, provider and Hunspell only from
+  its own mount.
+- Host dictionaries hidden: the app states "en_US (unavailable)", disables
+  Check, marks nothing and still saves exact bytes.
 
-## Retained candidate and failures
+Final package: AppImage `fc187bea…f999b`, packaged executable `9937166d…`.
+The M6-16 pilot ran the previous package (`6eabb82a…`); five of its modes were
+rerun on the final one here.
 
-Unchanged health build at `dc3c3b8`; session base `1841933`.
-[Health evidence](test-evidence/LOCAL-HEALTH-2026-10-06.md) retains frontend
-78 files/1504 tests, Rust 275 per tmpfs/Btrfs, differential 6/6, helper 17/17,
-Chromium PDF/layout, native release 3/3 and direct FUSE cold launch. These are
-justified unchanged evidence, not new runs. Cloud results remain separately in
-[earlier pilot](test-evidence/PILOT-2026-10-06.md).
+## Checks
 
-New raw artifacts: `target/m6-16-pilot-2026-10-06/`. Initial direct namespace
-launch could not mount FUSE. A root-mapped/drop-cap mounted run had two GTK
-icon-loader picker SIGABRTs; copied/hash-bound cores, checkpoints, ledgers and
-strict failures retained. Normal UID runner corrects that test configuration;
-it does not erase the aborts. First second-restore attempt overlapped pending
-Save and was safely refused; waiting for readiness passed twice.
-[Native register](native-findings.md#m6-16-runner-only-events).
+| Command                                                        | Result                                             |
+| -------------------------------------------------------------- | -------------------------------------------------- |
+| `pnpm check`                                                   | Pass; 78 files, 1504 tests; links, guidance, build |
+| `cargo fmt --all -- --check`; Clippy `-p babel-desktop`        | Pass                                               |
+| `cargo test -p babel-desktop --locked`                         | 62 pass                                            |
+| `python3 -m unittest discover -s tests/tools -p 'test_*.py'`   | 10 pass (5 new installer tests)                    |
+| `sh tools/lint-py.sh`                                          | Pass                                               |
+| `tools/check-package-spellcheck.py <AppDir>`                   | Fails before the fix, passes after                 |
+| `installed_launch.py` on the final package                     | Pass                                               |
+| Packaged runner, six modes, development hidden                 | 5/6; spellcheck entry hit a drill bug, since fixed |
+| Packaged runner, `spellcheck`, development hidden              | 1/1 in two separate runs                           |
+| Packaged runner, dictionaries masked, `spellcheck-unavailable` | 1/1                                                |
+| Release binary `integrated_exit.py --modes spellcheck`         | 1/1                                                |
+
+Not run: `pnpm test:differential`, workspace filesystem matrix, full native
+matrix (no capture, codec, persistence or frontend change). Failed and
+harness-fault runs are retained and listed in the evidence.
 
 ## Known limitations
 
-- Desktop registration/install and packaged spellcheck are M6-14; native
-  interruption/low-space retention remains M6-03. Mounted-package writing is
-  not installed-app acceptance. M6-16 final requirement/admission review open.
+- **Not installed in the owner's own profile**: agents do not change the
+  owner's launcher. `python3 tools/install-desktop.py install` does it.
+- Manual update with real app data, unknown-newer refusal and licence
+  notices for bundled libraries are open (M6-14, M6-10).
+- One host and distribution; only `en_US`. The no-dictionary case hides the
+  folder rather than using a host without spelling packages. The
+  desktop-entry run is not network-isolated (FUSE cannot mount in the
+  unprivileged namespace); offline evidence is the mounted runner's.
+- Pickers start in the home folder, not the current script's folder. No file
+  association: the app takes no file argument.
 - Backup is a separate filesystem on the same laptop, not an independent
-  physical disk/power-loss backup. Real-software migration and second-host
-  bootstrap deferred; keep independent backups and the old writing workflow.
-- Full S13/long session, broader IME/keyboard/a11y, enforcing SELinux and
-  retained Replace-All load flake remain outside this pilot. Optional help and
-  Find/export/snapshot panels can consume substantial viewport space.
+  disk. Real-software migration and second-host bootstrap are deferred; keep
+  independent backups and the old writing workflow.
+- Full S13/long session, broader IME/keyboard/a11y, enforcing SELinux and the
+  retained Replace-All load flake remain outside these checks.
 - Historical [native findings](native-findings.md) remain accepted under ADR
-  0043 with original strict failures. Ordinary supported writing/save/close
-  crashes, content loss or false saved status require repair.
-- M6-02 Save As/IME readiness lag (~117 ms, content saved), shared-store lease
-  limit, and capture refusals naming no row remain known limitations. Named
-  Parenthetical refusal is preserved; never silently save it as Dialogue.
-- No new full matrix, CI, Clippy/dependency audit, native/helper build,
-  Local v1 admission or release tag claimed.
+  0043 with original strict failures; no new crash event this session.
+- M6-02 Save As/IME readiness lag (~117 ms, content saved), shared-store
+  lease limit, and capture refusals naming no row remain known limitations.
 
 ## Next action
 
-Stop after this bounded pilot's commit/push. Next session takes item 1;
-no M6-14/M6-03/M7 or adjacent task was started here.
-
-1. **M6-14 remainder**: desktop registration/install and packaged spellcheck.
-   Direct cold FUSE launch and mounted-package offline writing/PDF/restore are
-   verified. [Brief](tasks/M6-14.md).
+1. **M6-14 manual update drill**: with the retained previous package create
+   source, snapshot, recovery, preferences and a dictionary word; install the
+   next package; verify each reads back exactly; add an unknown-newer-schema
+   refusal case. [Brief](tasks/M6-14.md#done-and-remaining).
 2. **M6-03 remainder**: native interruption/low-space retention drill.
-   Packaged snapshot restore/copy/backup-open is pilot-verified. [Brief](tasks/M6-03.md).
-3. **M6-16 admission review**, after M6-14/M6-03: refresh requirement evidence
-   and resolve the actual installation/release gaps. [Brief](tasks/M6-16.md).
+   [Brief](tasks/M6-03.md).
+3. **M6-16 admission review**, after M6-14/M6-03: refresh requirement
+   evidence against the final package and resolve release gaps.
+   [Brief](tasks/M6-16.md).
 4. **Capture**: recovery copy for refusals naming no row.
 5. **D-05 remainder**: protected workflows take a PreDestructive snapshot and
    treat Git history failure as a warning ([ADR 0030](decisions/0030-version-bound-workflow-protection.md)).
-6. Later, not V1 blockers: M6-04, M6-10–13, M6-15, DEV-02, M6-05–09,
-   AUDIT-PARK-T (2) failed-resume duplicate Home entry, M7, M8.
+6. Later, not V1 blockers: pickers start in the current script's folder;
+   M6-04, M6-10–13, M6-15, DEV-02, M6-05–09, AUDIT-PARK-T (2) failed-resume
+   duplicate Home entry, M7, M8.
 
-Native drills: check `df -i /tmp`, use fresh output paths and absolute filesystem
-roots; follow [development](development.md) and the registered native guide.
+Native drills: check `df -i /tmp`, use fresh output paths and absolute
+filesystem roots; follow [development](development.md) and the
+[native guide](../tests/native/writing-lifecycle/README.md#m6-14-installed-package).
+A packaging, spelling or picker change needs the packaged modes: the release
+binary does not exercise them.

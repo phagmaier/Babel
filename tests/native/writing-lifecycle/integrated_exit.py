@@ -22,7 +22,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('roots', nargs='+', type=Path)
     parser.add_argument('--output', required=True, type=Path)
-    parser.add_argument('--modes', nargs='+', choices=MODES + ['recovery-reopen', 'external-reload', 'publication-exit', 'pdf-export', 'typed-export', 'local-pilot', 'empty-heading', 'recovery-shutdown', 'persistence-paths', 'persistence-two-instances', 'persistence-two-instances-shared'], default=MODES)
+    parser.add_argument('--modes', nargs='+', choices=MODES + ['recovery-reopen', 'external-reload', 'publication-exit', 'pdf-export', 'typed-export', 'local-pilot', 'picker-start', 'spellcheck-unavailable', 'empty-heading', 'recovery-shutdown', 'persistence-paths', 'persistence-two-instances', 'persistence-two-instances-shared'], default=MODES)
     parser.add_argument('--presentation-no-restart', action='store_true',
                         help='diagnostic only: skip presentation preference restart')
     parser.add_argument('--presentation-control', choices=['baseline', 'preedit-disabled', 'no-ime', 'typical-only', 'no-zoom', 'cleanup-probes'], default='baseline', help='diagnostic workload control; never integrated acceptance')
@@ -49,8 +49,11 @@ def main():
                 cmd.extend(['--presentation-control', args.presentation_control])
             if mode == 'presentation' and args.presentation_no_restart:
                 cmd.append('--presentation-no-restart')
-            if mode == 'spellcheck':
-                # Existing offline production spelling gate: only loopback.
+            devices = [line.split(':')[0].strip() for line in Path('/proc/self/net/dev').read_text().splitlines()[2:]]
+            if mode == 'spellcheck' and devices != ['lo']:
+                # Existing offline production spelling gate: only loopback. The
+                # packaged runner already supplies that namespace with a normal
+                # user; nesting a root-mapped one there breaks the package's GTK.
                 cmd = ['unshare', '--user', '--map-root-user', '--net', '/bin/sh', '-c',
                        'ip link set lo up && exec "$@"', 'm4-offline', *cmd]
             started = time.monotonic()

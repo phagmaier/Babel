@@ -7,6 +7,7 @@ import json
 import os
 from pathlib import Path
 import subprocess
+import threading
 import time
 
 SOURCE = ('\ufeff!Zoë reads ***helllo*** beside 👩🏽‍🚀 é and שלום.  \r\n\r\n'
@@ -97,7 +98,22 @@ def run(d):
 
     d.click('Open Fountain',actions=True); d.picker(target); ready(); save(SOURCE)
     select(0, 3); before = selection(); editor_id = d.editor()
-    open_panel(); check()
+    # Which Enchant/Hunspell objects the app really loads. Each request opens
+    # and frees its broker, so they are mapped only while a request runs.
+    app = next(c for c in d.owned_clients() if c.get('class') == 'babel-desktop')['pid']
+    libraries = set(); sampled = threading.Event()
+    def sample():
+        while not sampled.is_set():
+            try: libraries.update(line.split(None,5)[5].strip() for line in Path(f'/proc/{app}/maps').read_text().splitlines() if len(line.split(None,5)) == 6 and ('enchant' in line or 'hunspell' in line))
+            except OSError: pass
+            time.sleep(.002)
+    sampler = threading.Thread(target=sample); sampler.start()
+    try: open_panel(); check()
+    finally: sampled.set(); sampler.join()
+    libraries = sorted(libraries); package = os.readlink(f'/proc/{app}/exe').split('/usr/bin/')[0]
+    assert any('enchant_hunspell' in path for path in libraries) and any('libhunspell' in path for path in libraries), libraries
+    # A package must use its own provider, not one that exists on the build host.
+    assert '/.mount_' not in package or all(path.startswith(package + '/') for path in libraries), libraries
     assert has_issue('helllo') and has_issue('Quorvexia') and has_issue('Zøëvexia')
     assert not has_issue('ZORVEXIA') and not has_issue('Zorvexia')
     assert d.script("return [...document.querySelectorAll('.ProseMirror .spelling-issue')].filter(n=>n.textContent==='helllo').length;") == 1
@@ -181,6 +197,6 @@ def run(d):
     # Ordinary process exit starts only after the protected document close.
     d.close_session(); d.audit(target, SOURCE)
     assert pending.read_bytes() == b'synthetic interrupted dictionary write'
-    result = {'checks':report,'bytes':len(SOURCE),'sha256':hashlib.sha256(SOURCE).hexdigest(),'resources':urls,'networkNamespace':network_namespace,'networkDevices':devices}
+    result = {'checks':report,'bytes':len(SOURCE),'sha256':hashlib.sha256(SOURCE).hexdigest(),'resources':urls,'networkNamespace':network_namespace,'networkDevices':devices,'spellingLibraries':libraries}
     (d.ROOT/'spellcheck-result.json').write_text(json.dumps(result,indent=2))
     print('PASS production offline spellcheck',json.dumps(result),flush=True); print('ARTIFACTS',d.ROOT,flush=True)

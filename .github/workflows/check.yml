@@ -48,3 +48,5 @@ jobs:
       - run: pnpm test:browser
       - run: cargo test --workspace --locked
       - run: pnpm tauri build
+      - name: The package's own Enchant must find its bundled Hunspell provider
+        run: python3 tools/check-package-spellcheck.py target/release/bundle/appimage/babel.AppDir
