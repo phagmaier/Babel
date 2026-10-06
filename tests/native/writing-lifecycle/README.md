@@ -37,6 +37,7 @@ are disposable; nothing is written to the owner's applications folder.
 
 ```sh
 python3 tools/check-package-spellcheck.py target/release/bundle/appimage/babel.AppDir
+python3 tools/check-package-notices.py target/release/bundle/appimage/babel.AppDir
 python3 tests/native/writing-lifecycle/installed_launch.py /absolute/btrfs/root --output target/m6-14-launch-new
 python3 tools/run-packaged-pilot.py /absolute/btrfs/root --output target/m6-14-hidden-new \
   --appimage "/absolute/install dir/babel_0.0.1_amd64-<hash>.AppImage" --hide-development \

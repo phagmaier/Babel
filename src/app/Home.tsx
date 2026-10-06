@@ -18,6 +18,11 @@ import type { RecentProjectsPort } from '../application/recentProjects';
 import type { RecoveryPort } from '../application/startupRecovery';
 import type { OpenRequest } from './WritingView';
 import { RecoveryReview } from './RecoveryReview';
+import { ThirdPartyNotices } from './ThirdPartyNotices';
+import {
+  nativeThirdPartyNotices,
+  unavailableThirdPartyNotices,
+} from '../infrastructure/nativeThirdPartyNotices';
 
 function localModification(seconds: number, nanos: number) {
   const date = new Date(seconds * 1000 + nanos / 1_000_000);
@@ -54,6 +59,11 @@ export function Home({
     selection: null,
   });
   const first = useRef<HTMLButtonElement>(null);
+  const [noticesOpen, setNoticesOpen] = useState(false);
+  const noticesPort =
+    '__TAURI_INTERNALS__' in window
+      ? nativeThirdPartyNotices
+      : unavailableThirdPartyNotices;
   useEffect(() => {
     first.current?.focus();
     if (!native) return;
@@ -91,6 +101,7 @@ export function Home({
       else if (known === 'newDestination')
         onOpen({ kind: 'new', destination: true });
       else if (known === 'open') onOpen({ kind: 'picked' });
+      else if (known === 'thirdPartyNotices') setNoticesOpen(true);
     });
   const selection = state.selection;
   return (
@@ -145,6 +156,11 @@ export function Home({
         <p>
           New screenplay starts an unsaved draft. Recovery protects confirmed
           versions on this device; it is not a separate backup.
+        </p>
+        <p>
+          <button type="button" onClick={() => execute('thirdPartyNotices')}>
+            Third-party notices
+          </button>
         </p>
       </section>
       <section
@@ -310,6 +326,11 @@ export function Home({
             ? (selection) => onOpen({ kind: 'recovered', selection })
             : undefined
         }
+      />
+      <ThirdPartyNotices
+        port={noticesPort}
+        open={noticesOpen}
+        onClose={() => setNoticesOpen(false)}
       />
     </main>
   );

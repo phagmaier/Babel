@@ -1,0 +1,4739 @@
+{
+  "generator": "tools/build-package-notices.py",
+  "built": {
+    "host": "Linux 7.2.8-arch1-2 x86_64",
+    "artifactAppdir": "babel.AppDir"
+  },
+  "artifact": {
+    "appdir": "target/release/bundle/appimage/babel.AppDir",
+    "appimageSha256": "38710fb1cba4622bc0b744ed8891a2d23f3e6045322279cac3feaa30759a805e"
+  },
+  "noticeFile": "usr/lib/babel/THIRD-PARTY-NOTICES.md",
+  "scope": "Every ELF binary, provider module and font in the AppDir is attributed in entries or trees. Own movables (icons, .desktop) need no third-party notice. Compiled Rust-crate and transitive npm texts remain M6-10 work (limitations L2/L3); direct JS runtime texts are retained.",
+  "limitations": [
+    "L1: Arch binary packages that ship no licence file use the canonical SPDX text from the installed licenses package; the upstream COPYING was verified locally only for Enchant, Hunspell and libltdl.",
+    "L2: Transitive Rust-crate licence texts compiled into usr/bin/babel-desktop are not yet retained; only the statically linked libgit2 and the git2 binding licences are (M6-10 remainder).",
+    "L3: Transitive npm module texts bundled into the frontend are not yet retained; direct runtime dependencies are (M6-10 remainder)."
+  ],
+  "entries": [
+    {
+      "package": "aom",
+      "kind": "native",
+      "version": "3.15.1-1",
+      "declared": "BSD-3-Clause",
+      "upstream": "https://aomedia.org/",
+      "note": "",
+      "texts": [
+        {
+          "file": "aom-3.15.1-1-LICENSE",
+          "source": "installed aom 3.15.1-1 (/usr/share/licenses/aom/LICENSE)",
+          "sha256": "4764a286d8b2faeaf42f4418e7d7a28d58fc8fd4d00a3d0a7f44b0a4099de7f2"
+        },
+        {
+          "file": "aom-3.15.1-1-PATENTS",
+          "source": "installed aom 3.15.1-1 (/usr/share/licenses/aom/PATENTS)",
+          "sha256": "661fb8e504744e95587b556b94a58343448300606a41bea8c7a9b97125696e61"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libaom.so.3",
+          "sha256": "c1f388f61caea825644dc36c5ff94575a9b88a0c698d08747baf21cd3e6117ed",
+          "bytes": 9229201
+        }
+      ],
+      "stems": ["libaom"]
+    },
+    {
+      "package": "appmenu-gtk-module",
+      "kind": "native",
+      "version": "25.04-3",
+      "declared": "LGPL-3.0-only",
+      "upstream": "https://gitlab.com/vala-panel-project/vala-panel-appmenu/",
+      "note": "",
+      "texts": [
+        {
+          "file": "appmenu-gtk-module-25.04-3-LICENSE",
+          "source": "installed appmenu-gtk-module 25.04-3 (/usr/share/licenses/appmenu-gtk-module/LICENSE)",
+          "sha256": "2f76149107d647e54dede2f672799ebb62f7c90e815d6c5ffe8110388172a39f"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/gtk-3.0/modules/libappmenu-gtk-module.so",
+          "sha256": "a8565e21e10dfd0440bc79a8cb5eaf5f73ac74fa076ae03c675ea7b50f2f0af2",
+          "bytes": 45033
+        },
+        {
+          "path": "usr/lib/libappmenu-gtk3-parser.so.0",
+          "sha256": "3acb4d1691b4be8f997d4960524235389a313778acf92463506524ec7f0fc7c2",
+          "bytes": 75953
+        },
+        {
+          "path": "usr/share/glib-2.0/schemas/org.appmenu.gtk-module.gschema.xml",
+          "sha256": "22279269f6231be8480642a026c978f4de0dfcfebea08e0d5a78dd7ef0268792",
+          "bytes": 1157
+        }
+      ],
+      "stems": [
+        "libappmenu-gtk-module",
+        "libappmenu-gtk3-parser",
+        "org.appmenu.gtk-module.gschema.xml"
+      ]
+    },
+    {
+      "package": "at-spi2-core",
+      "kind": "native",
+      "version": "2.60.7-1",
+      "declared": "LGPL-2.1-or-later",
+      "upstream": "https://gitlab.gnome.org/GNOME/at-spi2-core",
+      "note": "Arch binary package ships no licence file; canonical SPDX text(s) retained (limitation L1).",
+      "texts": [
+        {
+          "file": "spdx-LGPL-2.1-or-later.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/LGPL-2.1-or-later.txt)",
+          "sha256": "5749785c8bdefafcb5d798270ed0a967036fe2ca63dcedade1627565dfef81d2"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libatk-1.0.so.0",
+          "sha256": "0eaffdb129a6c5b4b081f1ac24e356356a39f3b91ca2b3a85a71370e42601cf5",
+          "bytes": 176169
+        },
+        {
+          "path": "usr/lib/libatk-bridge-2.0.so.0",
+          "sha256": "7ddccf1612cf29853784d9276281ed88499985a924e5a4d4c43ab449def1a25e",
+          "bytes": 262473
+        },
+        {
+          "path": "usr/lib/libatspi.so.0",
+          "sha256": "ccc1324cf333a6e7ecced7a57c18b530107599e394dba9bf94186b62f367c51a",
+          "bytes": 272545
+        }
+      ],
+      "stems": ["libatk-1.0", "libatk-bridge-2.0", "libatspi"]
+    },
+    {
+      "package": "avahi",
+      "kind": "native",
+      "version": "1:0.9rc5-1",
+      "declared": "LGPL-2.1-or-later",
+      "upstream": "https://github.com/avahi/avahi",
+      "note": "Arch binary package ships no licence file; canonical SPDX text(s) retained (limitation L1).",
+      "texts": [
+        {
+          "file": "spdx-LGPL-2.1-or-later.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/LGPL-2.1-or-later.txt)",
+          "sha256": "5749785c8bdefafcb5d798270ed0a967036fe2ca63dcedade1627565dfef81d2"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libavahi-client.so.3",
+          "sha256": "9dd3d6d56dd2cc94557369506785130cb6d07a7b4a929d3b7e1ac460ab5128c8",
+          "bytes": 84561
+        },
+        {
+          "path": "usr/lib/libavahi-common.so.3",
+          "sha256": "e7095a3cc29e3750215cf2fb95a797cc68292804f870220e6b688c6d2d40a50a",
+          "bytes": 63537
+        }
+      ],
+      "stems": ["libavahi-client", "libavahi-common"]
+    },
+    {
+      "package": "brotli",
+      "kind": "native",
+      "version": "1.2.0-1",
+      "declared": "MIT",
+      "upstream": "https://github.com/google/brotli",
+      "note": "",
+      "texts": [
+        {
+          "file": "brotli-1.2.0-1-LICENSE",
+          "source": "installed brotli 1.2.0-1 (/usr/share/licenses/brotli/LICENSE)",
+          "sha256": "3d180008e36922a4e8daec11c34c7af264fed5962d07924aea928c38e8663c94"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libbrotlicommon.so.1",
+          "sha256": "2807ceb8b1ef3f46646daabe1382b7449e56c045e7db64840c53a063d5c26e76",
+          "bytes": 146225
+        },
+        {
+          "path": "usr/lib/libbrotlidec.so.1",
+          "sha256": "a6bc807425a0aa5a1c4080ea635dc35d141cfc7be39c5ce00e3d6e133c88dbdf",
+          "bytes": 60673
+        },
+        {
+          "path": "usr/lib/libbrotlienc.so.1",
+          "sha256": "24e2a66bf30d819ecdc82f942ab8e442d5470ed19d98e975f157c90de8750d70",
+          "bytes": 785649
+        }
+      ],
+      "stems": ["libbrotlicommon", "libbrotlidec", "libbrotlienc"]
+    },
+    {
+      "package": "bzip2",
+      "kind": "native",
+      "version": "1.0.8-6",
+      "declared": "BSD",
+      "upstream": "https://sourceware.org/bzip2/",
+      "note": "",
+      "texts": [
+        {
+          "file": "bzip2-1.0.8-6-LICENSE",
+          "source": "installed bzip2 1.0.8-6 (/usr/share/licenses/bzip2/LICENSE)",
+          "sha256": "c6dbbf828498be844a89eaa3b84adbab3199e342eb5cb2ed2f0d4ba7ec0f38a3"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libbz2.so.1.0",
+          "sha256": "69b3c788baed1f3b25ea450383474d99f7dac2a3d045c26ef447179827f77158",
+          "bytes": 81441
+        }
+      ],
+      "stems": ["libbz2"]
+    },
+    {
+      "package": "cairo",
+      "kind": "native",
+      "version": "1.18.6-1",
+      "declared": "LGPL-2.1-only OR MPL-1.1",
+      "upstream": "https://cairographics.org/",
+      "note": "",
+      "texts": [
+        {
+          "file": "spdx-LGPL-2.1-or-later.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/LGPL-2.1-or-later.txt)",
+          "sha256": "5749785c8bdefafcb5d798270ed0a967036fe2ca63dcedade1627565dfef81d2"
+        },
+        {
+          "file": "spdx-MPL-1.1.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/MPL-1.1.txt)",
+          "sha256": "6214f8b1300bb9f37b16ebc146f8f61af0187e0025042ff95c8b3030744a8795"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libcairo-gobject.so.2",
+          "sha256": "e3d16410e428d4949551f5df52c56ecf9620ebe4d1177986f1c069e2fce11427",
+          "bytes": 41241
+        },
+        {
+          "path": "usr/lib/libcairo.so.2",
+          "sha256": "9a20e8a440c2feb4f65a9332619624872c238e0d5358cbba2b57d9739009910c",
+          "bytes": 1370257
+        }
+      ],
+      "stems": ["libcairo", "libcairo-gobject"]
+    },
+    {
+      "package": "curl",
+      "kind": "native",
+      "version": "8.22.0-1",
+      "declared": "curl",
+      "upstream": "https://curl.se/",
+      "note": "",
+      "texts": [
+        {
+          "file": "curl-8.22.0-1-COPYING",
+          "source": "installed curl 8.22.0-1 (/usr/share/licenses/curl/COPYING)",
+          "sha256": "82f2f4427d6545ee5aaac4f0b80428da6cc8ba41c2cf5da3a03680ec327b9681"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libcurl.so.4",
+          "sha256": "c008f7837d2bbda9b0942f0ff38cfa2a86d8f5f7a7825563aeac2279f98fdfb8",
+          "bytes": 1103433
+        }
+      ],
+      "stems": ["libcurl"]
+    },
+    {
+      "package": "dav1d",
+      "kind": "native",
+      "version": "1.5.4-1",
+      "declared": "BSD-2-Clause",
+      "upstream": "https://code.videolan.org/videolan/dav1d",
+      "note": "",
+      "texts": [
+        {
+          "file": "dav1d-1.5.4-1-COPYING",
+          "source": "installed dav1d 1.5.4-1 (/usr/share/licenses/dav1d/COPYING)",
+          "sha256": "dd92c3c2247c5651606fc23a5e2d6a1ebc5ace9a3e49cbde0e12f05ad1cb1ee5"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libdav1d.so.7",
+          "sha256": "935ffedf13fe38f25ae4033c5385cf3fbea3343f9f45e21e497dfe4d00c38e05",
+          "bytes": 1822169
+        }
+      ],
+      "stems": ["libdav1d"]
+    },
+    {
+      "package": "dbus",
+      "kind": "native",
+      "version": "1.16.2-1",
+      "declared": "AFL-2.1 OR GPL-2.0-or-later",
+      "upstream": "https://www.freedesktop.org/wiki/Software/dbus/",
+      "note": "COPYING is the chooser (AFL-2.1 or GPL-2.0+); GPL-2.0 text is canonical.",
+      "texts": [
+        {
+          "file": "dbus-1.16.2-1-AFL-2.1.txt",
+          "source": "installed dbus 1.16.2-1 (/usr/share/licenses/dbus/AFL-2.1.txt)",
+          "sha256": "93bb4f7417aa775bab9026cc3d0af28aeb64451fc5a8ec651876785edd8eaf9b"
+        },
+        {
+          "file": "dbus-1.16.2-1-COPYING",
+          "source": "installed dbus 1.16.2-1 (/usr/share/licenses/dbus/COPYING)",
+          "sha256": "150e5d08e1cb5e62b65967d7931acad2c42d98ec1bbb584bebb01921cbc853c2"
+        },
+        {
+          "file": "spdx-GPL-2.0-or-later.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/GPL-2.0-or-later.txt)",
+          "sha256": "aaf135472f81c5b4a0dca9367e5bb5e9750032b5bebe5442b36e4c0a47430df3"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libdbus-1.so.3",
+          "sha256": "84ad08a6168a1e90f91d169c547b5dd3baf4d19eb58cdbba79d2b528bcecbc22",
+          "bytes": 361545
+        }
+      ],
+      "stems": ["libdbus-1"]
+    },
+    {
+      "package": "dconf",
+      "kind": "native",
+      "version": "0.49.0-1",
+      "declared": "LGPL-2.1-or-later",
+      "upstream": "https://wiki.gnome.org/Projects/dconf",
+      "note": "Arch binary package ships no licence file; canonical SPDX text(s) retained (limitation L1).",
+      "texts": [
+        {
+          "file": "spdx-LGPL-2.1-or-later.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/LGPL-2.1-or-later.txt)",
+          "sha256": "5749785c8bdefafcb5d798270ed0a967036fe2ca63dcedade1627565dfef81d2"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/gio/modules/libdconfsettings.so",
+          "sha256": "18b1f22f375935abb550bcadef7c86ce2be7c8cdc8e946001201dfce597b6a7f",
+          "bytes": 67337
+        }
+      ],
+      "stems": ["libdconfsettings"]
+    },
+    {
+      "package": "duktape",
+      "kind": "native",
+      "version": "2.7.0-7",
+      "declared": "MIT",
+      "upstream": "https://duktape.org/",
+      "note": "",
+      "texts": [
+        {
+          "file": "duktape-2.7.0-7-LICENSE.txt",
+          "source": "installed duktape 2.7.0-7 (/usr/share/licenses/duktape/LICENSE.txt)",
+          "sha256": "c6b6659630ca6cb837afe982ecc79511bfca878b56296d628b02eb6f18789c29"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libduktape.so.207",
+          "sha256": "44717d5f0b3816b2b6b5b3f2e3d80e3996b76b0e7f69b7f4da7358430ccb5fd8",
+          "bytes": 322537
+        }
+      ],
+      "stems": ["libduktape"]
+    },
+    {
+      "package": "enchant",
+      "kind": "native",
+      "version": "2.8.21-1",
+      "declared": "LGPL-2.1-or-later",
+      "upstream": "https://rrthomas.github.io/enchant/",
+      "note": "",
+      "texts": [
+        {
+          "file": "upstream-enchant-2.8.21-COPYING.LIB",
+          "source": "upstream https://raw.githubusercontent.com/AbiWord/enchant/main/COPYING.LIB (SHA-256 pinned in tools/build-package-notices.py)",
+          "sha256": "dc626520dcd53a22f727af3ee42c770e56c97a64fe3adb063799d8ab032fe551"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/enchant-2/enchant_hunspell.so",
+          "sha256": "ea2c9588942df9ccef4b713ef52c0bf51b8e70aa3c40cfdd600e82414cc5550c",
+          "bytes": 45809
+        },
+        {
+          "path": "usr/lib/libenchant-2.so.2",
+          "sha256": "c024b1bf8baf6a60c9dee5685125f4fd2bc0803da97d6a75eb02af606375bc0d",
+          "bytes": 76577
+        }
+      ],
+      "stems": ["enchant_hunspell", "libenchant-2"]
+    },
+    {
+      "package": "foliate",
+      "kind": "native",
+      "version": "3.3.0-3",
+      "declared": "GPL-3.0-or-later",
+      "upstream": "https://johnfactotum.github.io/foliate/",
+      "note": "Arch binary package ships no licence file; canonical SPDX text(s) retained (limitation L1).",
+      "texts": [
+        {
+          "file": "spdx-GPL-3.0-or-later.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/GPL-3.0-or-later.txt)",
+          "sha256": "fb981668c18a279e285fc4d83fba1e836cc84dd4daa73c9697d3cfd2d8aca6e0"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/share/glib-2.0/schemas/com.github.johnfactotum.Foliate.gschema.xml",
+          "sha256": "57be7824128d050638a481ac728ff80cec91524ef21e19d580dc0f855680362e",
+          "bytes": 3674
+        }
+      ],
+      "stems": ["com.github.johnfactotum.Foliate.gschema.xml"]
+    },
+    {
+      "package": "gdk-pixbuf2",
+      "kind": "native",
+      "version": "2.44.7-1",
+      "declared": "LGPL-2.0-or-later",
+      "upstream": "https://gitlab.gnome.org/GNOME/gdk-pixbuf",
+      "note": "Arch binary package ships no licence file; canonical SPDX text(s) retained (limitation L1).",
+      "texts": [
+        {
+          "file": "spdx-LGPL-2.0-or-later.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/LGPL-2.0-or-later.txt)",
+          "sha256": "86dc99d7e5060915ab1dfc1378b7dd351c62088bfa74067e8aa1868c6fdba7d8"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libgdk_pixbuf-2.0.so",
+          "sha256": "ad271674bae3fd7f894017cfff5df536f2653f34a468ea52c44ce5a2151c4293",
+          "bytes": 246193
+        },
+        {
+          "path": "usr/lib/libgdk_pixbuf-2.0.so.0",
+          "sha256": "ad271674bae3fd7f894017cfff5df536f2653f34a468ea52c44ce5a2151c4293",
+          "bytes": 246193
+        },
+        {
+          "path": "usr/lib/libgdk_pixbuf-2.0.so.0.4400.7",
+          "sha256": "ad271674bae3fd7f894017cfff5df536f2653f34a468ea52c44ce5a2151c4293",
+          "bytes": 246193
+        }
+      ],
+      "stems": ["libgdk_pixbuf-2.0"]
+    },
+    {
+      "package": "glib-networking",
+      "kind": "native",
+      "version": "1:2.80.1-1",
+      "declared": "LGPL-2.1-or-later",
+      "upstream": "https://gitlab.gnome.org/GNOME/glib-networking",
+      "note": "Arch binary package ships no licence file; canonical SPDX text(s) retained (limitation L1).",
+      "texts": [
+        {
+          "file": "spdx-LGPL-2.1-or-later.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/LGPL-2.1-or-later.txt)",
+          "sha256": "5749785c8bdefafcb5d798270ed0a967036fe2ca63dcedade1627565dfef81d2"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/gio/modules/libgiognomeproxy.so",
+          "sha256": "1f91f119369b01be1024b19df9b76ab4ccbf2b9d7d2846bae00e6cee0dfd37eb",
+          "bytes": 30049
+        },
+        {
+          "path": "usr/lib/gio/modules/libgiognutls.so",
+          "sha256": "ed24cf26f705fb84f62e6a85b982b978c70d092fd868cc91bd00d23fa68b0461",
+          "bytes": 142481
+        },
+        {
+          "path": "usr/lib/gio/modules/libgiolibproxy.so",
+          "sha256": "6264e68469a3fb7a7cb0cd2d3542284992a95730c27e28d4beb6b874a7363fb2",
+          "bytes": 25297
+        }
+      ],
+      "stems": ["libgiognomeproxy", "libgiognutls", "libgiolibproxy"]
+    },
+    {
+      "package": "glib2",
+      "kind": "native",
+      "version": "2.88.3-1",
+      "declared": "LGPL-2.1-or-later",
+      "upstream": "https://gitlab.gnome.org/GNOME/glib",
+      "note": "Arch binary package ships no licence file; canonical SPDX text(s) retained (limitation L1).",
+      "texts": [
+        {
+          "file": "spdx-LGPL-2.1-or-later.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/LGPL-2.1-or-later.txt)",
+          "sha256": "5749785c8bdefafcb5d798270ed0a967036fe2ca63dcedade1627565dfef81d2"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libgio-2.0.so",
+          "sha256": "96b7dc006dfd0323034a588f7a704bcf6cc996a8e073cc9375a6134a645f1b76",
+          "bytes": 2048233
+        },
+        {
+          "path": "usr/lib/libgio-2.0.so.0",
+          "sha256": "96b7dc006dfd0323034a588f7a704bcf6cc996a8e073cc9375a6134a645f1b76",
+          "bytes": 2048233
+        },
+        {
+          "path": "usr/lib/libgio-2.0.so.0.8800.3",
+          "sha256": "96b7dc006dfd0323034a588f7a704bcf6cc996a8e073cc9375a6134a645f1b76",
+          "bytes": 2048233
+        },
+        {
+          "path": "usr/lib/libglib-2.0.so.0",
+          "sha256": "1a7321e066b6aa0662bc640d7b8c29310cb2a146b49c4230514eb2e9c1a90fdc",
+          "bytes": 1508521
+        },
+        {
+          "path": "usr/lib/libgmodule-2.0.so.0",
+          "sha256": "58bbcfb5ff0a26219c8a802634d11119fb0d71bf8cfc0ab16f5f949d760a6a21",
+          "bytes": 29081
+        },
+        {
+          "path": "usr/lib/libgobject-2.0.so",
+          "sha256": "0c1a09ec439d86dffab6ad589839bd71b162653e05c9ab848294e22a0ca77047",
+          "bytes": 425073
+        },
+        {
+          "path": "usr/lib/libgobject-2.0.so.0",
+          "sha256": "0c1a09ec439d86dffab6ad589839bd71b162653e05c9ab848294e22a0ca77047",
+          "bytes": 425073
+        },
+        {
+          "path": "usr/lib/libgobject-2.0.so.0.8800.3",
+          "sha256": "0c1a09ec439d86dffab6ad589839bd71b162653e05c9ab848294e22a0ca77047",
+          "bytes": 425073
+        },
+        {
+          "path": "usr/share/glib-2.0/schemas/gschema.dtd",
+          "sha256": "44a12f339042a3f5568a9cc86bb617fabaf4a25836b8c9510aa9de22431930c6",
+          "bytes": 2917
+        },
+        {
+          "path": "usr/share/glib-2.0/schemas/gschemas.compiled",
+          "sha256": "33579b6a560398058a7e768c5557888b6d2374acad8a6d009f453fc8323f09ce",
+          "bytes": 59658
+        }
+      ],
+      "stems": [
+        "gschema.dtd",
+        "gschemas.compiled",
+        "libgio-2.0",
+        "libglib-2.0",
+        "libgmodule-2.0",
+        "libgobject-2.0"
+      ]
+    },
+    {
+      "package": "glycin",
+      "kind": "native",
+      "version": "2.1.5-2",
+      "declared": "MPL-2.0 OR LGPL-2.1-or-later",
+      "upstream": "https://gnome.pages.gitlab.gnome.org/glycin/",
+      "note": "",
+      "texts": [
+        {
+          "file": "spdx-MPL-2.0.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/MPL-2.0.txt)",
+          "sha256": "66a3107d5ad6a058aab753eaac2047ccb2ed0e39465dd0fe5844da3e300d5172"
+        },
+        {
+          "file": "spdx-LGPL-2.1-or-later.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/LGPL-2.1-or-later.txt)",
+          "sha256": "5749785c8bdefafcb5d798270ed0a967036fe2ca63dcedade1627565dfef81d2"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libglycin-2.so.0",
+          "sha256": "8d29e82e09475f9c6e3a7c79bee9b8c868f9f6995668d44b962b3bd34d273ef6",
+          "bytes": 4188001
+        }
+      ],
+      "stems": ["libglycin-2"]
+    },
+    {
+      "package": "gnutls",
+      "kind": "native",
+      "version": "3.8.13-3",
+      "declared": "GPL-3.0-or-later AND LGPL-2.1-or-later",
+      "upstream": "https://www.gnutls.org/",
+      "note": "Arch binary package ships no licence file; canonical SPDX text(s) retained (limitation L1).",
+      "texts": [
+        {
+          "file": "spdx-GPL-3.0-or-later.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/GPL-3.0-or-later.txt)",
+          "sha256": "fb981668c18a279e285fc4d83fba1e836cc84dd4daa73c9697d3cfd2d8aca6e0"
+        },
+        {
+          "file": "spdx-LGPL-2.1-or-later.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/LGPL-2.1-or-later.txt)",
+          "sha256": "5749785c8bdefafcb5d798270ed0a967036fe2ca63dcedade1627565dfef81d2"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libgnutls.so.30",
+          "sha256": "7f3e375be368b886e898a4f0ec0ee194a1179d50a4139b8dea10afff54dfd815",
+          "bytes": 2322393
+        }
+      ],
+      "stems": ["libgnutls"]
+    },
+    {
+      "package": "graphite",
+      "kind": "native",
+      "version": "1:1.3.15-1",
+      "declared": "LGPL-2.1-or-later OR MPL-2.0 OR GPL-2.0-or-later",
+      "upstream": "https://graphite.sil.org/",
+      "note": "COPYING is the tri-licence chooser header; GPL-2.0 and MPL-2.0 texts are canonical.",
+      "texts": [
+        {
+          "file": "graphite-1:1.3.15-1-COPYING",
+          "source": "installed graphite 1:1.3.15-1 (/usr/share/licenses/graphite/COPYING)",
+          "sha256": "2c272829ff23f182c8bf7ea12fedea69b0ae148663123ed5240c117cb129c9c1"
+        },
+        {
+          "file": "spdx-GPL-2.0-or-later.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/GPL-2.0-or-later.txt)",
+          "sha256": "aaf135472f81c5b4a0dca9367e5bb5e9750032b5bebe5442b36e4c0a47430df3"
+        },
+        {
+          "file": "spdx-MPL-2.0.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/MPL-2.0.txt)",
+          "sha256": "66a3107d5ad6a058aab753eaac2047ccb2ed0e39465dd0fe5844da3e300d5172"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libgraphite2.so.3",
+          "sha256": "526a5914d0bc11d4c0bd1961d5556048c6dcbe9548cb89bd3988b986536c3e3c",
+          "bytes": 144001
+        }
+      ],
+      "stems": ["libgraphite2"]
+    },
+    {
+      "package": "gsettings-desktop-schemas",
+      "kind": "native",
+      "version": "50.1-1",
+      "declared": "LGPL-2.1-or-later",
+      "upstream": "https://gitlab.gnome.org/GNOME/gsettings-desktop-schemas",
+      "note": "Arch binary package ships no licence file; canonical SPDX text(s) retained (limitation L1).",
+      "texts": [
+        {
+          "file": "spdx-LGPL-2.1-or-later.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/LGPL-2.1-or-later.txt)",
+          "sha256": "5749785c8bdefafcb5d798270ed0a967036fe2ca63dcedade1627565dfef81d2"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/share/glib-2.0/schemas/org.gnome.desktop.a11y.applications.gschema.xml",
+          "sha256": "6e67c6d900b0e698681454948dc6a11904edc1059af69d83ae8ff1c69abfe4ca",
+          "bytes": 845
+        },
+        {
+          "path": "usr/share/glib-2.0/schemas/org.gnome.desktop.a11y.gschema.xml",
+          "sha256": "f471028deedc07708638c7ea056ed1c6eb6632b987905321085288e836f337a8",
+          "bytes": 828
+        },
+        {
+          "path": "usr/share/glib-2.0/schemas/org.gnome.desktop.a11y.interface.gschema.xml",
+          "sha256": "a78954d4d3a60ca3b11790b0b9dec7a3f6f865d8fdb8106d08881756522c6624",
+          "bytes": 924
+        },
+        {
+          "path": "usr/share/glib-2.0/schemas/org.gnome.desktop.a11y.keyboard.gschema.xml",
+          "sha256": "429b25000a947e1b03724546e88b0f3dd6d3bac42addaec36d6cf81062c89cbb",
+          "bytes": 4897
+        },
+        {
+          "path": "usr/share/glib-2.0/schemas/org.gnome.desktop.a11y.magnifier.gschema.xml",
+          "sha256": "0316beb1020bf0e1594c1578d4ee17044d8d4f04a58e788631b054503f07e0a0",
+          "bytes": 9380
+        },
+        {
+          "path": "usr/share/glib-2.0/schemas/org.gnome.desktop.a11y.mouse.gschema.xml",
+          "sha256": "2409903ede1c85e899ff6576bc9711b9016704ee0434c22287d34d7e8c888c36",
+          "bytes": 2907
+        },
+        {
+          "path": "usr/share/glib-2.0/schemas/org.gnome.desktop.app-folders.gschema.xml",
+          "sha256": "f6a6be999af5d5ed29079432182af7708adefc0a2c7beeb7418254487ee4b772",
+          "bytes": 1841
+        },
+        {
+          "path": "usr/share/glib-2.0/schemas/org.gnome.desktop.background.gschema.xml",
+          "sha256": "5947187d029261164eb3e938b529aafff3b3625f2f0bdc6185bbf5776afd28c6",
+          "bytes": 2612
+        },
+        {
+          "path": "usr/share/glib-2.0/schemas/org.gnome.desktop.break-reminders.gschema.xml",
+          "sha256": "de47dd4e0b171c1eb0b7e81761a78f23d043abe662895e37e39a314f96bb192b",
+          "bytes": 5751
+        },
+        {
+          "path": "usr/share/glib-2.0/schemas/org.gnome.desktop.calendar.gschema.xml",
+          "sha256": "9c2f2169d8cc6cc818179e340db60e3edf1f1d804b0e84415d1ad1c7315d01e0",
+          "bytes": 863
+        },
+        {
+          "path": "usr/share/glib-2.0/schemas/org.gnome.desktop.datetime.gschema.xml",
+          "sha256": "db8f91d8966e24570844f4f0e52b6d5e4d0212cb398c71509f5f3cab6b39d292",
+          "bytes": 439
+        },
+        {
+          "path": "usr/share/glib-2.0/schemas/org.gnome.desktop.default-applications.gschema.xml",
+          "sha256": "a7c99035d26c1065e9c06541515d06e5ed4d105313f18afad44e628ba32ff280",
+          "bytes": 3095
+        },
+        {
+          "path": "usr/share/glib-2.0/schemas/org.gnome.desktop.input-sources.gschema.xml",
+          "sha256": "1255b1e6ba8fcccf43a87ff6ca2343fd55b99f2d89a936556ff1fa6a9b23069e",
+          "bytes": 2839
+        },
+        {
+          "path": "usr/share/glib-2.0/schemas/org.gnome.desktop.interface.gschema.xml",
+          "sha256": "ff7b0f1f22c85ee8a134ca4ce78eb293f416409032efefdde9a5923f1bc2d478",
+          "bytes": 13555
+        },
+        {
+          "path": "usr/share/glib-2.0/schemas/org.gnome.desktop.lockdown.gschema.xml",
+          "sha256": "3578e779ecee25ec24cb69e7170411c03f578ecda3f48455b86305b442fcad65",
+          "bytes": 3463
+        },
+        {
+          "path": "usr/share/glib-2.0/schemas/org.gnome.desktop.media-handling.gschema.xml",
+          "sha256": "cdaa8e9740fb99852b237cfae8efcd0bb85d2de8b32ea483aad4919e3c87bb10",
+          "bytes": 2604
+        },
+        {
+          "path": "usr/share/glib-2.0/schemas/org.gnome.desktop.notifications.gschema.xml",
+          "sha256": "b7e983b5fa4cedccba7e6494c89de0997274986cdc69377a51589d97ac07acb4",
+          "bytes": 2838
+        },
+        {
+          "path": "usr/share/glib-2.0/schemas/org.gnome.desktop.peripherals.gschema.xml",
+          "sha256": "cc4e5467c6d171852d8ca898d876848e8b57f347902a432990ab91c7439efee1",
+          "bytes": 18539
+        },
+        {
+          "path": "usr/share/glib-2.0/schemas/org.gnome.desktop.privacy.gschema.xml",
+          "sha256": "304f26f2030d538f0e7ab1a8bae486e2b5e5879bc55c618e8931dc822284abd5",
+          "bytes": 4907
+        },
+        {
+          "path": "usr/share/glib-2.0/schemas/org.gnome.desktop.screen-time-limits.gschema.xml",
+          "sha256": "252058749b1c7c24fc497061f7c15623d7fffe988c3961b17ee05e7ae4fd9d51",
+          "bytes": 1384
+        },
+        {
+          "path": "usr/share/glib-2.0/schemas/org.gnome.desktop.screensaver.gschema.xml",
+          "sha256": "82e61a216bfe8bdad9b98400389cb179f149071dba8ff89720a03cc83ca633a8",
+          "bytes": 6204
+        },
+        {
+          "path": "usr/share/glib-2.0/schemas/org.gnome.desktop.search-providers.gschema.xml",
+          "sha256": "00e6c4931d9a4005be80abae2d28bb7b716724cedc19c7be9e6d015a0ac0ea9c",
+          "bytes": 1906
+        },
+        {
+          "path": "usr/share/glib-2.0/schemas/org.gnome.desktop.session.gschema.xml",
+          "sha256": "a18788e5bc793c92ed0763c57aa33560a07527e785029c6d7fb224c95796c858",
+          "bytes": 927
+        },
+        {
+          "path": "usr/share/glib-2.0/schemas/org.gnome.desktop.sound.gschema.xml",
+          "sha256": "ff7dcae2b2b3d6109bf4d75511f0ce1538e39b0593bfcd33f35f12653c62be92",
+          "bytes": 1055
+        },
+        {
+          "path": "usr/share/glib-2.0/schemas/org.gnome.desktop.thumbnail-cache.gschema.xml",
+          "sha256": "20246fc5002a989287eb7e5e351cfd79245df63d0978b879882ff3d534b8f9fb",
+          "bytes": 600
+        },
+        {
+          "path": "usr/share/glib-2.0/schemas/org.gnome.desktop.thumbnailers.gschema.xml",
+          "sha256": "899bfc15c310051674714addc541824556a1e6d65b32cb715cba18662dc6ea02",
+          "bytes": 866
+        },
+        {
+          "path": "usr/share/glib-2.0/schemas/org.gnome.desktop.wm.keybindings.gschema.xml",
+          "sha256": "23ab886d75e93a79b5829677d1d41f55d4ec27a823b239e9f1b80d5b7dd64efa",
+          "bytes": 13590
+        },
+        {
+          "path": "usr/share/glib-2.0/schemas/org.gnome.desktop.wm.preferences.gschema.xml",
+          "sha256": "cccc86360fb6fbe451e8b27c97d756c711d85dc21bc191075dab2b8613b055a1",
+          "bytes": 12393
+        }
+      ],
+      "stems": [
+        "org.gnome.desktop",
+        "org.gnome.desktop.a11y.applications.gschema.xml",
+        "org.gnome.desktop.a11y.gschema.xml",
+        "org.gnome.desktop.a11y.interface.gschema.xml",
+        "org.gnome.desktop.a11y.keyboard.gschema.xml",
+        "org.gnome.desktop.a11y.magnifier.gschema.xml",
+        "org.gnome.desktop.a11y.mouse.gschema.xml",
+        "org.gnome.desktop.app-folders.gschema.xml",
+        "org.gnome.desktop.background.gschema.xml",
+        "org.gnome.desktop.break-reminders.gschema.xml",
+        "org.gnome.desktop.calendar.gschema.xml",
+        "org.gnome.desktop.datetime.gschema.xml",
+        "org.gnome.desktop.default-applications.gschema.xml",
+        "org.gnome.desktop.input-sources.gschema.xml",
+        "org.gnome.desktop.interface.gschema.xml",
+        "org.gnome.desktop.lockdown.gschema.xml",
+        "org.gnome.desktop.media-handling.gschema.xml",
+        "org.gnome.desktop.notifications.gschema.xml",
+        "org.gnome.desktop.peripherals.gschema.xml",
+        "org.gnome.desktop.privacy.gschema.xml",
+        "org.gnome.desktop.screen-time-limits.gschema.xml",
+        "org.gnome.desktop.screensaver.gschema.xml",
+        "org.gnome.desktop.search-providers.gschema.xml",
+        "org.gnome.desktop.session.gschema.xml",
+        "org.gnome.desktop.thumbnail-cache.gschema.xml",
+        "org.gnome.desktop.thumbnailers.gschema.xml",
+        "org.gnome.desktop.wm.keybindings.gschema.xml",
+        "org.gnome.desktop.wm.preferences.gschema.xml"
+      ]
+    },
+    {
+      "package": "gsettings-system-schemas",
+      "kind": "native",
+      "version": "50.1-1",
+      "declared": "LGPL-2.1-or-later",
+      "upstream": "https://gitlab.gnome.org/GNOME/gsettings-desktop-schemas",
+      "note": "Arch binary package ships no licence file; canonical SPDX text(s) retained (limitation L1).",
+      "texts": [
+        {
+          "file": "spdx-LGPL-2.1-or-later.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/LGPL-2.1-or-later.txt)",
+          "sha256": "5749785c8bdefafcb5d798270ed0a967036fe2ca63dcedade1627565dfef81d2"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/share/glib-2.0/schemas/org.gnome.desktop.enums.xml",
+          "sha256": "8f8b68a34689ad5ede33a1d1d1c7ab3a8691aea83cf15bd3dcce82d9ded94f41",
+          "bytes": 8013
+        },
+        {
+          "path": "usr/share/glib-2.0/schemas/org.gnome.system.locale.gschema.xml",
+          "sha256": "5b1e65629a77dcd201f4d86932ad62c0c41ec61fb117f151966d13e69411e2dc",
+          "bytes": 448
+        },
+        {
+          "path": "usr/share/glib-2.0/schemas/org.gnome.system.location.gschema.xml",
+          "sha256": "3fe90ebe8c851340249a1febe741b777c65b49a823201ead02f341be861060ed",
+          "bytes": 1159
+        },
+        {
+          "path": "usr/share/glib-2.0/schemas/org.gnome.system.proxy.gschema.xml",
+          "sha256": "0f02db915e726017c17c1619ee9fd8f9ee7e6d4698f0fc160a0eb88b29f2bafd",
+          "bytes": 6363
+        }
+      ],
+      "stems": [
+        "org.gnome.desktop.enums.xml",
+        "org.gnome.system.locale.gschema.xml",
+        "org.gnome.system.location.gschema.xml",
+        "org.gnome.system.proxy.gschema.xml"
+      ]
+    },
+    {
+      "package": "gst-plugins-base-libs",
+      "kind": "native",
+      "version": "1.28.7-2",
+      "declared": "LGPL-2.1-or-later",
+      "upstream": "https://gstreamer.freedesktop.org/",
+      "note": "Arch binary package ships no licence file; canonical SPDX text(s) retained (limitation L1).",
+      "texts": [
+        {
+          "file": "spdx-LGPL-2.1-or-later.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/LGPL-2.1-or-later.txt)",
+          "sha256": "5749785c8bdefafcb5d798270ed0a967036fe2ca63dcedade1627565dfef81d2"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libgstallocators-1.0.so.0",
+          "sha256": "cba3a30713c43b8ace8e5f8ab14a918c3e978c04c7d5808204b710b99270f2d7",
+          "bytes": 41809
+        },
+        {
+          "path": "usr/lib/libgstapp-1.0.so.0",
+          "sha256": "d5e71d6d37f0dc68cb2b797b69ce121ab67cd3f32c86855d8fe1114802b36eb7",
+          "bytes": 111473
+        },
+        {
+          "path": "usr/lib/libgstaudio-1.0.so.0",
+          "sha256": "e087a9f9696573cd20ab873dac47d23fd63a6f93b777558a85aed32db334cf1c",
+          "bytes": 586281
+        },
+        {
+          "path": "usr/lib/libgstfft-1.0.so.0",
+          "sha256": "ad2bbc81eca192feb0f0357a15c66f24c61654573225574816dd2e1405bf2012",
+          "bytes": 48257
+        },
+        {
+          "path": "usr/lib/libgstgl-1.0.so.0",
+          "sha256": "317581522a3e4eb641a61f293e1bb763c5d1cbf2ad5e4c82d6897656a63bc6fd",
+          "bytes": 649641
+        },
+        {
+          "path": "usr/lib/libgstpbutils-1.0.so.0",
+          "sha256": "b3a0c616730fe620c8a1f4a5875710f0943aba81477a2995440f667e9c4de73d",
+          "bytes": 301145
+        },
+        {
+          "path": "usr/lib/libgsttag-1.0.so.0",
+          "sha256": "f25d81714e8ae5f3e8583502152ce5c60d6c2359c095c9cd2b9c9900e9fb8e92",
+          "bytes": 269617
+        },
+        {
+          "path": "usr/lib/libgstvideo-1.0.so.0",
+          "sha256": "a2f342209c11b88b3af18533b0778bf24b04a40ad378fbc95d06fcce5ca6f575",
+          "bytes": 943441
+        }
+      ],
+      "stems": [
+        "libgstallocators-1.0",
+        "libgstapp-1.0",
+        "libgstaudio-1.0",
+        "libgstfft-1.0",
+        "libgstgl-1.0",
+        "libgstpbutils-1.0",
+        "libgsttag-1.0",
+        "libgstvideo-1.0"
+      ]
+    },
+    {
+      "package": "gstreamer",
+      "kind": "native",
+      "version": "1.28.7-2",
+      "declared": "LGPL-2.1-or-later",
+      "upstream": "https://gstreamer.freedesktop.org/",
+      "note": "Arch binary package ships no licence file; canonical SPDX text(s) retained (limitation L1).",
+      "texts": [
+        {
+          "file": "spdx-LGPL-2.1-or-later.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/LGPL-2.1-or-later.txt)",
+          "sha256": "5749785c8bdefafcb5d798270ed0a967036fe2ca63dcedade1627565dfef81d2"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libgstbase-1.0.so.0",
+          "sha256": "60fd93adf7244867ce93e6caf97f5df9b176212dbe33a23485c51340123a8aa6",
+          "bytes": 581689
+        },
+        {
+          "path": "usr/lib/libgstreamer-1.0.so.0",
+          "sha256": "343d65aaff7dd8b84705a9537692a4363f3ed81e15b7595cb7be02d59958aaf1",
+          "bytes": 1596201
+        }
+      ],
+      "stems": ["libgstbase-1.0", "libgstreamer-1.0"]
+    },
+    {
+      "package": "gtk3",
+      "kind": "native",
+      "version": "1:3.24.52-1",
+      "declared": "LGPL-2.1-or-later",
+      "upstream": "https://www.gtk.org/",
+      "note": "Arch binary package ships no licence file; canonical SPDX text(s) retained (limitation L1).",
+      "texts": [
+        {
+          "file": "spdx-LGPL-2.1-or-later.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/LGPL-2.1-or-later.txt)",
+          "sha256": "5749785c8bdefafcb5d798270ed0a967036fe2ca63dcedade1627565dfef81d2"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/gtk-3.0/3.0.0/immodules/im-am-et.so",
+          "sha256": "cbee8c1b3a865678916ef28765a6f5b89f5975f431ac277dfe2872738773415d",
+          "bytes": 31753
+        },
+        {
+          "path": "usr/lib/gtk-3.0/3.0.0/immodules/im-broadway.so",
+          "sha256": "08f2c991cbd80f1eeef46e6f182b905250ad46e4c46ccd018910ee33003960b6",
+          "bytes": 19649
+        },
+        {
+          "path": "usr/lib/gtk-3.0/3.0.0/immodules/im-cedilla.so",
+          "sha256": "6c4a5445cadb0f6ca3f67a7a5fca33426237dbe325ccb3eba95faa637832fae0",
+          "bytes": 19465
+        },
+        {
+          "path": "usr/lib/gtk-3.0/3.0.0/immodules/im-cyrillic-translit.so",
+          "sha256": "7ed4ed372bd8c55841abb11b2db9dbc73a817d01824ce4ff02bc91dd9dd4bef5",
+          "bytes": 19465
+        },
+        {
+          "path": "usr/lib/gtk-3.0/3.0.0/immodules/im-inuktitut.so",
+          "sha256": "349678d532d52432e1dbc6e28d37da77d80b8b33ef5f468bcee80d161a0ef52e",
+          "bytes": 19465
+        },
+        {
+          "path": "usr/lib/gtk-3.0/3.0.0/immodules/im-ipa.so",
+          "sha256": "2cbd6538086263416976f7b4f87bc268d482d8f56bcc4155b7c452f7490669c5",
+          "bytes": 19465
+        },
+        {
+          "path": "usr/lib/gtk-3.0/3.0.0/immodules/im-multipress.so",
+          "sha256": "1a3847524383fbe77b2f3a64d9c9fe1396af01cfced48d0b0e4a0fe41f024399",
+          "bytes": 25001
+        },
+        {
+          "path": "usr/lib/gtk-3.0/3.0.0/immodules/im-thai.so",
+          "sha256": "ec3aaae1780d9d12d9bfbf26d0a637e7a8319236e6ff333f6ad4858d300ce3d2",
+          "bytes": 19969
+        },
+        {
+          "path": "usr/lib/gtk-3.0/3.0.0/immodules/im-ti-er.so",
+          "sha256": "24bdff25dd992cf3c24d85721a3c8b817a99de033d12f40994404b80e2d89a58",
+          "bytes": 31753
+        },
+        {
+          "path": "usr/lib/gtk-3.0/3.0.0/immodules/im-ti-et.so",
+          "sha256": "39638ac9b5ba5266dcf7c8fe393743ffe3ed220f787be1488b9dc720ed55c97f",
+          "bytes": 31753
+        },
+        {
+          "path": "usr/lib/gtk-3.0/3.0.0/immodules/im-viqr.so",
+          "sha256": "8a1bffdb9b87aff6621bc4ddf854099bc19f6cbcd2a30e04e1b29f29fb8dabb5",
+          "bytes": 19465
+        },
+        {
+          "path": "usr/lib/gtk-3.0/3.0.0/immodules/im-wayland.so",
+          "sha256": "a420cdb3c2a4df92937ceedd726a4811ca144cd2fb068a60fa8628c7d411d808",
+          "bytes": 29457
+        },
+        {
+          "path": "usr/lib/gtk-3.0/3.0.0/immodules/im-xim.so",
+          "sha256": "81d30c526468510f8265fdac72ffbd3dec8b8f9ec5bb34f8d7009a1a0ca3b936",
+          "bytes": 43945
+        },
+        {
+          "path": "usr/lib/gtk-3.0/3.0.0/printbackends/libprintbackend-cups.so",
+          "sha256": "169b20443efc644252967c1598be9f023f24f68782f2782207f059574b97252b",
+          "bytes": 147041
+        },
+        {
+          "path": "usr/lib/gtk-3.0/3.0.0/printbackends/libprintbackend-file.so",
+          "sha256": "06f3f3a348af7bf5276320599237735cab4e81333ae50d13ae025f8270e7d705",
+          "bytes": 31801
+        },
+        {
+          "path": "usr/lib/gtk-3.0/3.0.0/printbackends/libprintbackend-lpr.so",
+          "sha256": "b5f47b39f8c619ce1f75dd0db63ce0537f942749dd18d806724dbd67839b90ce",
+          "bytes": 26489
+        },
+        {
+          "path": "usr/lib/libgdk-3.so.0",
+          "sha256": "41ee7e824caf78f83f611347ec5c3d09394701935782b285a7febf55d398a9ed",
+          "bytes": 1016505
+        },
+        {
+          "path": "usr/lib/libgtk-3.so.0",
+          "sha256": "dc276347e2067c0847d8ba721140e6fe23f8c71f94b365671f1e1e74e7f8eb26",
+          "bytes": 7538065
+        },
+        {
+          "path": "usr/share/glib-2.0/schemas/org.gtk.Settings.ColorChooser.gschema.xml",
+          "sha256": "e476913ef61e6719ff56c2e4c5b8b276af3020bfb0d007263c2a241835730882",
+          "bytes": 931
+        },
+        {
+          "path": "usr/share/glib-2.0/schemas/org.gtk.Settings.Debug.gschema.xml",
+          "sha256": "de0685fdc2f6e890e32445a79aa938e5566b8dd406dd71d6c6a66c69e3f941e3",
+          "bytes": 833
+        },
+        {
+          "path": "usr/share/glib-2.0/schemas/org.gtk.Settings.EmojiChooser.gschema.xml",
+          "sha256": "22aba28a5a78745d87eeded88f1b86f7ddea24b1b90771151ef494c660a1b591",
+          "bytes": 623
+        },
+        {
+          "path": "usr/share/glib-2.0/schemas/org.gtk.Settings.FileChooser.gschema.xml",
+          "sha256": "c7089f41d22b3854c05fe4996ff271949b40148a40b9c6f0ae0349792dc94b77",
+          "bytes": 6212
+        }
+      ],
+      "stems": [
+        "im-am-et",
+        "im-broadway",
+        "im-cedilla",
+        "im-cyrillic-translit",
+        "im-inuktitut",
+        "im-ipa",
+        "im-multipress",
+        "im-thai",
+        "im-ti-er",
+        "im-ti-et",
+        "im-viqr",
+        "im-wayland",
+        "im-xim",
+        "libgdk-3",
+        "libgtk-3",
+        "libprintbackend-cups",
+        "libprintbackend-file",
+        "libprintbackend-lpr",
+        "org.gtk.Settings.ColorChooser.gschema.xml",
+        "org.gtk.Settings.Debug.gschema.xml",
+        "org.gtk.Settings.EmojiChooser.gschema.xml",
+        "org.gtk.Settings.FileChooser.gschema.xml"
+      ]
+    },
+    {
+      "package": "gtk4",
+      "kind": "native",
+      "version": "1:4.22.5-1",
+      "declared": "LGPL-2.1-or-later",
+      "upstream": "https://www.gtk.org/",
+      "note": "Arch binary package ships no licence file; canonical SPDX text(s) retained (limitation L1).",
+      "texts": [
+        {
+          "file": "spdx-LGPL-2.1-or-later.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/LGPL-2.1-or-later.txt)",
+          "sha256": "5749785c8bdefafcb5d798270ed0a967036fe2ca63dcedade1627565dfef81d2"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/share/glib-2.0/schemas/org.gtk.gtk4.Inspector.gschema.xml",
+          "sha256": "0a716456c56ff6a4f3ad1d72b2205b2e982a231a9586cba32bc7d1bcc93cf45a",
+          "bytes": 1239
+        },
+        {
+          "path": "usr/share/glib-2.0/schemas/org.gtk.gtk4.Settings.ColorChooser.gschema.xml",
+          "sha256": "3c60a020ac823ad9c02394c8579296711a148fb6e15dac1c4dffa3470303af32",
+          "bytes": 941
+        },
+        {
+          "path": "usr/share/glib-2.0/schemas/org.gtk.gtk4.Settings.Debug.gschema.xml",
+          "sha256": "f3093b00e9184a19289f0755345e3414921aafe15433342b36b327ade2048998",
+          "bytes": 840
+        },
+        {
+          "path": "usr/share/glib-2.0/schemas/org.gtk.gtk4.Settings.EmojiChooser.gschema.xml",
+          "sha256": "893b260569e832bb96bfa5ff95893f85d81543069799f22bf66dd419ad50a702",
+          "bytes": 678
+        },
+        {
+          "path": "usr/share/glib-2.0/schemas/org.gtk.gtk4.Settings.FileChooser.gschema.xml",
+          "sha256": "e7a7482f7937a0588961613df2b14e509b08c1281bdb0b12ab279856d7d8fcea",
+          "bytes": 6537
+        }
+      ],
+      "stems": [
+        "org.gtk.gtk4.Inspector.gschema.xml",
+        "org.gtk.gtk4.Settings.ColorChooser.gschema.xml",
+        "org.gtk.gtk4.Settings.Debug.gschema.xml",
+        "org.gtk.gtk4.Settings.EmojiChooser.gschema.xml",
+        "org.gtk.gtk4.Settings.FileChooser.gschema.xml"
+      ]
+    },
+    {
+      "package": "gvfs",
+      "kind": "native",
+      "version": "1.60.3-3",
+      "declared": "LGPL-2.0-only",
+      "upstream": "https://gitlab.gnome.org/GNOME/gvfs",
+      "note": "Arch binary package ships no licence file; canonical SPDX text(s) retained (limitation L1).",
+      "texts": [
+        {
+          "file": "spdx-LGPL-2.0-or-later.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/LGPL-2.0-or-later.txt)",
+          "sha256": "86dc99d7e5060915ab1dfc1378b7dd351c62088bfa74067e8aa1868c6fdba7d8"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/gio/modules/libgioremote-volume-monitor.so",
+          "sha256": "b1b99dec3769e0f716959ead1ad683a4b77d59132255a8f0c161a1e9de3bc30e",
+          "bytes": 109513
+        },
+        {
+          "path": "usr/lib/gio/modules/libgvfsdbus.so",
+          "sha256": "55967bf4985caf62f82defc26cac6f31d1a5d8785dd0ea0fdcd9caf7b053c228",
+          "bytes": 218801
+        },
+        {
+          "path": "usr/lib/libgvfscommon.so",
+          "sha256": "2379ad005092efb3b9cc278861854e1e3baeefc75f48c0aafefa5af198b78dc2",
+          "bytes": 275241
+        },
+        {
+          "path": "usr/share/glib-2.0/schemas/org.gnome.system.gvfs.enums.xml",
+          "sha256": "6948557d3472caf38a6ef80966c1e880a3f64f556508afe70ca0f0b37a3c8b8c",
+          "bytes": 469
+        }
+      ],
+      "stems": [
+        "libgioremote-volume-monitor",
+        "libgvfscommon",
+        "libgvfsdbus",
+        "org.gnome.system.gvfs.enums.xml"
+      ]
+    },
+    {
+      "package": "harfbuzz-icu",
+      "kind": "native",
+      "version": "14.6.0-1",
+      "declared": "MIT",
+      "upstream": "https://harfbuzz.github.io/",
+      "note": "",
+      "texts": [
+        {
+          "file": "harfbuzz-icu-14.6.0-1-COPYING",
+          "source": "installed harfbuzz-icu 14.6.0-1 (/usr/share/licenses/harfbuzz-icu/COPYING)",
+          "sha256": "ba8f810f2455c2f08e2d56bb49b72f37fcf68f1f4fade38977cfd7372050ad64"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libharfbuzz-icu.so.0",
+          "sha256": "99bfbdb758b5c039601f2f2383a72fc8c9442e2b25e5de874cf3351d786a347d",
+          "bytes": 20313
+        }
+      ],
+      "stems": ["libharfbuzz-icu"]
+    },
+    {
+      "package": "hidapi",
+      "kind": "native",
+      "version": "0.15.0-1",
+      "declared": "GPL3  BSD  custom",
+      "upstream": "https://github.com/libusb/hidapi",
+      "note": "",
+      "texts": [
+        {
+          "file": "hidapi-0.15.0-1-LICENSE.txt",
+          "source": "installed hidapi 0.15.0-1 (/usr/share/licenses/hidapi/LICENSE.txt)",
+          "sha256": "7d3b087c34f35d4d538e3bcddd1ff8f66e92f9ef336881999482800ddf840913"
+        },
+        {
+          "file": "hidapi-0.15.0-1-LICENSE-bsd.txt",
+          "source": "installed hidapi 0.15.0-1 (/usr/share/licenses/hidapi/LICENSE-bsd.txt)",
+          "sha256": "30eb1bef29b46f8ba7ab8b416035dbd93cb034a45481dd97815b944284582cd2"
+        },
+        {
+          "file": "hidapi-0.15.0-1-LICENSE-gpl3.txt",
+          "source": "installed hidapi 0.15.0-1 (/usr/share/licenses/hidapi/LICENSE-gpl3.txt)",
+          "sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903"
+        },
+        {
+          "file": "hidapi-0.15.0-1-LICENSE-orig.txt",
+          "source": "installed hidapi 0.15.0-1 (/usr/share/licenses/hidapi/LICENSE-orig.txt)",
+          "sha256": "fb5436aa63d1b71a8dfbf74ecaf1a5b4e1ec4df7f80074d11fec99284f69ca5f"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libhidapi-hidraw.so.0",
+          "sha256": "d482f0eecac29ca815ce6b97fa22f78f0220d0e34dd2bad0314db5565f3332e0",
+          "bytes": 32513
+        }
+      ],
+      "stems": ["libhidapi-hidraw"]
+    },
+    {
+      "package": "highway",
+      "kind": "native",
+      "version": "1.4.0-1",
+      "declared": "Apache-2.0 OR BSD-3-Clause",
+      "upstream": "https://github.com/google/highway/",
+      "note": "",
+      "texts": [
+        {
+          "file": "highway-1.4.0-1-LICENSE",
+          "source": "installed highway 1.4.0-1 (/usr/share/licenses/highway/LICENSE)",
+          "sha256": "e340270d4f64384569a91d546acb5b094d69ce47f0c015db77abb74dc6f815af"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libhwy.so.1",
+          "sha256": "59175d66d3c2015c5a2ae98dd5a76c2457e78e4b1a1a5438cfb6b34987dfbeab",
+          "bytes": 62185
+        }
+      ],
+      "stems": ["libhwy"]
+    },
+    {
+      "package": "hunspell",
+      "kind": "native",
+      "version": "1.7.5-1",
+      "declared": "LGPL-2.1-or-later OR GPL-2.0-or-later OR MPL-1.1",
+      "upstream": "https://github.com/hunspell/hunspell",
+      "note": "",
+      "texts": [
+        {
+          "file": "upstream-hunspell-1.7.5-COPYING",
+          "source": "upstream https://raw.githubusercontent.com/hunspell/hunspell/master/COPYING (SHA-256 pinned in tools/build-package-notices.py)",
+          "sha256": "640d90f6ee401241ff62834d0d1b33f83049e99b8bfdfa04ed1b0a1635dde3e7"
+        },
+        {
+          "file": "upstream-hunspell-1.7.5-COPYING.LESSER",
+          "source": "upstream https://raw.githubusercontent.com/hunspell/hunspell/master/COPYING.LESSER (SHA-256 pinned in tools/build-package-notices.py)",
+          "sha256": "7c6699c75f87b52bdc542db26d6b1b92892577cda46e20eceb79e2790a1c291b"
+        },
+        {
+          "file": "upstream-hunspell-1.7.5-COPYING.MPL",
+          "source": "upstream https://raw.githubusercontent.com/hunspell/hunspell/master/COPYING.MPL (SHA-256 pinned in tools/build-package-notices.py)",
+          "sha256": "53692a2ed6c6a2c6ec9b32dd0b820dfae91e0a1fcdf625ca9ed0bdf8705fcc4f"
+        },
+        {
+          "file": "upstream-hunspell-1.7.5-license.hunspell",
+          "source": "upstream https://raw.githubusercontent.com/hunspell/hunspell/master/license.hunspell (SHA-256 pinned in tools/build-package-notices.py)",
+          "sha256": "3f7ddd07c296edbfe0a47c7bcc82038ad347a2c4f672345b24f95c624db68513"
+        },
+        {
+          "file": "upstream-hunspell-1.7.5-license.myspell",
+          "source": "upstream https://raw.githubusercontent.com/hunspell/hunspell/master/license.myspell (SHA-256 pinned in tools/build-package-notices.py)",
+          "sha256": "dcda061adeed22b26f276c01ec374f930789ae0d684e5aa8f8be309dd680ff20"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libhunspell-1.7.so.0",
+          "sha256": "7f97d1d2016897cf559ac1c7b07f55bb52f2014c6a5b632b31baf6be50eb7dea",
+          "bytes": 560209
+        }
+      ],
+      "stems": ["libhunspell-1.7"]
+    },
+    {
+      "package": "hyphen",
+      "kind": "native",
+      "version": "2.8.9-1",
+      "declared": "GPL-2.0-only OR LGPL-2.1-or-later OR MPL-1.1",
+      "upstream": "https://github.com/hunspell/hyphen",
+      "note": "LICENSE is the tri-licence chooser; the three texts are canonical.",
+      "texts": [
+        {
+          "file": "hyphen-2.8.9-1-LICENSE",
+          "source": "installed hyphen 2.8.9-1 (/usr/share/licenses/hyphen/LICENSE)",
+          "sha256": "8674da7542da10dec11e50a0d3cdad219a79de80f405bc54894fb20207944d94"
+        },
+        {
+          "file": "spdx-GPL-2.0-or-later.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/GPL-2.0-or-later.txt)",
+          "sha256": "aaf135472f81c5b4a0dca9367e5bb5e9750032b5bebe5442b36e4c0a47430df3"
+        },
+        {
+          "file": "spdx-LGPL-2.1-or-later.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/LGPL-2.1-or-later.txt)",
+          "sha256": "5749785c8bdefafcb5d798270ed0a967036fe2ca63dcedade1627565dfef81d2"
+        },
+        {
+          "file": "spdx-MPL-1.1.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/MPL-1.1.txt)",
+          "sha256": "6214f8b1300bb9f37b16ebc146f8f61af0187e0025042ff95c8b3030744a8795"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libhyphen.so.0",
+          "sha256": "8b68cdddbc5d5ab0b352963029a91388517f8b76c2cbbc8d70b481ab08ead2ec",
+          "bytes": 31729
+        }
+      ],
+      "stems": ["libhyphen"]
+    },
+    {
+      "package": "icu",
+      "kind": "native",
+      "version": "78.3-1",
+      "declared": "LicenseRef-Unicode-3.0  BSD-2-Clause  BSD-3-Clause  NAIST-2003",
+      "upstream": "https://icu.unicode.org",
+      "note": "",
+      "texts": [
+        {
+          "file": "icu-78.3-1-LICENSE",
+          "source": "installed icu 78.3-1 (/usr/share/licenses/icu/LICENSE)",
+          "sha256": "e55522d81edc687a341a4411e0776e54ca654e90147f354a90458aaced4116af"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libicudata.so.78",
+          "sha256": "97d111f56a689857020e3e278cad1127ab1ff1d3561f55c4d7e62acd56693fa6",
+          "bytes": 33117337
+        },
+        {
+          "path": "usr/lib/libicui18n.so.78",
+          "sha256": "b4adce689832c38a62feea0542464242b6e24873afa9e112c5b0dde319216cd4",
+          "bytes": 4317937
+        },
+        {
+          "path": "usr/lib/libicuuc.so.78",
+          "sha256": "f2b12bfdaecd3a90a7b72dca8e89986b232f02d55e7445260a4b9faac3103a96",
+          "bytes": 2328289
+        }
+      ],
+      "stems": ["libicudata", "libicui18n", "libicuuc"]
+    },
+    {
+      "package": "json-glib",
+      "kind": "native",
+      "version": "1.10.8-1",
+      "declared": "LGPL-2.1-or-later",
+      "upstream": "https://gnome.pages.gitlab.gnome.org/json-glib/",
+      "note": "Arch binary package ships no licence file; canonical SPDX text(s) retained (limitation L1).",
+      "texts": [
+        {
+          "file": "spdx-LGPL-2.1-or-later.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/LGPL-2.1-or-later.txt)",
+          "sha256": "5749785c8bdefafcb5d798270ed0a967036fe2ca63dcedade1627565dfef81d2"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libjson-glib-1.0.so.0",
+          "sha256": "3c06beeeae1871fec2a09417805a7f08e42b1c07ea33d035c42dec93abd739cd",
+          "bytes": 188025
+        }
+      ],
+      "stems": ["libjson-glib-1.0"]
+    },
+    {
+      "package": "keyutils",
+      "kind": "native",
+      "version": "1.6.3-4",
+      "declared": "GPL-2.0-or-later  LGPL-2.1-or-later",
+      "upstream": "https://www.kernel.org/",
+      "note": "Arch binary package ships no licence file; canonical SPDX text(s) retained (limitation L1).",
+      "texts": [
+        {
+          "file": "spdx-GPL-2.0-or-later.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/GPL-2.0-or-later.txt)",
+          "sha256": "aaf135472f81c5b4a0dca9367e5bb5e9750032b5bebe5442b36e4c0a47430df3"
+        },
+        {
+          "file": "spdx-LGPL-2.1-or-later.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/LGPL-2.1-or-later.txt)",
+          "sha256": "5749785c8bdefafcb5d798270ed0a967036fe2ca63dcedade1627565dfef81d2"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libkeyutils.so.1",
+          "sha256": "6ab96bf2f1f5dfbebbdf5630141e1c534f8c9401857b5fd3a738a93507a9b5a2",
+          "bytes": 28865
+        }
+      ],
+      "stems": ["libkeyutils"]
+    },
+    {
+      "package": "krb5",
+      "kind": "native",
+      "version": "1.22.2-1",
+      "declared": "custom",
+      "upstream": "https://web.mit.edu/kerberos/",
+      "note": "",
+      "texts": [
+        {
+          "file": "krb5-1.22.2-1-LICENSE",
+          "source": "installed krb5 1.22.2-1 (/usr/share/licenses/krb5/LICENSE)",
+          "sha256": "d37fcb886de2ad1c602f61c99c6893bcbd9a1949f54d9a6bb40d191204eb605e"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libgssapi_krb5.so.2",
+          "sha256": "5a3b7ebfd40a618adee1c636700badbe7f7c1aefbe5e982adbd534d4efc7e08a",
+          "bytes": 378993
+        },
+        {
+          "path": "usr/lib/libk5crypto.so.3",
+          "sha256": "53756effe91ad14326da78f4eb9d43115ddb4a51eecd4874022580bb9e761e19",
+          "bytes": 190737
+        },
+        {
+          "path": "usr/lib/libkrb5.so.3",
+          "sha256": "7f6a0ff3509bef76b00abe85f686dc8180996281b67f5194051c181e763bdfa1",
+          "bytes": 875953
+        },
+        {
+          "path": "usr/lib/libkrb5support.so.0",
+          "sha256": "cc50562410b9791cdf25da6338a5d1c42cbf093cba26c71cfa4cd5b4b3511cb5",
+          "bytes": 63625
+        }
+      ],
+      "stems": ["libgssapi_krb5", "libk5crypto", "libkrb5", "libkrb5support"]
+    },
+    {
+      "package": "lcms2",
+      "kind": "native",
+      "version": "2.19.1-1",
+      "declared": "MIT",
+      "upstream": "http://www.littlecms.com/",
+      "note": "",
+      "texts": [
+        {
+          "file": "lcms2-2.19.1-1-LICENSE",
+          "source": "installed lcms2 2.19.1-1 (/usr/share/licenses/lcms2/LICENSE)",
+          "sha256": "6dbd60437f8ef91d8de1f08ad75882547fd4931bfcc3566a0735f28db1484d31"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/liblcms2.so.2",
+          "sha256": "1f61dbbe442f087ea8631fd4a811ee2c514fe4fbce2283b108f550f4b23c78b9",
+          "bytes": 453785
+        }
+      ],
+      "stems": ["liblcms2"]
+    },
+    {
+      "package": "leancrypto",
+      "kind": "native",
+      "version": "1.9.1-1",
+      "declared": "GPL-2.0-or-later  LicenseRef-BSDvariant  LicenseRef-leancrypto",
+      "upstream": "https://leancrypto.org",
+      "note": "",
+      "texts": [
+        {
+          "file": "leancrypto-1.9.1-1-LICENSE",
+          "source": "installed leancrypto 1.9.1-1 (/usr/share/licenses/leancrypto/LICENSE)",
+          "sha256": "6eace59ee3c3e03069b2f5bd2c18e61a555c48bd38ae0930f73cfebe513b24cb"
+        },
+        {
+          "file": "leancrypto-1.9.1-1-LICENSE.bsd",
+          "source": "installed leancrypto 1.9.1-1 (/usr/share/licenses/leancrypto/LICENSE.bsd)",
+          "sha256": "13aa749a5b0a454917a944ed8fffc530b784f5ead522b1aacaf4ec8aa55a6239"
+        },
+        {
+          "file": "leancrypto-1.9.1-1-LICENSE.gplv2",
+          "source": "installed leancrypto 1.9.1-1 (/usr/share/licenses/leancrypto/LICENSE.gplv2)",
+          "sha256": "e6d6a009505e345fe949e1310334fcb0747f28dae2856759de102ab66b722cb4"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libleancrypto.so.1.9",
+          "sha256": "85bb01ac7403aff3f380a6177d08746c6fa3cbc8ec55cfc5a27679486735599c",
+          "bytes": 2893881
+        }
+      ],
+      "stems": ["libleancrypto"]
+    },
+    {
+      "package": "libatomic",
+      "kind": "native",
+      "version": "16.2.1+r23+gd564253eb6c8-1",
+      "declared": "GPL-3.0-or-later WITH GCC-exception-3.1  GFDL-1.3-or-later",
+      "upstream": "https://gcc.gnu.org",
+      "note": "GFDL-1.3 covers GCC manuals, not the bundled library; retained for completeness against the declared licence set.",
+      "texts": [
+        {
+          "file": "libatomic-16.2.1+r23+gd564253eb6c8-1-RUNTIME.LIBRARY.EXCEPTION",
+          "source": "installed libatomic 16.2.1+r23+gd564253eb6c8-1 (/usr/share/licenses/libatomic/RUNTIME.LIBRARY.EXCEPTION)",
+          "sha256": "9d6b43ce4d8de0c878bf16b54d8e7a10d9bd42b75178153e3af6a815bdc90f74"
+        },
+        {
+          "file": "spdx-GPL-3.0-or-later.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/GPL-3.0-or-later.txt)",
+          "sha256": "fb981668c18a279e285fc4d83fba1e836cc84dd4daa73c9697d3cfd2d8aca6e0"
+        },
+        {
+          "file": "spdx-GFDL-1.3-or-later.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/GFDL-1.3-or-later.txt)",
+          "sha256": "d024962f1f4966c102b40d9fd9cc834a3f0b3c1397b41444b7cd7925640dc929"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libatomic.so.1",
+          "sha256": "7c0338bebe3228694b16b547c484726ec94fd5231232bd52b8d555634e227378",
+          "bytes": 42817
+        }
+      ],
+      "stems": ["libatomic"]
+    },
+    {
+      "package": "libavif",
+      "kind": "native",
+      "version": "1.4.2-1",
+      "declared": "LicenseRef-libavif",
+      "upstream": "https://github.com/AOMediaCodec/libavif",
+      "note": "",
+      "texts": [
+        {
+          "file": "libavif-1.4.2-1-LICENSE",
+          "source": "installed libavif 1.4.2-1 (/usr/share/licenses/libavif/LICENSE)",
+          "sha256": "165abf92cc04b39e80d29cadea7a6a7e8fddf59407d4ad2616507a7ebe8216f9"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libavif.so.16",
+          "sha256": "96f084229b286279c1d8300246cba1a533eb91f8b72aef060c1f9fd3c0be0eeb",
+          "bytes": 299721
+        }
+      ],
+      "stems": ["libavif"]
+    },
+    {
+      "package": "libcanberra",
+      "kind": "native",
+      "version": "1:0.30+r2+gc0620e4-6",
+      "declared": "LGPL-2.1-or-later",
+      "upstream": "https://0pointer.net/lennart/projects/libcanberra/",
+      "note": "Arch binary package ships no licence file; canonical SPDX text(s) retained (limitation L1).",
+      "texts": [
+        {
+          "file": "spdx-LGPL-2.1-or-later.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/LGPL-2.1-or-later.txt)",
+          "sha256": "5749785c8bdefafcb5d798270ed0a967036fe2ca63dcedade1627565dfef81d2"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/gtk-3.0/modules/libcanberra-gtk3-module.so",
+          "sha256": "04c6991f3d66ad5efe84f87b2e1f45fda3b3f89c6bdc9720143a59c025f98b21",
+          "bytes": 34761
+        },
+        {
+          "path": "usr/lib/libcanberra-gtk3.so.0",
+          "sha256": "1f43d3cd3cd234df1255f800ef82a3de2ecc2dd0d05ac418e5b04d7d8ca32438",
+          "bytes": 28625
+        },
+        {
+          "path": "usr/lib/libcanberra.so.0",
+          "sha256": "d6db3fc77f49c276223ae9eed1cdc0a0101a6ac672109128e7f1c5a01042a130",
+          "bytes": 71712
+        }
+      ],
+      "stems": ["libcanberra", "libcanberra-gtk3", "libcanberra-gtk3-module"]
+    },
+    {
+      "package": "libcloudproviders",
+      "kind": "native",
+      "version": "0.4.1-1",
+      "declared": "LGPL-3.0-or-later",
+      "upstream": "https://gitlab.gnome.org/GNOME/libcloudproviders",
+      "note": "Arch binary package ships no licence file; canonical SPDX text(s) retained (limitation L1).",
+      "texts": [
+        {
+          "file": "spdx-LGPL-3.0-or-later.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/LGPL-3.0-or-later.txt)",
+          "sha256": "996af0513df21f7496288951c41428a03c174e9e4a9d63665c57d670f845ccb1"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libcloudproviders.so.0",
+          "sha256": "2ac50672ab8faecccb0ebceb41b2dae8f77d980a2d51b28ef9287cddd6830f5a",
+          "bytes": 111001
+        }
+      ],
+      "stems": ["libcloudproviders"]
+    },
+    {
+      "package": "libcolord",
+      "kind": "native",
+      "version": "1.4.8-1",
+      "declared": "GPL-2.0-or-later",
+      "upstream": "https://www.freedesktop.org/software/colord/",
+      "note": "Arch binary package ships no licence file; canonical SPDX text(s) retained (limitation L1).",
+      "texts": [
+        {
+          "file": "spdx-GPL-2.0-or-later.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/GPL-2.0-or-later.txt)",
+          "sha256": "aaf135472f81c5b4a0dca9367e5bb5e9750032b5bebe5442b36e4c0a47430df3"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libcolord.so.2",
+          "sha256": "e8230590e942ea466a62ec7811c3be2073b597ba5260672dc983bec89070d1c7",
+          "bytes": 385825
+        }
+      ],
+      "stems": ["libcolord"]
+    },
+    {
+      "package": "libcups",
+      "kind": "native",
+      "version": "2:2.4.20-1",
+      "declared": "Apache-2.0 WITH LLVM-exception AND BSD-3-Clause AND Zlib AND BSD-2-Clause",
+      "upstream": "https://openprinting.github.io/cups/",
+      "note": "LICENSE/NOTICE are the CUPS Apache-2.0-with-exceptions bundle.",
+      "texts": [
+        {
+          "file": "libcups-2:2.4.20-1-LICENSE",
+          "source": "installed libcups 2:2.4.20-1 (/usr/share/licenses/libcups/LICENSE)",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+        },
+        {
+          "file": "libcups-2:2.4.20-1-NOTICE",
+          "source": "installed libcups 2:2.4.20-1 (/usr/share/licenses/libcups/NOTICE)",
+          "sha256": "977206f041b9a6f47ac00531e1242c0fab7063da71178f8d868b167b70866b6d"
+        },
+        {
+          "file": "spdx-Apache-2.0.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/Apache-2.0.txt)",
+          "sha256": "074e6e32c86a4c0ef8b3ed25b721ca23aca83df277cd88106ef7177c354615ff"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libcups.so.2",
+          "sha256": "3226f3d8a1ad57970dd7f9e5c0398490d8877784ce37805c5a69210621a00185",
+          "bytes": 636721
+        }
+      ],
+      "stems": ["libcups"]
+    },
+    {
+      "package": "libdatrie",
+      "kind": "native",
+      "version": "0.2.14-1",
+      "declared": "LGPL-2.1-or-later",
+      "upstream": "https://linux.thai.net/projects/datrie",
+      "note": "Arch binary package ships no licence file; canonical SPDX text(s) retained (limitation L1).",
+      "texts": [
+        {
+          "file": "spdx-LGPL-2.1-or-later.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/LGPL-2.1-or-later.txt)",
+          "sha256": "5749785c8bdefafcb5d798270ed0a967036fe2ca63dcedade1627565dfef81d2"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libdatrie.so.1",
+          "sha256": "4d1eeae3b3ffeb84af07efe43b0db01212f9921c2f83af5d67849844b5efdcdc",
+          "bytes": 36481
+        }
+      ],
+      "stems": ["libdatrie"]
+    },
+    {
+      "package": "libelf",
+      "kind": "native",
+      "version": "0.196-1",
+      "declared": "GPL-2.0-or-later OR LGPL-3.0-or-later",
+      "upstream": "https://sourceware.org/elfutils/",
+      "note": "Arch binary package ships no licence file; canonical SPDX text(s) retained (limitation L1).",
+      "texts": [
+        {
+          "file": "spdx-GPL-2.0-or-later.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/GPL-2.0-or-later.txt)",
+          "sha256": "aaf135472f81c5b4a0dca9367e5bb5e9750032b5bebe5442b36e4c0a47430df3"
+        },
+        {
+          "file": "spdx-LGPL-3.0-or-later.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/LGPL-3.0-or-later.txt)",
+          "sha256": "996af0513df21f7496288951c41428a03c174e9e4a9d63665c57d670f845ccb1"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libdw.so.1",
+          "sha256": "8f5c7a56772f9489670dd7b422525b5d134d9fb87b33fb326b6d9f288edd992c",
+          "bytes": 677129
+        },
+        {
+          "path": "usr/lib/libelf.so.1",
+          "sha256": "0abe3b072d46e066b9b2fcfb8d56bb15d373d095e40030b1f3783bf5507a3121",
+          "bytes": 125073
+        }
+      ],
+      "stems": ["libdw", "libelf"]
+    },
+    {
+      "package": "libepoxy",
+      "kind": "native",
+      "version": "1.5.10-3",
+      "declared": "MIT",
+      "upstream": "https://github.com/anholt/libepoxy",
+      "note": "",
+      "texts": [
+        {
+          "file": "libepoxy-1.5.10-3-COPYING",
+          "source": "installed libepoxy 1.5.10-3 (/usr/share/licenses/libepoxy/COPYING)",
+          "sha256": "8d5144666f9c4df9bbd69b8900086d5979259152a1060421cdcc0fb9061a1c12"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libepoxy.so.0",
+          "sha256": "0a81c49cfb8dd949d1395d665568d044e8a2242f5a9df79e5de2b3d4b6bea89b",
+          "bytes": 1224185
+        }
+      ],
+      "stems": ["libepoxy"]
+    },
+    {
+      "package": "libevdev",
+      "kind": "native",
+      "version": "1.13.7-1",
+      "declared": "MIT",
+      "upstream": "https://www.freedesktop.org/wiki/Software/libevdev/",
+      "note": "",
+      "texts": [
+        {
+          "file": "libevdev-1.13.7-1-COPYING",
+          "source": "installed libevdev 1.13.7-1 (/usr/share/licenses/libevdev/COPYING)",
+          "sha256": "6f13de7ce28e4948ba95170e0723ee1254c1978ce1f127af82aeca597b567cb9"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libevdev.so.2",
+          "sha256": "55244f7635eb349fd05c8b6d721ed7b25deada6d75fb7e86f42475aa2a18c02a",
+          "bytes": 92081
+        }
+      ],
+      "stems": ["libevdev"]
+    },
+    {
+      "package": "libffi",
+      "kind": "native",
+      "version": "3.8.0-1",
+      "declared": "MIT",
+      "upstream": "https://sourceware.org/libffi/",
+      "note": "",
+      "texts": [
+        {
+          "file": "libffi-3.8.0-1-LICENSE",
+          "source": "installed libffi 3.8.0-1 (/usr/share/licenses/libffi/LICENSE)",
+          "sha256": "17b64dc60f3b6897a60f971e288b973f655c2edcdf08b25f3c3dd5549857881c"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libffi.so.8",
+          "sha256": "a93b3d65f3f95a6c074dbf8400e52e794d1ac85a0d1350a0b2928190bc96e655",
+          "bytes": 57833
+        }
+      ],
+      "stems": ["libffi"]
+    },
+    {
+      "package": "libgcrypt",
+      "kind": "native",
+      "version": "1.12.4-1",
+      "declared": "BSD-3-Clause  BSD-3-Clause OR GPL-2.0-only  GPL-2.0-or-later  LGPL-2.0-or-later  LGPL-2.1-or-later  X11  LicenseRef-scancode-public-domain  LicenseRef-OCB1",
+      "upstream": "https://www.gnupg.org",
+      "note": "COPYING.LIB is LGPL-2.1; LICENSES aggregates the remaining file notices; GPL/LGPL-2.0 wordings are canonical.",
+      "texts": [
+        {
+          "file": "libgcrypt-1.12.4-1-COPYING.LIB",
+          "source": "installed libgcrypt 1.12.4-1 (/usr/share/licenses/libgcrypt/COPYING.LIB)",
+          "sha256": "20e50fe7aae3e56378ebf0417d9de904f55a0e61e4df315333e632a4d3555d95"
+        },
+        {
+          "file": "libgcrypt-1.12.4-1-LICENSES",
+          "source": "installed libgcrypt 1.12.4-1 (/usr/share/licenses/libgcrypt/LICENSES)",
+          "sha256": "2a047a5799926c3cd705ce6df4b560d67578061ad5019fbff2a4609a3f0090bd"
+        },
+        {
+          "file": "spdx-GPL-2.0-only.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/GPL-2.0-only.txt)",
+          "sha256": "aaf135472f81c5b4a0dca9367e5bb5e9750032b5bebe5442b36e4c0a47430df3"
+        },
+        {
+          "file": "spdx-GPL-2.0-or-later.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/GPL-2.0-or-later.txt)",
+          "sha256": "aaf135472f81c5b4a0dca9367e5bb5e9750032b5bebe5442b36e4c0a47430df3"
+        },
+        {
+          "file": "spdx-LGPL-2.0-or-later.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/LGPL-2.0-or-later.txt)",
+          "sha256": "86dc99d7e5060915ab1dfc1378b7dd351c62088bfa74067e8aa1868c6fdba7d8"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libgcrypt.so.20",
+          "sha256": "5850f7a855341c84a7c7a2bb904922b2af6b0c0d49184a4b485a7321bd98c53a",
+          "bytes": 1779929
+        }
+      ],
+      "stems": ["libgcrypt"]
+    },
+    {
+      "package": "libgudev",
+      "kind": "native",
+      "version": "238-3",
+      "declared": "LGPL-2.1-or-later",
+      "upstream": "https://gitlab.gnome.org/GNOME/libgudev",
+      "note": "Arch binary package ships no licence file; canonical SPDX text(s) retained (limitation L1).",
+      "texts": [
+        {
+          "file": "spdx-LGPL-2.1-or-later.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/LGPL-2.1-or-later.txt)",
+          "sha256": "5749785c8bdefafcb5d798270ed0a967036fe2ca63dcedade1627565dfef81d2"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libgudev-1.0.so.0",
+          "sha256": "675d8b65f9758fc8b0725fdcef69892ff419e2d340cc49f4f615f421c3f2bb62",
+          "bytes": 57105
+        }
+      ],
+      "stems": ["libgudev-1.0"]
+    },
+    {
+      "package": "libidn2",
+      "kind": "native",
+      "version": "2.3.8-1",
+      "declared": "GPL2  LGPL3",
+      "upstream": "https://www.gnu.org/software/libidn/#libidn2",
+      "note": "Arch shorthand 'GPL2 LGPL3' resolved by the installed /usr/include/idn2.h header: GPL-2.0-or-later AND LGPL-3.0-or-later, or both in parallel.",
+      "texts": [
+        {
+          "file": "spdx-GPL-2.0-or-later.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/GPL-2.0-or-later.txt)",
+          "sha256": "aaf135472f81c5b4a0dca9367e5bb5e9750032b5bebe5442b36e4c0a47430df3"
+        },
+        {
+          "file": "spdx-LGPL-3.0-or-later.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/LGPL-3.0-or-later.txt)",
+          "sha256": "996af0513df21f7496288951c41428a03c174e9e4a9d63665c57d670f845ccb1"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libidn2.so.0",
+          "sha256": "c75cabb067392a6a56bc27cd0161bd7c58e61fbc2fd8ffd5da7d2d892723ecd2",
+          "bytes": 138785
+        }
+      ],
+      "stems": ["libidn2"]
+    },
+    {
+      "package": "libjpeg-turbo",
+      "kind": "native",
+      "version": "3.2.0-2",
+      "declared": "BSD-3-Clause  IJG",
+      "upstream": "https://libjpeg-turbo.org/",
+      "note": "",
+      "texts": [
+        {
+          "file": "libjpeg-turbo-3.2.0-2-LICENSE.md",
+          "source": "installed libjpeg-turbo 3.2.0-2 (/usr/share/licenses/libjpeg-turbo/LICENSE.md)",
+          "sha256": "ba6bceebcba0fdd35488477c2cca8c4632ce82c74dbfbc87d886ce6fc4433579"
+        },
+        {
+          "file": "libjpeg-turbo-3.2.0-2-README.ijg",
+          "source": "installed libjpeg-turbo 3.2.0-2 (/usr/share/licenses/libjpeg-turbo/README.ijg)",
+          "sha256": "75815e3bf6484201a3c3d17a1bbf10f2e8e3237f84df10a2357ea896db2a81d6"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libjpeg.so.8",
+          "sha256": "fe4057e89f864538bac2455fd0a18f6ffb2867eb5abc3a4b488b0c82daa3dc0c",
+          "bytes": 686104
+        }
+      ],
+      "stems": ["libjpeg"]
+    },
+    {
+      "package": "libjxl",
+      "kind": "native",
+      "version": "0.12.0-1",
+      "declared": "BSD-3-Clause",
+      "upstream": "https://jpeg.org/jpegxl/",
+      "note": "",
+      "texts": [
+        {
+          "file": "libjxl-0.12.0-1-LICENSE",
+          "source": "installed libjxl 0.12.0-1 (/usr/share/licenses/libjxl/LICENSE)",
+          "sha256": "8405932022a556380c2d8c272eff154a923feb197233f348ce5f7334fb0a5ede"
+        },
+        {
+          "file": "libjxl-0.12.0-1-PATENTS",
+          "source": "installed libjxl 0.12.0-1 (/usr/share/licenses/libjxl/PATENTS)",
+          "sha256": "91915f8ae056a68a3c5bdf05d9f6f78bb6903e27a8ca3a8434c9e4ac87300575"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libjxl.so.0.12",
+          "sha256": "2afee962da64a90adcb90fe49f93fffa3bfe19ef01d0fb9a0a0e3a1d7e349144",
+          "bytes": 3903697
+        },
+        {
+          "path": "usr/lib/libjxl_cms.so.0.12",
+          "sha256": "b91a6019ce215f2ee51bfb20318c6532679a03c3f58448cf38f374404b49dbb3",
+          "bytes": 171521
+        }
+      ],
+      "stems": ["libjxl", "libjxl_cms"]
+    },
+    {
+      "package": "libmanette",
+      "kind": "native",
+      "version": "0.2.13-2",
+      "declared": "LGPL-2.1-or-later",
+      "upstream": "https://gnome.pages.gitlab.gnome.org/libmanette/",
+      "note": "Arch binary package ships no licence file; canonical SPDX text(s) retained (limitation L1).",
+      "texts": [
+        {
+          "file": "spdx-LGPL-2.1-or-later.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/LGPL-2.1-or-later.txt)",
+          "sha256": "5749785c8bdefafcb5d798270ed0a967036fe2ca63dcedade1627565dfef81d2"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libmanette-0.2.so.0",
+          "sha256": "31469c470dbecda9617b7c9fdd28ef2134b3ffe1bfc1681c3268dc351e93c896",
+          "bytes": 345161
+        }
+      ],
+      "stems": ["libmanette-0.2"]
+    },
+    {
+      "package": "libnghttp2",
+      "kind": "native",
+      "version": "1.70.0-1",
+      "declared": "MIT",
+      "upstream": "https://nghttp2.org/",
+      "note": "",
+      "texts": [
+        {
+          "file": "libnghttp2-1.70.0-1-COPYING",
+          "source": "installed libnghttp2 1.70.0-1 (/usr/share/licenses/libnghttp2/COPYING)",
+          "sha256": "6b94f3abc1aabd0c72a7c7d92a77f79dda7c8a0cb3df839a97890b4116a2de2a"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libnghttp2.so.14",
+          "sha256": "cac8f7b8c362f42821e2105f84190e13f545eaed193bfda132bdaff80da788dd",
+          "bytes": 179073
+        }
+      ],
+      "stems": ["libnghttp2"]
+    },
+    {
+      "package": "libnghttp3",
+      "kind": "native",
+      "version": "1.18.0-1",
+      "declared": "MIT",
+      "upstream": "https://github.com/ngtcp2/nghttp3",
+      "note": "",
+      "texts": [
+        {
+          "file": "libnghttp3-1.18.0-1-COPYING",
+          "source": "installed libnghttp3 1.18.0-1 (/usr/share/licenses/libnghttp3/COPYING)",
+          "sha256": "58cc3fc8c6d6cb2485ab35eb5918e849b5bf1e56522974e106d7a39a88d61dcd"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libnghttp3.so.9",
+          "sha256": "ce092d54a35659d8eae954e6f5a6d5c3fa90baa4199b69120754a3cf2e3f3aef",
+          "bytes": 170257
+        }
+      ],
+      "stems": ["libnghttp3"]
+    },
+    {
+      "package": "libngtcp2",
+      "kind": "native",
+      "version": "1.25.0-1",
+      "declared": "MIT",
+      "upstream": "https://github.com/ngtcp2/ngtcp2",
+      "note": "",
+      "texts": [
+        {
+          "file": "libngtcp2-1.25.0-1-COPYING",
+          "source": "installed libngtcp2 1.25.0-1 (/usr/share/licenses/libngtcp2/COPYING)",
+          "sha256": "542dd526d2ea23565f0571cc68df6f05ed11248a90ff0f32de19d8ba589db513"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libngtcp2.so.16",
+          "sha256": "a5bf46643996722ad0b6d7e6e88c42a344d6585420de7c6322da710c88fe47ae",
+          "bytes": 386777
+        },
+        {
+          "path": "usr/lib/libngtcp2_crypto_ossl.so.0",
+          "sha256": "69a30b5b25146b93b0f17d3a047c771d5d19a8089d8657c59f1dee10dccc86a1",
+          "bytes": 56065
+        }
+      ],
+      "stems": ["libngtcp2", "libngtcp2_crypto_ossl"]
+    },
+    {
+      "package": "libnma-common",
+      "kind": "native",
+      "version": "1.10.6-3",
+      "declared": "GPL-2.0-or-later  LGPL-2.1-or-later",
+      "upstream": "https://gitlab.gnome.org/GNOME/libnma",
+      "note": "Arch binary package ships no licence file; canonical SPDX text(s) retained (limitation L1).",
+      "texts": [
+        {
+          "file": "spdx-GPL-2.0-or-later.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/GPL-2.0-or-later.txt)",
+          "sha256": "aaf135472f81c5b4a0dca9367e5bb5e9750032b5bebe5442b36e4c0a47430df3"
+        },
+        {
+          "file": "spdx-LGPL-2.1-or-later.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/LGPL-2.1-or-later.txt)",
+          "sha256": "5749785c8bdefafcb5d798270ed0a967036fe2ca63dcedade1627565dfef81d2"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/share/glib-2.0/schemas/org.gnome.nm-applet.eap.gschema.xml",
+          "sha256": "86aa19fbdf31374c52377eee5ce2d2a8d08623a240e23d39fbe6a68b2ecc4d99",
+          "bytes": 650
+        }
+      ],
+      "stems": ["org.gnome.nm-applet.eap.gschema.xml"]
+    },
+    {
+      "package": "libogg",
+      "kind": "native",
+      "version": "1.3.6-1",
+      "declared": "BSD",
+      "upstream": "https://www.xiph.org/ogg/",
+      "note": "",
+      "texts": [
+        {
+          "file": "libogg-1.3.6-1-COPYING",
+          "source": "installed libogg 1.3.6-1 (/usr/share/licenses/libogg/COPYING)",
+          "sha256": "d2ab5758336489da61c12cc5bb757da5339c4ae9001f9bb0562b4370249af814"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libogg.so.0",
+          "sha256": "d9bb74a2c84d78e8dc12f74a451f8dbfea9d87dd2bada2747c7fc446845490ca",
+          "bytes": 45377
+        }
+      ],
+      "stems": ["libogg"]
+    },
+    {
+      "package": "libp11-kit",
+      "kind": "native",
+      "version": "0.26.5-1",
+      "declared": "BSD-3-Clause",
+      "upstream": "https://p11-glue.freedesktop.org",
+      "note": "",
+      "texts": [
+        {
+          "file": "libp11-kit-0.26.5-1-COPYING",
+          "source": "installed libp11-kit 0.26.5-1 (/usr/share/licenses/libp11-kit/COPYING)",
+          "sha256": "2e1ba993904df807a10c3eda1e5c272338edc35674b679773a8b3ad460731054"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libp11-kit.so.0",
+          "sha256": "03591a002c769b9fb0d2840e38be62072ce0891904ed5358fb3d7b6d983ed888",
+          "bytes": 1719873
+        }
+      ],
+      "stems": ["libp11-kit"]
+    },
+    {
+      "package": "libpng",
+      "kind": "native",
+      "version": "1.6.59-1",
+      "declared": "libpng-2.0",
+      "upstream": "http://www.libpng.org/pub/png/libpng.html",
+      "note": "",
+      "texts": [
+        {
+          "file": "libpng-1.6.59-1-LICENSE",
+          "source": "installed libpng 1.6.59-1 (/usr/share/licenses/libpng/LICENSE)",
+          "sha256": "bdb0a645ea18c60507d0368379b1ac5474b92255fcc2d115e07486a7672ba526"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libpng16.so.16",
+          "sha256": "f7e93211dc786d93c116a4ba8fb5950d22be04980e827c455b71223928e0a784",
+          "bytes": 257041
+        }
+      ],
+      "stems": ["libpng16"]
+    },
+    {
+      "package": "libproxy",
+      "kind": "native",
+      "version": "0.5.12-1",
+      "declared": "LGPL-2.1-or-later",
+      "upstream": "https://libproxy.github.io/libproxy/",
+      "note": "Arch binary package ships no licence file; canonical SPDX text(s) retained (limitation L1).",
+      "texts": [
+        {
+          "file": "spdx-LGPL-2.1-or-later.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/LGPL-2.1-or-later.txt)",
+          "sha256": "5749785c8bdefafcb5d798270ed0a967036fe2ca63dcedade1627565dfef81d2"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libproxy.so.1",
+          "sha256": "fa7c8f145c813580c8dcfdc823d360ea1391364de3c42af222b5086295234fdb",
+          "bytes": 14208
+        },
+        {
+          "path": "usr/lib/libpxbackend-1.0.so",
+          "sha256": "0c51fdf951bcccb0169bed2b1ec7653cb9134b2d91ff30d8ecced8bfbb877467",
+          "bytes": 59432
+        }
+      ],
+      "stems": ["libproxy", "libpxbackend-1.0"]
+    },
+    {
+      "package": "libpsl",
+      "kind": "native",
+      "version": "0.21.5-2",
+      "declared": "MIT",
+      "upstream": "https://github.com/rockdaboot/libpsl",
+      "note": "",
+      "texts": [
+        {
+          "file": "libpsl-0.21.5-2-COPYING",
+          "source": "installed libpsl 0.21.5-2 (/usr/share/licenses/libpsl/COPYING)",
+          "sha256": "322392e6001b2b3b0fca705dc9f11f26e12441188ecde50eb1d22909980b2925"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libpsl.so.5",
+          "sha256": "d903beb32e20bd3a0417883cc0cc4cc3dbddf3a7b0005215f745d6aba04a8de7",
+          "bytes": 81241
+        }
+      ],
+      "stems": ["libpsl"]
+    },
+    {
+      "package": "librsvg",
+      "kind": "native",
+      "version": "2:2.62.4-1",
+      "declared": "LGPL-2.1-or-later",
+      "upstream": "https://gitlab.gnome.org/GNOME/librsvg",
+      "note": "Arch binary package ships no licence file; canonical SPDX text(s) retained (limitation L1).",
+      "texts": [
+        {
+          "file": "spdx-LGPL-2.1-or-later.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/LGPL-2.1-or-later.txt)",
+          "sha256": "5749785c8bdefafcb5d798270ed0a967036fe2ca63dcedade1627565dfef81d2"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/librsvg-2.so",
+          "sha256": "6d5b18415d037c8430beb382f99a7d388bda152452e7eeffdb34b1ad6cb3a6a0",
+          "bytes": 4767033
+        },
+        {
+          "path": "usr/lib/librsvg-2.so.2",
+          "sha256": "6d5b18415d037c8430beb382f99a7d388bda152452e7eeffdb34b1ad6cb3a6a0",
+          "bytes": 4767033
+        },
+        {
+          "path": "usr/lib/librsvg-2.so.2.62.4",
+          "sha256": "6d5b18415d037c8430beb382f99a7d388bda152452e7eeffdb34b1ad6cb3a6a0",
+          "bytes": 4767033
+        }
+      ],
+      "stems": ["librsvg-2"]
+    },
+    {
+      "package": "libseccomp",
+      "kind": "native",
+      "version": "2.6.0-1",
+      "declared": "LGPL-2.1-only",
+      "upstream": "https://github.com/seccomp/libseccomp",
+      "note": "Arch binary package ships no licence file; canonical SPDX text(s) retained (limitation L1).",
+      "texts": [
+        {
+          "file": "spdx-LGPL-2.1-or-later.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/LGPL-2.1-or-later.txt)",
+          "sha256": "5749785c8bdefafcb5d798270ed0a967036fe2ca63dcedade1627565dfef81d2"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libseccomp.so.2",
+          "sha256": "de60a36a5a20777e6546bfe6da495981418f8fa515db4c96354376ec3012e8c4",
+          "bytes": 188209
+        }
+      ],
+      "stems": ["libseccomp"]
+    },
+    {
+      "package": "libsecret",
+      "kind": "native",
+      "version": "0.21.8.2-1",
+      "declared": "LGPL-2.1-or-later",
+      "upstream": "https://gnome.pages.gitlab.gnome.org/libsecret/",
+      "note": "Arch binary package ships no licence file; canonical SPDX text(s) retained (limitation L1).",
+      "texts": [
+        {
+          "file": "spdx-LGPL-2.1-or-later.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/LGPL-2.1-or-later.txt)",
+          "sha256": "5749785c8bdefafcb5d798270ed0a967036fe2ca63dcedade1627565dfef81d2"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libsecret-1.so.0",
+          "sha256": "c9a1178db801b5193c56bc5ded8113ded0b32d619da748bcd419550399181f1c",
+          "bytes": 315121
+        }
+      ],
+      "stems": ["libsecret-1"]
+    },
+    {
+      "package": "libsoup3",
+      "kind": "native",
+      "version": "3.6.6-2",
+      "declared": "LGPL-2.0-or-later",
+      "upstream": "https://wiki.gnome.org/Projects/libsoup",
+      "note": "Arch binary package ships no licence file; canonical SPDX text(s) retained (limitation L1).",
+      "texts": [
+        {
+          "file": "spdx-LGPL-2.0-or-later.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/LGPL-2.0-or-later.txt)",
+          "sha256": "86dc99d7e5060915ab1dfc1378b7dd351c62088bfa74067e8aa1868c6fdba7d8"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libsoup-3.0.so.0",
+          "sha256": "52bbd646d8baab88ff5f2543673adb5db37eb0c7f7d1cda1c133c220f1ea9c1f",
+          "bytes": 652065
+        }
+      ],
+      "stems": ["libsoup-3.0"]
+    },
+    {
+      "package": "libssh2",
+      "kind": "native",
+      "version": "1.11.1-7",
+      "declared": "BSD-3-Clause",
+      "upstream": "https://www.libssh2.org/",
+      "note": "",
+      "texts": [
+        {
+          "file": "libssh2-1.11.1-7-COPYING",
+          "source": "installed libssh2 1.11.1-7 (/usr/share/licenses/libssh2/COPYING)",
+          "sha256": "f7f9633cf9ff2f1333f3d7ce46973a8716a4d2a2815ad56f30d437d5fea7bafe"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libssh2.so.1",
+          "sha256": "2a68cf486c3794f7107bfedea4ddee99e1a049a874fcb4834f62f48f380c4650",
+          "bytes": 329513
+        }
+      ],
+      "stems": ["libssh2"]
+    },
+    {
+      "package": "libtasn1",
+      "kind": "native",
+      "version": "4.21.0-1",
+      "declared": "GPL-3.0-or-later  LGPL-2.1-or-later  GFDL-1.3-or-later",
+      "upstream": "https://www.gnu.org/software/libtasn1/",
+      "note": "Installed COPYING holds the GPL-3.0 text; LGPL-2.1 is canonical and GFDL-1.3 covers the manual, retained for completeness.",
+      "texts": [
+        {
+          "file": "libtasn1-4.21.0-1-COPYING",
+          "source": "installed libtasn1 4.21.0-1 (/usr/share/licenses/libtasn1/COPYING)",
+          "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986"
+        },
+        {
+          "file": "spdx-LGPL-2.1-or-later.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/LGPL-2.1-or-later.txt)",
+          "sha256": "5749785c8bdefafcb5d798270ed0a967036fe2ca63dcedade1627565dfef81d2"
+        },
+        {
+          "file": "spdx-GFDL-1.3-or-later.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/GFDL-1.3-or-later.txt)",
+          "sha256": "d024962f1f4966c102b40d9fd9cc834a3f0b3c1397b41444b7cd7925640dc929"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libtasn1.so.6",
+          "sha256": "19de5e8b4caf4f212f8c93f06efd7e3c5b61b2345f430176b6fb75aec73897ea",
+          "bytes": 94289
+        }
+      ],
+      "stems": ["libtasn1"]
+    },
+    {
+      "package": "libthai",
+      "kind": "native",
+      "version": "0.1.30-1",
+      "declared": "LGPL-2.1-or-later",
+      "upstream": "https://linux.thai.net/projects/libthai",
+      "note": "Arch binary package ships no licence file; canonical SPDX text(s) retained (limitation L1).",
+      "texts": [
+        {
+          "file": "spdx-LGPL-2.1-or-later.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/LGPL-2.1-or-later.txt)",
+          "sha256": "5749785c8bdefafcb5d798270ed0a967036fe2ca63dcedade1627565dfef81d2"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libthai.so.0",
+          "sha256": "765f25c461c3d9fd71f9a0a64ebc9f723675a7c66ebd1867dede86704aaa6f71",
+          "bytes": 45969
+        }
+      ],
+      "stems": ["libthai"]
+    },
+    {
+      "package": "libtool",
+      "kind": "native",
+      "version": "2.6.2-5",
+      "declared": "LGPL-2.0-or-later WITH Libtool-exception",
+      "upstream": "https://www.gnu.org/software/libtool",
+      "note": "Arch declares LGPL-2.0-or-later WITH Libtool-exception but ships LGPL-2.1 FSF text as COPYING.LIB; the exception paragraph is retained from upstream libltdl/ltdl.h.",
+      "texts": [
+        {
+          "file": "libtool-2.6.2-5-COPYING.LIB",
+          "source": "installed libtool 2.6.2-5 (/usr/share/libtool/COPYING.LIB)",
+          "sha256": "20e50fe7aae3e56378ebf0417d9de904f55a0e61e4df315333e632a4d3555d95"
+        },
+        {
+          "file": "upstream-libtool-ltdl.h",
+          "source": "upstream https://raw.githubusercontent.com/autotools-mirror/libtool/master/libltdl/ltdl.h (SHA-256 pinned in tools/build-package-notices.py)",
+          "sha256": "9538ec0f181f3dca031420a3273417b4af1fe35a47f216d180995e6bbda042e3"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libltdl.so.7",
+          "sha256": "1702caf84e8945d10456a7889100debcc7b85e422b20a62215f202f1c6b4f184",
+          "bytes": 49689
+        }
+      ],
+      "stems": ["libltdl"]
+    },
+    {
+      "package": "libunistring",
+      "kind": "native",
+      "version": "1.4.2-1",
+      "declared": "GPL-2.0-or-later  LGPL-3.0-or-later",
+      "upstream": "https://www.gnu.org/software/libunistring/",
+      "note": "Arch binary package ships no licence file; canonical SPDX text(s) retained (limitation L1).",
+      "texts": [
+        {
+          "file": "spdx-GPL-2.0-or-later.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/GPL-2.0-or-later.txt)",
+          "sha256": "aaf135472f81c5b4a0dca9367e5bb5e9750032b5bebe5442b36e4c0a47430df3"
+        },
+        {
+          "file": "spdx-LGPL-3.0-or-later.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/LGPL-3.0-or-later.txt)",
+          "sha256": "996af0513df21f7496288951c41428a03c174e9e4a9d63665c57d670f845ccb1"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libunistring.so.5",
+          "sha256": "9be222982d717cd29b2ce262b4f7410bd2601725563bb2df4b3517f5fab2d199",
+          "bytes": 2020953
+        }
+      ],
+      "stems": ["libunistring"]
+    },
+    {
+      "package": "libunwind",
+      "kind": "native",
+      "version": "1.8.3-1",
+      "declared": "MIT",
+      "upstream": "https://www.nongnu.org/libunwind/",
+      "note": "",
+      "texts": [
+        {
+          "file": "libunwind-1.8.3-1-COPYING",
+          "source": "installed libunwind 1.8.3-1 (/usr/share/licenses/libunwind/COPYING)",
+          "sha256": "6a0dbbdaec2b3136b7bf045586f4212bdf74e7af688bf9dfe9154607cf5ec156"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libunwind.so.8",
+          "sha256": "85bda3ff9fc5381b8c48039c249ae56fa13f80947bbebade1cf4120549d4fe45",
+          "bytes": 73849
+        }
+      ],
+      "stems": ["libunwind"]
+    },
+    {
+      "package": "libvorbis",
+      "kind": "native",
+      "version": "1.3.7-4",
+      "declared": "BSD-3-Clause",
+      "upstream": "https://www.xiph.org/vorbis/",
+      "note": "",
+      "texts": [
+        {
+          "file": "libvorbis-1.3.7-4-COPYING",
+          "source": "installed libvorbis 1.3.7-4 (/usr/share/licenses/libvorbis/COPYING)",
+          "sha256": "ec1815db59fcd302846df949d7424876cb2e2dc5ed1606c5fb0b36787b1cf43a"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libvorbis.so.0",
+          "sha256": "7ebe15ddb6c4780632a1a2c1e4846d28121ea0d59d4a27f0a7ec96cd06f8c8ac",
+          "bytes": 190729
+        },
+        {
+          "path": "usr/lib/libvorbisfile.so.3",
+          "sha256": "633b1f3b201f125138aee46bf87adf1ba4c4f45f11d820abb909328b2c404577",
+          "bytes": 41065
+        }
+      ],
+      "stems": ["libvorbis", "libvorbisfile"]
+    },
+    {
+      "package": "libwebp",
+      "kind": "native",
+      "version": "1.6.0-2",
+      "declared": "BSD-3-Clause",
+      "upstream": "https://developers.google.com/speed/webp/",
+      "note": "",
+      "texts": [
+        {
+          "file": "libwebp-1.6.0-2-COPYING",
+          "source": "installed libwebp 1.6.0-2 (/usr/share/licenses/libwebp/COPYING)",
+          "sha256": "5aec868f669e384a22372a4e8a1a6cd7d44c64cd451f960ca69cc170d1e13acf"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libsharpyuv.so.0",
+          "sha256": "d60713a7e4be47160f072ade729aef35f44946e2486fc2fc21a4cb15bab35cd2",
+          "bytes": 31473
+        },
+        {
+          "path": "usr/lib/libwebp.so.7",
+          "sha256": "0a4dd33a494674657a2340a3c6da7a387561182a3e64e1bc17953c5417c8e30e",
+          "bytes": 550361
+        },
+        {
+          "path": "usr/lib/libwebpdemux.so.2",
+          "sha256": "dd508a57a0d13e1a53401625445e09a7542cdf0dbd39bf28a52d0f0f090de265",
+          "bytes": 27913
+        },
+        {
+          "path": "usr/lib/libwebpmux.so.3",
+          "sha256": "7e9b4d9ecb100c2796d4f69ec505b6bade5da02547291b6d85bd178071db5e88",
+          "bytes": 53065
+        }
+      ],
+      "stems": ["libsharpyuv", "libwebp", "libwebpdemux", "libwebpmux"]
+    },
+    {
+      "package": "libxau",
+      "kind": "native",
+      "version": "1.0.12-1",
+      "declared": "MIT-open-group",
+      "upstream": "https://xorg.freedesktop.org/",
+      "note": "",
+      "texts": [
+        {
+          "file": "libxau-1.0.12-1-COPYING",
+          "source": "installed libxau 1.0.12-1 (/usr/share/licenses/libxau/COPYING)",
+          "sha256": "56abe29bb1d9806a9e04fa9f80fed2c0f18027594df3f098148d814aef6bddfa"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libXau.so.6",
+          "sha256": "989c2ac09ea1cf53d67e272904e7404ac27089699269513bee70cac683fc8760",
+          "bytes": 19193
+        }
+      ],
+      "stems": ["libXau"]
+    },
+    {
+      "package": "libxcb",
+      "kind": "native",
+      "version": "1.17.0-1",
+      "declared": "X11",
+      "upstream": "https://gitlab.freedesktop.org/xorg/lib/libxcb",
+      "note": "",
+      "texts": [
+        {
+          "file": "libxcb-1.17.0-1-COPYING",
+          "source": "installed libxcb 1.17.0-1 (/usr/share/licenses/libxcb/COPYING)",
+          "sha256": "c5ffbfeaa501071ceeb97b7de2c0d703fdaa35de01c0fb6cbac1c28453a3e9fd"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libxcb-render.so.0",
+          "sha256": "45726e775a3bcec34aa96baa5c5a44d40f7340244b8e2f306fae54f4277c238c",
+          "bytes": 75097
+        },
+        {
+          "path": "usr/lib/libxcb-shm.so.0",
+          "sha256": "701b4d9dd7440f38a352ca848882711dde0668a84c0b1c89c286244cd3f4bc3b",
+          "bytes": 19713
+        }
+      ],
+      "stems": ["libxcb-render", "libxcb-shm"]
+    },
+    {
+      "package": "libxcomposite",
+      "kind": "native",
+      "version": "0.4.7-1",
+      "declared": "MIT  HPND-sell-variant",
+      "upstream": "https://xorg.freedesktop.org/",
+      "note": "",
+      "texts": [
+        {
+          "file": "libxcomposite-0.4.7-1-COPYING",
+          "source": "installed libxcomposite 0.4.7-1 (/usr/share/licenses/libxcomposite/COPYING)",
+          "sha256": "4ff0d7645aaf5b0402904190e841905a1569132f1d95509eaf0e739b852e2458"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libXcomposite.so.1",
+          "sha256": "4def70fbf6371be47fd023d27333583817c214344ddc3ae59320f59efae26752",
+          "bytes": 19489
+        }
+      ],
+      "stems": ["libXcomposite"]
+    },
+    {
+      "package": "libxcursor",
+      "kind": "native",
+      "version": "1.2.3-1",
+      "declared": "HPND-sell-variant",
+      "upstream": "https://gitlab.freedesktop.org/xorg/lib/libxcursor",
+      "note": "",
+      "texts": [
+        {
+          "file": "libxcursor-1.2.3-1-COPYING",
+          "source": "installed libxcursor 1.2.3-1 (/usr/share/licenses/libxcursor/COPYING)",
+          "sha256": "ad2e9d279088c5d612fb0e506ea8bb7d9f01b411e7f4b97b64589c3cd48a68f1"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libXcursor.so.1",
+          "sha256": "8dd7aefcd6cd904ddf084c576a2e437c5cba1039770fb448943300de7bced0b6",
+          "bytes": 54593
+        }
+      ],
+      "stems": ["libXcursor"]
+    },
+    {
+      "package": "libxdamage",
+      "kind": "native",
+      "version": "1.1.7-1",
+      "declared": "HPND-sell-variant",
+      "upstream": "https://xorg.freedesktop.org/",
+      "note": "",
+      "texts": [
+        {
+          "file": "libxdamage-1.1.7-1-COPYING",
+          "source": "installed libxdamage 1.1.7-1 (/usr/share/licenses/libxdamage/COPYING)",
+          "sha256": "33effe928634be12e668465c3935c5570ff2787b970b15d9243d69df42302c57"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libXdamage.so.1",
+          "sha256": "bbe9d6631f56e2c3d988837bcbf40b704bb797eac24008b4a6f2e641af22bd52",
+          "bytes": 19241
+        }
+      ],
+      "stems": ["libXdamage"]
+    },
+    {
+      "package": "libxdmcp",
+      "kind": "native",
+      "version": "1.1.5-2",
+      "declared": "MIT-open-group",
+      "upstream": "https://gitlab.freedesktop.org/xorg/lib/libxdmcp",
+      "note": "",
+      "texts": [
+        {
+          "file": "libxdmcp-1.1.5-2-COPYING",
+          "source": "installed libxdmcp 1.1.5-2 (/usr/share/licenses/libxdmcp/COPYING)",
+          "sha256": "8a3c3f35b0dbcb60a4e242b9e4394a352a65bb27deb2938ea1e2e62a626e16e9"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libXdmcp.so.6",
+          "sha256": "e9e7007e2850d2a3ba57c827133998e35d1145247385e7bdfad6e36d08e97536",
+          "bytes": 32401
+        }
+      ],
+      "stems": ["libXdmcp"]
+    },
+    {
+      "package": "libxext",
+      "kind": "native",
+      "version": "1.3.7-1",
+      "declared": "LicenseRef-libxext",
+      "upstream": "https://gitlab.freedesktop.org/xorg/lib/libxext",
+      "note": "",
+      "texts": [
+        {
+          "file": "libxext-1.3.7-1-COPYING",
+          "source": "installed libxext 1.3.7-1 (/usr/share/licenses/libxext/COPYING)",
+          "sha256": "fd62910be4b13829d94e76c1447cf840953f0e225c4dc6c79349c84dd0557f22"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libXext.so.6",
+          "sha256": "28013d58af05c55b5bc6d6390e1ad75ebf331e689602afd34286318475ef59dd",
+          "bytes": 85241
+        }
+      ],
+      "stems": ["libXext"]
+    },
+    {
+      "package": "libxfixes",
+      "kind": "native",
+      "version": "6.0.2-1",
+      "declared": "MIT  HPND-sell-variant",
+      "upstream": "https://xorg.freedesktop.org/",
+      "note": "",
+      "texts": [
+        {
+          "file": "libxfixes-6.0.2-1-COPYING",
+          "source": "installed libxfixes 6.0.2-1 (/usr/share/licenses/libxfixes/COPYING)",
+          "sha256": "a07d8a5a6972638a745a03983207a1052881c24eea29021fdca7794bea8d7774"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libXfixes.so.3",
+          "sha256": "3ebd9252031c269f6acc797346c953d26f7aa91e59112a816f2eef24b8b7b551",
+          "bytes": 32673
+        }
+      ],
+      "stems": ["libXfixes"]
+    },
+    {
+      "package": "libxi",
+      "kind": "native",
+      "version": "1.8.3-1",
+      "declared": "MIT-open-group  SMLNJ  MIT",
+      "upstream": "https://xorg.freedesktop.org",
+      "note": "",
+      "texts": [
+        {
+          "file": "libxi-1.8.3-1-COPYING",
+          "source": "installed libxi 1.8.3-1 (/usr/share/licenses/libxi/COPYING)",
+          "sha256": "9392174bc86e291369fd2f61f3ed325962735a5f5c585ce8d7ebd365e2a5639f"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libXi.so.6",
+          "sha256": "630d4cd962bb1450fdcad227fcec78971eafa03c6a84d2807221c3c34dde5a0b",
+          "bytes": 87569
+        }
+      ],
+      "stems": ["libXi"]
+    },
+    {
+      "package": "libxinerama",
+      "kind": "native",
+      "version": "1.1.6-1",
+      "declared": "MIT  MIT-open-group  X11",
+      "upstream": "https://xorg.freedesktop.org/",
+      "note": "",
+      "texts": [
+        {
+          "file": "libxinerama-1.1.6-1-COPYING",
+          "source": "installed libxinerama 1.1.6-1 (/usr/share/licenses/libxinerama/COPYING)",
+          "sha256": "1d4e533646e02aa0e4192eb5355c1a9dd5d01b00412f01fb73856f0e7a638a84"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libXinerama.so.1",
+          "sha256": "a7b609b0b1041aadc2b9b6a0be8aae23e0fd60f60dcd520a80ef35b1c66ee773",
+          "bytes": 19289
+        }
+      ],
+      "stems": ["libXinerama"]
+    },
+    {
+      "package": "libxkbcommon",
+      "kind": "native",
+      "version": "1.13.2-1",
+      "declared": "MIT",
+      "upstream": "https://xkbcommon.org/",
+      "note": "",
+      "texts": [
+        {
+          "file": "libxkbcommon-1.13.2-1-LICENSE",
+          "source": "installed libxkbcommon 1.13.2-1 (/usr/share/licenses/libxkbcommon/LICENSE)",
+          "sha256": "967e97b28658f0037bbe164a237bdfb0c3ec790e67f6c29372ea5b09306f61f3"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libxkbcommon.so.0",
+          "sha256": "a4d5292ce1c96cb2a445c9cf20f89797762c5bcc88e73befd2019227927af14b",
+          "bytes": 392457
+        }
+      ],
+      "stems": ["libxkbcommon"]
+    },
+    {
+      "package": "libxml2",
+      "kind": "native",
+      "version": "2.15.4-1",
+      "declared": "MIT",
+      "upstream": "https://gitlab.gnome.org/GNOME/libxml2/-/wikis/home",
+      "note": "",
+      "texts": [
+        {
+          "file": "libxml2-2.15.4-1-Copyright",
+          "source": "installed libxml2 2.15.4-1 (/usr/share/licenses/libxml2/Copyright)",
+          "sha256": "5d4873884a890122a4b9b20ad56ac6f7da1d796a5bfcf04a427970ac96217626"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libxml2.so.16",
+          "sha256": "58322b8c1377d1366eeb2a1f1b14951748a555c6aaacc4cccf0d7e7769a1571d",
+          "bytes": 1370625
+        }
+      ],
+      "stems": ["libxml2"]
+    },
+    {
+      "package": "libxrandr",
+      "kind": "native",
+      "version": "1.5.5-1",
+      "declared": "HPND-sell-variant",
+      "upstream": "https://xorg.freedesktop.org/",
+      "note": "",
+      "texts": [
+        {
+          "file": "libxrandr-1.5.5-1-COPYING",
+          "source": "installed libxrandr 1.5.5-1 (/usr/share/licenses/libxrandr/COPYING)",
+          "sha256": "73777e5be1cef2827d843e4b186803f050c66db472cf8076d88e2b5f71696e67"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libXrandr.so.2",
+          "sha256": "07749d7c98b2e8d7268172d933a6b1678c47854a851b96a9164d948e69075788",
+          "bytes": 54177
+        }
+      ],
+      "stems": ["libXrandr"]
+    },
+    {
+      "package": "libxrender",
+      "kind": "native",
+      "version": "0.9.12-1",
+      "declared": "HPND-sell-variant",
+      "upstream": "https://xorg.freedesktop.org/",
+      "note": "",
+      "texts": [
+        {
+          "file": "libxrender-0.9.12-1-COPYING",
+          "source": "installed libxrender 0.9.12-1 (/usr/share/licenses/libxrender/COPYING)",
+          "sha256": "bbe1db89c48816c48248796adac91defd8fbde1141b145f01511781ab87f29a1"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libXrender.so.1",
+          "sha256": "789125412eb176de9974b4cf7317a96f37aae8f414713ddd68b48790b033bd31",
+          "bytes": 49449
+        }
+      ],
+      "stems": ["libXrender"]
+    },
+    {
+      "package": "libxslt",
+      "kind": "native",
+      "version": "1.1.45-2",
+      "declared": "MIT",
+      "upstream": "https://gitlab.gnome.org/GNOME/libxslt/-/wikis/home",
+      "note": "",
+      "texts": [
+        {
+          "file": "libxslt-1.1.45-2-Copyright",
+          "source": "installed libxslt 1.1.45-2 (/usr/share/licenses/libxslt/Copyright)",
+          "sha256": "7e48e290b6bfccc2ec1b297023a1d77f2fd87417f71fbb9f50aabef40a851819"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libxslt.so.1",
+          "sha256": "b8aefb4c2af84fcf593cba1d320f00958b903394deb52ee8640f5d83207d1389",
+          "bytes": 264809
+        }
+      ],
+      "stems": ["libxslt"]
+    },
+    {
+      "package": "libyuv",
+      "kind": "native",
+      "version": "r2921+644251f25-1",
+      "declared": "custom",
+      "upstream": "https://chromium.googlesource.com/libyuv/libyuv/",
+      "note": "",
+      "texts": [
+        {
+          "file": "libyuv-r2921+644251f25-1-LICENSE",
+          "source": "installed libyuv r2921+644251f25-1 (/usr/share/licenses/libyuv/LICENSE)",
+          "sha256": "2b2cc1180c7e6988328ad2033b04b80117419db9c4c584918bbb3cfec7e9364f"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libyuv.so",
+          "sha256": "3ffe63960101f773dee96019a3a8fb544a3423915818c7126880ea2600fa1d89",
+          "bytes": 719457
+        }
+      ],
+      "stems": ["libyuv"]
+    },
+    {
+      "package": "localsearch",
+      "kind": "native",
+      "version": "3.11.2-1",
+      "declared": "GPL-2.0-or-later",
+      "upstream": "https://gnome.pages.gitlab.gnome.org/localsearch/",
+      "note": "Arch binary package ships no licence file; canonical SPDX text(s) retained (limitation L1).",
+      "texts": [
+        {
+          "file": "spdx-GPL-2.0-or-later.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/GPL-2.0-or-later.txt)",
+          "sha256": "aaf135472f81c5b4a0dca9367e5bb5e9750032b5bebe5442b36e4c0a47430df3"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/share/glib-2.0/schemas/org.freedesktop.Tracker3.Extract.gschema.xml",
+          "sha256": "17f0a20f7e95efa2a420e4ab4b4f2e43b2e58ee1bb03d1f19aad7a9c7f59d13c",
+          "bytes": 1897
+        },
+        {
+          "path": "usr/share/glib-2.0/schemas/org.freedesktop.Tracker3.FTS.gschema.xml",
+          "sha256": "d4a96a14de9aa830818a0928e4ab987d3fb3114abd99683f04afff3283b7ee5d",
+          "bytes": 1508
+        },
+        {
+          "path": "usr/share/glib-2.0/schemas/org.freedesktop.Tracker3.Miner.Files.gschema.xml",
+          "sha256": "2f1af5abafaa5c683a5fff03427c13213300d1e9ec235e2fb3e56af08efc3080",
+          "bytes": 5628
+        },
+        {
+          "path": "usr/share/glib-2.0/schemas/org.freedesktop.TrackerMiners3.enums.xml",
+          "sha256": "cfa52fabfae4f21986ac15d8106f6f91f92d035e1fcab866656776b813fc069a",
+          "bytes": 392
+        }
+      ],
+      "stems": [
+        "org.freedesktop.Tracker3.Extract.gschema.xml",
+        "org.freedesktop.Tracker3.FTS.gschema.xml",
+        "org.freedesktop.Tracker3.Miner.Files.gschema.xml",
+        "org.freedesktop.TrackerMiners3.enums.xml"
+      ]
+    },
+    {
+      "package": "nautilus",
+      "kind": "native",
+      "version": "50.3.1-1",
+      "declared": "GPL-3.0-or-later",
+      "upstream": "https://apps.gnome.org/Nautilus/",
+      "note": "Arch binary package ships no licence file; canonical SPDX text(s) retained (limitation L1).",
+      "texts": [
+        {
+          "file": "spdx-GPL-3.0-or-later.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/GPL-3.0-or-later.txt)",
+          "sha256": "fb981668c18a279e285fc4d83fba1e836cc84dd4daa73c9697d3cfd2d8aca6e0"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/share/glib-2.0/schemas/org.gnome.nautilus.gschema.xml",
+          "sha256": "fe4e7fe8413a4d89262809e01524a9350ed83c707d0ea0d4a29ec7423d69d963",
+          "bytes": 13978
+        }
+      ],
+      "stems": ["org.gnome.nautilus.gschema.xml"]
+    },
+    {
+      "package": "nettle",
+      "kind": "native",
+      "version": "4.0-1",
+      "declared": "LGPL-3.0-or-later OR GPL-2.0-or-later",
+      "upstream": "https://www.lysator.liu.se/~nisse/nettle",
+      "note": "Arch binary package ships no licence file; canonical SPDX text(s) retained (limitation L1).",
+      "texts": [
+        {
+          "file": "spdx-LGPL-3.0-or-later.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/LGPL-3.0-or-later.txt)",
+          "sha256": "996af0513df21f7496288951c41428a03c174e9e4a9d63665c57d670f845ccb1"
+        },
+        {
+          "file": "spdx-GPL-2.0-or-later.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/GPL-2.0-or-later.txt)",
+          "sha256": "aaf135472f81c5b4a0dca9367e5bb5e9750032b5bebe5442b36e4c0a47430df3"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libhogweed.so.7",
+          "sha256": "25879699a146c09352c4bc3c67ec5d3b47f4bc6953a1f9da5e2248ec2073d49a",
+          "bytes": 301145
+        },
+        {
+          "path": "usr/lib/libnettle.so.9",
+          "sha256": "f693f35537b052fdb1ee00f7da02b8f4b558876b923a963094876a869f0281df",
+          "bytes": 397313
+        }
+      ],
+      "stems": ["libhogweed", "libnettle"]
+    },
+    {
+      "package": "network-manager-applet",
+      "kind": "native",
+      "version": "1.36.0-2",
+      "declared": "GPL-2.0-or-later",
+      "upstream": "https://gitlab.gnome.org/GNOME/network-manager-applet",
+      "note": "Arch binary package ships no licence file; canonical SPDX text(s) retained (limitation L1).",
+      "texts": [
+        {
+          "file": "spdx-GPL-2.0-or-later.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/GPL-2.0-or-later.txt)",
+          "sha256": "aaf135472f81c5b4a0dca9367e5bb5e9750032b5bebe5442b36e4c0a47430df3"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/share/glib-2.0/schemas/org.gnome.nm-applet.gschema.xml",
+          "sha256": "0995f3bd0c4736f653f95325c059f45076c0c954ff8367488cd0d80600da7bb7",
+          "bytes": 2243
+        }
+      ],
+      "stems": ["org.gnome.nm-applet.gschema.xml"]
+    },
+    {
+      "package": "openssl",
+      "kind": "native",
+      "version": "3.6.5-1",
+      "declared": "Apache-2.0",
+      "upstream": "https://www.openssl.org",
+      "note": "",
+      "texts": [
+        {
+          "file": "openssl-3.6.5-1-LICENSE.txt",
+          "source": "installed openssl 3.6.5-1 (/usr/share/licenses/openssl/LICENSE.txt)",
+          "sha256": "7d5450cb2d142651b8afa315b5f238efc805dad827d91ba367d8516bc9d49e7a"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libcrypto.so.3",
+          "sha256": "7f1e75f08547409060d7d283b1ec2ccaffccb76af5140efae0d16e73ba022a52",
+          "bytes": 6092409
+        },
+        {
+          "path": "usr/lib/libssl.so.3",
+          "sha256": "02ed164c3f0411e2d9a35b301e4acbc3a54b2903ffa985deada4bb3d8981cddd",
+          "bytes": 1049833
+        }
+      ],
+      "stems": ["libcrypto", "libssl"]
+    },
+    {
+      "package": "orc",
+      "kind": "native",
+      "version": "0.4.44-1",
+      "declared": "BSD-3-Clause",
+      "upstream": "https://gstreamer.freedesktop.org/modules/orc.html",
+      "note": "",
+      "texts": [
+        {
+          "file": "orc-0.4.44-1-COPYING",
+          "source": "installed orc 0.4.44-1 (/usr/share/licenses/orc/COPYING)",
+          "sha256": "4f5dabb1b44bb6fc5cd53820b1f103147ad61b395a57903991325bd1b85d97bf"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/liborc-0.4.so.0",
+          "sha256": "b20f62abd8c64f00175807931eb910806dcc24fae3de1da732ab898e976cee13",
+          "bytes": 1146209
+        }
+      ],
+      "stems": ["liborc-0.4"]
+    },
+    {
+      "package": "pango",
+      "kind": "native",
+      "version": "1:1.58.2-1",
+      "declared": "LGPL-2.0-or-later",
+      "upstream": "https://www.pango.org/",
+      "note": "Arch binary package ships no licence file; canonical SPDX text(s) retained (limitation L1).",
+      "texts": [
+        {
+          "file": "spdx-LGPL-2.0-or-later.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/LGPL-2.0-or-later.txt)",
+          "sha256": "86dc99d7e5060915ab1dfc1378b7dd351c62088bfa74067e8aa1868c6fdba7d8"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libpango-1.0.so",
+          "sha256": "c7341bbe5276d1a3f65050cbb27caebb2e3768b22ee9ea0543bcd0e2ab2ba343",
+          "bytes": 479081
+        },
+        {
+          "path": "usr/lib/libpango-1.0.so.0",
+          "sha256": "c7341bbe5276d1a3f65050cbb27caebb2e3768b22ee9ea0543bcd0e2ab2ba343",
+          "bytes": 479081
+        },
+        {
+          "path": "usr/lib/libpango-1.0.so.0.5800.2",
+          "sha256": "c7341bbe5276d1a3f65050cbb27caebb2e3768b22ee9ea0543bcd0e2ab2ba343",
+          "bytes": 479081
+        },
+        {
+          "path": "usr/lib/libpangocairo-1.0.so",
+          "sha256": "273e64335fb22e14ae40649f854e6dbab7b9a5bb6f830246672f4c4d6c467a2f",
+          "bytes": 82577
+        },
+        {
+          "path": "usr/lib/libpangocairo-1.0.so.0",
+          "sha256": "273e64335fb22e14ae40649f854e6dbab7b9a5bb6f830246672f4c4d6c467a2f",
+          "bytes": 82577
+        },
+        {
+          "path": "usr/lib/libpangocairo-1.0.so.0.5800.2",
+          "sha256": "273e64335fb22e14ae40649f854e6dbab7b9a5bb6f830246672f4c4d6c467a2f",
+          "bytes": 82577
+        },
+        {
+          "path": "usr/lib/libpangoft2-1.0.so",
+          "sha256": "38affa5b07843de1072cf3d8e4826471e0c547145f00a70b6e9f0c2dd7d18207",
+          "bytes": 140745
+        },
+        {
+          "path": "usr/lib/libpangoft2-1.0.so.0",
+          "sha256": "38affa5b07843de1072cf3d8e4826471e0c547145f00a70b6e9f0c2dd7d18207",
+          "bytes": 140745
+        },
+        {
+          "path": "usr/lib/libpangoft2-1.0.so.0.5800.2",
+          "sha256": "38affa5b07843de1072cf3d8e4826471e0c547145f00a70b6e9f0c2dd7d18207",
+          "bytes": 140745
+        }
+      ],
+      "stems": ["libpango-1.0", "libpangocairo-1.0", "libpangoft2-1.0"]
+    },
+    {
+      "package": "pcre2",
+      "kind": "native",
+      "version": "10.49-1",
+      "declared": "BSD-2-Clause  BSD-3-Clause WITH PCRE2-exception",
+      "upstream": "https://github.com/PCRE2Project/pcre2",
+      "note": "",
+      "texts": [
+        {
+          "file": "pcre2-10.49-1-BSD-2-Clause.txt",
+          "source": "installed pcre2 10.49-1 (/usr/share/licenses/pcre2/BSD-2-Clause.txt)",
+          "sha256": "5f216505c0f6ea3273caec89e766eef93cdeb7bbb0c429f9360116d7c938feeb"
+        },
+        {
+          "file": "pcre2-10.49-1-BSD-3-Clause.txt",
+          "source": "installed pcre2 10.49-1 (/usr/share/licenses/pcre2/BSD-3-Clause.txt)",
+          "sha256": "91f6f2043c607e9db392ca6b4fafd56825a2d5ca741cb3a56d8f817d8d9a9753"
+        },
+        {
+          "file": "pcre2-10.49-1-PCRE2-exception.txt",
+          "source": "installed pcre2 10.49-1 (/usr/share/licenses/pcre2/PCRE2-exception.txt)",
+          "sha256": "0f4dc0103aae07a56554857b155898caad2f52ad81d095853b7ea2ee806fcc46"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libpcre2-8.so.0",
+          "sha256": "689b06a1993d454d2de06096588fab854a797a79523725a6f6311049d59ad6bd",
+          "bytes": 734977
+        }
+      ],
+      "stems": ["libpcre2-8"]
+    },
+    {
+      "package": "pipewire-pulse",
+      "kind": "native",
+      "version": "1:1.6.9-1",
+      "declared": "MIT",
+      "upstream": "https://pipewire.org",
+      "note": "",
+      "texts": [
+        {
+          "file": "pipewire-pulse-1:1.6.9-1-COPYING",
+          "source": "installed pipewire-pulse 1:1.6.9-1 (/usr/share/licenses/pipewire-pulse/COPYING)",
+          "sha256": "8909c319a7e27dbb33a15b9035f89ab3b7b2f6a12f8bcddc755206a8db1ada44"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/share/glib-2.0/schemas/org.freedesktop.pulseaudio.gschema.xml",
+          "sha256": "ba7792b62dbb72b02aaa8dc184c01649c95b403cb1c958eb11a37b63d44b4fef",
+          "bytes": 3063
+        }
+      ],
+      "stems": ["org.freedesktop.pulseaudio.gschema.xml"]
+    },
+    {
+      "package": "pixman",
+      "kind": "native",
+      "version": "0.46.4-1",
+      "declared": "MIT",
+      "upstream": "https://gitlab.freedesktop.org/pixman/pixman",
+      "note": "",
+      "texts": [
+        {
+          "file": "pixman-0.46.4-1-COPYING",
+          "source": "installed pixman 0.46.4-1 (/usr/share/licenses/pixman/COPYING)",
+          "sha256": "fac9270f0987b96ff4533fca3548c633e02083cbba4a0172a3b149b2e4019793"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libpixman-1.so.0",
+          "sha256": "a8e21f04f272d56920a4345559c7569825aaed12ad139e06b45ae24c4d5125af",
+          "bytes": 727337
+        }
+      ],
+      "stems": ["libpixman-1"]
+    },
+    {
+      "package": "rav1e",
+      "kind": "native",
+      "version": "0.8.1-3",
+      "declared": "BSD-2-Clause",
+      "upstream": "https://github.com/xiph/rav1e/",
+      "note": "",
+      "texts": [
+        {
+          "file": "rav1e-0.8.1-3-LICENSE",
+          "source": "installed rav1e 0.8.1-3 (/usr/share/licenses/rav1e/LICENSE)",
+          "sha256": "2dd0a109751e939dec3f80ddcfbc1ba91553f18c574399e85c159632182a2c0a"
+        },
+        {
+          "file": "rav1e-0.8.1-3-PATENTS",
+          "source": "installed rav1e 0.8.1-3 (/usr/share/licenses/rav1e/PATENTS)",
+          "sha256": "7b14a70c194b19dbd0625e7eac839a63200f67484521ce5e8d8244b127e8907a"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/librav1e.so.0.8",
+          "sha256": "85eb69918b0ecdce6e0cdc07795344a3102c57f473d6c6368b421b2e7763959a",
+          "bytes": 3287969
+        }
+      ],
+      "stems": ["librav1e"]
+    },
+    {
+      "package": "sqlite",
+      "kind": "native",
+      "version": "3.53.4-1",
+      "declared": "LicenseRef-Sqlite",
+      "upstream": "https://www.sqlite.org/",
+      "note": "",
+      "texts": [
+        {
+          "file": "sqlite-3.53.4-1-license.txt",
+          "source": "installed sqlite 3.53.4-1 (/usr/share/licenses/sqlite/license.txt)",
+          "sha256": "4e57d9ac979f1c9872e69799c2597eeef4c6ce7224f3ede0bf9dc8d217b1e65d"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libsqlite3.so.0",
+          "sha256": "ed6d64cda82d195b7c28781a6effd6b591e52266dbe0b803d1337507ab6f9896",
+          "bytes": 1673352
+        }
+      ],
+      "stems": ["libsqlite3"]
+    },
+    {
+      "package": "svt-av1",
+      "kind": "native",
+      "version": "4.2.0-1",
+      "declared": "BSD-3-Clause  LicenseRef-AOMPL-1.0",
+      "upstream": "https://gitlab.com/AOMediaCodec/SVT-AV1",
+      "note": "",
+      "texts": [
+        {
+          "file": "svt-av1-4.2.0-1-LICENSE.md",
+          "source": "installed svt-av1 4.2.0-1 (/usr/share/licenses/svt-av1/LICENSE.md)",
+          "sha256": "0acc2fcb27472bdc9aaf8b71f37055bbdac4f54671b7d922f241bd7fcd0dd3e6"
+        },
+        {
+          "file": "svt-av1-4.2.0-1-PATENTS.md",
+          "source": "installed svt-av1 4.2.0-1 (/usr/share/licenses/svt-av1/PATENTS.md)",
+          "sha256": "20678ab10402659106dc4c147c97b2a6e94b5c0695415e15a8f195ebc3547922"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libSvtAv1Enc.so.4",
+          "sha256": "2ec0580d108b994436739f8a2bf0a64e6259b0b9de2e14d0428587a465ee3833",
+          "bytes": 5442457
+        }
+      ],
+      "stems": ["libSvtAv1Enc"]
+    },
+    {
+      "package": "systemd-libs",
+      "kind": "native",
+      "version": "262-1",
+      "declared": "LGPL-2.1-or-later  CC0-1.0  GPL-2.0-or-later WITH Linux-syscall-note",
+      "upstream": "https://www.github.com/systemd/systemd",
+      "note": "",
+      "texts": [
+        {
+          "file": "spdx-LGPL-2.1-or-later.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/LGPL-2.1-or-later.txt)",
+          "sha256": "5749785c8bdefafcb5d798270ed0a967036fe2ca63dcedade1627565dfef81d2"
+        },
+        {
+          "file": "spdx-CC0-1.0.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/CC0-1.0.txt)",
+          "sha256": "a2010f343487d3f7618affe54f789f5487602331c0a8d03f49e9a7c547cf0499"
+        },
+        {
+          "file": "spdx-GPL-2.0-or-later.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/GPL-2.0-or-later.txt)",
+          "sha256": "aaf135472f81c5b4a0dca9367e5bb5e9750032b5bebe5442b36e4c0a47430df3"
+        },
+        {
+          "file": "spdx-exceptions-Linux-syscall-note.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/exceptions/Linux-syscall-note.txt)",
+          "sha256": "5bcef4fedbfc08776630e65d5d0d074dd31208037eddb167ca46a9ec4f737764"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libsystemd.so.0",
+          "sha256": "936b0b4b8fe439bf3b512fc2540de7be2f8927fcd77dc35ebb37ca725ca12ad0",
+          "bytes": 1380641
+        },
+        {
+          "path": "usr/lib/libudev.so.1",
+          "sha256": "2830f1f6bdea825b50ebeb4accfdd3ecc36d00b16e306ff67cacf372626db715",
+          "bytes": 335985
+        }
+      ],
+      "stems": ["libsystemd", "libudev"]
+    },
+    {
+      "package": "tdb",
+      "kind": "native",
+      "version": "1.4.15-2",
+      "declared": "GPL-3.0-or-later",
+      "upstream": "https://tdb.samba.org/",
+      "note": "Arch binary package ships no licence file; canonical SPDX text(s) retained (limitation L1).",
+      "texts": [
+        {
+          "file": "spdx-GPL-3.0-or-later.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/GPL-3.0-or-later.txt)",
+          "sha256": "fb981668c18a279e285fc4d83fba1e836cc84dd4daa73c9697d3cfd2d8aca6e0"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libtdb.so.1",
+          "sha256": "87d8aeaaaef2b538f30703066093b4f754847e53c705624fcea30a4a83ce1a0c",
+          "bytes": 108905
+        }
+      ],
+      "stems": ["libtdb"]
+    },
+    {
+      "package": "tinysparql",
+      "kind": "native",
+      "version": "3.11.1-1",
+      "declared": "GPL-2.0-or-later",
+      "upstream": "https://tinysparql.org/",
+      "note": "Arch binary package ships no licence file; canonical SPDX text(s) retained (limitation L1).",
+      "texts": [
+        {
+          "file": "spdx-GPL-2.0-or-later.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/GPL-2.0-or-later.txt)",
+          "sha256": "aaf135472f81c5b4a0dca9367e5bb5e9750032b5bebe5442b36e4c0a47430df3"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libtinysparql-3.0.so.0",
+          "sha256": "1aca74877db399ef2cc29b77e1f3d9593943da5aa9c39f44c2a9ba6a556f6e3e",
+          "bytes": 863504
+        }
+      ],
+      "stems": ["libtinysparql-3.0"]
+    },
+    {
+      "package": "tpm2-tss",
+      "kind": "native",
+      "version": "4.2.0-2",
+      "declared": "BSD-2-Clause",
+      "upstream": "https://github.com/tpm2-software/tpm2-tss",
+      "note": "",
+      "texts": [
+        {
+          "file": "tpm2-tss-4.2.0-2-LICENSE",
+          "source": "installed tpm2-tss 4.2.0-2 (/usr/share/licenses/tpm2-tss/LICENSE)",
+          "sha256": "18c1bf4b1ba1fb2c4ffa7398c234d83c0d55475298e470ae1e5e3a8a8bd2e448"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libtss2-esys.so.0",
+          "sha256": "b775eb2e9661b4ccb36762cc5be4a3201d81862b75b00b3b5996eede5248453f",
+          "bytes": 620905
+        },
+        {
+          "path": "usr/lib/libtss2-mu.so.0",
+          "sha256": "1e1b105d3e4a7846d64c2c18629e525bd42a3c0dbed46296da6f7c8654a612e7",
+          "bytes": 318689
+        },
+        {
+          "path": "usr/lib/libtss2-rc.so.0",
+          "sha256": "8ddcaf9074949d923f91a581c6264152c03813eec3b3855c12e54fd8f8e0d9aa",
+          "bytes": 35785
+        },
+        {
+          "path": "usr/lib/libtss2-sys.so.1",
+          "sha256": "0e2d4d8e21c6c4bae1be485d2a8dfff2b5e37df1d8e7c334a0fc063db207971d",
+          "bytes": 160049
+        },
+        {
+          "path": "usr/lib/libtss2-tctildr.so.0",
+          "sha256": "5702f05eab39447cc797f53c0ce95b9bc5b288b4555782598ec1b4760d022bf1",
+          "bytes": 32569
+        }
+      ],
+      "stems": [
+        "libtss2-esys",
+        "libtss2-mu",
+        "libtss2-rc",
+        "libtss2-sys",
+        "libtss2-tctildr"
+      ]
+    },
+    {
+      "package": "util-linux-libs",
+      "kind": "native",
+      "version": "2.42.4-1",
+      "declared": "BSD-2-Clause  BSD-3-Clause  BSD-4-Clause-UC  GPL-2.0-only  GPL-2.0-or-later  GPL-3.0-or-later  ISC  LGPL-2.1-or-later  LicenseRef-PublicDomain",
+      "upstream": "https://github.com/util-linux/util-linux",
+      "note": "Whole declared set retained; libmount/libblkid/libuuid fall under the BSD-family texts per util-linux documentation and pins.json (libuuid).",
+      "texts": [
+        {
+          "file": "util-linux-libs-2.42.4-1-COPYING.BSD-2-Clause",
+          "source": "installed util-linux-libs 2.42.4-1 (/usr/share/licenses/util-linux-libs/COPYING.BSD-2-Clause)",
+          "sha256": "527f738966ca396cd5a68c1509390de2a780c6b614d9ee57f7544a6161938ed1"
+        },
+        {
+          "file": "util-linux-libs-2.42.4-1-COPYING.BSD-3-Clause",
+          "source": "installed util-linux-libs 2.42.4-1 (/usr/share/licenses/util-linux-libs/COPYING.BSD-3-Clause)",
+          "sha256": "9b718a9460fed5952466421235bc79eb49d4e9eacc920d7a9dd6285ab8fd6c6d"
+        },
+        {
+          "file": "util-linux-libs-2.42.4-1-COPYING.BSD-4-Clause-UC",
+          "source": "installed util-linux-libs 2.42.4-1 (/usr/share/licenses/util-linux-libs/COPYING.BSD-4-Clause-UC)",
+          "sha256": "ba7640f00d93e72e92b94b9d71f25ec53bac2f1682f5c4adcccb0018359f60f8"
+        },
+        {
+          "file": "util-linux-libs-2.42.4-1-COPYING.ISC",
+          "source": "installed util-linux-libs 2.42.4-1 (/usr/share/licenses/util-linux-libs/COPYING.ISC)",
+          "sha256": "e53348ce276358e9997014071c5294b36a18c4b34f32f00ee57b9acce0aafd63"
+        },
+        {
+          "file": "util-linux-libs-2.42.4-1-util-linux-BSD-2-Clause.txt",
+          "source": "installed util-linux-libs 2.42.4-1 (/usr/share/licenses/util-linux-libs/util-linux-BSD-2-Clause.txt)",
+          "sha256": "6ffedbc0f7878612d2b23589f1ff2ab15633e1df7963a5d9fc750ec5500c7e7a"
+        },
+        {
+          "file": "spdx-GPL-2.0-only.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/GPL-2.0-only.txt)",
+          "sha256": "aaf135472f81c5b4a0dca9367e5bb5e9750032b5bebe5442b36e4c0a47430df3"
+        },
+        {
+          "file": "spdx-GPL-2.0-or-later.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/GPL-2.0-or-later.txt)",
+          "sha256": "aaf135472f81c5b4a0dca9367e5bb5e9750032b5bebe5442b36e4c0a47430df3"
+        },
+        {
+          "file": "spdx-GPL-3.0-or-later.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/GPL-3.0-or-later.txt)",
+          "sha256": "fb981668c18a279e285fc4d83fba1e836cc84dd4daa73c9697d3cfd2d8aca6e0"
+        },
+        {
+          "file": "spdx-LGPL-2.1-or-later.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/LGPL-2.1-or-later.txt)",
+          "sha256": "5749785c8bdefafcb5d798270ed0a967036fe2ca63dcedade1627565dfef81d2"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libblkid.so.1",
+          "sha256": "4a6d7fba07550fce053808be7742c5114ae1804d031ed1cc88d7e176119d2dcd",
+          "bytes": 266089
+        },
+        {
+          "path": "usr/lib/libmount.so.1",
+          "sha256": "4e2dfac26199a311d1c631f033d39194044f30faba3305651e5ecc04c8dc20f8",
+          "bytes": 397585
+        }
+      ],
+      "stems": ["libblkid", "libmount"]
+    },
+    {
+      "package": "wayland",
+      "kind": "native",
+      "version": "1.26.0-1",
+      "declared": "MIT",
+      "upstream": "https://wayland.freedesktop.org/",
+      "note": "",
+      "texts": [
+        {
+          "file": "wayland-1.26.0-1-COPYING",
+          "source": "installed wayland 1.26.0-1 (/usr/share/licenses/wayland/COPYING)",
+          "sha256": "6eefcb023622a463168a5c20add95fd24a38c7482622a9254a23b99b7c153061"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libwayland-cursor.so.0",
+          "sha256": "51745c9c9518310d2eae278fc7aee6405699f6152acd5db7e0bbbb415b12147d",
+          "bytes": 36953
+        },
+        {
+          "path": "usr/lib/libwayland-egl.so.1",
+          "sha256": "617dd1f1423d905be3bd6cf7f9c263a7dab3dc7ec221bbb690d09fe6eaec7c78",
+          "bytes": 19041
+        },
+        {
+          "path": "usr/lib/libwayland-server.so.0",
+          "sha256": "3ea73ace435452019edcf8ab9f9473b003e6b5b9c9790d07facfb2b7d2764c51",
+          "bytes": 94617
+        }
+      ],
+      "stems": ["libwayland-cursor", "libwayland-egl", "libwayland-server"]
+    },
+    {
+      "package": "webkit2gtk-4.1",
+      "kind": "native",
+      "version": "2.52.6-1",
+      "declared": "AFL-2.0 OR GPL-2.0-or-later  Apache-2.0  Apache-2.0 WITH LLVM-exception  BSD-2-Clause  BSD-2-Clause-Views  BSD-3-Clause  BSD-Source-Code  BSL-1.0  bzip2-1.0.6  GPL-2.0-only  GPL-3.0-only WITH Autoconf-exception-3.0  GPL-3.0-or-later WITH Bison-exception-2.2  ICU  ISC  LGPL-2.1-only  LGPL-2.1-or-later  MIT  MPL-1.1  MPL-2.0  NCSA  NCSA OR MIT  OFL-1.1  SunPro  Unicode-TOU",
+      "upstream": "https://webkitgtk.org",
+      "note": "",
+      "texts": [
+        {
+          "file": "webkit2gtk-4.1-2.52.6-1-LICENSE",
+          "source": "installed webkit2gtk-4.1 2.52.6-1 (/usr/share/licenses/webkit2gtk-4.1/LICENSE)",
+          "sha256": "cd59874c3eed46ff4a85008fc2f842504a25c9f78ebcb47d6de71e6a7b1256fb"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libjavascriptcoregtk-4.1.so.0",
+          "sha256": "9ddd129a36486fd0b590c201ba744424ddb4da1867948e495a4274b29064b55a",
+          "bytes": 38331353
+        },
+        {
+          "path": "usr/lib/libwebkit2gtk-4.1.so.0",
+          "sha256": "d6acd7493678da33a637d4d36b972fd219d70c96779e3a4c8369cc555f902548",
+          "bytes": 93853553
+        },
+        {
+          "path": "usr/lib/webkit2gtk-4.1/injected-bundle/libwebkit2gtkinjectedbundle.so",
+          "sha256": "c136c95b0b7b23bc9db3494bb522d149dd8b593fd97164ce700af79f2676faf3",
+          "bytes": 10913
+        },
+        {
+          "path": "usr/lib64/webkit2gtk-4.1/injected-bundle/libwebkit2gtkinjectedbundle.so",
+          "sha256": "6864e5dc20c24184ba23ead925634e23b10abe3f9d67d07e173b5db1bb658d26",
+          "bytes": 4800
+        }
+      ],
+      "stems": [
+        "libjavascriptcoregtk-4.1",
+        "libwebkit2gtk-4.1",
+        "libwebkit2gtkinjectedbundle"
+      ]
+    },
+    {
+      "package": "webkitgtk-6.0",
+      "kind": "native",
+      "version": "2.52.6-1",
+      "declared": "AFL-2.0 OR GPL-2.0-or-later  Apache-2.0  Apache-2.0 WITH LLVM-exception  BSD-2-Clause  BSD-2-Clause-Views  BSD-3-Clause  BSD-Source-Code  BSL-1.0  bzip2-1.0.6  GPL-2.0-only  GPL-3.0-only WITH Autoconf-exception-3.0  GPL-3.0-or-later WITH Bison-exception-2.2  ICU  ISC  LGPL-2.1-only  LGPL-2.1-or-later  MIT  MPL-1.1  MPL-2.0  NCSA  NCSA OR MIT  OFL-1.1  SunPro  Unicode-TOU",
+      "upstream": "https://webkitgtk.org",
+      "note": "Typelib data files only; LICENSE is byte-identical to the webkit2gtk-4.1 aggregate.",
+      "texts": [
+        {
+          "file": "webkitgtk-6.0-2.52.6-1-LICENSE",
+          "source": "installed webkitgtk-6.0 2.52.6-1 (/usr/share/licenses/webkitgtk-6.0/LICENSE)",
+          "sha256": "cd59874c3eed46ff4a85008fc2f842504a25c9f78ebcb47d6de71e6a7b1256fb"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/webkit2gtk-4.1/WebKitNetworkProcess",
+          "sha256": "d1ef52f81d101dfde70b2fba06d4d873735831c0a1ce8d443c5aa20e55463b63",
+          "bytes": 10913
+        },
+        {
+          "path": "usr/lib/webkit2gtk-4.1/WebKitWebProcess",
+          "sha256": "abd754b1f9cec9a020de6d815569a238b9b2092e6a877efc0b754a5713eaf96d",
+          "bytes": 10913
+        },
+        {
+          "path": "usr/lib64/webkit2gtk-4.1/WebKitNetworkProcess",
+          "sha256": "dc3fad1777a9b936cf5f35efc7814c7cb4529e7f1fe69c7eaf7ffa913870ea87",
+          "bytes": 4552
+        },
+        {
+          "path": "usr/lib64/webkit2gtk-4.1/WebKitWebProcess",
+          "sha256": "06359705a0000476494375906bfa34492497bb542582a550ecb8d870e81b41fc",
+          "bytes": 4552
+        }
+      ],
+      "stems": ["WebKitNetworkProcess", "WebKitWebProcess"]
+    },
+    {
+      "package": "xz",
+      "kind": "native",
+      "version": "5.8.4-1",
+      "declared": "GPL-2.0-or-later AND 0BSD AND LicenseRef-Public-Domain AND LGPL-2.1-or-later",
+      "upstream": "https://tukaani.org/xz/",
+      "note": "COPYING is the XZ Utils licensing overview; 0BSD text is the installed COPYING.0BSD.",
+      "texts": [
+        {
+          "file": "xz-5.8.4-1-COPYING",
+          "source": "installed xz 5.8.4-1 (/usr/share/licenses/xz/COPYING)",
+          "sha256": "616a3ad264ce29b8f1cb97e53037b139d406899ca8d1f799651e17bfa09830b8"
+        },
+        {
+          "file": "xz-5.8.4-1-COPYING.0BSD",
+          "source": "installed xz 5.8.4-1 (/usr/share/licenses/xz/COPYING.0BSD)",
+          "sha256": "0b01625d853911cd0e2e088dcfb743261034a091bb379246cb25a14cc4c74bf1"
+        },
+        {
+          "file": "spdx-GPL-2.0-or-later.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/GPL-2.0-or-later.txt)",
+          "sha256": "aaf135472f81c5b4a0dca9367e5bb5e9750032b5bebe5442b36e4c0a47430df3"
+        },
+        {
+          "file": "spdx-LGPL-2.1-or-later.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/LGPL-2.1-or-later.txt)",
+          "sha256": "5749785c8bdefafcb5d798270ed0a967036fe2ca63dcedade1627565dfef81d2"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/liblzma.so.5",
+          "sha256": "be74e9aaddf9f63690824aa7a2081a45a81a02ffa6ffc72731d15ebd6fd89c4c",
+          "bytes": 228313
+        }
+      ],
+      "stems": ["liblzma"]
+    },
+    {
+      "package": "zstd",
+      "kind": "native",
+      "version": "1.5.7-3",
+      "declared": "BSD-3-Clause  GPL-2.0-only",
+      "upstream": "https://facebook.github.io/zstd/",
+      "note": "LICENSE holds the BSD-3-Clause text; the GPL-2.0-only wording for the dual-licensed files is canonical.",
+      "texts": [
+        {
+          "file": "zstd-1.5.7-3-LICENSE",
+          "source": "installed zstd 1.5.7-3 (/usr/share/licenses/zstd/LICENSE)",
+          "sha256": "7055266497633c9025b777c78eb7235af13922117480ed5c674677adc381c9d8"
+        },
+        {
+          "file": "spdx-GPL-2.0-only.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/GPL-2.0-only.txt)",
+          "sha256": "aaf135472f81c5b4a0dca9367e5bb5e9750032b5bebe5442b36e4c0a47430df3"
+        }
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/libzstd.so.1",
+          "sha256": "64b256f187291706bf5071ac76ede10f4d3e63cf40d493a918cf8a840793c43f",
+          "bytes": 966113
+        }
+      ],
+      "stems": ["libzstd"]
+    },
+    {
+      "package": "babel-desktop (statically linked libgit2)",
+      "kind": "static-link",
+      "version": "libgit2 1.9.7 via libgit2-sys 0.18.8 / git2 0.21.0 (Cargo.lock)",
+      "declared": "GPL-2.0 with linking exception (libgit2 C); MIT OR Apache-2.0 (git2 Rust bindings)",
+      "upstream": "https://github.com/libgit2/libgit2",
+      "note": "ldd shows no libgit2: the vendored build links it statically (cargo:rustc-link-lib=static=git2). HTTPS/SSH features are off, so no static OpenSSL/libssh2 payload. Transitive Rust-crate texts: L2.",
+      "texts": [
+        {
+          "file": "libgit2-1.9.7-COPYING",
+          "source": "vendored libgit2 source compiled into the binary (/home/phagmaier/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libgit2-sys-0.18.8+1.9.7/libgit2/COPYING); byte-identical to the installed libgit2 libgit2 1:1.9.7-1 package COPYING",
+          "sha256": "e0938121c0554985fe17196ac38fc590d149268e9c46e0c0e7a2eae1354fae71"
+        },
+        {
+          "file": "libgit2-sys-0.18.8-LICENSE-MIT",
+          "source": "Rust binding licence (/home/phagmaier/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libgit2-sys-0.18.8+1.9.7/LICENSE-MIT); the git2 crate LICENSE-MIT is byte-identical",
+          "sha256": "378f5840b258e2779c39418f3f2d7b2ba96f1c7917dd6be0713f88305dbda397"
+        },
+        {
+          "file": "git2-0.21.0-LICENSE-APACHE",
+          "source": "Rust binding licence (/home/phagmaier/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/git2-0.21.0/LICENSE-APACHE)",
+          "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+        }
+      ],
+      "stems": ["babel-desktop"],
+      "bundled": [
+        {
+          "path": "usr/bin/babel-desktop",
+          "sha256": "3c4301459e0b7f47eff2cd70951b94d02d2ed4ed1897c1bca8483fd143f8bb03",
+          "bytes": 18019217
+        }
+      ]
+    },
+    {
+      "package": "linuxdeploy (AppImage launcher)",
+      "kind": "launcher",
+      "version": "launcher generated at build time",
+      "declared": "MIT",
+      "upstream": "https://github.com/linuxdeploy/linuxdeploy",
+      "note": "",
+      "texts": [
+        {
+          "file": "upstream-linuxdeploy-LICENSE.txt",
+          "source": "upstream https://raw.githubusercontent.com/linuxdeploy/linuxdeploy/master/LICENSE.txt (SHA-256 pinned in tools/build-package-notices.py)",
+          "sha256": "1edb41ae7601854ae15d113c3700beebd0ea3ed05b85e3786a94a72bb9916091"
+        }
+      ],
+      "stems": ["AppRun", "AppRun.wrapped", "linuxdeploy-plugin-gtk.sh"],
+      "bundled": [
+        {
+          "path": "AppRun",
+          "sha256": "eb0b254ac0dae6543e6dd7cd02e1baf40a060de95b927313122d6b46323c00aa",
+          "bytes": 274
+        },
+        {
+          "path": "AppRun.wrapped",
+          "sha256": "f30140a43a0a59e46db21bdefdf749b9e9f2c6946e92afabbacf98b8ae73fb4f",
+          "bytes": 31552
+        },
+        {
+          "path": "apprun-hooks/linuxdeploy-plugin-gtk.sh",
+          "sha256": "0b7e358b54c465cffcd181f60e4856b38216476aa8d4b7bc7e85c9b7c773d850",
+          "bytes": 1509
+        }
+      ]
+    },
+    {
+      "package": "python-build-standalone CPython (bundled interpreter)",
+      "kind": "interpreter",
+      "version": "cpython-3.13.16+20261001-x86_64-unknown-linux-gnu-install_only_stripped.tar.gz",
+      "declared": "PSF-2.0 (CPython); statically linked components per python-build-standalone",
+      "upstream": "https://github.com/astral-sh/python-build-standalone/releases/download/20261001/cpython-3.13.16+20261001-x86_64-unknown-linux-gnu-install_only_stripped.tar.gz",
+      "note": "SHA-256 ffcb50e716789d1a6e1db5e745d4d194ac8ed9b015ccf5eabcaccb179a25e4a8. Whole runtime tree usr/lib/babel/pdf-helper (1475 files, tree 808d2276543fce73967f8c66166d5e61a676282e094716da3e42b7831454086a) is attributed here; per-file hashes live in the shipped target/pdf-helper/runtime/BUILD.json. Statically linked components follow as separate entries.",
+      "texts": [
+        {
+          "file": "cpython-3.13.16-LICENSE.txt",
+          "source": "pinned pdf-helper runtime (target/pdf-helper/runtime/licenses/CPython-LICENSE.txt; assembled by tools/pdf-helper/build.py from the pinned inputs below)",
+          "sha256": "78b12c3a81360b357002334f0e70ea0e92eebf7a9b358805c03c48484945f3bb"
+        }
+      ],
+      "stems": ["python3.13", "libpython3.13"],
+      "bundled": [
+        {
+          "path": "usr/lib/babel/pdf-helper/**",
+          "treeSha256": "808d2276543fce73967f8c66166d5e61a676282e094716da3e42b7831454086a",
+          "files": 1475,
+          "bytes": 60619918,
+          "pinsSha256": "d2ca3143378789f0ada416dfc175b7ba344f6a30952f4c1828beb81d63781b41"
+        }
+      ]
+    },
+    {
+      "package": "CPython static component: OpenSSL 3.5.9",
+      "kind": "static-link",
+      "version": "OpenSSL 3.5.9 (per tools/pdf-helper/pins.json)",
+      "declared": "Apache-2.0",
+      "upstream": "https://github.com/astral-sh/python-build-standalone/releases/download/20261001/cpython-3.13.16+20261001-x86_64-unknown-linux-gnu-install_only_stripped.tar.gz",
+      "note": "Statically linked into the bundled python3.13 binary; the shipped file is that binary (hash below). Component upstream URLs are not independently verified beyond the python-build-standalone release.",
+      "texts": [
+        {
+          "file": "cpython-static-openssl-LICENSE.txt",
+          "source": "installed openssl package (/usr/share/licenses/openssl/LICENSE.txt); licence claim 'Apache-2.0' per tools/pdf-helper/pins.json; component provenance is the python-build-standalone release above",
+          "sha256": "7d5450cb2d142651b8afa315b5f238efc805dad827d91ba367d8516bc9d49e7a"
+        }
+      ],
+      "stems": [],
+      "bundled": [
+        {
+          "path": "usr/lib/babel/pdf-helper/python/bin/python3.13",
+          "sha256": "ae45d33cfd1e57348e1f630677f410935c62df062bf4cb5063904c426a795e8f",
+          "bytes": 31585760
+        }
+      ]
+    },
+    {
+      "package": "CPython static component: libedit (readline backend: editline)",
+      "kind": "static-link",
+      "version": "libedit (readline backend: editline) (per tools/pdf-helper/pins.json)",
+      "declared": "BSD-3-Clause",
+      "upstream": "https://github.com/astral-sh/python-build-standalone/releases/download/20261001/cpython-3.13.16+20261001-x86_64-unknown-linux-gnu-install_only_stripped.tar.gz",
+      "note": "Statically linked into the bundled python3.13 binary; the shipped file is that binary (hash below). Component upstream URLs are not independently verified beyond the python-build-standalone release.",
+      "texts": [
+        {
+          "file": "cpython-static-libedit-COPYING",
+          "source": "installed libedit package (/usr/share/licenses/libedit/COPYING); licence claim 'BSD-3-Clause' per tools/pdf-helper/pins.json; component provenance is the python-build-standalone release above",
+          "sha256": "9da6c9c74987a36c84302982799d17d2f748ba1c1c0c471425716173c1d07649"
+        }
+      ],
+      "stems": [],
+      "bundled": [
+        {
+          "path": "usr/lib/babel/pdf-helper/python/bin/python3.13",
+          "sha256": "ae45d33cfd1e57348e1f630677f410935c62df062bf4cb5063904c426a795e8f",
+          "bytes": 31585760
+        }
+      ]
+    },
+    {
+      "package": "CPython static component: ncurses 6.5",
+      "kind": "static-link",
+      "version": "ncurses 6.5 (per tools/pdf-helper/pins.json)",
+      "declared": "X11-style (MIT)",
+      "upstream": "https://github.com/astral-sh/python-build-standalone/releases/download/20261001/cpython-3.13.16+20261001-x86_64-unknown-linux-gnu-install_only_stripped.tar.gz",
+      "note": "Statically linked into the bundled python3.13 binary; the shipped file is that binary (hash below). Component upstream URLs are not independently verified beyond the python-build-standalone release.",
+      "texts": [
+        {
+          "file": "cpython-static-ncurses-COPYING",
+          "source": "installed ncurses package (/usr/share/licenses/ncurses/COPYING); licence claim 'X11-style (MIT)' per tools/pdf-helper/pins.json; component provenance is the python-build-standalone release above",
+          "sha256": "708999f95527e1ffa670c6fce288c6c600cb477dd04afcc1171422b3dd4ee226"
+        }
+      ],
+      "stems": [],
+      "bundled": [
+        {
+          "path": "usr/lib/babel/pdf-helper/python/bin/python3.13",
+          "sha256": "ae45d33cfd1e57348e1f630677f410935c62df062bf4cb5063904c426a795e8f",
+          "bytes": 31585760
+        }
+      ]
+    },
+    {
+      "package": "CPython static component: SQLite 3.53.1",
+      "kind": "static-link",
+      "version": "SQLite 3.53.1 (per tools/pdf-helper/pins.json)",
+      "declared": "blessing (public domain)",
+      "upstream": "https://github.com/astral-sh/python-build-standalone/releases/download/20261001/cpython-3.13.16+20261001-x86_64-unknown-linux-gnu-install_only_stripped.tar.gz",
+      "note": "Statically linked into the bundled python3.13 binary; the shipped file is that binary (hash below). Component upstream URLs are not independently verified beyond the python-build-standalone release.",
+      "texts": [
+        {
+          "file": "cpython-static-sqlite-license.txt",
+          "source": "installed sqlite package (/usr/share/licenses/sqlite/license.txt); licence claim 'blessing (public domain)' per tools/pdf-helper/pins.json; component provenance is the python-build-standalone release above",
+          "sha256": "4e57d9ac979f1c9872e69799c2597eeef4c6ce7224f3ede0bf9dc8d217b1e65d"
+        }
+      ],
+      "stems": [],
+      "bundled": [
+        {
+          "path": "usr/lib/babel/pdf-helper/python/bin/python3.13",
+          "sha256": "ae45d33cfd1e57348e1f630677f410935c62df062bf4cb5063904c426a795e8f",
+          "bytes": 31585760
+        }
+      ]
+    },
+    {
+      "package": "CPython static component: expat 2.8.5",
+      "kind": "static-link",
+      "version": "expat 2.8.5 (per tools/pdf-helper/pins.json)",
+      "declared": "MIT",
+      "upstream": "https://github.com/astral-sh/python-build-standalone/releases/download/20261001/cpython-3.13.16+20261001-x86_64-unknown-linux-gnu-install_only_stripped.tar.gz",
+      "note": "Statically linked into the bundled python3.13 binary; the shipped file is that binary (hash below). Component upstream URLs are not independently verified beyond the python-build-standalone release.",
+      "texts": [
+        {
+          "file": "cpython-static-expat-COPYING",
+          "source": "installed expat package (/usr/share/licenses/expat/COPYING); licence claim 'MIT' per tools/pdf-helper/pins.json; component provenance is the python-build-standalone release above",
+          "sha256": "31b15de82aa19a845156169a17a5488bf597e561b2c318d159ed583139b25e87"
+        }
+      ],
+      "stems": [],
+      "bundled": [
+        {
+          "path": "usr/lib/babel/pdf-helper/python/bin/python3.13",
+          "sha256": "ae45d33cfd1e57348e1f630677f410935c62df062bf4cb5063904c426a795e8f",
+          "bytes": 31585760
+        }
+      ]
+    },
+    {
+      "package": "CPython static component: mpdecimal 4.0.0",
+      "kind": "static-link",
+      "version": "mpdecimal 4.0.0 (per tools/pdf-helper/pins.json)",
+      "declared": "BSD-2-Clause",
+      "upstream": "https://github.com/astral-sh/python-build-standalone/releases/download/20261001/cpython-3.13.16+20261001-x86_64-unknown-linux-gnu-install_only_stripped.tar.gz",
+      "note": "Statically linked into the bundled python3.13 binary; the shipped file is that binary (hash below). Component upstream URLs are not independently verified beyond the python-build-standalone release.",
+      "texts": [
+        {
+          "file": "cpython-static-mpdecimal-COPYRIGHT.txt",
+          "source": "installed mpdecimal package (/usr/share/licenses/mpdecimal/COPYRIGHT.txt); licence claim 'BSD-2-Clause' per tools/pdf-helper/pins.json; component provenance is the python-build-standalone release above",
+          "sha256": "dba079e24a0286052f9f36a5e0b4f6cc95bc83ada657eb26bef8c0b6473f6512"
+        }
+      ],
+      "stems": [],
+      "bundled": [
+        {
+          "path": "usr/lib/babel/pdf-helper/python/bin/python3.13",
+          "sha256": "ae45d33cfd1e57348e1f630677f410935c62df062bf4cb5063904c426a795e8f",
+          "bytes": 31585760
+        }
+      ]
+    },
+    {
+      "package": "CPython static component: zlib 1.3.2",
+      "kind": "static-link",
+      "version": "zlib 1.3.2 (per tools/pdf-helper/pins.json)",
+      "declared": "Zlib",
+      "upstream": "https://github.com/astral-sh/python-build-standalone/releases/download/20261001/cpython-3.13.16+20261001-x86_64-unknown-linux-gnu-install_only_stripped.tar.gz",
+      "note": "Statically linked into the bundled python3.13 binary; the shipped file is that binary (hash below). Component upstream URLs are not independently verified beyond the python-build-standalone release.",
+      "texts": [
+        {
+          "file": "cpython-static-zlib-LICENSE",
+          "source": "installed zlib package (/usr/share/licenses/zlib/LICENSE); licence claim 'Zlib' per tools/pdf-helper/pins.json; component provenance is the python-build-standalone release above",
+          "sha256": "e32ff4e00d9d94930537635291da39e7e612703334bf6fde8c7f1686fe8a45a2"
+        }
+      ],
+      "stems": [],
+      "bundled": [
+        {
+          "path": "usr/lib/babel/pdf-helper/python/bin/python3.13",
+          "sha256": "ae45d33cfd1e57348e1f630677f410935c62df062bf4cb5063904c426a795e8f",
+          "bytes": 31585760
+        }
+      ]
+    },
+    {
+      "package": "CPython static component: bzip2",
+      "kind": "static-link",
+      "version": "bzip2 (per tools/pdf-helper/pins.json)",
+      "declared": "bzip2-1.0.6",
+      "upstream": "https://github.com/astral-sh/python-build-standalone/releases/download/20261001/cpython-3.13.16+20261001-x86_64-unknown-linux-gnu-install_only_stripped.tar.gz",
+      "note": "Statically linked into the bundled python3.13 binary; the shipped file is that binary (hash below). Component upstream URLs are not independently verified beyond the python-build-standalone release.",
+      "texts": [
+        {
+          "file": "cpython-static-bzip2-LICENSE",
+          "source": "installed bzip2 package (/usr/share/licenses/bzip2/LICENSE); licence claim 'bzip2-1.0.6' per tools/pdf-helper/pins.json; component provenance is the python-build-standalone release above",
+          "sha256": "c6dbbf828498be844a89eaa3b84adbab3199e342eb5cb2ed2f0d4ba7ec0f38a3"
+        }
+      ],
+      "stems": [],
+      "bundled": [
+        {
+          "path": "usr/lib/babel/pdf-helper/python/bin/python3.13",
+          "sha256": "ae45d33cfd1e57348e1f630677f410935c62df062bf4cb5063904c426a795e8f",
+          "bytes": 31585760
+        }
+      ]
+    },
+    {
+      "package": "CPython static component: xz/liblzma",
+      "kind": "static-link",
+      "version": "xz/liblzma (per tools/pdf-helper/pins.json)",
+      "declared": "0BSD",
+      "upstream": "https://github.com/astral-sh/python-build-standalone/releases/download/20261001/cpython-3.13.16+20261001-x86_64-unknown-linux-gnu-install_only_stripped.tar.gz",
+      "note": "Statically linked into the bundled python3.13 binary; the shipped file is that binary (hash below). Component upstream URLs are not independently verified beyond the python-build-standalone release.",
+      "texts": [
+        {
+          "file": "cpython-static-xz-COPYING.0BSD",
+          "source": "installed xz package (/usr/share/licenses/xz/COPYING.0BSD); licence claim '0BSD' per tools/pdf-helper/pins.json; component provenance is the python-build-standalone release above",
+          "sha256": "0b01625d853911cd0e2e088dcfb743261034a091bb379246cb25a14cc4c74bf1"
+        }
+      ],
+      "stems": [],
+      "bundled": [
+        {
+          "path": "usr/lib/babel/pdf-helper/python/bin/python3.13",
+          "sha256": "ae45d33cfd1e57348e1f630677f410935c62df062bf4cb5063904c426a795e8f",
+          "bytes": 31585760
+        }
+      ]
+    },
+    {
+      "package": "CPython static component: libffi",
+      "kind": "static-link",
+      "version": "libffi (per tools/pdf-helper/pins.json)",
+      "declared": "MIT",
+      "upstream": "https://github.com/astral-sh/python-build-standalone/releases/download/20261001/cpython-3.13.16+20261001-x86_64-unknown-linux-gnu-install_only_stripped.tar.gz",
+      "note": "Statically linked into the bundled python3.13 binary; the shipped file is that binary (hash below). Component upstream URLs are not independently verified beyond the python-build-standalone release.",
+      "texts": [
+        {
+          "file": "cpython-static-libffi-LICENSE",
+          "source": "installed libffi package (/usr/share/licenses/libffi/LICENSE); licence claim 'MIT' per tools/pdf-helper/pins.json; component provenance is the python-build-standalone release above",
+          "sha256": "17b64dc60f3b6897a60f971e288b973f655c2edcdf08b25f3c3dd5549857881c"
+        }
+      ],
+      "stems": [],
+      "bundled": [
+        {
+          "path": "usr/lib/babel/pdf-helper/python/bin/python3.13",
+          "sha256": "ae45d33cfd1e57348e1f630677f410935c62df062bf4cb5063904c426a795e8f",
+          "bytes": 31585760
+        }
+      ]
+    },
+    {
+      "package": "CPython static component: libuuid (util-linux)",
+      "kind": "static-link",
+      "version": "libuuid (util-linux) (per tools/pdf-helper/pins.json)",
+      "declared": "BSD-3-Clause",
+      "upstream": "https://github.com/astral-sh/python-build-standalone/releases/download/20261001/cpython-3.13.16+20261001-x86_64-unknown-linux-gnu-install_only_stripped.tar.gz",
+      "note": "Statically linked into the bundled python3.13 binary; the shipped file is that binary (hash below). Component upstream URLs are not independently verified beyond the python-build-standalone release.",
+      "texts": [
+        {
+          "file": "cpython-static-util-linux-libs-COPYING.BSD-3-Clause",
+          "source": "installed util-linux-libs package (/usr/share/licenses/util-linux-libs/COPYING.BSD-3-Clause); licence claim 'BSD-3-Clause' per tools/pdf-helper/pins.json; component provenance is the python-build-standalone release above",
+          "sha256": "9b718a9460fed5952466421235bc79eb49d4e9eacc920d7a9dd6285ab8fd6c6d"
+        }
+      ],
+      "stems": [],
+      "bundled": [
+        {
+          "path": "usr/lib/babel/pdf-helper/python/bin/python3.13",
+          "sha256": "ae45d33cfd1e57348e1f630677f410935c62df062bf4cb5063904c426a795e8f",
+          "bytes": 31585760
+        }
+      ]
+    },
+    {
+      "package": "Python wheel: screenplain 0.12.0",
+      "kind": "wheel",
+      "version": "screenplain-0.12.0-py3-none-any.whl (SHA-256 35feb87cbb0d99a8a713cd1368b9fcf67e522afbc68390a9d691c5fe77d3d4c0)",
+      "declared": "MIT; bundled Courier Prime OFL-1.1",
+      "upstream": "https://files.pythonhosted.org/packages/7e/fd/c11f0072d85fb0fc4ab4feff133bb9fd7bcff6e6b2e56fdf20e03da0859c/screenplain-0.12.0-py3-none-any.whl",
+      "note": "Extracted into usr/lib/babel/pdf-helper/app/lib/. Pillow is a refusing stub, not the wheel (pins.json).",
+      "texts": [
+        {
+          "file": "screenplain-0.12.0-LICENSE.txt",
+          "source": "pinned pdf-helper runtime (target/pdf-helper/runtime/licenses/screenplain-licenses-LICENSE.txt; assembled by tools/pdf-helper/build.py from the pinned inputs below)",
+          "sha256": "ad2d07298f1365a2deb11f13eb26f0970932b6f9f725ce66fdb446b9362b3bc4"
+        }
+      ],
+      "stems": [],
+      "bundled": [
+        {
+          "path": "usr/lib/babel/pdf-helper/app/lib/screenplain*",
+          "wheelSha256": "35feb87cbb0d99a8a713cd1368b9fcf67e522afbc68390a9d691c5fe77d3d4c0"
+        }
+      ]
+    },
+    {
+      "package": "Python wheel: reportlab 4.4.7",
+      "kind": "wheel",
+      "version": "reportlab-4.4.7-py3-none-any.whl (SHA-256 8fa05cbf468e0e76745caf2029a4770276edb3c8e86a0b71e0398926baf50673)",
+      "declared": "BSD-3-Clause",
+      "upstream": "https://files.pythonhosted.org/packages/e7/bf/a29507386366ab17306b187ad247dd78e4599be9032cb5f44c940f547fc0/reportlab-4.4.7-py3-none-any.whl",
+      "note": "Extracted into usr/lib/babel/pdf-helper/app/lib/. Pillow is a refusing stub, not the wheel (pins.json).",
+      "texts": [
+        {
+          "file": "reportlab-4.4.7-LICENSE",
+          "source": "pinned pdf-helper runtime (target/pdf-helper/runtime/licenses/reportlab-licenses-LICENSE; assembled by tools/pdf-helper/build.py from the pinned inputs below)",
+          "sha256": "ef831761646313921375fc2cb888e8eeaf7da213d0b92852c10c42f3a0b4d138"
+        }
+      ],
+      "stems": [],
+      "bundled": [
+        {
+          "path": "usr/lib/babel/pdf-helper/app/lib/reportlab*",
+          "wheelSha256": "8fa05cbf468e0e76745caf2029a4770276edb3c8e86a0b71e0398926baf50673"
+        }
+      ]
+    },
+    {
+      "package": "Python wheel: charset-normalizer 3.5.1",
+      "kind": "wheel",
+      "version": "charset_normalizer-3.5.1-py3-none-any.whl (SHA-256 6df0ec430f9a831772c23ca5a224cba36517a58a84bb32c32bb59a9fa67c47f6)",
+      "declared": "MIT",
+      "upstream": "https://files.pythonhosted.org/packages/cc/61/d01fc49b8dea277640b55a9e15960dbca9fdc8c9fde18e572d39c59f4019/charset_normalizer-3.5.1-py3-none-any.whl",
+      "note": "Extracted into usr/lib/babel/pdf-helper/app/lib/. Pillow is a refusing stub, not the wheel (pins.json).",
+      "texts": [
+        {
+          "file": "charset-normalizer-3.5.1-LICENSE",
+          "source": "pinned pdf-helper runtime (target/pdf-helper/runtime/licenses/charset_normalizer-licenses-LICENSE; assembled by tools/pdf-helper/build.py from the pinned inputs below)",
+          "sha256": "6d0d41bfe170ac6c7dc248c9a63e254d0fb45a60d50a8257d0af92c6e249b887"
+        }
+      ],
+      "stems": [],
+      "bundled": [
+        {
+          "path": "usr/lib/babel/pdf-helper/app/lib/charset-normalizer*",
+          "wheelSha256": "6df0ec430f9a831772c23ca5a224cba36517a58a84bb32c32bb59a9fa67c47f6"
+        }
+      ]
+    },
+    {
+      "package": "Font data: Courier Prime (embedded renderer fonts)",
+      "kind": "font",
+      "version": "pinned wheel contents (see wheel entries)",
+      "declared": "OFL-1.1",
+      "upstream": "as bundled in the screenplain 0.12.0 wheel (URL above)",
+      "note": "SHA-256 verified against tools/pdf-helper/pins.json fonts section.",
+      "texts": [
+        {
+          "file": "courier-prime-OFL-1.1.txt",
+          "source": "pinned pdf-helper runtime (target/pdf-helper/runtime/licenses/CourierPrime-OFL.txt; assembled by tools/pdf-helper/build.py from the pinned inputs below)",
+          "sha256": "5845dad805d3faeefc1b3f2407aef252f4f5e4b17d9d58680aed63c12ecfaae2"
+        }
+      ],
+      "stems": [
+        "Courier Prime Bold Italic.ttf",
+        "Courier Prime Bold.ttf",
+        "Courier Prime Italic.ttf",
+        "Courier Prime.ttf"
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/babel/pdf-helper/app/lib/screenplain/export/courier_prime/Courier Prime Bold Italic.ttf",
+          "sha256": "cfc77df22c0516962b6ba841e63c59ad8c2f95aff4d7a44f6328eeaaeff7e7d8",
+          "bytes": 91908
+        },
+        {
+          "path": "usr/lib/babel/pdf-helper/app/lib/screenplain/export/courier_prime/Courier Prime Bold.ttf",
+          "sha256": "aa5a0a31d25dac006fe2d71fc6ff0feff250bc6de3b3c81b7e9d3a58e1329b52",
+          "bytes": 91368
+        },
+        {
+          "path": "usr/lib/babel/pdf-helper/app/lib/screenplain/export/courier_prime/Courier Prime Italic.ttf",
+          "sha256": "e1c9bde2ef55f90a5619cff5dac0d5674700045d666a7d2cddee1879bb83d552",
+          "bytes": 96196
+        },
+        {
+          "path": "usr/lib/babel/pdf-helper/app/lib/screenplain/export/courier_prime/Courier Prime.ttf",
+          "sha256": "6cc9525b1334047445cba53f323e810331acfdf59f18f4008397d13137737b91",
+          "bytes": 98156
+        }
+      ]
+    },
+    {
+      "package": "Font data: Bitstream Vera + HarfBuzz test font (reportlab data)",
+      "kind": "font",
+      "version": "pinned wheel contents (see wheel entries)",
+      "declared": "Bitstream Vera licence",
+      "upstream": "shipped inside the pinned reportlab wheel",
+      "note": "hb-test.ttf is ReportLab's bundled test font, covered by the wheel licence.",
+      "texts": [
+        {
+          "file": "reportlab-bitstream-vera-license.txt",
+          "source": "shipped inside the pinned reportlab wheel (target/pdf-helper/runtime/app/lib/reportlab/fonts/bitstream-vera-license.txt)",
+          "sha256": "3361d054759a2fc686a2c058be82deaf9c2e6fe549be9004d7935a6c1736315d"
+        }
+      ],
+      "stems": [
+        "Vera.ttf",
+        "VeraBI.ttf",
+        "VeraBd.ttf",
+        "VeraIt.ttf",
+        "hb-test.ttf"
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/babel/pdf-helper/app/lib/reportlab/fonts/Vera.ttf",
+          "sha256": "c4c45690b345435b2cba52ecabe275f05e49b389b39fe68ad03afbb551288d3d",
+          "bytes": 65932
+        },
+        {
+          "path": "usr/lib/babel/pdf-helper/app/lib/reportlab/fonts/VeraBI.ttf",
+          "sha256": "fca0d4eeac1ced7e75e1b2274c869a351d2d83b5ed1f61d249e7bcc477c33ebe",
+          "bytes": 63208
+        },
+        {
+          "path": "usr/lib/babel/pdf-helper/app/lib/reportlab/fonts/VeraBd.ttf",
+          "sha256": "cc037385e4d55bfde89b13e03091ee93bf40c0c52ddd391ff031ab276f13b8e9",
+          "bytes": 58716
+        },
+        {
+          "path": "usr/lib/babel/pdf-helper/app/lib/reportlab/fonts/VeraIt.ttf",
+          "sha256": "2adc684d518f45232c4ad1f56522f5a82a6904c31940373e1b7030beee20fb3a",
+          "bytes": 63684
+        },
+        {
+          "path": "usr/lib/babel/pdf-helper/app/lib/reportlab/fonts/hb-test.ttf",
+          "sha256": "4df8840ec8382efa2c06bda01e31e1a5a975cd46e13f7c0b0be696a8542f1ba0",
+          "bytes": 3284
+        }
+      ]
+    },
+    {
+      "package": "Font data: DarkGarden (reportlab Type 1 data)",
+      "kind": "font",
+      "version": "pinned wheel contents (see wheel entries)",
+      "declared": "GPL-2.0-or-later",
+      "upstream": "shipped inside the pinned reportlab wheel",
+      "note": "GPL-2.0 wording is the canonical SPDX text.",
+      "texts": [
+        {
+          "file": "reportlab-DarkGarden-copying.txt",
+          "source": "shipped inside the pinned reportlab wheel (target/pdf-helper/runtime/app/lib/reportlab/fonts/DarkGarden-copying.txt)",
+          "sha256": "3cd1020510efa7f6b3166a5a2740f92bd664a695ea179e0bda442e74cd0ef3a4"
+        },
+        {
+          "file": "reportlab-DarkGarden-copying-gpl.txt",
+          "source": "shipped inside the pinned reportlab wheel (target/pdf-helper/runtime/app/lib/reportlab/fonts/DarkGarden-copying-gpl.txt)",
+          "sha256": "1b2a567f289f66a143c56353e7b3d4fa5862514a5e3c5cfdf8b02ee5e5aaa953"
+        },
+        {
+          "file": "spdx-GPL-2.0-or-later.txt",
+          "source": "canonical SPDX text from installed licenses 20240728-1 (/usr/share/licenses/spdx/GPL-2.0-or-later.txt)",
+          "sha256": "aaf135472f81c5b4a0dca9367e5bb5e9750032b5bebe5442b36e4c0a47430df3"
+        }
+      ],
+      "stems": ["DarkGarden.sfd", "DarkGardenMK.afm", "DarkGardenMK.pfb"],
+      "bundled": [
+        {
+          "path": "usr/lib/babel/pdf-helper/app/lib/reportlab/fonts/DarkGarden.sfd",
+          "sha256": "7ff67c9eda02fc751f5ca04394109c38b2d723e105506e58141fc9363662d6ba",
+          "bytes": 519634
+        },
+        {
+          "path": "usr/lib/babel/pdf-helper/app/lib/reportlab/fonts/DarkGardenMK.afm",
+          "sha256": "932bb1acc08358d87f326e891b78cde9e7ef60bfd4fb749cfb48ab9e2a2fe6eb",
+          "bytes": 10351
+        },
+        {
+          "path": "usr/lib/babel/pdf-helper/app/lib/reportlab/fonts/DarkGardenMK.pfb",
+          "sha256": "3633d5aed5c0fc3ec9302ee6995d0bb87a2926793ede5bb654287d9cb896ec95",
+          "bytes": 79824
+        }
+      ]
+    },
+    {
+      "package": "Font data: PDF base-14 metrics (reportlab data)",
+      "kind": "font",
+      "version": "pinned wheel contents (see wheel entries)",
+      "declared": "BSD-3-Clause (wheel licence)",
+      "upstream": "shipped inside the pinned reportlab wheel",
+      "note": "No separate notice ships in the wheel for these metrics files.",
+      "texts": [
+        {
+          "file": "reportlab-4.4.7-LICENSE",
+          "source": "pinned pdf-helper runtime (target/pdf-helper/runtime/licenses/reportlab-licenses-LICENSE; assembled by tools/pdf-helper/build.py from the pinned inputs below)",
+          "sha256": "ef831761646313921375fc2cb888e8eeaf7da213d0b92852c10c42f3a0b4d138"
+        }
+      ],
+      "stems": [
+        "_a______.pfb",
+        "_ab_____.pfb",
+        "_abi____.pfb",
+        "_ai_____.pfb",
+        "_eb_____.pfb",
+        "_ebi____.pfb",
+        "_ei_____.pfb",
+        "_er_____.pfb",
+        "callig15.afm",
+        "callig15.pfb",
+        "cob_____.pfb",
+        "cobo____.pfb",
+        "com_____.pfb",
+        "coo_____.pfb",
+        "sy______.pfb",
+        "zd______.pfb",
+        "zx______.pfb",
+        "zy______.pfb"
+      ],
+      "bundled": [
+        {
+          "path": "usr/lib/babel/pdf-helper/app/lib/reportlab/fonts/_a______.pfb",
+          "sha256": "612e88946ff22cecdd6e345a50ab1d6c25a32ef4bf6e78f011aa4de2d7548f4d",
+          "bytes": 32084
+        },
+        {
+          "path": "usr/lib/babel/pdf-helper/app/lib/reportlab/fonts/_ab_____.pfb",
+          "sha256": "6e82ebb42171beb805fbd4449232e426c477456df8b24105211e6199fbc6ba3b",
+          "bytes": 31966
+        },
+        {
+          "path": "usr/lib/babel/pdf-helper/app/lib/reportlab/fonts/_abi____.pfb",
+          "sha256": "a97afdf8376caa6b16030e8a6d1a3f67e60073590e9f360a3b1f2d754ab9d5ff",
+          "bytes": 32019
+        },
+        {
+          "path": "usr/lib/babel/pdf-helper/app/lib/reportlab/fonts/_ai_____.pfb",
+          "sha256": "74e2be79b1fd7a30f0ea90ed9ab89c33ade49e3265d50a09a6e87d51c5ba1583",
+          "bytes": 32115
+        },
+        {
+          "path": "usr/lib/babel/pdf-helper/app/lib/reportlab/fonts/_eb_____.pfb",
+          "sha256": "adb1bfed9e866577583d93735cf16ca8d3357c2a71784ee13b4d9287299bb258",
+          "bytes": 35377
+        },
+        {
+          "path": "usr/lib/babel/pdf-helper/app/lib/reportlab/fonts/_ebi____.pfb",
+          "sha256": "04e6345bec4bd6fb2c64b31565dc14a77f0e4cd8b2fdca16b9f8f4fc29582cd1",
+          "bytes": 38543
+        },
+        {
+          "path": "usr/lib/babel/pdf-helper/app/lib/reportlab/fonts/_ei_____.pfb",
+          "sha256": "33aba9a62aae5b96d3e78255e1b0652dc16ae30686044bd7fe801b624346a7b6",
+          "bytes": 37518
+        },
+        {
+          "path": "usr/lib/babel/pdf-helper/app/lib/reportlab/fonts/_er_____.pfb",
+          "sha256": "d9cbbcd211300fdfac5317450832d6ece542afbda1015fef9df40e8a350a5029",
+          "bytes": 35380
+        },
+        {
+          "path": "usr/lib/babel/pdf-helper/app/lib/reportlab/fonts/callig15.afm",
+          "sha256": "bff9f4e37fa1688586e79c35097d68a5f638c29b27c6f0d4ac1c8eb859668a17",
+          "bytes": 8318
+        },
+        {
+          "path": "usr/lib/babel/pdf-helper/app/lib/reportlab/fonts/callig15.pfb",
+          "sha256": "8d36db66b2f0ded4f84cb3cd9d5d4c7ca4b692648c80539bf9bd83af14ee1a22",
+          "bytes": 59663
+        },
+        {
+          "path": "usr/lib/babel/pdf-helper/app/lib/reportlab/fonts/cob_____.pfb",
+          "sha256": "fd5b34ad7c63d10278b25a6e763968fb0fde969985419f404205fa267a27c68c",
+          "bytes": 35500
+        },
+        {
+          "path": "usr/lib/babel/pdf-helper/app/lib/reportlab/fonts/cobo____.pfb",
+          "sha256": "d128fc4ac784bb28383e169f9638629b06078a90adbc1b8d7e4e9f44d893f6f1",
+          "bytes": 50532
+        },
+        {
+          "path": "usr/lib/babel/pdf-helper/app/lib/reportlab/fonts/com_____.pfb",
+          "sha256": "1de587f0ca79deef99a738f9f7875d062f85ef5103b6526ceda53a47961aea13",
+          "bytes": 34585
+        },
+        {
+          "path": "usr/lib/babel/pdf-helper/app/lib/reportlab/fonts/coo_____.pfb",
+          "sha256": "676de5e6e1c302875218c733c33ba9a9b8283b0deafb92b5f94c5f0be24d4f77",
+          "bytes": 48468
+        },
+        {
+          "path": "usr/lib/babel/pdf-helper/app/lib/reportlab/fonts/sy______.pfb",
+          "sha256": "b0480c6f9cee6bb87c1ae159a89a8a9d1ffa46e0ab70461fdf2fc291e2c94b4a",
+          "bytes": 34705
+        },
+        {
+          "path": "usr/lib/babel/pdf-helper/app/lib/reportlab/fonts/zd______.pfb",
+          "sha256": "d9710cadd1fd895563601dbfd339291eeff72199eb5e93f654dcc7235269790b",
+          "bytes": 49593
+        },
+        {
+          "path": "usr/lib/babel/pdf-helper/app/lib/reportlab/fonts/zx______.pfb",
+          "sha256": "ba8f3996fad32c042bf1f474a08b7452f252060882dc4de5a97ec389209e2301",
+          "bytes": 75573
+        },
+        {
+          "path": "usr/lib/babel/pdf-helper/app/lib/reportlab/fonts/zy______.pfb",
+          "sha256": "1182fcc2fb887713fb954a804f83fae3417c27b6929ecb07c5034dac24586e8b",
+          "bytes": 96418
+        }
+      ]
+    },
+    {
+      "package": "npm runtime: react",
+      "kind": "js",
+      "version": "19.3.0 (declared MIT; integrity pinned in pnpm-lock.yaml)",
+      "declared": "MIT",
+      "upstream": "https://github.com/facebook/react",
+      "note": "Bundled into the frontend dist embedded in usr/bin/babel-desktop. Transitive npm module texts: L3.",
+      "texts": [
+        {
+          "file": "react-19.3.0-LICENSE",
+          "source": "installed react 19.3.0 (node_modules/react/LICENSE)",
+          "sha256": "da6d3703ed11cbe42bd212c725957c98da23cbff1998c05fa4b3d976d1a58e93"
+        }
+      ],
+      "stems": [],
+      "bundled": [
+        {
+          "path": "frontend dist embedded in usr/bin/babel-desktop"
+        }
+      ]
+    },
+    {
+      "package": "npm runtime: react-dom",
+      "kind": "js",
+      "version": "19.3.0 (declared MIT; integrity pinned in pnpm-lock.yaml)",
+      "declared": "MIT",
+      "upstream": "https://github.com/facebook/react",
+      "note": "Bundled into the frontend dist embedded in usr/bin/babel-desktop. Transitive npm module texts: L3.",
+      "texts": [
+        {
+          "file": "react-dom-19.3.0-LICENSE",
+          "source": "installed react-dom 19.3.0 (node_modules/react-dom/LICENSE)",
+          "sha256": "da6d3703ed11cbe42bd212c725957c98da23cbff1998c05fa4b3d976d1a58e93"
+        }
+      ],
+      "stems": [],
+      "bundled": [
+        {
+          "path": "frontend dist embedded in usr/bin/babel-desktop"
+        }
+      ]
+    },
+    {
+      "package": "npm runtime: @tauri-apps/api",
+      "kind": "js",
+      "version": "2.12.0 (declared Apache-2.0 OR MIT; integrity pinned in pnpm-lock.yaml)",
+      "declared": "Apache-2.0 OR MIT",
+      "upstream": "https://github.com/tauri-apps/tauri",
+      "note": "Bundled into the frontend dist embedded in usr/bin/babel-desktop. Transitive npm module texts: L3.",
+      "texts": [
+        {
+          "file": "@tauri-apps-api-2.12.0-LICENSE-APACHE-2.0",
+          "source": "installed @tauri-apps/api 2.12.0 (node_modules/@tauri-apps/api/LICENSE-APACHE-2.0)",
+          "sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594"
+        },
+        {
+          "file": "@tauri-apps-api-2.12.0-LICENSE-MIT",
+          "source": "installed @tauri-apps/api 2.12.0 (node_modules/@tauri-apps/api/LICENSE-MIT)",
+          "sha256": "9dd42ea92cff2ede5cd477cbfcce051b2d0115c0ac7f368ee88cb545055dff1d"
+        }
+      ],
+      "stems": [],
+      "bundled": [
+        {
+          "path": "frontend dist embedded in usr/bin/babel-desktop"
+        }
+      ]
+    },
+    {
+      "package": "npm runtime: pdfjs-dist + ProseMirror set (already recorded)",
+      "kind": "js",
+      "version": "pdfjs-dist 6.3.289; prosemirror-model 1.25.12, -state 1.4.4, -history 1.5.0, -view 1.42.6, -transform 1.12.2, orderedmap 2.1.1, rope-sequence 1.3.4",
+      "declared": "Apache-2.0 (pdfjs-dist); MIT (ProseMirror set)",
+      "upstream": "https://github.com/mozilla/pdfjs-dist",
+      "note": "Exact texts retained under docs/third-party/pdf-viewer/ and docs/third-party/editor-licenses/; referenced here, not duplicated.",
+      "texts": [],
+      "stems": [],
+      "bundled": [
+        {
+          "path": "frontend dist embedded in usr/bin/babel-desktop"
+        }
+      ],
+      "refs": [
+        "pdf-viewer/pdfjs-dist-6.3.289-LICENSE.txt",
+        "editor-licenses/prosemirror-model-1.25.12.txt",
+        "editor-licenses/prosemirror-state-1.4.4.txt",
+        "editor-licenses/prosemirror-history-1.5.0.txt",
+        "editor-licenses/prosemirror-view-1.42.6.txt",
+        "editor-licenses/prosemirror-transform-1.12.2.txt",
+        "editor-licenses/orderedmap-2.1.1.txt",
+        "editor-licenses/rope-sequence-1.3.4.txt"
+      ]
+    },
+    {
+      "package": "host prerequisites (NOT bundled, NOT redistributed)",
+      "kind": "host",
+      "version": "",
+      "declared": "",
+      "upstream": "",
+      "note": "Loaded from the host at runtime or required around the package; no notice text is retained because nothing is redistributed.",
+      "texts": [],
+      "stems": [],
+      "bundled": [],
+      "host": [
+        {
+          "name": "/lib64/ld-linux-x86-64.so.2",
+          "resolved": "/usr/lib64/ld-linux-x86-64.so.2",
+          "neededBy": [
+            "WebKitNetworkProcess",
+            "WebKitWebProcess",
+            "babel-desktop"
+          ],
+          "note": "Loaded from the host; not bundled, not redistributed."
+        },
+        {
+          "name": "libEGL.so.1",
+          "resolved": "/usr/lib/libEGL.so.1",
+          "neededBy": [
+            "WebKitNetworkProcess",
+            "WebKitWebProcess",
+            "babel-desktop"
+          ],
+          "note": "Loaded from the host; not bundled, not redistributed."
+        },
+        {
+          "name": "libGLX.so.0",
+          "resolved": "/usr/lib/libGLX.so.0",
+          "neededBy": [
+            "WebKitNetworkProcess",
+            "WebKitWebProcess",
+            "babel-desktop"
+          ],
+          "note": "Loaded from the host; not bundled, not redistributed."
+        },
+        {
+          "name": "libGLdispatch.so.0",
+          "resolved": "/usr/lib/libGLdispatch.so.0",
+          "neededBy": [
+            "WebKitNetworkProcess",
+            "WebKitWebProcess",
+            "babel-desktop"
+          ],
+          "note": "Loaded from the host; not bundled, not redistributed."
+        },
+        {
+          "name": "libX11-xcb.so.1",
+          "resolved": "/usr/lib/libX11-xcb.so.1",
+          "neededBy": [
+            "WebKitNetworkProcess",
+            "WebKitWebProcess",
+            "babel-desktop"
+          ],
+          "note": "Loaded from the host; not bundled, not redistributed."
+        },
+        {
+          "name": "libX11.so.6",
+          "resolved": "/usr/lib/libX11.so.6",
+          "neededBy": [
+            "WebKitNetworkProcess",
+            "WebKitWebProcess",
+            "babel-desktop"
+          ],
+          "note": "Loaded from the host; not bundled, not redistributed."
+        },
+        {
+          "name": "libc.so.6",
+          "resolved": "/usr/lib/libc.so.6",
+          "neededBy": [
+            "WebKitNetworkProcess",
+            "WebKitWebProcess",
+            "babel-desktop"
+          ],
+          "note": "Loaded from the host; not bundled, not redistributed."
+        },
+        {
+          "name": "libcom_err.so.2",
+          "resolved": "/usr/lib/libcom_err.so.2",
+          "neededBy": [
+            "WebKitNetworkProcess",
+            "WebKitWebProcess",
+            "babel-desktop"
+          ],
+          "note": "Loaded from the host; not bundled, not redistributed."
+        },
+        {
+          "name": "libdrm.so.2",
+          "resolved": "/usr/lib/libdrm.so.2",
+          "neededBy": [
+            "WebKitNetworkProcess",
+            "WebKitWebProcess",
+            "babel-desktop"
+          ],
+          "note": "Loaded from the host; not bundled, not redistributed."
+        },
+        {
+          "name": "libexpat.so.1",
+          "resolved": "/usr/lib/libexpat.so.1",
+          "neededBy": [
+            "WebKitNetworkProcess",
+            "WebKitWebProcess",
+            "babel-desktop"
+          ],
+          "note": "Loaded from the host; not bundled, not redistributed."
+        },
+        {
+          "name": "libfontconfig.so.1",
+          "resolved": "/usr/lib/libfontconfig.so.1",
+          "neededBy": [
+            "WebKitNetworkProcess",
+            "WebKitWebProcess",
+            "babel-desktop"
+          ],
+          "note": "Loaded from the host; not bundled, not redistributed."
+        },
+        {
+          "name": "libfreetype.so.6",
+          "resolved": "/usr/lib/libfreetype.so.6",
+          "neededBy": [
+            "WebKitNetworkProcess",
+            "WebKitWebProcess",
+            "babel-desktop"
+          ],
+          "note": "Loaded from the host; not bundled, not redistributed."
+        },
+        {
+          "name": "libfribidi.so.0",
+          "resolved": "/usr/lib/libfribidi.so.0",
+          "neededBy": [
+            "WebKitNetworkProcess",
+            "WebKitWebProcess",
+            "babel-desktop"
+          ],
+          "note": "Loaded from the host; not bundled, not redistributed."
+        },
+        {
+          "name": "libgbm.so.1",
+          "resolved": "/usr/lib/libgbm.so.1",
+          "neededBy": [
+            "WebKitNetworkProcess",
+            "WebKitWebProcess",
+            "babel-desktop"
+          ],
+          "note": "Loaded from the host; not bundled, not redistributed."
+        },
+        {
+          "name": "libgcc_s.so.1",
+          "resolved": "/usr/lib/libgcc_s.so.1",
+          "neededBy": [
+            "WebKitNetworkProcess",
+            "WebKitWebProcess",
+            "babel-desktop"
+          ],
+          "note": "Loaded from the host; not bundled, not redistributed."
+        },
+        {
+          "name": "libgpg-error.so.0",
+          "resolved": "/usr/lib/libgpg-error.so.0",
+          "neededBy": [
+            "WebKitNetworkProcess",
+            "WebKitWebProcess",
+            "babel-desktop"
+          ],
+          "note": "Loaded from the host; not bundled, not redistributed."
+        },
+        {
+          "name": "libharfbuzz.so.0",
+          "resolved": "/usr/lib/libharfbuzz.so.0",
+          "neededBy": [
+            "WebKitNetworkProcess",
+            "WebKitWebProcess",
+            "babel-desktop"
+          ],
+          "note": "Loaded from the host; not bundled, not redistributed."
+        },
+        {
+          "name": "libm.so.6",
+          "resolved": "/usr/lib/libm.so.6",
+          "neededBy": [
+            "WebKitNetworkProcess",
+            "WebKitWebProcess",
+            "babel-desktop"
+          ],
+          "note": "Loaded from the host; not bundled, not redistributed."
+        },
+        {
+          "name": "libresolv.so.2",
+          "resolved": "/usr/lib/libresolv.so.2",
+          "neededBy": [
+            "WebKitNetworkProcess",
+            "WebKitWebProcess",
+            "babel-desktop"
+          ],
+          "note": "Loaded from the host; not bundled, not redistributed."
+        },
+        {
+          "name": "libstdc++.so.6",
+          "resolved": "/usr/lib/libstdc++.so.6",
+          "neededBy": [
+            "WebKitNetworkProcess",
+            "WebKitWebProcess",
+            "babel-desktop"
+          ],
+          "note": "Loaded from the host; not bundled, not redistributed."
+        },
+        {
+          "name": "libwayland-client.so.0",
+          "resolved": "/usr/lib/libwayland-client.so.0",
+          "neededBy": [
+            "WebKitNetworkProcess",
+            "WebKitWebProcess",
+            "babel-desktop"
+          ],
+          "note": "Loaded from the host; not bundled, not redistributed."
+        },
+        {
+          "name": "libxcb.so.1",
+          "resolved": "/usr/lib/libxcb.so.1",
+          "neededBy": [
+            "WebKitNetworkProcess",
+            "WebKitWebProcess",
+            "babel-desktop"
+          ],
+          "note": "Loaded from the host; not bundled, not redistributed."
+        },
+        {
+          "name": "libz.so.1",
+          "resolved": "/usr/lib/libz.so.1",
+          "neededBy": [
+            "WebKitNetworkProcess",
+            "WebKitWebProcess",
+            "babel-desktop"
+          ],
+          "note": "Loaded from the host; not bundled, not redistributed."
+        },
+        {
+          "name": "hunspell dictionaries (<datadir>/hunspell, e.g. /usr/share/hunspell)",
+          "note": "Host prerequisite per ADR 0045; the packaged provider reads them, writing and Save work without them."
+        },
+        {
+          "name": "libfuse2 + FUSE kernel support",
+          "note": "Mounts the AppImage on launch; provided by the host."
+        }
+      ]
+    }
+  ]
+}

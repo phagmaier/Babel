@@ -152,6 +152,42 @@ fn app_info() -> AppInfo {
     screenwriter_core::app_info()
 }
 
+/// Read-only third-party notices for the installed package (M6-14/M6-10).
+/// Native owns disk: the frontend never sends a path. A missing or empty
+/// file is an explicit unavailability, never invented content.
+#[derive(serde::Serialize)]
+struct ThirdPartyNotices {
+    text: String,
+}
+
+fn read_notices_file(path: &std::path::Path) -> Result<String, &'static str> {
+    let text = std::fs::read_to_string(path).map_err(|_| "noticesUnavailable")?;
+    if text.trim().is_empty() {
+        return Err("noticesUnavailable");
+    }
+    Ok(text)
+}
+
+#[tauri::command]
+fn third_party_notices(app: tauri::AppHandle) -> Result<ThirdPartyNotices, String> {
+    let path = app
+        .path()
+        .resolve(
+            "THIRD-PARTY-NOTICES.md",
+            tauri::path::BaseDirectory::Resource,
+        )
+        .map_err(|_| {
+            "Third-party notices ship with the installed package; they are unavailable here."
+                .to_string()
+        })?;
+    read_notices_file(&path)
+        .map(|text| ThirdPartyNotices { text })
+        .map_err(|_| {
+            "Third-party notices ship with the installed package; they are unavailable here."
+                .to_string()
+        })
+}
+
 /// Route the native close through the actual registration guard. Preventing
 /// close precedes notification, so a lost frontend event cannot destroy a draft.
 /// An unprotected termination failure logs attention but earns no persistence
@@ -306,6 +342,7 @@ pub fn run() {
     let builder = builder.manage(SpellcheckHost::default());
     let builder = builder.invoke_handler(tauri::generate_handler![
         app_info,
+        third_party_notices,
         update_command_menu,
         render_publication,
         prepare_pdf_capture,
@@ -373,6 +410,32 @@ mod tests {
     #[test]
     fn command_exposes_core_build_information() {
         assert_eq!(app_info(), screenwriter_core::app_info());
+    }
+
+    #[test]
+    fn notices_read_from_disk_and_refuse_missing_or_empty_files() {
+        let dir = std::env::temp_dir().join("babel-notices-test");
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).expect("fixture dir");
+        let file = dir.join("THIRD-PARTY-NOTICES.md");
+        assert_eq!(
+            read_notices_file(&file),
+            Err("noticesUnavailable"),
+            "a missing notice file is an explicit unavailability"
+        );
+        std::fs::write(&file, "  \n").expect("fixture file");
+        assert_eq!(
+            read_notices_file(&file),
+            Err("noticesUnavailable"),
+            "an empty notice file is an explicit unavailability"
+        );
+        std::fs::write(&file, "# babel third-party notices\n").expect("fixture file");
+        let text = read_notices_file(&file).expect("notice text");
+        assert!(
+            text.contains("third-party notices"),
+            "verbatim file bytes: {text}"
+        );
+        let _ = std::fs::remove_dir_all(&dir);
     }
 
     #[test]

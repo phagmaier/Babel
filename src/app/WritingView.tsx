@@ -62,6 +62,11 @@ import { FindPanel } from './FindPanel';
 import { FindController } from '../application/find';
 import { highlightFind } from '../editor/find';
 import { ScriptCheckPanel } from './ScriptCheckPanel';
+import { ThirdPartyNotices } from './ThirdPartyNotices';
+import {
+  nativeThirdPartyNotices,
+  unavailableThirdPartyNotices,
+} from '../infrastructure/nativeThirdPartyNotices';
 import {
   ScriptCheckController,
   visibleIssues,
@@ -133,6 +138,11 @@ export interface WritingPorts {
   exportAssessment?: import('../application/exportAssessment').ExportAssessmentPort;
   workflows: import('../application/workflowProtection').WorkflowProtectionPort;
 }
+
+const noticesPort =
+  '__TAURI_INTERNALS__' in window
+    ? nativeThirdPartyNotices
+    : unavailableThirdPartyNotices;
 
 export type OpenRequest =
   | { kind: 'new'; destination?: boolean }
@@ -241,6 +251,7 @@ export function WritingView({
   const [paletteRequested, requestPalette] = useState(0);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [commandComposing, setCommandComposing] = useState(false);
+  const [noticesOpen, setNoticesOpen] = useState(false);
   useEffect(() => {
     const start = () => setCommandComposing(true);
     const end = () => setCommandComposing(false);
@@ -1675,6 +1686,9 @@ export function WritingView({
         case 'titlePage':
           openTitle();
           break;
+        case 'thirdPartyNotices':
+          setNoticesOpen(true);
+          break;
         case 'focusMode':
           preferences.update({
             focus: !preferences.getSnapshot().settings.focus,
@@ -2247,6 +2261,11 @@ export function WritingView({
       {toolsOpen && <div className="writing-drawer">{toolPanels}</div>}
       {navigatorPanels}
       {hosts}
+      <ThirdPartyNotices
+        port={noticesPort}
+        open={noticesOpen}
+        onClose={() => setNoticesOpen(false)}
+      />
       <div className="writing-tail">
         {session && session.active && showClose && !closeWorking && (
           <ProtectedClosePanel

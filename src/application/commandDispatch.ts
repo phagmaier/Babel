@@ -27,6 +27,9 @@ export function commandReason(
   if (context.blocked)
     return 'Finish the current action or protection review first.';
   if (command.id === 'commandPalette') return null;
+  // Notices are package metadata, not screenplay state; reachable from Home.
+  if (command.id === 'thirdPartyNotices' && context.route === 'home')
+    return null;
   if (!context.native) return 'Requires the native desktop app.';
   if (!context.ready) return 'The screenplay is not ready.';
   if (context.staged)

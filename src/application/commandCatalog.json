@@ -328,6 +328,14 @@
     "group": "Tools"
   },
   {
+    "id": "thirdPartyNotices",
+    "label": "Third-party notices",
+    "scope": "application",
+    "binding": null,
+    "unavailable": null,
+    "group": "Tools"
+  },
+  {
     "id": "characters",
     "label": "Characters and counts",
     "scope": "application",

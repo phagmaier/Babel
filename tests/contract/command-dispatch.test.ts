@@ -109,10 +109,20 @@ describe('M4-14 shared live command boundary', () => {
   it('Home invokes only existing entry services and preview retains enabled palette', () => {
     const execute = vi.fn();
     const context = { ...writing, route: 'home' as const };
-    for (const id of ['new', 'newDestination', 'open'])
+    for (const id of ['new', 'newDestination', 'open', 'thirdPartyNotices'])
       expect(dispatchCommand(id, context, execute)).toBe(true);
     for (const id of ['save', 'home', 'nextScene', 'undo'])
       expect(dispatchCommand(id, context, execute)).toBe(false);
+    expect(dispatchCommand('thirdPartyNotices', writing, execute)).toBe(true);
+    // Like the palette, notices dispatch without native services; the dialog
+    // then reports that notices ship with the installed package.
+    expect(
+      dispatchCommand(
+        'thirdPartyNotices',
+        { ...context, native: false },
+        execute,
+      ),
+    ).toBe(true);
     expect(
       dispatchCommand('commandPalette', { ...context, native: false }, execute),
     ).toBe(true);

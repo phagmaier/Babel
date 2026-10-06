@@ -27,7 +27,8 @@
     "targets": ["appimage"],
     "icon": ["icons/icon.png"],
     "resources": {
-      "../target/pdf-helper/runtime/": "pdf-helper/"
+      "../target/pdf-helper/runtime/": "pdf-helper/",
+      "../docs/third-party/NOTICES.md": "THIRD-PARTY-NOTICES.md"
     },
     "linux": {
       "appimage": {

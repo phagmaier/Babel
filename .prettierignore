@@ -9,3 +9,5 @@ prototypes/pdf/corpus
 prototypes/pdf/out
 SPEC.md
 AGENTS.md
+# Retained verbatim licence texts are byte-records; never reformat.
+docs/third-party/package-licenses
