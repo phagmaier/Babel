@@ -1,7 +1,7 @@
 # AUDIT-MARKER-WARNINGS — located review for original marker warning spans
 
 2026-10-05, main from clean `50cd9cb`, local only.
-[Brief](../tasks/AUDIT-MARKER-WARNINGS.md). **Complete:** exactly two retained
+[Brief](../archive/tasks/AUDIT-MARKER-WARNINGS.md). **Complete:** exactly two retained
 note-warning gaps and one boneyard-warning gap now have located blocking SC005.
 The helper detects marker patterns over original source, including matches
 crossing regions or paragraphs that assessment previously reported separately.

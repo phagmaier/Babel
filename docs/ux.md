@@ -90,7 +90,7 @@ invalidates old risk acceptance. A verified copy never marks the source saved.
 Native default-build and injected UI evidence is linked from
 [M3-12](test-evidence/M3.md#m3-12--production-writing-lifecycle-and-failure-ui).
 
-The [M3-13 review](reviews/2026-09-29-m3-13-review.md) identified stale protection facts, uncapturable-draft copy refusal, unsaved restart recovery without a resume route, and read-only Save As refusal. The [audit corrections](test-evidence/M3.md#repository-audit-corrections) add immediate live-version status, an explicitly labeled draft bundle when Fountain capture fails, Resume as new draft with original checkpoints retained, and native Save As from read-only views. Their bounded validation is recorded separately from the original review. An independent integrated exit review remains required.
+The [M3-13 review](archive/reviews/2026-09-29-m3-13-review.md) identified stale protection facts, uncapturable-draft copy refusal, unsaved restart recovery without a resume route, and read-only Save As refusal. The [audit corrections](test-evidence/M3.md#repository-audit-corrections) add immediate live-version status, an explicitly labeled draft bundle when Fountain capture fails, Resume as new draft with original checkpoints retained, and native Save As from read-only views. Their bounded validation is recorded separately from the original review. An independent integrated exit review remains required.
 
 ## M4-02 Home, entry and recovery
 
@@ -139,7 +139,7 @@ behind Inspect. Inspect later permits read-only navigation; title, spelling,
 find/move and Import authorship stay gated as well. Successful choice returns
 focus through the owned editor view with its selection retained. Interrupted saves and
 malformed/missing-source emergency copies remain available. No automatic adoption
-or journal retirement. [AUDIT-D02 brief](tasks/AUDIT-D02.md) owns this amendment;
+or journal retirement. [AUDIT-D02 brief](archive/tasks/AUDIT-D02.md) owns this amendment;
 its evidence preserves the historical explicit-choice checks. Native tmpfs/Btrfs and injected
 UI coverage, actual warm Home observations and accessibility limits live in
 [M4-02 evidence](test-evidence/M4.md#m4-02--home-and-recovery-workflows).

@@ -4,7 +4,7 @@ Shared evidence file for `docs/tasks/AUDIT-*.md` briefs. `AUDIT.md` is frozen; p
 
 ## AUDIT-W0 — CI gate, desktop crate types, dead symbols
 
-Date: 2026-10-03. Base `d7e700f`, `main`, no push. Host: Linux x86_64 over SSH (no display); node 26.7.0, pnpm 11.22.0, Rust 1.97.1 (`RUSTUP_TOOLCHAIN=1.97.1`, `CARGO_HOME=/tmp/babel-cargo`). [Brief](../tasks/AUDIT-W0.md).
+Date: 2026-10-03. Base `d7e700f`, `main`, no push. Host: Linux x86_64 over SSH (no display); node 26.7.0, pnpm 11.22.0, Rust 1.97.1 (`RUSTUP_TOOLCHAIN=1.97.1`, `CARGO_HOME=/tmp/babel-cargo`). [Brief](../archive/tasks/AUDIT-W0.md).
 
 Tier 2, single filesystem (test roots on tmpfs `/tmp`). No Tier 3 matrix: no filesystem/IPC/packaging behavior change; the crate-type edit relinks identical code; the one moved Rust test keeps its body and `BABEL_RECOVERY_TEST_ROOT` selector. No `tauri build`, browser smoke or native/WebView run.
 
@@ -44,7 +44,7 @@ Tier 2, single filesystem (test roots on tmpfs `/tmp`). No Tier 3 matrix: no fil
 
 ## AUDIT-C01 — capture stays possible on standard Fountain edits and edge-space emphasis
 
-Date: 2026-10-03. Base `004bd6d`, `main`, no push. Same host and toolchains as AUDIT-W0. [Brief](../tasks/AUDIT-C01.md).
+Date: 2026-10-03. Base `004bd6d`, `main`, no push. Same host and toolchains as AUDIT-W0. [Brief](../archive/tasks/AUDIT-C01.md).
 
 Tier 2, single filesystem. No Tier 3 matrix: frontend codec/editor/UI state only; no Rust, filesystem, IPC or packaging change. **All evidence is mocked (vitest/JSDOM); typing is ProseMirror `tr.insertText`, not native WebView input.** No native drill was run.
 
@@ -86,7 +86,7 @@ The audit finder's random fuzz script is not in the repository; the deterministi
 
 ## AUDIT-C04 — a caret move no longer rewrites the manuscript
 
-Date: 2026-10-03. Base `fe103bf`, `main`, no push. Same host and toolchains; native runs used the live Hyprland session over SSH. [Brief](../tasks/AUDIT-C04.md).
+Date: 2026-10-03. Base `fe103bf`, `main`, no push. Same host and toolchains; native runs used the live Hyprland session over SSH. [Brief](../archive/tasks/AUDIT-C04.md).
 
 Tier 3 (`source_store.rs` is a filesystem-matrix path). Logs and JSON reports: `target/audit-c04/matrix/`; drill artifacts: `/tmp/babel-writing-eikyub67`, `target/babel-writing-mlti69k5`.
 
@@ -124,7 +124,7 @@ Tier 3 (`source_store.rs` is a filesystem-matrix path). Logs and JSON reports: `
 
 ## AUDIT-D01 — portable Enter separators and explicit speech/break authoring
 
-Date: 2026-10-03. Base `bc1476e`, clean main at claim; no push. [Brief](../tasks/AUDIT-D01.md). Same pinned toolchains as above. Tier 2, frontend-only; no filesystem/IPC/packaging changes, no second-filesystem matrix or native WebView drill. Browser smoke required; native Rust gates exercise existing services, not editor input. D-07's independent renderer/native scene oracle remains separate.
+Date: 2026-10-03. Base `bc1476e`, clean main at claim; no push. [Brief](../archive/tasks/AUDIT-D01.md). Same pinned toolchains as above. Tier 2, frontend-only; no filesystem/IPC/packaging changes, no second-filesystem matrix or native WebView drill. Browser smoke required; native Rust gates exercise existing services, not editor input. D-07's independent renderer/native scene oracle remains separate.
 
 ### Checks
 
@@ -180,7 +180,7 @@ Date: 2026-10-03. Base `bc1476e`, clean main at claim; no push. [Brief](../tasks
 ## AUDIT-D08A — protected external Reload
 
 Date: 2026-10-03. Base `2bc2311`, clean main at claim; owner permits a warranted
-push. Same pinned toolchains/host as above, unrestricted environment. [Brief](../tasks/AUDIT-D08A.md).
+push. Same pinned toolchains/host as above, unrestricted environment. [Brief](../archive/tasks/AUDIT-D08A.md).
 Tier 3: native IPC, metadata/ownership/baseline behavior and protected disk adoption.
 All fixtures synthetic/disposable; frozen AUDIT.md unchanged. Editor/JSDOM tests
 remain mocked; source-store/IPC tests use actual files, IPC uses MockRuntime.
@@ -252,7 +252,7 @@ close the older C1/F2 failures. Final push/CI state is reported in the owner han
 
 Date: 2026-10-03. Base `e284a33`, main, owner continuation. Same pinned Linux
 x86_64 host/toolchains as D08A; `RUSTUP_TOOLCHAIN=1.97.1`,
-`CARGO_HOME=/tmp/babel-cargo`. [Brief](../tasks/AUDIT-W0-R1.md).
+`CARGO_HOME=/tmp/babel-cargo`. [Brief](../archive/tasks/AUDIT-W0-R1.md).
 
 Tier 3: dependency/build cross-boundary failure, temporary-prefix native linking
 and packaging checks. Application Enchant adapter/PWL/ownership behavior is
@@ -304,7 +304,7 @@ installed-distribution acceptance or full integrated/native-editor claim.
 ## AUDIT-C356 — Literal escapes, SELinux metadata and advisory highlights
 
 Date: 2026-10-03. Base `08986eb`, clean main at claim; owner authorizes warranted
-push. [Brief](../tasks/AUDIT-C356.md). Same pinned host toolchains; Tier 3 for
+push. [Brief](../archive/tasks/AUDIT-C356.md). Same pinned host toolchains; Tier 3 for
 native metadata. Frozen audit and all prior failed roots/logs/cores preserved.
 
 - `gh run view 37158997960 --json status,conclusion,headSha,url,jobs` — actual CI **pass** on `08986eb`, both frontend/core and native-linux jobs successful; no prior expensive suite rerun for the documentation commit.
@@ -353,7 +353,7 @@ M6-02 disposition and Local v1 admission remain open. Stop after C356.
 ## AUDIT-TEST — Wave 2 regression gaps
 
 Date: 2026-10-03. Base `fb7d6bd`, clean main at claim. Authorized continuation
-from Wave 1; [brief](../tasks/AUDIT-TEST.md). Node 26.7.0, pnpm 11.22.0,
+from Wave 1; [brief](../archive/tasks/AUDIT-TEST.md). Node 26.7.0, pnpm 11.22.0,
 Rust 1.97.1 and host Enchant 2.8.21 verified. Tier 2 frontend/session change;
 frozen audit, earlier failures/cores, fixtures and PDF goldens preserved.
 
@@ -402,7 +402,7 @@ M6-02 and Local v1 admission stay open.
 
 ## AUDIT-SLP-A — unused import, read, relink and status paths
 
-Base `09d496f`, main, 2026-10-03. S-06/S-07/S-09/S-10; [brief](../tasks/AUDIT-SLP-A.md). Sole workflow import preserves existing coordinator refusal wording, staged text, exact safety protection and Undo. Removed read IPC is covered through native entry/release and internal registration oracles; approved native-only relink deletion retains M4-01 locate/confirm coverage. Unmounted SaveStatus assertions now exercise WritingView. `AUDIT.md`, byte-sensitive fixtures, dependencies and PDF pins/goldens remain unchanged. Artifacts below are retained under `target/audit-slp-a/` unless absolute roots are named.
+Base `09d496f`, main, 2026-10-03. S-06/S-07/S-09/S-10; [brief](../archive/tasks/AUDIT-SLP-A.md). Sole workflow import preserves existing coordinator refusal wording, staged text, exact safety protection and Undo. Removed read IPC is covered through native entry/release and internal registration oracles; approved native-only relink deletion retains M4-01 locate/confirm coverage. Unmounted SaveStatus assertions now exercise WritingView. `AUDIT.md`, byte-sensitive fixtures, dependencies and PDF pins/goldens remain unchanged. Artifacts below are retained under `target/audit-slp-a/` unless absolute roots are named.
 
 - `python3 target/audit-slp-a/check-removed.py` before production edits — expected **red**, all ten obsolete surfaces/registrations present; `removed-red.log`. Equivalent check is now tracked in `tools/audit-test-mutations.py --slp-a`.
 - Initial `pnpm typecheck` — **fail**, seven remaining migration sites (obsolete reader/import adapter/constructor and view fixture); corrected to the live entry/coordinator contracts, `types-initial.log`; `types-rewire.log` and `types-status.log` **pass**.
@@ -432,7 +432,7 @@ Acceptance complete for this deletion cluster. Eight added live import/status ca
 
 Base `d463656`, clean main, 2026-10-03. S-02 precedes S-01; S-03/S-04 retired
 with their composition page caller; S-11 follows ported candidate tests.
-[Brief](../tasks/AUDIT-SLP-B.md). No production codec/writer behavior changes.
+[Brief](../archive/tasks/AUDIT-SLP-B.md). No production codec/writer behavior changes.
 Kept exact composition fixtures/seed/ignore rule and native backend, independent
 Screenplain renderer/PDF inputs, all independent oracles and history-store.
 Historical evidence/failed artifacts remain; deleted-source links use the last
@@ -474,7 +474,7 @@ closure, and the two crash records describe one event, not duplicate crashes.
 
 ## AUDIT-SLP-C — unused complex codec edit APIs
 
-Base `186ea59`, clean main at claim, 2026-10-03. [Brief](../tasks/AUDIT-SLP-C.md).
+Base `186ea59`, clean main at claim, 2026-10-03. [Brief](../archive/tasks/AUDIT-SLP-C.md).
 S-08 deletion only; no live editor/native/persistence behavior or dependency
 change. Removed unused inline/hidden/conversion APIs, proposal state/type/error
 and bypass parameters. Supported inline/Note/title edits now tested through
@@ -506,7 +506,7 @@ Final changed-doc formatting/link/diff checks recorded below.
 ## AUDIT-SIMP-N — shared native workers and storage/test primitives
 
 Base `653f037`, clean main/four local commits ahead at claim, 2026-10-03.
-[Brief](../tasks/AUDIT-SIMP-N.md). Accepted X-01/05/02/03 only. Nine simple
+[Brief](../archive/tasks/AUDIT-SIMP-N.md). Accepted X-01/05/02/03 only. Nine simple
 DocumentError workers plus prior snapshot/recent/startup callers share the
 cost-aware worker; payload-before-reserve and error/permit behavior retained.
 One handler list preserves all four cfg inventories. Shared test-only TestRoot
@@ -546,7 +546,7 @@ Final changed-document and boundary checks recorded below.
 ## AUDIT-SIMP-F — frontend guard and native dispatch simplification
 
 Base `ef0ff02`, clean main/five local commits ahead at claim, 2026-10-03.
-[Brief](../tasks/AUDIT-SIMP-F.md). Accepted X-04 cleanup/three throwing locks,
+[Brief](../archive/tasks/AUDIT-SIMP-F.md). Accepted X-04 cleanup/three throwing locks,
 X-06 13 full editor-state guards +9 full stamp guards/six constructions, X-08
 one error-code constant/derived type/runtime allow-list and X-07 ordered uniform
 dispatch. Current native table has 22 uniform modes (frozen audit's 21 plus
@@ -596,7 +596,7 @@ Final canonical release restoration and document checks recorded below.
 
 ## AUDIT-D06 — plain status and failure-only close prompts
 
-2026-10-03; base `200e375`, main/local only. [Brief](../tasks/AUDIT-D06.md).
+2026-10-03; base `200e375`, main/local only. [Brief](../archive/tasks/AUDIT-D06.md).
 Tier 2: frontend presentation/routing only; native adapters, IPC, save/recovery/
 identity/lease/publication algorithms and existing receipt/version policies are
 unchanged, so no repeated Rust filesystem matrix. Native lifecycle samples use
@@ -639,7 +639,7 @@ Final artifact-retention and document checks follow.
 
 ## AUDIT-NATIVE-R1 — F6 focus and private Mozc
 
-2026-10-04; base `fcfade8`, main/local only. [Brief](../tasks/AUDIT-NATIVE-R1.md).
+2026-10-04; base `fcfade8`, main/local only. [Brief](../archive/tasks/AUDIT-NATIVE-R1.md).
 Tier 2 application focus fix plus native test prerequisites: no production
 save/recovery/IPC/filesystem/packaging/pin changes, so no repeated Rust filesystem
 matrix. Named WebKit drills cover tmpfs/Btrfs. Artifacts: `target/audit-native-r1/`.
@@ -768,7 +768,7 @@ admission remain open; clean reruns do not resolve them.
 
 ## AUDIT-D03A — on-screen screenplay element styling
 
-[Brief](../tasks/AUDIT-D03.md), base `ffede1d`. Tier 2: CSS, browser check and docs only; no Rust,
+[Brief](../archive/tasks/AUDIT-D03.md), base `ffede1d`. Tier 2: CSS, browser check and docs only; no Rust,
 IPC, schema, capture or persistence change, so Rust shared gates ran on one
 filesystem. Native modes still ran on tmpfs/Btrfs. Artifacts: `target/audit-d03/`.
 Host and pins as in [development](../development.md); `FORCE_COLOR` unset for browser runs.
@@ -787,7 +787,7 @@ Omitted: Btrfs 200% zoom/IME/completion geometry under the new layout (blocked b
 
 ## AUDIT-D03B — writing layout shell
 
-[Brief](../tasks/AUDIT-D03.md#slice-b-audit-d03b--layout-shell-m), base `21a6180`. Tier 2: JSX regions, CSS, one
+[Brief](../archive/tasks/AUDIT-D03.md#slice-b-audit-d03b--layout-shell-m), base `21a6180`. Tier 2: JSX regions, CSS, one
 header-height CSS variable, tests and docs; no Rust, IPC, schema, capture, command
 or persistence change, so Rust shared gates ran on one filesystem. Native modes
 ran on tmpfs/Btrfs. Artifacts: `target/audit-d03/`. `FORCE_COLOR` unset for browser runs.
@@ -815,7 +815,7 @@ Omitted: narrow-window stack and 1100–1440px widths on native WebKit (Chromium
 
 ## AUDIT-D04 — non-blocking omissions and inline-note assessment
 
-[Brief](../tasks/AUDIT-D04.md), base `02dc86c`. Tier 2: frontend domain, export
+[Brief](../archive/tasks/AUDIT-D04.md), base `02dc86c`. Tier 2: frontend domain, export
 controller, two panels, tests, drills and docs; no Rust, IPC, helper, profile or
 pin change, so Rust shared gates ran on one filesystem. Native modes ran on
 tmpfs/Btrfs with `target/release/babel-desktop` in place beside its helper.
@@ -862,7 +862,7 @@ were session scratch only and are not retained.
 
 ## AUDIT-D07 — typed-scene oracle
 
-[Brief](../tasks/AUDIT-D07.md), base `718c6e8`. Tier 1: tests, one new fixture
+[Brief](../archive/tasks/AUDIT-D07.md), base `718c6e8`. Tier 1: tests, one new fixture
 and docs; no product source change. Mounted editor in JSDOM with the real
 completion popup and shortcut registry; not native proof.
 
@@ -884,7 +884,7 @@ Findings, each pinned as found in `tests/contract/typed-scene.test.ts` and track
 
 ## AUDIT-D04-R2 — renderer/codec disagreement sweep
 
-[Brief](../tasks/AUDIT-D04-R2.md), base `30f05d8`. Tier 2: frontend domain
+[Brief](../archive/tasks/AUDIT-D04-R2.md), base `30f05d8`. Tier 2: frontend domain
 assessment, corpus and docs; no codec, Rust, IPC, helper, profile or pin change.
 The helper's rendered PDF text is the authority; vitest is the assessment side.
 
@@ -906,7 +906,7 @@ treats capitals as print style, it is one guard to remove.
 
 ## AUDIT-PARK — confirm-first parking verdicts
 
-[Brief](../tasks/AUDIT-PARK.md), base `0a80fa7`. Tier 1/2: tests, one corpus
+[Brief](../archive/tasks/AUDIT-PARK.md), base `0a80fa7`. Tier 1/2: tests, one corpus
 case and docs; no product source change. Two native facts were checked with
 scratch integration tests against the real `screenwriter-core` crate in a
 throwaway crate outside the repository (session scratch, not committed: Rust
@@ -932,7 +932,7 @@ changes are out of scope), on ext4 under `/tmp`, as uid 0.
 
 ## AUDIT-D04-R1 — all-empty leading Key: block
 
-[Brief](../tasks/AUDIT-D04-R1.md), base `aad1e83`. Owner-approved rule (this
+[Brief](../archive/tasks/AUDIT-D04-R1.md), base `aad1e83`. Owner-approved rule (this
 session): a leading `Key:` block is a title page only if at least one field has
 a value, on its key line or as an indented continuation; otherwise it is body
 text. Tier 2: frontend codec/title domain, assessment, tests and docs; no Rust,
@@ -1016,7 +1016,7 @@ Final, reviewed tree:
 
 ## AUDIT-D04-R3 — remaining renderer/codec reading differences
 
-[Brief](../tasks/AUDIT-D04-R3.md), base `bb0fd45`. Host: owner laptop, uid 1000,
+[Brief](../archive/tasks/AUDIT-D04-R3.md), base `bb0fd45`. Host: owner laptop, uid 1000,
 Hyprland, repository on Btrfs, `/tmp` tmpfs. Tier 2: frontend domain assessment,
 corpus, tests and docs; no codec, Rust, IPC, helper, profile, font or pin
 change. The helper's rendered PDF and the pinned parser's own classification
@@ -1049,7 +1049,7 @@ are the authority; vitest is the assessment side.
 
 ## AUDIT-D07-N — native typed-export drill
 
-[Brief](../tasks/AUDIT-D07-N.md), base `c36c7d7`. Tier 1: one native drill
+[Brief](../archive/tasks/AUDIT-D07-N.md), base `c36c7d7`. Tier 1: one native drill
 mode, harness wiring and docs; no product source, fixture, Rust, IPC, helper,
 profile or pin change. Host and binary as in AUDIT-D04-R3 (`3578c0b8…`, built
 from that commit's tree; `sha256sum -c` still matches). Native proof on the live
@@ -1066,7 +1066,7 @@ Hyprland session: real WebKit/GTK, no mocked port.
 
 ## AUDIT-PARK-H — empty Scene Heading capture
 
-[Brief](../tasks/AUDIT-PARK-H.md), base `53a4b65`. Tier 1: tests, one native
+[Brief](../archive/tasks/AUDIT-PARK-H.md), base `53a4b65`. Tier 1: tests, one native
 drill mode and docs; **no product source change**. JSDOM tests use the mounted
 editor and mocked native ports. Native proof is the real release app (binary
 `3578c0b8…`, unchanged) on tmpfs and Btrfs with disposable synthetic text;
@@ -1095,7 +1095,7 @@ only the drill's own app is killed. Everything is pinned as found.
 
 ## AUDIT-PARK-H-F1 — new hidden row capture
 
-- Base `86ce08d`; owner authorizes sourceBridge only for product capture changes, plus native phase D's Omitted-material gap. [Brief](../tasks/AUDIT-PARK-H-F1.md); logs `target/audit-park-h-f1/`. Empty-heading intent/alerts and other owner-decision tasks unchanged; no push.
+- Base `86ce08d`; owner authorizes sourceBridge only for product capture changes, plus native phase D's Omitted-material gap. [Brief](../archive/tasks/AUDIT-PARK-H-F1.md); logs `target/audit-park-h-f1/`. Empty-heading intent/alerts and other owner-decision tasks unchanged; no push.
 - Red before product edits: `mise exec node@26.7.0 pnpm@11.22.0 -- pnpm exec vitest run tests/contract/hidden-row-capture.test.ts tests/contract/empty-row-capture.test.ts tests/ui/WritingView.test.tsx -t AUDIT-PARK-H` — **27 fail, 18 pass**, all failures `Hidden conversion lost its contiguous source ownership` (`red.log`). Initial harness run also had 3 cross-realm typed-array comparisons; corrected to numeric byte arrays without changing byte expectations (`red-initial.log`).
 - First fix run — **43 pass, 2 fail**, newly written EOF expectations appended an LF; corrected to the existing codec's unterminated EOF convention (`focused-first.log`). No incumbent assertion weakened; only owner-named as-found hidden-row cases flipped.
 - Capture now locates contiguous prior rows even when a group's first row is new, or inserts a wholly new group after its nearest surviving source predecessor (index zero without one). The checked concrete transaction owns a missing EOF break when needed; structural reconciliation retains intervening new rows. No codec/native/write-service changes.
@@ -1117,7 +1117,7 @@ only the drill's own app is killed. Everything is pinned as found.
 
 ## AUDIT-PARK-H-F2 — empty Scene Heading recovery intent
 
-- Base `fc43779`; owner delegated task selection/implementation decisions. [Brief](../tasks/AUDIT-PARK-H-F2.md), [pre-edit reach report](../reviews/2026-10-04-empty-heading-intent.md); logs `target/audit-park-h-f2/`. Existing native JSON transport suffices; no save/recovery/journal/IPC/Rust implementation change or new metadata schema. No push authorization.
+- Base `fc43779`; owner delegated task selection/implementation decisions. [Brief](../archive/tasks/AUDIT-PARK-H-F2.md), [pre-edit reach report](../archive/reviews/2026-10-04-empty-heading-intent.md); logs `target/audit-park-h-f2/`. Existing native JSON transport suffices; no save/recovery/journal/IPC/Rust implementation change or new metadata schema. No push authorization.
 - Red before product edits, JSDOM: `pnpm exec vitest run tests/contract/empty-heading-intent.test.ts` — **9 fail, 1 pass**, 1.44s (`red.log`); eight round-trip failures plus the rejected-allowlist diagnostic expectation. Contract/mounted UI `... tests/contract/empty-row-capture.test.ts tests/ui/WritingView.test.tsx -t AUDIT-PARK-H` — **2 fail, 19 pass**, 7.14s, includes one archived contract copy (`red-mounted.log`). Intended capture failures recorded before codec/metadata edits.
 - First green, JSDOM: **30 pass, 1 fail** (`green-first.log`); the mounted WritingView fixture does not render Home after closing. Changed only the new close observation to exact session release/no close refusal, matching the fixture's existing F1 close assertions; no product change or byte assertion relaxed.
 - Focused tracked JSDOM `pnpm exec vitest run --exclude 'target/**' tests/contract/empty-heading-intent.test.ts tests/contract/empty-row-capture.test.ts tests/contract/editor-metadata.test.ts tests/contract/production-fountain.test.ts tests/contract/fountain-complex.test.ts tests/contract/editor-bridge.test.ts tests/ui/WritingView.test.tsx` — **280/280 pass**, 28.65s (`focused.log`): sparse recovery, multiple headings, BOM/CRLF/hidden neighbors, unrelated save/checkpoint, completion/removal, Undo/Redo and stale/incompatible intent guards.
@@ -1143,7 +1143,7 @@ only the drill's own app is killed. Everything is pinned as found.
 
 ## AUDIT-PARK-H-F3 — actionable capture-refusal wording
 
-- Base `5a707b8`; owner delegated wording/implementation decisions. [Brief](../tasks/AUDIT-PARK-H-F3.md); logs `target/audit-park-h-f3/`. Tier 2 frontend: codec error metadata, source-bridge row record and UI text. No capture success path, captured byte, error code/message, native service, IPC or Rust change. No push authorization.
+- Base `5a707b8`; owner delegated wording/implementation decisions. [Brief](../archive/tasks/AUDIT-PARK-H-F3.md); logs `target/audit-park-h-f3/`. Tier 2 frontend: codec error metadata, source-bridge row record and UI text. No capture success path, captured byte, error code/message, native service, IPC or Rust change. No push authorization.
 - Pre-edit probe, JSDOM contract level, base tree: 76 editor operations on synthetic sources, 19 refused; the refused shapes are listed in the brief. Scratch test, removed; its first output is not retained, the post-fix wording for each refused shape is (`probe-wording.out`). Found while probing and **not fixed here**: ordinary typing after a closed parenthetical (`(beat) x`) and a `#number#` suffix typed into a Scene Heading are accepted by the editor and refused by capture, so everything typed afterwards stays unsaved and unjournaled until the row changes. Three staggered bold/italic/underline marks applied by raw transaction fail with a plain `Error`, not a codec refusal; that text is unchanged.
 - Red before product edits, JSDOM: `mise exec node@26.7.0 pnpm@11.22.0 -- pnpm exec vitest run --exclude 'target/**' tests/contract/capture-refusal.test.ts tests/ui/WritingView.test.tsx -t AUDIT-PARK-H-F3` — **11 fail, 3 pass** (`red.log`): missing edit offset, missing `refusedRow`, raw codec text in the wording and mounted alert. The three passes assert behaviour that does not change.
 - First green — **12 pass, 2 fail** (`green-first.log`). Both failures were my expectation, not the product: emptying the first Dialogue row of a speech is refused at the stranded Dialogue below it (`Row 3, the Dialogue “Two.”`), because the empty row itself is a recoverable draft. Tests now pin that attribution and use an emptied numbered heading for the empty-row wording. No product change between the two runs.
@@ -1267,7 +1267,7 @@ only the drill's own app is killed. Everything is pinned as found.
 
 ## AUDIT-D04-R4 — boneyard inside the renderer's opening title block
 
-[Brief](../tasks/AUDIT-D04-R4.md), base `7efc80d`. Host: owner laptop `archlinux`, uid 1000,
+[Brief](../archive/tasks/AUDIT-D04-R4.md), base `7efc80d`. Host: owner laptop `archlinux`, uid 1000,
 Hyprland, repository on Btrfs, `/tmp` tmpfs. Tier 2: frontend domain assessment,
 corpus, differential gate and docs; no codec, parser mirror, Rust, IPC, helper,
 profile, font or pin change. The owner delegated the two open decisions; the
@@ -1288,13 +1288,13 @@ proposed task. Artifacts (ignored): `target/audit-d04-r4-e4ir8I4A/`.
 - Native attempt 1 **failed 0/8** (`native.log`, `native/`): invoked as in AUDIT-D04-R3, without `BABEL_NATIVE_IME_TEMP_ROOT` and without checking inodes first. `/tmp` then had 0 of 1,048,576 inodes free (62 retained IME roots of about 16,180 each; 39% of bytes used). tmpfs pdf-export failed at "Authoritative preview before export" with `No space left on device`, and the other three tmpfs modes could not create their root. On Btrfs all four modes lost the session at Open Fountain and `babel-desktop` aborted with SIGABRT each time; indexed in [native findings](../native-findings.md). The agent's Bash tool also failed with `ENOSPC` until this run's own IME root was removed (its logs are kept in `native-attempt-1-ime/`; no other root was touched).
 - Native attempt 2, same binary, live Hyprland session, isolated IME view on the task's Btrfs root (`native-2.sh`): `BABEL_NATIVE_IME_TEMP_ROOT=<root>/ime BABEL_SHUTDOWN_MODE=ordinary python3 tests/native/writing-lifecycle/isolated_ime.py target/audit-simp-f/prerequisites/prefix -- python3 tests/native/writing-lifecycle/integrated_exit.py /tmp $PWD/target --output <root>/native-2 --modes pdf-export script-check publication-exit title-page` — **8/8 content, 8/8 owned crash audits clean**, 462 s (`native-2.log`, `native-2/results.json`, ledgers and journals), on tmpfs and Btrfs. It does not close the attempt-1 aborts.
 - Not run, with reason: Rust format/Clippy/tests and the tmpfs/Btrfs workspace matrix (no Rust or filesystem path changed); installed or bundled package. The native modes exercise export, Script Check, publication and title-page flows of the rebuilt app in general; none opens one of the new finding sources, so the new SC005 itself is verified by the contract corpus and the helper's PDFs, not natively.
-- Limits: the comparison is still skipped where a boneyard is removed from a codec title field, relying on that line's own SC005. The mirror's column rule for a whitespace value is read from the mirror; the samples exercise a tab, a space plus a tab and a four-space indent. The helper's `unknown-title-fields` warning is still not compared at export ([proposed task](../tasks/AUDIT-EXPORT-WARNINGS.md)).
+- Limits: the comparison is still skipped where a boneyard is removed from a codec title field, relying on that line's own SC005. The mirror's column rule for a whitespace value is read from the mirror; the samples exercise a tab, a space plus a tab and a four-space indent. The helper's `unknown-title-fields` warning is still not compared at export ([proposed task](../archive/tasks/AUDIT-EXPORT-WARNINGS.md)).
 - Final docs, after `pnpm check`: `pnpm format:check` **pass**; `python3 tools/check-links.py --all` **pass**, 1784 links; `python3 tools/check-guidance.py` **pass**, 0 problems; `git diff --cached --check` clean. Current-state 105 lines / 6.4 KiB. No source or test file changed after `pnpm check`.
 - Published with owner authorization: `git push origin main`, `3333402..f2ba0c5`. [CI run](https://github.com/phagmaier/Babel/actions/runs/37313877004) **pass**: `frontend-and-core` and `native-linux`, 9 min 21 s. CI does not run the owner-host native drills.
 
 ## AUDIT-EXPORT-WARNINGS — renderer warnings compared at export
 
-[Brief](../tasks/AUDIT-EXPORT-WARNINGS.md), base `675685b`. Host: owner laptop `archlinux`, uid 1000,
+[Brief](../archive/tasks/AUDIT-EXPORT-WARNINGS.md), base `675685b`. Host: owner laptop `archlinux`, uid 1000,
 Hyprland, repository on Btrfs, `/tmp` tmpfs. Tier 2: frontend export use case,
 assessment `announced` set, corpus, differential gate, two native drill steps
 and docs; no codec, parser mirror, Rust, IPC, helper, profile, font or pin
@@ -1325,7 +1325,7 @@ change. The owner delegated the design decisions. Artifacts (ignored):
 
 ## AUDIT-SWEEP-COVERAGE — second mixed generated corpus
 
-[Brief](../tasks/AUDIT-SWEEP-COVERAGE.md), base `660f869`, main, 2026-10-05.
+[Brief](../archive/tasks/AUDIT-SWEEP-COVERAGE.md), base `660f869`, main, 2026-10-05.
 Host: owner laptop `archlinux`, Linux 7.2.8-arch1-2 x86_64, repository Btrfs;
 Node 26.7.0 / pnpm 11.22.0 through mise, pinned helper Python 3.13.16.
 Tier 2 test-only: generator, coverage guards, supplemental differential gates,
@@ -1370,7 +1370,7 @@ failures remain; no push or new CI run.
 
 ## AUDIT-D04-R5 — located title omission limitations
 
-[Brief](../tasks/AUDIT-D04-R5.md), base `d1c6efe`, main, local only.
+[Brief](../archive/tasks/AUDIT-D04-R5.md), base `d1c6efe`, main, local only.
 Artifacts: `target/audit-d04-r5-20261005/`. Initial verification claim; completion recorded below.
 
 Host: owner laptop `archlinux`, Linux 7.2.8-arch1-2 x86_64, live Hyprland;

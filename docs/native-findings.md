@@ -25,7 +25,7 @@ snapshot-specific. No historical event is closed by this maintenance task.
   retain original strict failures, cores and identities. Passing controls never
   erase them or establish cause. No cause follows from a stack/upstream fix alone.
 - Release acceptance remains owner-reviewed under SPEC S15.5; see
-  [M6-01-R1](tasks/M6-01-R1.md) and [M6-02-R1](tasks/M6-02-R1.md).
+  [M6-01-R1](archive/tasks/M6-01-R1.md) and [M6-02-R1](archive/tasks/M6-02-R1.md).
   Update this register for new events/dispositions. Keep unknown attribution
   unknown; delayed kernel/core deliveries do not create additional crashes.
 

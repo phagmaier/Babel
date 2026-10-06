@@ -6,9 +6,9 @@ Authority: [SPEC S10.4/10.5/10.7](../../SPEC.md#s10), SAVE-03/05, INV-07;
 [UX](../ux.md), [ADRs 0012–0016](0016-read-only-startup-recovery-review.md).
 Evidence: [M2 report](../test-evidence/M2-05B.md).
 
-Amended 2026-10-03 by [AUDIT-SLP-A](../tasks/AUDIT-SLP-A.md) to remove unused surfaces; historical acceptance evidence remains retained.
+Amended 2026-10-03 by [AUDIT-SLP-A](../archive/tasks/AUDIT-SLP-A.md) to remove unused surfaces; historical acceptance evidence remains retained.
 
-Amended 2026-10-04 by [AUDIT-D02](../tasks/AUDIT-D02.md): safe identical-byte
+Amended 2026-10-04 by [AUDIT-D02](../archive/tasks/AUDIT-D02.md): safe identical-byte
 reopen admission and persisted explicit Keep; historical evidence remains retained.
 
 ## Context and decision

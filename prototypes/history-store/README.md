@@ -62,4 +62,4 @@ libgit2, OpenSSL or libssh2). End-user compiler/Git installs are unnecessary
 for the tested runtime; full app packaging and other platforms remain open.
 Licenses and release obligations: [ADR 0011](../../docs/decisions/0011-git2-history-store.md).
 Checks: [M1 evidence](../../docs/test-evidence/M1.md).
-M1 exit and M2 contract review: [gate review](../../docs/m1-gate-review.md).
+M1 exit and M2 contract review: [gate review](../../docs/archive/m1-gate-review.md).

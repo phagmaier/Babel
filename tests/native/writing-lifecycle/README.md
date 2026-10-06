@@ -246,13 +246,13 @@ the independently inspected draft bundle is published; its observed rows remain
 in `capture-review.json`. Timing reports also record driver dispatch time and
 the observed input span so delivery backlog is visible. Run timing probes without
 concurrent builds/tests. See the
-[M3-13 review](../../../docs/reviews/2026-09-29-m3-13-review.md) and
+[M3-13 review](../../../docs/archive/reviews/2026-09-29-m3-13-review.md) and
 [evidence](../../../docs/test-evidence/M3.md#m3-13--integrated-editor-gate-and-separate-safety-review)
 for the original gate decision, and the
 [audit correction evidence](../../../docs/test-evidence/M3.md#repository-audit-corrections)
 for later results and remaining limits.
 
-The [corrected M3-13 re-review](../../../docs/reviews/2026-09-29-m3-13-rereview.md)
+The [corrected M3-13 re-review](../../../docs/archive/reviews/2026-09-29-m3-13-rereview.md)
 and [fresh exit evidence](../../../docs/test-evidence/M3.md#m3-13--corrected-integrated-exit-re-review)
 record passing full default-app input/IME/lifecycle runs on tmpfs/Btrfs after
 the corrections. This is a bounded Linux editor gate; release limits remain.
@@ -550,7 +550,7 @@ python3 tests/native/writing-lifecycle/isolated_ime.py \
 ```
 
 Use a new output directory for every rerun. Retain the printed `IME ARTIFACTS`
-root. [M4-15-R1](../../../docs/tasks/M4-15-R1.md) enables real client preedit in
+root. [M4-15-R1](../../../docs/archive/tasks/M4-15-R1.md) enables real client preedit in
 the production Linux WebView. Each scenario requires trusted compositionstart
 and compositionend, literal byte/Undo oracles and actual candidate commit/cancel.
 Editor-exit checks each pinyin/mozc case independently; unrelated Unicode
@@ -823,7 +823,7 @@ verdicts. Keep every failed root, process/journal scan and owned core.
 
 ## M6-02-R1 retained-operation comparison
 
-[Task commands and boundaries](../../../docs/tasks/M6-02-R1.md#exact-narrowed-attempt-2026-10-05)
+[Task commands and boundaries](../../../docs/archive/tasks/M6-02-R1.md#exact-narrowed-attempt-2026-10-05)
 compare the actual retained frozen binary and a fresh default app. Presentation
 persists `presentation-stages.jsonl` in each synthetic root before failure
 cleanup: stage, Save/action disabled state, editability, outline/filter, selection

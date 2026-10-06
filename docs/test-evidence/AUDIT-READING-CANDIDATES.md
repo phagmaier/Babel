@@ -2,8 +2,8 @@
 
 ## Handoff preparation — 2026-10-05
 
-[Brief](../tasks/AUDIT-READING-CANDIDATES.md),
-[next-agent assignment](../handoffs/2026-10-05-reading-candidates.md).
+[Brief](../archive/tasks/AUDIT-READING-CANDIDATES.md),
+[next-agent assignment](../archive/handoffs/2026-10-05-reading-candidates.md).
 Published baseline `3333402`; preparation is docs-only.
 Classification, sample rendering and discrepancy confirmation have not started.
 
@@ -62,7 +62,7 @@ and 111); nine are five generated sources.
   ("an indented first key makes it a title page that prints nothing; both are
   blocking SC005"). Control K3, the same source without the boneyard line, is
   blocked with that SC005; control K2, with an empty separator, is clean and
-  prints `FADE IN:`. Fix brief: [AUDIT-D04-R4](../tasks/AUDIT-D04-R4.md).
+  prints `FADE IN:`. Fix brief: [AUDIT-D04-R4](../archive/tasks/AUDIT-D04-R4.md).
 - **Adequately reported unsupported cases.** None among the seven. Controls K3
   and scope probe P3 are reported by existing SC005 limitations.
 - **Unresolved contract questions.** None for the seven sources. One adjacent

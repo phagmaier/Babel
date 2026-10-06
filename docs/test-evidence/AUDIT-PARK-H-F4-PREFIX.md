@@ -2,7 +2,7 @@
 
 2026-10-05; clean base `18c4314090f363cf7df1784c221d0c4e2e558876` on `main`,
 **15** local-only commits ahead of published `f2ba0c5` before this task (the
-owner's prompt said 14; Git verified 15). [Brief](../tasks/AUDIT-PARK-H-F4-PREFIX.md).
+owner's prompt said 14; Git verified 15). [Brief](../archive/tasks/AUDIT-PARK-H-F4-PREFIX.md).
 Logs, exact argv/env/results and preservation manifest:
 `target/audit-park-h-f4-prefix/`. No product or native change.
 

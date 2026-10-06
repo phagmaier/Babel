@@ -3,7 +3,7 @@
 Status: Accepted direction. Date: 2026-09-30. Task: M4-04.
 Authority: [SPEC S08.3/S10.2/S11.1/S14.1](../../SPEC.md#s08), NAV-01, HIST-01, SAVE-01–03, SEC-02, QA-01; [ADR 0020](0020-native-curated-history.md), [ADR 0023](0023-protected-fountain-import.md).
 
-Amended 2026-10-03 by [AUDIT-SLP-A](../tasks/AUDIT-SLP-A.md) to remove unused surfaces; historical acceptance evidence remains retained.
+Amended 2026-10-03 by [AUDIT-SLP-A](../archive/tasks/AUDIT-SLP-A.md) to remove unused surfaces; historical acceptance evidence remains retained.
 
 ## Decision
 

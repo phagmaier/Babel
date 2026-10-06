@@ -4,7 +4,7 @@ Status: Accepted direction. Date: 2026-09-27. Task: M1-05.
 Authority: [SPEC S11/S16/S19](../../SPEC.md#s11), HIST-01/02, INV-07/08;
 [history contract](../sync-and-versioning.md), [ADR 0005](0005-layered-safety.md).
 Evidence: [M1 report](../test-evidence/M1.md),
-[native proof](../../prototypes/history-store/README.md), [M1 gate review](../m1-gate-review.md).
+[native proof](../../prototypes/history-store/README.md), [M1 gate review](../archive/m1-gate-review.md).
 
 ## Decision
 

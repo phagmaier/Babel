@@ -5,7 +5,7 @@ Authority: [SPEC S05.2–3/S08.1/S10.7/S14](../../SPEC.md#s05); APP-02, SAVE-05,
 Related: [0012](0012-native-document-identity.md), [0017](0017-explicit-recovery-choices.md), [0024](0024-native-document-entry.md), [0025](0025-save-as-identity.md).
 Evidence: [M4-01](../test-evidence/M4.md#m4-01--native-recents-and-missing-file-selection).
 
-Amended 2026-10-03 by [AUDIT-SLP-A](../tasks/AUDIT-SLP-A.md) to remove unused surfaces; historical acceptance evidence remains retained.
+Amended 2026-10-03 by [AUDIT-SLP-A](../archive/tasks/AUDIT-SLP-A.md) to remove unused surfaces; historical acceptance evidence remains retained.
 
 ## Decision
 

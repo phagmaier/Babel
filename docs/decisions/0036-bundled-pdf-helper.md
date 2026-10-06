@@ -1,7 +1,7 @@
 # ADR 0036: Bundle the PDF renderer as a standalone-CPython helper
 
 Status: **Accepted direction**
-Date: 2026-10-02. Task: [M5-01](../tasks/M5-01.md).
+Date: 2026-10-02. Task: [M5-01](../archive/tasks/M5-01.md).
 Sources: SPEC S01 (no assumed end-user Python/Node), S12.1–2; [ADR 0009](0009-pdf-renderer-baseline.md).
 
 ## Context

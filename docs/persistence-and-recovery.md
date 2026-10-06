@@ -106,7 +106,7 @@ metadata-only version) is acknowledged the same way after its recovery
 checkpoint: fresh sync, ownership recheck and a `sourceFile` receipt carrying
 the unchanged fingerprint. Nothing else is written — no intent, candidate,
 `previous`, `confirmed`, lease or recents change — so the retained previous
-generation keeps its distinct earlier content ([AUDIT-C04](tasks/AUDIT-C04.md)).
+generation keeps its distinct earlier content ([AUDIT-C04](archive/tasks/AUDIT-C04.md)).
 
 Errors distinguish source unchanged by this operation from replaced but
 unconfirmed. The latter blocks further replacement and bare release while
@@ -176,7 +176,7 @@ record the contract and native/mocked verification boundary.
 
 ## M2-05B explicit choices and external changes
 
-M2-05B-R1 corrects the two [independent review](reviews/2026-09-28-m2-05b-review.md) gaps: finalization now finishes source file/directory durability and revalidates before any receipt, and relink requires exclusive caller ownership with held-lease verification. The owner [accepted R1](test-evidence/M2-05B-R1.md) at `5e84879` on 2026-09-28, closing M2-05B acceptance within its recorded Linux/native and mocked coverage.
+M2-05B-R1 corrects the two [independent review](archive/reviews/2026-09-28-m2-05b-review.md) gaps: finalization now finishes source file/directory durability and revalidates before any receipt, and relink requires exclusive caller ownership with held-lease verification. The owner [accepted R1](test-evidence/M2-05B-R1.md) at `5e84879` on 2026-09-28, closing M2-05B acceptance within its recorded Linux/native and mocked coverage.
 
 Comparison, adoption, keep, sibling copy and transaction finalize operate on a natively opened (`open_selected`) registration anchor;
 no IPC path exists and no choice deletes material. The older-session journal
@@ -348,11 +348,11 @@ records the default-app filesystem/failure drill and remaining limits.
 
 ## M3-13 review corrections
 
-The [separate review](reviews/2026-09-29-m3-13-review.md) records the original failures. [M3-12-R1](tasks/M3-12-R1.md) corrects live-version status and emergency preservation. [M3-09-R1](tasks/M3-09-R1.md) adds explicit “Resume as new draft”: native code revalidates and checkpoints the full selected bytes under a fresh identity before returning them; the original checkpoint stays intact. The frontend restores verified producer metadata, allocates above the new journal and confirms fresh protection. Invalid encoding stays view-only and copyable. A display preview never reconstructs author content.
+The [separate review](archive/reviews/2026-09-29-m3-13-review.md) records the original failures. [M3-12-R1](archive/tasks/M3-12-R1.md) corrects live-version status and emergency preservation. [M3-09-R1](archive/tasks/M3-09-R1.md) adds explicit “Resume as new draft”: native code revalidates and checkpoints the full selected bytes under a fresh identity before returning them; the original checkpoint stays intact. The frontend restores verified producer metadata, allocates above the new journal and confirms fresh protection. Invalid encoding stays view-only and copyable. A display preview never reconstructs author content.
 
 If the opening view is disposed while resume, inspection or initial capture is pending, the returned registration is released without flushing a retired session. If fresh protection fails, abandonment retains the original protection error; a failed release is reported alongside it, without claiming native cleanup succeeded. [AUDIT-TEST evidence](test-evidence/AUDIT.md#audit-test--wave-2-regression-gaps).
 
-[M3-11-R1](tasks/M3-11-R1.md) enables read-only Save As. [M3-10-R1](tasks/M3-10-R1.md) drains newer edits after an older in-flight operation even when their timers expired, without retrying the same failed version. [M3-12-R2](tasks/M3-12-R2.md) covers selected recovery, replacement metadata, failed-open release and destination retirement. Only one selected destination per registration remains valid for each copy/Save As operation; invalid selection retains the last valid capability. Acceptance requires linked shared/native tmpfs/Btrfs evidence; historical gates remain bounded.
+[M3-11-R1](archive/tasks/M3-11-R1.md) enables read-only Save As. [M3-10-R1](archive/tasks/M3-10-R1.md) drains newer edits after an older in-flight operation even when their timers expired, without retrying the same failed version. [M3-12-R2](archive/tasks/M3-12-R2.md) covers selected recovery, replacement metadata, failed-open release and destination retirement. Only one selected destination per registration remains valid for each copy/Save As operation; invalid selection retains the last valid capability. Acceptance requires linked shared/native tmpfs/Btrfs evidence; historical gates remain bounded.
 
 Recovery panels serialize their advisory comparisons. Each native read reserves
 a bounded full-source buffer; concurrent mounting of several candidates must not
@@ -485,7 +485,7 @@ bytes as one Undo-able transaction. Undo needs its own later save receipt.
 Stale reviews and protection/ownership/encoding failures retain both generations.
 Missing or unreadable files leave recovery and separate-copy routes available.
 [ADR 0041](decisions/0041-protected-external-reload.md),
-[brief](tasks/AUDIT-D08A.md),
+[brief](archive/tasks/AUDIT-D08A.md),
 [evidence](test-evidence/AUDIT.md#audit-d08a--protected-external-reload).
 
 ## Recovery independent of capture refusals

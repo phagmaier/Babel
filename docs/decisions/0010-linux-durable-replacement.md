@@ -2,7 +2,7 @@
 
 AUDIT-SLP-B (2026-10-03) retired superseded proof programs; linked deleted
 sources use the last pushed pre-deletion snapshot. Historical observations and
-failures below remain unchanged. [Retirement scope](../tasks/AUDIT-SLP-B.md) and ported production
+failures below remain unchanged. [Retirement scope](../archive/tasks/AUDIT-SLP-B.md) and ported production
 coverage are recorded separately; no new admission claim.
 
 Status: Accepted direction. Date: 2026-09-27. Task: M1-04.

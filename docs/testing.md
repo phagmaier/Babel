@@ -95,7 +95,7 @@ Known findings retain exact inventories and explicit disposition below.
   clean disagreement, unknown warning or warning refusal is allowed. Every
   existing mismatch must retain the frozen facts. Fixes require independent
   literal evidence and a scoped inventory update; do not regenerate for green.
-  [Brief](tasks/AUDIT-SWEEP-COVERAGE.md) records the limits and review.
+  [Brief](archive/tasks/AUDIT-SWEEP-COVERAGE.md) records the limits and review.
 - Every editor/capture gate includes synthetic externally authored/unforced
   sources. Force-marked app-authored fixtures alone are insufficient.
   A new unexplained refusal or disagreement blocks the relevant change until
@@ -169,7 +169,7 @@ Detailed per-task coverage lives in [development](development.md) (commands) and
 - **M3 codec/editor**: Independent conformance corpus, production primary codec, complex Fountain regions, editor state/source captures, structural keys, picker/shortcut routing/remapping, local completion source/caret/ranking/key/pointer acceptance and undo; M3-08 clipboard/emphasis/protected import and real IME commit/cancel/Enter; corrected M3-13 default-app corpus/input/lifecycle matrix and separate safety re-review passed on tmpfs/Btrfs
 - **M4 daily workflows**: recents/Home, manuscript index/outline, workflow protection, scene/section moves, title page, find/replace, Script Check, presentation, offline spellcheck, characters/counts/position, palette/menus/accessibility; M4-15 integrated exit (19-mode tmpfs/Btrfs matrix + separate post-integration review)
 - **M5 publication**: bundled offline renderer helper, native render jobs, frozen US Letter profile + regression goldens, SC005/SC008 assessment, authoritative preview/page-count freshness, protected exact-version PDF export; M5-07 integrated publication exit + separate review
-- **M6 hardening (bounded, Linux)**: M6-01 shutdown/retained-crash disposition; M6-02 interruption/restart matrix recorded, disposition open ([M6-02-R1](tasks/M6-02-R1.md))
+- **M6 hardening (bounded, Linux)**: M6-01 shutdown/retained-crash disposition; M6-02 interruption/restart matrix recorded, disposition open ([M6-02-R1](archive/tasks/M6-02-R1.md))
 
 Each area's exact commands, host, outcomes, and limitations are recorded in the linked evidence files.
 

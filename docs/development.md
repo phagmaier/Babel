@@ -23,7 +23,7 @@ The runner also needs the full `groff` package for upstream HTML manuals;
 [`pkg-config` 0.3.34](https://docs.rs/pkg-config/0.3.34/pkg_config/) is a pinned
 MIT OR Apache-2.0 build dependency already present in the lockfile. See
 [ADR 0033](decisions/0033-production-spellcheck-boundary.md) and
-[AUDIT-W0-R1](tasks/AUDIT-W0-R1.md).
+[AUDIT-W0-R1](archive/tasks/AUDIT-W0-R1.md).
 
 M1-02 reference input host: AMD Ryzen 7 7840U (8 cores/16 threads), 14 GiB RAM, Hyprland 0.56.2, WebKitGTK 4.1 2.52.6, GTK 3.24.52, debug Tauri build. Deterministic synthetic workload hashes and timings are in [M1 evidence](test-evidence/M1.md); the workload labels do not assert actual PDF pages.
 
@@ -44,7 +44,7 @@ other architectures remain future targets, requiring a later owner declaration,
 bounded adapter tasks and actual native/installed acceptance. Do not introduce
 new Linux coupling into portable layers or claim those future platforms work.
 M1-02 remains the performance hardware baseline. The owner authorized
-[M6-01](tasks/M6-01.md) after declaration; Local v1 admission remains open.
+[M6-01](archive/tasks/M6-01.md) after declaration; Local v1 admission remains open.
 
 ## Laptop setup (DEV-01)
 
@@ -134,7 +134,7 @@ those remain named task/release gates. Helper builds and native builds run
 sequentially. Git checkout includes history for the pinned differential control.
 
 M1-02 native editor and M1-06 composition pages were retired in
-[AUDIT-SLP-B](tasks/AUDIT-SLP-B.md); historical commands require the pre-deletion
+[AUDIT-SLP-B](archive/tasks/AUDIT-SLP-B.md); historical commands require the pre-deletion
 Git snapshot. Production native editor drills retain the composition-proof
 fixture backend and use their own configs under `tests/native/`.
 
@@ -205,7 +205,7 @@ Statically linked interpreter components and their expected licenses are listed
 in `tools/pdf-helper/pins.json`; full texts before distribution remain M6.
 [ADR 0036](decisions/0036-bundled-pdf-helper.md), [README](../tools/pdf-helper/README.md).
 
-M1-04 durable-replacement proof was retired in [AUDIT-SLP-B](tasks/AUDIT-SLP-B.md).
+M1-04 durable-replacement proof was retired in [AUDIT-SLP-B](archive/tasks/AUDIT-SLP-B.md).
 Production `source_store` tests now cover candidate tamper/silent truncation
 with unchanged source/previous and exact recovery. Run
 `CARGO_HOME=/tmp/babel-cargo cargo test -p screenwriter-core source_store --locked`;
@@ -234,7 +234,7 @@ task commands describe their original verification, not mandatory reruns for a
 later correction. Keep relevant fault, failure, Undo and exact-byte acceptance.
 
 Historical per-task commands for completed milestones (M2-01–M5-05) live in
-[development-history](development-history.md); their exact results remain in the linked evidence files.
+[development-history](archive/development-history.md); their exact results remain in the linked evidence files.
 M6-01/M6-02 stay below because M6-02 is open.
 
 M6-01 focused close-boundary checks: `cargo test -p babel-desktop close_lifecycle --locked`,

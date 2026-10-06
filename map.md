@@ -31,6 +31,8 @@ maps requirement IDs to tasks. [ADRs](docs/decisions/README.md) own lasting deci
 [task briefs](docs/tasks) own scope and acceptance. [Evidence](docs/test-evidence)
 owns exact results and limitations; [native findings](docs/native-findings.md)
 indexes retained crashes. Historical evidence applies only to its recorded build.
+[docs/archive](docs/archive) holds finished briefs, reviews, handoffs and the
+frozen audit; read it only when a current document links there.
 
 Concrete paths here are Markdown links checked by `pnpm check:links`.
 Do not duplicate current tasks, milestone snapshots or handoff results here.

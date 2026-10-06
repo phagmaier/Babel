@@ -1,7 +1,7 @@
 # ADR 0037: Freeze the US Letter draft publication profile
 
 Status: **Accepted direction**
-Date: 2026-10-02. Task: [M5-03](../tasks/M5-03.md).
+Date: 2026-10-02. Task: [M5-03](../archive/tasks/M5-03.md).
 Sources: SPEC S12.3–12.6; [ADR 0036](0036-bundled-pdf-helper.md).
 
 ## Decision and patch boundary
@@ -96,7 +96,7 @@ font glyphs and scripts requiring RTL shaping are refused. The profile's
 unsupported catalog feeds the completed M5-04 primary-codec SC005/SC008 support
 assessment and verified resource/in-memory layout boundary. M5-06 owns export decisions. These helper guards do not make a
 primary-codec fidelity claim. Preview/export UI remains M5-05/06.
-Since [AUDIT-EXPORT-WARNINGS](../tasks/AUDIT-EXPORT-WARNINGS.md) export compares
+Since [AUDIT-EXPORT-WARNINGS](../archive/tasks/AUDIT-EXPORT-WARNINGS.md) export compares
 these warnings with the assessment and stops on one the author was not told
 about; the helper and its warnings are unchanged.
 

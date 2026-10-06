@@ -2,7 +2,7 @@
 
 2026-10-05; clean base `ceca040c769d4156a6b3198fd73021d46b4cc7e9` on `main`,
 13 local-only commits ahead of published `f2ba0c5` before this task.
-[Brief](../tasks/AUDIT-PARK-H-F4-REVIEW.md). Tier 1 documentation/artifact
+[Brief](../archive/tasks/AUDIT-PARK-H-F4-REVIEW.md). Tier 1 documentation/artifact
 review, with existing-case JSDOM confirmation; no new build or native trial.
 Logs/manifests: `target/audit-park-h-f4-review/`.
 
@@ -64,7 +64,7 @@ Select and write that brief separately; this review does not start it.
 ## Checks
 
 The exact focused command and six editable Markdown paths are in the
-[brief](../tasks/AUDIT-PARK-H-F4-REVIEW.md#checks-and-stop); pnpm uses pinned
+[brief](../archive/tasks/AUDIT-PARK-H-F4-REVIEW.md#checks-and-stop); pnpm uses pinned
 `mise exec node@26.7.0 pnpm@11.22.0 --`. Focused test filter:
 `AUDIT-PARK-H|middle Character and Parenthetical splits`; task-local `TMPDIR`.
 

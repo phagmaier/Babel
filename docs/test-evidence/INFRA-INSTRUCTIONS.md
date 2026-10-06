@@ -1,7 +1,7 @@
 # INFRA-INSTRUCTIONS — guidance and verification maintenance
 
 Base `8084690`, public `beac0fc`, owner authorization 2026-10-05.
-[Brief](../tasks/INFRA-INSTRUCTIONS.md). Logs: `target/infra-instructions/`.
+[Brief](../archive/tasks/INFRA-INSTRUCTIONS.md). Logs: `target/infra-instructions/`.
 No product/native implementation or fixture bytes changed.
 
 ## History reconciliation
@@ -16,7 +16,7 @@ No product/native implementation or fixture bytes changed.
 - `pnpm pdf-helper` **pass** (5.75s); `pnpm test:pdf-helper` **16/16 pass** (37.13s), verified pinned runtime/PDF oracles. `pnpm test:browser` **pass**, Chromium only (47.03s); `pnpm tauri build` **pass**, Linux package build only (213.02s). Sequential build logs in task folder; no installed/native-writing claim.
 - `python3 -m unittest discover -s tests/tools -p 'test_*.py'` **5/5 pass** (`guidance-tests-final.log`): canonical status, stale pointer, budget/exception failures and actual Vitest discovery versus Git inventory, with a disposable excluded archive sentinel.
 - `BABEL_DIFFERENTIAL_REPORT=$PWD/target/infra-instructions/accepted-probe pnpm test:differential` **3/3 pass**, 21.23s (`differential-accepted.log`, exclusive-create JSON reports). Full F4 848 editor rewrites: 672 successes/176 retained refusals, 0 new refusals/changed successes. 16,128 codec edits: 0 new refusals or changed successful bytes/line facts. Frozen control is full Git identity of `8084690`; current pinned libraries shared, so dependency changes still require independent oracles.
-- Renderer parse-level differential **70,117/70,117 agree**, 59,045 distinct sources: 117 independent oracle sources plus 70,000 fixed-seed generated samples; 0 parser refusals/mirror disagreements/new false gates/new clean role candidates. Eleven baseline source-role heuristic candidates reported separately, not conformance failures or accepted waivers ([brief](../tasks/AUDIT-READING-CANDIDATES.md)); accepted profile mappings require semantic interpretation. No layout/emphasis/pixel/native or exhaustive Unicode claim.
+- Renderer parse-level differential **70,117/70,117 agree**, 59,045 distinct sources: 117 independent oracle sources plus 70,000 fixed-seed generated samples; 0 parser refusals/mirror disagreements/new false gates/new clean role candidates. Eleven baseline source-role heuristic candidates reported separately, not conformance failures or accepted waivers ([brief](../archive/tasks/AUDIT-READING-CANDIDATES.md)); accepted profile mappings require semantic interpretation. No layout/emphasis/pixel/native or exhaustive Unicode claim.
 - In-memory `BABEL_DIFFERENTIAL_FAULT=capture` **detected**, 1/3 fails (`fault-capture.log`); `renderer` **detected**, 1/3 fails (`fault-renderer.log`); `assessment` **detected**, 1/1 fails (`fault-assessment.log`). Product source never modified. Guidance fault tests also detect stale pointers/status and undocumented budgets.
 - Early oracle batch omitted the helper's UTF-8 BOM stripping and reported one frozen-control BOM mismatch (`probe.renderer.json`); corrected against `babel_pdf_helper._read_source` before acceptance. Original report/log retained; final parser comparisons are zero mismatches. Discovery error, earlier green runs and failures were not deleted.
 - Separate read-only same-agent review **pass**: product/native/core source, lockfiles, helper/profile/pins, frozen root AUDIT.md/owning audit evidence and manuscript fixture bytes identical to `8084690`; M4 diff is exactly five relative-link corrections. This is not independent human/second-agent sign-off.

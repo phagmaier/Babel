@@ -27,7 +27,7 @@ def check(root):
     state = (root / 'docs/current-state.md').read_text()
     if state.count('## Next action') != 1:
         errors.append('current-state must contain exactly one Next action section')
-    for name in ('map.md', 'docs/index.md', 'TODO.md', 'docs/tasks/AUDIT-TRACKER.md'):
+    for name in ('map.md', 'TODO.md', 'docs/tasks/AUDIT-TRACKER.md'):
         text = (root / name).read_text()
         if re.search(r'(?i)current snapshot|next (?:bounded continuation|agent-executable task)|next:\s*(?:M\d|AUDIT)', text):
             errors.append(f'{name}: duplicated task/snapshot pointer')

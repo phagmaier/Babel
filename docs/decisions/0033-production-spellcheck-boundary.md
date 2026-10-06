@@ -1,7 +1,7 @@
 # ADR 0033 — Explicit offline spelling and durable local vocabulary
 
 Status: Accepted direction; Accepted for the provisional Linux implementation. Date: 2026-09-30.
-Authority: [M4-12](../tasks/M4-12.md), [ADR 0032](0032-linux-native-spellcheck.md),
+Authority: [M4-12](../archive/tasks/M4-12.md), [ADR 0032](0032-linux-native-spellcheck.md),
 SPEC S08.5/S13/S14, UX-02, INV-01/03/11/14/16/17/18.
 
 ## Decision and reason
@@ -31,7 +31,7 @@ API is used. No process environment mutation after toolkit/thread startup or
 ordinary global personal dictionary modification is needed. Provider ordering
 may be read by Enchant, but a loaded provider other than Hunspell is refused.
 
-Build prerequisite clarified 2026-10-03 ([AUDIT-W0-R1](../tasks/AUDIT-W0-R1.md)):
+Build prerequisite clarified 2026-10-03 ([AUDIT-W0-R1](../archive/tasks/AUDIT-W0-R1.md)):
 the explicit-PWL API was introduced in Enchant **2.4.0**, per
 [upstream NEWS](https://github.com/rrthomas/enchant/blob/v2.8.21/NEWS).
 Linux builds now check that minimum with pinned `pkg-config` 0.3.34 (build-only,

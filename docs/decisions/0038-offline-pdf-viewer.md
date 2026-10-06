@@ -2,7 +2,7 @@
 
 Status: Accepted direction; Accepted for bounded Linux M5-05. Date: 2026-10-02.
 
-Context: [M5-05](../tasks/M5-05.md), PDF-02 and INV-10/11/13/14 require
+Context: [M5-05](../archive/tasks/M5-05.md), PDF-02 and INV-10/11/13/14 require
 read-only printed pages and exact-count freshness without a second paginator.
 
 Decision: pin `pdfjs-dist` 6.3.289 (Apache-2.0), lazy-load its display module

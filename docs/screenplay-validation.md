@@ -172,7 +172,7 @@ limitation already reports that paragraph. This covers:
   whose capitals do not come before its first bracket (`(MAYA)`), or a line
   whose capitals do (`MAYA (to Jon) quietly`); `TO:` with no capitals before it.
 
-[AUDIT-D04-R4](tasks/AUDIT-D04-R4.md) closes a gap in that comparison: it was
+[AUDIT-D04-R4](archive/tasks/AUDIT-D04-R4.md) closes a gap in that comparison: it was
 skipped whenever a line of the opening block contained `/*`. A boneyard on its
 own line can leave whitespace the renderer reads as a title value, so the lines
 around it join a title block the codec does not see and are not printed; that
@@ -208,7 +208,7 @@ outside that set. A category is announced by:
   or ambiguous region and a raw line are unverified and also announce a section
   or synopsis line inside them.
 - an otherwise unannounced raw-source note or boneyard match spanning separately
-  assessed regions or paragraphs. [AUDIT-MARKER-WARNINGS](tasks/AUDIT-MARKER-WARNINGS.md)
+  assessed regions or paragraphs. [AUDIT-MARKER-WARNINGS](archive/tasks/AUDIT-MARKER-WARNINGS.md)
   adds blocking SC005 over its original opening-through-closing lines, with
   original byte targets. The limitation explains that the span is not verified
   as one non-printing element; it adds no omission count. Every uncovered match
@@ -221,7 +221,7 @@ original title omission findings; MARKER-WARNINGS closes the three separate
 retained marker warning gaps. The fixed corpora require no unannounced warning;
 an unexpected category, unreadable warning or missing announcement still stops
 export without publishing a PDF. A matching category does not certify extent.
-[Brief](tasks/AUDIT-EXPORT-WARNINGS.md),
+[Brief](archive/tasks/AUDIT-EXPORT-WARNINGS.md),
 [evidence](test-evidence/AUDIT.md#audit-export-warnings--renderer-warnings-compared-at-export).
 
 ## Reading conformance gate

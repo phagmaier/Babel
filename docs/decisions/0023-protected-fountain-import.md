@@ -2,7 +2,7 @@
 
 Status: Accepted direction. Date: 2026-09-29. Task: M3-08. Authority: [SPEC S07.7](../../SPEC.md#s07), INV-03/12/17/18. Related: [ADR 0021](0021-production-editor-source-captures.md), [ADR 0020](0020-native-curated-history.md).
 
-Amended 2026-10-03 by [AUDIT-SLP-A](../tasks/AUDIT-SLP-A.md) to remove unused surfaces; historical acceptance evidence remains retained.
+Amended 2026-10-03 by [AUDIT-SLP-A](../archive/tasks/AUDIT-SLP-A.md) to remove unused surfaces; historical acceptance evidence remains retained.
 
 ## Decision
 

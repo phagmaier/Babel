@@ -1,7 +1,7 @@
 # AUDIT-MARKER-READING — original-source marker removal order
 
 2026-10-05, main from clean `73e79ee`, local only.
-[Brief](../tasks/AUDIT-MARKER-READING.md). **Complete:** exactly six retained
+[Brief](../archive/tasks/AUDIT-MARKER-READING.md). **Complete:** exactly six retained
 supplemental paragraph readings now agree with the actual pinned parser.
 Assessment previously stripped codec-recognized inline spans before the mirror
 removed boneyards and body notes. That changed which closing marker an earlier

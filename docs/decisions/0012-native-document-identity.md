@@ -4,7 +4,7 @@ Status: Accepted direction. Date: 2026-09-28. Task: M2-01.
 Authority: SPEC S03/S04.4/S05/S10/S14; DOC-01/03, SAVE-05, SEC-02.
 Evidence: [M2 report](../test-evidence/M2.md).
 
-Amended 2026-10-03 by [AUDIT-SLP-A](../tasks/AUDIT-SLP-A.md) to remove unused surfaces; historical acceptance evidence remains retained.
+Amended 2026-10-03 by [AUDIT-SLP-A](../archive/tasks/AUDIT-SLP-A.md) to remove unused surfaces; historical acceptance evidence remains retained.
 
 ## Decision
 

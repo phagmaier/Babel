@@ -17,7 +17,7 @@ class GuidanceTest(unittest.TestCase):
         self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name)
         files = {'AGENTS.md': 'rules', 'map.md': 'current-state',
-                 'TODO.md': 'current-state', 'docs/index.md': 'current-state',
+                 'TODO.md': 'current-state',
                  'docs/current-state.md': '## Next action\nStop.',
                  'docs/tasks/AUDIT-TRACKER.md': 'current-state',
                  'docs/decisions/0001-example.md': 'Status: Accepted direction; proof open.',

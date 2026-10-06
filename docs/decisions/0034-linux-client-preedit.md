@@ -24,7 +24,7 @@ application guards. Patching vendor crates or fabricating DOM composition events
 would be a second source of behavior or unsupported native evidence. Keep the
 upstream dependency unchanged and configure the existing native context instead.
 
-Evidence: [M4-15-R1](../tasks/M4-15-R1.md) real trusted composition start/end,
+Evidence: [M4-15-R1](../archive/tasks/M4-15-R1.md) real trusted composition start/end,
 exact bytes/Undo on both filesystems, shared/default-release checks and a separate
 same-agent source review are recorded in [M4 evidence](../test-evidence/M4.md#continuation-from-e8c2304--isolated-ime-and-m4-15-r1).
 Evidence still needed: the full integrated exit remains open because native

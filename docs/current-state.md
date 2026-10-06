@@ -48,6 +48,12 @@ silently stopping rolling snapshots after ~21 hours of writing. Files:
 | `cargo test -p screenwriter-core --lib snapshot_store::tests`          | 22 pass on ext4 and tmpfs (`BABEL_SNAPSHOT_TEST_ROOT=/dev/shm/...`); Btrfs **not run** (unavailable) |
 | `cargo clippy -p screenwriter-core --all-targets`, `cargo fmt --check` | clean                                                                                                |
 
+**DOCS-ARCHIVE.** 109 finished briefs, reviews, handoffs, `AUDIT.md` and
+one-off proof/history docs moved to [archive](archive) with every link
+rewritten; `docs/tasks` keeps only open briefs. Historical evidence keeps its
+recorded paths; only links changed. `docs/index.md` stub deleted.
+`check:links` (1941 links) and `check:guidance` pass.
+
 ## Known limitations (accepted, not blockers)
 
 - [Native register](native-findings.md): 12 WebKitGTK aborts under forced
@@ -74,8 +80,9 @@ Take the first unblocked item; if blocked, note why and take the next.
    prefix repair, see [F4-PREFIX](test-evidence/AUDIT-PARK-H-F4-PREFIX.md));
    a recovery copy for refusals that name no row.
 5. **AUDIT-PARK-T (2)**: a failed resume leaves a second draft entry on Home.
-6. **Docs pruning**: archive completed briefs, reviews, handoffs and `AUDIT.md`
-   under one archive folder with links fixed; delete the `docs/index.md` stub.
+6. **D-05 remainder**: protected workflows (scene moves, import) take a
+   PreDestructive snapshot and treat a Git history failure as a warning
+   ([ADR 0030](decisions/0030-version-bound-workflow-protection.md)).
 7. Later, not V1 blockers: M6-04, M6-10–13, M6-15, DEV-02, M6-05–09, M7, M8.
 
 Native drills: check `df -i /tmp`, set `BABEL_NATIVE_IME_TEMP_ROOT` to a fresh
