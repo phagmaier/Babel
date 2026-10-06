@@ -4,80 +4,34 @@ Application: **babel**, a local-first Linux screenwriting app (Tauri + React +
 Rust). Feature-complete for local writing: Fountain editor with screenplay
 elements, smart Enter/autocomplete, Script Check, spellcheck, outline, title
 page, find/replace, scene moves, snapshots, protected close, crash recovery and
-offline PDF preview/export. Not yet packaged as an installable app (M6-14).
+offline PDF preview/export. Builds as an AppImage that runs offline; not yet
+verified as a FUSE/desktop install.
 
 Agents make every decision; the owner is never a blocker
 ([ADR 0043](decisions/0043-agent-decision-authority.md)). Work on the assigned
-branch (default `main`).
+branch (default `main`). Session work below is on `claude/youthful-bell-qemsy4`.
 
 ## This session
 
-**PROC-RESET.** [ADR 0043](decisions/0043-agent-decision-authority.md) moves all
-gates to agents and records dispositions: gate P granted (Linux x86_64), native
-crash register accepted as residual risk, M6-02 closed with limitations, D-05
-applied (M6-05–09 deferred; snapshots are V1 Versions). AGENTS.md rewritten;
-SPEC 1.3 trims S17–S20 to pointers; TODO dependencies updated.
+| Task             | Outcome                                                                                                                                                           | Evidence                                                                                                                     |
+| ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| PROC-RESET       | Agents own all gates; P granted, native register accepted, M6-02 closed, D-05 applied; AGENTS.md rewritten; SPEC 1.3                                              | [ADR 0043](decisions/0043-agent-decision-authority.md)                                                                       |
+| CAPTURE-RECOVERY | A row Fountain cannot write no longer stops recovery; recovery-only snapshot journaled, never source-saved                                                        | [ADR 0044](decisions/0044-recovery-independent-of-capture.md), [pilot](test-evidence/PILOT-2026-10-06.md)                    |
+| M6-03-A          | Rolling snapshot at the 256 cap runs retention once and retries                                                                                                   | [ADR 0018](decisions/0018-portable-snapshot-retention.md); cargo tests ext4+tmpfs                                            |
+| DOCS-ARCHIVE     | 109 finished docs moved to [archive](archive), links rewritten                                                                                                    | `check:links`                                                                                                                |
+| PILOT-2026-10-06 | AppImage builds/runs offline; native crash recovery and ADR 0044 path verified end to end; [tools/xdrive.py](../tools/xdrive.py) drives the app without WebDriver | [pilot](test-evidence/PILOT-2026-10-06.md)                                                                                   |
+| WRITING-LAYOUT   | Script visible at 900×680; navigator after script in one column                                                                                                   | [pilot §layout](test-evidence/PILOT-2026-10-06.md#writing-first-layout-finding-1-addressed)                                  |
+| HOME-RECOVERY    | One "Open latest version" action per recovered draft                                                                                                              | [pilot §recovery](test-evidence/PILOT-2026-10-06.md#home-recovery-finding-2-addressed)                                       |
+| NEW-SCRIPT-FLOW  | New scripts start on a Scene Heading; identical suggestions no longer swallow Enter (S07.6)                                                                       | [pilot §new script](test-evidence/PILOT-2026-10-06.md#new-screenplay-and-identical-suggestions-finding-3-plus-a-new-finding) |
+| M6-14 slice B    | Packaged PDF export verified; npm audit clean after dev-only `source-map-js` bump                                                                                 | [pilot §PDF](test-evidence/PILOT-2026-10-06.md#packaged-pdf-export-and-dependency-audit-m6-14-slice-b)                       |
 
-**CAPTURE-RECOVERY.** [ADR 0044](decisions/0044-recovery-independent-of-capture.md):
-a row Fountain cannot write no longer stops recovery. The capture boundary
-attaches a recovery-only snapshot (refused rows retyped on a never-dispatched
-copy) to the unchanged refusal; the session journals it, the cadence and
-controller never write it to the source file, and status reads "Recovery
-protected; file save pending". Files: `src/editor/{state,sourceBridge}.ts`,
-`src/application/{editorCapture,writingSession,saveCadence,persistenceController}.ts`,
-`src/app/writingHelpers.ts`; tests `tests/contract/capture-recovery.test.ts`,
-cadence and WritingView F3 cases.
-
-| Check                                                            | Result                                                                              |
-| ---------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
-| `pnpm typecheck`, `pnpm lint`                                    | pass                                                                                |
-| `pnpm test`                                                      | 78 files / 1497 tests pass                                                          |
-| `pnpm test:differential` (after `pnpm pdf-helper`)               | 3 files / 6 tests pass                                                              |
-| `tests/investigation/f4-prefix.test.ts`                          | 7 pass                                                                              |
-| Native `tests/native/writing-lifecycle/empty_heading.py` phase E | updated to new behavior; **not run** (no desktop/WebDriver host in agent container) |
-
-**M6-03-A snapshot cap.** A rolling snapshot that hits the 256-record/256 MiB
-cap now runs native retention once and retries (ADR 0018 amendment), instead of
-silently stopping rolling snapshots after ~21 hours of writing. Files:
-`src/application/saveCadence.ts`, `snapshot_store.rs` comment, tests in
-`save-cadence.test.ts` and `snapshot_store_tests.rs`.
-
-| Check                                                                  | Result                                                                                               |
-| ---------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| `pnpm test` cadence suite                                              | 22 pass                                                                                              |
-| `cargo test -p screenwriter-core --lib snapshot_store::tests`          | 22 pass on ext4 and tmpfs (`BABEL_SNAPSHOT_TEST_ROOT=/dev/shm/...`); Btrfs **not run** (unavailable) |
-| `cargo clippy -p screenwriter-core --all-targets`, `cargo fmt --check` | clean                                                                                                |
-
-**DOCS-ARCHIVE.** 109 finished briefs, reviews, handoffs, `AUDIT.md` and
-one-off proof/history docs moved to [archive](archive) with every link
-rewritten; `docs/tasks` keeps only open briefs. Historical evidence keeps its
-recorded paths; only links changed. `docs/index.md` stub deleted.
-`check:links` (1941 links) and `check:guidance` pass.
-
-**NEW-SCRIPT-FLOW.** New screenplays start on a Scene Heading row; an
-autocomplete suggestion identical to the typed text no longer swallows Enter
-(SPEC 1.3 S07.6). A natural-keystroke scene types correctly in the package.
-[Evidence](test-evidence/PILOT-2026-10-06.md#new-screenplay-and-identical-suggestions-finding-3-plus-a-new-finding).
-
-**HOME-RECOVERY.** Finding 2 fixed: each recovered draft offers one "Open
-latest version" action with checkpoint details de-emphasized.
-[Evidence](test-evidence/PILOT-2026-10-06.md#home-recovery-finding-2-addressed).
-
-**WRITING-LAYOUT.** Finding 1 fixed with CSS only: at 900×680 the script is
-visible under compact chrome; narrow windows show it before the navigator.
-[Evidence](test-evidence/PILOT-2026-10-06.md#writing-first-layout-finding-1-addressed).
-
-**PILOT-2026-10-06.** [Evidence](test-evidence/PILOT-2026-10-06.md). The
-AppImage builds (`pnpm tauri build`, 99 MiB) and runs offline. Driven natively
-with new [tools/xdrive.py](../tools/xdrive.py): crash recovery restores an
-unsaved draft, and the ADR 0044 path works end to end (refused row → other-row
-edit journaled on disk → SIGKILL → restore returns every word). Findings:
-editor sits below ~10 rows of controls; Home recovery list is engineer-facing;
-new scripts start in Action.
+Last full gates: `pnpm check` 78 files / 1503 tests; `pnpm test:differential`
+6; `pnpm test:layout` 11 checks; snapshot cargo tests 22. Native Python drills
+were updated where behavior changed but **not run** (no WebKitWebDriver here).
 
 Decision: text before a Parenthetical's `(` keeps its named refusal (now
-recovery-protected). Saving it silently as Dialogue was tried and rejected:
-the alert is the clearer writer experience. Do not reopen without new evidence.
+recovery-protected). Saving it silently as Dialogue was tried and rejected; do
+not reopen without new evidence.
 
 ## Known limitations (accepted, not blockers)
 
@@ -86,8 +40,8 @@ the alert is the clearer writer experience. Do not reopen without new evidence.
   a crash in ordinary writing/save/close.
 - M6-02: Save As/IME readiness lag (~117 ms, content saved); shared-store lease limit.
 - Capture refusals that name no row still pause recovery (emergency copy route).
-  F4 prefix rows (`x (beat)`) are protected by recovery but not file-saved
-  until changed.
+- `pnpm test:browser` needs a newer Chromium than the agent container's 1194
+  (pdf.js 6.3); use `pnpm test:layout` there.
 - Replace-All load flake, SELinux coverage, broader keyboard/a11y/IME, full S13
   performance and second-host bootstrap (DEV-02) are untested here.
 
@@ -95,11 +49,12 @@ the alert is the clearer writer experience. Do not reopen without new evidence.
 
 Take the first unblocked item; if blocked, note why and take the next.
 
-1. **M6-14 remainder**: FUSE/desktop install, packaged PDF export and
-   spellcheck, locked-dependency audit. [Brief](tasks/M6-14.md).
-2. **M6-16 pilot remainder**: the S15.5 steps not yet exercised (PDF export,
-   find/replace, scene moves, title page, external change, backup restore),
-   driven with `tools/xdrive.py`; then replace the README "do not use" warning.
+1. **M6-16 pilot remainder** with `tools/xdrive.py`: find/replace, scene moves,
+   title page, external change, Save As and reopen, snapshot restore, backup
+   copy and restore. When the S15.5 list passes, replace the README "do not
+   use" warning with the real limits.
+2. **M6-14 remainder**: FUSE/desktop install and launch, packaged spellcheck,
+   Rust dependency audit if not yet recorded. [Brief](tasks/M6-14.md).
 3. **M6-03 remainder**: snapshot panel/restore/copy drill. [Brief](tasks/M6-03.md).
 4. **Capture**: a recovery copy for refusals that name no row.
 5. **D-05 remainder**: protected workflows take a PreDestructive snapshot and
