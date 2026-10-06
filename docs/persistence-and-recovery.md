@@ -216,6 +216,9 @@ preserve exact raw bytes, including unsupported encoding; verified content is
 shared across records. Selected records bind their entire metadata hash. Named
 and pre-destructive records are protected from automatic pruning. Native disk
 safety copies carry no guessed editor version.
+External copies are named `babel-copy-YYYY-MM-DD-HHMMSSZ-<8 hex>` (UTC,
+sortable) with `.fountain` or `.draft.json`; publication never replaces an
+existing name (COPY-NAMES).
 
 Changed rolling requests are admitted at five-minute intervals; explicit
 maintenance keeps five-minute representatives for one hour, hourly for 48 hours,
