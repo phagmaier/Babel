@@ -1,119 +1,72 @@
-# Current state — next-agent handoff 2026-10-05
+# Current state — 2026-10-06
 
-Application: **babel**. Work/commit on `main`; `f2ba0c5` is published with
-recorded CI passes. Later commits are local only.
-**M6-02, C1/F2 and Local v1 admission remain open.**
+Application: **babel**, a local-first Linux screenwriting app (Tauri + React +
+Rust). Feature-complete for local writing: Fountain editor with screenplay
+elements, smart Enter/autocomplete, Script Check, spellcheck, outline, title
+page, find/replace, scene moves, snapshots, protected close, crash recovery and
+offline PDF preview/export. Not yet packaged as an installable app (M6-14).
+
+Agents make every decision; the owner is never a blocker
+([ADR 0043](decisions/0043-agent-decision-authority.md)). Work on the assigned
+branch (default `main`).
 
 ## This session
 
-**AUDIT-PARK-H-F4-PREFIX complete**, from clean `18c4314`. [Brief](tasks/AUDIT-PARK-H-F4-PREFIX.md),
-[evidence](test-evidence/AUDIT-PARK-H-F4-PREFIX.md): exact prefix bytes fit Dialogue;
-three intent/serialization gates block Parenthetical recovery. Seven investigation
-and 40 existing JSDOM/injected-UI cases pass; lint/typecheck/Tier 1 pass. 778 tracked/
-11,754 retained files unchanged. No product repair/native work; F4 remains open.
+**PROC-RESET.** [ADR 0043](decisions/0043-agent-decision-authority.md) moves all
+gates to agents and records dispositions: gate P granted (Linux x86_64), native
+crash register accepted as residual risk, M6-02 closed with limitations, D-05
+applied (M6-05–09 deferred; snapshots are V1 Versions). AGENTS.md rewritten;
+SPEC 1.3 trims S17–S20 to pointers; TODO dependencies updated.
 
-**AUDIT-PARK-H-F4-REVIEW complete**, from clean `ceca040`, local only.
-[Brief](tasks/AUDIT-PARK-H-F4-REVIEW.md), [evidence](test-evidence/AUDIT-PARK-H-F4-REVIEW.md):
-group stays open; 188 JSDOM/injected-UI and Tier 1 checks pass; 776 tracked/11,754 retained files unchanged. No native trial/retirement.
+**CAPTURE-RECOVERY.** [ADR 0044](decisions/0044-recovery-independent-of-capture.md):
+a row Fountain cannot write no longer stops recovery. The capture boundary
+attaches a recovery-only snapshot (refused rows retyped on a never-dispatched
+copy) to the unchanged refusal; the session journals it, the cadence and
+controller never write it to the source file, and status reads "Recovery
+protected; file save pending". Files: `src/editor/{state,sourceBridge}.ts`,
+`src/application/{editorCapture,writingSession,saveCadence,persistenceController}.ts`,
+`src/app/writingHelpers.ts`; tests `tests/contract/capture-recovery.test.ts`,
+cadence and WritingView F3 cases.
 
-**AUDIT-MARKER-WARNINGS / READING complete**, local only: two note/one boneyard
-warning gaps and six readings corrected; bytes, issues/counts, hashes and export
-guard preserved. Warnings: 338 focused, 17 helper, both fixed gates pass.
-[Warnings](test-evidence/AUDIT-MARKER-WARNINGS.md), [reading](test-evidence/AUDIT-MARKER-READING.md).
+| Check                                                            | Result                                                                              |
+| ---------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| `pnpm typecheck`, `pnpm lint`                                    | pass                                                                                |
+| `pnpm test`                                                      | 78 files / 1497 tests pass                                                          |
+| `pnpm test:differential` (after `pnpm pdf-helper`)               | 3 files / 6 tests pass                                                              |
+| `tests/investigation/f4-prefix.test.ts`                          | 7 pass                                                                              |
+| Native `tests/native/writing-lifecycle/empty_heading.py` phase E | updated to new behavior; **not run** (no desktop/WebDriver host in agent container) |
 
-**M6-02-R6 read-only prerequisite review complete**. [Brief](tasks/M6-02-R6.md),
-[evidence](test-evidence/M6-02-R6.md): testing WebKitGTK 2.54.1-1 has 305909
-backport, lacks 315577 cleanup. Debug IDs verified; production support,
-frozen-stack substitution and Babel applicability unestablished. Tier 1 passes;
-all review inputs/register rows/cores/strict failures preserved. No native trial,
-register change or acceptance; separate owner S15.5 review escalated.
+## Known limitations (accepted, not blockers)
 
-**M6-02-R5 read-only review complete**, local only. [Evidence](test-evidence/M6-02-R5.md): R4 owned forced DELETE window, separate
-C1/F2 scopes and absent F2 temporary root established. No shared cause or closure.
-
-**M6-02-R4 diagnostic slice complete**, from clean `8781780`, local only.
-Private bounded Save tracing; 204 focused tests and local checks pass.
-Current post-cancel Save awaits a fresh version-31 source flush after its receipt,
-with no rolling wait. Native functional/bytes pass both; strict **1/2**:
-frozen control adds owned WebKit forced-teardown SIGABRT, current passes.
-Core/raw failure retained; old eleven rows preserved, new event registered.
-[Brief](tasks/M6-02-R4.md), [evidence](test-evidence/M6-02-R4.md).
-No historical cause, functional repair or limitation acceptance.
-
-**M6-02-R3 injected investigation complete**, local only; 202 focused/static pass.
-Prior saved labels can coexist with the pending duplicate flush; both settlements
-retain bytes/selection/Undo/Redo. [Brief](tasks/M6-02-R3.md), [evidence](test-evidence/M6-02-R3.md).
-No missing settlement/cause, native trial or repair; historical artifacts preserved.
-
-**M6-02-R2 diagnostic slice complete**, from clean `c74c8a0`, local only.
-Staged adoption refusals/timestamped readiness; 173 focused tests and frozen/current Btrfs 2/2 strict pass.
-Version-31 receipts precede readiness by 117/118 ms; no historical cause or repair; old roots/R1/register preserved.
-[Brief](tasks/M6-02-R2.md), [evidence](test-evidence/M6-02-R2.md).
-
-**M6-02-R1 bounded attempt complete; retained operations remain open.**
-From clean `9fc0085`, frozen/current Save As and real-IME stress comparisons
-passed 8/8 strict on tmpfs/Btrfs. Two initial legacy-close compatibility failures
-are retained. Stage observations show receipt-before-readiness; no original
-cause, functional repair or accepted limitation. All eleven native rows and
-307 old-root files are unchanged. [Evidence](test-evidence/M6-02-R1.md).
-
-**INFRA-WORKFLOW complete**, local only. [Brief](tasks/INFRA-WORKFLOW.md), [evidence](test-evidence/INFRA-WORKFLOW.md).
-Change-based checks/compact evidence apply; product/fixture/CI/S03/history preserved.
-Static passes; no product/native rerun, closure, admission, pruning or push.
-
-## Recent work
-
-- **AUDIT-D04-R5 complete, local only:** located review for three title
-  omissions and corrected section/synopsis wording. [Brief](tasks/AUDIT-D04-R5.md),
-  [evidence](test-evidence/AUDIT.md#audit-d04-r5--located-title-omission-limitations).
-- **AUDIT-EXPORT-WARNINGS complete, local only:** unknown/unreadable or
-  unannounced renderer warnings cancel export and retire the capture.
-  Category matching does not prove extent. [Evidence](test-evidence/AUDIT.md#audit-export-warnings--renderer-warnings-compared-at-export).
-- **AUDIT-SWEEP-COVERAGE complete, local only:** second deterministic corpus;
-  [reviewed inventory](../tests/differential/mixed-findings.json) preserves the six
-  corrected marker readings, three corrected warning gaps and 634 preparation refusals.
-  R5 title gaps are closed. [Evidence](test-evidence/AUDIT.md#audit-sweep-coverage--second-mixed-generated-corpus).
-- Earlier reading classification, R4 and instruction/CI maintenance remain
-  complete within their recorded scope. [Audit status](tasks/AUDIT-TRACKER.md),
-  [instruction evidence](test-evidence/INFRA-INSTRUCTIONS.md).
-
-## Retained findings and limits
-
-- [Native register](native-findings.md): twelve open rows, distinct workloads
-  and unresolved phases/causes. D04-R4 includes app aborts at file selection with
-  `/tmp` inode exhaustion. No shared cause or closure from passing controls.
-- [M6-02](tasks/M6-02.md), [follow-up](tasks/M6-02-R1.md),
-  [matrix](test-evidence/M6-02-matrix.md),
-  [review](reviews/2026-10-03-m6-02-persistence-review.md): retained Save As/IME
-  readiness failures and shared-store lease limit. C1/F2 release review is
-  separate; independent M6 safety work may proceed.
-- F4-01–05 content repairs are complete; F4 remains open after [review](test-evidence/AUDIT-PARK-H-F4-REVIEW.md).
-  Group F implementation stays unscheduled. Other intents/CR/mixed endings are contract-level;
-  F4-04 phase H natively covers Dialogue only. [F4 brief](tasks/AUDIT-PARK-H-F4.md),
-  [evidence](test-evidence/AUDIT.md#audit-park-h-f4-05--emptied-unterminated-last-rows).
-- Replace-All load flake, SELinux, broader keyboard/a11y/IME, installed/offline
-  adoption and full S13 remain open. DEV-02's second-host step is owner-only.
-  Preserve historical evidence and raw failed roots; no artifacts pruned.
+- [Native register](native-findings.md): 12 WebKitGTK aborts under forced
+  harness teardown or `/tmp` inode exhaustion; no content loss. Reopen only for
+  a crash in ordinary writing/save/close.
+- M6-02: Save As/IME readiness lag (~117 ms, content saved); shared-store lease limit.
+- Capture refusals that name no row still pause recovery (emergency copy route).
+  F4 prefix rows (`x (beat)`) are protected by recovery but not file-saved
+  until changed.
+- Replace-All load flake, SELinux coverage, broader keyboard/a11y/IME, full S13
+  performance and second-host bootstrap (DEV-02) are untested here.
 
 ## Next action
 
-**STOP after AUDIT-PARK-H-F4-PREFIX and its local commit.** No subsequent task selected.
-The [narrowed follow-up](test-evidence/AUDIT-PARK-H-F4-PREFIX.md#gates-and-one-narrowed-follow-up)
-is a cue-contained prefix repair requiring its own brief; no native trial selected.
-Both fixed corpora have no remaining reading/warning gaps; the 634 preparation
-refusals select no follow-up. No further marker task, new corpus or native trial.
-The owner-only M6 prerequisite disposition remains **blocked**:
-[Disposition and next owner decision](test-evidence/M6-02-R6.md#disposition-and-one-narrowed-follow-up):
-repository owner reviews the separate R4 forced preference-restart, C1 parent-loss
-and F2 failed-readiness/forced-cleanup risks under SPEC S15.5. Matching historical
-symbols and a related stable backport are verified; no eligible production trial
-or Babel correction is established. No agent acceptance, register change or crash
-closure. Additional symbol/runtime work needs separate selection and its own brief.
-No automatic native repeat or snapshot/guard/predicate/timer change.
-M6-02 stays unchecked; M6-03+/C1/F2/Local v1 depend on M6-02 + gate P. Other
-marker fixes, F4/group F implementation and DEV-02 stay unselected. No push/tag/amend.
-PARK-T/D07-F fixes and DEV-02 second-host work remain owner-only.
+Take the first unblocked item; if blocked, note why and take the next.
 
-Before native work check `df -i /tmp`, set `BABEL_NATIVE_IME_TEMP_ROOT` to a
-fresh Btrfs directory and recreate missing `/tmp` helpers/Cargo caches after
-reboot. Use the named investigation's exact commands and immutable binaries.
+1. **M6-03 snapshot retention at the cap**: automatic conservative retention
+   when the 256-record cap is reached (never named/pre-destructive/newest),
+   plus the D-05 cheap variant (verified PreDestructive snapshot before Replace
+   All; Git failure downgraded to a warning). [Brief](tasks/M6-03.md).
+2. **M6-14 Linux package**: unsigned offline AppImage/deb build and launch
+   check, with a basic locked-dependency audit. [Brief](tasks/M6-14.md).
+3. **M6-16 agent-run pilot**: SPEC S15.5 sequence on synthetic scripts; when it
+   passes, replace the README "do not use" warning with the real limits.
+4. **Capture follow-ups**: faithful file save for F4 prefix rows (cue-contained
+   prefix repair, see [F4-PREFIX](test-evidence/AUDIT-PARK-H-F4-PREFIX.md));
+   a recovery copy for refusals that name no row.
+5. **AUDIT-PARK-T (2)**: a failed resume leaves a second draft entry on Home.
+6. **Docs pruning**: archive completed briefs, reviews, handoffs and `AUDIT.md`
+   under one archive folder with links fixed; delete the `docs/index.md` stub.
+7. Later, not V1 blockers: M6-04, M6-10–13, M6-15, DEV-02, M6-05–09, M7, M8.
+
+Native drills: check `df -i /tmp`, set `BABEL_NATIVE_IME_TEMP_ROOT` to a fresh
+Btrfs directory, and follow `docs/development.md`.

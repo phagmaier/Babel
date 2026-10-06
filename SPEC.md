@@ -1,6 +1,6 @@
 # babel - Product and Engineering Specification
 
-Version: 1.2 living specification
+Version: 1.3 living specification
 Prepared: September 27, 2026 (America/Los_Angeles)
 Status: Living product contract; verification and release admission tracked in repository evidence
 Application name: **babel** (owner decision; technical names are mapped in `docs/architecture.md`)
@@ -275,7 +275,7 @@ Derived indexes, validation results, source maps, and PDF results carry the vers
 
 ### 04.3 Boundaries and dependency direction
 
-Use a simple frontend and a small Rust workspace, not a sprawling multi-service monorepo. Recommended modules are in S17. The dependency direction is:
+Use a simple frontend and a small Rust workspace, not a sprawling multi-service monorepo. Actual modules are listed in map.md. The dependency direction is:
 
 `UI -> application commands -> domain contracts / platform ports`
 
@@ -995,9 +995,9 @@ Record exact command, platform, result, and any skipped/blocked checks. A platfo
 
 ### 15.5 Local-v1 adoption gate
 
-Before trusting important work, demonstrate this sequence with disposable copies and then a deliberate owner-reviewed pilot:
+Before trusting important work, demonstrate this sequence with disposable copies and then a deliberate writing pilot, run and reviewed by the working agent on synthetic scripts ([ADR 0043](docs/decisions/0043-agent-decision-authority.md)):
 
-1. Install/open the packaged app offline on the owner's actual target computer.
+1. Install/open the packaged app offline on a declared target computer (Linux x86_64, ADR 0040).
 2. Create a script; exercise every core element, autocomplete, smart Enter, title page, find/replace, scene moves, notes, omissions, and undo.
 3. Save/close/reopen with content and relevant preferences preserved.
 4. Kill the process during editing and recover the latest acknowledged checkpoint.
@@ -1010,7 +1010,7 @@ Before trusting important work, demonstrate this sequence with disposable copies
 11. Export a backup to a separate destination and perform an actual restore drill.
 12. Document remaining limitations; retain independent backups and the old workflow until migration is verified.
 
-A retained forced-teardown/runtime crash may receive an explicit reviewed residual-risk disposition naming the finding, candidate, reachable workload, protections and acceptance limits. Its original strict failure remains recorded. Clean controls or elapsed deadlines never grant acceptance. Author-content loss, falsely saved status, unprotected ordinary drafting and reproducible ordinary-operation crashes require protection/repair before affected adoption. Accepted limitations do not bypass any step above.
+A retained forced-teardown/runtime crash may receive an explicit residual-risk disposition, recorded by the working agent, naming the finding, candidate, reachable workload, protections and acceptance limits. Its original strict failure remains recorded. Clean controls or elapsed deadlines never grant acceptance. Author-content loss, falsely saved status, unprotected ordinary drafting and reproducible ordinary-operation crashes require protection/repair before affected adoption. Accepted limitations do not bypass any step above.
 
 Remote-v1 adds a two-machine handoff, deliberately divergent edits, a concurrent upload rejection, cancellation/offline failures, privacy acknowledgement, and recovery after interrupted Get Latest.
 
@@ -1074,211 +1074,32 @@ Possible later work: FDX exchange if needed, deeper screenplay-aware comparisons
 <a id="s17"></a>
 ## S17. Repository structure and documentation ownership
 
-### 17.1 Recommended structure
-
-This is the **application source repository**, not a screenplay project's storage layout. Bootstrap may adjust names to fit the current tool template, but must record the final map and avoid needless package proliferation.
-
-```text
-screenwriter/
-   SPEC.md
-   AGENTS.md
-   README.md
-  TODO.md
-  package.json
-  pnpm-lock.yaml
-  Cargo.toml
-  Cargo.lock
-  rust-toolchain.toml
-  src/
-    app/
-    components/
-    features/
-    editor/
-    domain/
-    application/
-    infrastructure/
-    workers/
-    styles/
-  src-tauri/
-    src/
-    capabilities/
-    tauri.conf.json
-    Cargo.toml
-  crates/
-    screenwriter-core/
-  tests/
-    contract/
-    ui/
-    desktop/
-  fixtures/
-    fountain/
-    expected/
-    README.md
-  docs/
-    index.md
-    current-state.md
-    development.md
-    architecture.md
-    document-model.md
-    editor-behavior.md
-    persistence-and-recovery.md
-    pdf-and-formatting.md
-    sync-and-versioning.md
-    screenplay-validation.md
-    ux.md
-    testing.md
-    requirements.md
-    decisions/
-    test-evidence/
-  .github/
-    workflows/
-```
-
-The Rust root workspace includes the native core and Tauri application. The frontend can remain a single package. Prefer a pinned pnpm version and compatible Node version, selected from the actual environment/current documentation; do not add a JavaScript monorepo manager. Keep toolchain changes local to the repository.
-
-Create only modules with actual bootstrap content or a genuine immediate boundary. A document can describe a future directory without creating 30 empty stub files. Do not generate unimplemented production commands whose successful return values imply completed features.
-
-### 17.2 Documentation map
-
-| File | Owns | Read for |
-| --- | --- | --- |
-| `SPEC.md` | Product scope, requirement IDs, invariants, milestone gates | New requirements, scope disputes, bootstrap |
-| `AGENTS.md` | Short operating rules and routing | Every agent session |
-| `README.md` | What exists, how to start, current limitations | Human onboarding |
-| `TODO.md` | Milestone status and acceptance references; links to audit tracker | Dependencies and status |
-| `map.md` | Static repository navigation and code/document roots | Finding the right context |
-| `docs/index.md` | Compatibility entry linking to map.md | Existing inbound links |
-| `docs/current-state.md` | Compact checkpoint and sole continuation pointer, subject to user assignment and dependencies | Fresh session or compaction |
-| `docs/development.md` | Verified commands, versions, environment, platform prerequisites | Build/test/setup |
-| `docs/architecture.md` | Module boundaries, IPC, state ownership | Cross-cutting changes |
-| `docs/document-model.md` | Source/model ownership and fidelity contracts | Codec and editing |
-| `docs/editor-behavior.md` | Keyboard tables, selection, autocomplete, undo | Editor UX |
-| `docs/persistence-and-recovery.md` | Save state machine, recovery, backups, faults | Native persistence |
-| `docs/pdf-and-formatting.md` | Renderer/profile contract and evidence | Publication |
-| `docs/sync-and-versioning.md` | History model, remote state machine, privacy gate | Git/remote |
-| `docs/screenplay-validation.md` | Diagnostic codes, severity, safe fixes | Script Check |
-| `docs/ux.md` | Flows, visual/accessibility rules, status copy | UI |
-| `docs/testing.md` | Test layers, fixtures, gate policy | Verification |
-| `docs/requirements.md` | Requirement -> milestone/task/test/evidence trace | Completeness review |
-| `docs/decisions/` | Dated, status-labeled technical choices | Why a choice exists |
-| `docs/test-evidence/` | Compact per-milestone results, not raw transcript dumps | Audit and release |
-
-Do not create a separate giant `ROADMAP.md`, `INVARIANTS.md`, or duplicated master specification just because earlier planning mentioned them. S03/S16 own those contracts; the index and tasks link there. Focused docs must be substantive enough to use, but should link rather than copy entire sections verbatim.
-
-### 17.3 Documentation budgets and update rules
-
-Aim to keep root `AGENTS.md` below approximately 8 KiB and `docs/current-state.md` below about 120 lines. These are context-efficiency goals, not invitations to omit critical safety rules. Subsystem docs should focus on their own interfaces, behavior, tests, and unresolved decisions.
-
-Codex's official documentation describes instruction discovery and a default aggregate project-instruction limit of 32 KiB. Do not assume every nested instruction file is automatically loaded for every task; explicitly consult relevant local instructions. Do not change the user's global configuration to increase limits. See [R13].
-
-Every substantive behavior change updates its owning doc and task trace. Use a compact check table and link it from status/handoffs; add only needed failure/disposition explanation. Keep raw logs and generated inventories outside hot docs, with retained provenance for irreplaceable evidence. Preserve historical failure records; consolidate duplicate closed-item narratives without deleting canonical contracts, independent fixtures or release evidence. Use ADRs for lasting choices, not routine changes. Keep old handoff history out of `current-state.md`.
+Process rules are not product requirements. [map.md](map.md) owns repository
+navigation and `AGENTS.md` owns how agents work, document and hand off. Keep
+the frontend a single package and the Rust workspace small; create modules
+only for real content. Documentation exists to state contracts and decisions,
+not to narrate tasks.
 
 <a id="s18"></a>
 ## S18. Agent tasks, handoffs, and evidence
 
-### 18.1 Task shape
-
-Use stable task IDs such as `M2-04`. Each actionable task includes: status/authorization and dependencies, relevant requirement/invariant IDs and contract links, narrow deliverable/paths, acceptance, exact focused/native checks, selected local tier with skips, evidence link and stopping boundary. Reference current CI/release policy instead of repeating its commands. Scope a reproduction before implementing an unexplained finding.
-
-Example structure (not a claim that this task is already implemented):
-
-```text
-[ ] M2-04 - Reject stale save acknowledgements
-Dependencies: M2-01, M2-03
-Requirements: SAVE-02, INV-05
-Read: SPEC S10; docs/persistence-and-recovery.md
-Scope: versioned save state and its focused tests
-Acceptance: acknowledgement for v21 cannot clear dirty state for v22;
-            cross-session acknowledgement is rejected;
-            repeated acknowledgement is idempotent.
-Evidence: compact focused/local check table; current CI/release policy by link
-Not in scope: changing the PDF pipeline or adding remote sync
-```
-
-Fully detail the current and next milestone; keep later milestones dependency-ordered with gate criteria, and decompose them before starting. Avoid writing hundreds of speculative tiny tasks with guessed code paths. The earliest eligible task is one whose dependencies actually passed, not merely one positioned first in a list.
-
-### 18.2 Session workflow
-
-Read `AGENTS.md`, current state, and the relevant task entries. Inspect `git status` and existing changes before modifying code. Choose one coherent ready task or a clearly bounded set explicitly requested by the owner. Read only its relevant contracts and code. State the scope, implement/tests together, run checks, review the diff, update evidence and the handoff, and stop at the requested boundary.
-
-Do not use prior chat context as the sole source for a decision. Do not claim that a hidden plan, model memory, or another agent's report replaces repository evidence. Read referenced code rather than guessing from filenames.
-
-### 18.3 Compaction-resistant handoff
-
-`docs/current-state.md` should answer, briefly:
-
-- What milestone/task is active, and what is the present goal?
-- What works, what is incomplete, and what cannot be trusted yet?
-- What files changed or contain unresolved work?
-- Which exact checks ran, passed, failed, or were blocked?
-- What important decision/blocker remains, with its owning document?
-- What is the next safe task/command, and where should the next agent read?
-
-Update it before a natural stop, a handoff, or known context pressure. Do not paste large logs into it. A fresh agent must be able to resume without the previous conversation.
-
-### 18.4 Parallel work and review
-
-Parallelize only independent tasks with explicit file ownership. One coordinator owns shared task/status docs, dependency changes, interfaces, and integration. The coordinator works and commits on main by default (AGENTS.md). Explicitly approved isolated workers may use branches/worktrees; shared-tree workers must have disjoint file ownership. Never amend a published commit or overwrite another worker's changes.
-
-Subagents return a compact summary of decisions, touched files, tests, and risks, not entire logs. Avoid recursive agents for routine tasks. After each milestone, run a separate review focused on requirement drift, data-loss paths, tests, and implementation/documentation agreement. Reviewer claims still require verification.
-
-### 18.5 Approval and safety boundaries
-
-The owner has authorized creating the repository skeleton and local project files. That does not authorize deleting unrelated files, force-resetting branches, pushing code, publishing a package, creating cloud resources, installing privileged system packages, disabling sandbox protections, or reading private scripts/credentials.
-
-For harmless reversible defaults, proceed and document rather than asking repeated questions. For genuinely consequential choices such as plaintext remote privacy, paid services, public publishing, or destructive changes, keep the affected feature disabled and obtain explicit direction. Environment limitations should produce precise blocked checks and an actionable record, not invented success.
+See `AGENTS.md`. Agents select work from the priority list in
+`docs/current-state.md`, make every decision themselves
+([ADR 0043](docs/decisions/0043-agent-decision-authority.md)) and never claim an
+unrun check, mock or placeholder as verified.
 
 <a id="s19"></a>
 ## S19. Decisions and bounded technical investigations
 
-### 19.1 Record accepted direction separately from unproven implementation
-
-Initial ADRs should cover:
-
-1. Local-first Tauri/React/TypeScript/Rust desktop application and offline invariant.
-2. Fountain author-content storage with a structured, loss-aware editing model.
-3. Single live editor ownership and thin native service boundary.
-4. Continuous writing plus a separate authoritative PDF preview.
-5. Layered saving/recovery/snapshots and Git-backed revisions; no universal loss-proof promise.
-6. Explicit remote transfer after local safety, with a privacy gate and no silent merging.
-
-Keep ADRs short: context, decision, alternatives, consequences, status, source/requirement links, and what evidence is still needed. Mark the chosen product direction as accepted, but do not falsely claim the implementation has passed its proof.
-
-### 19.2 M1 technical proofs
-
-| Proof | Question | Required artifact / exit |
-| --- | --- | --- |
-| Loss-aware editor/codec | Can supported source and untouched ranges survive structured edits and incomplete drafting? | Small adversarial fixture suite; ownership design; verified round-trips and known exceptions |
-| Native input/performance | Does ProseMirror behave correctly in the host WebView with composition, selection, and long scripts? | Runnable minimal test, measurements, native observation |
-| PDF candidate | Does an existing renderer handle required elements/pagination and bundle offline? | Coverage matrix, representative PDFs/visual evidence, packaging experiment, selected adapter ADR |
-| Durable replacement | Which platform-specific save guarantees and APIs are available? | Fault harness and tested adapter plan; limitations recorded |
-| History store | Can the selected Git implementation snapshot and preserve refs without an external Git install? | Local disposable repo prototype, restore/conflict primitives, license/bundle notes |
-
-A proof is a bounded question with an exit criterion, not production feature implementation in disguise. Prefer one leading candidate and a clearly motivated fallback. After the proof, either promote a small tested component or isolate/discard demo code; do not leave two competing implementations active.
-
-### 19.3 Defaults that do not need to block bootstrap
-
-Use the owner-selected application name babel, the actual host as provisional primary development platform, continuous editor as the product default, Letter as the first profile, a single frontend package, a small Rust workspace, no database for source content, no real remote account, and no telemetry.
-
-Leave exact PDF engine, Git library, remote provider/authentication, provider-blind encryption, and verified platform coverage as explicit later decisions. This is intentional sequencing, not permission to ignore those tasks.
+Lasting choices get a short ADR in `docs/decisions/` (context, decision,
+alternatives, consequences, status, evidence still needed). An investigation
+is a bounded question with an exit; it ends in a fix, a recorded limitation or
+a deferral, never an open-ended series of follow-up investigations.
 
 <a id="s20"></a>
 ## S20. Bootstrap completion contract
 
-The first Codex run is complete when:
-
-1. Existing files/work are preserved, repository status and environment are documented, and a source Git repository is initialized only if one did not already exist.
-2. Compatible local toolchain/package versions are recorded; real manifests and lockfiles exist where dependency installation succeeded.
-3. A minimal React/TypeScript shell and Tauri/Rust host build on the actual environment, or an exact native prerequisite blocker is recorded without claiming a pass.
-4. A minimal headless Rust core and typed app-info/health IPC path exist, with meaningful tests; production feature services remain unimplemented and unavailable.
-5. Formatting, lint, typecheck, unit tests, build scripts, and a clear browser/native verification distinction are established.
-6. The documentation map, subsystem contracts, initial ADRs, requirement trace, TODO dependency structure, and compact current-state handoff are created from this specification.
-7. A minimal CI definition mirrors real commands and does not publish artifacts, contact private accounts, or require paid services. If remote CI has not run, say so.
-8. The shell has been visually inspected where possible, with its inspection status recorded. If no display/native runtime is available, preserve that gate as blocked.
-9. The final diff contains no secrets, personal scripts, fabricated lockfiles, disabled quality gates, fake working product features, or unapproved cloud operations.
-10. The agent reports completed/blocked M0 tasks, exact verification results, actual commands for the owner, and the first eligible M1 task, then **stops**.
-
-A partially blocked environment can still yield a useful, honest bootstrap, but M0 must not be marked fully verified until its required checks actually pass. Do not compensate for an unavailable compiler by writing the entire application untested.
+Complete (M0, 2026-09-27). Historical record: [M0 evidence](docs/test-evidence/M0.md).
 
 <a id="s21"></a>
 ## S21. Sources and verification notes
@@ -1325,3 +1146,5 @@ and Git fetch at https://git-scm.com/docs/git-fetch.
 - 1.1 (2026-10-03): Removed the deleted `BOOTSTRAP_PROMPT.md` from the S17.1 structure listing. No requirement, invariant, or gate changed.
 
 - 1.2 (2026-10-05, INFRA-INSTRUCTIONS): Align the established babel name, Linux-first declaration, static navigation, single continuation pointer and main/approved-isolation workflow. No product behavior, safety invariant or release gate weakened.
+
+- 1.3 (2026-10-06, PROC-RESET): Agents make every development decision (ADR 0043); S15.5 pilot and residual-risk dispositions are agent-run; S17–S20 process detail moved to AGENTS.md/map.md. Product requirements, invariants and release steps unchanged.

@@ -4,7 +4,7 @@ Authority: [SPEC S02/S03/S16/S18](SPEC.md#s16). `[x]` requires evidence; `[ ]` i
 
 Keep completed entries to a short status/outcome plus brief/evidence links; evidence prose belongs in test-evidence. Safety exceptions must be explicit.
 
-Open tasks have detailed briefs in `docs/tasks/`. Completed briefs (`docs/tasks/M0-*`–`M6-01*`, `DEV-01/03`) are frozen history; completed evidence (`docs/test-evidence/`) is append-only. Do not expand this file with per-task detail for finished work.
+Agents decide scope, priority, risk and gates themselves ([ADR 0043](docs/decisions/0043-agent-decision-authority.md)); "gate P" and owner gates are satisfied. Open tasks have detailed briefs in `docs/tasks/`. Completed briefs (`docs/tasks/M0-*`–`M6-01*`, `DEV-01/03`) are frozen history; completed evidence (`docs/test-evidence/`) is append-only. Do not expand this file with per-task detail for finished work.
 
 ## Completed — frozen summary (M0–M6-01)
 
@@ -22,32 +22,27 @@ Open tasks have detailed briefs in `docs/tasks/`. Completed briefs (`docs/tasks/
 
 <a id="m6--local-history-hardening-and-adoption-planned"></a>
 
-- [ ] **M6-G Local history, hardening, adoption** — Deps: M2 history and M4/M5 bounded gates; M6-01–16 and all Local v1 evidence. Reqs: HIST-01/02, SAVE-04/05, QA-01–03, SEC-01/02, APP-01. Remains open. [Trace](docs/requirements.md#m6-decomposition-coverage-planned). Owner declared Linux for now 2026-10-02 ([ADR 0040](docs/decisions/0040-local-v1-platform-scope.md)); M6-13/14 still need exact release-target confirmation.
-- [ ] **DEV-02 Second-machine smoothness** — Tooling slice landed; second-host bootstrap run still open (owner-only, outside M6). [Brief](docs/tasks/DEV-02.md); [evidence](docs/test-evidence/M5.md#dev-02--second-machine-smoothness-tooling-slice).
+- [ ] **M6-G Local history, hardening, adoption** — Deps: M6-03, M6-14, M6-16 (M6-05–09 deferred post-V1 by D-05). Reqs: SAVE-04/05, QA-01–03, SEC-01/02, APP-01; HIST-01/02 met for V1 by snapshots. [Trace](docs/requirements.md#m6-decomposition-coverage-planned). Linux x86_64 ([ADR 0040](docs/decisions/0040-local-v1-platform-scope.md)).
+- [ ] **DEV-02 Second-machine smoothness** — Tooling slice landed; second-host run deferred (no agent has a second host; not a blocker). [Brief](docs/tasks/DEV-02.md).
 
-- [ ] **M6-02 Persistence interruption and restart hardening** — Bounded Linux hardening and R1–R4 investigation recorded; original Save As/IME failures remain open. [Brief](docs/tasks/M6-02.md), [R1](docs/test-evidence/M6-02-R1.md), [R2](docs/test-evidence/M6-02-R2.md), [R3](docs/test-evidence/M6-02-R3.md), [R4](docs/test-evidence/M6-02-R4.md), [historical evidence](docs/test-evidence/M6.md#m6-02--persistence-interruption-and-operation-investigation). C1/F2 and new frozen-control forced SIGABRT retained; [R5](docs/test-evidence/M6-02-R5.md) and [R6 prerequisite review](docs/test-evidence/M6-02-R6.md) complete; related stable backport/debug IDs verified, trial prerequisites and cause/disposition open.
-- [ ] **M6-03 Independent snapshot and retention workflow** — Deps: M6-02; platform/authorization gate P. [Brief](docs/tasks/M6-03.md).
-- [ ] **M6-04 Configured external backup destination** — Deps: M6-03; platform/authorization gate P. [Brief](docs/tasks/M6-04.md).
-- [ ] **M6-05 Bounded native history inspection and selection** — Deps: M6-02/04; platform/authorization gate P. [Brief](docs/tasks/M6-05.md).
-- [ ] **M6-06 Automatic and named local revision cadence** — Deps: M6-05; platform/authorization gate P. [Brief](docs/tasks/M6-06.md).
-- [ ] **M6-07 History timeline preview and readable comparison** — Deps: M6-05/06; platform/authorization gate P. [Brief](docs/tasks/M6-07.md).
-- [ ] **M6-08 Non-destructive historical restore** — Deps: M6-03/06/07; platform/authorization gate P. [Brief](docs/tasks/M6-08.md).
-- [ ] **M6-09 Explicit history corruption recovery** — Deps: M6-05/08; platform/authorization gate P. [Brief](docs/tasks/M6-09.md).
-- [ ] **M6-10 Release security and locked dependency review** — Deps: M6-01/02/09; platform/authorization gate P. [Brief](docs/tasks/M6-10.md).
-- [ ] **M6-11 Full responsiveness and long-session baseline** — Deps: M6-04/06/08/10; platform/authorization gate P. [Brief](docs/tasks/M6-11.md).
-- [ ] **M6-12 Measured responsiveness correction** — Deps: M6-11; platform/authorization gate P. [Brief](docs/tasks/M6-12.md).
-- [ ] **M6-13 Declared-target native and accessibility matrix** — Deps: M6-02/09/10/12; platform/authorization gate P. [Brief](docs/tasks/M6-13.md).
-- [ ] **M6-14 Installed offline package and manual update checks** — Deps: M6-10/13; platform/authorization gate P. [Brief](docs/tasks/M6-14.md).
-- [ ] **M6-15 Disposable migration and independent backup restore** — Deps: M6-04/08/14; platform/authorization gate P. [Brief](docs/tasks/M6-15.md).
-- [ ] **M6-16 Owner writing pilot and Local v1 release review** — Deps: M6-01/02/03/04/05/06/07/08/09/10/11/12/13/14/15; platform/authorization gate P. [Brief](docs/tasks/M6-16.md).
+- [x] **M6-02 Persistence interruption and restart hardening** — Closed with known limitations ([ADR 0043](docs/decisions/0043-agent-decision-authority.md)): Save As/IME readiness lag (content saved), shared-store lease limit, and the forced-teardown [native register](docs/native-findings.md) accepted as residual risk. [Brief](docs/tasks/M6-02.md), [evidence](docs/test-evidence/M6.md#m6-02--persistence-interruption-and-operation-investigation).
+- [ ] **M6-03 Independent snapshot and retention workflow** — Deps: M6-02. [Brief](docs/tasks/M6-03.md).
+- [ ] **M6-04 Configured external backup destination** — Deps: M6-03. [Brief](docs/tasks/M6-04.md).
+- [ ] **M6-05 Bounded native history inspection and selection** — **Deferred post-V1 (D-05; snapshots are V1 Versions).** Deps: M6-02/04. [Brief](docs/tasks/M6-05.md).
+- [ ] **M6-06 Automatic and named local revision cadence** — **Deferred post-V1 (D-05; snapshots are V1 Versions).** Deps: M6-05. [Brief](docs/tasks/M6-06.md).
+- [ ] **M6-07 History timeline preview and readable comparison** — **Deferred post-V1 (D-05; snapshots are V1 Versions).** Deps: M6-05/06. [Brief](docs/tasks/M6-07.md).
+- [ ] **M6-08 Non-destructive historical restore** — **Deferred post-V1 (D-05; snapshots are V1 Versions).** Deps: M6-03/06/07. [Brief](docs/tasks/M6-08.md).
+- [ ] **M6-09 Explicit history corruption recovery** — **Deferred post-V1 (D-05; snapshots are V1 Versions).** Deps: M6-05/08. [Brief](docs/tasks/M6-09.md).
+- [ ] **M6-10 Release security and locked dependency review** — Deps: M6-01/02/09. [Brief](docs/tasks/M6-10.md).
+- [ ] **M6-11 Full responsiveness and long-session baseline** — Deps: M6-04/06/08/10. [Brief](docs/tasks/M6-11.md).
+- [ ] **M6-12 Measured responsiveness correction** — Deps: M6-11. [Brief](docs/tasks/M6-12.md).
+- [ ] **M6-13 Declared-target native and accessibility matrix** — Deps: M6-02/09/10/12. [Brief](docs/tasks/M6-13.md).
+- [ ] **M6-14 Installed offline package and manual update checks** — Deps: M6-03; folds in a basic locked-dependency audit (M6-10 scope) for the Linux package. [Brief](docs/tasks/M6-14.md).
+- [ ] **M6-15 Disposable migration and independent backup restore** — Deps: M6-04/08/14. [Brief](docs/tasks/M6-15.md).
+- [ ] **M6-16 Agent-run writing pilot and Local v1 release review** — Deps: M6-03, M6-14; S15.5 sequence on synthetic scripts (step 7 via snapshot restore). Deferred tasks do not block it. [Brief](docs/tasks/M6-16.md).
 
-M6-02 needs the M6-01 review artifact; an unresolved C1/F2 release gate may remain
-while independent safety work proceeds. M6-12 requires a measured scope addendum
-before correction; M6-13 needs new bounded briefs for missing target adapters.
-M6-02-R1's **bounded attempt is complete, operation disposition unresolved**.
-Its [R2 diagnostic slice](docs/tasks/M6-02-R2.md), [R3 injected investigation](docs/tasks/M6-02-R3.md) and [R4 stage tracing](docs/tasks/M6-02-R4.md) are complete; R5 retained-event and R6 prerequisite reviews are complete, with no native trial selected. Task selection lives only in
-[current-state Next action](docs/current-state.md#next-action). Its stop before
-M6-03 and Local v1 admission remains binding when selected.
+Work order lives only in [current-state Next action](docs/current-state.md#next-action).
+M6-04, M6-10–13 and M6-15 are not V1 blockers; agents take them when the list reaches them.
 
 <a id="audit-execution-auditmd-frozen-check-off-here-never-in-auditmd"></a>
 <a id="design-triage--decided-2026-10-03-executable-accept--reject--defer--rationale"></a>
@@ -59,19 +54,18 @@ M6-03 and Local v1 admission remains binding when selected.
 - [x] **INFRA-INSTRUCTIONS** — guidance/tooling maintenance complete; both published CI jobs passed. [Brief](docs/tasks/INFRA-INSTRUCTIONS.md), [evidence](docs/test-evidence/INFRA-INSTRUCTIONS.md).
 
 - [x] **AUDIT-PARK-H-F4-REVIEW** — closure review complete; five slices done, residual group remains open without retirement. [Brief](docs/tasks/AUDIT-PARK-H-F4-REVIEW.md), [evidence](docs/test-evidence/AUDIT-PARK-H-F4-REVIEW.md).
-- [x] **AUDIT-PARK-H-F4-PREFIX** — mechanism investigation complete; existing intent gates block exact prefix bytes. No repair or retirement; F4 open. [Brief](docs/tasks/AUDIT-PARK-H-F4-PREFIX.md), [evidence](docs/test-evidence/AUDIT-PARK-H-F4-PREFIX.md).
+- [x] **AUDIT-PARK-H-F4-PREFIX** — mechanism investigation complete; existing intent gates block exact prefix bytes. F4 rows now reach recovery via [ADR 0044](docs/decisions/0044-recovery-independent-of-capture.md); faithful file save of those rows remains a follow-up. [Brief](docs/tasks/AUDIT-PARK-H-F4-PREFIX.md), [evidence](docs/test-evidence/AUDIT-PARK-H-F4-PREFIX.md).
 
-The [audit tracker](docs/tasks/AUDIT-TRACKER.md) owns audit checkboxes,
-wave prerequisites and open owner decisions. [Current-state Next action](docs/current-state.md#next-action)
-is the only continuation pointer; an unchecked row is not permission to start.
+The [audit tracker](docs/tasks/AUDIT-TRACKER.md) owns audit checkboxes. [Current-state Next action](docs/current-state.md#next-action)
+is the only continuation pointer.
 
 ## M7 — explicit remote extension (gated)
 
 Each `M*-G` group needs an `M*-00` decomposition and refined trace before coding.
-M7 remains unchanged in scope and cannot begin before Local v1 adoption and the
-owner's privacy/destination decision.
+M7 remains unchanged in scope and cannot begin before Local v1. Real uploads stay
+disabled by default (no paid or third-party destination is chosen by agents).
 
-- [ ] **M7-G Explicit remote extension** — Deps: M6 local adoption gate and owner privacy/destination decision. Reqs: SYNC-01–05, INV-07/09/15. Read: SPEC S11; docs/sync-and-versioning.md.
+- [ ] **M7-G Explicit remote extension** — Deps: Local v1; a free, local or self-hosted destination chosen by the working agent. Reqs: SYNC-01–05, INV-07/09/15. Read: SPEC S11; docs/sync-and-versioning.md.
 
 ## M8 — optional, separately scoped
 
