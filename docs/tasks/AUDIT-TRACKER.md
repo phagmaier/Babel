@@ -115,6 +115,7 @@ T-03 (resume path, ~20-line composition), T-04 (8 `WritingSession` guard tests),
   - [x] **AUDIT-PARK-H-F4-05** — [evidence](../test-evidence/AUDIT.md#audit-park-h-f4-05--emptied-unterminated-last-rows).
 
 - [x] **AUDIT-PARK-H-F4-REVIEW** — closure review complete; group stays open for residual drafts, no retirement or native acceptance. [Brief](AUDIT-PARK-H-F4-REVIEW.md), [evidence](../test-evidence/AUDIT-PARK-H-F4-REVIEW.md).
+- [x] **AUDIT-PARK-H-F4-PREFIX** — investigation complete; exact bytes fit Dialogue, existing Parenthetical intent gates refuse. F4 stays open; no repair/native work. [Brief](AUDIT-PARK-H-F4-PREFIX.md), [evidence](../test-evidence/AUDIT-PARK-H-F4-PREFIX.md).
 
 - [x] **AUDIT-READING-CANDIDATES** — eleven occurrences are seven sources: two supported lyric mappings, five confirmed silent omissions. [Brief](AUDIT-READING-CANDIDATES.md), [evidence](../test-evidence/AUDIT-READING-CANDIDATES.md#classification--2026-10-05).
 - [x] **AUDIT-D04-R4** — [Brief](AUDIT-D04-R4.md), [Evidence](../test-evidence/AUDIT.md#audit-d04-r4--boneyard-inside-the-renderers-opening-title-block).
