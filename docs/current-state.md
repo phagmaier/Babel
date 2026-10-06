@@ -24,10 +24,12 @@ branch (default `main`). Session work below is on `claude/youthful-bell-qemsy4`.
 | HOME-RECOVERY    | One "Open latest version" action per recovered draft                                                                                                              | [pilot §recovery](test-evidence/PILOT-2026-10-06.md#home-recovery-finding-2-addressed)                                       |
 | NEW-SCRIPT-FLOW  | New scripts start on a Scene Heading; identical suggestions no longer swallow Enter (S07.6)                                                                       | [pilot §new script](test-evidence/PILOT-2026-10-06.md#new-screenplay-and-identical-suggestions-finding-3-plus-a-new-finding) |
 | M6-14 slice B    | Packaged PDF export verified; npm and cargo audits clean (dev `source-map-js`, yanked `yoke-derive` bumped)                                                       | [pilot §PDF](test-evidence/PILOT-2026-10-06.md#packaged-pdf-export-and-dependency-audit-m6-14-slice-b)                       |
-| M6-16 slice      | Save As, external change + Reload, Find/Replace All, Recents reopen, named snapshot and restore verified in the package; versions list shows times newest first   | [pilot §workflows](test-evidence/PILOT-2026-10-06.md#writer-workflows-in-the-package-m6-16-slice)                            |
+| M6-16 slice      | Save As, external change + Reload, Find/Replace All, Recents reopen, named snapshot, restore and backup copy verified in the package                              | [pilot §workflows](test-evidence/PILOT-2026-10-06.md#writer-workflows-in-the-package-m6-16-slice)                            |
+| Pilot fixes      | Versions list shows times newest first; backup copies named by UTC date; "1 match" copy; README rewritten for the owner                                           | commits `SNAPSHOT-TIMES`, `COPY-NAMES`, `FIND-COPY`                                                                          |
 
-Last full gates: `pnpm check` 78 files / 1503 tests; `pnpm test:differential`
-6; `pnpm test:layout` 11 checks; snapshot cargo tests 22. Native Python drills
+Last full gates: `pnpm check` 78 files / 1504 tests; `pnpm test:differential`
+6; `pnpm test:layout` 11 checks; `cargo test -p babel-desktop` 61; snapshot
+cargo tests 23 (ext4 + tmpfs); `cargo audit` and `pnpm audit` clean. Native Python drills
 were updated where behavior changed but **not run** (no WebKitWebDriver here).
 
 Decision: text before a Parenthetical's `(` keeps its named refusal (now
@@ -51,10 +53,12 @@ not reopen without new evidence.
 Take the first unblocked item; if blocked, note why and take the next.
 
 1. **M6-16 pilot remainder** with `tools/xdrive.py`: scene moves, title page,
-   backup copy to another folder and restore from it, an injected save error. When the S15.5 list passes, replace the README "do not
-   use" warning with the real limits.
+   opening a backup copy, an injected save error (root in the agent container
+   bypasses permissions; use a read-only mount or note the limit). When the S15.5 list passes, relax the README status
+   caution to the real limits.
 2. **M6-14 remainder**: FUSE/desktop install and launch, packaged spellcheck. [Brief](tasks/M6-14.md).
-3. **M6-03 remainder**: snapshot panel/restore/copy drill. [Brief](tasks/M6-03.md).
+3. **M6-03 remainder**: snapshot UI restore/copy now pilot-verified; still the
+   native interruption/low-space retention drill. [Brief](tasks/M6-03.md).
 4. **Capture**: a recovery copy for refusals that name no row.
 5. **D-05 remainder**: protected workflows take a PreDestructive snapshot and
    treat a Git history failure as a warning
