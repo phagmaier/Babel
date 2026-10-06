@@ -97,28 +97,29 @@ and retained limitations: [DEV-01 evidence](test-evidence/M5.md#dev-01--laptop-d
 
 ## Commands
 
-| Goal                | Command                                                 | Scope                                                                    |
-| ------------------- | ------------------------------------------------------- | ------------------------------------------------------------------------ |
-| Install             | `pnpm install --frozen-lockfile`                        | Dependencies only                                                        |
-| Browser preview     | `pnpm dev`                                              | Vite; native services absent                                             |
-| Desktop development | `pnpm tauri dev`                                        | Real Tauri/WebKit runtime                                                |
-| Format              | `pnpm format:check`                                     | Source/docs except excluded byte-sensitive inputs                        |
-| Lint                | `pnpm lint`                                             | Frontend/tool JS/TS                                                      |
-| Typecheck           | `pnpm typecheck`                                        | Strict TypeScript                                                        |
-| Unit/UI             | `pnpm test`                                             | Vitest/JSDOM; native port injected                                       |
-| Browser smoke       | `pnpm test:browser`                                     | System Chromium + Playwright core                                        |
-| Frontend build      | `pnpm build`                                            | Typecheck + Vite                                                         |
-| Aggregate           | `pnpm check`                                            | Format, lint, typecheck, tests, build                                    |
-| Rust format         | `cargo fmt --all -- --check`                            | Workspace                                                                |
-| Rust lint           | `cargo clippy --workspace --all-targets -- -D warnings` | Workspace/native libs required                                           |
-| Rust unit           | `cargo test --workspace`                                | Includes host command wiring                                             |
-| Core unit           | `cargo test -p screenwriter-core`                       | No WebView                                                               |
-| Desktop package     | `pnpm tauri build`                                      | Native package; platform prerequisite gate                               |
-| Package spelling    | `python3 tools/check-package-spellcheck.py <AppDir>`    | Bundled Enchant finds its bundled Hunspell provider (CI)                 |
-| User install        | `python3 tools/install-desktop.py install`              | Per-user copy and launcher entry; `status`, `uninstall`                  |
-| PDF helper          | `pnpm pdf-helper`; `pnpm test:pdf-helper`               | M5-01 bundled renderer build/self-test                                   |
-| Link check          | `pnpm check:links`                                      | Full tracked Markdown links/anchors (CI); changed links for local Tier 1 |
-| Workspace matrix    | `python3 tools/run-workspace-matrix.py <tmpfs> <btrfs>` | Focused command via `--`; full workspace at integration/release          |
+| Goal                | Command                                                                                     | Scope                                                                       |
+| ------------------- | ------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| Install             | `pnpm install --frozen-lockfile`                                                            | Dependencies only                                                           |
+| Browser preview     | `pnpm dev`                                                                                  | Vite; native services absent                                                |
+| Desktop development | `pnpm tauri dev`                                                                            | Real Tauri/WebKit runtime                                                   |
+| Format              | `pnpm format:check`                                                                         | Source/docs except excluded byte-sensitive inputs                           |
+| Lint                | `pnpm lint`                                                                                 | Frontend/tool JS/TS                                                         |
+| Typecheck           | `pnpm typecheck`                                                                            | Strict TypeScript                                                           |
+| Unit/UI             | `pnpm test`                                                                                 | Vitest/JSDOM; native port injected                                          |
+| Browser smoke       | `pnpm test:browser`                                                                         | System Chromium + Playwright core                                           |
+| Frontend build      | `pnpm build`                                                                                | Typecheck + Vite                                                            |
+| Aggregate           | `pnpm check`                                                                                | Format, lint, typecheck, tests, build                                       |
+| Rust format         | `cargo fmt --all -- --check`                                                                | Workspace                                                                   |
+| Rust lint           | `cargo clippy --workspace --all-targets -- -D warnings`                                     | Workspace/native libs required                                              |
+| Rust unit           | `cargo test --workspace`                                                                    | Includes host command wiring                                                |
+| Core unit           | `cargo test -p screenwriter-core`                                                           | No WebView                                                                  |
+| Desktop package     | `pnpm tauri build`                                                                          | Native package; platform prerequisite gate                                  |
+| Package spelling    | `python3 tools/check-package-spellcheck.py <AppDir>`                                        | Bundled Enchant finds its bundled Hunspell provider (CI)                    |
+| User install        | `python3 tools/install-desktop.py install`                                                  | Per-user copy and launcher entry; `status`, `uninstall`                     |
+| Manual update       | `python3 tools/run-package-update.py <root> --previous <old> --next <new> --output <fresh>` | Two installed packages, old data readback/restore and future-schema refusal |
+| PDF helper          | `pnpm pdf-helper`; `pnpm test:pdf-helper`                                                   | M5-01 bundled renderer build/self-test                                      |
+| Link check          | `pnpm check:links`                                                                          | Full tracked Markdown links/anchors (CI); changed links for local Tier 1    |
+| Workspace matrix    | `python3 tools/run-workspace-matrix.py <tmpfs> <btrfs>`                                     | Focused command via `--`; full workspace at integration/release             |
 
 `pnpm check` also runs full links and guidance budgets/status checks.
 `pnpm test` discovers only current contract/UI tests under `tests/`; archives

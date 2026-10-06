@@ -22,7 +22,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('roots', nargs='+', type=Path)
     parser.add_argument('--output', required=True, type=Path)
-    parser.add_argument('--modes', nargs='+', choices=MODES + ['recovery-reopen', 'external-reload', 'publication-exit', 'pdf-export', 'typed-export', 'local-pilot', 'picker-start', 'spellcheck-unavailable', 'empty-heading', 'recovery-shutdown', 'persistence-paths', 'persistence-two-instances', 'persistence-two-instances-shared'], default=MODES)
+    parser.add_argument('--modes', nargs='+', choices=MODES + ['update-prepare', 'update-verify', 'recovery-reopen', 'external-reload', 'publication-exit', 'pdf-export', 'typed-export', 'local-pilot', 'picker-start', 'spellcheck-unavailable', 'empty-heading', 'recovery-shutdown', 'persistence-paths', 'persistence-two-instances', 'persistence-two-instances-shared'], default=MODES)
     parser.add_argument('--presentation-no-restart', action='store_true',
                         help='diagnostic only: skip presentation preference restart')
     parser.add_argument('--presentation-control', choices=['baseline', 'preedit-disabled', 'no-ime', 'typical-only', 'no-zoom', 'cleanup-probes'], default='baseline', help='diagnostic workload control; never integrated acceptance')
@@ -76,7 +76,7 @@ def main():
                     ledger = watch.save()
                 scan = journal_scan(ledger, journal_path)
             content = log.read_text()
-            artifacts = re.findall(r'(?:ROOT|ARTIFACTS) ([^\s]+)', content)
+            artifacts = re.findall(r'^(?:SESSION .* ROOT|ARTIFACTS) (.+)$', content, re.M)
             artifact = Path(artifacts[-1]) if artifacts else None
             native_log = artifact / 'webdriver.log' if artifact else None
             crash_lines = []

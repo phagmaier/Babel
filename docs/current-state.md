@@ -2,100 +2,86 @@
 
 Application: **babel**, local-first Linux screenwriting (Tauri/React/Rust).
 Agents decide under [ADR 0043](decisions/0043-agent-decision-authority.md).
-Branch: `main`. The package now installs per user, starts from its desktop
-entry and has working spellcheck. Local v1 admission remains open.
+Branch: `main`. Installed package update now passes on tmpfs and Btrfs.
+Local v1 admission remains open.
 
 ## This session
 
-**M6-14 install and packaged spellcheck** ([brief](tasks/M6-14.md),
-[evidence](test-evidence/M6-14-2026-10-06.md),
-[ADR 0045](decisions/0045-user-install-and-packaged-spelling.md)).
+**M6-14 manual update** ([brief](tasks/M6-14.md),
+[update evidence](test-evidence/M6-14-update-2026-10-06.md)). No production
+code or package change. Added `tools/run-package-update.py` and two opt-in
+native modes; reused the desktop-entry launch observer. Fixed native result
+parsing to retain complete artifact paths containing spaces.
 
-- **Defect fixed: packaged spellcheck never worked.** Enchant finds provider
-  modules beside its own library and the bundle had none, so the package
-  showed every language unavailable on any host. Earlier passes used the
-  unbundled release binary. The build now stages the Hunspell provider and
-  library into the AppImage (`tools/stage-spellcheck-provider.py`); CI runs
-  `tools/check-package-spellcheck.py` after the package build. That guard's
-  first CI run caught a second case: CI's source-built Enchant was not
-  relocatable, so its package used the build prefix. CI now builds it
-  `--enable-relocatable` and staging refuses a non-relocatable Enchant.
-- **Defect fixed: save pickers opened in the read-only package folder.** The
-  package's working directory is its mount (its WebKit needs that), so a
-  bare-filename Save As was refused. All four native pickers now start in the
-  home folder. A/B: same drill fails on the old package, passes on the new.
-- **New: `tools/install-desktop.py`** (`install`, `status`, `uninstall`).
-  Per-user copy plus one launcher entry; no root or system setting; every
-  package keeps its own file; uninstall removes only unchanged files it
-  recorded and never app data. Refuses a path containing `%` (GLib rejects it).
-- Desktop-entry launch verified: fresh profile with spaces/non-ASCII paths,
-  entry validated, started by name through GIO, FUSE self-mount, window class
-  matches the entry, Home rendered with the native host connected, no
-  internet sockets, ordinary close, mount released, clean uninstall.
-- Installed final package, development toolchains/caches/sources/interpreters
-  hidden from the app, loopback only: `picker-start`, `typed-export`,
-  `recovery-shutdown`, `local-pilot` and `publication-exit` pass in one run
-  and `spellcheck` in two separate runs, all with clean process and crash
-  audits. The running app loaded Enchant, provider and Hunspell only from
-  its own mount.
-- Host dictionaries hidden: the app states "en_US (unavailable)", disables
-  Check, marks nothing and still saves exact bytes.
+- Actual previous `6eabb82a…` and next `fc187bea…` AppImages installed into
+  one disposable profile per filesystem, with spaces/non-ASCII in paths.
+  Both desktop entries start by name through GIO, self-mount with FUSE,
+  start the package recorded as current, close ordinarily and release mounts.
+- Previous package creates source, named/safety snapshots, safety history,
+  recovery and preferences through normal UI. The next package reads them
+  back, restores the old snapshot with Save/Undo/Redo, resumes the old
+  unsaved checkpoint and reopens the final source writable. Literal BOM,
+  CRLF, whitespace, unknown title key, note and omission stay exact.
+- Previous package cannot Add a word because its provider is absent. A
+  labelled dictionary fixture is seeded, then read and durably republished
+  by its own preferences UI. New package reads that same generation and
+  honors the word while detecting a deliberate misspelling.
+- Writing phases use the installed files through the loopback-only FUSE
+  runner with development tools/sources/caches/interpreters hidden. Four
+  native phases and four desktop launches have clean process/crash audits.
+- Update changes no source/native app-data/config bytes and keeps the old
+  package. Future project metadata opens view-only with Save disabled and
+  exact separate Save As; original metadata/source remain unchanged.
+  Future install records refuse install/status/uninstall without mutation.
+  Uninstall removes only its packages/entry and preserves app data.
+- Fresh artifact roots retain pre-update backups, hashes, native/desktop
+  logs, screenshots, per-phase raw observations and five setup failures.
 
-Final package: AppImage `fc187bea…f999b`, packaged executable `9937166d…`.
-The M6-16 pilot ran the previous package (`6eabb82a…`); five of its modes were
-rerun on the final one here.
+Previous [install evidence](test-evidence/M6-14-2026-10-06.md) and
+[ADR 0045](decisions/0045-user-install-and-packaged-spelling.md) cover the
+packaged-provider and read-only-picker fixes, no-dictionary simulation and
+writing/PDF/restore pilot. Verified package remains at
+`target/release/bundle/appimage/babel_0.0.1_amd64.AppImage`:
+SHA-256 `fc187bea26ff1928faae3c8ad7c2c0fa06cb87aff7fb833ec78cb3dfa99f999b`.
 
 ## Checks
 
-| Command                                                        | Result                                             |
-| -------------------------------------------------------------- | -------------------------------------------------- |
-| `pnpm check`                                                   | Pass; 78 files, 1504 tests; links, guidance, build |
-| `cargo fmt --all -- --check`; Clippy `-p babel-desktop`        | Pass                                               |
-| `cargo test -p babel-desktop --locked`                         | 62 pass                                            |
-| `python3 -m unittest discover -s tests/tools -p 'test_*.py'`   | 10 pass (5 new installer tests)                    |
-| `sh tools/lint-py.sh`                                          | Pass                                               |
-| `tools/check-package-spellcheck.py <AppDir>`                   | Fails before the fix, passes after                 |
-| Staging vs host, relocatable and default upstream Enchant      | Pass, pass, refused as intended                    |
-| CI on `a6cbfc0`                                                | Existing steps pass; new guard failed, then fixed  |
-| CI on `f02a0cc` (run 37471622750)                              | Success, including the package spelling check      |
-| `installed_launch.py` on the final package                     | Pass                                               |
-| Packaged runner, six modes, development hidden                 | 5/6; spellcheck entry hit a drill bug, since fixed |
-| Packaged runner, `spellcheck`, development hidden              | 1/1 in two separate runs                           |
-| Packaged runner, dictionaries masked, `spellcheck-unavailable` | 1/1                                                |
-| Release binary `integrated_exit.py --modes spellcheck`         | 1/1                                                |
+| Command                                       | Result                                                    |
+| --------------------------------------------- | --------------------------------------------------------- |
+| `run-package-update.py` on Btrfs (`btrfs-06`) | Pass: two desktops, two writing phases, strict audits     |
+| Same on tmpfs (`tmpfs-01`)                    | Pass: two desktops, two writing phases, strict audits     |
+| `installed_launch.py` regression              | Pass: ordinary close, uninstall and owner entry unchanged |
+| Python tooling unit/syntax                    | 10 tests pass; 104 files compile                          |
+| Touched docs format; links/guidance; diff     | Pass; 2006 links resolve; guidance has no problems        |
+| CI on base `332116d`, run 37473317474         | Both jobs succeeded; checked this session                 |
 
-Not run: `pnpm test:differential`, workspace filesystem matrix, full native
-matrix (no capture, codec, persistence or frontend change). Failed and
-harness-fault runs are retained and listed in the evidence.
+No local package rebuild, frontend/Rust/differential/full workspace matrix:
+only Python harnesses/docs changed; candidate package bytes are unchanged.
 
 ## Known limitations
 
-- **Not installed in the owner's own profile**: agents do not change the
-  owner's launcher. `python3 tools/install-desktop.py install` does it.
-- Manual update with real app data, unknown-newer refusal and licence
-  notices for bundled libraries are open (M6-14, M6-10).
-- One host and distribution; only `en_US`. The no-dictionary case hides the
-  folder rather than using a host without spelling packages. The
-  desktop-entry run is not network-isolated (FUSE cannot mount in the
-  unprivileged namespace); offline evidence is the mounted runner's.
-- Pickers start in the home folder, not the current script's folder. No file
-  association: the app takes no file argument.
-- Backup is a separate filesystem on the same laptop, not an independent
-  disk. Real-software migration and second-host bootstrap are deferred; keep
-  independent backups and the old writing workflow.
-- Full S13/long session, broader IME/keyboard/a11y, enforcing SELinux and the
+- M6-14 bundled-library licence notices remain open, with M6-10.
+- This is agent-driven UI automation with synthetic app-generated data.
+  Both packages use schema 1; no new format migration. Future-schema cases
+  cover project metadata and installer records. Word creation is a labelled
+  fixture plus old-native republish, not an old-package Add pass.
+- One host/distribution and `en_US`; dictionary absence was simulated.
+  Desktop-entry launch is not network-isolated; writing phases are.
+  The owner's launcher remains untouched. No file association; native
+  pickers start in home rather than the current script's folder.
+- Backups use another filesystem on the same laptop, not an independent
+  disk. Real-software migration and second-host bootstrap remain deferred.
+- Full S13/long session, wider IME/keyboard/a11y, enforcing SELinux and the
   retained Replace-All load flake remain outside these checks.
-- Historical [native findings](native-findings.md) remain accepted under ADR
-  0043 with original strict failures; no new crash event this session.
-- M6-02 Save As/IME readiness lag (~117 ms, content saved), shared-store
-  lease limit, and capture refusals naming no row remain known limitations.
+- Historical [native findings](native-findings.md) retain their strict
+  failures and ADR 0043 disposition. No new crash event in the passing runs.
+  M6-02 Save As/IME readiness lag, shared-store lease limit and capture
+  refusals naming no row remain known limitations.
 
 ## Next action
 
-1. **M6-14 manual update drill**: with the retained previous package create
-   source, snapshot, recovery, preferences and a dictionary word; install the
-   next package; verify each reads back exactly; add an unknown-newer-schema
-   refusal case. [Brief](tasks/M6-14.md#done-and-remaining).
+1. **M6-14 notices**, with M6-10: exact licence texts and provenance for the
+   bundled libraries. [Brief](tasks/M6-14.md#done-and-remaining).
 2. **M6-03 remainder**: native interruption/low-space retention drill.
    [Brief](tasks/M6-03.md).
 3. **M6-16 admission review**, after M6-14/M6-03: refresh requirement
@@ -104,12 +90,10 @@ harness-fault runs are retained and listed in the evidence.
 4. **Capture**: recovery copy for refusals naming no row.
 5. **D-05 remainder**: protected workflows take a PreDestructive snapshot and
    treat Git history failure as a warning ([ADR 0030](decisions/0030-version-bound-workflow-protection.md)).
-6. Later, not V1 blockers: pickers start in the current script's folder;
-   M6-04, M6-10–13, M6-15, DEV-02, M6-05–09, AUDIT-PARK-T (2) failed-resume
-   duplicate Home entry, M7, M8.
+6. Later, not V1 blockers: current-script picker folder; M6-04, M6-10–13
+   beyond release notices, M6-15, DEV-02, M6-05–09, AUDIT-PARK-T (2), M7, M8.
 
-Native drills: check `df -i /tmp`, use fresh output paths and absolute
-filesystem roots; follow [development](development.md) and the
+Native drills: check `df -i /tmp`, use fresh outputs and absolute roots;
+follow [development](development.md) and the
 [native guide](../tests/native/writing-lifecycle/README.md#m6-14-installed-package).
-A packaging, spelling or picker change needs the packaged modes: the release
-binary does not exercise them.
+A packaging, spelling or picker change needs the packaged modes.

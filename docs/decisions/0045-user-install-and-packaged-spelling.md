@@ -69,4 +69,7 @@ after the package build so a package without its provider fails the build.
 
 Evidence still needed: another distribution or a host with no dictionary
 package installed (only simulated here by hiding the folder), other languages,
-a second package version for a real manual update, and release notices.
+and release notices. The two-package manual update and future-schema refusal
+now pass on tmpfs/Btrfs ([update evidence](../test-evidence/M6-14-update-2026-10-06.md));
+the old package's missing provider required a labelled dictionary fixture,
+which that package's preferences UI read and republished before update.

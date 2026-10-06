@@ -65,6 +65,28 @@ requires the visible missing-dictionary state, a disabled Check and an exact
 Save. `spellcheck` records the Enchant/Hunspell objects the app loaded.
 [Evidence](../../../docs/test-evidence/M6-14-2026-10-06.md).
 
+Manual update, two actual installed packages and one disposable profile:
+
+```sh
+python3 tools/run-package-update.py /absolute/tmpfs-or-btrfs/root \
+  --previous /absolute/retained-previous.AppImage \
+  --next /absolute/verified-next.AppImage --output target/m6-14-update-new
+```
+
+This creates source, named/safety snapshots, safety history, an unsaved
+checkpoint and UI preferences through the previous package. The previous
+package lacks its spelling provider, so a labelled checksummed word fixture
+is seeded first; its preferences UI reads and republishes that word. Both
+desktop entries self-mount through GIO and close ordinarily. Writing phases
+use the installed files through the loopback-only, development-hidden runner
+with the same profile. The next package restores the old snapshot with
+Undo/Redo, resumes the old checkpoint, checks the retained word, and safely
+copies a view-only future-schema project without changing its original.
+The installer retains the old package and all data, refuses a future install
+record, and uninstalls without touching app data. A full pre-update backup,
+hashes, screenshots and strict process/crash audits stay in the fresh output
+root. Run sequentially on tmpfs and Btrfs; never reuse an output root.
+
 ## Original production drill
 
 Run on the reference Linux/Hyprland host with installed WebKitWebDriver, wtype,

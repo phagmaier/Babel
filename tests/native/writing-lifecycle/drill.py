@@ -41,6 +41,8 @@ MODES = (
         ('--pdf-export', 'pdf_export', 'run'),
         ('--typed-export', 'typed_export', 'run'),
         ('--local-pilot', 'local_pilot', 'run'),
+        ('--update-prepare', 'package_update_workflows', 'prepare'),
+        ('--update-verify', 'package_update_workflows', 'verify'),
         ('--empty-heading', 'empty_heading', 'run'),
         ('--script-check', 'scriptcheck_workflows', 'run'),
         ('--title-page', 'title_page', 'run'),
@@ -71,18 +73,24 @@ def dispatch_modes(modes):
 
 REPO = Path(__file__).resolve().parents[3]
 BASE = Path(sys.argv[1] if len(sys.argv) > 1 else '/tmp').resolve()
-ROOT = Path(tempfile.mkdtemp(prefix='babel-writing-', dir=BASE))
-(ROOT / 'files').mkdir(mode=0o700)
-(ROOT / 'copies').mkdir(mode=0o700)
+UPDATE = any(flag in sys.argv for flag in ['--update-prepare', '--update-verify'])
+if UPDATE:
+    ROOT = Path(os.environ['BABEL_UPDATE_PROFILE_ROOT']).resolve(strict=True)
+    assert ROOT.is_relative_to(BASE) and ROOT != BASE
+    assert (ROOT / 'update-profile.json').is_file(), 'Runner-owned update profile required'
+else:
+    ROOT = Path(tempfile.mkdtemp(prefix='babel-writing-', dir=BASE))
+(ROOT / 'files').mkdir(mode=0o700, exist_ok=UPDATE)
+(ROOT / 'copies').mkdir(mode=0o700, exist_ok=UPDATE)
 PORT = 4447
 ELEMENT = 'element-6066-11e4-a52e-4f735466cecf'
 ENV = os.environ.copy()
 ENV.update(TAURI_WEBVIEW_AUTOMATION='true', XDG_DATA_HOME=str(ROOT / 'data'),
            XDG_CONFIG_HOME=str(ROOT / 'config'), XDG_CACHE_HOME=str(ROOT / 'cache'),
            GSETTINGS_BACKEND='memory')
-if '--picker-start' in sys.argv:
+if '--picker-start' in sys.argv or UPDATE:
     # A bare-filename Save As must land in this disposable home, never the owner's.
-    (ROOT / 'home').mkdir(mode=0o700)
+    (ROOT / 'home').mkdir(mode=0o700, exist_ok=UPDATE)
     ENV['HOME'] = str(ROOT / 'home')
 if any(mode in sys.argv for mode in ['--spellcheck', '--characters', '--commands']):
     # GTK's built-in context ID bypasses an inherited Fcitx wildcard cache.

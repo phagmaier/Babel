@@ -41,6 +41,104 @@ def tree(directory):
                   if '/mesa_shader_cache/' not in name)
 
 
+def launch_registered(env, home, install_dir, output):
+    """Launch an existing disposable entry, inspect FUSE, and close ordinarily."""
+    output.mkdir(parents=True, exist_ok=False)
+    entry = Path(env['XDG_DATA_HOME']) / 'applications/babel-desktop.desktop'
+    subprocess.run(['desktop-file-validate', str(entry)], check=True)
+    report = {}
+    owned_package = b'APPIMAGE=' + os.fsencode(install_dir) + b'/'
+
+    def app_processes():
+        found = []
+        for pid, process in processes().items():
+            try:
+                variables = Path(f'/proc/{pid}/environ').read_bytes().split(b'\0')
+                if process['name'] == 'babel-desktop' and any(v.startswith(owned_package) for v in variables):
+                    found.append(pid)
+            except OSError:
+                continue
+        return found
+
+    try:
+        wm_class = re.search(r'^StartupWMClass=(.+)$', entry.read_text(), re.M)[1]
+
+        assert not app_processes(), 'This disposable package path is already running'
+        started = time.time()
+        with (output / 'desktop-launch.log').open('w') as log:
+            launch = subprocess.run(['gtk-launch', 'babel-desktop'], env=env, cwd=home, stdout=log, stderr=log)
+        assert launch.returncode == 0, 'GIO did not resolve or start the registered entry'
+        pid = wait(app_processes, 'Registered entry starts the packaged app')[0]
+        watch = ProcessWatch(pid, output / 'processes.json')
+        watch.started = started
+        client = wait(lambda: [c for c in json.loads(subprocess.check_output(['hyprctl', '-j', 'clients']))
+                               if c['pid'] == pid and c.get('class') == wm_class], 'Window with the registered class')[0]
+        address = client['address']
+        assert re.fullmatch(r'0x[0-9a-f]+', address)
+        wait(lambda: any(p['name'] == 'WebKitWebProces' and p['parent'] == pid for p in processes().values()),
+             'WebKit web process')
+        variables = dict(v.split(b'=', 1) for v in Path(f'/proc/{pid}/environ').read_bytes().split(b'\0') if b'=' in v)
+        package = Path(os.fsdecode(variables[b'APPIMAGE']))
+        assert str(package) == json.loads((install_dir / 'install.json').read_text())['current'], 'Launcher started an old package'
+        appdir = Path(os.fsdecode(variables[b'APPDIR']))
+        executable = Path(os.readlink(f'/proc/{pid}/exe'))
+        mapped = sorted({line.split(None, 5)[5].strip() for line in Path(f'/proc/{pid}/maps').read_text().splitlines()
+                         if len(line.split(None, 5)) == 6 and re.search(r'enchant|hunspell|libwebkit2gtk|libgtk-3', line)})
+        report['launch'] = {
+            'package': str(package), 'packageSha256': hashlib.sha256(package.read_bytes()).hexdigest(),
+            'pid': pid, 'class': client['class'], 'title': client['title'], 'size': client['size'],
+            'executable': str(executable), 'appDir': str(appdir),
+            'appDirFilesystem': subprocess.check_output(['stat', '-f', '-c', '%T', str(appdir)], text=True).strip(),
+            'workingDirectory': os.readlink(f'/proc/{pid}/cwd'), 'mappedLibraries': mapped,
+            'automation': b'TAURI_WEBVIEW_AUTOMATION' in variables,
+            'developmentPathEntries': [p for p in os.fsdecode(variables.get(b'PATH', b'')).split(':')
+                                       if re.search(r'mise|cargo|node|pnpm|rustup', p)]}
+        assert executable == appdir / 'usr/bin/babel-desktop' and report['launch']['appDirFilesystem'].startswith('fuse')
+        # The package's own WebKit needs this working directory; pickers start in
+        # the home folder instead (picker-start mode in the packaged runner).
+        assert report['launch']['workingDirectory'] == str(appdir / 'usr') and not report['launch']['automation']
+        assert variables[b'OWD'] == os.fsencode(home), 'Desktop launch starts from the home folder'
+        assert not report['launch']['developmentPathEntries']
+        # Let the first paint and startup services settle before inspection.
+        time.sleep(3)
+        watch.sample()
+        owned = {p['pid'] for p in watch.records.values() if 'firstMissing' not in p}
+        sockets = subprocess.run(['ss', '-H', '-t', '-u', '-a', '-n', '-p'], capture_output=True, text=True, check=True)
+        report['launch']['internetSockets'] = [line for line in sockets.stdout.splitlines()
+                                              if any(f'pid={owned_pid},' in line for owned_pid in owned)]
+        assert not report['launch']['internetSockets'], report['launch']['internetSockets']
+        subprocess.run(['hyprctl', 'dispatch', 'hl.dsp.focus({ window = "address:' + address + '" })'],
+                       check=True, stdout=subprocess.DEVNULL)
+        time.sleep(.5)
+        client = next(c for c in json.loads(subprocess.check_output(['hyprctl', '-j', 'clients'])) if c['address'] == address)
+        x, y = client['at']; width, height = client['size']
+        subprocess.run(['grim', '-g', f'{x},{y} {width}x{height}', str(output / 'installed-home.png')], check=True)
+        report['launch']['profileFiles'] = tree(home)
+        # Ordinary compositor close: the same request a writer's close key sends.
+        subprocess.run(['hyprctl', 'dispatch', 'hl.dsp.window.close({ window = "address:' + address + '" })'],
+                       check=True, stdout=subprocess.DEVNULL)
+
+        def exited():
+            watch.sample()
+            return all('firstMissing' in p or p['state'] == 'Z' for p in watch.records.values())
+        wait(exited, 'App and helpers exit after ordinary close')
+        wait(lambda: not appdir.exists(), 'FUSE mount released')
+        time.sleep(3)
+        scan = journal_scan(watch.save(), output / 'crash-journal.json')
+        report['close'] = {'ordinaryExit': True, 'mountReleased': True,
+                           'crashEvents': scan['events'], 'crashAuditRead': scan['readPassed']}
+        assert scan['readPassed'] and not scan['events'], scan
+    except Exception as error:
+        report['error'] = repr(error)
+        raise
+    finally:
+        for pid in app_processes():
+            report.setdefault('forcedCleanup', []).append(pid)
+            os.kill(pid, 15)
+        (output / 'registered-launch.json').write_text(json.dumps(report, indent=2) + '\n')
+    return report
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('root', type=Path, help='existing absolute disposable directory')
@@ -99,70 +197,9 @@ def main():
         subprocess.run(['desktop-file-validate', str(entry)], check=True)
         report.update(installed=installed, entryText=entry.read_text(), status=tool('status'))
         (args.output / 'babel-desktop.desktop').write_bytes(entry.read_bytes())
-        wm_class = re.search(r'^StartupWMClass=(.+)$', report['entryText'], re.M)[1]
-
-        assert not app_processes(), 'This disposable package path is already running'
-        started = time.time()
-        with (args.output / 'desktop-launch.log').open('w') as log:
-            launch = subprocess.run(['gtk-launch', 'babel-desktop'], env=env, cwd=home, stdout=log, stderr=log)
-        assert launch.returncode == 0, 'GIO did not resolve or start the registered entry'
-        pid = wait(app_processes, 'Registered entry starts the packaged app')[0]
-        watch = ProcessWatch(pid, args.output / 'processes.json')
-        watch.started = started
-        client = wait(lambda: [c for c in json.loads(subprocess.check_output(['hyprctl', '-j', 'clients']))
-                               if c['pid'] == pid and c.get('class') == wm_class], 'Window with the registered class')[0]
-        address = client['address']
-        assert re.fullmatch(r'0x[0-9a-f]+', address)
-        wait(lambda: any(p['name'] == 'WebKitWebProces' and p['parent'] == pid for p in processes().values()),
-             'WebKit web process')
-        variables = dict(v.split(b'=', 1) for v in Path(f'/proc/{pid}/environ').read_bytes().split(b'\0') if b'=' in v)
-        appdir = Path(os.fsdecode(variables[b'APPDIR']))
-        executable = Path(os.readlink(f'/proc/{pid}/exe'))
-        mapped = sorted({line.split(None, 5)[5].strip() for line in Path(f'/proc/{pid}/maps').read_text().splitlines()
-                         if len(line.split(None, 5)) == 6 and re.search(r'enchant|hunspell|libwebkit2gtk|libgtk-3', line)})
-        report['launch'] = {
-            'pid': pid, 'class': client['class'], 'title': client['title'], 'size': client['size'],
-            'executable': str(executable), 'appDir': str(appdir),
-            'appDirFilesystem': subprocess.check_output(['stat', '-f', '-c', '%T', str(appdir)], text=True).strip(),
-            'workingDirectory': os.readlink(f'/proc/{pid}/cwd'), 'mappedLibraries': mapped,
-            'automation': b'TAURI_WEBVIEW_AUTOMATION' in variables,
-            'developmentPathEntries': [p for p in os.fsdecode(variables.get(b'PATH', b'')).split(':')
-                                       if re.search(r'mise|cargo|node|pnpm|rustup', p)]}
-        assert executable == appdir / 'usr/bin/babel-desktop' and report['launch']['appDirFilesystem'].startswith('fuse')
-        # The package's own WebKit needs this working directory; pickers start in
-        # the home folder instead (picker-start mode in the packaged runner).
-        assert report['launch']['workingDirectory'] == str(appdir / 'usr') and not report['launch']['automation']
-        assert variables[b'OWD'] == os.fsencode(home), 'Desktop launch starts from the home folder'
-        assert not report['launch']['developmentPathEntries']
-        # Let the first paint and startup services settle before inspection.
-        time.sleep(3)
-        watch.sample()
-        owned = {p['pid'] for p in watch.records.values() if 'firstMissing' not in p}
-        sockets = subprocess.run(['ss', '-H', '-t', '-u', '-a', '-n', '-p'], capture_output=True, text=True, check=True)
-        report['launch']['internetSockets'] = [line for line in sockets.stdout.splitlines()
-                                              if any(f'pid={owned_pid},' in line for owned_pid in owned)]
-        subprocess.run(['hyprctl', 'dispatch', 'hl.dsp.focus({ window = "address:' + address + '" })'],
-                       check=True, stdout=subprocess.DEVNULL)
-        time.sleep(.5)
-        client = next(c for c in json.loads(subprocess.check_output(['hyprctl', '-j', 'clients'])) if c['address'] == address)
-        x, y = client['at']; width, height = client['size']
-        subprocess.run(['grim', '-g', f'{x},{y} {width}x{height}', str(args.output / 'installed-home.png')], check=True)
-        report['launch']['profileFiles'] = tree(home)
+        launched = launch_registered(env, home, install_dir, args.output / 'registered')
+        report.update(launched)
         save()
-        # Ordinary compositor close: the same request a writer's close key sends.
-        subprocess.run(['hyprctl', 'dispatch', 'hl.dsp.window.close({ window = "address:' + address + '" })'],
-                       check=True, stdout=subprocess.DEVNULL)
-
-        def exited():
-            watch.sample()
-            return all('firstMissing' in p or p['state'] == 'Z' for p in watch.records.values())
-        wait(exited, 'App and helpers exit after ordinary close')
-        wait(lambda: not appdir.exists(), 'FUSE mount released')
-        time.sleep(3)
-        scan = journal_scan(watch.save(), args.output / 'crash-journal.json')
-        report['close'] = {'ordinaryExit': True, 'mountReleased': True,
-                           'crashEvents': scan['events'], 'crashAuditRead': scan['readPassed']}
-        assert scan['readPassed'] and not scan['events'], scan
         before = [name for name in tree(home) if not name.startswith(('Apps é', 'My Data é/applications'))]
         report['uninstall'] = tool('uninstall')
         after = tree(home)
