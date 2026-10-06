@@ -26,6 +26,26 @@ const notices: Record<RecoveryNotice, string> = {
   unreadableArtifact:
     'An artifact could not be safely read. It remains untouched.',
 };
+/**
+ * The version a writer most likely wants back: the newest confirmed checkpoint
+ * (published or previous journal, never an unconfirmed pending write).
+ */
+export function latestCandidate(
+  candidates: readonly RecoveryCandidate[],
+): RecoveryCandidate | null {
+  let best: RecoveryCandidate | null = null;
+  for (const candidate of candidates) {
+    const origin = candidate.selection.origin;
+    if (origin !== 'current' && origin !== 'previous') continue;
+    if (
+      !best ||
+      candidate.version > best.version ||
+      (candidate.version === best.version && origin === 'current')
+    )
+      best = candidate;
+  }
+  return best;
+}
 const originNames = {
   current: 'Published journal',
   previous: 'Previous journal',
@@ -168,56 +188,78 @@ export function RecoveryReview({
         <p>No recognized local checkpoints were found in this scan.</p>
       )}
       <ul className="recovery-list">
-        {catalog.entries.map((entry) => (
-          <li key={entry.documentId}>
-            <h3>Draft {entry.documentId}</h3>
-            {entry.notices.map((notice) => (
-              <p key={notice}>{notices[notice]}</p>
-            ))}
-            {entry.error && (
-              <p>
-                Some recovery material needs attention. Refresh or inspect the
-                valid generations below.
-              </p>
-            )}
-            {entry.candidates.length === 0 && (
-              <p>
-                No valid checkpoint is available for preview; the original
-                artifacts remain protected.
-              </p>
-            )}
-            <ul>
-              {entry.candidates.map((candidate) => (
-                <li
-                  key={`${candidate.selection.origin}-${candidate.selection.recordSha256}`}
-                >
+        {catalog.entries.map((entry) => {
+          const latest = latestCandidate(entry.candidates);
+          return (
+            <li key={entry.documentId}>
+              <h3>Draft {entry.documentId}</h3>
+              {latest && (
+                <div className="recovery-latest">
                   <p>
-                    {originNames[candidate.selection.origin]} · Version{' '}
-                    {candidate.version}, generation {candidate.generation} ·{' '}
-                    {candidate.byteLength} bytes
+                    Work that was not closed normally. Open the latest version
+                    to keep writing; every checkpoint below stays on disk.
                   </p>
-                  <p className="hash">
-                    Source SHA-256: {candidate.sourceSha256}
-                  </p>
-                  <button type="button" onClick={() => void inspect(candidate)}>
-                    Inspect{' '}
-                    {originNames[candidate.selection.origin].toLowerCase()}{' '}
-                    generation {candidate.generation}
-                  </button>
                   {onResume && (
                     <button
                       type="button"
-                      aria-label={`Resume as new draft · ${originNames[candidate.selection.origin]} generation ${candidate.generation}, version ${candidate.version}`}
-                      onClick={() => onResume({ ...candidate.selection })}
+                      onClick={() => onResume({ ...latest.selection })}
                     >
-                      Resume as new draft
+                      Open latest version
                     </button>
                   )}
-                </li>
+                </div>
+              )}
+              {entry.notices.map((notice) => (
+                <p key={notice}>{notices[notice]}</p>
               ))}
-            </ul>
-          </li>
-        ))}
+              {entry.error && (
+                <p>
+                  Some recovery material needs attention. Refresh or inspect the
+                  valid generations below.
+                </p>
+              )}
+              {entry.candidates.length === 0 && (
+                <p>
+                  No valid checkpoint is available for preview; the original
+                  artifacts remain protected.
+                </p>
+              )}
+              <ul>
+                {entry.candidates.map((candidate) => (
+                  <li
+                    key={`${candidate.selection.origin}-${candidate.selection.recordSha256}`}
+                  >
+                    <p>
+                      {originNames[candidate.selection.origin]} · Version{' '}
+                      {candidate.version}, generation {candidate.generation} ·{' '}
+                      {candidate.byteLength} bytes
+                    </p>
+                    <p className="hash">
+                      Source SHA-256: {candidate.sourceSha256}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => void inspect(candidate)}
+                    >
+                      Inspect{' '}
+                      {originNames[candidate.selection.origin].toLowerCase()}{' '}
+                      generation {candidate.generation}
+                    </button>
+                    {onResume && (
+                      <button
+                        type="button"
+                        aria-label={`Resume as new draft · ${originNames[candidate.selection.origin]} generation ${candidate.generation}, version ${candidate.version}`}
+                        onClick={() => onResume({ ...candidate.selection })}
+                      >
+                        Resume as new draft
+                      </button>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </li>
+          );
+        })}
       </ul>
       {selected && (
         <section

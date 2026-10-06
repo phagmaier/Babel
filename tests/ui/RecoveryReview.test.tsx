@@ -220,3 +220,79 @@ it('AUDIT-TEST resumes the exact reviewed selection as a new draft without adopt
   expect(onResume).toHaveBeenCalledExactlyOnceWith(candidate.selection);
   expect(preview).not.toHaveBeenCalled();
 });
+
+it('PILOT finding 2: Open latest version resumes the newest confirmed checkpoint, never a pending write', async () => {
+  const onResume = vi.fn(),
+    preview = vi.fn(async () => result());
+  const at = (
+    origin: RecoveryCandidate['selection']['origin'],
+    version: number,
+    mark: string,
+  ): RecoveryCandidate => ({
+    ...candidate,
+    selection: {
+      ...candidate.selection,
+      origin,
+      recordSha256: mark.repeat(64),
+    },
+    version,
+    generation: version,
+  });
+  const newest = at('current', 30, 'c');
+  const entries = [
+    at('previous', 29, 'd'),
+    newest,
+    at('pending', 31, 'e'),
+    at('previous', 30, 'f'),
+  ];
+  render(
+    <RecoveryReview
+      port={{
+        list: async () => ({
+          ...catalog,
+          entries: [{ ...catalog.entries[0]!, candidates: entries }],
+        }),
+        preview,
+      }}
+      onResume={onResume}
+    />,
+  );
+  fireEvent.click(
+    await screen.findByRole('button', { name: 'Open latest version' }),
+  );
+  expect(onResume).toHaveBeenCalledExactlyOnceWith(newest.selection);
+  expect(preview).not.toHaveBeenCalled();
+  // Every checkpoint row and its own Resume action stay available.
+  expect(
+    screen.getAllByRole('button', { name: /Resume as new draft/ }),
+  ).toHaveLength(4);
+});
+
+it('PILOT finding 2: no primary action when only unconfirmed pending writes exist', async () => {
+  render(
+    <RecoveryReview
+      port={{
+        list: async () => ({
+          ...catalog,
+          entries: [
+            {
+              ...catalog.entries[0]!,
+              candidates: [
+                {
+                  ...candidate,
+                  selection: { ...candidate.selection, origin: 'pending' },
+                },
+              ],
+            },
+          ],
+        }),
+        preview: vi.fn(),
+      }}
+      onResume={vi.fn()}
+    />,
+  );
+  await screen.findByRole('button', { name: /Resume as new draft/ });
+  expect(
+    screen.queryByRole('button', { name: 'Open latest version' }),
+  ).toBeNull();
+});

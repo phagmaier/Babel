@@ -112,6 +112,14 @@ button:disabled {
   font-size: 1rem;
   overflow-wrap: anywhere;
 }
+/* Writers act on the latest version; checkpoint rows are technical detail. */
+.recovery-latest {
+  margin-block: 8px 12px;
+}
+.recovery-list > li > ul {
+  font-size: 0.875rem;
+  color: var(--muted);
+}
 .hash {
   overflow-wrap: anywhere;
   font-size: 0.8rem;
