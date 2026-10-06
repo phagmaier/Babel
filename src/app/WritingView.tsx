@@ -228,6 +228,8 @@ export function WritingView({
   const [active, setActive] = useState<ActiveInfo | null>(null);
   const [status, setStatus] = useState('');
   const [saveDetails, setSaveDetails] = useState('');
+  const [saveObservation, setSaveObservation] =
+    useState<WritingSession['saveObservation']>(null);
   const [snapshotAttention, setSnapshotAttention] = useState(false);
   const [onlyInMemory, setOnlyInMemory] = useState(false);
   const [showExternal, setShowExternal] = useState(false);
@@ -1002,6 +1004,9 @@ export function WritingView({
       undefined,
       () => {
         if (alive) refresh();
+      },
+      () => {
+        if (alive) setSaveObservation(session.saveObservation);
       },
     );
     sessionRef.current = session;
@@ -1976,7 +1981,13 @@ export function WritingView({
             </p>
           )}
           {error && <p role="alert">{error}</p>}
-          <details>
+          <details
+            data-save-observation={JSON.stringify({
+              ...saveObservation,
+              actionPending: busy,
+              actionOwned: operationRef.current,
+            })}
+          >
             <summary>Save details</summary>
             <p>{saveDetails}</p>
           </details>

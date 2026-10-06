@@ -67,6 +67,26 @@ export interface FlushSummary {
 
 type Protection = 'recoveryCheckpoint' | 'sourceFile';
 
+/** Internal observations only; never receipts or inputs to admission. */
+export interface SaveStage {
+  readonly stage:
+    | 'cadence-wait-start'
+    | 'cadence-settled'
+    | 'checkpoint-requested'
+    | 'checkpoint-receipt'
+    | 'source-requested'
+    | 'source-receipt'
+    | 'rolling-start'
+    | 'rolling-completed'
+    | 'rolling-failed'
+    | 'dispatch-failed'
+    | 'dispatch-settled'
+    | 'flush-completed';
+  readonly version: number | null;
+  readonly protection?: Protection;
+  readonly fresh?: boolean;
+}
+
 export class SaveCadence {
   private latest: CapturedSnapshot | null = null;
   private dirtySince: number | null = null;
@@ -83,6 +103,7 @@ export class SaveCadence {
   private disposed = false;
   private paused = false;
   private readonly jobs = new Set<Promise<void>>();
+  private rollingVersion: number | null = null;
 
   constructor(
     private readonly controller: PersistenceController,
@@ -90,7 +111,25 @@ export class SaveCadence {
     private readonly clock: CadenceClock = realClock,
     private readonly options: CadenceOptions = defaultCadenceOptions,
     private readonly onChange: () => void = () => undefined,
+    private readonly onStage: (fact: SaveStage) => void = () => undefined,
   ) {}
+
+  get observation() {
+    return {
+      jobs: this.jobs.size,
+      recoveryInFlight: this.inFlight.recoveryCheckpoint,
+      sourceInFlight: this.inFlight.sourceFile,
+      rollingVersion: this.rollingVersion,
+    };
+  }
+
+  private observe(fact: SaveStage): void {
+    try {
+      this.onStage(fact);
+    } catch {
+      // A diagnostic consumer cannot change save/snapshot settlement.
+    }
+  }
 
   /**
    * Session adoption primes the opened version for explicit flushes without
@@ -130,7 +169,15 @@ export class SaveCadence {
   async flush(): Promise<FlushSummary> {
     this.assertLive();
     this.clearTimers();
+    this.observe({
+      stage: 'cadence-wait-start',
+      version: this.latest?.version ?? null,
+    });
     await this.settle();
+    this.observe({
+      stage: 'cadence-settled',
+      version: this.latest?.version ?? null,
+    });
     const snapshot = this.latest;
     if (snapshot !== null && this.recoveryNeeded()) {
       await this.dispatch('recoveryCheckpoint');
@@ -139,6 +186,10 @@ export class SaveCadence {
       await this.dispatch('sourceFile', true);
     }
     const state = this.controller.state;
+    this.observe({
+      stage: 'flush-completed',
+      version: snapshot?.version ?? null,
+    });
     return {
       recovered:
         snapshot === null || state.journaledVersion >= snapshot.version,
@@ -292,17 +343,55 @@ export class SaveCadence {
     this.inFlight[protection] = true;
     try {
       if (protection === 'recoveryCheckpoint') {
-        await this.controller.checkpoint(snapshot);
+        const checkpoint = this.controller.checkpoint(snapshot);
+        this.observe({
+          stage: 'checkpoint-requested',
+          version: snapshot.version,
+          protection,
+          fresh,
+        });
+        await checkpoint;
+        this.observe({
+          stage: 'checkpoint-receipt',
+          version: snapshot.version,
+          protection,
+          fresh,
+        });
       } else {
-        const receipt = await this.controller.save(snapshot);
+        const saving = this.controller.save(snapshot);
+        this.observe({
+          stage: 'source-requested',
+          version: snapshot.version,
+          protection,
+          fresh,
+        });
+        const receipt = await saving;
+        this.observe({
+          stage: 'source-receipt',
+          version: snapshot.version,
+          protection,
+          fresh,
+        });
         await this.maybeRollingSnapshot(snapshot, receipt.sourceSha256);
       }
     } catch {
+      this.observe({
+        stage: 'dispatch-failed',
+        version: snapshot.version,
+        protection,
+        fresh,
+      });
       // Failure stays visible in persistence state; only a newer edit or an
       // explicit flush retries. Snapshot errors are isolated below.
     } finally {
       this.inFlight[protection] = false;
       this.refreshDirty();
+      this.observe({
+        stage: 'dispatch-settled',
+        version: snapshot.version,
+        protection,
+        fresh,
+      });
       this.onChange();
       // A newer edit may have spent both timers while this older job ran.
       // Drain that edit once; never automatically retry the same failed version.
@@ -330,6 +419,8 @@ export class SaveCadence {
       state.fingerprint === null
     )
       return;
+    this.rollingVersion = snapshot.version;
+    this.observe({ stage: 'rolling-start', version: snapshot.version });
     try {
       await this.snapshots.create({
         checkpoint: {
@@ -347,9 +438,13 @@ export class SaveCadence {
       this.lastRollingSha = sourceSha256;
       this.lastRollingVersion = snapshot.version;
       this.snapshotAttention = false;
+      this.observe({ stage: 'rolling-completed', version: snapshot.version });
     } catch {
       // Snapshot/copy errors remain separate from save state.
       this.snapshotAttention = true;
+      this.observe({ stage: 'rolling-failed', version: snapshot.version });
+    } finally {
+      this.rollingVersion = null;
     }
   }
 

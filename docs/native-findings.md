@@ -31,6 +31,7 @@ snapshot-specific. No historical event is closed by this maintenance task.
 
 ## Open events
 
+<!-- prettier-ignore -->
 | Finding / process identity            | Last recorded failure                          | Workload and observation                                                                                                                                                                 | Reproduction / disposition                                                                                                |
 | ------------------------------------- | ---------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
 | M6 F2, PID 192218/start 2119485       | 2026-10-02 (M6-01 task; exact event in ledger) | Stress IME Undo readiness fails, then forced WebDriver DELETE records SIGSEGV; ordinary close was not reached. [Evidence](test-evidence/M6.md#candidate-interim-crash-identity-retained) | Forced path freshly reproduced in M6-01; cause unresolved. Gate C open; supported-runtime follow-up prerequisite blocked. |
@@ -44,8 +45,9 @@ snapshot-specific. No historical event is closed by this maintenance task.
 | D03B, PID 501063/start 4636728        | 2026-10-04 04:40:16 PDT                        | tmpfs editor-exit content pass, SIGABRT; corrupted-unsorted-chunks signature. [Evidence](test-evidence/AUDIT.md#audit-d03b--writing-layout-shell)                                        | Exact crash phase requires ledger review; cause/disposition open. Do not classify as ordinary close from the mode name.   |
 | PARK-H-F2, PID 1134510/start 10372570 | 2026-10-04 20:34:35 PDT                        | Btrfs empty-heading owned-kill first session SIGABRT, before later ordinary-close markers. [Evidence](test-evidence/AUDIT.md#audit-park-h-f2--empty-scene-heading-recovery-intent)       | Frozen F1 control and F2 replay each clean; primary strict failure remains. Stack evidence is not attribution.            |
 | D04-R4, PID 1545216/start 13646967    | 2026-10-05 05:40:09 PDT                        | Btrfs, four app SIGABRTs at file picker with `/tmp` inode exhaustion. [Ledger review](test-evidence/INFRA-WORKFLOW.md#r4-process-provenance).                                            | Ledger: `babel-desktop`; one owned, three unattributed. Cause open; clean Btrfs-IME replay does not close.                |
+| M6-02-R4, PID 188105/start 1928729 | 2026-10-05 20:33:51 PDT | Frozen control, Btrfs presentation functional pass; first forced WebDriver DELETE window records WebKit SIGABRT / corrupted double-linked list. [Evidence](test-evidence/M6-02-R4.md#new-frozen-control-crash). | Owned core copied/hash-bound; cause open. Current clean forced result and intact bytes do not close it. |
 
-These are event identities, not established independent defects; the newest
+These are event identities, not established independent defects; the D04-R4
 row covers four aborts in one run with `/tmp` out of inodes. M6 C1/F2,
 M6-02, installed/native platform coverage and Local v1 admission remain open.
 Other non-crash failures (IME/Save As, Replace-All flake, SELinux and publication

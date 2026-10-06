@@ -6,6 +6,15 @@ recorded CI passes. Later commits are local only.
 
 ## This session
 
+**M6-02-R4 diagnostic slice complete**, from clean `8781780`, local only.
+Private bounded Save tracing; 204 focused tests and local checks pass.
+Current post-cancel Save awaits a fresh version-31 source flush after its receipt,
+with no rolling wait. Native functional/bytes pass both; strict **1/2**:
+frozen control adds owned WebKit forced-teardown SIGABRT, current passes.
+Core/raw failure retained; old eleven rows preserved, new event registered.
+[Brief](tasks/M6-02-R4.md), [evidence](test-evidence/M6-02-R4.md).
+No historical cause, functional repair or limitation acceptance.
+
 **M6-02-R3 injected investigation complete**, from clean `12b98bb`, local only.
 Eight new invocation-bound cases; all 202 focused tests, lint/typecheck pass.
 Prior saved labels can coexist with the latest pending duplicate flush; both
@@ -54,8 +63,8 @@ admission, pruning or push.
 
 ## Retained findings and limits
 
-- [Native register](native-findings.md): eleven open rows, distinct workloads
-  and unresolved phases/causes. R4 includes app aborts at file selection with
+- [Native register](native-findings.md): twelve open rows, distinct workloads
+  and unresolved phases/causes. D04-R4 includes app aborts at file selection with
   `/tmp` inode exhaustion. No shared cause or closure from passing controls.
 - [M6-02](tasks/M6-02.md), [follow-up](tasks/M6-02-R1.md),
   [matrix](test-evidence/M6-02-matrix.md),
@@ -72,11 +81,11 @@ admission, pruning or push.
 
 ## Next action
 
-**Stop after M6-02-R3; its bounded injected investigation is complete.**
-The [narrowed follow-up](test-evidence/M6-02-R3.md#disposition-and-narrowed-follow-up)
-proposes private invocation/stage facts through Save and UI action release.
-It needs selection and a bounded brief before instrumentation or a targeted
-frozen/current Btrfs trial. No automatic matrix repeat or snapshot/guard change.
+**Stop after M6-02-R4; its bounded tracing and selected pair are complete.**
+The [proposed follow-up](test-evidence/M6-02-R4.md#disposition-and-narrowed-follow-up)
+is read-only provenance/reachability review of the frozen-control forced core
+against retained C1/F2 evidence. It needs selection and a bounded brief.
+No automatic native repeat, shared-cause inference or snapshot/guard change.
 M6-02 stays unchecked and M6-03/admission remain blocked. Marker
 remediation, F4/group F and DEV-02 remain unselected. No push/tag authorized.
 

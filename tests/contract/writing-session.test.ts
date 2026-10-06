@@ -493,7 +493,7 @@ describe('M3-12 writing session lifecycle', () => {
     },
   );
   it.each(['resolve', 'reject'] as const)(
-    'M6-02-R3 binds Save completion to deferred capture %s rather than the prior receipt',
+    'M6-02-R3/R4 binds Save completion to deferred capture %s rather than the prior receipt',
     async (settlement) => {
       const fakes = ports(),
         editor = new FakeEditor();
@@ -530,6 +530,17 @@ describe('M3-12 writing session lifecycle', () => {
       expect(sourceSave).not.toHaveBeenCalled();
       expect(checkpoint).not.toHaveBeenCalled();
       expect(completed).toBe(false);
+      expect(session.saveObservation).toMatchObject({
+        invocation: 2,
+        pending: true,
+        events: [
+          expect.objectContaining({
+            stage: 'capture-start',
+            fileSavedVersion: 1,
+            pendingOperations: [],
+          }),
+        ],
+      });
       if (settlement === 'resolve') gate.resolve(captured);
       else gate.reject(new Error('capture refused'));
       const outcome = await result;
@@ -539,6 +550,13 @@ describe('M3-12 writing session lifecycle', () => {
         });
       else expect(outcome).toEqual({ error: new Error('capture refused') });
       expect(completed).toBe(true);
+      expect(session.saveObservation).toMatchObject({
+        invocation: 2,
+        pending: false,
+      });
+      expect(session.saveObservation!.events.at(-1)!.stage).toBe(
+        settlement === 'resolve' ? 'save-completed' : 'save-rejected',
+      );
       expect(sourceSave).toHaveBeenCalledTimes(
         settlement === 'resolve' ? 1 : 0,
       );
@@ -549,6 +567,7 @@ describe('M3-12 writing session lifecycle', () => {
       expect(editor.frozen).toBe(false);
       editor.capture = capture;
       await session.save();
+      expect(session.saveObservation!.invocation).toBe(3);
       expect(sourceSave).toHaveBeenCalledTimes(
         settlement === 'resolve' ? 2 : 1,
       );
@@ -557,7 +576,7 @@ describe('M3-12 writing session lifecycle', () => {
     },
   );
   it.each(['resolve', 'reject'] as const)(
-    'waits for rolling snapshot %s after publishing the exact source receipt',
+    'M6-02-R4 waits for rolling snapshot %s after publishing the exact source receipt',
     async (settlement) => {
       const fakes = ports(),
         editor = new FakeEditor();
@@ -577,6 +596,18 @@ describe('M3-12 writing session lifecycle', () => {
       expect(session.cadenceStatus.status).toBe('Saved locally');
       expect(session.cadenceStatus.fileSavedVersion).toBe(editor.getVersion());
       expect(completed).toBe(false);
+      expect(session.saveObservation).toMatchObject({
+        invocation: 1,
+        pending: true,
+      });
+      expect(session.saveObservation!.events.at(-1)).toMatchObject({
+        stage: 'rolling-start',
+        version: 1,
+        fileSavedVersion: 1,
+        pendingOperations: [],
+        sourceInFlight: true,
+        rollingVersion: 1,
+      });
       if (settlement === 'resolve') pending.resolve(null);
       else pending.reject(new Error('snapshot failed'));
       await expect(saving).resolves.toEqual({
@@ -585,10 +616,118 @@ describe('M3-12 writing session lifecycle', () => {
         snapshotAttention: settlement === 'reject',
       });
       expect(completed).toBe(true);
+      expect(
+        session.saveObservation!.events.map((event) => event.stage),
+      ).toEqual([
+        'capture-start',
+        'capture-completed',
+        'cadence-wait-start',
+        'cadence-settled',
+        'checkpoint-requested',
+        'checkpoint-receipt',
+        'dispatch-settled',
+        'source-requested',
+        'source-receipt',
+        'rolling-start',
+        settlement === 'resolve' ? 'rolling-completed' : 'rolling-failed',
+        'dispatch-settled',
+        'flush-completed',
+        'save-completed',
+      ]);
+      expect(session.saveObservation!.events.at(-1)).toMatchObject({
+        pendingOperations: [],
+        jobs: 0,
+        recoveryInFlight: false,
+        sourceInFlight: false,
+        rollingVersion: null,
+      });
       expect(editor.current.source).toEqual([97]);
       session.dispose();
     },
   );
+
+  it('M6-02-R4 bounds copied observations while edits drain during delayed capture', async () => {
+    const fakes = ports(),
+      editor = new FakeEditor(),
+      clock = fakeClock();
+    const diagnostic = vi.fn(() => {
+      throw new Error('diagnostic only');
+    });
+    const session = new WritingSession(
+      fakes.ports,
+      editor,
+      clock,
+      undefined,
+      diagnostic,
+    );
+    fakes.entry.picked = opened();
+    await session.openPicked();
+    const capture = deferred<CapturedSnapshot>();
+    vi.spyOn(editor, 'capture').mockImplementationOnce(() => capture.promise);
+    const saving = session.save();
+    for (let version = 2; version <= 16; version++) {
+      editor.sourceWas([version % 2 === 0 ? 98 : 97], version);
+      await session.noteEdit();
+      await clock.advance(750);
+    }
+    expect(session.saveObservation).toMatchObject({
+      invocation: 1,
+      pending: true,
+    });
+    expect(session.saveObservation!.events).toHaveLength(64);
+    expect(session.saveObservation!.droppedEvents).toBeGreaterThan(0);
+    const copy = session.saveObservation!;
+    copy.events[0]!.pendingOperations.push({
+      id: 999,
+      protection: 'sourceFile',
+      version: 999,
+    });
+    copy.pending = false;
+    expect(session.saveObservation!.pending).toBe(true);
+    expect(
+      session.saveObservation!.events[0]!.pendingOperations,
+    ).not.toContainEqual({ id: 999, protection: 'sourceFile', version: 999 });
+    capture.resolve(editor.current);
+    await expect(saving).resolves.toEqual({
+      recovered: true,
+      saved: true,
+      snapshotAttention: false,
+    });
+    const trace = session.saveObservation!;
+    expect(trace.events.map((event) => event.sequence)).toEqual(
+      Array.from({ length: 64 }, (_, index) => trace.droppedEvents + index + 1),
+    );
+    expect(trace.events.at(-1)).toMatchObject({
+      stage: 'save-completed',
+      version: 16,
+      fileSavedVersion: 16,
+      jobs: 0,
+      pendingOperations: [],
+    });
+    expect(fakes.documents.saved.at(-1)).toBe(16);
+    expect(editor.current.source).toEqual([98]);
+    expect(Object.keys(trace.events[0]!).sort()).toEqual([
+      'browserTime',
+      'fileSavedVersion',
+      'fresh',
+      'jobs',
+      'journaledVersion',
+      'liveVersion',
+      'pendingOperations',
+      'protection',
+      'recoveryInFlight',
+      'rollingVersion',
+      'sequence',
+      'sourceInFlight',
+      'stage',
+      'status',
+      'version',
+      'wallTime',
+    ]);
+    expect(diagnostic).toHaveBeenCalled();
+    session.dispose();
+    expect(session.saveObservation).toBeNull();
+  });
   it.each(['load', 'capture'])(
     'releases a registration after initial %s failure',
     async (stage) => {

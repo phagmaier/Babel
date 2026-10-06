@@ -2112,7 +2112,7 @@ it.each(['resolve', 'reject'] as const)(
 );
 
 it.each(['resolve', 'reject'] as const)(
-  'M6-02-R3 releases actions after deferred duplicate source %s with selection and Undo/Redo intact',
+  'M6-02-R3/R4 releases actions after deferred duplicate source %s with selection and Undo/Redo intact',
   async (settlement) => {
     const source =
       '\ufeff.INT. ROOM - DAY\r\n\r\n!Alpha.  \r\n\r\n[[Keep this note.]]\r\n';
@@ -2217,6 +2217,30 @@ it.each(['resolve', 'reject'] as const)(
     });
     expect(completed).toHaveLength(1);
     // The DOM still displays the prior receipt; the invocation is not finished.
+    const observeSave = () =>
+      JSON.parse(
+        protection
+          .querySelector('details')!
+          .getAttribute('data-save-observation')!,
+      );
+    expect(observeSave()).toMatchObject({
+      invocation: 2,
+      pending: true,
+      actionPending: true,
+      actionOwned: true,
+    });
+    expect(observeSave().events.at(-1)).toMatchObject({
+      stage: 'source-requested',
+      fresh: true,
+      version: requests[0]!.version,
+      pendingOperations: [
+        expect.objectContaining({
+          protection: 'sourceFile',
+          version: requests[0]!.version,
+        }),
+      ],
+      rollingVersion: null,
+    });
     expect(within(protection).getByRole('status').textContent).toBe(
       'Saved locally',
     );
@@ -2240,6 +2264,22 @@ it.each(['resolve', 'reject'] as const)(
     });
     await waitFor(() => expect(save.disabled).toBe(false));
     expect(home.disabled).toBe(false);
+    expect(observeSave()).toMatchObject({
+      invocation: 2,
+      pending: false,
+      actionPending: false,
+      actionOwned: false,
+    });
+    expect(observeSave().events.at(-1)).toMatchObject({
+      stage: 'save-completed',
+      pendingOperations: [],
+      jobs: 0,
+    });
+    expect(
+      observeSave().events.some(
+        (event: { stage: string }) => event.stage === 'dispatch-failed',
+      ),
+    ).toBe(settlement === 'reject');
     expect(simulatedSource).toEqual(edited);
     expect(completed).toHaveLength(settlement === 'resolve' ? 2 : 1);
     expect(view.state.selection.toJSON()).toEqual(selection);

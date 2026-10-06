@@ -25,7 +25,7 @@ import type {
   SaveReceipt,
 } from './documents';
 import { ProtectedClose } from './protectedClose';
-import type { CadenceClock, FlushSummary } from './saveCadence';
+import type { CadenceClock, FlushSummary, SaveStage } from './saveCadence';
 import { realClock, SaveCadence } from './saveCadence';
 import type { SaveAsPort, SaveStorageRelation } from './saveAs';
 import type { SnapshotPort } from './snapshots';
@@ -124,6 +124,35 @@ function matchLive(
     throw new Error(`Editor changed during ${action}`);
 }
 
+type SaveObservationEvent = (
+  | SaveStage
+  | {
+      stage:
+        | 'capture-start'
+        | 'capture-completed'
+        | 'save-completed'
+        | 'save-rejected';
+      version: number | null;
+    }
+) & {
+  sequence: number;
+  wallTime: number;
+  browserTime: number;
+  liveVersion: number;
+  journaledVersion: number;
+  fileSavedVersion: number;
+  status: import('./persistenceState').PersistenceStatus;
+  pendingOperations: {
+    id: number;
+    protection: import('./persistenceState').Protection;
+    version: number;
+  }[];
+  jobs: number;
+  recoveryInFlight: boolean;
+  sourceInFlight: boolean;
+  rollingVersion: number | null;
+};
+
 export class WritingSession {
   private disposed = false;
   private opened: OpenDocument | null = null;
@@ -133,6 +162,71 @@ export class WritingSession {
   private workflowBusy = false;
   private sourceCheckBusy = false;
   private externalReview: import('./documents').SourceCheck | null = null;
+  private nextSaveInvocation = 0;
+  private saveTrace: {
+    invocation: number;
+    pending: boolean;
+    droppedEvents: number;
+    events: SaveObservationEvent[];
+  } | null = null;
+
+  /** Copied, bounded facts for the existing DOM observer; no manuscript data. */
+  get saveObservation() {
+    return this.saveTrace ? structuredClone(this.saveTrace) : null;
+  }
+
+  private observeSave(
+    fact:
+      | SaveStage
+      | {
+          stage:
+            | 'capture-start'
+            | 'capture-completed'
+            | 'save-completed'
+            | 'save-rejected';
+          version: number | null;
+        },
+    invocation = this.saveTrace?.invocation,
+  ): void {
+    const trace = this.saveTrace,
+      controller = this.controller,
+      cadence = this.cadence;
+    if (
+      !trace?.pending ||
+      trace.invocation !== invocation ||
+      !controller ||
+      !cadence
+    )
+      return;
+    const state = controller.state;
+    trace.events.push({
+      ...fact,
+      sequence: trace.droppedEvents + trace.events.length + 1,
+      wallTime: Date.now(),
+      browserTime: performance.now(),
+      liveVersion: state.liveVersion,
+      journaledVersion: state.journaledVersion,
+      fileSavedVersion: state.fileSavedVersion,
+      status: cadence.describe().status,
+      pendingOperations: state.pending.map(({ id, protection, version }) => ({
+        id,
+        protection,
+        version,
+      })),
+      ...cadence.observation,
+    });
+    if (trace.events.length > 64) {
+      trace.events.shift();
+      trace.droppedEvents++;
+    }
+    if (fact.stage === 'save-completed' || fact.stage === 'save-rejected')
+      trace.pending = false;
+    try {
+      this.onSaveObservation();
+    } catch {
+      // Observation refresh cannot fail an otherwise protected Save.
+    }
+  }
 
   get externalChange() {
     return this.externalReview;
@@ -231,6 +325,7 @@ export class WritingSession {
     private readonly editor: SessionEditor,
     private readonly clock: CadenceClock = realClock,
     private readonly onChange: () => void = () => undefined,
+    private readonly onSaveObservation: () => void = () => undefined,
   ) {}
 
   get active(): ActiveInfo | null {
@@ -346,8 +441,36 @@ export class WritingSession {
   async save(): Promise<FlushSummary> {
     const active = this.requireActive();
     if (active.readOnly) throw new Error('Read-only sessions cannot save');
-    await this.synchronize();
-    return this.cadence!.flush();
+    const invocation = ++this.nextSaveInvocation;
+    this.saveTrace = {
+      invocation,
+      pending: true,
+      droppedEvents: 0,
+      events: [],
+    };
+    this.observeSave(
+      { stage: 'capture-start', version: this.editor.getVersion() },
+      invocation,
+    );
+    try {
+      const snapshot = await this.synchronize();
+      this.observeSave(
+        { stage: 'capture-completed', version: snapshot.version },
+        invocation,
+      );
+      const summary = await this.cadence!.flush();
+      this.observeSave(
+        { stage: 'save-completed', version: snapshot.version },
+        invocation,
+      );
+      return summary;
+    } catch (error) {
+      this.observeSave(
+        { stage: 'save-rejected', version: this.editor.getVersion() },
+        invocation,
+      );
+      throw error;
+    }
   }
 
   /** Only the caller's separately owned synchronous transaction may edit after protection. */
@@ -798,12 +921,15 @@ export class WritingSession {
     // their existing behavior. Priming below does not checkpoint the new identity.
     adoptionStage('controller initialization');
     const controller = new Controller(opened, this.ports.documents);
-    const cadence = new SaveCadence(
+    const cadence: SaveCadence = new SaveCadence(
       controller,
       this.ports.snapshots,
       this.clock,
       undefined,
       this.onChange,
+      (fact) => {
+        if (this.cadence === cadence) this.observeSave(fact);
+      },
     );
     const closer = new ProtectedClose(
       controller,
@@ -925,6 +1051,7 @@ export class WritingSession {
       // Disposal must not hide the adopting session's errors.
     }
     this.externalReview = null;
+    this.saveTrace = null;
     this.opened = null;
     this.controller = null;
     this.cadence = null;

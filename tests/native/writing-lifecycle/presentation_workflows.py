@@ -27,6 +27,7 @@ return {
     outlineCount:document.querySelectorAll('.outline-target').length, outlineEnabled:enabled,
     filter:outline?.querySelector('input')?.value, outlineStatus:outline?.innerText.slice(0,800),
     protection:protection?.innerText, saveDetails:protection?.querySelector('details')?.textContent,
+    saveObservation:JSON.parse(protection?.querySelector('details')?.getAttribute('data-save-observation')??'null'),
     compositionStarts:events.filter(e=>e.trusted&&e.kind==='compositionstart').length,
     compositionEnds:events.filter(e=>e.trusted&&e.kind==='compositionend').length,
     events, active:document.activeElement?.id, editable,

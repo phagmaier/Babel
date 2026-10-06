@@ -10,6 +10,7 @@ import {
   SaveCadence,
   defaultCadenceOptions,
   type CadenceClock,
+  type SaveStage,
 } from '../../src/application/saveCadence';
 import type { SnapshotPort } from '../../src/application/snapshots';
 import { A, B, opened, receiptFor, snapshot } from './persistence-fixtures';
@@ -117,14 +118,22 @@ function ports(): {
 function cadence(
   overrides?: Partial<typeof defaultCadenceOptions>,
   seed = opened(),
+  observe?: (fact: SaveStage) => void,
 ) {
   const t = clock();
   const p = ports();
   const controller = new PersistenceController(seed, p.native);
-  const scheduler = new SaveCadence(controller, p.snapshots, t, {
-    ...defaultCadenceOptions,
-    ...overrides,
-  });
+  const scheduler = new SaveCadence(
+    controller,
+    p.snapshots,
+    t,
+    {
+      ...defaultCadenceOptions,
+      ...overrides,
+    },
+    undefined,
+    observe,
+  );
   return { t, p, controller, scheduler };
 }
 
@@ -210,9 +219,14 @@ it.each([
   'reject latest',
   'reject duplicate',
 ] as const)(
-  'M6-02-R3 settles older/latest saves and its own duplicate flush (%s)',
+  'M6-02-R3/R4 settles older/latest saves and its own duplicate flush (%s)',
   async (settlement) => {
-    const { t, p, controller, scheduler } = cadence();
+    const events: SaveStage[] = [];
+    const { t, p, controller, scheduler } = cadence(
+      undefined,
+      opened(),
+      (fact) => events.push(fact),
+    );
     const older = deferred<SaveReceipt>();
     const latest = deferred<SaveReceipt>();
     const duplicate = deferred<SaveReceipt>();
@@ -238,6 +252,9 @@ it.each([
       completed = true;
       return summary;
     });
+    const start = events.findIndex(
+      (event) => event.stage === 'cadence-wait-start',
+    );
     await drain();
     expect(p.saves).toHaveLength(1);
     expect(completed).toBe(false);
@@ -283,6 +300,25 @@ it.each([
     expect(completed).toBe(false);
     // All rolling work already completed; this wait belongs to the new flush.
     expect(p.snapshots.created).toHaveLength(1);
+    expect(
+      events.slice(start).filter((event) => event.stage === 'source-requested'),
+    ).toEqual([
+      {
+        stage: 'source-requested',
+        version: 22,
+        protection: 'sourceFile',
+        fresh: false,
+      },
+      {
+        stage: 'source-requested',
+        version: 22,
+        protection: 'sourceFile',
+        fresh: true,
+      },
+    ]);
+    expect(
+      events.slice(start).filter((event) => event.stage === 'cadence-settled'),
+    ).toEqual([{ stage: 'cadence-settled', version: 22 }]);
     if (settlement === 'reject duplicate') duplicate.reject(failure(22));
     else duplicate.resolve(receiptFor(22, true));
     // Summary describes retained version protection, not this request's success.
@@ -293,6 +329,7 @@ it.each([
     });
     expect(completed).toBe(true);
     expect(controller.state.pending).toEqual([]);
+    expect(events.at(-1)).toEqual({ stage: 'flush-completed', version: 22 });
     expect(scheduler.describe().status).toBe(
       settlement === 'reject duplicate' ? 'Save failed' : 'Saved locally',
     );
@@ -307,6 +344,24 @@ it.each([
     scheduler.dispose();
   },
 );
+
+it('M6-02-R4 diagnostic callback failure cannot reject or skip checkpoint/source/snapshot work', async () => {
+  const observe = vi.fn(() => {
+    throw new Error('diagnostic only');
+  });
+  const { p, scheduler } = cadence(undefined, opened(), observe);
+  scheduler.noteEdit(snapshot(21));
+  await expect(scheduler.flush()).resolves.toEqual({
+    recovered: true,
+    saved: true,
+    snapshotAttention: false,
+  });
+  expect(p.checkpoints.map((request) => request.version)).toEqual([21]);
+  expect(p.saves.map((request) => request.version)).toEqual([21]);
+  expect(p.snapshots.created).toHaveLength(1);
+  expect(observe).toHaveBeenCalled();
+  scheduler.dispose();
+});
 
 it('checkpoints undo steps as newer versions without clearing later edits', async () => {
   const { t, p, scheduler } = cadence();
