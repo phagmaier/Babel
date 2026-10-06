@@ -10,15 +10,29 @@ import time
 def run(d, *, restart=True, control="baseline"):
     assert control in ["baseline", "preedit-disabled", "no-ime", "typical-only", "no-zoom", "cleanup-probes"]
     report = []
+    workload = 'home'
+    stage = 'open'
+
+    def observe(reason):
+        # DOM-only observations survive a failed workload and precede teardown.
+        # Disabled controls are facts, not inferred internal action/composition state.
+        facts = d.script("const s=getSelection();const p=(s?.focusNode?.nodeType===1?s.focusNode:s?.focusNode?.parentElement)?.closest('.ProseMirror > p');return {saveDisabled:document.querySelector('#writing-save')?.disabled,actions:[...document.querySelectorAll('.actions button')].map(b=>({text:b.textContent.trim(),disabled:b.disabled,title:b.title})),outlineCount:document.querySelectorAll('.outline-target').length,outlineEnabled:document.querySelectorAll('.outline-target:not(:disabled)').length,filter:document.querySelector('.manuscript-outline input')?.value,outlineStatus:document.querySelector('.manuscript-outline')?.innerText.slice(0,800),protection:document.querySelector('section[aria-label=\"Protection status\"]')?.innerText,events:window.presentationEvents,active:document.activeElement?.id,editable:document.querySelector('.ProseMirror')?.contentEditable,selection:{row:[...document.querySelectorAll('.ProseMirror > p')].indexOf(p),anchor:s?.anchorOffset,head:s?.focusOffset,text:s?.toString()}};")
+        with (d.ROOT / 'presentation-stages.jsonl').open('a') as log:
+            log.write(json.dumps({'wallTime': time.time(), 'workload': workload,
+                                  'stage': stage, 'reason': reason, **facts}) + '\n')
+        return facts
+
+    d.presentation_observe = observe
 
     def ready():
         try:
             d.wait(lambda: d.script("return !!document.querySelector('.outline-target:not(:disabled)') && document.querySelector('#writing-save')?.disabled===false;"), 'Ready current screenplay', timeout=90)
         except AssertionError:
-            facts = d.script("return {saveDisabled:document.querySelector('#writing-save')?.disabled,outlineCount:document.querySelectorAll('.outline-target').length,outlineEnabled:document.querySelectorAll('.outline-target:not(:disabled)').length,filter:document.querySelector('.manuscript-outline input')?.value,outlineStatus:document.querySelector('.manuscript-outline')?.innerText.slice(0,800),protection:document.querySelector('section[aria-label=\"Protection status\"]')?.innerText,events:window.presentationEvents,active:document.activeElement?.className,editable:document.querySelector('.ProseMirror')?.contentEditable};")
+            facts = observe('readiness-failure')
             (d.ROOT / 'presentation-readiness-failure.json').write_text(json.dumps(facts, indent=2) + '\n')
             print('READINESS FAILURE', json.dumps(facts), flush=True)
             raise
+        observe('ready')
 
     def choose(label, value):
         if control == 'no-zoom' and label == 'Writing zoom':
@@ -42,6 +56,7 @@ def run(d, *, restart=True, control="baseline"):
     def save(target, source):
         ready(); d.click('Save', actions=True); d.audit(target, source)
         d.wait(lambda: 'Saved locally' in d.body(), 'Exact source receipt')
+        observe('source-receipt')
         ready()  # Publication receipt can precede the native operation's thaw.
 
     def owned_focus():
@@ -59,6 +74,8 @@ def run(d, *, restart=True, control="baseline"):
     d.screenshot('presentation-home-dark')
     workloads = [('typical', 150)] if control == 'typical-only' else [('typical', 150), ('stress', 1500)]
     for name, scenes in workloads:
+        workload = name
+        stage = 'open'
         text = '\ufeffTitle: Synthetic presentation\r\n\r\n# Act\r\n' + ''.join(
             f'.INT. ROOM {i} - DAY\r\n!Zoë reads the sign.  \r\n!A lamp flickers.\r\n\r\n@MAYA\r\nThe door is open.\r\nCome inside.\r\nWe have time.\r\n\r\n@NOAH\r\nI saw the signal.\r\nWe should leave.\r\nWait here.\r\n\r\n!They cross in silence.\r\n!A bell rings.\r\n!A long line ' + 'wraps across the screen with Unicode é🚀. ' * 8 + '\r\n!Tail.\r\n'
             for i in range(scenes))
@@ -128,6 +145,7 @@ def run(d, *, restart=True, control="baseline"):
         key('\ue00c'); assert not d.script("return document.querySelector('main').classList.contains('writing-focus');")
         choose('Writing zoom', 150)
         if control != 'no-ime':
+            stage = 'ime-commit'
             # Actual composition with zoom and typewriter enabled, commit + cancel.
             d.script("document.querySelectorAll('.ProseMirror > p')[4].scrollIntoView({block:'center'});"); select(4, 3); owned_focus()
             previous = subprocess.check_output(['fcitx5-remote', '-n'], text=True).strip()
@@ -137,7 +155,9 @@ def run(d, *, restart=True, control="baseline"):
                 preedit_scroll = row_center()['scroll']; d.screenshot('presentation-' + name + '-ime-150'); time.sleep(.3); assert abs(row_center()['scroll'] - preedit_scroll) < 2
                 subprocess.run(['wtype', '-k', 'space'], check=True); time.sleep(.5)
                 save(target, source.replace('!Zoë reads'.encode(), '!Zoë你好 reads'.encode(), 1))
+                stage = 'ime-committed-text-undo'
                 d.script("document.querySelector('.ProseMirror').focus();"); d.type_text('\ue009z\ue000'); save(target, source)
+                stage = 'ime-cancel'
                 select(4, 3); owned_focus(); subprocess.run(['wtype', '-d', '80', 'nihao'], check=True); time.sleep(.6)
                 subprocess.run(['/tmp/babel-m3-08-keyboard', 'escape'], check=True); time.sleep(.4); save(target, source)
             finally:
@@ -149,6 +169,7 @@ def run(d, *, restart=True, control="baseline"):
                 assert sum(e['kind'] == 'compositionstart' and e['trusted'] for e in events) >= 2, events
                 assert sum(e['kind'] == 'compositionend' and e['trusted'] for e in events) >= 2, events
         # Save divergence remains visible in focus with a discoverable exit.
+        stage = 'divergent-original'
         target.write_bytes(source + b'!External.\r\n'); d.click('Focus mode')
         d.wait(lambda:d.script("return document.querySelector('main').classList.contains('writing-focus');"), 'Focus mode adopted before Find')
         d.script("document.querySelector('.ProseMirror').focus();"); d.command('POST', '/actions', {'actions': [{'type': 'key', 'id': 'focus-find-chord', 'actions': [{'type': 'keyDown', 'value': '\ue009'}, {'type': 'keyDown', 'value': 'f'}, {'type': 'keyUp', 'value': 'f'}, {'type': 'keyUp', 'value': '\ue009'}]}]})
@@ -170,6 +191,8 @@ def run(d, *, restart=True, control="baseline"):
         before_copy = d.script("return [...document.querySelectorAll('.ProseMirror > p')].map(p=>p.textContent);")
         old_heads = [m for m, s in d.journal_records() if s == source]
         assert old_heads, 'Old draft has no independently inspected checkpoint'
+        stage = 'save-as'
+        observe('before-picker')
         d.click('Save As', actions=True); d.picker(copy); d.audit(copy, source); ready()
         # A standalone copy does not prove adoption. Subsequent Save must target
         # the copy; Undo restores its independent literal source oracle.
@@ -179,9 +202,11 @@ def run(d, *, restart=True, control="baseline"):
             assert any(m['documentId'] == old_heads[-1]['documentId'] and s == source for m, s in d.journal_records()), 'Refusal lost the old recovery identity'
             (d.ROOT / 'presentation-save-as-refusal.json').write_text(json.dumps({'workload': name, 'protection': d.script("return document.querySelector('section[aria-label=\"Protection status\"]')?.innerText;"), 'oldDocumentId': old_heads[-1]['documentId'], 'copySha256': hashlib.sha256(source).hexdigest(), 'oldEditorAndRecoveryPreserved': True}, indent=2) + '\n')
             raise AssertionError('Save As refused adoption; old editor/recovery and standalone copy preserved')
+        stage = 'adopted-copy-edit'
         select(4, 3); d.type_text('x')
         edited = source.replace('!Zoë reads'.encode(), '!Zoëx reads'.encode(), 1)
         save(copy, edited); d.audit(target, source + b'!External.\r\n')
+        stage = 'adopted-copy-undo'
         d.script("document.querySelector('.ProseMirror').focus();")
         d.type_text('\ue009z\ue000'); save(copy, source)
         choose('Theme', 'dark'); choose('Writing zoom', 100)
@@ -189,6 +214,8 @@ def run(d, *, restart=True, control="baseline"):
         report.append({'control': control, 'workload': name, 'scenes': scenes, 'rows': 3 + 18 * scenes, 'bytes': len(source), 'sha256': hashlib.sha256(source).hexdigest(), 'centered': centered, 'popupGeometry': geometry, **metrics})
         if control == 'cleanup-probes':
             d.script('window.disposePresentationProbe();')
+        stage = 'protected-close'
+        observe('before-close')
         d.close_session(); d.audit(target, source + b'!External.\r\n'); d.audit(copy, source)
         assert d.script("return document.documentElement.dataset.theme;") == 'dark'
     # Same private profile restart reads preferences; UI-only key has no manuscript.

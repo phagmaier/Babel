@@ -264,14 +264,22 @@ def close_session():
     untitled = script("return document.querySelector('#writing-save')?.textContent === 'Protect draft' && document.querySelector('.ProseMirror')?.getAttribute('aria-readonly') !== 'true';")
     script("window.closePromptSeen=false;window.closeObserver=new MutationObserver(()=>{if(document.querySelector('#close-heading'))window.closePromptSeen=true;});window.closeObserver.observe(document.body,{childList:true,subtree:true});")
     click('Close session', actions=True)
-    if untitled:
+    legacy_presentation = ('--presentation' in sys.argv and
+                           os.environ.get('BABEL_NATIVE_LEGACY_PRESENTATION_CLOSE') == '1')
+    if legacy_presentation:
+        # Frozen pre-automatic-close releases require this visible confirmation.
+        # The current-app oracle remains unchanged; never accept risk or force close.
+        wait(lambda: 'Close document safely' in body(), 'Legacy close panel')
+        assert script("return document.activeElement?.innerText;") == 'Retry save and close'
+        click('Retry save and close')
+    elif untitled:
         wait(lambda: 'Close document safely' in body(), 'Untitled close choice')
         assert script("return document.activeElement?.innerText;") == 'Close and keep recovery'
         assert 'This draft has no Fountain file' in body()
         click('Close and keep recovery')
     wait(lambda: 'Start writing' in body(), 'Protected close completes')
     seen = script("window.closeObserver.disconnect();return window.closePromptSeen;")
-    assert seen == untitled, 'Only untitled drafts prompt on successful close'
+    assert seen == (untitled or legacy_presentation), 'Unexpected protected-close prompt'
 
 
 def set_input(label, value):
@@ -487,6 +495,11 @@ try:
     print('ARTIFACTS', ROOT, flush=True)
 except Exception:
     if SESSION:
+        try:
+            if hasattr(sys.modules[__name__], 'presentation_observe'):
+                presentation_observe('workload-failure-before-cleanup')
+        except Exception as observation_error:
+            print('PRESENTATION observation failed', str(observation_error), flush=True)
         try:
             screenshot('failure')
             print('UI', body(), flush=True)

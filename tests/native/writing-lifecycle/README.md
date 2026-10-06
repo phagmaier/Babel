@@ -821,6 +821,23 @@ composition events. A copied file or current outline is not adoption/close
 success. The independent auditor separates bytes/heads from functional/crash
 verdicts. Keep every failed root, process/journal scan and owned core.
 
+## M6-02-R1 retained-operation comparison
+
+[Task commands and boundaries](../../../docs/tasks/M6-02-R1.md#exact-narrowed-attempt-2026-10-05)
+compare the actual retained frozen binary and a fresh default app. Presentation
+persists `presentation-stages.jsonl` in each synthetic root before failure
+cleanup: stage, Save/action disabled state, editability, outline/filter, selection
+and trusted composition events. These DOM observations add timing work and do
+not expose internal command/editor flags or change the readiness predicate.
+
+Only for frozen presentation releases that require visible clean-close
+confirmation, set `BABEL_NATIVE_LEGACY_PRESENTATION_CLOSE=1`. This asserts focus
+on **Retry save and close**, clicks it, then requires protected Home. Record the
+option in comparison provenance. Current releases leave it unset and retain
+their automatic-close/no-unexpected-prompt assertion. It never accepts risk,
+forces document close, repairs adoption or supplies crash/admission credit.
+Keep any earlier compatibility-failed attempt and its byte/phase limits.
+
 ## AUDIT-D08A focused external Reload
 
 `python3 tests/native/writing-lifecycle/drill.py <tmpfs-or-btrfs-root> --external-reload`
