@@ -38,6 +38,7 @@ MODES = (
         ('--publication-exit', 'publication_exit', 'run'),
         ('--pdf-export', 'pdf_export', 'run'),
         ('--typed-export', 'typed_export', 'run'),
+        ('--local-pilot', 'local_pilot', 'run'),
         ('--empty-heading', 'empty_heading', 'run'),
         ('--script-check', 'scriptcheck_workflows', 'run'),
         ('--title-page', 'title_page', 'run'),

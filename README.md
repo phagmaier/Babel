@@ -12,8 +12,9 @@ spellcheck; continuous saving with crash recovery; named and automatic
 snapshots ("versions") with restore; outside-change detection with Reload;
 Save As, Fountain copies and PDF export.
 
-**Status:** pre-release. The packaged app has been exercised end to end by an
-automated pilot ([evidence](docs/test-evidence/PILOT-2026-10-06.md)), but the
+**Status:** pre-release. The packaged app has passed an agent-run synthetic
+writing and backup-restore pilot on the development laptop
+([evidence](docs/test-evidence/M6-16-2026-10-06.md)), but the
 full release checklist is not finished. Until it is, keep your current
 software and a separate backup of any script you try here; do not make babel
 the only home of an important manuscript.

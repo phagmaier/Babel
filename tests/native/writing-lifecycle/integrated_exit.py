@@ -22,7 +22,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('roots', nargs='+', type=Path)
     parser.add_argument('--output', required=True, type=Path)
-    parser.add_argument('--modes', nargs='+', choices=MODES + ['recovery-reopen', 'external-reload', 'publication-exit', 'pdf-export', 'typed-export', 'empty-heading', 'recovery-shutdown', 'persistence-paths', 'persistence-two-instances', 'persistence-two-instances-shared'], default=MODES)
+    parser.add_argument('--modes', nargs='+', choices=MODES + ['recovery-reopen', 'external-reload', 'publication-exit', 'pdf-export', 'typed-export', 'local-pilot', 'empty-heading', 'recovery-shutdown', 'persistence-paths', 'persistence-two-instances', 'persistence-two-instances-shared'], default=MODES)
     parser.add_argument('--presentation-no-restart', action='store_true',
                         help='diagnostic only: skip presentation preference restart')
     parser.add_argument('--presentation-control', choices=['baseline', 'preedit-disabled', 'no-ime', 'typical-only', 'no-zoom', 'cleanup-probes'], default='baseline', help='diagnostic workload control; never integrated acceptance')

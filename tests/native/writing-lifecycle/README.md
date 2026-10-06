@@ -1,5 +1,37 @@
 # M3-12 production writing lifecycle drill
 
+## M6-16 packaged laptop pilot
+
+With the existing release AppImage/helper and disposable input helpers built,
+use an existing absolute synthetic Btrfs root and a fresh output path:
+
+```sh
+python3 tools/run-packaged-pilot.py /home/phagmaier/Code/Babel/target/m6-16-pilot-2026-10-06/btrfs \
+  --output target/m6-16-pilot-new \
+  --modes typed-export recovery-shutdown local-pilot publication-exit
+python3 tests/native/writing-lifecycle/pilot_artifact_audit.py /absolute/root/babel-writing-<local-pilot-root>
+```
+
+The runner FUSE-mounts the AppImage outside the user/network namespace, then
+starts mounted `AppRun` with normal mapped UID, zero capabilities and loopback
+only. Root mapping breaks host GTK icon-loader/D-Bus assumptions; do not use
+it for the packaged pilot. No desktop registration/global IME change or xdrive.
+Native pickers and ordinary shutdown are scoped to owned processes. Driver port
+4447 and compositor input are sequential; never run another native mode beside
+it. The runner records full commands, image/mount identity, process/crash
+ledgers and fresh synthetic profiles. Failed roots are retained.
+
+`local-pilot` drafts/revises a three-scene story; checks exact title/dialogue/
+scene move/Save/Undo/Redo, former-current snapshot restore, ordinary restart/
+preferences, export and backup-open/restore. Source expectations are authored
+independently. The artifact auditor verifies copies and scene/dialogue/title
+order through the verified pinned Screenplain parser, not Babel's codec.
+The backup uses tmpfs versus Btrfs on the same laptop: no independent physical
+disk/power-loss claim. This is a short scripted agent session, not the full
+IME/a11y/S13/migration/install/admission gate. [Evidence](../../../docs/test-evidence/M6-16-2026-10-06.md).
+
+## Original production drill
+
 Run on the reference Linux/Hyprland host with installed WebKitWebDriver, wtype,
 grim, Wayland development tools and GTK/WebKit. Build the production app with
 no proof feature and build the disposable physical-key helper:

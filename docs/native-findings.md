@@ -52,3 +52,25 @@ row covers four aborts in one run with `/tmp` out of inodes. M6 C1/F2,
 M6-02, installed/native platform coverage and Local v1 admission remain open.
 Other non-crash failures (IME/Save As, Replace-All flake, SELinux and publication
 cache) remain in their owning briefs/evidence; this register does not retire them.
+
+## M6-16 runner-only events
+
+The twelve historical rows above retain their original status text; current
+[ADR 0043](decisions/0043-agent-decision-authority.md) supplies their accepted
+residual-risk disposition. The following new events have a separate scope.
+
+| Identity                               | Failure                                                                                    | Disposition                                                                                                                                      |
+| -------------------------------------- | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| babel-desktop PID 272524/start 4875340 | 2026-10-06 04:43:26 PDT, SIGABRT opening Save As in root-mapped/drop-cap offline namespace | GTK `ensure_surface_for_gicon` assertion after glycin/bwrap SVG-loader status 1. Unsupported runner configuration; strict failure/core retained. |
+| babel-desktop PID 272778/start 4878656 | 2026-10-06 04:43:53 PDT, SIGABRT opening Fountain picker in the same runner configuration  | Same observed GTK assertion; distinct owned core, not WebKit teardown. Strict failure retained.                                                  |
+
+[M6-16 evidence](test-evidence/M6-16-2026-10-06.md#retained-failures-and-disposition)
+names the unchanged AppImage/native/runtime identity, hashes both copied cores,
+audits acknowledged checkpoints and records the normal-UID control. Later
+unacknowledged typing in the aborted run is not claimed preserved.
+
+Agent disposition: exclude root-mapped/drop-cap execution from supported writer
+workflows; the corrected runner preserves UID 1000, drops capabilities and
+passes all four packaged modes with clean audits. This is a harness correction,
+not a general GTK repair or erasure of either event. Escalate a recurrence with
+normal UID during ordinary writing/save/close to protection/repair.

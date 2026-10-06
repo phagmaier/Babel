@@ -26,7 +26,7 @@ Agents decide scope, priority, risk and gates themselves ([ADR 0043](docs/decisi
 - [ ] **DEV-02 Second-machine smoothness** — Tooling slice landed; second-host run deferred (no agent has a second host; not a blocker). [Brief](docs/tasks/DEV-02.md).
 
 - [x] **M6-02 Persistence interruption and restart hardening** — Closed with known limitations ([ADR 0043](docs/decisions/0043-agent-decision-authority.md)): Save As/IME readiness lag (content saved), shared-store lease limit, and the forced-teardown [native register](docs/native-findings.md) accepted as residual risk. [Brief](docs/archive/tasks/M6-02.md), [evidence](docs/test-evidence/M6.md#m6-02--persistence-interruption-and-operation-investigation).
-- [ ] **M6-03 Independent snapshot and retention workflow** — M6-03-A done: automatic retention at the cap. Remaining UI/restore drills in the [brief](docs/tasks/M6-03.md).
+- [ ] **M6-03 Independent snapshot and retention workflow** — M6-03-A done: automatic retention at the cap. Packaged restore/copy pilot passed ([evidence](docs/test-evidence/M6-16-2026-10-06.md)); interruption/low-space retention remains in the [brief](docs/tasks/M6-03.md).
 - [ ] **M6-04 Configured external backup destination** — Deps: M6-03. [Brief](docs/tasks/M6-04.md).
 - [ ] **M6-05 Bounded native history inspection and selection** — **Deferred post-V1 (D-05; snapshots are V1 Versions).** Deps: M6-02/04. [Brief](docs/tasks/M6-05.md).
 - [ ] **M6-06 Automatic and named local revision cadence** — **Deferred post-V1 (D-05; snapshots are V1 Versions).** Deps: M6-05. [Brief](docs/tasks/M6-06.md).
@@ -37,9 +37,9 @@ Agents decide scope, priority, risk and gates themselves ([ADR 0043](docs/decisi
 - [ ] **M6-11 Full responsiveness and long-session baseline** — Deps: M6-04/06/08/10. [Brief](docs/tasks/M6-11.md).
 - [ ] **M6-12 Measured responsiveness correction** — Deps: M6-11. [Brief](docs/tasks/M6-12.md).
 - [ ] **M6-13 Declared-target native and accessibility matrix** — Deps: M6-02/09/10/12. [Brief](docs/tasks/M6-13.md).
-- [ ] **M6-14 Installed offline package and manual update checks** — Slices A/B done: AppImage builds and runs offline; packaged PDF export verified; npm audit clean ([pilot](docs/test-evidence/PILOT-2026-10-06.md)). npm/cargo audits clean. Remaining: FUSE/desktop install, packaged spellcheck. [Brief](docs/tasks/M6-14.md).
+- [ ] **M6-14 Installed offline package and manual update checks** — AppImage build, cold FUSE launch and mounted-package offline writing/PDF/restore passed ([laptop pilot](docs/test-evidence/M6-16-2026-10-06.md)); earlier dependency audits retained. Remaining: desktop registration/install, packaged spellcheck. [Brief](docs/tasks/M6-14.md).
 - [ ] **M6-15 Disposable migration and independent backup restore** — Deps: M6-04/08/14. [Brief](docs/tasks/M6-15.md).
-- [ ] **M6-16 Agent-run writing pilot and Local v1 release review** — Deps: M6-03, M6-14; S15.5 sequence on synthetic scripts (step 7 via snapshot restore). Deferred tasks do not block it. [Brief](docs/tasks/M6-16.md).
+- [ ] **M6-16 Agent-run writing pilot and Local v1 release review** — Bounded laptop pilot complete; all 12 S15.5 steps reconciled, packaged writing/restore passed ([evidence](docs/test-evidence/M6-16-2026-10-06.md)). Admission review remains after M6-03/14; deferred tasks do not block it. [Brief](docs/tasks/M6-16.md).
 
 Work order lives only in [current-state Next action](docs/current-state.md#next-action).
 M6-04, M6-10–13 and M6-15 are not V1 blockers; agents take them when the list reaches them.

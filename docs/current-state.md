@@ -1,94 +1,95 @@
 # Current state — 2026-10-06
 
-Application: **babel**, a local-first Linux screenwriting app (Tauri + React +
-Rust). Local writing features include Fountain editing, smart Enter/completion,
-Script Check, spellcheck, outline, title page, find/replace, scene moves,
-snapshots, protected close, crash recovery and offline PDF preview/export.
-The AppImage builds and launches through FUSE on the development laptop;
-desktop registration and the remaining writing-pilot cases are still open.
-
-Agents make decisions under [ADR 0043](decisions/0043-agent-decision-authority.md).
-Work on the assigned branch (default `main`). The local health check is complete
-and the user requested a continuation handoff. No Next action task was started.
+Application: **babel**, local-first Linux screenwriting (Tauri/React/Rust).
+Agents decide under [ADR 0043](decisions/0043-agent-decision-authority.md).
+Branch: `main`. The bounded M6-16 laptop pilot is complete; Local v1 admission
+and desktop installation remain open. No adjacent implementation was started.
 
 ## This session
 
-**LOCAL-HEALTH-2026-10-06** checked cloud-session base `d22e90d` on the actual
-Arch/Hyprland laptop. [Evidence](test-evidence/LOCAL-HEALTH-2026-10-06.md).
+**M6-16 pilot remainder** ([brief](tasks/M6-16.md),
+[evidence](test-evidence/M6-16-2026-10-06.md)) reconciled all twelve SPEC S15.5
+steps and completed the packaged writing/restore cases on the development laptop.
 
-- All toolchain pins and required host prerequisites were already installed.
-  Frozen dependency installation refreshed local npm packages; lockfiles stayed
-  unchanged. No system package installation or desktop setting change.
-- Fixed slow Vite startup on this artifact-heavy checkout: dependency discovery
-  starts at `index.html`; its file watcher ignores `target/`. Retained the
-  original interrupted scan and the follow-up watcher observation. Final browser
-  smoke passed in 4.275 seconds.
-- `pnpm check`: 78 files / 1504 tests, formatting, lint, types, links, guidance
-  and production build passed. Differential 6/6; PDF helper 17/17 (173 renders).
-- Rust workspace: 275/275 on tmpfs and 275/275 on Btrfs. The first Btrfs
-  invocation supplied a relative root and was rejected as unsafe; preserved that
-  failure and reran the matrix with absolute roots. Rust formatting passed.
-- Default release and AppImage built. Real WebKit/IPC drills passed 3/3 on Btrfs:
-  writing/save/close/reopen/recovery and save/history failures, offline
-  spellcheck, and PDF export. Exact bytes, restore/Undo and emergency copies
-  checked. All three process/crash audits clean.
-- The actual FUSE AppImage showed native-connected Home and closed ordinarily
-  with exit 0, no crash events or surviving native processes. Screenshot
-  inspected. This is a cold package launch, not desktop installation or a full
-  packaged writing-pilot claim. Synthetic files and isolated XDG profiles only.
+- FUSE mounted externally, then packaged AppRun/WebKit/GTK/IPC ran offline
+  with normal mapped UID 1000, zero capabilities and private synthetic profiles.
+  This differs from direct cold FUSE launch and desktop registration.
+- New/all-elements/completion/Enter, three-scene writing, title/dialogue edits,
+  scene move, Find/Replace, snapshots and former-current-draft restore passed.
+  Exact authored source, BOM/CRLF/unknown-key/note/omission, Save/Undo/Redo and
+  ordinary close/restart/preferences/reopen verified.
+- Packaged permission-denied save, latest acknowledged checkpoint after owned
+  SIGKILL/restart, external divergence and exact emergency copy passed. The
+  laptop is non-root; the cloud root-bypass limitation does not apply here.
+- Backup copied to separate tmpfs; working Btrfs directory made unavailable;
+  restart/open backup/Save As to fresh Btrfs/close/reopen passed exact bytes.
+  Independent Screenplain reader verified exported Fountain title/dialogue/order.
+- Same-capture packaged PDF preview/export matched two-page layout/raster;
+  omission/refusal/failure/source isolation passed. Pages/screenshots inspected.
+- Four required package modes have clean passing runs. Final harness rerun:
+  `typed-export`/`local-pilot` 2/2, zero crash events/surviving native processes.
+  New Python syntax, touched-doc format/links/guidance/diff checks passed.
+- Short writing session: 278 authored words, 1,526 trusted typed characters;
+  frame proxy p95/max 15/21 ms. Separate 2,400-row preview workload preserved
+  all 120 physical inputs, proxy p95/max 25/33 ms. Not full S13/compositor proof.
+- No production/dependency/build change. Vite entry/watch fix preserved. Added
+  repeatable packaged runner/pilot/artifact auditor; corrected obsolete M6-16
+  process gates. README status updated, pre-release/backup caution retained.
 
-## Cloud work retained
+## Retained candidate and failures
 
-The merged cloud session implemented recovery independent of refused capture
-([ADR 0044](decisions/0044-recovery-independent-of-capture.md)), rolling-snapshot
-retention retry at the 256 cap, writing-first layout, one recovery-open action,
-Scene Heading on New, and identical-suggestion Enter handling. It also archived
-finished documents, updated dependencies/audits, added snapshot times and dated
-backup names, and refreshed the README.
-[Cloud pilot evidence](test-evidence/PILOT-2026-10-06.md) retains its packaged
-PDF, Save As, Reload, Find/Replace All, Recents, snapshot/restore/copy results.
+Unchanged health build at `dc3c3b8`; session base `1841933`.
+[Health evidence](test-evidence/LOCAL-HEALTH-2026-10-06.md) retains frontend
+78 files/1504 tests, Rust 275 per tmpfs/Btrfs, differential 6/6, helper 17/17,
+Chromium PDF/layout, native release 3/3 and direct FUSE cold launch. These are
+justified unchanged evidence, not new runs. Cloud results remain separately in
+[earlier pilot](test-evidence/PILOT-2026-10-06.md).
 
-Decision retained: text before a Parenthetical's `(` keeps its named refusal
-and recovery protection. Do not silently save it as Dialogue.
+New raw artifacts: `target/m6-16-pilot-2026-10-06/`. Initial direct namespace
+launch could not mount FUSE. A root-mapped/drop-cap mounted run had two GTK
+icon-loader picker SIGABRTs; copied/hash-bound cores, checkpoints, ledgers and
+strict failures retained. Normal UID runner corrects that test configuration;
+it does not erase the aborts. First second-restore attempt overlapped pending
+Save and was safely refused; waiting for readiness passed twice.
+[Native register](native-findings.md#m6-16-runner-only-events).
 
 ## Known limitations
 
-- [Native register](native-findings.md): accepted historical WebKitGTK aborts
-  under forced teardown or `/tmp` inode exhaustion remain retained. New local
-  passes do not erase those records; ordinary writing/save/close crashes still
-  require repair.
-- M6-02: Save As/IME readiness lag (~117 ms, content saved); shared-store lease
-  limit. Capture refusals naming no row still pause recovery (emergency copy).
-- The cloud container's older Chromium could not run the PDF browser smoke;
-  this laptop's Chromium 153 passed it. Other native modes were not rerun here.
-- Replace-All load flake, enforcing SELinux coverage, broader keyboard/a11y/IME,
-  full S13 performance, desktop installation and second-host bootstrap remain
-  outside this health check. Rust Clippy and new dependency audits were not
-  rerun; no Rust or dependency pin changed.
+- Desktop registration/install and packaged spellcheck are M6-14; native
+  interruption/low-space retention remains M6-03. Mounted-package writing is
+  not installed-app acceptance. M6-16 final requirement/admission review open.
+- Backup is a separate filesystem on the same laptop, not an independent
+  physical disk/power-loss backup. Real-software migration and second-host
+  bootstrap deferred; keep independent backups and the old writing workflow.
+- Full S13/long session, broader IME/keyboard/a11y, enforcing SELinux and
+  retained Replace-All load flake remain outside this pilot. Optional help and
+  Find/export/snapshot panels can consume substantial viewport space.
+- Historical [native findings](native-findings.md) remain accepted under ADR
+  0043 with original strict failures. Ordinary supported writing/save/close
+  crashes, content loss or false saved status require repair.
+- M6-02 Save As/IME readiness lag (~117 ms, content saved), shared-store lease
+  limit, and capture refusals naming no row remain known limitations. Named
+  Parenthetical refusal is preserved; never silently save it as Dialogue.
+- No new full matrix, CI, Clippy/dependency audit, native/helper build,
+  Local v1 admission or release tag claimed.
 
 ## Next action
 
-Continuation handoff prepared. The next agent takes the first unblocked item
-below. Older owner-approval wording in the M6-16 brief is superseded by ADR 0043
-and current SPEC S15.5. The handoff selects the bounded pilot remainder; stop
-before M6-14 or another queue item, and do not claim full Local v1 admission
-from the health check or a partial pilot.
+Stop after this bounded pilot's commit/push. Next session takes item 1;
+no M6-14/M6-03/M7 or adjacent task was started here.
 
-1. **M6-16 pilot remainder** ([brief](tasks/M6-16.md)): scene moves, title page, opening a backup copy,
-   and the remaining S15.5 cases. A native permission-denied source-save drill
-   now passes on this non-root laptop. When the full list passes, relax the
-   README status caution to the real limits.
-2. **M6-14 remainder**: desktop install/registration and packaged spellcheck.
-   FUSE cold launch/ordinary close now locally verified. [Brief](tasks/M6-14.md).
-3. **M6-03 remainder**: native interruption/low-space retention drill.
-   Snapshot UI restore/copy already pilot-verified. [Brief](tasks/M6-03.md).
+1. **M6-14 remainder**: desktop registration/install and packaged spellcheck.
+   Direct cold FUSE launch and mounted-package offline writing/PDF/restore are
+   verified. [Brief](tasks/M6-14.md).
+2. **M6-03 remainder**: native interruption/low-space retention drill.
+   Packaged snapshot restore/copy/backup-open is pilot-verified. [Brief](tasks/M6-03.md).
+3. **M6-16 admission review**, after M6-14/M6-03: refresh requirement evidence
+   and resolve the actual installation/release gaps. [Brief](tasks/M6-16.md).
 4. **Capture**: recovery copy for refusals naming no row.
 5. **D-05 remainder**: protected workflows take a PreDestructive snapshot and
-   treat Git history failure as a warning
-   ([ADR 0030](decisions/0030-version-bound-workflow-protection.md)).
-6. Later, not V1 blockers: M6-04, M6-10–13, M6-15, DEV-02, M6-05–09, AUDIT-PARK-T
-   (2) duplicate Home entry after a failed resume, M7, M8.
+   treat Git history failure as a warning ([ADR 0030](decisions/0030-version-bound-workflow-protection.md)).
+6. Later, not V1 blockers: M6-04, M6-10–13, M6-15, DEV-02, M6-05–09,
+   AUDIT-PARK-T (2) failed-resume duplicate Home entry, M7, M8.
 
-Native drills: check `df -i /tmp`, use fresh output roots, and follow
-[development guidance](development.md). Local raw results are retained under
-`target/local-health-2026-10-06/`.
+Native drills: check `df -i /tmp`, use fresh output paths and absolute filesystem
+roots; follow [development](development.md) and the registered native guide.
