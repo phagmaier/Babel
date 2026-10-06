@@ -1,5 +1,5 @@
 {
-  "provenance": "AUDIT-MARKER-READING: six literal retained supplemental sources, independently reviewed against pinned parser removal order and helper PDF text; two hand-authored controls. No manuscript input.",
+  "provenance": "AUDIT-MARKER-READING: six literal retained supplemental sources and two controls. AUDIT-MARKER-WARNINGS: three separate original warning-gap sources with independently reviewed raw marker spans, pinned warnings, parser and PDF text. No manuscript input.",
   "profile": "us-letter-draft-v1",
   "cases": [
     {
@@ -198,6 +198,50 @@
         "Alpha.",
         "x]] y"
       ]
+    }
+  ],
+  "warningCases": [
+    {
+      "name": "boneyard warning crosses a codec note boundary",
+      "source": "\ttext ]] and [[ more \n/* open  \n \n\\[[x]] y  \r\n= Sum\t\n\t\n\tclose */  \n",
+      "warnings": ["boneyards", "notes"],
+      "missing": "boneyards",
+      "kind": "boneyard",
+      "line": 1,
+      "endLine": 6,
+      "title": [],
+      "paragraphs": [["Action", ["    text ]] and [[ more", ""]]],
+      "prints": ["text ]] and [[ more"],
+      "omits": ["open", "x]] y", "Sum", "close"]
+    },
+    {
+      "name": "note warning opens inside a globally removed boneyard",
+      "source": "/* open\t\r\n Author: Me\t\n close]]\r\n    Notes: n \n \n\ttext ]] and [[ more\t\n\n\t# /* x */ \n\t\n\tclose]] \n",
+      "warnings": ["boneyards", "notes"],
+      "missing": "notes",
+      "kind": "note",
+      "line": 5,
+      "endLine": 9,
+      "title": [],
+      "paragraphs": [["Action", ["", "    close]]"]]],
+      "prints": ["close]]"],
+      "omits": ["Author:", "Me", "Notes:", "text", "x"]
+    },
+    {
+      "name": "note warning spans paragraphs that print the brackets",
+      "source": "Archive: X  \n    text ]] and [[ more\t\n\nTO:\t\n # /* x */\n\t\nTitle:\t\r\n ===  \n  \n\tclose]]  \n",
+      "warnings": ["boneyards", "notes"],
+      "missing": "notes",
+      "kind": "note",
+      "line": 1,
+      "endLine": 9,
+      "title": [],
+      "paragraphs": [
+        ["Action", ["Archive: X", "    text ]] and [[ more"]],
+        ["Dialog", "TO:", [[false, "#"], [false, ""], [false, "Title:"], [false, "==="], [false, ""], [false, "close]]"]]]
+      ],
+      "prints": ["Archive: X", "text ]] and [[ more", "TO:", "Title:", "===", "close]]"],
+      "omits": ["/* x */"]
     }
   ],
   "controls": [

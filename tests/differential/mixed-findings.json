@@ -46,14 +46,14 @@
       "finding": "AUDIT-D04-R5: zero remaining title-source gaps; former sets preserved as corrected or resolved inventories."
     },
     "unannounced-notes": {
-      "count": 2,
-      "sha256": "bac97937f976fb8bbf50ccc7f0f93f474b305d59711de1d4c31b39477366dbe9",
-      "finding": "Overlapping unclosed markers, already observed in AUDIT-EXPORT-WARNINGS scratch sweep; exact instances retained for separate future scope."
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "finding": "AUDIT-MARKER-WARNINGS: zero remaining gaps; historical set is preserved and asserted under resolved."
     },
     "unannounced-boneyards": {
-      "count": 1,
-      "sha256": "cfd54f036c6c62a257f7520715fe911ef67951c7da348c1726a0bfcbc8cbf594",
-      "finding": "Overlapping unclosed markers, already observed in AUDIT-EXPORT-WARNINGS scratch sweep; exact instances retained for separate future scope."
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "finding": "AUDIT-MARKER-WARNINGS: zero remaining gaps; historical set is preserved and asserted under resolved."
     },
     "corrected-title-reading": {
       "count": 398,
@@ -66,6 +66,16 @@
       "count": 330,
       "sha256": "96be342595cf26b6db5c298a71028e0ae9f462e3f1b8ca697a33b8fafd032f9f",
       "finding": "AUDIT-D04-R5: all former 330 title-warning gaps now have located blocking limitations, independently classified and PDF-reviewed. Historical set identity retained; current zero asserted below."
+    },
+    "unannounced-notes": {
+      "count": 2,
+      "sha256": "bac97937f976fb8bbf50ccc7f0f93f474b305d59711de1d4c31b39477366dbe9",
+      "finding": "AUDIT-MARKER-WARNINGS: every original warning-gap source now has located blocking SC005 review. Preserve historical source/missing-category identity and require its exact corrected set."
+    },
+    "unannounced-boneyards": {
+      "count": 1,
+      "sha256": "cfd54f036c6c62a257f7520715fe911ef67951c7da348c1726a0bfcbc8cbf594",
+      "finding": "AUDIT-MARKER-WARNINGS: every original warning-gap source now has located blocking SC005 review. Preserve historical source/missing-category identity and require its exact corrected set."
     }
   }
 }

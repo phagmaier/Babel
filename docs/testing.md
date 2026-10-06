@@ -86,9 +86,12 @@ Known findings retain exact inventories and explicit disposition below.
   this scoped correction. AUDIT-MARKER-READING requires agreement for all six
   former marker-reading sources while preserving their original outcome hash;
   zero marker disagreements remain. Its shared literal oracle checks removal
-  order, blocking review, source bytes and pinned parser/PDF text. Three marker
-  warning gaps and 634 preparation refusals remain retained failures, not
-  publication acceptance. No new reading regression,
+  order, blocking review, source bytes and pinned parser/PDF text.
+  AUDIT-MARKER-WARNINGS closes the three separate marker-warning gaps through
+  located blocking SC005; their original source/category hashes remain asserted
+  as corrected sets. All current helper warnings must be announced. The 634
+  preparation refusals remain retained failures, not publication acceptance.
+  No new reading regression,
   clean disagreement, unknown warning or warning refusal is allowed. Every
   existing mismatch must retain the frozen facts. Fixes require independent
   literal evidence and a scoped inventory update; do not regenerate for green.

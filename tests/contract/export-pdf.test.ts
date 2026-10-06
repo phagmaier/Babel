@@ -505,6 +505,45 @@ const warningCorpus = JSON.parse(
     exports: boolean;
   }[];
 };
+const markerWarningCases = JSON.parse(
+  readFileSync('fixtures/assessment/marker-reading.json', 'utf8'),
+) as { warningCases: { name: string; source: string; warnings: string[] }[] };
+it.each(markerWarningCases.warningCases)(
+  'AUDIT-MARKER-WARNINGS review/cancel/acknowledge and guard: $name',
+  async ({ source, warnings }) => {
+    const t = await setup(source);
+    renderWarns(t, warned(...warnings));
+    await t.controller.start(t.capture);
+    expect(t.controller.state.phase).toBe('review');
+    expect(t.port.select).not.toHaveBeenCalled();
+    expect(t.port.render).not.toHaveBeenCalled();
+    expect(t.port.publish).not.toHaveBeenCalled();
+    expect(t.controller.state.report?.issues).toContainEqual(
+      expect.objectContaining({ code: 'SC005', severity: 'blocking' }),
+    );
+    await t.controller.cancel();
+    expect(t.port.cancel).toHaveBeenCalledOnce();
+    expect(t.port.publish).not.toHaveBeenCalled();
+    await t.controller.start(t.capture);
+    expect(t.controller.state.phase).toBe('review');
+    await t.controller.proceed(true);
+    expect(t.controller.state.phase).toBe('succeeded');
+    expect(t.port.publish).toHaveBeenCalledOnce();
+    expect(t.capture).toHaveBeenCalledTimes(2);
+    t.preview.dispose();
+
+    const extra = await setup(source);
+    renderWarns(extra, warned(...warnings, 'lyrics'));
+    await extra.controller.start(extra.capture);
+    expect(extra.controller.state.phase).toBe('review');
+    await extra.controller.proceed(true);
+    expect(extra.controller.state.phase).toBe('failed');
+    expect(extra.controller.state.message).toContain('“lyrics”');
+    expect(extra.port.publish).not.toHaveBeenCalled();
+    expect(extra.port.cancel).toHaveBeenCalledOnce();
+    extra.preview.dispose();
+  },
+);
 it.each(warningCorpus.cases)(
   'AUDIT-EXPORT-WARNINGS corpus: $name',
   async ({ source, warnings, review, exports }) => {

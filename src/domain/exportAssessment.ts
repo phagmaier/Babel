@@ -1063,9 +1063,47 @@ export function evaluateExportAssessment(
         );
       }
     });
-  issues.sort((a, b) => a.line! - b.line! || a.code.localeCompare(b.code));
   ranges.sort((a, b) => a.line - b.line || a.endLine - b.endLine);
   for (const range of ranges) announced.add(summarised[range.kind]);
+  // The helper also scans original source globally, even when a marker match
+  // crosses separately assessed regions or paragraphs. Such a match is not a
+  // verified omission: give it a located blocking review before announcing it.
+  // Keep the category snapshot per scan so every uncovered match gets a target.
+  const uncovered = (['boneyards', 'notes'] as const).filter(
+    (category) => !announced.has(category),
+  );
+  if (uncovered.length) {
+    const starts: number[] = [];
+    let text = '';
+    for (const row of source.lines) {
+      starts.push(text.length);
+      text += row.sourceText + '\n';
+    }
+    const lineAt = (offset: number) => {
+      let low = 0;
+      let high = starts.length - 1;
+      while (low < high) {
+        const middle = (low + high + 1) >> 1;
+        if (starts[middle]! <= offset) low = middle;
+        else high = middle - 1;
+      }
+      return low;
+    };
+    for (const category of uncovered) {
+      const kind = category === 'boneyards' ? 'boneyard' : 'note';
+      const pattern =
+        category === 'boneyards' ? /\/\*[\s\S]*?\*\//g : /\[\[[\s\S]*?\]\]/g;
+      for (const match of text.matchAll(pattern))
+        add(
+          'SC005',
+          `The profile reports ${kind} syntax across separately assessed regions or paragraphs; this span is not verified as a single non-printing element. Review what prints before export.`,
+          lineAt(match.index),
+          lineAt(match.index + match[0].length - 1),
+          [category],
+        );
+    }
+  }
+  issues.sort((a, b) => a.line! - b.line! || a.code.localeCompare(b.code));
   const total = (kind: OmissionKind): OmissionTotal => {
     const lines = new Set<number>();
     let count = 0;

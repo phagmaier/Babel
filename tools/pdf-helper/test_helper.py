@@ -204,7 +204,7 @@ class HelperTest(unittest.TestCase):
 
     def test_marker_reading_oracle(self):
         corpus = json.loads((REPO / 'fixtures/assessment/marker-reading.json').read_text(encoding='utf-8'))
-        for index, entry in enumerate(corpus['cases'] + corpus['controls']):
+        for index, entry in enumerate(corpus['cases'] + corpus['controls'] + corpus['warningCases']):
             with self.subTest(entry['name']):
                 source = entry['source'].encode('utf-8')
                 self.assertEqual(renderer_reading(source),
@@ -213,6 +213,9 @@ class HelperTest(unittest.TestCase):
                 code, result, stderr = run(request(output, profile=corpus['profile']), source)
                 self.assertEqual(code, 0, stderr)
                 self.assertTrue(result['ok'])
+                if 'warnings' in entry:
+                    self.assertEqual([w['code'] for w in result['warnings']],
+                                     ['unsupported-publication:' + kind for kind in entry['warnings']])
                 text = subprocess.run(['pdftotext', str(output), '-'], capture_output=True,
                                       text=True, check=True).stdout
                 text = ' '.join(text.split())

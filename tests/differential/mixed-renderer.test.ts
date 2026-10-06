@@ -23,6 +23,7 @@ const dispositions = JSON.parse(
   corpusSha256: string;
   admissionChanges: { source: string; finding: string }[];
   retained: Record<string, { count: number; sha256: string; finding: string }>;
+  resolved: Record<string, { count: number; sha256: string; finding: string }>;
 };
 const context = {
   identity: assessment.PUBLICATION_ASSESSMENT_IDENTITY,
@@ -38,8 +39,12 @@ const ordered = <T>(entries: T[]) =>
 // Counts plus hashes pin every ordered source and its independent oracle
 // outcome, including duplicate occurrences. They retain bugs, not waivers:
 // unexplained changes fail; correcting one needs a separately reviewed task.
-function retained(name: string, entries: unknown[]) {
-  const { count, sha256 } = dispositions.retained[name]!;
+function retained(
+  name: string,
+  entries: unknown[],
+  expected = dispositions.retained[name]!,
+) {
+  const { count, sha256 } = expected;
   expect(
     {
       count: entries.length,
@@ -228,13 +233,28 @@ it('70,000 mixed sources retain identified parser limits without introducing rea
   );
 });
 
-it('the same 70,000 mixed sources expose only explicitly retained helper-warning gaps', () => {
+it('the same 70,000 mixed sources announce every helper warning and pin the three corrected marker gaps', () => {
   expect(corpusSha256).toBe(dispositions.corpusSha256);
   const actual = oracle<string[] | { refused: string }>('warning');
   expect(actual).toHaveLength(inputs.length);
   const refused: unknown[] = [];
   const unknown: unknown[] = [];
   const unannounced: { source: string; missing: string[] }[] = [];
+  const correctedMarkerWarnings: { source: string; missing: string[] }[] = [];
+  const { warningCases } = JSON.parse(
+    readFileSync('fixtures/assessment/marker-reading.json', 'utf8'),
+  ) as {
+    warningCases: {
+      source: string;
+      missing: string;
+      kind: string;
+      line: number;
+      endLine: number;
+    }[];
+  };
+  const markerCases = new Map(
+    warningCases.map((entry) => [entry.source, entry]),
+  );
   const unwarned: unknown[] = [];
   const seen = Object.fromEntries(
     assessment.OMISSION_CATEGORIES.map((category) => [
@@ -275,6 +295,25 @@ it('the same 70,000 mixed sources expose only explicitly retained helper-warning
     ].filter(Boolean);
     const missing = warned.filter((category) => !announced.includes(category));
     if (missing.length) unannounced.push({ source, missing });
+    const corrected = markerCases.get(source);
+    if (corrected) {
+      expect(warned, source).toContain(corrected.missing);
+      expect(announced, source).toContain(corrected.missing);
+      expect(check.issues, source).toContainEqual(
+        expect.objectContaining({
+          code: 'SC005',
+          severity: 'blocking',
+          line: corrected.line,
+          endLine: corrected.endLine,
+          message: expect.stringContaining(
+            `The profile reports ${corrected.kind} syntax across`,
+          ),
+        }),
+      );
+      // Preserve the old source/missing-category payload and occurrence order,
+      // while requiring a visible located correction for every original source.
+      correctedMarkerWarnings.push({ source, missing: [corrected.missing] });
+    }
     for (const category of warned)
       if (announced.includes(category))
         seen[category]![counted.includes(category) ? 'summary' : 'issue']++;
@@ -285,6 +324,7 @@ it('the same 70,000 mixed sources expose only explicitly retained helper-warning
     refused,
     unknown,
     unannounced,
+    correctedMarkerWarnings,
     announcedWhereWarned: seen,
     countedButNotWarned: unwarned,
   });
@@ -297,15 +337,15 @@ it('the same 70,000 mixed sources expose only explicitly retained helper-warning
       `unannounced-${category}`,
       unannounced.filter((entry) => entry.missing.includes(category)),
     );
-  expect(
-    unannounced.every(
-      (entry) =>
-        entry.missing.length === 1 &&
-        ['unknown-title-fields', 'notes', 'boneyards'].includes(
-          entry.missing[0]!,
-        ),
-    ),
-  ).toBe(true);
+  expect(unannounced).toEqual([]);
+  for (const category of ['notes', 'boneyards'])
+    retained(
+      `resolved-unannounced-${category}`,
+      correctedMarkerWarnings.filter((entry) =>
+        entry.missing.includes(category),
+      ),
+      dispositions.resolved[`unannounced-${category}`]!,
+    );
   for (const category of assessment.OMISSION_CATEGORIES) {
     expect(seen[category]!.issue, category).toBeGreaterThan(0);
     if (category !== 'unknown-title-fields')

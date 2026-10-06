@@ -6,11 +6,16 @@ recorded CI passes. Later commits are local only.
 
 ## This session
 
+**AUDIT-MARKER-WARNINGS complete**, from clean `50cd9cb`, local only.
+[Brief](tasks/AUDIT-MARKER-WARNINGS.md), [evidence](test-evidence/AUDIT-MARKER-WARNINGS.md):
+two note and one boneyard gap now have located blocking SC005; export guard, source bytes, prior issues/counts and pinned inventories preserved. 338 focused
+tests, 17 helper tests and both fixed corpus gates pass; announced fault rejected.
+No corpus expansion/native trial; M6 owner S15.5 disposition remains blocked.
+
 **AUDIT-MARKER-READING complete**, from clean `73e79ee`, local only.
-[Brief](tasks/AUDIT-MARKER-READING.md), [evidence](test-evidence/AUDIT-MARKER-READING.md):
-original-source removal order corrects exactly six retained paragraph readings.
+[Brief](tasks/AUDIT-MARKER-READING.md), [evidence](test-evidence/AUDIT-MARKER-READING.md): original-source removal order corrects exactly six retained paragraph readings.
 331 focused tests, helper and both fixed renderer corpora pass; exact bytes and
-blocking review preserved. Three warning gaps remain; no native trial/admission.
+blocking review preserved. Warning gaps closed above; no native trial/admission.
 
 **M6-02-R6 read-only prerequisite review complete**, from clean `62c9859`.
 [Brief](tasks/M6-02-R6.md), [evidence](test-evidence/M6-02-R6.md): one Arch
@@ -21,8 +26,7 @@ Tier 1 checks pass; 501 files, 307 historical files, all register rows and
 cores/strict failures preserved; 483 additional review inputs unchanged.
 No native trial, register change or risk acceptance; owner S15.5 review escalated.
 
-**M6-02-R5 read-only review complete**, local only.
-[Evidence](test-evidence/M6-02-R5.md): R4 owned forced DELETE window, separate
+**M6-02-R5 read-only review complete**, local only. [Evidence](test-evidence/M6-02-R5.md): R4 owned forced DELETE window, separate
 C1/F2 scopes and absent F2 temporary root established. No shared cause or closure.
 
 **M6-02-R4 diagnostic slice complete**, from clean `8781780`, local only.
@@ -56,13 +60,10 @@ are retained. Stage observations show receipt-before-readiness; no original
 cause, functional repair or accepted limitation. All eleven native rows and
 307 old-root files are unchanged. [Evidence](test-evidence/M6-02-R1.md).
 
-**INFRA-WORKFLOW complete**, owner-authorized after overhead review; local only.
-[Brief](tasks/INFRA-WORKFLOW.md), [evidence](test-evidence/INFRA-WORKFLOW.md).
-Change-based local verification, bounded finding disposition and compact future
-evidence now apply. Format/links/guidance and independent preservation checks
-passed; product/fixture/CI bytes, S03 and historical evidence are unchanged.
-That workflow task included no product/native rerun, crash closure, release
-admission, pruning or push.
+**INFRA-WORKFLOW complete**, owner-authorized after overhead review; local only. [Brief](tasks/INFRA-WORKFLOW.md), [evidence](test-evidence/INFRA-WORKFLOW.md).
+Change-based checks, bounded finding disposition and compact evidence apply;
+preservation/static checks passed, product/fixture/CI bytes, S03 and historical evidence unchanged.
+No product/native rerun, crash closure, admission, pruning or push.
 
 ## Recent work
 
@@ -74,7 +75,7 @@ admission, pruning or push.
   Category matching does not prove extent. [Evidence](test-evidence/AUDIT.md#audit-export-warnings--renderer-warnings-compared-at-export).
 - **AUDIT-SWEEP-COVERAGE complete, local only:** second deterministic corpus;
   [reviewed inventory](../tests/differential/mixed-findings.json) preserves the six
-  corrected marker readings, three warning gaps and 634 preparation refusals.
+  corrected marker readings, three corrected warning gaps and 634 preparation refusals.
   R5 title gaps are closed. [Evidence](test-evidence/AUDIT.md#audit-sweep-coverage--second-mixed-generated-corpus).
 - Earlier reading classification, R4 and instruction/CI maintenance remain
   complete within their recorded scope. [Audit status](tasks/AUDIT-TRACKER.md),
@@ -100,9 +101,9 @@ admission, pruning or push.
 
 ## Next action
 
-**Stop after AUDIT-MARKER-READING and its local commit.** Next independent task:
-**AUDIT-MARKER-WARNINGS**; draft a bounded brief for the exact two note and one
-boneyard warning gaps before implementation. No new corpus or native trial.
+**Stop after AUDIT-MARKER-WARNINGS and its local commit.** No further marker
+task is selected: both fixed corpora have no remaining reading/warning gaps.
+The 634 preparation refusals select no follow-up. Preserve its [evidence](test-evidence/AUDIT-MARKER-WARNINGS.md); new work needs separate bounded task selection. No new corpus or native trial.
 The owner-only M6 prerequisite disposition remains **blocked**:
 [Disposition and next owner decision](test-evidence/M6-02-R6.md#disposition-and-one-narrowed-follow-up):
 repository owner reviews the separate R4 forced preference-restart, C1 parent-loss
@@ -112,7 +113,7 @@ or Babel correction is established. No agent acceptance, register change or cras
 closure. Additional symbol/runtime work needs separate selection and its own brief.
 No automatic native repeat or snapshot/guard/predicate/timer change.
 M6-02 stays unchecked; M6-03/C1/F2/Local v1 admission remain blocked. Other
-marker work beyond that brief, F4/group F and DEV-02 stay unselected. No push/tag/amend.
+marker work, F4/group F and DEV-02 stay unselected. No push/tag/amend.
 
 Before native work check `df -i /tmp`, set `BABEL_NATIVE_IME_TEMP_ROOT` to a
 fresh Btrfs directory and recreate missing `/tmp` helpers/Cargo caches after

@@ -7,8 +7,8 @@ Task selection comes only from [current-state Next action](../current-state.md#n
 Current [verification tiers](../development.md#check-tiers-use-the-lowest-tier-that-covers-the-change)
 supersede old routine shared-check lists, retaining acceptance and safety cases.
 [Finding disposition](../testing.md#finding-disposition) permits explicit safe
-limitations; corpus findings select no automatic audit tail. Remaining marker-warning,
-PARK-T and F4 obligations stay recorded while eligible M6 work resumes.
+limitations; corpus findings select no automatic audit tail. Marker reading and
+warning tasks are complete; PARK-T/F4 and native/owner obligations stay recorded.
 
 ### Wave 0 — unblockers
 
@@ -118,7 +118,7 @@ T-03 (resume path, ~20-line composition), T-04 (8 `WritingSession` guard tests),
 - [x] **AUDIT-D04-R4** — [Brief](AUDIT-D04-R4.md), [Evidence](../test-evidence/AUDIT.md#audit-d04-r4--boneyard-inside-the-renderers-opening-title-block).
 - [x] **AUDIT-EXPORT-WARNINGS** — export stops on a renderer warning the check did not announce. [Brief](AUDIT-EXPORT-WARNINGS.md), [evidence](../test-evidence/AUDIT.md#audit-export-warnings--renderer-warnings-compared-at-export).
 - [x] **AUDIT-D04-R5** — located SC005 review for all three retained title omissions, corrected section/synopsis wording; exact title-source sets closed, marker gaps remain open. [Brief](AUDIT-D04-R5.md), [evidence](../test-evidence/AUDIT.md#audit-d04-r5--located-title-omission-limitations).
-- [x] **AUDIT-SWEEP-COVERAGE** — second mixed 70,000-source corpus feeds both pinned gates; frozen generator/seed/baseline/assertions unchanged, supplemental failing outcomes retained explicitly. [Brief](AUDIT-SWEEP-COVERAGE.md), [evidence](../test-evidence/AUDIT.md#audit-sweep-coverage--second-mixed-generated-corpus). R5 closes the title gaps; overlapping-marker gaps need a separately selected future brief.
+- [x] **AUDIT-SWEEP-COVERAGE** — second mixed 70,000-source corpus feeds both pinned gates; frozen generator/seed/baseline/assertions unchanged, supplemental outcomes pinned explicitly. [Brief](AUDIT-SWEEP-COVERAGE.md), [evidence](../test-evidence/AUDIT.md#audit-sweep-coverage--second-mixed-generated-corpus). R5 and the marker tasks below close their separate reviewed gaps.
 
 - [x] **AUDIT-MARKER-READING** — original-source removal order corrects exactly six retained paragraph readings; literal parser/PDF text and byte-preservation evidence, three warning gaps remain open. [Brief](AUDIT-MARKER-READING.md), [evidence](../test-evidence/AUDIT-MARKER-READING.md).
-- [ ] **AUDIT-MARKER-WARNINGS** — next independent bounded task, not started: two note warnings and one boneyard warning remain unannounced in the exact supplemental inventory. Draft its brief before correction; preserve source, export warning guard and all native/owner gates.
+- [x] **AUDIT-MARKER-WARNINGS** — exact two note and one boneyard warning gaps closed by located blocking SC005; source, prior issues/counts, export warning guard and historical hashes preserved. [Brief](AUDIT-MARKER-WARNINGS.md), [evidence](../test-evidence/AUDIT-MARKER-WARNINGS.md).

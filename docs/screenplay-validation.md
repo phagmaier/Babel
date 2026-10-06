@@ -194,7 +194,7 @@ A verified assessment also states `announced`: the omission categories the
 author is told about, in the helper's `unsupported-publication:*` names
 (`boneyards`, `notes`, `sections`, `synopses`, `unknown-title-fields`). Export
 [stops](pdf-and-formatting.md#captured-pdf-export-m5-06) on a helper warning
-outside that set. Issues and counts are unchanged; a category is announced by:
+outside that set. A category is announced by:
 
 - a counted omission in the summary line;
 - a blocking limitation that says the profile omits or may omit that kind;
@@ -207,12 +207,20 @@ outside that set. Issues and counts are unchanged; a category is announced by:
   brackets in a title value, which the renderer prints as written. An unclosed
   or ambiguous region and a raw line are unverified and also announce a section
   or synopsis line inside them.
+- an otherwise unannounced raw-source note or boneyard match spanning separately
+  assessed regions or paragraphs. [AUDIT-MARKER-WARNINGS](tasks/AUDIT-MARKER-WARNINGS.md)
+  adds blocking SC005 over its original opening-through-closing lines, with
+  original byte targets. The limitation explains that the span is not verified
+  as one non-printing element; it adds no omission count. Every uncovered match
+  gets a target, and a truncated issue list cannot announce an unseen review.
 
 Categories only: an announcement does not prove extent and covers any warning
 in its category. A counted omission the helper does not warn about is not a
-mismatch (it does not warn about an empty synopsis line). Three omissions the
-assessment does not yet report are [open](tasks/AUDIT-EXPORT-WARNINGS.md#open-findings-this-comparison-now-stops);
-export stops for them.
+mismatch (it does not warn about an empty synopsis line). R5 closed the three
+original title omission findings; MARKER-WARNINGS closes the three separate
+retained marker warning gaps. The fixed corpora require no unannounced warning;
+an unexpected category, unreadable warning or missing announcement still stops
+export without publishing a PDF. A matching category does not certify extent.
 [Brief](tasks/AUDIT-EXPORT-WARNINGS.md),
 [evidence](test-evidence/AUDIT.md#audit-export-warnings--renderer-warnings-compared-at-export).
 
