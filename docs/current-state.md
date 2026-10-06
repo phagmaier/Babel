@@ -8,8 +8,8 @@ The AppImage builds and launches through FUSE on the development laptop;
 desktop registration and the remaining writing-pilot cases are still open.
 
 Agents make decisions under [ADR 0043](decisions/0043-agent-decision-authority.md).
-Work on the assigned branch (default `main`). The user assigned a local health
-check before supplying a cloud-session handoff; no Next action task was started.
+Work on the assigned branch (default `main`). The local health check is complete
+and the user requested a continuation handoff. No Next action task was started.
 
 ## This session
 
@@ -68,10 +68,13 @@ and recovery protection. Do not silently save it as Dialogue.
 
 ## Next action
 
-Await the user's cloud-session handoff before continuing development. The
-existing ordered product queue is retained:
+Continuation handoff prepared. The next agent takes the first unblocked item
+below. Older owner-approval wording in the M6-16 brief is superseded by ADR 0043
+and current SPEC S15.5. The handoff selects the bounded pilot remainder; stop
+before M6-14 or another queue item, and do not claim full Local v1 admission
+from the health check or a partial pilot.
 
-1. **M6-16 pilot remainder**: scene moves, title page, opening a backup copy,
+1. **M6-16 pilot remainder** ([brief](tasks/M6-16.md)): scene moves, title page, opening a backup copy,
    and the remaining S15.5 cases. A native permission-denied source-save drill
    now passes on this non-root laptop. When the full list passes, relax the
    README status caution to the real limits.
