@@ -6,14 +6,18 @@ recorded CI passes. Later commits are local only.
 
 ## This session
 
-**M6-02-R5 read-only review complete**, from clean `44f467c`, local only.
-Owner delegated selection after [brief](tasks/M6-02-R5.md) preparation.
-[Evidence](test-evidence/M6-02-R5.md): R4 identity/core/strict replay retained;
-first forced DELETE is preference restart from Home after document closes.
-C1/F2 stay separate; frames prove no cause. F2 temporary root absent; retained
-core/ledger/logs/partial byte audit remain. Tier 1 checks and preservation pass
-(501 files, 307 historical files, eleven old rows, core/failure, 450 review inputs).
-No product/native change, register disposition change or risk acceptance.
+**M6-02-R6 read-only prerequisite review complete**, from clean `62c9859`.
+[Brief](tasks/M6-02-R6.md), [evidence](test-evidence/M6-02-R6.md): one Arch
+WebKitGTK 2.54.1-1 candidate exists in testing; 305909 EGL-race backport verified,
+315577 singleton cleanup absent. Historical/candidate debug IDs verified;
+production support, frozen-stack substitution and Babel applicability unestablished.
+Tier 1 checks pass; 501 files, 307 historical files, all register rows and
+cores/strict failures preserved; 483 additional review inputs unchanged.
+No native trial, register change or risk acceptance; owner S15.5 review escalated.
+
+**M6-02-R5 read-only review complete**, local only.
+[Evidence](test-evidence/M6-02-R5.md): R4 owned forced DELETE window, separate
+C1/F2 scopes and absent F2 temporary root established. No shared cause or closure.
 
 **M6-02-R4 diagnostic slice complete**, from clean `8781780`, local only.
 Private bounded Save tracing; 204 focused tests and local checks pass.
@@ -90,13 +94,14 @@ admission, pruning or push.
 
 ## Next action
 
-**Stop after M6-02-R5; its bounded artifact review is complete.**
-[Next proposed slice](test-evidence/M6-02-R5.md#disposition-and-narrowed-follow-up):
-one supported runtime/package/patch and matching-symbol prerequisite review.
-Owner: repository owner; executor: next selected agent. It needs its own brief;
-no candidate availability, corrected-runtime inclusion or trial is verified here.
-Release risk remains escalated for owner review; no acceptance or crash closure.
-No automatic native repeat, shared-cause inference or snapshot/guard change.
+**Stop after M6-02-R6; one prerequisite review is complete.**
+[Disposition and next owner decision](test-evidence/M6-02-R6.md#disposition-and-one-narrowed-follow-up):
+repository owner reviews the separate R4 forced preference-restart, C1 parent-loss
+and F2 failed-readiness/forced-cleanup risks under SPEC S15.5. Matching historical
+symbols and a related stable backport are verified; no eligible production trial
+or Babel correction is established. No agent acceptance, register change or crash
+closure. Additional symbol/runtime work needs separate selection and its own brief.
+No automatic native repeat or snapshot/guard/predicate/timer change.
 M6-02 stays unchecked; M6-03/C1/F2/Local v1 admission remain blocked. Marker
 remediation, F4/group F and DEV-02 remain unselected. No push/tag/amend authorized.
 
