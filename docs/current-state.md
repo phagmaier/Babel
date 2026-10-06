@@ -57,6 +57,7 @@ rerun on the final one here.
 | `tools/check-package-spellcheck.py <AppDir>`                   | Fails before the fix, passes after                 |
 | Staging vs host, relocatable and default upstream Enchant      | Pass, pass, refused as intended                    |
 | CI on `a6cbfc0`                                                | Existing steps pass; new guard failed, then fixed  |
+| CI on `f02a0cc` (run 37471622750)                              | Success, including the package spelling check      |
 | `installed_launch.py` on the final package                     | Pass                                               |
 | Packaged runner, six modes, development hidden                 | 5/6; spellcheck entry hit a drill bug, since fixed |
 | Packaged runner, `spellcheck`, development hidden              | 1/1 in two separate runs                           |
