@@ -31,9 +31,14 @@
       "finding": "AUDIT-D04-R5: zero remaining title-source gaps; former sets preserved as corrected or resolved inventories."
     },
     "marker-paragraphs": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "finding": "AUDIT-MARKER-READING: zero remaining marker-reading disagreements; former source/oracle identity preserved as corrected-marker-reading. Warning gaps remain separate."
+    },
+    "corrected-marker-reading": {
       "count": 6,
       "sha256": "02e96646909c0d0720b6efbedaf1cdfa17e4bbda0e507f8d66e515f067cff6d1",
-      "finding": "Overlapping note/boneyard markers: six paragraph-count disagreements present on frozen and current; require a separate future brief, not R5 implementation here."
+      "finding": "AUDIT-MARKER-READING: all six former marker-paragraph outcomes now agree with every pinned fact. Independent literal removal-order, parser and PDF-text evidence; original sources/control unchanged."
     },
     "unannounced-unknown-title-fields": {
       "count": 0,

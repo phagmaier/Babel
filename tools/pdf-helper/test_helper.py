@@ -202,6 +202,25 @@ class HelperTest(unittest.TestCase):
                                  {'title': case.get('title', []),
                                   'paragraphs': case['paragraphs']})
 
+    def test_marker_reading_oracle(self):
+        corpus = json.loads((REPO / 'fixtures/assessment/marker-reading.json').read_text(encoding='utf-8'))
+        for index, entry in enumerate(corpus['cases'] + corpus['controls']):
+            with self.subTest(entry['name']):
+                source = entry['source'].encode('utf-8')
+                self.assertEqual(renderer_reading(source),
+                                 {'title': entry['title'], 'paragraphs': entry['paragraphs']})
+                output = self.out_dir / f'marker-{index}.pdf'
+                code, result, stderr = run(request(output, profile=corpus['profile']), source)
+                self.assertEqual(code, 0, stderr)
+                self.assertTrue(result['ok'])
+                text = subprocess.run(['pdftotext', str(output), '-'], capture_output=True,
+                                      text=True, check=True).stdout
+                text = ' '.join(text.split())
+                for prints in entry['prints']:
+                    self.assertIn(prints, text)
+                for omits in entry['omits']:
+                    self.assertNotIn(omits, text)
+
     def test_typed_scene_oracle(self):
         # AUDIT-D07: the bytes Babel's editor produces when the S07.2 sequence is
         # typed from empty (tests/contract/typed-scene.test.ts). Expectations are

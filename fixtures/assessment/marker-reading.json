@@ -1,0 +1,259 @@
+{
+  "provenance": "AUDIT-MARKER-READING: six literal retained supplemental sources, independently reviewed against pinned parser removal order and helper PDF text; two hand-authored controls. No manuscript input.",
+  "profile": "us-letter-draft-v1",
+  "cases": [
+    {
+      "name": "earlier boneyard consumes the later inline title boneyard",
+      "source": " \\/* x */ y\t\n \ntext ]] and [[ more \n\n\t/* open  \n [[a]] [[b]]  \n    Title:\nTitle: /* t */ Film \r\n\r\n .hello \n",
+      "title": [],
+      "paragraphs": [
+        [
+          "Action",
+          [
+            " \\ y"
+          ]
+        ],
+        [
+          "Action",
+          [
+            "text ]] and [[ more"
+          ]
+        ],
+        [
+          "Action",
+          [
+            "     Film"
+          ]
+        ],
+        [
+          "Action",
+          [
+            " .hello"
+          ]
+        ]
+      ],
+      "prints": [
+        "\\ y",
+        "text ]] and [[ more",
+        "Film",
+        ".hello"
+      ],
+      "omits": [
+        "Title:",
+        "[[a]]"
+      ]
+    },
+    {
+      "name": "earlier boneyard consumes the later inline action boneyard",
+      "source": "Sub: late\t\n\t/* open \n A /* b */ c.  \n\n    ~Song  \r\n\r\ntext ]] and [[ more \n\t\n CUT TO:\n",
+      "title": [],
+      "paragraphs": [
+        [
+          "Action",
+          [
+            "Sub: late",
+            "     c."
+          ]
+        ],
+        [
+          "Action",
+          [
+            "    ~Song"
+          ]
+        ],
+        [
+          "Action",
+          [
+            "text ]] and [[ more",
+            "",
+            " CUT TO:"
+          ]
+        ]
+      ],
+      "prints": [
+        "Sub: late",
+        "c.",
+        "~Song",
+        "CUT TO:"
+      ],
+      "omits": [
+        "A /* b */"
+      ]
+    },
+    {
+      "name": "boneyard removal joins the title-like body across a break",
+      "source": "Key: [[v]]\t\n\t/* open\t\n\n ===  \n\n\tTitle: /* t */ Film\t\n\t\n    Tel: 555\n \n    Title: Film\n",
+      "title": [],
+      "paragraphs": [
+        [
+          "Action",
+          [
+            "Key:",
+            "     Film",
+            "",
+            "    Tel: 555"
+          ]
+        ],
+        [
+          "Action",
+          [
+            "    Title: Film"
+          ]
+        ]
+      ],
+      "prints": [
+        "Key:",
+        "Film",
+        "Tel: 555",
+        "Title: Film"
+      ],
+      "omits": [
+        "==="
+      ]
+    },
+    {
+      "name": "earlier note consumes through the later inline note",
+      "source": "Title: /* t */ Film \r\n\ttext ]] and [[ more \n        Tel: 555\r\n    INT  \n  \n    .hello\t\nKey: [[v]] \r\n\tA [[n]] b.\n",
+      "title": [],
+      "paragraphs": [
+        [
+          "Action",
+          [
+            "Title:  Film",
+            "    text ]] and",
+            "    A  b."
+          ]
+        ]
+      ],
+      "prints": [
+        "Title: Film",
+        "text ]] and",
+        "A b."
+      ],
+      "omits": [
+        "Tel: 555",
+        "Key:",
+        "INT"
+      ]
+    },
+    {
+      "name": "boneyard removal leaves one note-spanning action",
+      "source": " text ]] and [[ more\t\n\t\n\t**(beat)**\n # /* x */ \n  \n\t/* open \n    [[note]] \n \n    A sentence. \n\n    # /* x */  \n",
+      "title": [],
+      "paragraphs": [
+        [
+          "Action",
+          [
+            " text ]] and [[ more",
+            "",
+            "    (beat)",
+            " #",
+            "",
+            ""
+          ]
+        ]
+      ],
+      "prints": [
+        "text ]] and [[ more",
+        "(beat)",
+        "#"
+      ],
+      "omits": [
+        "A sentence.",
+        "note"
+      ]
+    },
+    {
+      "name": "earlier boneyard consumes escaped-note and forced-action rows",
+      "source": "Bye.\t\r\nclose */ \n \n text ]] and [[ more \r\n\r\n/* open \n\n    \\[[x]] y \r\n\r\n!Alpha.\n\t\n A /* b */ c.  \n",
+      "title": [],
+      "paragraphs": [
+        [
+          "Action",
+          [
+            "Bye.",
+            "close */"
+          ]
+        ],
+        [
+          "Action",
+          [
+            " text ]] and [[ more"
+          ]
+        ],
+        [
+          "Action",
+          [
+            " c."
+          ]
+        ]
+      ],
+      "prints": [
+        "Bye.",
+        "close */",
+        "text ]] and [[ more",
+        "c."
+      ],
+      "omits": [
+        "Alpha.",
+        "x]] y"
+      ]
+    }
+  ],
+  "controls": [
+    {
+      "name": "minimal boneyard order",
+      "source": "!Start.\n\nA /* open\nB /* inner */ C\n",
+      "title": [],
+      "paragraphs": [
+        [
+          "Action",
+          [
+            "Start."
+          ]
+        ],
+        [
+          "Action",
+          [
+            "A  C"
+          ]
+        ]
+      ],
+      "prints": [
+        "Start.",
+        "A C"
+      ],
+      "omits": [
+        "inner",
+        "B"
+      ]
+    },
+    {
+      "name": "minimal note order",
+      "source": "!Start.\n\nA [[open\nB [[inner]] C\n",
+      "title": [],
+      "paragraphs": [
+        [
+          "Action",
+          [
+            "Start."
+          ]
+        ],
+        [
+          "Action",
+          [
+            "A  C"
+          ]
+        ]
+      ],
+      "prints": [
+        "Start.",
+        "A C"
+      ],
+      "omits": [
+        "inner",
+        "B"
+      ]
+    }
+  ]
+}

@@ -238,37 +238,13 @@ export function assessmentView(document: FountainDocument): AssessmentView {
   return view;
 }
 
-/** The renderer reads its title block before removing notes. The codec view
- * still reads through inline notes for assessment, but must not turn a
- * note-only title value into an empty key and body text (AUDIT-D04-R5). */
+/** Read original source in the renderer's order: global boneyards, title and
+ * paragraph boundaries, then notes inside body paragraphs. The codec view is
+ * for classifying shown content; pre-stripping its inline spans would change
+ * how overlapping markers close and where paragraphs end. This also preserves
+ * note-only title values before body-note removal (AUDIT-D04-R5). */
 export function assessmentReading(source: FountainDocument): RendererReading {
-  const view = assessmentView(source);
-  const reading = rendererReading(view.document.lines);
-  if (!view.stripped.size) return reading;
-  const original = rendererReading(source.lines);
-  const openingEnd = Math.max(
-    original.title?.length ?? 0,
-    reading.title?.length ?? 0,
-  );
-  if (![...view.stripped].some((line) => line < openingEnd)) return reading;
-  // Stripping can also create a title page: an empty key then consumes indented
-  // continuation text that the renderer rejected after a valued note-only key.
-  const openingParagraphs = original.paragraphs.filter(
-    (paragraph) => paragraph.rows[0]! < openingEnd,
-  );
-  const bodyStart = Math.max(
-    openingEnd,
-    ...openingParagraphs.map((paragraph) => paragraph.end + 1),
-  );
-  return {
-    title: original.title,
-    paragraphs: [
-      ...openingParagraphs,
-      ...reading.paragraphs.filter(
-        (paragraph) => paragraph.rows[0]! >= bodyStart,
-      ),
-    ],
-  };
+  return rendererReading(source.lines);
 }
 
 /** Layout-dependent constructs are checked by the same frozen pipeline in memory.

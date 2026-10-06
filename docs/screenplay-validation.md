@@ -140,6 +140,14 @@ Section/synopsis limitations use the mirrored role to say when hidden-text
 removal causes an omission rather than printing as text.
 [Evidence](test-evidence/AUDIT.md#audit-d04-r5--located-title-omission-limitations).
 
+AUDIT-MARKER-READING feeds original source to the mirror for the entire document.
+The codec's inline-stripped view still classifies shown content, but cannot
+choose renderer paragraph boundaries: an earlier open marker may consume the
+closing marker of a later inline span. Six retained readings now agree with
+the pinned parser; ambiguous source stays byte-identical and requires review.
+The three separate warning gaps remain open.
+[Evidence](test-evidence/AUDIT-MARKER-READING.md).
+
 AUDIT-D04-R3 replaces case-by-case guessing with a
 [mirror of the pinned parser](../src/domain/rendererReading.ts): boneyards
 removed from the whole text before lines are split, tabs expanded, paragraphs

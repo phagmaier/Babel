@@ -6,6 +6,12 @@ recorded CI passes. Later commits are local only.
 
 ## This session
 
+**AUDIT-MARKER-READING complete**, from clean `73e79ee`, local only.
+[Brief](tasks/AUDIT-MARKER-READING.md), [evidence](test-evidence/AUDIT-MARKER-READING.md):
+original-source removal order corrects exactly six retained paragraph readings.
+331 focused tests, helper and both fixed renderer corpora pass; exact bytes and
+blocking review preserved. Three warning gaps remain; no native trial/admission.
+
 **M6-02-R6 read-only prerequisite review complete**, from clean `62c9859`.
 [Brief](tasks/M6-02-R6.md), [evidence](test-evidence/M6-02-R6.md): one Arch
 WebKitGTK 2.54.1-1 candidate exists in testing; 305909 EGL-race backport verified,
@@ -67,9 +73,9 @@ admission, pruning or push.
   unannounced renderer warnings cancel export and retire the capture.
   Category matching does not prove extent. [Evidence](test-evidence/AUDIT.md#audit-export-warnings--renderer-warnings-compared-at-export).
 - **AUDIT-SWEEP-COVERAGE complete, local only:** second deterministic corpus;
-  [reviewed inventory](../tests/differential/mixed-findings.json) retains six
-  marker reading differences, three marker-warning gaps and 634 preparation
-  refusals. R5 title gaps are closed. [Evidence](test-evidence/AUDIT.md#audit-sweep-coverage--second-mixed-generated-corpus).
+  [reviewed inventory](../tests/differential/mixed-findings.json) preserves the six
+  corrected marker readings, three warning gaps and 634 preparation refusals.
+  R5 title gaps are closed. [Evidence](test-evidence/AUDIT.md#audit-sweep-coverage--second-mixed-generated-corpus).
 - Earlier reading classification, R4 and instruction/CI maintenance remain
   complete within their recorded scope. [Audit status](tasks/AUDIT-TRACKER.md),
   [instruction evidence](test-evidence/INFRA-INSTRUCTIONS.md).
@@ -94,7 +100,10 @@ admission, pruning or push.
 
 ## Next action
 
-**Stop after M6-02-R6; one prerequisite review is complete.**
+**Stop after AUDIT-MARKER-READING and its local commit.** Next independent task:
+**AUDIT-MARKER-WARNINGS**; draft a bounded brief for the exact two note and one
+boneyard warning gaps before implementation. No new corpus or native trial.
+The owner-only M6 prerequisite disposition remains **blocked**:
 [Disposition and next owner decision](test-evidence/M6-02-R6.md#disposition-and-one-narrowed-follow-up):
 repository owner reviews the separate R4 forced preference-restart, C1 parent-loss
 and F2 failed-readiness/forced-cleanup risks under SPEC S15.5. Matching historical
@@ -102,8 +111,8 @@ symbols and a related stable backport are verified; no eligible production trial
 or Babel correction is established. No agent acceptance, register change or crash
 closure. Additional symbol/runtime work needs separate selection and its own brief.
 No automatic native repeat or snapshot/guard/predicate/timer change.
-M6-02 stays unchecked; M6-03/C1/F2/Local v1 admission remain blocked. Marker
-remediation, F4/group F and DEV-02 remain unselected. No push/tag/amend authorized.
+M6-02 stays unchecked; M6-03/C1/F2/Local v1 admission remain blocked. Other
+marker work beyond that brief, F4/group F and DEV-02 stay unselected. No push/tag/amend.
 
 Before native work check `df -i /tmp`, set `BABEL_NATIVE_IME_TEMP_ROOT` to a
 fresh Btrfs directory and recreate missing `/tmp` helpers/Cargo caches after

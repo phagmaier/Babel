@@ -143,6 +143,7 @@ it('70,000 mixed sources retain identified parser limits without introducing rea
   }[] = [];
   const regressions: unknown[] = [];
   const titleCorrections: { source: string; pinned: unknown }[] = [];
+  const markerCorrections: { source: string; pinned: unknown }[] = [];
   const newCleanDisagreements: string[] = [];
   const admissionChanges: string[] = [];
   const baselineRoleOccurrences: unknown[] = [];
@@ -169,8 +170,10 @@ it('70,000 mixed sources retain identified parser limits without introducing rea
     const oldMatches = JSON.stringify(old) === JSON.stringify(pinned);
     const nowMatches = JSON.stringify(now) === JSON.stringify(pinned);
     if (!oldMatches && nowMatches) {
-      expect(old.title, source).not.toBe(pinned.title);
-      titleCorrections.push({ source, pinned });
+      (old.title !== pinned.title ? titleCorrections : markerCorrections).push({
+        source,
+        pinned,
+      });
     }
     if (!nowMatches) disagreements.push({ source, pinned, now, old });
     if (oldMatches && !nowMatches) regressions.push(source);
@@ -188,6 +191,7 @@ it('70,000 mixed sources retain identified parser limits without introducing rea
     refused,
     disagreements,
     titleCorrections,
+    markerCorrections,
     regressions,
     newCleanDisagreements,
     admissionChanges,
@@ -197,6 +201,9 @@ it('70,000 mixed sources retain identified parser limits without introducing rea
   // R5 corrects the exact 398 previously retained title-source outcomes. This
   // keeps their old source/oracle hash while requiring full current agreement.
   retained('corrected-title-reading', titleCorrections);
+  // AUDIT-MARKER-READING: the six literal source/oracle outcomes retain their
+  // historical hash while requiring full agreement, separate from title fixes.
+  retained('corrected-marker-reading', markerCorrections);
   // Every discovered disagreement also exists on the untouched control.
   // Compare every fact, not merely the number of disagreements.
   for (const entry of disagreements)
