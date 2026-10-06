@@ -452,6 +452,24 @@ fn m6_03_rolling_cap_retention_makes_room_without_touching_protected_or_newest()
     assert!(!after.needs_attention);
 }
 #[test]
+fn external_copy_names_sort_by_utc_time_with_a_short_unique_suffix() {
+    let id = "ad7fdedc-e01a-4893-9470-a2d5c13e8467";
+    assert_eq!(copy_stem(0, id), "babel-copy-1970-01-01-000000Z-ad7fdedc");
+    // 2026-10-06 17:26:05 UTC; leap day and century boundaries.
+    assert_eq!(
+        copy_stem(1_791_307_565, id),
+        "babel-copy-2026-10-06-172605Z-ad7fdedc"
+    );
+    assert_eq!(
+        copy_stem(951_782_400, id),
+        "babel-copy-2000-02-29-000000Z-ad7fdedc"
+    );
+    assert_eq!(
+        copy_stem(4_107_542_399, id),
+        "babel-copy-2100-02-28-235959Z-ad7fdedc"
+    );
+}
+#[test]
 fn publication_failure_matrix_preserves_source_previous_and_pending() {
     for target in [
         Stage::MetadataPartial,

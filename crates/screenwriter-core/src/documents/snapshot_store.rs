@@ -204,6 +204,29 @@ fn scan(dir: &File, id: &str) -> Result<SnapshotCatalog, DocumentError> {
     Ok(catalog)
 }
 
+/// `babel-copy-YYYY-MM-DD-HHMMSSZ-<8 hex>` for a copy made at `seconds` (UTC).
+fn copy_stem(seconds: u64, id: &str) -> String {
+    let days = (seconds / 86_400) as i64;
+    let rem = seconds % 86_400;
+    // Civil date from days since 1970-01-01 (Howard Hinnant's algorithm).
+    let z = days + 719_468;
+    let era = z.div_euclid(146_097);
+    let doe = z.rem_euclid(146_097);
+    let yoe = (doe - doe / 1_460 + doe / 36_524 - doe / 146_096) / 365;
+    let doy = doe - (365 * yoe + yoe / 4 - yoe / 100);
+    let mp = (5 * doy + 2) / 153;
+    let day = doy - (153 * mp + 2) / 5 + 1;
+    let month = if mp < 10 { mp + 3 } else { mp - 9 };
+    let year = yoe + era * 400 + i64::from(month <= 2);
+    let short: String = id.chars().filter(char::is_ascii_hexdigit).take(8).collect();
+    format!(
+        "babel-copy-{year:04}-{month:02}-{day:02}-{:02}{:02}{:02}Z-{short}",
+        rem / 3_600,
+        rem % 3_600 / 60,
+        rem % 60
+    )
+}
+
 /// Always preserve newest, all protected versions, future-clock entries, newest
 /// per five-minute bucket for one hour, per hour for 48 hours, per day for 30 days.
 fn retained(catalog: &SnapshotCatalog, clock: u64) -> BTreeSet<String> {
@@ -789,9 +812,12 @@ impl DocumentService {
         verify()?;
         let id = uuid();
         let pending = format!(".babel-copy-{id}.pending");
+        // Writers find copies by date: sortable UTC stamp plus a short unique
+        // suffix; publication still refuses to replace any existing name.
+        let stem = copy_stem(now()?, &id);
         let final_name = match request.format {
-            CopyFormat::Fountain => format!("babel-copy-{id}.fountain"),
-            CopyFormat::DraftBundle => format!("babel-copy-{id}.draft.json"),
+            CopyFormat::Fountain => format!("{stem}.fountain"),
+            CopyFormat::DraftBundle => format!("{stem}.draft.json"),
         };
         write_new(
             &d.dir,
