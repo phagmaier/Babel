@@ -24,7 +24,7 @@ branch (default `main`). Session work below is on `claude/youthful-bell-qemsy4`.
 | HOME-RECOVERY    | One "Open latest version" action per recovered draft                                                                                                              | [pilot §recovery](test-evidence/PILOT-2026-10-06.md#home-recovery-finding-2-addressed)                                       |
 | NEW-SCRIPT-FLOW  | New scripts start on a Scene Heading; identical suggestions no longer swallow Enter (S07.6)                                                                       | [pilot §new script](test-evidence/PILOT-2026-10-06.md#new-screenplay-and-identical-suggestions-finding-3-plus-a-new-finding) |
 | M6-14 slice B    | Packaged PDF export verified; npm and cargo audits clean (dev `source-map-js`, yanked `yoke-derive` bumped)                                                       | [pilot §PDF](test-evidence/PILOT-2026-10-06.md#packaged-pdf-export-and-dependency-audit-m6-14-slice-b)                       |
-| M6-16 slice      | Save As, external change + Reload, Find/Replace All verified in the package                                                                                       | [pilot §workflows](test-evidence/PILOT-2026-10-06.md#writer-workflows-in-the-package-m6-16-slice)                            |
+| M6-16 slice      | Save As, external change + Reload, Find/Replace All, Recents reopen, named snapshot and restore verified in the package; versions list shows times newest first   | [pilot §workflows](test-evidence/PILOT-2026-10-06.md#writer-workflows-in-the-package-m6-16-slice)                            |
 
 Last full gates: `pnpm check` 78 files / 1503 tests; `pnpm test:differential`
 6; `pnpm test:layout` 11 checks; snapshot cargo tests 22. Native Python drills
@@ -51,7 +51,7 @@ not reopen without new evidence.
 Take the first unblocked item; if blocked, note why and take the next.
 
 1. **M6-16 pilot remainder** with `tools/xdrive.py`: scene moves, title page,
-   reopen from Recents, snapshot restore, backup copy and restore. When the S15.5 list passes, replace the README "do not
+   backup copy to another folder and restore from it, an injected save error. When the S15.5 list passes, replace the README "do not
    use" warning with the real limits.
 2. **M6-14 remainder**: FUSE/desktop install and launch, packaged spellcheck. [Brief](tasks/M6-14.md).
 3. **M6-03 remainder**: snapshot panel/restore/copy drill. [Brief](tasks/M6-03.md).

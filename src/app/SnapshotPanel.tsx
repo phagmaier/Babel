@@ -160,19 +160,23 @@ export function SnapshotPanel({
         </label>
       )}
       <ul>
-        {catalog?.entries.map((entry) => (
+        {/* Newest first, with the time each version was kept (PILOT-2026-10-06). */}
+        {[...(catalog?.entries ?? [])].reverse().map((entry) => (
           <li key={entry.record.snapshotId}>
-            {entry.record.name ??
-              (entry.record.kind === 'preDestructive'
-                ? 'Before replacement'
-                : 'Rolling snapshot')}{' '}
-            · {entry.record.byteLength} bytes
+            <span>
+              {entry.record.name ??
+                (entry.record.kind === 'preDestructive'
+                  ? 'Before replacement'
+                  : 'Rolling snapshot')}{' '}
+              · <SnapshotTime seconds={entry.record.createdSeconds} /> ·{' '}
+              {entry.record.byteLength} bytes
+            </span>
             <button
               type="button"
               disabled={
                 busy ||
                 !current.expectedFingerprint ||
-                catalog.needsAttention ||
+                catalog?.needsAttention ||
                 !Number.isSafeInteger(restoreVersion) ||
                 restoreVersion <= current.version
               }
@@ -262,5 +266,19 @@ export function SnapshotPanel({
       </button>
       <p role="status">{message}</p>
     </section>
+  );
+}
+
+/** Local date and time a snapshot was kept; native seconds since the epoch. */
+function SnapshotTime({ seconds }: { seconds: number }) {
+  const date = new Date(seconds * 1000);
+  if (!Number.isFinite(seconds) || Number.isNaN(date.getTime())) return null;
+  return (
+    <time dateTime={date.toISOString()}>
+      {date.toLocaleString(undefined, {
+        dateStyle: 'medium',
+        timeStyle: 'short',
+      })}
+    </time>
   );
 }

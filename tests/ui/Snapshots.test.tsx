@@ -121,6 +121,51 @@ describe('snapshot review with injected ports', () => {
       destinationToken: 'opaque-native',
     });
   });
+  it('PILOT-2026-10-06 lists versions newest first with the time each was kept', async () => {
+    const at = (id: string, seconds: number, name: string): SnapshotEntry => ({
+      selection: { snapshotId: id, recordSha256: A },
+      record: {
+        ...entry.record,
+        snapshotId: id,
+        createdSeconds: seconds,
+        name,
+      },
+    });
+    const older = at(
+      '55555555-5555-4555-8555-555555555555',
+      1_790_000_000,
+      'Older',
+    );
+    const newer = at(
+      '66666666-6666-4666-8666-666666666666',
+      1_790_003_600,
+      'Newer',
+    );
+    render(
+      <SnapshotPanel
+        port={port({
+          list: vi
+            .fn()
+            .mockResolvedValue({ ...catalog, entries: [older, newer] }),
+        })}
+        current={current}
+        destination={destination}
+        onRestored={vi.fn()}
+      />,
+    );
+    await screen.findByText(/Newer/);
+    const items = [...document.querySelectorAll('li')].filter((li) =>
+      li.querySelector('time'),
+    );
+    expect(items.map((li) => li.textContent?.split(' ·')[0])).toEqual([
+      'Newer',
+      'Older',
+    ]);
+    expect(items.map((li) => li.querySelector('time')!.dateTime)).toEqual([
+      new Date(1_790_003_600_000).toISOString(),
+      new Date(1_790_000_000_000).toISOString(),
+    ]);
+  });
   it('requires explicit destination and blocks retention on interrupted material', async () => {
     const p = port({
       list: vi
