@@ -107,12 +107,14 @@ T-03 (resume path, ~20-line composition), T-04 (8 `WritingSession` guard tests),
 - [x] **AUDIT-PARK-H-F1** — [brief](AUDIT-PARK-H-F1.md), [evidence](../test-evidence/AUDIT.md#audit-park-h-f1--new-hidden-row-capture).
 - [x] **AUDIT-PARK-H-F2** — [brief](AUDIT-PARK-H-F2.md), [evidence](../test-evidence/AUDIT.md#audit-park-h-f2--empty-scene-heading-recovery-intent).
 - [x] **AUDIT-PARK-H-F3** — [brief](AUDIT-PARK-H-F3.md), [evidence](../test-evidence/AUDIT.md#audit-park-h-f3--actionable-capture-refusal-wording).
-- [ ] **AUDIT-PARK-H-F4** — group, [brief and decomposition](AUDIT-PARK-H-F4.md). A wider probe refused 229 of 848 single-row cases: ordinary typing such as a Dialogue row `(laughs) Oh no.` or bold on a Scene Heading leaves the whole draft unsaved and unjournaled until that row changes. F3 names the row. Open until every sub-task below is done or the owner retires it.
+- [ ] **AUDIT-PARK-H-F4** — group remains open; five scheduled slices below are complete. Group F still includes text before a Parenthetical's `(`, mid-row Parenthetical splits, leading-space Section/Synopsis text and dual-pair edits. Refused capture pauses whole-draft save/journal; emergency copying is explicit. No retirement or limitation acceptance. [Brief](AUDIT-PARK-H-F4.md), [closure review/residual ledger](../test-evidence/AUDIT-PARK-H-F4-REVIEW.md).
   - [x] **AUDIT-PARK-H-F4-01** — [evidence](../test-evidence/AUDIT.md#audit-park-h-f4-01--commands-refuse-instead-of-creating-a-refused-draft).
   - [x] **AUDIT-PARK-H-F4-02** — [evidence](../test-evidence/AUDIT.md#audit-park-h-f4-02--emptied-speech-rows-keep-their-speech).
   - [x] **AUDIT-PARK-H-F4-03** — [evidence](../test-evidence/AUDIT.md#audit-park-h-f4-03--speech-that-opens-with-a-parenthesis).
   - [x] **AUDIT-PARK-H-F4-04** — [evidence](../test-evidence/AUDIT.md#audit-park-h-f4-04--typed-text-fountain-reads-as-other-syntax).
   - [x] **AUDIT-PARK-H-F4-05** — [evidence](../test-evidence/AUDIT.md#audit-park-h-f4-05--emptied-unterminated-last-rows).
+
+- [x] **AUDIT-PARK-H-F4-REVIEW** — closure review complete; group stays open for residual drafts, no retirement or native acceptance. [Brief](AUDIT-PARK-H-F4-REVIEW.md), [evidence](../test-evidence/AUDIT-PARK-H-F4-REVIEW.md).
 
 - [x] **AUDIT-READING-CANDIDATES** — eleven occurrences are seven sources: two supported lyric mappings, five confirmed silent omissions. [Brief](AUDIT-READING-CANDIDATES.md), [evidence](../test-evidence/AUDIT-READING-CANDIDATES.md#classification--2026-10-05).
 - [x] **AUDIT-D04-R4** — [Brief](AUDIT-D04-R4.md), [Evidence](../test-evidence/AUDIT.md#audit-d04-r4--boneyard-inside-the-renderers-opening-title-block).

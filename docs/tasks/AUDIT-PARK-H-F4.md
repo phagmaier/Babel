@@ -9,6 +9,10 @@ The owner decided F4-03, F4-04 and F4-05 on 2026-10-04 (table below).
 **F4-04 done** at `409d3f3`. **F4-05 done** over that base,
 [evidence](../test-evidence/AUDIT.md#audit-park-h-f4-05--emptied-unterminated-last-rows);
 its deliverable section below was written before code. Group F is unscheduled.
+**Group remains open after the 2026-10-05 closure review**: completing the five
+scheduled slices does not repair or accept the residual drafts.
+[Review brief](AUDIT-PARK-H-F4-REVIEW.md),
+[residual ledger and disposition](../test-evidence/AUDIT-PARK-H-F4-REVIEW.md).
 Dependencies: AUDIT-PARK-H, F1, F2 and F3 complete. The owner delegated task
 selection, wording and implementation decisions on 2026-10-04; that covers
 extending a mechanism the contract already documents, not a new saved-format

@@ -6,16 +6,18 @@ recorded CI passes. Later commits are local only.
 
 ## This session
 
-**AUDIT-MARKER-WARNINGS complete**, from clean `50cd9cb`, local only.
-[Brief](tasks/AUDIT-MARKER-WARNINGS.md), [evidence](test-evidence/AUDIT-MARKER-WARNINGS.md):
-two note and one boneyard gap now have located blocking SC005; export guard, source bytes, prior issues/counts and pinned inventories preserved. 338 focused
-tests, 17 helper tests and both fixed corpus gates pass; announced fault rejected.
-No corpus expansion/native trial; M6 owner S15.5 disposition remains blocked.
+**AUDIT-PARK-H-F4-REVIEW complete**, from clean `ceca040`, local only.
+[Brief](tasks/AUDIT-PARK-H-F4-REVIEW.md), [evidence](test-evidence/AUDIT-PARK-H-F4-REVIEW.md):
+group stays open; 188 JSDOM/injected-UI and Tier 1 checks pass; 776 tracked/11,754 retained files unchanged. No native trial/retirement.
 
-**AUDIT-MARKER-READING complete**, from clean `73e79ee`, local only.
-[Brief](tasks/AUDIT-MARKER-READING.md), [evidence](test-evidence/AUDIT-MARKER-READING.md): original-source removal order corrects exactly six retained paragraph readings.
-331 focused tests, helper and both fixed renderer corpora pass; exact bytes and
-blocking review preserved. Warning gaps closed above; no native trial/admission.
+**AUDIT-MARKER-WARNINGS complete**, local only: two note and one boneyard gap
+have located blocking SC005. Source, prior issues/counts, pinned hashes and export
+guard preserved; 338 focused, 17 helper and both fixed gates pass.
+[Brief](tasks/AUDIT-MARKER-WARNINGS.md), [evidence](test-evidence/AUDIT-MARKER-WARNINGS.md).
+
+**AUDIT-MARKER-READING complete**, local only: six retained readings corrected,
+exact bytes and blocking review preserved. [Brief](tasks/AUDIT-MARKER-READING.md),
+[evidence](test-evidence/AUDIT-MARKER-READING.md); warning gaps closed above.
 
 **M6-02-R6 read-only prerequisite review complete**, from clean `62c9859`.
 [Brief](tasks/M6-02-R6.md), [evidence](test-evidence/M6-02-R6.md): one Arch
@@ -47,11 +49,9 @@ No missing settlement or historical cause demonstrated; no native trial or
 functional repair. Required local checks pass; historical artifacts preserved.
 
 **M6-02-R2 diagnostic slice complete**, from clean `c74c8a0`, local only.
-Staged adoption refusals and timestamped readiness; 173 focused tests and the
-targeted frozen/current Btrfs pair pass (2/2 strict). Saved/journaled version 31
-precedes enabled actions by 117/118 ms in sampled traces; no historical cause or
-functional repair. [Brief](tasks/M6-02-R2.md), [evidence](test-evidence/M6-02-R2.md).
-Old roots, R1 evidence and all eleven native rows remain unchanged.
+Staged adoption refusals/timestamped readiness; 173 focused tests and frozen/current Btrfs 2/2 strict pass.
+Version-31 receipts precede readiness by 117/118 ms; no historical cause or repair; old roots/R1/register preserved.
+[Brief](tasks/M6-02-R2.md), [evidence](test-evidence/M6-02-R2.md).
 
 **M6-02-R1 bounded attempt complete; retained operations remain open.**
 From clean `9fc0085`, frozen/current Save As and real-IME stress comparisons
@@ -91,8 +91,8 @@ No product/native rerun, crash closure, admission, pruning or push.
   [review](reviews/2026-10-03-m6-02-persistence-review.md): retained Save As/IME
   readiness failures and shared-store lease limit. C1/F2 release review is
   separate; independent M6 safety work may proceed.
-- F4-01–05 content repairs are complete within recorded scope; group F stays
-  unscheduled. Other recovered intents/CR/mixed endings remain contract-level;
+- F4-01–05 content repairs are complete; F4 remains open after [review](test-evidence/AUDIT-PARK-H-F4-REVIEW.md).
+  Group F stays unscheduled. Other recovered intents/CR/mixed endings are contract-level;
   F4-04 phase H natively covers Dialogue only. [F4 brief](tasks/AUDIT-PARK-H-F4.md),
   [evidence](test-evidence/AUDIT.md#audit-park-h-f4-05--emptied-unterminated-last-rows).
 - Replace-All load flake, SELinux, broader keyboard/a11y/IME, installed/offline
@@ -101,9 +101,9 @@ No product/native rerun, crash closure, admission, pruning or push.
 
 ## Next action
 
-**Stop after AUDIT-MARKER-WARNINGS and its local commit.** No further marker
-task is selected: both fixed corpora have no remaining reading/warning gaps.
-The 634 preparation refusals select no follow-up. Preserve its [evidence](test-evidence/AUDIT-MARKER-WARNINGS.md); new work needs separate bounded task selection. No new corpus or native trial.
+**Stop after AUDIT-PARK-H-F4-REVIEW and its local commit.** No subsequent task selected.
+Both fixed corpora have no remaining reading/warning gaps; the 634 preparation
+refusals select no follow-up. No further marker task, new corpus or native trial.
 The owner-only M6 prerequisite disposition remains **blocked**:
 [Disposition and next owner decision](test-evidence/M6-02-R6.md#disposition-and-one-narrowed-follow-up):
 repository owner reviews the separate R4 forced preference-restart, C1 parent-loss
@@ -113,7 +113,7 @@ or Babel correction is established. No agent acceptance, register change or cras
 closure. Additional symbol/runtime work needs separate selection and its own brief.
 No automatic native repeat or snapshot/guard/predicate/timer change.
 M6-02 stays unchecked; M6-03/C1/F2/Local v1 admission remain blocked. Other
-marker work, F4/group F and DEV-02 stay unselected. No push/tag/amend.
+marker fixes, F4/group F implementation and DEV-02 stay unselected. No push/tag/amend.
 
 Before native work check `df -i /tmp`, set `BABEL_NATIVE_IME_TEMP_ROOT` to a
 fresh Btrfs directory and recreate missing `/tmp` helpers/Cargo caches after

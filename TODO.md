@@ -58,6 +58,8 @@ M6-03 and Local v1 admission remains binding when selected.
 
 - [x] **INFRA-INSTRUCTIONS** — guidance/tooling maintenance complete; both published CI jobs passed. [Brief](docs/tasks/INFRA-INSTRUCTIONS.md), [evidence](docs/test-evidence/INFRA-INSTRUCTIONS.md).
 
+- [x] **AUDIT-PARK-H-F4-REVIEW** — closure review complete; five slices done, residual group remains open without retirement. [Brief](docs/tasks/AUDIT-PARK-H-F4-REVIEW.md), [evidence](docs/test-evidence/AUDIT-PARK-H-F4-REVIEW.md).
+
 The [audit tracker](docs/tasks/AUDIT-TRACKER.md) owns audit checkboxes,
 wave prerequisites and open owner decisions. [Current-state Next action](docs/current-state.md#next-action)
 is the only continuation pointer; an unchecked row is not permission to start.
