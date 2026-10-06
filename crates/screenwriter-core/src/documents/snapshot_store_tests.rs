@@ -386,6 +386,72 @@ fn cap_never_removes_protected_material_and_hash_name_validation() {
     assert_eq!(service.list_snapshots(&open.identity).unwrap(), before);
 }
 #[test]
+fn m6_03_rolling_cap_retention_makes_room_without_touching_protected_or_newest() {
+    // The frontend cadence prunes once and retries when a rolling snapshot
+    // reaches the cap (ADR 0018, M6-03). Native retention must free room.
+    let f = Fixture::new();
+    let (service, open) = f.open();
+    let clock = 40 * 86400;
+    let protected = create_at(&service, &open, b"named", SnapshotKind::Named, 1);
+    let first = create_at(&service, &open, b"rolling", SnapshotKind::Rolling, 2);
+    // Independent record seeding: a day of five-minute rolling records that
+    // are now older than the 30-day window.
+    let mut newest = first.clone();
+    for n in 2..MAX_SNAPSHOT_RECORDS {
+        let mut record = first.record.clone();
+        record.snapshot_id = uuid();
+        record.created_seconds = 2 + n as u64 * 300;
+        let e = Envelope {
+            record_sha256: record_hash(&record).unwrap(),
+            record,
+        };
+        let path = f.dir(&open).join(record_name(&e.record.snapshot_id));
+        std::fs::write(&path, serde_json::to_vec(&e).unwrap()).unwrap();
+        std::fs::set_permissions(path, std::fs::Permissions::from_mode(0o600)).unwrap();
+        newest = entry(e.record).unwrap();
+    }
+    assert!(service.list_snapshots(&open.identity).unwrap().at_limit);
+    let next = |service: &DocumentService| {
+        service.snapshot_with(
+            &open.identity,
+            Some(2),
+            b"next rolling",
+            SnapshotKind::Rolling,
+            None,
+            clock,
+            |_| Ok(()),
+        )
+    };
+    assert_eq!(next(&service).unwrap_err().code, ErrorCode::SnapshotLimit);
+    let pruned = service
+        .prune_with(&open.identity, clock, |_| Ok(()))
+        .unwrap();
+    assert!(!pruned.at_limit);
+    let ids: BTreeSet<_> = pruned
+        .entries
+        .iter()
+        .map(|e| e.record.snapshot_id.clone())
+        .collect();
+    assert_eq!(
+        ids,
+        BTreeSet::from([
+            protected.record.snapshot_id.clone(),
+            newest.record.snapshot_id.clone()
+        ])
+    );
+    let added = next(&service).unwrap().unwrap();
+    let after = service.list_snapshots(&open.identity).unwrap();
+    assert_eq!(after.entries.len(), 3);
+    assert!(after.entries.contains(&added));
+    assert!(
+        after
+            .entries
+            .iter()
+            .any(|e| e.selection == protected.selection)
+    );
+    assert!(!after.needs_attention);
+}
+#[test]
 fn publication_failure_matrix_preserves_source_previous_and_pending() {
     for target in [
         Stage::MetadataPartial,

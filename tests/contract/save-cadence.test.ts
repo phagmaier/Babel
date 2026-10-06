@@ -532,11 +532,51 @@ it('resumes recovery/source cadence after cancelled protection without resetting
   cadence.dispose();
 });
 
-// AUDIT-PARK: D-05 observation "256-record snapshot cap with manual-only
-// pruning". The cap and SnapshotLimit are Rust-tested in
-// snapshot_store_tests.rs; this confirms the frontend side: at the limit every
-// rolling attempt fails, saving continues, and nothing prunes automatically.
-it('AUDIT-PARK at the snapshot limit rolling snapshots stop and nothing prunes automatically', async () => {
+// M6-03 (was AUDIT-PARK D-05 "256-record cap with manual-only pruning"): at
+// the cap the cadence runs native retention once and retries. The cap,
+// SnapshotLimit and retention policy are Rust-tested in snapshot_store_tests.rs.
+it('M6-03 at the snapshot limit a rolling snapshot prunes once by retention and retries', async () => {
+  const { t, p, scheduler } = cadence({ rollingIntervalMs: 300_000 });
+  const limit = { code: 'snapshotLimit', action: 'retry' };
+  let full = true;
+  const create = vi.fn(async (request: unknown) => {
+    if (full) throw limit;
+    p.snapshots.created.push(request);
+    return null;
+  });
+  const prune = vi.fn(async () => {
+    full = false;
+    return {
+      entries: [],
+      sourceBytes: 0,
+      needsAttention: false,
+      unresolvedArtifacts: 0,
+      orphanBlobs: 0,
+      atLimit: false,
+    };
+  });
+  p.snapshots.create = create;
+  p.snapshots.prune = prune;
+  scheduler.noteEdit(snapshot(21));
+  const summary = await scheduler.flush();
+  expect(summary).toMatchObject({ saved: true, snapshotAttention: false });
+  expect(prune).toHaveBeenCalledTimes(1);
+  expect(create).toHaveBeenCalledTimes(2);
+  expect(p.snapshots.created).toHaveLength(1);
+  expect(scheduler.describe()).toMatchObject({
+    status: 'Saved locally',
+    snapshotAttention: false,
+    lastRollingVersion: 21,
+  });
+  // Below the cap, no further pruning.
+  await t.advance(300_001);
+  scheduler.noteEdit(snapshot(22, true));
+  await scheduler.flush();
+  expect(prune).toHaveBeenCalledTimes(1);
+  expect(p.snapshots.created).toHaveLength(2);
+});
+
+it('M6-03 when retention cannot make room, rolling snapshots report attention and saving continues', async () => {
   const { t, p, scheduler } = cadence({ rollingIntervalMs: 300_000 });
   const limit = { code: 'snapshotLimit', action: 'retry' };
   const create = vi.fn(async () => {
@@ -551,13 +591,42 @@ it('AUDIT-PARK at the snapshot limit rolling snapshots stop and nothing prunes a
     expect(summary.snapshotAttention).toBe(true);
     await t.advance(300_001);
   }
-  expect(create).toHaveBeenCalledTimes(3);
-  expect(prune).not.toHaveBeenCalled();
+  // One retention attempt and one retry per rolling attempt; never a loop.
+  expect(prune).toHaveBeenCalledTimes(3);
+  expect(create).toHaveBeenCalledTimes(6);
   expect(scheduler.describe()).toMatchObject({
     status: 'Saved locally',
     snapshotAttention: true,
     lastRollingVersion: null,
   });
+});
+
+it('M6-03 a refused retention (recovery or save needs attention) reports attention without retrying create', async () => {
+  const { p, scheduler } = cadence({ rollingIntervalMs: 300_000 });
+  const create = vi.fn(async () => {
+    throw { code: 'snapshotLimit', action: 'retry' };
+  });
+  const prune = vi.fn(async () => {
+    throw { code: 'recoveryNeedsAttention', action: 'review' };
+  });
+  p.snapshots.create = create;
+  p.snapshots.prune = prune;
+  scheduler.noteEdit(snapshot(21));
+  const summary = await scheduler.flush();
+  expect(summary).toMatchObject({ saved: true, snapshotAttention: true });
+  expect(prune).toHaveBeenCalledTimes(1);
+  expect(create).toHaveBeenCalledTimes(1);
+});
+
+it('M6-03 other snapshot failures never prune', async () => {
+  const { p, scheduler } = cadence({ rollingIntervalMs: 300_000 });
+  p.snapshots.create = vi.fn(async () => {
+    throw { code: 'io', action: 'retry' };
+  });
+  const prune = vi.spyOn(p.snapshots, 'prune');
+  scheduler.noteEdit(snapshot(21));
+  expect((await scheduler.flush()).snapshotAttention).toBe(true);
+  expect(prune).not.toHaveBeenCalled();
 });
 
 it('CAPTURE-RECOVERY journals a recovery-only snapshot but never writes it to the source file', async () => {

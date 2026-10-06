@@ -52,8 +52,11 @@ editor/controller; the development shell has no manuscript scheduler.
 Admission caps each document at 256 records and 256 MiB of distinct source bytes,
 plus at most two fixed pending artifacts; record overhead is at most 4 KiB each.
 Deduplicated named records still count toward the record cap. Reaching a cap
-returns a visible failure without pruning to make room or removing protected
-versions. There is no global cross-document reclamation or protected-version
+returns a visible `snapshotLimit` failure and never removes protected versions.
+**Amended 2026-10-06 (M6-03):** when a _rolling_ snapshot hits a cap, the save
+cadence runs this retention policy once through the ordinary prune guard and
+retries the snapshot once; any refusal leaves the visible attention state.
+Named/pre-destructive cap failures, ENOSPC and other errors never prune. There is no global cross-document reclamation or protected-version
 delete endpoint. These limits are implementation defaults, not a disk quota.
 
 Explicit retention refuses incomplete/damaged snapshot inventories, unresolved

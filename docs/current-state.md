@@ -36,6 +36,18 @@ cadence and WritingView F3 cases.
 | `tests/investigation/f4-prefix.test.ts`                          | 7 pass                                                                              |
 | Native `tests/native/writing-lifecycle/empty_heading.py` phase E | updated to new behavior; **not run** (no desktop/WebDriver host in agent container) |
 
+**M6-03-A snapshot cap.** A rolling snapshot that hits the 256-record/256 MiB
+cap now runs native retention once and retries (ADR 0018 amendment), instead of
+silently stopping rolling snapshots after ~21 hours of writing. Files:
+`src/application/saveCadence.ts`, `snapshot_store.rs` comment, tests in
+`save-cadence.test.ts` and `snapshot_store_tests.rs`.
+
+| Check                                                                  | Result                                                                                               |
+| ---------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `pnpm test` cadence suite                                              | 22 pass                                                                                              |
+| `cargo test -p screenwriter-core --lib snapshot_store::tests`          | 22 pass on ext4 and tmpfs (`BABEL_SNAPSHOT_TEST_ROOT=/dev/shm/...`); Btrfs **not run** (unavailable) |
+| `cargo clippy -p screenwriter-core --all-targets`, `cargo fmt --check` | clean                                                                                                |
+
 ## Known limitations (accepted, not blockers)
 
 - [Native register](native-findings.md): 12 WebKitGTK aborts under forced
@@ -52,10 +64,8 @@ cadence and WritingView F3 cases.
 
 Take the first unblocked item; if blocked, note why and take the next.
 
-1. **M6-03 snapshot retention at the cap**: automatic conservative retention
-   when the 256-record cap is reached (never named/pre-destructive/newest),
-   plus the D-05 cheap variant (verified PreDestructive snapshot before Replace
-   All; Git failure downgraded to a warning). [Brief](tasks/M6-03.md).
+1. **M6-03 remainder**: production UI drill of snapshot inventory, attention,
+   restore and copy on a desktop host. [Brief](tasks/M6-03.md).
 2. **M6-14 Linux package**: unsigned offline AppImage/deb build and launch
    check, with a basic locked-dependency audit. [Brief](tasks/M6-14.md).
 3. **M6-16 agent-run pilot**: SPEC S15.5 sequence on synthetic scripts; when it

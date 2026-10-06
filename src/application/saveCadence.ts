@@ -90,6 +90,11 @@ export interface SaveStage {
   readonly fresh?: boolean;
 }
 
+function atSnapshotLimit(failure: unknown): boolean {
+  const value = failure as { code?: unknown; error?: { code?: unknown } };
+  return (value?.error?.code ?? value?.code) === 'snapshotLimit';
+}
+
 export class SaveCadence {
   private latest: CapturedSnapshot | null = null;
   private dirtySince: number | null = null;
@@ -425,7 +430,7 @@ export class SaveCadence {
     this.rollingVersion = snapshot.version;
     this.observe({ stage: 'rolling-start', version: snapshot.version });
     try {
-      await this.snapshots.create({
+      const request = {
         checkpoint: {
           identity: { ...state.identity },
           version: snapshot.version,
@@ -434,9 +439,20 @@ export class SaveCadence {
           expectedFingerprint: { ...state.fingerprint },
           draftMetadata: snapshot.draftMetadata,
         },
-        kind: 'rolling',
+        kind: 'rolling' as const,
         name: null,
-      });
+      };
+      try {
+        await this.snapshots.create(request);
+      } catch (failure) {
+        // At the snapshot cap, run the conservative retention policy once and
+        // retry (ADR 0018, M6-03). Native prune never removes named,
+        // pre-destructive, future-clock or newest records and refuses while
+        // recovery or a save needs attention; any failure stays attention.
+        if (!atSnapshotLimit(failure)) throw failure;
+        await this.snapshots.prune({ ...state.identity });
+        await this.snapshots.create(request);
+      }
       this.lastRollingAt = this.clock.now();
       this.lastRollingSha = sourceSha256;
       this.lastRollingVersion = snapshot.version;

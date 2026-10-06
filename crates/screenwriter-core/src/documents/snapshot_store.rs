@@ -484,7 +484,8 @@ impl DocumentService {
         }
         Ok(())
     }
-    /// Explicit maintenance; never invoked to make room after ENOSPC/cap failures.
+    /// Retention maintenance. Never invoked after ENOSPC; the frontend cadence
+    /// invokes it once when a rolling snapshot reaches a cap (ADR 0018, M6-03).
     pub fn prune_snapshots(
         &mut self,
         identity: &DocumentRequest,

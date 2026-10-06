@@ -221,7 +221,8 @@ Changed rolling requests are admitted at five-minute intervals; explicit
 maintenance keeps five-minute representatives for one hour, hourly for 48 hours,
 daily for 30 days, the newest and every protected/future-clock record. Admission
 caps each document at 256 records/256 MiB of distinct source bytes, without
-silently freeing protected material to make room. Publication commits the blob
+silently freeing protected material to make room. A rolling snapshot that
+hits a cap runs conservative retention once and retries (M6-03, ADR 0018). Publication commits the blob
 before its referring record; pruning commits expired-record deletion before
 removing an unreferenced blob. Pending, orphan, damaged or unknown material
 remains inspectable and blocks further maintenance. Retention refuses unresolved
