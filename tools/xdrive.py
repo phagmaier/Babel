@@ -6,7 +6,8 @@ docs/development.md#agent-pilot-without-webdriver.
 
 Usage: DISPLAY=:99 python3 -I tools/xdrive.py <steps.json>
 Steps: ["click", x, y] | ["type", "text"] | ["key", "Return"] |
-["keys", ["Control_L", "s"]] | ["resize", w, h] | ["sleep", s] | ["shot", "out.png"]
+["keys", ["Control_L", "s"]] | ["wheel", -3] | ["resize", w, h] | ["sleep", s] |
+["shot", "out.png"]
 """
 import ctypes
 import json
@@ -121,6 +122,13 @@ for step in json.load(open(sys.argv[1])):
         press(*keycode(step[1]))
     elif op == 'keys':
         chord(step[1])
+    elif op == 'wheel':
+        button = 4 if step[1] < 0 else 5
+        for _ in range(abs(step[1])):
+            xtst.XTestFakeButtonEvent(display, button, True, 0)
+            xtst.XTestFakeButtonEvent(display, button, False, 0)
+            x11.XFlush(display)
+            time.sleep(0.05)
     elif op == 'resize':
         resize(step[1], step[2])
     elif op == 'sleep':

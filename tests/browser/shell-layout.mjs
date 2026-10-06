@@ -294,22 +294,24 @@ export async function checkShellLayout(page) {
     [m.overflow, m.editor, m.body],
   );
 
-  // Narrow window: the original single-column stack in DOM order.
+  // Narrow window: one column, script before the navigator (PILOT-2026-10-06).
+  // Visual order only; DOM/keyboard order is pinned by the WritingView test.
   await page.setViewportSize({ width: 900, height: 900 });
   await build(page);
   m = await measure(page);
   check(
     'narrow stack',
-    m.display === 'block' &&
+    m.display === 'flex' &&
       m.overflow <= 0 &&
       m.sidebar.position === 'static' &&
       m.drawer.position === 'static' &&
       m.top.bottom <= m.drawer.top + TOLERANCE &&
-      m.drawer.bottom <= m.sidebar.top + TOLERANCE &&
-      m.sidebar.bottom <= m.body.top + TOLERANCE &&
+      m.drawer.bottom <= m.body.top + TOLERANCE &&
+      m.body.bottom <= m.sidebar.top + TOLERANCE &&
+      m.sidebar.bottom <= m.tail.top + TOLERANCE &&
       near(m.sidebar.left, m.body.left) &&
       near(m.drawer.right, m.body.right),
-    [m.display, m.overflow, m.top, m.drawer, m.sidebar, m.body],
+    [m.display, m.overflow, m.top, m.drawer, m.body, m.sidebar, m.tail],
   );
 
   await finish(page);

@@ -154,7 +154,8 @@ HOME=$PILOT/home APPIMAGE_EXTRACT_AND_RUN=1 DISPLAY=:99 \
 DISPLAY=:99 python3 -I tools/xdrive.py steps.json
 ```
 
-`unshare -n` proves no network is needed; a disposable `HOME` keeps app data
+`pnpm test:layout` runs only the browser geometry checks (no PDF viewer
+step). `unshare -n` proves no network is needed; a disposable `HOME` keeps app data
 synthetic. Use `["resize", 1280, 800]` first (no window manager), screenshot
 between steps, and verify bytes on disk (source file and
 `$HOME/.local/share/app.babel.screenwriter/recovery/*.journal`), not only the

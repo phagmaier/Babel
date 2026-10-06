@@ -75,6 +75,64 @@
 .focus-help {
   font-size: 0.85rem;
 }
+/* Writing first (PILOT-2026-10-06 finding 1): the script is the main surface,
+   so the chrome above it stays compact. CSS only: DOM order, labels, roles
+   and focus order are unchanged; the heading stays for assistive technology. */
+.shell.writing {
+  margin-block: 0 48px;
+  padding-top: 0;
+}
+.writing-top > h1 {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.writing-top > .focus-help {
+  margin-block: 6px;
+  font-size: 0.8rem;
+}
+.writing-top > .actions {
+  gap: 6px;
+  margin-top: 6px;
+}
+.writing-top button,
+.writing-presentation button {
+  padding: 5px 10px;
+  border-radius: 8px;
+  font-size: 0.875rem;
+}
+.writing-top > .editor-controls {
+  margin-block: 4px;
+  padding: 0.25rem 0;
+  font-size: 0.875rem;
+}
+.writing-top > .editor-controls details {
+  display: inline-block;
+  margin-inline-end: 1.25rem;
+  vertical-align: top;
+}
+.writing-top > .editor-controls summary {
+  margin-block: 0.25rem;
+}
+/* Single-column windows show the script before the navigator (characters,
+   outline), which would otherwise push the editor below the fold. Visual order
+   only: keyboard order and F6 between actions and editor are unchanged. */
+@media (max-width: 1099.98px) {
+  .shell.writing {
+    display: flex;
+    flex-direction: column;
+  }
+  .shell.writing > .writing-sidebar {
+    order: 1;
+  }
+  .shell.writing > .writing-tail {
+    order: 2;
+  }
+}
 /* EDIT-07: a 60-character column in the print profile's proportions. Indents
    are fractions of the column, so they shrink with it at high zoom or in a
    narrow window. Presentation only: no wrap, line or page fidelity. */

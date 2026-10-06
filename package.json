@@ -16,6 +16,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:browser": "node tests/browser/smoke.mjs",
+    "test:layout": "node tests/browser/layout.mjs",
     "build": "tsc --noEmit && vite build",
     "pdf-helper": "python3 tools/pdf-helper/build.py",
     "test:pdf-helper": "python3 tools/pdf-helper/test_helper.py",
