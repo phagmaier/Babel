@@ -16,7 +16,10 @@ entry and has working spellcheck. Local v1 admission remains open.
   showed every language unavailable on any host. Earlier passes used the
   unbundled release binary. The build now stages the Hunspell provider and
   library into the AppImage (`tools/stage-spellcheck-provider.py`); CI runs
-  `tools/check-package-spellcheck.py` after the package build.
+  `tools/check-package-spellcheck.py` after the package build. That guard's
+  first CI run caught a second case: CI's source-built Enchant was not
+  relocatable, so its package used the build prefix. CI now builds it
+  `--enable-relocatable` and staging refuses a non-relocatable Enchant.
 - **Defect fixed: save pickers opened in the read-only package folder.** The
   package's working directory is its mount (its WebKit needs that), so a
   bare-filename Save As was refused. All four native pickers now start in the
@@ -52,6 +55,8 @@ rerun on the final one here.
 | `python3 -m unittest discover -s tests/tools -p 'test_*.py'`   | 10 pass (5 new installer tests)                    |
 | `sh tools/lint-py.sh`                                          | Pass                                               |
 | `tools/check-package-spellcheck.py <AppDir>`                   | Fails before the fix, passes after                 |
+| Staging vs host, relocatable and default upstream Enchant      | Pass, pass, refused as intended                    |
+| CI on `a6cbfc0`                                                | Existing steps pass; new guard failed, then fixed  |
 | `installed_launch.py` on the final package                     | Pass                                               |
 | Packaged runner, six modes, development hidden                 | 5/6; spellcheck entry hit a drill bug, since fixed |
 | Packaged runner, `spellcheck`, development hidden              | 1/1 in two separate runs                           |

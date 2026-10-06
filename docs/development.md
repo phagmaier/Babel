@@ -13,7 +13,7 @@ the explicit empty-personal-wordlist API is absent from Ubuntu 24.04's Enchant
 2.3.3. The build script checks this minimum before linking; the loaded library,
 Hunspell provider and selected language resources must also be installed at
 runtime. The verified host uses 2.8.21. CI builds SHA-256-pinned upstream 2.8.21
-with only Hunspell into a runner-temporary prefix using
+with only Hunspell and `--enable-relocatable` into a runner-temporary prefix using
 [`tools/ci-enchant.sh`](../tools/ci-enchant.sh), then exports its `PKG_CONFIG_PATH`
 and `LD_LIBRARY_PATH` for subsequent steps. `libhunspell-dev` supplies the provider
 build headers; `hunspell-en-us` supplies the English resource used by actual
@@ -150,6 +150,7 @@ Three packaging facts are easy to break:
   therefore runs `tools/stage-spellcheck-provider.py`, which stages the
   Hunspell provider and library of the linked Enchant for
   `bundle.linux.appimage.files`. Dictionaries stay a host prerequisite.
+  The linked Enchant must be relocatable; staging refuses one that is not.
 - The package runs with its working directory inside its read-only mount,
   and its bundled WebKit resolves helper processes against it. Never change
   directory in the app; native pickers get an explicit start folder instead.

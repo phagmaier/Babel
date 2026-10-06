@@ -6,6 +6,11 @@ packaged app with no spelling provider on any host. This stages the module of
 the Enchant the app links, and the Hunspell library that module loads, where
 `tauri.conf.json` bundles them. Dictionaries stay a host prerequisite.
 
+That only works when the linked Enchant is relocatable (distribution builds
+are; an upstream build needs `--enable-relocatable`). The script proves it on
+a copy before the package is built, instead of shipping a silent dependency
+on the build machine's Enchant folder.
+
     python3 tools/stage-spellcheck-provider.py
 """
 import hashlib
@@ -24,7 +29,8 @@ def pkg_config(*arguments):
 
 
 def main():
-    provider = Path(pkg_config('--variable=libdir')) / 'enchant-2/enchant_hunspell.so'
+    library_directory = Path(pkg_config('--variable=libdir'))
+    provider = library_directory / 'enchant-2/enchant_hunspell.so'
     if not provider.is_file():
         raise SystemExit(f'No Enchant Hunspell provider at {provider}; see docs/development.md')
     loaded = subprocess.check_output(['ldd', str(provider)], text=True)
@@ -43,7 +49,18 @@ def main():
         target.chmod(0o755)
         staged.append({'source': str(source.resolve()), 'packagePath': 'usr/' + destination,
                        'sha256': hashlib.sha256(target.read_bytes()).hexdigest()})
-    manifest = {'enchant': pkg_config('--modversion'), 'files': staged}
+    # Lay the staged files out beside a copy of the linked Enchant, as in the
+    # package, and require that copy to load them rather than the originals.
+    trial = OUTPUT / 'relocation-check/usr/lib'
+    shutil.copytree(OUTPUT / 'lib', trial)
+    shutil.copyfile(library_directory / 'libenchant-2.so.2', trial / 'libenchant-2.so.2')
+    check = subprocess.run([sys.executable, str(REPO / 'tools/check-package-spellcheck.py'), str(trial.parent.parent)],
+                           capture_output=True, text=True)
+    if check.returncode:
+        raise SystemExit('The linked Enchant does not find a provider bundled beside it, so a package built '
+                         'from it would have no spellcheck elsewhere. Use an Enchant built with '
+                         f'--enable-relocatable.\n{check.stdout}{check.stderr}')
+    manifest = {'enchant': pkg_config('--modversion'), 'relocatable': True, 'files': staged}
     (OUTPUT / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
     print(json.dumps(manifest))
 

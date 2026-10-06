@@ -14,7 +14,9 @@ curl --fail --location --silent --show-error \
 printf '%s  %s\n' dd2a762697c463148a8f59867089a5ebf2dd1449d869f93764b76c12bcf8acc0 "$work/enchant.tar.gz" | sha256sum --check
 tar -xzf "$work/enchant.tar.gz" -C "$work"
 cd "$work/enchant-2.8.21"
-./configure --prefix="$prefix" --libdir="$prefix/lib" --disable-static \
+# Relocatable, like the verified host build: a packaged copy of this library
+# must find the provider bundled beside it, not the one in this prefix.
+./configure --prefix="$prefix" --libdir="$prefix/lib" --disable-static --enable-relocatable \
   --with-hunspell --without-aspell --without-nuspell --without-hspell \
   --without-voikko --without-zemberek --without-applespell --without-winspell
 make -j2

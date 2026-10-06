@@ -38,7 +38,10 @@ folder.
   provider loads, into the AppImage beside the bundled Enchant
   ([`tools/stage-spellcheck-provider.py`](../../tools/stage-spellcheck-provider.py)).
   This is the same single Enchant/Hunspell backend as ADR 0033, not a second
-  engine. **Dictionaries stay a host prerequisite**: the provider reads
+  engine. It requires a **relocatable** Enchant at build time: distribution
+  builds are, an upstream build needs `--enable-relocatable` (CI's now has
+  it). Staging proves this on a copy and fails the build otherwise.
+  **Dictionaries stay a host prerequisite**: the provider reads
   `<XDG data dir>/hunspell` (normally `/usr/share/hunspell`) and the private
   `<config>/enchant/hunspell`. A host without one gets the existing visible
   "No installed offline dictionary" state; writing and Save are unaffected.
