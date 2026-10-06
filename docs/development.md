@@ -140,6 +140,26 @@ fixture backend and use their own configs under `tests/native/`.
 
 Do not interpret `pnpm test` or `pnpm test:browser` as native IPC verification. M0 ran `pnpm tauri dev` and the release binary on the recorded host; the real WebKit window showed `babel 0.0.1 · native desktop host connected`, with manuscript actions disabled. App-only screenshots are listed in [M0 evidence](test-evidence/M0.md). Later native E2E must exercise real file operations and failure paths. The built AppImage has not itself been installed/offline-tested.
 
+## Agent pilot without WebDriver
+
+When `WebKitWebDriver` is unavailable (agent containers), drive the packaged
+app with [tools/xdrive.py](../tools/xdrive.py) (XTest via ctypes; needs
+`libXtst`, `Xvfb`, ImageMagick `import`). Build once with `pnpm pdf-helper`
+and `pnpm tauri build`, then:
+
+```sh
+Xvfb :99 -screen 0 1280x800x24 -nolisten tcp &
+HOME=$PILOT/home APPIMAGE_EXTRACT_AND_RUN=1 DISPLAY=:99 \
+  unshare -n dbus-run-session -- target/release/bundle/appimage/babel_0.0.1_amd64.AppImage &
+DISPLAY=:99 python3 -I tools/xdrive.py steps.json
+```
+
+`unshare -n` proves no network is needed; a disposable `HOME` keeps app data
+synthetic. Use `["resize", 1280, 800]` first (no window manager), screenshot
+between steps, and verify bytes on disk (source file and
+`$HOME/.local/share/app.babel.screenwriter/recovery/*.journal`), not only the
+screen. Extracted AppImage runs are a control, not FUSE/desktop installation.
+
 ## Check tiers (use the lowest tier that covers the change)
 
 Use the lowest tier covering the changed boundary. Run focused checks while

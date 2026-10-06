@@ -54,6 +54,18 @@ rewritten; `docs/tasks` keeps only open briefs. Historical evidence keeps its
 recorded paths; only links changed. `docs/index.md` stub deleted.
 `check:links` (1941 links) and `check:guidance` pass.
 
+**PILOT-2026-10-06.** [Evidence](test-evidence/PILOT-2026-10-06.md). The
+AppImage builds (`pnpm tauri build`, 99 MiB) and runs offline. Driven natively
+with new [tools/xdrive.py](../tools/xdrive.py): crash recovery restores an
+unsaved draft, and the ADR 0044 path works end to end (refused row → other-row
+edit journaled on disk → SIGKILL → restore returns every word). Findings:
+editor sits below ~10 rows of controls; Home recovery list is engineer-facing;
+new scripts start in Action.
+
+Decision: text before a Parenthetical's `(` keeps its named refusal (now
+recovery-protected). Saving it silently as Dialogue was tried and rejected:
+the alert is the clearer writer experience. Do not reopen without new evidence.
+
 ## Known limitations (accepted, not blockers)
 
 - [Native register](native-findings.md): 12 WebKitGTK aborts under forced
@@ -70,20 +82,25 @@ recorded paths; only links changed. `docs/index.md` stub deleted.
 
 Take the first unblocked item; if blocked, note why and take the next.
 
-1. **M6-03 remainder**: production UI drill of snapshot inventory, attention,
-   restore and copy on a desktop host. [Brief](tasks/M6-03.md).
-2. **M6-14 Linux package**: unsigned offline AppImage/deb build and launch
-   check, with a basic locked-dependency audit. [Brief](tasks/M6-14.md).
-3. **M6-16 agent-run pilot**: SPEC S15.5 sequence on synthetic scripts; when it
-   passes, replace the README "do not use" warning with the real limits.
-4. **Capture follow-ups**: faithful file save for F4 prefix rows (cue-contained
-   prefix repair, see [F4-PREFIX](test-evidence/AUDIT-PARK-H-F4-PREFIX.md));
-   a recovery copy for refusals that name no row.
-5. **AUDIT-PARK-T (2)**: a failed resume leaves a second draft entry on Home.
-6. **D-05 remainder**: protected workflows (scene moves, import) take a
-   PreDestructive snapshot and treat a Git history failure as a warning
+1. **Writing-first layout** (pilot finding 1): the editor is the first thing
+   below the menu bar at 900×680; move the action buttons into menus or the
+   command palette and collapse status/side panels. Keep shell/element layout
+   browser checks green.
+2. **Writer-friendly recovery on Home** (finding 2): time, first lines and one
+   primary Open action; hashes and generations behind "Details".
+3. **New screenplay starts with a Scene Heading row** (finding 3).
+4. **M6-14 remainder**: FUSE/desktop install, packaged PDF export and
+   spellcheck, locked-dependency audit. [Brief](tasks/M6-14.md).
+5. **M6-16 pilot remainder**: the S15.5 steps not yet exercised (PDF export,
+   find/replace, scene moves, title page, external change, backup restore),
+   driven with `tools/xdrive.py`; then replace the README "do not use" warning.
+6. **M6-03 remainder**: snapshot panel/restore/copy drill. [Brief](tasks/M6-03.md).
+7. **Capture**: a recovery copy for refusals that name no row.
+8. **D-05 remainder**: protected workflows take a PreDestructive snapshot and
+   treat a Git history failure as a warning
    ([ADR 0030](decisions/0030-version-bound-workflow-protection.md)).
-7. Later, not V1 blockers: M6-04, M6-10–13, M6-15, DEV-02, M6-05–09, M7, M8.
+9. Later, not V1 blockers: M6-04, M6-10–13, M6-15, DEV-02, M6-05–09, AUDIT-PARK-T
+   (2) duplicate Home entry after a failed resume, M7, M8.
 
 Native drills: check `df -i /tmp`, set `BABEL_NATIVE_IME_TEMP_ROOT` to a fresh
 Btrfs directory, and follow `docs/development.md`.
