@@ -7,6 +7,34 @@ import subprocess
 import time
 
 
+OBSERVE = """
+const s=getSelection();
+const p=(s?.focusNode?.nodeType===1?s.focusNode:s?.focusNode?.parentElement)?.closest('.ProseMirror > p');
+const save=document.querySelector('#writing-save');
+const outline=document.querySelector('.manuscript-outline');
+const enabled=document.querySelectorAll('.outline-target:not(:disabled)').length;
+const editable=document.querySelector('.ProseMirror')?.contentEditable;
+const protection=document.querySelector('section[aria-label="Protection status"]');
+const events=window.presentationEvents??[];
+return {
+    browserTime:performance.now(), browserTimeOrigin:performance.timeOrigin,
+    predicates:{savePresent:!!save, saveEnabled:save?.disabled===false,
+        enabledOutlinePresent:enabled>0, editable:editable==='true',
+        outlineCurrent:outline?.innerText.includes('Outline is current.')===true,
+        savedStatus:protection?.querySelector('p[role="status"]')?.textContent==='Saved locally'},
+    saveDisabled:save?.disabled,
+    actions:[...document.querySelectorAll('.actions button')].map(b=>({text:b.textContent.trim(),disabled:b.disabled,title:b.title})),
+    outlineCount:document.querySelectorAll('.outline-target').length, outlineEnabled:enabled,
+    filter:outline?.querySelector('input')?.value, outlineStatus:outline?.innerText.slice(0,800),
+    protection:protection?.innerText, saveDetails:protection?.querySelector('details')?.textContent,
+    compositionStarts:events.filter(e=>e.trusted&&e.kind==='compositionstart').length,
+    compositionEnds:events.filter(e=>e.trusted&&e.kind==='compositionend').length,
+    events, active:document.activeElement?.id, editable,
+    selection:{row:[...document.querySelectorAll('.ProseMirror > p')].indexOf(p),anchor:s?.anchorOffset,head:s?.focusOffset,text:s?.toString()}
+};
+"""
+
+
 def run(d, *, restart=True, control="baseline"):
     assert control in ["baseline", "preedit-disabled", "no-ime", "typical-only", "no-zoom", "cleanup-probes"]
     report = []
@@ -16,17 +44,22 @@ def run(d, *, restart=True, control="baseline"):
     def observe(reason):
         # DOM-only observations survive a failed workload and precede teardown.
         # Disabled controls are facts, not inferred internal action/composition state.
-        facts = d.script("const s=getSelection();const p=(s?.focusNode?.nodeType===1?s.focusNode:s?.focusNode?.parentElement)?.closest('.ProseMirror > p');return {saveDisabled:document.querySelector('#writing-save')?.disabled,actions:[...document.querySelectorAll('.actions button')].map(b=>({text:b.textContent.trim(),disabled:b.disabled,title:b.title})),outlineCount:document.querySelectorAll('.outline-target').length,outlineEnabled:document.querySelectorAll('.outline-target:not(:disabled)').length,filter:document.querySelector('.manuscript-outline input')?.value,outlineStatus:document.querySelector('.manuscript-outline')?.innerText.slice(0,800),protection:document.querySelector('section[aria-label=\"Protection status\"]')?.innerText,events:window.presentationEvents,active:document.activeElement?.id,editable:document.querySelector('.ProseMirror')?.contentEditable,selection:{row:[...document.querySelectorAll('.ProseMirror > p')].indexOf(p),anchor:s?.anchorOffset,head:s?.focusOffset,text:s?.toString()}};")
+        facts = d.script(OBSERVE)
         with (d.ROOT / 'presentation-stages.jsonl').open('a') as log:
-            log.write(json.dumps({'wallTime': time.time(), 'workload': workload,
+            log.write(json.dumps({'wallTime': time.time(), 'monotonicTime': time.monotonic(), 'workload': workload,
                                   'stage': stage, 'reason': reason, **facts}) + '\n')
         return facts
 
     d.presentation_observe = observe
 
     def ready():
+        def check():
+            predicates = observe('readiness-poll')['predicates']
+            # Preserve the original oracle. Editability and other facts are
+            # independent observations, never extra admission or waived guards.
+            return predicates['enabledOutlinePresent'] and predicates['saveEnabled']
         try:
-            d.wait(lambda: d.script("return !!document.querySelector('.outline-target:not(:disabled)') && document.querySelector('#writing-save')?.disabled===false;"), 'Ready current screenplay', timeout=90)
+            d.wait(check, 'Ready current screenplay', timeout=90)
         except AssertionError:
             facts = observe('readiness-failure')
             (d.ROOT / 'presentation-readiness-failure.json').write_text(json.dumps(facts, indent=2) + '\n')
@@ -54,7 +87,7 @@ def run(d, *, restart=True, control="baseline"):
         return d.script("const s=getSelection();const p=(s.focusNode?.nodeType===1?s.focusNode:s.focusNode?.parentElement)?.closest('.ProseMirror > p');return {row:[...document.querySelectorAll('.ProseMirror > p')].indexOf(p),anchor:s.anchorOffset,head:s.focusOffset,text:s.toString()};")
 
     def save(target, source):
-        ready(); d.click('Save', actions=True); d.audit(target, source)
+        ready(); observe('before-save'); d.click('Save', actions=True); d.audit(target, source)
         d.wait(lambda: 'Saved locally' in d.body(), 'Exact source receipt')
         observe('source-receipt')
         ready()  # Publication receipt can precede the native operation's thaw.
@@ -83,7 +116,7 @@ def run(d, *, restart=True, control="baseline"):
         d.click('Open Fountain', actions=True); d.picker(target); ready(); save(target, source)
         editor = d.editor()
         select(4, 3); before = selection()
-        probe = "window.presentationEvents=[];window.presentationSync=[];window.presentationFrames=[];const root=document.querySelector('.ProseMirror');for(const kind of ['keydown','beforeinput','input']){let start;root.addEventListener(kind,e=>{if(e.isTrusted)start=performance.now();},true);document.addEventListener(kind,e=>{if(root.contains(e.target)&&e.isTrusted&&start!==undefined){window.presentationSync.push({kind,ms:performance.now()-start});if(kind==='input')requestAnimationFrame(()=>window.presentationFrames.push(performance.now()-start));}});}for(const kind of ['compositionstart','compositionend'])root.addEventListener(kind,e=>window.presentationEvents.push({kind,trusted:e.isTrusted,scroll:scrollY}));window.presentationToggles=[];window.presentationToggleSync=[];let toggleStart;document.addEventListener('change',e=>{if(root.closest('main')?.querySelector('.presentation')?.contains(e.target)&&toggleStart!==undefined)window.presentationToggleSync.push(performance.now()-toggleStart);});document.querySelector('.presentation').addEventListener('change',e=>{const start=performance.now();toggleStart=start;requestAnimationFrame(()=>requestAnimationFrame(()=>window.presentationToggles.push({control:e.target.getAttribute('aria-label')||e.target.type,ms:performance.now()-start})));},true);"
+        probe = "window.presentationEvents=[];window.presentationSync=[];window.presentationFrames=[];const root=document.querySelector('.ProseMirror');for(const kind of ['keydown','beforeinput','input']){let start;root.addEventListener(kind,e=>{if(e.isTrusted)start=performance.now();},true);document.addEventListener(kind,e=>{if(root.contains(e.target)&&e.isTrusted&&start!==undefined){window.presentationSync.push({kind,ms:performance.now()-start});if(kind==='input')requestAnimationFrame(()=>window.presentationFrames.push(performance.now()-start));}});}for(const kind of ['compositionstart','compositionend'])root.addEventListener(kind,e=>window.presentationEvents.push({kind,trusted:e.isTrusted,scroll:scrollY,browserTime:performance.now(),wallTime:Date.now()}));window.presentationToggles=[];window.presentationToggleSync=[];let toggleStart;document.addEventListener('change',e=>{if(root.closest('main')?.querySelector('.presentation')?.contains(e.target)&&toggleStart!==undefined)window.presentationToggleSync.push(performance.now()-toggleStart);});document.querySelector('.presentation').addEventListener('change',e=>{const start=performance.now();toggleStart=start;requestAnimationFrame(()=>requestAnimationFrame(()=>window.presentationToggles.push({control:e.target.getAttribute('aria-label')||e.target.type,ms:performance.now()-start})));},true);"
         if control == 'cleanup-probes':
             probe = ("const listeners=[],frames=new Set();"
                 "const listen=(target,kind,handler,capture=false)=>{target.addEventListener(kind,handler,capture);listeners.push(()=>target.removeEventListener(kind,handler,capture));};"

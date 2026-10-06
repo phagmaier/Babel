@@ -6,6 +6,13 @@ recorded CI passes. Later R5, warning, sweep and workflow commits are local only
 
 ## This session
 
+**M6-02-R2 diagnostic slice complete**, from clean `c74c8a0`, local only.
+Staged adoption refusals and timestamped readiness; 173 focused tests and the
+targeted frozen/current Btrfs pair pass (2/2 strict). Saved/journaled version 31
+precedes enabled actions by 117/118 ms in sampled traces; no historical cause or
+functional repair. [Brief](tasks/M6-02-R2.md), [evidence](test-evidence/M6-02-R2.md).
+Old roots, R1 evidence and all eleven native rows remain unchanged.
+
 **M6-02-R1 bounded attempt complete; retained operations remain open.**
 From clean `9fc0085`, frozen/current Save As and real-IME stress comparisons
 passed 8/8 strict on tmpfs/Btrfs. Two initial legacy-close compatibility failures
@@ -57,12 +64,12 @@ admission, pruning or push.
 
 ## Next action
 
-**Stop after M6-02-R1; its one bounded comparison is complete.**
-The [proposed R2 diagnostic slice](test-evidence/M6-02-R1.md#narrow-observation-and-disposition)
-separates adoption inspect/load/capture/prime/release/checkpoint/flush and the
-post-cancel Save receipt-to-readiness transition. It needs selection and a
-bounded brief before execution or product edits; do not automatically repeat
-the matrix. M6-02 stays unchecked and M6-03/admission remain blocked. Marker
+**Stop after M6-02-R2; its bounded diagnostic slice is complete.**
+The [proposed R3](test-evidence/M6-02-R2.md#disposition-and-narrowed-follow-up)
+binds deferred capture/source-save and duplicate-flush settlement to the latest
+Save invocation. It needs selection and a bounded brief; no automatic matrix
+repeat or snapshot/guard change from the injected delay or clean native samples.
+M6-02 stays unchecked and M6-03/admission remain blocked. Marker
 remediation, F4/group F and DEV-02 remain unselected. No push/tag authorized.
 
 Before native work check `df -i /tmp`, set `BABEL_NATIVE_IME_TEMP_ROOT` to a

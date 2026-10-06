@@ -16,6 +16,11 @@ import {
   type SessionSelection,
 } from '../../src/application/writingSession';
 import { A, B, fingerprint, opened, receiptFor } from './persistence-fixtures';
+import * as editorMetadata from '../../src/application/editorMetadata';
+import { PersistenceController } from '../../src/application/persistenceController';
+import { SaveCadence } from '../../src/application/saveCadence';
+import { unavailableRecovery } from '../../src/application/startupRecovery';
+import { deferred } from '../publicationFixture';
 
 function fakeClock() {
   let now = 0;
@@ -333,9 +338,19 @@ describe('M3-12 writing session lifecycle', () => {
     expect(fakes.documents.saved).toEqual([]);
     session.dispose();
   });
-  it.each(['load', 'capture', 'release', 'native-release'] as const)(
+  it.each([
+    ['inspect', 'recovery inspect (recovery failed)'],
+    ['identity', 'recovery identity (Recovery identity does not match'],
+    ['metadata', 'metadata verification (metadata failed)'],
+    ['load', 'editor load (adoption failed)'],
+    ['capture', 'editor capture (capture failed)'],
+    ['changed', 'controller captured-version initialization (version failed)'],
+    ['prime', 'cadence prime (prime failed)'],
+    ['release', 'original-registration release (release failed)'],
+    ['native-release', 'original-registration release (saveNeedsAttention)'],
+  ] as const)(
     'retains the original editor and identity after Save As %s failure',
-    async (failure) => {
+    async (failure, detail) => {
       const fakes = ports();
       const editor = new FakeEditor();
       const session = new WritingSession(fakes.ports, editor, fakeClock());
@@ -349,7 +364,36 @@ describe('M3-12 writing session lifecycle', () => {
         fileName: 'Copy.fountain',
         storageRelation: 'sameFilesystem',
       };
-      if (failure === 'load')
+      if (failure === 'inspect' || failure === 'identity')
+        fakes.ports.recovery = {
+          ...unavailableRecovery,
+          inspect: async () => {
+            if (failure === 'inspect') throw new Error('recovery failed');
+            return {
+              documentId: 'wrong',
+              candidates: [],
+              notices: [],
+              error: null,
+            };
+          },
+        };
+      else if (failure === 'metadata')
+        vi.spyOn(
+          editorMetadata,
+          'verifiedEditorMetadata',
+        ).mockRejectedValueOnce(new Error('metadata failed'));
+      else if (failure === 'changed')
+        vi.spyOn(
+          PersistenceController.prototype,
+          'changed',
+        ).mockImplementationOnce(() => {
+          throw new Error('version failed');
+        });
+      else if (failure === 'prime')
+        vi.spyOn(SaveCadence.prototype, 'prime').mockImplementationOnce(() => {
+          throw new Error('prime failed');
+        });
+      else if (failure === 'load')
         vi.spyOn(editor, 'loadInitial').mockImplementationOnce(() => {
           editor.sourceWas([98], 55);
           throw new Error('adoption failed');
@@ -365,15 +409,8 @@ describe('M3-12 writing session lifecycle', () => {
             ? { code: 'saveNeedsAttention' }
             : new Error('release failed'),
         );
-      await expect(session.saveAs()).rejects.toThrow(
-        failure === 'load'
-          ? 'fresh-session adoption (adoption failed)'
-          : failure === 'capture'
-            ? 'fresh-session adoption (capture failed)'
-            : failure === 'native-release'
-              ? 'original-registration release (saveNeedsAttention)'
-              : 'original-registration release (release failed)',
-      );
+      await expect(session.saveAs()).rejects.toThrow(detail);
+      vi.restoreAllMocks();
       expect(session.active!.identity).toEqual(identity);
       expect(editor.current).toBe(snapshot);
       expect(editor.selection).toEqual({ anchor: 1, head: 2 });
@@ -383,6 +420,108 @@ describe('M3-12 writing session lifecycle', () => {
       expect(fakes.ports.documents.save).toHaveBeenLastCalledWith(
         expect.objectContaining({ identity }),
       );
+      session.dispose();
+    },
+  );
+  it.each(['checkpoint', 'source', 'snapshot'] as const)(
+    'keeps adopted identity and truthful protection after fresh-copy %s failure',
+    async (failure) => {
+      const fakes = ports(),
+        editor = new FakeEditor();
+      const session = new WritingSession(fakes.ports, editor, fakeClock());
+      fakes.entry.picked = opened();
+      await session.openPicked();
+      const original = session.active!.identity;
+      fakes.saveAs.target = {
+        token: 'target',
+        fileName: 'Copy.fountain',
+        storageRelation: 'sameFilesystem',
+      };
+      const checkpoint = fakes.ports.documents.checkpoint;
+      const order: string[] = [];
+      fakes.ports.documents.checkpoint = vi.fn(async (request) => {
+        if (request.identity.documentId === original.documentId)
+          return checkpoint(request);
+        order.push('new checkpoint');
+        if (failure === 'checkpoint') throw { code: 'io' };
+        return checkpoint(request);
+      });
+      fakes.ports.documents.release = vi.fn(async (id) => {
+        expect(id).toEqual(original);
+        expect(order).toEqual([]);
+        expect(session.active!.identity).toEqual(freshIdentity());
+        expect(session.cadenceStatus.journaledVersion).toBe(0);
+        order.push('old release');
+      });
+      fakes.ports.documents.save = vi.fn(async (request) => {
+        order.push('new source');
+        expect(request.identity).toEqual(freshIdentity());
+        if (failure === 'source') throw { code: 'io' };
+        const receipt = receiptFor(request.version);
+        return {
+          ...receipt,
+          identity: request.identity,
+          recovery: { ...receipt.recovery, identity: request.identity },
+        };
+      });
+      fakes.ports.snapshots.create = vi.fn(async () => {
+        order.push('rolling snapshot');
+        if (failure === 'snapshot') throw { code: 'snapshotNeedsAttention' };
+        return null;
+      });
+      await expect(session.saveAs()).resolves.toMatchObject({
+        status: 'published',
+      });
+      expect(order).toEqual(
+        failure === 'source'
+          ? ['old release', 'new checkpoint', 'new source']
+          : ['old release', 'new checkpoint', 'new source', 'rolling snapshot'],
+      );
+      expect(session.active!.identity).toEqual(freshIdentity());
+      expect(editor.current.source).toEqual([97]);
+      expect(editor.frozen).toBe(false);
+      expect(session.cadenceStatus.status).toBe(
+        failure === 'source' ? 'Save failed' : 'Saved locally',
+      );
+      // A source-save receipt includes its own exact recovery receipt, even if
+      // the preceding standalone checkpoint failed. Snapshot failure is separate.
+      expect(session.cadenceStatus.journaledVersion).toBe(1);
+      expect(session.cadenceStatus.snapshotAttention).toBe(
+        failure === 'snapshot',
+      );
+      session.dispose();
+    },
+  );
+  it.each(['resolve', 'reject'] as const)(
+    'waits for rolling snapshot %s after publishing the exact source receipt',
+    async (settlement) => {
+      const fakes = ports(),
+        editor = new FakeEditor();
+      const session = new WritingSession(fakes.ports, editor, fakeClock());
+      fakes.entry.picked = opened();
+      await session.openPicked();
+      const pending = deferred<null>();
+      fakes.ports.snapshots.create = vi.fn(() => pending.promise);
+      let completed = false;
+      const saving = session.save().then((summary) => {
+        completed = true;
+        return summary;
+      });
+      await vi.waitFor(() =>
+        expect(fakes.ports.snapshots.create).toHaveBeenCalledOnce(),
+      );
+      expect(session.cadenceStatus.status).toBe('Saved locally');
+      expect(session.cadenceStatus.fileSavedVersion).toBe(editor.getVersion());
+      expect(completed).toBe(false);
+      if (settlement === 'resolve') pending.resolve(null);
+      else pending.reject(new Error('snapshot failed'));
+      await expect(saving).resolves.toEqual({
+        recovered: true,
+        saved: true,
+        snapshotAttention: settlement === 'reject',
+      });
+      expect(completed).toBe(true);
+      expect(editor.current.source).toEqual([97]);
       session.dispose();
     },
   );

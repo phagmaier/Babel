@@ -17,7 +17,7 @@ import { captureEditor } from '../../src/editor/sourceBridge';
 import { editorVersion } from '../../src/editor/state';
 import { SaveCadence } from '../../src/application/saveCadence';
 import { ProtectedClose } from '../../src/application/protectedClose';
-import { undoDepth } from 'prosemirror-history';
+import { undo, undoDepth } from 'prosemirror-history';
 import type { OpenDocument } from '../../src/application/documents';
 import { deferred, publicationResult } from '../publicationFixture';
 import {
@@ -2009,6 +2009,104 @@ it('restores current outline and counts after Save As rollback without losing so
   expect([...captureEditor(restored.state).source]).toEqual(expected);
   expect(undoDepth(restored.state)).toBe(depth);
 });
+
+it.each(['resolve', 'reject'] as const)(
+  'M6-02-R2 settles Save actions after rolling snapshot %s, preserving exact bytes and Undo',
+  async (settlement) => {
+    const source =
+      '\ufeff.INT. ROOM - DAY\r\n\r\n!Alpha.  \r\n\r\n[[Keep this note.]]\r\n';
+    const bytes = [...new TextEncoder().encode(source)];
+    const f = fixturePorts({
+      picked: {
+        ...opened(),
+        source: bytes,
+        fingerprint: {
+          ...fingerprint(),
+          byteLength: bytes.length,
+          sha256: createHash('sha256').update(source).digest('hex'),
+        },
+      },
+    });
+    const views: ReturnType<typeof editorMount.mountScreenplayEditor>[] = [];
+    const mount = editorMount.mountScreenplayEditor;
+    vi.spyOn(editorMount, 'mountScreenplayEditor').mockImplementation(
+      (...args) => {
+        const view = mount(...args);
+        views.push(view);
+        return view;
+      },
+    );
+    const savedBytes: number[][] = [];
+    f.ports.documents.save = async (request) => {
+      savedBytes.push([...request.source]);
+      const result = receiptFor(request.version);
+      return {
+        ...result,
+        sourceSha256: request.sourceSha256,
+        fingerprint: {
+          ...result.fingerprint,
+          sha256: request.sourceSha256,
+          byteLength: request.source.length,
+        },
+        recovery: { ...result.recovery, sourceSha256: request.sourceSha256 },
+      };
+    };
+    render(
+      <WritingView
+        ports={f.ports}
+        open={{ kind: 'picked' }}
+        onSessionClosed={vi.fn()}
+      />,
+    );
+    await screen.findByLabelText('Screenplay actions');
+    const save = screen.getByRole<HTMLButtonElement>('button', {
+      name: 'Save',
+    });
+    await waitFor(() => expect(save.disabled).toBe(false));
+    const view = views[0]!;
+    const pending = deferred<void>();
+    const create = f.ports.snapshots.create;
+    f.ports.snapshots.create = vi.fn(async (request) => {
+      await pending.promise;
+      return create(request);
+    });
+    // No composition event is injected: the deferred snapshot alone holds the action.
+    let actionStart = 1;
+    for (
+      let row = 0;
+      !view.state.doc.child(row).textContent.startsWith('Alpha.');
+      row++
+    )
+      actionStart += view.state.doc.child(row).nodeSize;
+    act(() => view.dispatch(view.state.tr.insertText('X', actionStart)));
+    const edited = [
+      ...new TextEncoder().encode(source.replace('!Alpha.', '!XAlpha.')),
+    ];
+    fireEvent.click(save);
+    await waitFor(() =>
+      expect(f.ports.snapshots.create).toHaveBeenCalledOnce(),
+    );
+    expect(savedBytes).toEqual([edited]);
+    expect(save.disabled).toBe(true);
+    expect(view.dom.getAttribute('contenteditable')).toBe('true');
+    expect([...captureEditor(view.state).source]).toEqual(edited);
+    expect(undoDepth(view.state)).toBe(1);
+    await act(async () => {
+      if (settlement === 'resolve') pending.resolve();
+      else pending.reject(new Error('snapshot failed'));
+    });
+    await waitFor(() => expect(save.disabled).toBe(false));
+    expect(screen.queryByText('Snapshots need attention.') !== null).toBe(
+      settlement === 'reject',
+    );
+    act(() => expect(undo(view.state, view.dispatch)).toBe(true));
+    expect([...captureEditor(view.state).source]).toEqual(bytes);
+    fireEvent.click(save);
+    await waitFor(() => expect(savedBytes.at(-1)).toEqual(bytes));
+    await waitFor(() => expect(save.disabled).toBe(false));
+    expect(views).toHaveLength(1);
+  },
+);
 
 it('offers source comparison, keeps editing, explicitly Reloads and preserves Undo', async () => {
   const { ports } = fixturePorts({ picked: opened() });

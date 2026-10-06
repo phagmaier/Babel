@@ -25,7 +25,7 @@ Open tasks have detailed briefs in `docs/tasks/`. Completed briefs (`docs/tasks/
 - [ ] **M6-G Local history, hardening, adoption** — Deps: M2 history and M4/M5 bounded gates; M6-01–16 and all Local v1 evidence. Reqs: HIST-01/02, SAVE-04/05, QA-01–03, SEC-01/02, APP-01. Remains open. [Trace](docs/requirements.md#m6-decomposition-coverage-planned). Owner declared Linux for now 2026-10-02 ([ADR 0040](docs/decisions/0040-local-v1-platform-scope.md)); M6-13/14 still need exact release-target confirmation.
 - [ ] **DEV-02 Second-machine smoothness** — Tooling slice landed; second-host bootstrap run still open (owner-only, outside M6). [Brief](docs/tasks/DEV-02.md); [evidence](docs/test-evidence/M5.md#dev-02--second-machine-smoothness-tooling-slice).
 
-- [ ] **M6-02 Persistence interruption and restart hardening** — Bounded Linux hardening recorded; R1 matched comparison passed 8/8, original Save As/IME failures remain open. [Brief](docs/tasks/M6-02.md), [R1](docs/tasks/M6-02-R1.md), [outcome/proposed R2](docs/test-evidence/M6-02-R1.md), [historical evidence](docs/test-evidence/M6.md#m6-02--persistence-interruption-and-operation-investigation). C1/F2 retained.
+- [ ] **M6-02 Persistence interruption and restart hardening** — Bounded Linux hardening and R1/R2 diagnostics recorded; original Save As/IME failures remain open. [Brief](docs/tasks/M6-02.md), [R1](docs/test-evidence/M6-02-R1.md), [R2/outcome/proposed R3](docs/test-evidence/M6-02-R2.md), [historical evidence](docs/test-evidence/M6.md#m6-02--persistence-interruption-and-operation-investigation). C1/F2 retained.
 - [ ] **M6-03 Independent snapshot and retention workflow** — Deps: M6-02; platform/authorization gate P. [Brief](docs/tasks/M6-03.md).
 - [ ] **M6-04 Configured external backup destination** — Deps: M6-03; platform/authorization gate P. [Brief](docs/tasks/M6-04.md).
 - [ ] **M6-05 Bounded native history inspection and selection** — Deps: M6-02/04; platform/authorization gate P. [Brief](docs/tasks/M6-05.md).
@@ -45,7 +45,7 @@ M6-02 needs the M6-01 review artifact; an unresolved C1/F2 release gate may rema
 while independent safety work proceeds. M6-12 requires a measured scope addendum
 before correction; M6-13 needs new bounded briefs for missing target adapters.
 M6-02-R1's **bounded attempt is complete, operation disposition unresolved**.
-Its proposed narrower diagnostic slice is unselected; task selection lives only in
+Its [R2 diagnostic slice](docs/tasks/M6-02-R2.md) is complete; proposed R3 is unselected. Task selection lives only in
 [current-state Next action](docs/current-state.md#next-action). Its stop before
 M6-03 and Local v1 admission remains binding when selected.
 

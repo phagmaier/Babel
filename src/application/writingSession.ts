@@ -480,6 +480,9 @@ export class WritingSession {
           source,
           selection,
           snapshot.draftMetadata,
+          (step) => {
+            stage = `fresh-session adoption / ${step}`;
+          },
         );
         stage = 'original-registration release';
         await this.ports.documents.release(state.identity);
@@ -785,11 +788,15 @@ export class WritingSession {
     source?: readonly number[],
     selection: SessionSelection | null = null,
     draftMetadata?: JsonValue,
+    adoptionStage: (stage: string) => void = () => undefined,
   ): Promise<void> {
     if (this.disposed) {
       await this.ports.documents.release(opened.identity);
       return;
     }
+    // Private Save As error context only; opening and all guards/receipts keep
+    // their existing behavior. Priming below does not checkpoint the new identity.
+    adoptionStage('controller initialization');
     const controller = new Controller(opened, this.ports.documents);
     const cadence = new SaveCadence(
       controller,
@@ -840,6 +847,7 @@ export class WritingSession {
     if (this.ports.recovery) {
       let entry: import('./startupRecovery').RecoveryEntry;
       try {
+        adoptionStage('recovery inspect');
         entry = await this.ports.recovery.inspect(opened.identity);
       } catch (error) {
         try {
@@ -849,6 +857,7 @@ export class WritingSession {
         }
         throw error;
       }
+      adoptionStage('recovery identity');
       if (entry.documentId !== opened.identity.documentId) {
         try {
           await this.ports.documents.release(opened.identity);
@@ -870,19 +879,28 @@ export class WritingSession {
       return;
     }
     try {
+      adoptionStage('metadata verification');
+      const metadata = await verifiedEditorMetadata(
+        source ?? opened.source,
+        draftMetadata,
+      );
+      adoptionStage('editor load');
       this.editor.loadInitial(
         source ?? opened.source,
         selection,
         opened.ownership.status === 'exclusive' && opened.encoding === 'utf8',
         initialVersion,
-        await verifiedEditorMetadata(source ?? opened.source, draftMetadata),
+        metadata,
       );
+      adoptionStage('editor capture');
       const initial = await this.editor.capture();
       if (this.disposed) {
         await this.ports.documents.release(opened.identity);
         return;
       }
+      adoptionStage('controller captured-version initialization');
       controller.changed(initial);
+      adoptionStage('cadence prime');
       cadence.prime(initial);
     } catch (error) {
       try {
