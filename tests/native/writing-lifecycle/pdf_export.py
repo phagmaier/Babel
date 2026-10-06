@@ -127,18 +127,29 @@ def run(d):
     exported = subprocess.check_output(['pdftotext',str(pdf),'-'],text=True)
     assert 'The end.' in exported and 'OLD SCENE' not in exported and 'was better' not in exported
     d.click('Save',actions=True);d.audit(file,manuscript);d.close_session()
-    # A helper warning the check did not report stops the export before any
-    # PDF is written. The only natural trigger is an open finding: the renderer
-    # takes this indented opening line as an unknown title field and drops it
-    # while the check is clean. Update this step when the check reports it.
-    file = d.ROOT/'files/unannounced.fountain';manuscript = b' FADE IN: [[cold open]]\n\nINT. ROOM - DAY\n\nA lamp glows.\n'
-    file.write_bytes(manuscript);d.click('Open Fountain',actions=True);d.picker(file);direct()
-    pdf=d.ROOT/'files/unannounced.pdf';d.picker(pdf)
-    d.wait(lambda: 'needs attention' in panel(), 'Unannounced helper warning stops export', timeout=90)
-    assert 'reported leaving out unknown title page fields, which the export check did not report. No PDF was written' in panel(), panel()
-    assert 'Exported' not in panel() and not pdf.exists() and not list((d.ROOT/'files').glob('unannounced*.pdf'))
-    d.screenshot('export-unannounced-stop')
-    d.click('Save',actions=True);d.audit(file,manuscript);d.close_session()
+    # AUDIT-D04-R5: each retained omission is a located limitation before the
+    # destination picker. Cancelling is safe; acknowledgement exports only the
+    # captured version, with the actual omission visible in independent text.
+    for name,manuscript,line in [
+        ('note-title', b' FADE IN: [[cold open]]\n\nINT. ROOM - DAY\n\nA lamp glows.\n', 1),
+        ('indented-title', b'Title: A Story\n Draft date: 1\n\nA lamp glows.\n', 2),
+        ('boneyard-title', b'Title: A /* hidden */ Story\n Draft date: 1\n\nA lamp glows.\n', 2),
+    ]:
+        file=d.ROOT/'files'/f'{name}.fountain';file.write_bytes(manuscript)
+        d.click('Open Fountain',actions=True);d.picker(file);review()
+        assert 'SC005' in panel() and 'title' in panel(), panel()
+        assert f'line {line}' in panel(), panel()
+        assert not d.script("return document.querySelector('.export-pdf-panel input').checked;")
+        assert d.script("return [...document.querySelectorAll('.export-pdf-panel button')].find(b=>b.textContent==='Choose PDF destination').disabled;")
+        pdf=d.ROOT/'files'/f'{name}.pdf';assert not pdf.exists()
+        d.screenshot('export-'+name+'-located-review')
+        d.click('Cancel export');ready();assert not pdf.exists()
+        review();acknowledge();d.click('Choose PDF destination');d.picker(pdf)
+        success(name+'.pdf')
+        exported=subprocess.check_output(['pdftotext',str(pdf),'-'],text=True)
+        assert 'A lamp glows.' in exported and 'FADE IN:' not in exported and 'Draft date:' not in exported
+        assert 'cold open' not in exported and 'hidden' not in exported
+        d.click('Save',actions=True);d.audit(file,manuscript);d.close_session()
     for name,manuscript,code,should_render in [('dropped',b'INT. ROOM - DAY\n\nA lamp glows.\n\n#1 DAD mug sits on the desk.\n','SC005',True),('glyphs','INT. ROOM - DAY\n\nA lamp 😀 glows.\n'.encode(),'SC008',False)]:
         file = d.ROOT/'files'/f'{name}.fountain';file.write_bytes(manuscript)
         d.click('Open Fountain',actions=True);d.picker(file);review()
@@ -160,4 +171,4 @@ def run(d):
         d.click('Save',actions=True);d.audit(file,manuscript);d.close_session()
     d.script('window.__TAURI_INTERNALS__.callbacks.set=window.exportOriginalSet;')
     (d.ROOT/'pdf-export.json').write_text(json.dumps(report,indent=2)+'\n')
-    print('PASS native PDF export direct capture/GTK cancel/replacement/protected-path/failure/omission summary/nested hidden text/unannounced warning stop/gated review+cancel/glyph refusal/source isolation',flush=True)
+    print('PASS native PDF export direct capture/GTK cancel/replacement/protected-path/failure/omission summary/nested hidden text/located title omissions/gated review+cancel/glyph refusal/source isolation',flush=True)

@@ -68,8 +68,13 @@ from unit/UI discovery and runs in CI. A missing baseline/helper is a failure.
   combinations; an independent replay pins the corpus bytes. This wider set
   exposes existing refusals and reading/warning gaps. Their
   [reviewed inventory](../tests/differential/mixed-findings.json) pins exact
-  ordered source/outcome sets by count and hash, with literal R4 corrections;
-  it retains failures, not publication acceptance. No new reading regression,
+  ordered source/outcome sets by count and hash, with literal R4 corrections.
+  R5 requires full pinned agreement for the exact former 398 title-reading
+  mismatches and zero remaining title-warning gaps; their previous hashes stay
+  recorded. Independent raw-source classification and retained PDFs support
+  this scoped correction. Six marker disagreements, three marker-warning gaps
+  and 634 preparation refusals remain retained failures, not publication
+  acceptance. No new reading regression,
   clean disagreement, unknown warning or warning refusal is allowed. Every
   existing mismatch must retain the frozen facts. Fixes require independent
   literal evidence and a scoped inventory update; do not regenerate for green.

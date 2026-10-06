@@ -3144,6 +3144,254 @@
           ]
         ]
       ]
+    },
+    {
+      "name": "R5: note-only indented opening key",
+      "source": " FADE IN: [[cold open]]\n\nINT. ROOM - DAY\n\nA lamp glows.\n",
+      "prints": [
+        "INT. ROOM - DAY",
+        "A lamp glows."
+      ],
+      "omits": [
+        "FADE IN:",
+        "cold open"
+      ],
+      "clean": false,
+      "blockingLines": [
+        0
+      ],
+      "omissions": {
+        "notes": 1,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      },
+      "paragraphs": [
+        [
+          "Slug",
+          "INT. ROOM - DAY"
+        ],
+        [
+          "Action",
+          [
+            "A lamp glows."
+          ]
+        ]
+      ],
+      "title": [
+        " fade in"
+      ]
+    },
+    {
+      "name": "R5: slightly indented unknown title key",
+      "source": "Title: A Story\n Draft date: 1\n\nA lamp glows.\n",
+      "prints": [
+        "A Story",
+        "A lamp glows."
+      ],
+      "omits": [
+        "Draft date:",
+        "1"
+      ],
+      "clean": false,
+      "blockingLines": [
+        1
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      },
+      "paragraphs": [
+        [
+          "Action",
+          [
+            "A lamp glows."
+          ]
+        ]
+      ],
+      "title": [
+        "Title",
+        " draft date"
+      ]
+    },
+    {
+      "name": "R5: slightly indented unknown key beside title boneyard",
+      "source": "Title: A /* hidden */ Story\n Draft date: 1\n\nA lamp glows.\n",
+      "prints": [
+        "A Story",
+        "A lamp glows."
+      ],
+      "omits": [
+        "hidden",
+        "Draft date:",
+        "1"
+      ],
+      "clean": false,
+      "blockingLines": [
+        0,
+        1
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      },
+      "paragraphs": [
+        [
+          "Action",
+          [
+            "A lamp glows."
+          ]
+        ]
+      ],
+      "title": [
+        "Title",
+        " draft date"
+      ]
+    },
+    {
+      "name": "R5: empty indented key owns its values only",
+      "source": "Title: A\n Sub:\n    secret value\nAuthor: Sam\n\nA lamp glows.\n",
+      "prints": [
+        "A",
+        "Sam",
+        "A lamp glows."
+      ],
+      "omits": [
+        "Sub:",
+        "secret value"
+      ],
+      "clean": false,
+      "blockingLines": [
+        1,
+        2
+      ],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      },
+      "paragraphs": [
+        [
+          "Action",
+          [
+            "A lamp glows."
+          ]
+        ]
+      ],
+      "title": [
+        "Title",
+        " sub",
+        "Author"
+      ]
+    },
+    {
+      "name": "R5: note-free opening key prints",
+      "source": " FADE IN:\n\nINT. ROOM - DAY\n\nA lamp glows.\n",
+      "prints": [
+        "FADE IN:",
+        "INT. ROOM - DAY",
+        "A lamp glows."
+      ],
+      "omits": [],
+      "clean": true,
+      "blockingLines": [],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      },
+      "paragraphs": [
+        [
+          "Action",
+          [
+            " FADE IN:"
+          ]
+        ],
+        [
+          "Slug",
+          "INT. ROOM - DAY"
+        ],
+        [
+          "Action",
+          [
+            "A lamp glows."
+          ]
+        ]
+      ]
+    },
+    {
+      "name": "R5: known title note value prints literally",
+      "source": "Title: [[cold open]]\n\nINT. ROOM - DAY\n\nA lamp glows.\n",
+      "prints": [
+        "[[cold open]]",
+        "INT. ROOM - DAY",
+        "A lamp glows."
+      ],
+      "omits": [],
+      "clean": true,
+      "blockingLines": [],
+      "omissions": {
+        "notes": 0,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      },
+      "paragraphs": [
+        [
+          "Slug",
+          "INT. ROOM - DAY"
+        ],
+        [
+          "Action",
+          [
+            "A lamp glows."
+          ]
+        ]
+      ],
+      "title": [
+        "Title"
+      ]
+    },
+    {
+      "name": "R5: note-only key does not consume a non-key continuation",
+      "source": " Key: [[v]]\n    continuation\n\nA lamp glows.\n",
+      "prints": [
+        "Key:",
+        "continuation",
+        "A lamp glows."
+      ],
+      "omits": [
+        "[[v]]"
+      ],
+      "clean": true,
+      "blockingLines": [],
+      "omissions": {
+        "notes": 1,
+        "boneyards": 0,
+        "sections": 0,
+        "synopses": 0
+      },
+      "paragraphs": [
+        [
+          "Action",
+          [
+            " Key:",
+            "    continuation"
+          ]
+        ],
+        [
+          "Action",
+          [
+            "A lamp glows."
+          ]
+        ]
+      ]
     }
   ]
 }

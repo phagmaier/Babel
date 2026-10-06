@@ -129,6 +129,17 @@ an indented `Key: value` line after a valued key where both sides still read a
 title page: the codec shows it as part of that field, the renderer reads a
 separate field and never prints it.
 
+AUDIT-D04-R5 reads the opening title decision before stripping inline notes:
+` FADE IN: [[cold open]]` is a title block that omits the visible key, while a
+note-only key followed by a non-key continuation can remain body text. Separate
+renderer keys are checked even outside codec title-field ranges or beside a
+reported boneyard. Each limitation targets that key and its values, ending
+before the next key; the three retained warning stops now require a located
+SC005 acknowledgement before export. The helper warning comparison is unchanged.
+Section/synopsis limitations use the mirrored role to say when hidden-text
+removal causes an omission rather than printing as text.
+[Evidence](test-evidence/AUDIT.md#audit-d04-r5--located-title-omission-limitations).
+
 AUDIT-D04-R3 replaces case-by-case guessing with a
 [mirror of the pinned parser](../src/domain/rendererReading.ts): boneyards
 removed from the whole text before lines are split, tabs expanded, paragraphs

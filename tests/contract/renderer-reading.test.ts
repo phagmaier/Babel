@@ -1,17 +1,13 @@
 import { readFileSync } from 'node:fs';
 import { expect, it } from 'vitest';
 import { parseFountain } from '../../src/domain/fountainCodec';
-import { assessmentView } from '../../src/domain/exportAssessment';
-import { rendererReading } from '../../src/domain/rendererReading';
+import { assessmentReading } from '../../src/domain/exportAssessment';
 
 // AUDIT-D04-R3. The shared corpus states the pinned renderer's own paragraph
 // classes for these cases, and tools/pdf-helper/test_helper.py checks them
 // against the real parser. The mirror the assessment uses must give the same.
 const read = (source: string) =>
-  rendererReading(
-    assessmentView(parseFountain(new TextEncoder().encode(source))).document
-      .lines,
-  );
+  assessmentReading(parseFountain(new TextEncoder().encode(source)));
 type Stated =
   | ['Slug', string, string?]
   | ['Action' | 'Centered', string[]]

@@ -1,6 +1,6 @@
 {
   "provenance": "Original synthetic cases authored for AUDIT-EXPORT-WARNINGS; no real manuscript.",
-  "purpose": "One hand-authored corpus read by two independent checkers. warnings is the exact set of unsupported-publication categories the pinned helper reports for the source (tests/differential/renderer.test.ts, through tools/differential/warning_oracle.py). announced, review and exports are checked against Babel's export assessment and export use case (tests/contract/export-assessment.test.ts, tests/contract/export-pdf.test.ts): announced is what the author is told about, in the summary line, in a blocking issue, or as hidden-text syntax inside lines already told about; review says whether export stops for an acknowledgement first; exports says whether a PDF may be published once the renderer returns those warnings. Cases named open finding are real omissions the assessment does not yet report: export stops for them, and each needs a located limitation before exports can become true.",
+  "purpose": "One hand-authored corpus read by two independent checkers. warnings is the exact set of unsupported-publication categories the pinned helper reports for the source (tests/differential/renderer.test.ts, through tools/differential/warning_oracle.py). announced, review and exports are checked against Babel's export assessment and export use case (tests/contract/export-assessment.test.ts, tests/contract/export-pdf.test.ts): announced is what the author is told about, in the summary line, in a blocking issue, or as hidden-text syntax inside lines already told about; review says whether export stops for an acknowledgement first; exports says whether a PDF may be published once the renderer returns those warnings. AUDIT-D04-R5 reports the three retained title omissions as located blocking limitations; acknowledgement is required before they can export.",
   "profile": "us-letter-draft-v1",
   "cases": [
     {
@@ -379,40 +379,44 @@
       "exports": true
     },
     {
-      "name": "open finding: indented opening key followed only by a note is dropped unannounced",
+      "name": "R5: indented opening key followed only by a note is omitted with a located limitation",
       "source": " FADE IN: [[cold open]]\n\nINT. ROOM - DAY\n\nA lamp glows.\n",
       "warnings": [
         "notes",
         "unknown-title-fields"
       ],
       "announced": [
-        "notes"
+        "notes",
+        "unknown-title-fields"
       ],
-      "review": false,
-      "exports": false
+      "review": true,
+      "exports": true
     },
     {
-      "name": "open finding: slightly indented key below a title field is dropped unannounced",
+      "name": "R5: slightly indented key below a title field is omitted with a located limitation",
       "source": "Title: A Story\n Draft date: 1\n\nA lamp glows.\n",
       "warnings": [
         "unknown-title-fields"
       ],
-      "announced": [],
+      "announced": [
+        "unknown-title-fields"
+      ],
       "review": true,
-      "exports": false
+      "exports": true
     },
     {
-      "name": "open finding: the same key beside a boneyard in the title field",
+      "name": "R5: the same key beside a boneyard in the title field",
       "source": "Title: A /* hidden */ Story\n Draft date: 1\n\nA lamp glows.\n",
       "warnings": [
         "boneyards",
         "unknown-title-fields"
       ],
       "announced": [
-        "boneyards"
+        "boneyards",
+        "unknown-title-fields"
       ],
       "review": true,
-      "exports": false
+      "exports": true
     }
   ]
 }

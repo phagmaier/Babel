@@ -26,9 +26,9 @@
       "finding": "Pinned prepare rejects every source with unpaired-dual-dialogue; no layout/PDF claim."
     },
     "title-reading": {
-      "count": 398,
-      "sha256": "db6f69c9aa92bf569a5c8a104ccb5540df3aaec0c842fdb66e7184ebfa589183",
-      "finding": "AUDIT-D04-R5 scope: note-only Key value stripped before mirrored reading; title decision differs on frozen and current. Exact instances retained, not fixed."
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "finding": "AUDIT-D04-R5: zero remaining title-source gaps; former sets preserved as corrected or resolved inventories."
     },
     "marker-paragraphs": {
       "count": 6,
@@ -36,9 +36,9 @@
       "finding": "Overlapping note/boneyard markers: six paragraph-count disagreements present on frozen and current; require a separate future brief, not R5 implementation here."
     },
     "unannounced-unknown-title-fields": {
-      "count": 330,
-      "sha256": "96be342595cf26b6db5c298a71028e0ae9f462e3f1b8ca697a33b8fafd032f9f",
-      "finding": "AUDIT-D04-R5 opening note-only key/indented title-field omissions."
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "finding": "AUDIT-D04-R5: zero remaining title-source gaps; former sets preserved as corrected or resolved inventories."
     },
     "unannounced-notes": {
       "count": 2,
@@ -49,6 +49,18 @@
       "count": 1,
       "sha256": "cfd54f036c6c62a257f7520715fe911ef67951c7da348c1726a0bfcbc8cbf594",
       "finding": "Overlapping unclosed markers, already observed in AUDIT-EXPORT-WARNINGS scratch sweep; exact instances retained for separate future scope."
+    },
+    "corrected-title-reading": {
+      "count": 398,
+      "sha256": "db6f69c9aa92bf569a5c8a104ccb5540df3aaec0c842fdb66e7184ebfa589183",
+      "finding": "AUDIT-D04-R5: exact former title-reading inventory now agrees with every pinned title/paragraph fact. Independent note-only opening classification and retained PDFs, including false-title continuation control."
+    }
+  },
+  "resolved": {
+    "unannounced-unknown-title-fields": {
+      "count": 330,
+      "sha256": "96be342595cf26b6db5c298a71028e0ae9f462e3f1b8ca697a33b8fafd032f9f",
+      "finding": "AUDIT-D04-R5: all former 330 title-warning gaps now have located blocking limitations, independently classified and PDF-reviewed. Historical set identity retained; current zero asserted below."
     }
   }
 }

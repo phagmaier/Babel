@@ -7,6 +7,7 @@ import {
   rendererReading,
   rendererSection,
   type RendererParagraph,
+  type RendererReading,
   type RendererRole,
 } from './rendererReading';
 import type {
@@ -235,6 +236,39 @@ export function assessmentView(document: FountainDocument): AssessmentView {
   }
   views.set(document, view);
   return view;
+}
+
+/** The renderer reads its title block before removing notes. The codec view
+ * still reads through inline notes for assessment, but must not turn a
+ * note-only title value into an empty key and body text (AUDIT-D04-R5). */
+export function assessmentReading(source: FountainDocument): RendererReading {
+  const view = assessmentView(source);
+  const reading = rendererReading(view.document.lines);
+  if (!view.stripped.size) return reading;
+  const original = rendererReading(source.lines);
+  const openingEnd = Math.max(
+    original.title?.length ?? 0,
+    reading.title?.length ?? 0,
+  );
+  if (![...view.stripped].some((line) => line < openingEnd)) return reading;
+  // Stripping can also create a title page: an empty key then consumes indented
+  // continuation text that the renderer rejected after a valued note-only key.
+  const openingParagraphs = original.paragraphs.filter(
+    (paragraph) => paragraph.rows[0]! < openingEnd,
+  );
+  const bodyStart = Math.max(
+    openingEnd,
+    ...openingParagraphs.map((paragraph) => paragraph.end + 1),
+  );
+  return {
+    title: original.title,
+    paragraphs: [
+      ...openingParagraphs,
+      ...reading.paragraphs.filter(
+        (paragraph) => paragraph.rows[0]! >= bodyStart,
+      ),
+    ],
+  };
 }
 
 /** Layout-dependent constructs are checked by the same frozen pipeline in memory.
@@ -625,7 +659,7 @@ export function evaluateExportAssessment(
     });
   // Roles come from the renderer's reading; byte targets from the author's source.
   const { document, stripped } = assessmentView(source);
-  const rendered = rendererReading(document.lines);
+  const rendered = assessmentReading(source);
   const roleAt = new Map<number, RendererRole>();
   for (const paragraph of rendered.paragraphs)
     paragraph.rows.forEach((row, index) =>
@@ -778,13 +812,15 @@ export function evaluateExportAssessment(
         omitted.add(line);
         attachable.add(line);
       } else
-        // The renderer may omit it after all, beside a boneyard it deletes or
-        // past a note it skips; a section or synopsis is non-printing either way.
         add(
           'SC005',
-          row.kind === 'section'
-            ? 'The profile would print this section marker as text: start it at the line start with 1–6 # and keep section lines in their own paragraph.'
-            : 'The profile would print this synopsis as text: place it directly after a scene heading or section.',
+          role === 'section'
+            ? 'The profile reads this line as a section heading and omits it after removing hidden text around it.'
+            : role === 'synopsis'
+              ? 'The profile attaches this synopsis to the preceding scene heading or section and omits it after skipping hidden text.'
+              : row.kind === 'section'
+                ? 'The profile would print this section marker as text: start it at the line start with 1–6 # and keep section lines in their own paragraph.'
+                : 'The profile would print this synopsis as text: place it directly after a scene heading or section.',
           line,
           line,
           [summarised[row.kind]],
@@ -841,8 +877,9 @@ export function evaluateExportAssessment(
   // own line ends its block early (AUDIT-D04-R3), or leaves whitespace the
   // renderer reads as a value and so joins a title block the codec does not
   // see (AUDIT-D04-R4). A boneyard the renderer removes from a title field is
-  // reported above, and only then are the field comparisons skipped. A missing
-  // separator is reported below.
+  // reported above, and only then is the title-versus-body comparison skipped.
+  // Separate renderer keys are checked regardless; a missing separator is
+  // reported below.
   const codecTitle = titleEnd ? titleEnd.from + titleEnd.count : 0;
   const rendererTitle = rendered.title;
   const openingEnd = Math.max(codecTitle, rendererTitle?.length ?? 0);
@@ -865,23 +902,25 @@ export function evaluateExportAssessment(
         0,
         codecTitle - 1,
       );
-    else if (rendererTitle)
-      // After a valued key the renderer reads every line as a key, so an
-      // indented `Key: value` there is a separate field it never prints.
-      for (const field of document.titleFields) {
-        const end = field.from + field.count - 1;
-        for (let at = field.from + 1; at <= end; at++)
-          if (rendererTitle.keys.has(at)) {
-            add(
-              'SC005',
-              `The profile reads this indented line as a separate title field, not as part of “${field.key}”, and would not print it.`,
-              at,
-              end,
-              ['unknown-title-fields'],
-            );
-            break;
-          }
-      }
+  }
+  if (rendererTitle && codecTitle) {
+    // A separate renderer key can lie outside the codec's title fields, and a
+    // reported boneyard in another field does not account for its omission.
+    const keys = [...rendererTitle.keys];
+    for (const [index, at] of keys.entries()) {
+      if (document.titleFields.some((field) => field.from === at)) continue;
+      const key = document.lines[at]!.sourceText.split(':')[0]!.toLowerCase();
+      const unknown = !titleKeys.has(key);
+      add(
+        'SC005',
+        unknown
+          ? 'The profile reads this line as a separate title field with an unknown key and would not print it or its values.'
+          : 'The profile reads this line as a separate title field and would print its value on the title page.',
+        at,
+        (keys[index + 1] ?? rendererTitle.length) - 1,
+        unknown ? ['unknown-title-fields'] : [],
+      );
+    }
   }
   if (titleEnd) {
     const next = document.lines[titleEnd.from + titleEnd.count];

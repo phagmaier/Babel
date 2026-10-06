@@ -688,6 +688,74 @@ const warningCorpus = JSON.parse(
     exports: boolean;
   }[];
 };
+it.each([
+  [
+    ' FADE IN: [[cold open]]\n\nA lamp glows.\n',
+    0,
+    0,
+    'opening block as a title page',
+  ],
+  [
+    'Title: A Story\n Draft date: 1\n\nA lamp glows.\n',
+    1,
+    1,
+    'would not print',
+  ],
+  [
+    'Title: A /* hidden */ Story\n Draft date: 1\n\nA lamp glows.\n',
+    1,
+    1,
+    'would not print',
+  ],
+  [
+    'Title: A\n Sub:\n    secret value\nAuthor: Sam\n\nA lamp glows.\n',
+    1,
+    2,
+    'would not print',
+  ],
+] as const)(
+  'R5 locates omitted title text without changing BOM/CRLF source: %s',
+  (text, line, endLine, message) => {
+    const doc = parse('\ufeff' + text.replaceAll('\n', '\r\n'));
+    const before = Array.from(serializeFountain(doc));
+    const result = evaluateExportAssessment(doc, context);
+    if (result.status !== 'verified') throw new Error('unavailable');
+    expect(result.issues).toContainEqual(
+      expect.objectContaining({
+        code: 'SC005',
+        severity: 'blocking',
+        line,
+        endLine,
+        sourceStart: doc.lines[line]!.sourceStart,
+        sourceEnd: doc.lines[endLine]!.contentEnd,
+        message: expect.stringContaining(message),
+        hasFix: false,
+      }),
+    );
+    expect(result.announced).toContain('unknown-title-fields');
+    expect(Array.from(serializeFountain(doc))).toEqual(before);
+  },
+);
+it.each([
+  ['A lamp glows.\n\n# Act One\n/* old */\n\nThe end.\n', 2, 'section heading'],
+  [
+    'INT. ROOM - DAY\n\n[[fix this scene]]\n\n= They argue.\n\nA lamp glows.\n',
+    4,
+    'synopsis',
+  ],
+] as const)('R5 describes an actually omitted %s', (source, line, kind) => {
+  const result = assess(source);
+  if (result.status !== 'verified') throw new Error('unavailable');
+  const issue = result.issues.find((entry) => entry.line === line);
+  expect(issue).toMatchObject({
+    code: 'SC005',
+    severity: 'blocking',
+    endLine: line,
+  });
+  expect(issue!.message).toContain(kind);
+  expect(issue!.message).toContain('omit');
+  expect(issue!.message).not.toContain('would print');
+});
 it.each(warningCorpus.cases)(
   'AUDIT-EXPORT-WARNINGS announced: $name',
   ({ source, warnings, announced, review, exports }) => {

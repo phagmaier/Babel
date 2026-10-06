@@ -7,10 +7,7 @@ import * as baseAssessment from '@baseline/domain/exportAssessment';
 import * as assessment from '../../src/domain/exportAssessment';
 import { parseFountain } from '../../src/domain/fountainCodec';
 import type { FountainDocument } from '../../src/domain/fountainModel';
-import {
-  rendererReading,
-  type RendererReading,
-} from '../../src/domain/rendererReading';
+import type { RendererReading } from '../../src/domain/rendererReading';
 
 function facts(reading: RendererReading) {
   return {
@@ -161,7 +158,7 @@ it('shared corpus and 70,000 generated sources introduce no pinned-parser readin
     const oldView = baseAssessment.assessmentView(oldDoc).document;
     const nowView = assessment.assessmentView(nowDoc).document;
     const oldReading = baselineReading(oldView.lines);
-    const nowReading = rendererReading(nowView.lines);
+    const nowReading = assessment.assessmentReading(nowDoc);
     const old = facts(oldReading);
     const now = facts(nowReading);
     const context = {

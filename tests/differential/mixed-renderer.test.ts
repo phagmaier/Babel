@@ -8,10 +8,7 @@ import * as baseAssessment from '@baseline/domain/exportAssessment';
 import * as assessment from '../../src/domain/exportAssessment';
 import { parseFountain } from '../../src/domain/fountainCodec';
 import type { FountainDocument } from '../../src/domain/fountainModel';
-import {
-  rendererReading,
-  type RendererReading,
-} from '../../src/domain/rendererReading';
+import type { RendererReading } from '../../src/domain/rendererReading';
 import { mixedCorpus, mixedSeed } from './generated-corpus';
 
 // Frozen runs in renderer.test.ts stay intact. Both supplemental gates consume
@@ -145,6 +142,7 @@ it('70,000 mixed sources retain identified parser limits without introducing rea
     old: ReturnType<typeof facts>;
   }[] = [];
   const regressions: unknown[] = [];
+  const titleCorrections: { source: string; pinned: unknown }[] = [];
   const newCleanDisagreements: string[] = [];
   const admissionChanges: string[] = [];
   const baselineRoleOccurrences: unknown[] = [];
@@ -160,7 +158,7 @@ it('70,000 mixed sources retain identified parser limits without introducing rea
     const oldView = baseAssessment.assessmentView(oldDoc).document;
     const nowView = assessment.assessmentView(nowDoc).document;
     const oldReading = baselineReading(oldView.lines);
-    const nowReading = rendererReading(nowView.lines);
+    const nowReading = assessment.assessmentReading(nowDoc);
     const old = facts(oldReading);
     const now = facts(nowReading);
     const oldCheck = baseAssessment.evaluateExportAssessment(oldDoc, context);
@@ -170,6 +168,10 @@ it('70,000 mixed sources retain identified parser limits without introducing rea
       !check.issues.some((issue) => issue.severity === 'blocking');
     const oldMatches = JSON.stringify(old) === JSON.stringify(pinned);
     const nowMatches = JSON.stringify(now) === JSON.stringify(pinned);
+    if (!oldMatches && nowMatches) {
+      expect(old.title, source).not.toBe(pinned.title);
+      titleCorrections.push({ source, pinned });
+    }
     if (!nowMatches) disagreements.push({ source, pinned, now, old });
     if (oldMatches && !nowMatches) regressions.push(source);
     if (clean(oldCheck) && oldMatches && !clean(nowCheck))
@@ -185,12 +187,16 @@ it('70,000 mixed sources retain identified parser limits without introducing rea
   report('.mixed-renderer.json', {
     refused,
     disagreements,
+    titleCorrections,
     regressions,
     newCleanDisagreements,
     admissionChanges,
     baselineRoleOccurrences,
   });
   retained('unpaired-dual', refused);
+  // R5 corrects the exact 398 previously retained title-source outcomes. This
+  // keeps their old source/oracle hash while requiring full current agreement.
+  retained('corrected-title-reading', titleCorrections);
   // Every discovered disagreement also exists on the untouched control.
   // Compare every fact, not merely the number of disagreements.
   for (const entry of disagreements)
