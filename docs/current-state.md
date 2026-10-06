@@ -9,7 +9,7 @@ verified as a FUSE/desktop install.
 
 Agents make every decision; the owner is never a blocker
 ([ADR 0043](decisions/0043-agent-decision-authority.md)). Work on the assigned
-branch (default `main`). Session work below is on `claude/youthful-bell-qemsy4`.
+branch (default `main`). Session work below is merged to `main`.
 
 ## This session
 
