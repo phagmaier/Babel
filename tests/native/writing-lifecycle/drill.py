@@ -369,6 +369,9 @@ try:
     run_status_close(sys.modules[__name__])
     click('New screenplay', actions=True)
     wait(lambda: 'Protect draft' in body(), 'New draft opens')
+    # New screenplays start on a Scene Heading row; this drill writes Action (Mod+2).
+    script("document.querySelector('.ProseMirror').focus();")
+    command('POST', '/actions', {'actions': [{'type': 'key', 'id': 'writing-keyboard', 'actions': [{'type': 'keyDown', 'value': '\ue009'}, {'type': 'keyDown', 'value': '2'}, {'type': 'keyUp', 'value': '2'}, {'type': 'keyUp', 'value': '\ue009'}]}]})
     type_text('Mist curls.')
     wait(lambda: editor_text() == 'Mist curls.', 'New text visible')
     click('Protect draft', actions=True)

@@ -44,13 +44,14 @@ def run(d):
             {'type': 'keyDown', 'value': CTRL}, {'type': 'keyDown', 'value': key},
             {'type': 'keyUp', 'value': key}, {'type': 'keyUp', 'value': CTRL}]}]})
 
-    def enter(accepts=None):
-        """One Enter. `accepts` is the suggestion that must be selected, which
-        this Enter then accepts (S07.6); otherwise no suggestion may be open."""
-        if accepts is None:
+    def enter(identical=None):
+        """One Enter. `identical` is the selected suggestion that equals the
+        typed segment; it is no acceptance, so this Enter runs the S07.2 table
+        (S07.6). Otherwise no suggestion may be open."""
+        if identical is None:
             assert settled() is None, ('unexpected suggestions before Enter', suggestions(), rows()[-1:])
         else:
-            d.wait(lambda: (suggestions() or [None])[0] == accepts, f'Suggestion {accepts} selected before Enter')
+            d.wait(lambda: (suggestions() or [None])[0] == identical, f'Suggestion {identical} selected before Enter')
             consumed.append(rows()[-1])
         d.type_text(ENTER)
 
@@ -75,8 +76,7 @@ def run(d):
 
     chord('1')
     d.type_text('INT. KITCHEN - DAY')
-    enter(accepts='DAY')
-    enter()
+    enter(identical='DAY')
     d.type_text('Maya enters.')
     enter()
     tab()
@@ -110,8 +110,7 @@ def run(d):
     d.type_text(TAB)
     last_kind('sceneHeading', 'Second Tab reaches Scene Heading')
     d.type_text('EXT. GARDEN - NIGHT')
-    enter(accepts='NIGHT')
-    enter()
+    enter(identical='NIGHT')
     chord('7')
     d.type_text('CLOSE ON the gate.')
     enter()
@@ -202,7 +201,7 @@ def run(d):
     d.click('Save', actions=True)
     d.audit(target, source)
     d.close_session()
-    report = {'rows': len(typed), 'acceptedSuggestions': consumed, 'sourceSha256': hashlib.sha256(source).hexdigest(),
+    report = {'rows': len(typed), 'identicalSuggestions': consumed, 'sourceSha256': hashlib.sha256(source).hexdigest(),
               'pages': count, 'receipt': receipt}
     (d.ROOT / 'typed-export.json').write_text(json.dumps(report, indent=2) + '\n')
     print('PASS native typed scene from empty: rows/dual pairing/S07.6 suggestions/saved bytes equal fixture/direct export/pdftotext pages and omissions', flush=True)

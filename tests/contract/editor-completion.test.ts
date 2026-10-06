@@ -7,6 +7,7 @@ import {
 } from '../../src/domain/completion';
 import {
   acceptEditorCompletion,
+  completionChangesText,
   indexEditorCompletion,
   offerEditorCompletion,
 } from '../../src/editor/completion';
@@ -185,6 +186,21 @@ describe('completion source/caret/undo and segment boundaries', () => {
     expect(
       offerEditorCompletion(state, indexEditorCompletion(state))?.items[0],
     ).toBe('NIGHT');
+  });
+  it('an identical suggestion is no acceptance; case, completion and prefix spacing are (S07.6)', () => {
+    const changes = (source: string) => {
+      const state = stateFor(source, 1);
+      const offer = offerEditorCompletion(state, indexEditorCompletion(state))!;
+      return [offer.items[0], completionChangesText(state, offer, 0)];
+    };
+    // Enter/Tab keep their normal job when acceptance would change nothing.
+    expect(changes('\n.EXT. LAB - NIGHT\n')).toEqual(['NIGHT', false]);
+    expect(changes('\n.EXT. LAB - night\n')).toEqual(['NIGHT', true]);
+    expect(changes('\n.EXT. LAB - NI\n')).toEqual(['NIGHT', true]);
+    expect(changes('\n.INT.\n')).toEqual(['INT.', true]);
+    const state = stateFor('\n.EXT. LAB - NIGHT\n', 1);
+    const offer = offerEditorCompletion(state, indexEditorCompletion(state))!;
+    expect(completionChangesText(state, offer, offer.items.length)).toBe(false);
   });
   it('indexes current EditorState edits and undo, not immutable original source', () => {
     let state = stateFor('\n@MAYA\nHi.\n\n@M\n', 1);

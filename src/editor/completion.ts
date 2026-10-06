@@ -164,10 +164,7 @@ export function acceptEditorCompletion(
     offer.to > state.selection.$from.end()
   )
     return null;
-  const suffix =
-    offer.segment === 'prefix' && offer.to === state.selection.$from.end()
-      ? ' '
-      : '';
+  const suffix = acceptedSuffix(state, offer);
   const tr = closeHistory(state.tr).insertText(
     value + suffix,
     offer.from,
@@ -175,6 +172,29 @@ export function acceptEditorCompletion(
   );
   return tr.setSelection(
     TextSelection.create(tr.doc, offer.from + value.length + suffix.length),
+  );
+}
+
+function acceptedSuffix(state: EditorState, offer: CompletionOffer): string {
+  return offer.segment === 'prefix' && offer.to === state.selection.$from.end()
+    ? ' '
+    : '';
+}
+
+/**
+ * Whether accepting `selected` would change the row. A suggestion identical to
+ * the typed segment is no acceptance: Enter/Tab keep their normal job (S07.6).
+ */
+export function completionChangesText(
+  state: EditorState,
+  offer: CompletionOffer,
+  selected: number,
+): boolean {
+  const value = offer.items[selected];
+  if (value === undefined) return false;
+  return (
+    state.doc.textBetween(offer.from, offer.to) !==
+    value + acceptedSuffix(state, offer)
   );
 }
 
@@ -310,7 +330,13 @@ export class LocalCompletion {
       this.render(this);
       return true;
     }
-    if (event.key === 'Enter' || event.key === 'Tab') return this.accept();
+    if (event.key === 'Enter' || event.key === 'Tab') {
+      if (!completionChangesText(view.state, this.offer, this.selected)) {
+        this.dismiss();
+        return false;
+      }
+      return this.accept();
+    }
     return false;
   }
   destroy() {

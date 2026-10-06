@@ -453,12 +453,13 @@ describe('production sole editor/source boundary (pure contract, no native I/O)'
     expect(Object.isFrozen(copy.rows[2]!.runs[0]!.styles)).toBe(true);
   });
 
-  it('empty source is a recovery-only virtual placeholder; first typing becomes portable LF action and undo restores zero bytes', () => {
+  // A new screenplay starts on a Scene Heading row (PILOT-2026-10-06).
+  it('empty source is a recovery-only virtual placeholder; first typing becomes a portable LF scene heading and undo restores zero bytes', () => {
     let state = createEditorState(bytes(''));
     const id = state.doc.firstChild!.attrs.id;
     expect(captureEditor(state).source.length).toBe(0);
     state = applyEditorTransaction(state, state.tr.insertText('A bell.')).state;
-    expect(decode(captureEditor(state).source)).toBe('!A bell.\n');
+    expect(decode(captureEditor(state).source)).toBe('.A bell.\n');
     expect(captureEditor(state).document.lines[0]!.id).toBe(id);
     expect(state.doc.firstChild!.attrs.id).toBe(id);
     state = command(state, undo);
@@ -469,7 +470,7 @@ describe('production sole editor/source boundary (pure contract, no native I/O)'
     let state = createEditorState(bytes('\ufeff'));
     expect(captureEditor(state).selection!.head.byteOffset).toBe(3);
     state = applyEditorTransaction(state, state.tr.insertText('A bell.')).state;
-    expect(decode(captureEditor(state).source)).toBe('\ufeff!A bell.\n');
+    expect(decode(captureEditor(state).source)).toBe('\ufeff.A bell.\n');
     state = command(state, undo);
     expect(Array.from(captureEditor(state).source)).toEqual([239, 187, 191]);
     expect(captureEditor(state).selection!.head.byteOffset).toBe(3);

@@ -75,11 +75,9 @@ afterEach(() => vi.restoreAllMocks());
 
 describe('AUDIT-D01 portable paragraph and speech authoring', () => {
   it('types the single-Enter scene from empty with literal separators and no blocking assessment', () => {
+    // A new screenplay starts on a Scene Heading row (PILOT-2026-10-06).
     let state = createEditorState(bytes(''));
-    state = applyEditorTransaction(
-      state,
-      convertEditorSelection(state, 'sceneHeading').transaction!,
-    ).state;
+    expect(state.doc.child(0).type.name).toBe('sceneHeading');
     state = type(state, 'INT. KITCHEN - DAY');
     state = key(state, 'Enter');
     state = type(state, 'Maya enters.');

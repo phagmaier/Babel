@@ -301,7 +301,9 @@ export function createEditorState(
   });
   if (!nodes.length)
     nodes.push(
-      screenplaySchema.nodes[source.readOnlyReason ? 'raw' : 'action']!.create(
+      screenplaySchema.nodes[
+        source.readOnlyReason ? 'raw' : 'sceneHeading'
+      ]!.create(
         {
           id: `b${source.recovery.nextId}`,
           sourceIndex: -1,

@@ -308,6 +308,9 @@ def audit_fixes(d):
 
     d.click('New screenplay', actions=True)
     d.wait(lambda: 'Protect draft' in d.body(), 'Recoverable unsaved draft')
+    # New screenplays start on a Scene Heading row; this drill writes Action (Mod+2).
+    d.script("document.querySelector('.ProseMirror').focus();")
+    d.command('POST', '/actions', {'actions': [{'type': 'key', 'id': 'writing-keyboard', 'actions': [{'type': 'keyDown', 'value': '\ue009'}, {'type': 'keyDown', 'value': '2'}, {'type': 'keyUp', 'value': '2'}, {'type': 'keyUp', 'value': '\ue009'}]}]})
     d.type_text('Unsaved checkpoint survives.')
     d.click('Protect draft', actions=True)
     expected = b'!Unsaved checkpoint survives.\n'

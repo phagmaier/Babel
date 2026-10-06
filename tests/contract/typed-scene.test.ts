@@ -130,7 +130,8 @@ describe('AUDIT-D07 typed-scene oracle (mounted editor, JSDOM)', () => {
   it('types every S07.2 row from an empty document into the shared fixture bytes', () => {
     press('1', { ctrlKey: true });
     type('INT. KITCHEN - DAY');
-    enter(); // accepts the identical DAY suggestion
+    // The identical DAY suggestion is no acceptance: one Enter ends the
+    // heading (S07.6, PILOT-2026-10-06).
     enter();
     type('Maya enters.');
     enter();
@@ -157,7 +158,8 @@ describe('AUDIT-D07 typed-scene oracle (mounted editor, JSDOM)', () => {
     press('Escape');
     press('Tab');
     type('EXT. GARDEN - NIGHT');
-    enter(); // accepts the identical NIGHT suggestion
+    // The identical NIGHT suggestion is no acceptance: one Enter ends the
+    // heading (S07.6, PILOT-2026-10-06).
     enter();
     press('7', { ctrlKey: true });
     type('CLOSE ON the gate.');

@@ -54,6 +54,11 @@ rewritten; `docs/tasks` keeps only open briefs. Historical evidence keeps its
 recorded paths; only links changed. `docs/index.md` stub deleted.
 `check:links` (1941 links) and `check:guidance` pass.
 
+**NEW-SCRIPT-FLOW.** New screenplays start on a Scene Heading row; an
+autocomplete suggestion identical to the typed text no longer swallows Enter
+(SPEC 1.3 S07.6). A natural-keystroke scene types correctly in the package.
+[Evidence](test-evidence/PILOT-2026-10-06.md#new-screenplay-and-identical-suggestions-finding-3-plus-a-new-finding).
+
 **HOME-RECOVERY.** Finding 2 fixed: each recovered draft offers one "Open
 latest version" action with checkpoint details de-emphasized.
 [Evidence](test-evidence/PILOT-2026-10-06.md#home-recovery-finding-2-addressed).
@@ -90,18 +95,17 @@ the alert is the clearer writer experience. Do not reopen without new evidence.
 
 Take the first unblocked item; if blocked, note why and take the next.
 
-1. **New screenplay starts with a Scene Heading row** (finding 3).
-2. **M6-14 remainder**: FUSE/desktop install, packaged PDF export and
+1. **M6-14 remainder**: FUSE/desktop install, packaged PDF export and
    spellcheck, locked-dependency audit. [Brief](tasks/M6-14.md).
-3. **M6-16 pilot remainder**: the S15.5 steps not yet exercised (PDF export,
+2. **M6-16 pilot remainder**: the S15.5 steps not yet exercised (PDF export,
    find/replace, scene moves, title page, external change, backup restore),
    driven with `tools/xdrive.py`; then replace the README "do not use" warning.
-4. **M6-03 remainder**: snapshot panel/restore/copy drill. [Brief](tasks/M6-03.md).
-5. **Capture**: a recovery copy for refusals that name no row.
-6. **D-05 remainder**: protected workflows take a PreDestructive snapshot and
+3. **M6-03 remainder**: snapshot panel/restore/copy drill. [Brief](tasks/M6-03.md).
+4. **Capture**: a recovery copy for refusals that name no row.
+5. **D-05 remainder**: protected workflows take a PreDestructive snapshot and
    treat a Git history failure as a warning
    ([ADR 0030](decisions/0030-version-bound-workflow-protection.md)).
-7. Later, not V1 blockers: M6-04, M6-10–13, M6-15, DEV-02, M6-05–09, AUDIT-PARK-T
+6. Later, not V1 blockers: M6-04, M6-10–13, M6-15, DEV-02, M6-05–09, AUDIT-PARK-T
    (2) duplicate Home entry after a failed resume, M7, M8.
 
 Native drills: check `df -i /tmp`, set `BABEL_NATIVE_IME_TEMP_ROOT` to a fresh

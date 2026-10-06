@@ -21,6 +21,9 @@ def request_window_close(d):
 def run(d):
     d.click('New screenplay', actions=True)
     d.wait(lambda: d.script("return document.querySelector('#writing-save')?.disabled === false;"), 'Untitled draft ready')
+    # New screenplays start on a Scene Heading row; this drill writes Action (Mod+2).
+    d.script("document.querySelector('.ProseMirror').focus();")
+    d.command('POST', '/actions', {'actions': [{'type': 'key', 'id': 'writing-keyboard', 'actions': [{'type': 'keyDown', 'value': '\ue009'}, {'type': 'keyDown', 'value': '2'}, {'type': 'keyUp', 'value': '2'}, {'type': 'keyUp', 'value': '\ue009'}]}]})
     d.type_text('D06 native draft.')
     draft = b'!D06 native draft.\n'
     d.wait(lambda: any(s == draft for _, s in d.journal_records()), 'Independent exact untitled recovery bytes')

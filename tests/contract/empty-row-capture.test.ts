@@ -106,13 +106,14 @@ describe('AUDIT-PARK-H supported empty row capture', () => {
       popup.destroy();
       view.destroy();
       document.body.replaceChildren();
-      // The same keys in a document typed from zero bytes capture.
+      // The same keys in a document typed from zero bytes capture; a new
+      // screenplay's first row is a Scene Heading (PILOT-2026-10-06).
       mount('');
       view.dispatch(view.state.tr.insertText('Alpha.'));
       newRow(id);
       view.dispatch(view.state.tr.insertText('X'));
       vi.runOnlyPendingTimers();
-      expect(source()).toBe(`!Alpha.\n\n${spelling}\n`);
+      expect(source()).toBe(`.Alpha.\n\n${spelling}\n`);
       popup.destroy();
       view.destroy();
       document.body.replaceChildren();

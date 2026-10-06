@@ -501,7 +501,7 @@ Autocomplete is required, fully local, and built from the current screenplay plu
 
 **Scene headings:** complete prefix, established location, and time qualifier as separate segments. Prefer known locations; do not duplicate `INT.` or insert a second time suffix. Support unconventional forced headings without forcing them into an interior/exterior template.
 
-**Interaction:** show a compact anchored popup with keyboard navigation, explicit selection, Escape to dismiss, and mouse selection that retains the writing caret. Opening a popup must not alter the document. An accepted suggestion is one undo step. A highlighted suggestion accepted with Enter consumes that Enter; it does not also create a new element. A second Enter performs the smart-next-line action. Tab can accept a selected suggestion; when no suggestion is selected/available it follows the element-cycle rule.
+**Interaction:** show a compact anchored popup with keyboard navigation, explicit selection, Escape to dismiss, and mouse selection that retains the writing caret. Opening a popup must not alter the document. An accepted suggestion is one undo step. A highlighted suggestion accepted with Enter consumes that Enter; it does not also create a new element. A second Enter performs the smart-next-line action. A suggestion identical to the typed segment changes nothing, so it is not an acceptance: Enter or Tab dismisses it and performs its normal action. Tab can accept a selected suggestion; when no suggestion is selected/available it follows the element-cycle rule.
 
 Avoid automatic insertion based on timing alone. Never autocomplete inside an IME composition, paste operation, boneyard, or raw region. Store persistent user vocabulary locally; names added to spellcheck are not uploaded.
 
@@ -1148,3 +1148,4 @@ and Git fetch at https://git-scm.com/docs/git-fetch.
 - 1.2 (2026-10-05, INFRA-INSTRUCTIONS): Align the established babel name, Linux-first declaration, static navigation, single continuation pointer and main/approved-isolation workflow. No product behavior, safety invariant or release gate weakened.
 
 - 1.3 (2026-10-06, PROC-RESET): Agents make every development decision (ADR 0043); S15.5 pilot and residual-risk dispositions are agent-run; S17–S20 process detail moved to AGENTS.md/map.md. Product requirements, invariants and release steps unchanged.
+- 1.3 (2026-10-06, pilot): S07.6 — an identical suggestion no longer consumes Enter/Tab.
