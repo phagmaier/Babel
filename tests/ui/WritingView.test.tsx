@@ -17,8 +17,11 @@ import { captureEditor } from '../../src/editor/sourceBridge';
 import { editorVersion } from '../../src/editor/state';
 import { SaveCadence } from '../../src/application/saveCadence';
 import { ProtectedClose } from '../../src/application/protectedClose';
-import { undo, undoDepth } from 'prosemirror-history';
-import type { OpenDocument } from '../../src/application/documents';
+import { redo, undo, undoDepth } from 'prosemirror-history';
+import type {
+  OpenDocument,
+  SaveRequest,
+} from '../../src/application/documents';
 import { deferred, publicationResult } from '../publicationFixture';
 import {
   A,
@@ -2103,6 +2106,160 @@ it.each(['resolve', 'reject'] as const)(
     expect([...captureEditor(view.state).source]).toEqual(bytes);
     fireEvent.click(save);
     await waitFor(() => expect(savedBytes.at(-1)).toEqual(bytes));
+    await waitFor(() => expect(save.disabled).toBe(false));
+    expect(views).toHaveLength(1);
+  },
+);
+
+it.each(['resolve', 'reject'] as const)(
+  'M6-02-R3 releases actions after deferred duplicate source %s with selection and Undo/Redo intact',
+  async (settlement) => {
+    const source =
+      '\ufeff.INT. ROOM - DAY\r\n\r\n!Alpha.  \r\n\r\n[[Keep this note.]]\r\n';
+    const bytes = [...new TextEncoder().encode(source)];
+    const edited = [
+      ...new TextEncoder().encode(source.replace('!Alpha.', '!XAlpha.')),
+    ];
+    const f = fixturePorts({
+      picked: {
+        ...opened(),
+        source: bytes,
+        fingerprint: {
+          ...fingerprint(),
+          byteLength: bytes.length,
+          sha256: createHash('sha256').update(source).digest('hex'),
+        },
+      },
+    });
+    const views: ReturnType<typeof editorMount.mountScreenplayEditor>[] = [];
+    const mount = editorMount.mountScreenplayEditor;
+    vi.spyOn(editorMount, 'mountScreenplayEditor').mockImplementation(
+      (...args) => {
+        const view = mount(...args);
+        views.push(view);
+        return view;
+      },
+    );
+    const gate = deferred<void>();
+    const requests: SaveRequest[] = [];
+    const completed: number[] = [];
+    let simulatedSource = bytes;
+    f.ports.documents.save = async (request) => {
+      requests.push(request);
+      if (requests.length === 2) await gate.promise;
+      simulatedSource = [...request.source];
+      completed.push(request.version);
+      const result = receiptFor(request.version);
+      return {
+        ...result,
+        sourceSha256: request.sourceSha256,
+        fingerprint: {
+          ...result.fingerprint,
+          sha256: request.sourceSha256,
+          byteLength: request.source.length,
+        },
+        recovery: { ...result.recovery, sourceSha256: request.sourceSha256 },
+      };
+    };
+    const snapshots = vi.spyOn(f.ports.snapshots, 'create');
+    render(
+      <WritingView
+        ports={f.ports}
+        open={{ kind: 'picked' }}
+        onSessionClosed={vi.fn()}
+      />,
+    );
+    await screen.findByLabelText('Screenplay actions');
+    const save = screen.getByRole<HTMLButtonElement>('button', {
+      name: 'Save',
+    });
+    const home = screen.getByRole<HTMLButtonElement>('button', {
+      name: 'Home',
+    });
+    await waitFor(() => expect(save.disabled).toBe(false));
+    const view = views[0]!;
+    let actionStart = 1;
+    for (
+      let row = 0;
+      !view.state.doc.child(row).textContent.startsWith('Alpha.');
+      row++
+    )
+      actionStart += view.state.doc.child(row).nodeSize;
+    act(() => view.dispatch(view.state.tr.insertText('X', actionStart)));
+    const selection = view.state.selection.toJSON();
+    fireEvent.click(save);
+    await waitFor(() => expect(completed).toHaveLength(1));
+    await waitFor(() => expect(save.disabled).toBe(false));
+    expect(simulatedSource).toEqual(edited);
+    expect(snapshots).toHaveBeenCalledOnce();
+    const protection = screen.getByRole('region', {
+      name: 'Protection status',
+    });
+    expect(within(protection).getByRole('status').textContent).toBe(
+      'Saved locally',
+    );
+
+    // This invocation has unchanged bytes and an existing exact-version receipt.
+    fireEvent.click(save);
+    await waitFor(() => expect(requests).toHaveLength(2));
+    expect(requests[1]).toMatchObject({
+      identity: requests[0]!.identity,
+      version: requests[0]!.version,
+      source: edited,
+      sourceSha256: createHash('sha256')
+        .update(Uint8Array.from(edited))
+        .digest('hex'),
+      expectedFingerprint: {
+        ...receiptFor(requests[0]!.version).fingerprint,
+        sha256: requests[0]!.sourceSha256,
+        byteLength: edited.length,
+      },
+    });
+    expect(completed).toHaveLength(1);
+    // The DOM still displays the prior receipt; the invocation is not finished.
+    expect(within(protection).getByRole('status').textContent).toBe(
+      'Saved locally',
+    );
+    expect(save.disabled).toBe(true);
+    expect(home.disabled).toBe(true);
+    expect(snapshots).toHaveBeenCalledOnce();
+    expect(view.dom.getAttribute('contenteditable')).toBe('true');
+    expect([...captureEditor(view.state).source]).toEqual(edited);
+    expect(view.state.selection.toJSON()).toEqual(selection);
+    expect(undoDepth(view.state)).toBe(1);
+    await act(async () => {
+      if (settlement === 'resolve') gate.resolve();
+      else
+        gate.reject({
+          identity: requests[1]!.identity,
+          version: requests[1]!.version,
+          error: { code: 'io', action: 'retry' },
+          replacement: 'sourceUnchanged',
+          recovery: null,
+        });
+    });
+    await waitFor(() => expect(save.disabled).toBe(false));
+    expect(home.disabled).toBe(false);
+    expect(simulatedSource).toEqual(edited);
+    expect(completed).toHaveLength(settlement === 'resolve' ? 2 : 1);
+    expect(view.state.selection.toJSON()).toEqual(selection);
+    expect(within(protection).getByRole('status').textContent).toBe(
+      settlement === 'resolve' ? 'Saved locally' : 'Save failed',
+    );
+    // A fresh explicit retry verifies the same bytes after either settlement.
+    fireEvent.click(save);
+    await waitFor(() => expect(requests).toHaveLength(3));
+    await waitFor(() => expect(save.disabled).toBe(false));
+    expect(within(protection).getByRole('status').textContent).toBe(
+      'Saved locally',
+    );
+    act(() => expect(undo(view.state, view.dispatch)).toBe(true));
+    expect([...captureEditor(view.state).source]).toEqual(bytes);
+    act(() => expect(redo(view.state, view.dispatch)).toBe(true));
+    expect([...captureEditor(view.state).source]).toEqual(edited);
+    act(() => expect(undo(view.state, view.dispatch)).toBe(true));
+    fireEvent.click(save);
+    await waitFor(() => expect(simulatedSource).toEqual(bytes));
     await waitFor(() => expect(save.disabled).toBe(false));
     expect(views).toHaveLength(1);
   },

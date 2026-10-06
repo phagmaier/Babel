@@ -1,10 +1,18 @@
 # Current state — next-agent handoff 2026-10-05
 
 Application: **babel**. Work/commit on `main`; `f2ba0c5` is published with
-recorded CI passes. Later R5, warning, sweep and workflow commits are local only.
+recorded CI passes. Later commits are local only.
 **M6-02, C1/F2 and Local v1 admission remain open.**
 
 ## This session
+
+**M6-02-R3 injected investigation complete**, from clean `12b98bb`, local only.
+Eight new invocation-bound cases; all 202 focused tests, lint/typecheck pass.
+Prior saved labels can coexist with the latest pending duplicate flush; both
+settlements release actions and retain exact bytes/selection/Undo/Redo.
+[Brief](tasks/M6-02-R3.md), [evidence](test-evidence/M6-02-R3.md).
+No missing settlement or historical cause demonstrated; no native trial or
+functional repair. Required local checks pass; historical artifacts preserved.
 
 **M6-02-R2 diagnostic slice complete**, from clean `c74c8a0`, local only.
 Staged adoption refusals and timestamped readiness; 173 focused tests and the
@@ -64,11 +72,11 @@ admission, pruning or push.
 
 ## Next action
 
-**Stop after M6-02-R2; its bounded diagnostic slice is complete.**
-The [proposed R3](test-evidence/M6-02-R2.md#disposition-and-narrowed-follow-up)
-binds deferred capture/source-save and duplicate-flush settlement to the latest
-Save invocation. It needs selection and a bounded brief; no automatic matrix
-repeat or snapshot/guard change from the injected delay or clean native samples.
+**Stop after M6-02-R3; its bounded injected investigation is complete.**
+The [narrowed follow-up](test-evidence/M6-02-R3.md#disposition-and-narrowed-follow-up)
+proposes private invocation/stage facts through Save and UI action release.
+It needs selection and a bounded brief before instrumentation or a targeted
+frozen/current Btrfs trial. No automatic matrix repeat or snapshot/guard change.
 M6-02 stays unchecked and M6-03/admission remain blocked. Marker
 remediation, F4/group F and DEV-02 remain unselected. No push/tag authorized.
 

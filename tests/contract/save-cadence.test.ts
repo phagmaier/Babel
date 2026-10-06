@@ -3,6 +3,7 @@ import type {
   CheckpointRequest,
   DocumentPort,
   SaveRequest,
+  SaveReceipt,
 } from '../../src/application/documents';
 import { PersistenceController } from '../../src/application/persistenceController';
 import {
@@ -12,6 +13,7 @@ import {
 } from '../../src/application/saveCadence';
 import type { SnapshotPort } from '../../src/application/snapshots';
 import { A, B, opened, receiptFor, snapshot } from './persistence-fixtures';
+import { deferred } from '../publicationFixture';
 
 function clock(): CadenceClock & { advance(ms: number): Promise<void> } {
   let now = 0;
@@ -201,6 +203,110 @@ it('explicit flush bypasses timers and verifies a fresh flush when unchanged', a
   expect(repeat).toMatchObject({ recovered: true, saved: true });
   expect(p.saves).toHaveLength(2);
 });
+
+it.each([
+  'resolve',
+  'reject older',
+  'reject latest',
+  'reject duplicate',
+] as const)(
+  'M6-02-R3 settles older/latest saves and its own duplicate flush (%s)',
+  async (settlement) => {
+    const { t, p, controller, scheduler } = cadence();
+    const older = deferred<SaveReceipt>();
+    const latest = deferred<SaveReceipt>();
+    const duplicate = deferred<SaveReceipt>();
+    const gates = [older, latest, duplicate];
+    const failure = (version: number) => ({
+      identity: opened().identity,
+      version,
+      error: { code: 'io', action: 'retry' },
+      replacement: 'sourceUnchanged',
+      recovery: null,
+    });
+    p.native.save = vi.fn((request) => {
+      p.saves.push(request);
+      return gates[p.saves.length - 1]!.promise;
+    });
+    scheduler.noteEdit(snapshot(21));
+    await t.advance(750);
+    expect(p.saves.map((request) => request.version)).toEqual([21]);
+    scheduler.noteEdit(snapshot(22, true));
+    await t.advance(750);
+    let completed = false;
+    const saving = scheduler.flush().then((summary) => {
+      completed = true;
+      return summary;
+    });
+    await drain();
+    expect(p.saves).toHaveLength(1);
+    expect(completed).toBe(false);
+
+    if (settlement === 'reject older') older.reject(failure(21));
+    else older.resolve(receiptFor(21));
+    await vi.waitFor(() => expect(p.saves).toHaveLength(2));
+    expect(p.saves[1]).toMatchObject({
+      version: 22,
+      source: [98],
+      sourceSha256: B,
+      expectedFingerprint:
+        settlement === 'reject older'
+          ? opened().fingerprint
+          : receiptFor(21).fingerprint,
+    });
+    expect(scheduler.describe()).toMatchObject({
+      liveVersion: 22,
+      fileSavedVersion: settlement === 'reject older' ? 0 : 21,
+      status: 'Saving',
+    });
+    expect(completed).toBe(false);
+
+    if (settlement === 'reject latest') latest.reject(failure(22));
+    else latest.resolve(receiptFor(22, true));
+    await vi.waitFor(() => expect(p.saves).toHaveLength(3));
+    expect(p.saves.map((request) => request.version)).toEqual([21, 22, 22]);
+    expect(p.saves[2]).toMatchObject({
+      version: 22,
+      source: [98],
+      sourceSha256: B,
+      expectedFingerprint:
+        settlement === 'reject latest'
+          ? receiptFor(21).fingerprint
+          : receiptFor(22, true).fingerprint,
+    });
+    expect(scheduler.describe()).toMatchObject({
+      journaledVersion: 22,
+      fileSavedVersion: settlement === 'reject latest' ? 21 : 22,
+      status: settlement === 'reject latest' ? 'Save failed' : 'Saving',
+    });
+    expect(controller.state.pending).toHaveLength(1);
+    expect(completed).toBe(false);
+    // All rolling work already completed; this wait belongs to the new flush.
+    expect(p.snapshots.created).toHaveLength(1);
+    if (settlement === 'reject duplicate') duplicate.reject(failure(22));
+    else duplicate.resolve(receiptFor(22, true));
+    // Summary describes retained version protection, not this request's success.
+    await expect(saving).resolves.toEqual({
+      recovered: true,
+      saved: true,
+      snapshotAttention: false,
+    });
+    expect(completed).toBe(true);
+    expect(controller.state.pending).toEqual([]);
+    expect(scheduler.describe().status).toBe(
+      settlement === 'reject duplicate' ? 'Save failed' : 'Saved locally',
+    );
+    expect(controller.state.fileSavedSha256).toBe(B);
+    p.native.save = async (request) => {
+      p.saves.push(request);
+      return receiptFor(request.version, request.sourceSha256 === B);
+    };
+    await scheduler.flush();
+    expect(p.saves.map((request) => request.version)).toEqual([21, 22, 22, 22]);
+    expect(scheduler.describe().status).toBe('Saved locally');
+    scheduler.dispose();
+  },
+);
 
 it('checkpoints undo steps as newer versions without clearing later edits', async () => {
   const { t, p, scheduler } = cadence();

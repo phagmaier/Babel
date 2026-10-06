@@ -493,6 +493,70 @@ describe('M3-12 writing session lifecycle', () => {
     },
   );
   it.each(['resolve', 'reject'] as const)(
+    'M6-02-R3 binds Save completion to deferred capture %s rather than the prior receipt',
+    async (settlement) => {
+      const fakes = ports(),
+        editor = new FakeEditor();
+      const session = new WritingSession(fakes.ports, editor, fakeClock());
+      fakes.entry.picked = opened();
+      await session.openPicked();
+      await session.save();
+      editor.selection = {
+        anchor: 1,
+        head: 2,
+      };
+      const selection = editor.getSelection();
+      const identity = session.active!.identity;
+      const captured = editor.current;
+      const gate = deferred<CapturedSnapshot>();
+      const capture = editor.capture.bind(editor);
+      vi.spyOn(editor, 'capture').mockImplementationOnce(() => gate.promise);
+      const sourceSave = vi.spyOn(fakes.ports.documents, 'save');
+      const checkpoint = vi.spyOn(fakes.ports.documents, 'checkpoint');
+      sourceSave.mockClear();
+      checkpoint.mockClear();
+      let completed = false;
+      const saving = session.save().finally(() => {
+        completed = true;
+      });
+      // Attach rejection handling before releasing the capture gate.
+      const result = saving.then(
+        (summary) => ({ summary }),
+        (error: unknown) => ({ error }),
+      );
+      await Promise.resolve();
+      expect(session.cadenceStatus.status).toBe('Saved locally');
+      expect(session.cadenceStatus.fileSavedVersion).toBe(1);
+      expect(sourceSave).not.toHaveBeenCalled();
+      expect(checkpoint).not.toHaveBeenCalled();
+      expect(completed).toBe(false);
+      if (settlement === 'resolve') gate.resolve(captured);
+      else gate.reject(new Error('capture refused'));
+      const outcome = await result;
+      if (settlement === 'resolve')
+        expect(outcome).toEqual({
+          summary: { recovered: true, saved: true, snapshotAttention: false },
+        });
+      else expect(outcome).toEqual({ error: new Error('capture refused') });
+      expect(completed).toBe(true);
+      expect(sourceSave).toHaveBeenCalledTimes(
+        settlement === 'resolve' ? 1 : 0,
+      );
+      expect(checkpoint).not.toHaveBeenCalled();
+      expect(session.active!.identity).toEqual(identity);
+      expect(editor.current).toEqual(captured);
+      expect(editor.getSelection()).toEqual(selection);
+      expect(editor.frozen).toBe(false);
+      editor.capture = capture;
+      await session.save();
+      expect(sourceSave).toHaveBeenCalledTimes(
+        settlement === 'resolve' ? 2 : 1,
+      );
+      expect(session.cadenceStatus.status).toBe('Saved locally');
+      session.dispose();
+    },
+  );
+  it.each(['resolve', 'reject'] as const)(
     'waits for rolling snapshot %s after publishing the exact source receipt',
     async (settlement) => {
       const fakes = ports(),
