@@ -37,7 +37,7 @@ Agents decide scope, priority, risk and gates themselves ([ADR 0043](docs/decisi
 - [ ] **M6-11 Full responsiveness and long-session baseline** — Deps: M6-04/06/08/10. [Brief](docs/tasks/M6-11.md).
 - [ ] **M6-12 Measured responsiveness correction** — Deps: M6-11. [Brief](docs/tasks/M6-12.md).
 - [ ] **M6-13 Declared-target native and accessibility matrix** — Deps: M6-02/09/10/12. [Brief](docs/tasks/M6-13.md).
-- [ ] **M6-14 Installed offline package and manual update checks** — Slices A/B done: AppImage builds and runs offline; packaged PDF export verified; npm audit clean ([pilot](docs/test-evidence/PILOT-2026-10-06.md)). Remaining: FUSE/desktop install, packaged spellcheck, Rust audit. [Brief](docs/tasks/M6-14.md).
+- [ ] **M6-14 Installed offline package and manual update checks** — Slices A/B done: AppImage builds and runs offline; packaged PDF export verified; npm audit clean ([pilot](docs/test-evidence/PILOT-2026-10-06.md)). npm/cargo audits clean. Remaining: FUSE/desktop install, packaged spellcheck. [Brief](docs/tasks/M6-14.md).
 - [ ] **M6-15 Disposable migration and independent backup restore** — Deps: M6-04/08/14. [Brief](docs/tasks/M6-15.md).
 - [ ] **M6-16 Agent-run writing pilot and Local v1 release review** — Deps: M6-03, M6-14; S15.5 sequence on synthetic scripts (step 7 via snapshot restore). Deferred tasks do not block it. [Brief](docs/tasks/M6-16.md).
 
