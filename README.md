@@ -1,24 +1,58 @@
 # babel
 
-babel is a local-first desktop screenwriting application in development. The default Linux app connects a Fountain editor to native New/Open, versioned recovery and source saving, Save As, snapshots, protected close, and a bundled offline PDF pipeline. M0–M5 and the bounded M6-01 investigation have passed their bounded Linux gates; see [current state](docs/current-state.md) for the evidence and remaining gates. Installed/offline adoption, production history workflows, remote operations, and other platforms remain future work. **Do not use this build for important manuscripts.**
+babel is an offline desktop screenwriting app for Linux. It edits ordinary
+[Fountain](https://fountain.io) files with screenplay formatting, and exports
+industry-standard PDFs (US Letter, Courier Prime 12 pt, standard element
+indents) without any network access.
 
-`SPEC.md` is the product contract. [Repo map](map.md), [tasks](TODO.md), and [current state](docs/current-state.md) contain the implementation map and exact verification status. The app name **babel** was chosen by the owner; the starter spec's "Screenwriter" label was a placeholder. The npm package is `babel-screenwriter`; the Rust crate `screenwriter-core` keeps its technical name (see [naming map](docs/architecture.md)).
+What works today: scene headings, action, character cues, parentheticals,
+dialogue, transitions and other Fountain elements with smart Enter/Tab and
+autocomplete; title page; Find/Replace; outline and scene moves; Script Check;
+spellcheck; continuous saving with crash recovery; named and automatic
+snapshots ("versions") with restore; outside-change detection with Reload;
+Save As, Fountain copies and PDF export.
 
-## Start and check
+**Status:** pre-release. The packaged app has been exercised end to end by an
+automated pilot ([evidence](docs/test-evidence/PILOT-2026-10-06.md)), but the
+full release checklist is not finished. Until it is, keep your current
+software and a separate backup of any script you try here; do not make babel
+the only home of an important manuscript.
 
-On the recorded Omarchy Linux host, use Node 26.7.0, pnpm 11.22.0, Rust 1.97.1, and the native prerequisites in [development](docs/development.md). The owner uses mise for toolchains; these versions were already installed. Install project packages with `pnpm install --frozen-lockfile` and run:
+## Build and run (Linux x86_64)
 
-| Purpose                         | Command                                                 |
-| ------------------------------- | ------------------------------------------------------- |
-| Browser preview (no native IPC) | `pnpm dev`                                              |
-| Desktop development             | `pnpm tauri dev`                                        |
-| Frontend checks                 | `pnpm check`                                            |
-| Browser smoke                   | `pnpm test:browser`                                     |
-| Rust formatting                 | `cargo fmt --all -- --check`                            |
-| Rust lint                       | `cargo clippy --workspace --all-targets -- -D warnings` |
-| Rust tests                      | `cargo test --workspace`                                |
-| Desktop package                 | `pnpm tauri build`                                      |
+Prerequisites: Node 26, pnpm 11, Rust (see `rust-toolchain.toml`), Python 3,
+and the WebKitGTK/GTK development packages listed in
+[development](docs/development.md).
 
-The browser preview explicitly reports that native services are unavailable. Its smoke test does not verify Tauri IPC. The recorded host passed real Tauri/WebKit startup and an AppImage build. This sandbox needed temporary writable package caches for installation/build; see [M0 evidence](docs/test-evidence/M0.md) for exact commands and results. The AppImage has not been installed/offline-tested, other platforms are unverified, and CI covers automated frontend/core, helper/browser and Linux build checks; native writing, filesystem-matrix and installed/offline acceptance remain task-scoped local gates.
+```sh
+pnpm install --frozen-lockfile
+pnpm pdf-helper          # builds the bundled offline PDF renderer (once)
+pnpm tauri build         # produces the AppImage
+./target/release/bundle/appimage/babel_0.0.1_amd64.AppImage
+```
 
-No application-code license has been chosen. Third-party package metadata and the native packaging implications are tracked in [development](docs/development.md); final notices are a later release task.
+For development, `pnpm tauri dev` runs the app with live reload; `pnpm dev`
+is a browser-only preview without saving or PDF.
+
+## Try it safely
+
+Work on a **copy** of a script. Files stay plain Fountain, so any Fountain app
+can open them. Recovery and snapshots live on the same disk as your script;
+use "Select copy destination" to keep a copy on another drive.
+
+## Checks
+
+| Purpose                                                      | Command                                                                                                         |
+| ------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------- |
+| Frontend: guidance, links, format, lint, types, tests, build | `pnpm check`                                                                                                    |
+| Capture/renderer differential gate                           | `pnpm test:differential`                                                                                        |
+| Browser layout geometry                                      | `pnpm test:layout`                                                                                              |
+| Rust format, lint, tests                                     | `cargo fmt --all -- --check`; `cargo clippy --workspace --all-targets -- -D warnings`; `cargo test --workspace` |
+
+## For contributors and agents
+
+[AGENTS.md](AGENTS.md) holds the working rules (agents make every decision),
+[current state](docs/current-state.md) holds what to do next, `SPEC.md` is the
+product contract and [map.md](map.md) is the repository guide. The npm package
+is `babel-screenwriter`; the Rust core keeps the technical name
+`screenwriter-core`. No application-code license has been chosen yet.
