@@ -1,26 +1,33 @@
 # Retained native findings
 
-This register indexes attributed events; it neither establishes a shared cause
-nor replaces raw cores, PID/start-token ledgers and failed manifests. Dates below
+This register indexes owned and unresolved events; it neither establishes a
+shared cause nor replaces raw cores, PID/start-token ledgers and failed manifests. Dates below
 are the last **recorded failure**, not the date of a later passing control.
-All rows concern the Linux WebKit writing/recovery lifecycle. Evidence remains
+Rows concern the Linux app/WebKit writing/recovery lifecycle. Evidence remains
 snapshot-specific. No historical event is closed by this maintenance task.
 
 ## Disposition and escalation
 
-- Observed author-content loss or a reproducible crash during ordinary writing,
-  save or accepted close blocks affected feature work and release admission.
-  Narrow reproduction/protection/repair tasks may proceed with explicit scope.
-- Forced-kill, forced automation teardown and unresolved phase events retain
-  strict native/release failures. Review their reachability before expanding
-  affected feature work; controls do not establish safety or a cause.
-- A disposition names the finding, affected workload/build, cause or explicit
-  residual risk, evidence, and reviewer/owner decision. No cause is inferred
-  from a stack signature or an upstream fix alone. Release acceptance remains
-  owner-reviewed; check [M6-01-R1](tasks/M6-01-R1.md) and [M6-02-R1](tasks/M6-02-R1.md).
-- Update this register when a new owned event or disposition is recorded.
-  Unknown phase/reproduction stays unknown; do not apply an arbitrary count
-  threshold or count delayed kernel/coredump deliveries as separate crashes.
+- Content loss, unprotected ordinary drafting or reproducible crashes in writing,
+  save or accepted close block affected work/adoption pending protection/repair.
+- Forced teardown, resource exhaustion and unknown phase are separate workloads.
+  Record reachability; independent feature work may proceed within that scope.
+  Release needs resolution or explicit reviewed residual-risk acceptance, not
+  an unbounded requirement to prove that an intermittent event can never recur.
+- One selected review covers one artifact/reachability assessment or supported
+  candidate/control. End with resolved, accepted residual risk, or a concrete
+  narrowed follow-up with owner and next decision. Missing corrected-runtime
+  availability blocks a runtime trial, not artifact/risk review. Do not repeat
+  the same clean sweep automatically; no deadline grants acceptance.
+- A disposition names finding, build/runtime, exact trigger/phase or unknown,
+  reachable workload, preserved-content evidence, protections, residual risk,
+  acceptance scope and reviewer/owner decision. Accepted risk is not repair:
+  retain original strict failures, cores and identities. Passing controls never
+  erase them or establish cause. No cause follows from a stack/upstream fix alone.
+- Release acceptance remains owner-reviewed under SPEC S15.5; see
+  [M6-01-R1](tasks/M6-01-R1.md) and [M6-02-R1](tasks/M6-02-R1.md).
+  Update this register for new events/dispositions. Keep unknown attribution
+  unknown; delayed kernel/core deliveries do not create additional crashes.
 
 ## Open events
 
@@ -36,7 +43,7 @@ snapshot-specific. No historical event is closed by this maintenance task.
 | D03B, PID 477772/start 4562349        | 2026-10-04 04:26:23 PDT                        | Failed presentation candidate, Btrfs forced teardown SIGABRT; corrupted-unsorted-chunks signature. [Evidence](test-evidence/AUDIT.md#audit-d03b--writing-layout-shell)                   | Product CSS failure corrected; that does not dispose the crash.                                                           |
 | D03B, PID 501063/start 4636728        | 2026-10-04 04:40:16 PDT                        | tmpfs editor-exit content pass, SIGABRT; corrupted-unsorted-chunks signature. [Evidence](test-evidence/AUDIT.md#audit-d03b--writing-layout-shell)                                        | Exact crash phase requires ledger review; cause/disposition open. Do not classify as ordinary close from the mode name.   |
 | PARK-H-F2, PID 1134510/start 10372570 | 2026-10-04 20:34:35 PDT                        | Btrfs empty-heading owned-kill first session SIGABRT, before later ordinary-close markers. [Evidence](test-evidence/AUDIT.md#audit-park-h-f2--empty-scene-heading-recovery-intent)       | Frozen F1 control and F2 replay each clean; primary strict failure remains. Stack evidence is not attribution.            |
-| D04-R4, PID 1545216/start 13646967    | 2026-10-05 05:40:09 PDT                        | Btrfs, 4 modes: SIGABRT at first file picker, `/tmp` at 0 free inodes; 3 more PIDs in [evidence](test-evidence/AUDIT.md#audit-d04-r4--boneyard-inside-the-renderers-opening-title-block) | Rerun with the IME view on Btrfs clean 8/8; cause not established. Owner review; clear `/tmp` inodes.                     |
+| D04-R4, PID 1545216/start 13646967    | 2026-10-05 05:40:09 PDT                        | Btrfs, four app SIGABRTs at file picker with `/tmp` inode exhaustion. [Ledger review](test-evidence/INFRA-WORKFLOW.md#r4-process-provenance).                                            | Ledger: `babel-desktop`; one owned, three unattributed. Cause open; clean Btrfs-IME replay does not close.                |
 
 These are event identities, not established independent defects; the newest
 row covers four aborts in one run with `/tmp` out of inodes. M6 C1/F2,

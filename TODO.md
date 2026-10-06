@@ -18,7 +18,7 @@ Open tasks have detailed briefs in `docs/tasks/`. Completed briefs (`docs/tasks/
 - **M5 publication + DEV-01/03** (M5-00–07, DEV-01, DEV-03, complete; bounded Linux publication gate) — Evidence: [M5 report](docs/test-evidence/M5.md); [publication review](docs/reviews/2026-10-02-m5-07-publication-review.md)
 - **M6-00 planning + M6-01 shutdown investigation** (complete; bounded Linux, no crash resolution/admission) — Evidence: [M6 report](docs/test-evidence/M6.md); [shutdown review](docs/reviews/2026-10-02-m6-01-shutdown-review.md)
 
-## M6 — local history, hardening and adoption (paused)
+## M6 — local history, hardening and adoption
 
 <a id="m6--local-history-hardening-and-adoption-planned"></a>
 
@@ -44,8 +44,8 @@ Open tasks have detailed briefs in `docs/tasks/`. Completed briefs (`docs/tasks/
 M6-02 needs the M6-01 review artifact; an unresolved C1/F2 release gate may remain
 while independent safety work proceeds. M6-12 requires a measured scope addendum
 before correction; M6-13 needs new bounded briefs for missing target adapters.
-M6 is **paused for the owner-selected maintenance/audit track**. M6-02-R1
-remains the unresolved M6 follow-up; selection/resumption lives only in
+M6 is **resumed after owner-authorized workflow maintenance**. M6-02-R1
+remains the unresolved M6 follow-up; task selection lives only in
 [current-state Next action](docs/current-state.md#next-action). Its stop before
 M6-03 and Local v1 admission remains binding when selected.
 
@@ -53,6 +53,8 @@ M6-03 and Local v1 admission remains binding when selected.
 <a id="design-triage--decided-2026-10-03-executable-accept--reject--defer--rationale"></a>
 
 ## Audit status
+
+- [x] **INFRA-WORKFLOW** — change-based local checks, bounded disposition and M6 resumption. [Brief](docs/tasks/INFRA-WORKFLOW.md), [evidence](docs/test-evidence/INFRA-WORKFLOW.md).
 
 - [x] **INFRA-INSTRUCTIONS** — guidance/tooling maintenance complete; both published CI jobs passed. [Brief](docs/tasks/INFRA-INSTRUCTIONS.md), [evidence](docs/test-evidence/INFRA-INSTRUCTIONS.md).
 

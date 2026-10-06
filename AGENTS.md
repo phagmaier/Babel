@@ -48,25 +48,25 @@ SPEC owns requirements/invariants; ADRs own choices; subsystem docs explain cont
 
 ## Implementation discipline
 
-Keep task scope and module boundaries. Prefer verified, pinned libraries; record license/packaging. No redundant engines or paid features.
+Keep task/module scope. Pin verified libraries and record licenses/packaging. No redundant engines or paid features.
 
-Test behavior and relevant failure/Undo paths with synthetic fixtures, temporary directories and disposable remotes. Never use the owner's only manuscript or personal credentials.
+Test behavior, failure and Undo with synthetic fixtures, temporary directories and disposable remotes. Never use the owner's only manuscript or personal credentials.
 
-Before claiming implementation, the brief names its tier, exact focused commands, executable native drill modes and skip reasons. Shared checks may use an anchored reference to a named section; proposed drills are not executable checks. Complete missing details before coding. Run focused checks while iterating and the full required tier once before commit, using `docs/development.md`. Focused tests never replace shared/milestone gates. Capture/codec/bridge and renderer/assessment changes also follow `docs/testing.md#differential-regression-gates`.
+Before implementation, name acceptance, the lowest tier, exact focused/native commands and skips. `docs/development.md` owns local and CI/release checks; it supersedes old routine checklists, not acceptance or safety/fault cases. Run focused checks while iterating and local checks on final code. Capture/codec/bridge and renderer/assessment changes follow `docs/testing.md#differential-regression-gates`.
 
-Tier 3 filesystem triggers live in development: save/replacement/recovery/journal/history/identity publication, sync/interruption, leases and native metadata/path behavior. Pure codec/envelope/state tests need no second filesystem. Record coverage/omissions; never disable checks or broaden permissions for green output.
+Tier 3 covers persistence, IPC, interruption, leases, native paths and packaging. Run affected real-filesystem checks on tmpfs/Btrfs and named native modes; broad matrices belong to integration/release or demonstrated cross-boundary regressions. Pure codec/state tests need no second filesystem. Never disable safety checks or broaden permissions for green output.
 
-Evidence owns exact command/result/failures, host, native/browser/mocked labels and skip rationale: one line per check. Task/trace/handoff docs link evidence instead of repeating results. Preserve fixture bytes; formatters/Git must not rewrite Fountain whitespace, CRLF/BOM or malformed inputs. Implementation-generated expectations require independent review.
+Evidence uses one compact check table: command, kind, result, elapsed/unknown and skips; add failure/disposition detail only when needed. Trackers/handoffs link it. Keep full logs/inventories outside hot docs; retain irreplaceable failure provenance. Preserve fixture whitespace, CRLF/BOM and malformed bytes. Expectations need independent review. Findings follow `docs/testing.md#finding-disposition`; corpus discovery alone selects no work.
 
 ## Context efficiency and handoffs
 
-Use targeted searches and bounded reads. Keep logs outside routinely loaded docs. Never read evidence or frozen `AUDIT.md` wholesale; read anchored task sections. Do not dump repositories, lockfiles or generated output, change global settings or install plugins to compensate for context use.
+Use targeted searches and bounded reads. Keep logs outside hot docs; read anchored evidence/audit sections, never whole reports. Do not dump repositories, lockfiles or generated output, change global settings or install plugins to compensate for context use.
 
 Before stopping, update current-state with task, paths, results, blockers and next action, linking evidence. Budgets: AGENTS/map 8 KiB, current-state 120 lines/8 KiB, TODO 12 KiB. `pnpm check:guidance` enforces them; a dated, owner-reviewed exception in `tools/guidance-exceptions.json` may retain necessary safety detail. Do not delete safety obligations to meet a budget.
 
 If another coordinator owns shared docs, leave them untouched and write a task-local report with base, paths, checks and next action. Mark tasks done only after acceptance evidence exists. Keep completed tracker entries short: status/outcome and brief/evidence links. Open safety obligations may use explicit detail. Preserve historical evidence.
 
-Default updates: current-state and owning tracker only. Update subsystem docs/trace/ADRs when behavior, safety, mapping or decisions change; do not rewrite unaffected rows or create routine ADRs. Record honest progress if interrupted.
+Update current-state and owning tracker. Change subsystem docs/trace/ADRs only for changed behavior, safety, mappings or decisions; keep unaffected rows. Record honest progress if interrupted.
 
 Claim work in current-state. Work/commit on main by default, with task IDs in commit messages. Explicit owner-approved isolated workers may use branches/worktrees. Never amend a published commit; follow-up corrections are new commits. Tag verified milestone gates. Push only after review and explicit owner authorization.
 
@@ -74,7 +74,7 @@ Claim work in current-state. Work/commit on main by default, with task IDs in co
 
 Proceed on reversible in-scope defaults. No unrelated deletion/overwrite, force-reset, unauthorized push/publish, cloud resources, spending, global settings or privileged packages. Routine hygiene: `sh tools/clean.sh --apply`; evidence/dev pruning requires owner approval.
 
-Record missing-prerequisite commands and safe next steps; continue independent authorized work with affected gates blocked. Escalate privacy/destructive/cost decisions. Index native crashes in `docs/native-findings.md`; active-writing/data-loss failures block affected feature work pending disposition. Forced-teardown/runtime findings keep release gates blocked; narrowly scoped safety investigations may proceed. Passing controls never close retained crashes.
+Record missing prerequisites and continue independent authorized work. Escalate privacy/destructive/cost decisions. Native findings follow `docs/native-findings.md#disposition-and-escalation`: content loss and ordinary-operation crashes block affected work; forced/runtime findings need resolution or explicit reviewed residual-risk acceptance before release. Independent feature work may proceed within recorded reachability limits. Passing controls never erase failures; no deadline grants acceptance.
 
 Report task, changes, checks/status, risks and next action. Stop at the requested boundary.
 

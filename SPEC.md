@@ -989,6 +989,8 @@ Do not have the implementation under test generate its own supposedly independen
 
 A feature is done only when its task scope and requirement IDs are met, relevant tests pass, error/undo/recovery behavior is covered, required documentation is updated, and verification evidence is recorded. UI features additionally need actual interaction inspection, not just a snapshot of a static component.
 
+Local verification follows the changed boundary and current tiers in `docs/development.md`; broad shared suites run in CI and on the final integration/release candidate. Persistence changes retain relevant real-filesystem/failure checks and native boundary checks. Command mechanics live in development/testing, not copied into every brief. Historical checklists do not require unrelated gates on every later correction.
+
 Record exact command, platform, result, and any skipped/blocked checks. A platform failure may be an environment limitation, but it still means that platform gate remains open. Do not mark a feature done by disabling checks, swallowing errors, widening permissions, or returning mock success in production.
 
 ### 15.5 Local-v1 adoption gate
@@ -1007,6 +1009,8 @@ Before trusting important work, demonstrate this sequence with disposable copies
 10. Complete a meaningful writing session without unacceptable lag or caret/input bugs.
 11. Export a backup to a separate destination and perform an actual restore drill.
 12. Document remaining limitations; retain independent backups and the old workflow until migration is verified.
+
+A retained forced-teardown/runtime crash may receive an explicit reviewed residual-risk disposition naming the finding, candidate, reachable workload, protections and acceptance limits. Its original strict failure remains recorded. Clean controls or elapsed deadlines never grant acceptance. Author-content loss, falsely saved status, unprotected ordinary drafting and reproducible ordinary-operation crashes require protection/repair before affected adoption. Accepted limitations do not bypass any step above.
 
 Remote-v1 adds a two-machine handoff, deliberately divergent edits, a concurrent upload rejection, cancellation/offline failures, privacy acknowledgement, and recovery after interrupted Get Latest.
 
@@ -1167,14 +1171,14 @@ Aim to keep root `AGENTS.md` below approximately 8 KiB and `docs/current-state.m
 
 Codex's official documentation describes instruction discovery and a default aggregate project-instruction limit of 32 KiB. Do not assume every nested instruction file is automatically loaded for every task; explicitly consult relevant local instructions. Do not change the user's global configuration to increase limits. See [R13].
 
-Every substantive behavior change updates its owning doc and task trace. Avoid repetitive end-of-task essays in every file. Use ADRs only for meaningful choices/tradeoffs, not for every variable name. Keep old detailed handoff history out of `current-state.md`; preserve essential decisions/evidence in their proper files.
+Every substantive behavior change updates its owning doc and task trace. Use a compact check table and link it from status/handoffs; add only needed failure/disposition explanation. Keep raw logs and generated inventories outside hot docs, with retained provenance for irreplaceable evidence. Preserve historical failure records; consolidate duplicate closed-item narratives without deleting canonical contracts, independent fixtures or release evidence. Use ADRs for lasting choices, not routine changes. Keep old handoff history out of `current-state.md`.
 
 <a id="s18"></a>
 ## S18. Agent tasks, handoffs, and evidence
 
 ### 18.1 Task shape
 
-Use stable task IDs such as `M2-04`. Each actionable task includes: status, dependencies, relevant requirement/invariant IDs, docs to read, intended code areas, narrow deliverable, acceptance checks, verification commands/evidence, and known exclusions.
+Use stable task IDs such as `M2-04`. Each actionable task includes: status/authorization and dependencies, relevant requirement/invariant IDs and contract links, narrow deliverable/paths, acceptance, exact focused/native checks, selected local tier with skips, evidence link and stopping boundary. Reference current CI/release policy instead of repeating its commands. Scope a reproduction before implementing an unexplained finding.
 
 Example structure (not a claim that this task is already implemented):
 
@@ -1187,7 +1191,7 @@ Scope: versioned save state and its focused tests
 Acceptance: acknowledgement for v21 cannot clear dirty state for v22;
             cross-session acknowledgement is rejected;
             repeated acknowledgement is idempotent.
-Evidence: exact focused test command and result, then required shared checks
+Evidence: compact focused/local check table; current CI/release policy by link
 Not in scope: changing the PDF pipeline or adding remote sync
 ```
 

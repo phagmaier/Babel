@@ -1,8 +1,14 @@
 # Audit status tracker
 
-`AUDIT.md` (2026-10-03, base `1ef9515`, 48 findings + skeptic verdicts) is the frozen audit record — read-only. Each cluster below gets one brief in `docs/tasks/AUDIT-*.md`; evidence lands in `docs/test-evidence/AUDIT.md`. Briefs link to audit sections instead of copying them, and cite the [dropped/refuted list](../../AUDIT.md#dropped-or-refuted) for what must NOT be built. DESIGN implementations need owner triage first (table below); nothing there is agent-executable until decided. Historical DESIGN triage was recorded 2026-10-03; current-state alone selects any continuation.
+`AUDIT.md` (2026-10-03, base `1ef9515`, 48 findings + skeptic verdicts) is the frozen audit record — read-only. Existing `docs/test-evidence/AUDIT.md` remains historical; new selected tasks use compact evidence under `docs/test-evidence/`. Briefs link to audit sections and the [dropped/refuted list](../../AUDIT.md#dropped-or-refuted) instead of copying them. DESIGN implementations need owner triage; historical triage was recorded 2026-10-03. Current-state alone selects continuation.
 
 Task selection comes only from [current-state Next action](../current-state.md#next-action), subject to user assignment and dependencies. Unchecked findings may need owner decisions or a brief; they are not automatic authorization. Historical wave prerequisites remain binding when that track is selected.
+
+Current [verification tiers](../development.md#check-tiers-use-the-lowest-tier-that-covers-the-change)
+supersede old routine shared-check lists, retaining acceptance and safety cases.
+[Finding disposition](../testing.md#finding-disposition) permits explicit safe
+limitations; corpus findings select no automatic audit tail. Remaining marker,
+PARK-T and F4 obligations stay recorded while eligible M6 work resumes.
 
 ### Wave 0 — unblockers
 

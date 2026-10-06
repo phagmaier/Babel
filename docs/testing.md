@@ -16,15 +16,26 @@ Browser preview deliberately reports native IPC unavailable. A native smoke must
 
 ## Check tiers (efficiency without weakening gates)
 
-Use the lowest tier in [development](development.md#check-tiers-use-the-lowest-tier-that-covers-the-change) that covers the change. Tier 1 is docs/text-only; Tier 2 is frontend/Rust logic with full shared gates; Tier 3 adds browser smoke, native drills, and the tmpfs/Btrfs matrix. Focused tests never replace required shared/milestone gates for behavior changes. Skipped Tier 3 items need a one-line rationale in evidence (for example, "no filesystem paths touched, single-filesystem shared run only"). Record elapsed time beside `pnpm check`, `cargo test --workspace`, and any native/matrix run.
+Use current [development tiers](development.md#check-tiers-use-the-lowest-tier-that-covers-the-change): local checks cover changed boundaries, broad suites run in CI/integration/release. Retain task acceptance and relevant native/fault/Undo checks. Explain skips in one compact check table; do not rerun unrelated languages or matrices merely because an old brief listed them.
 
 ## Differential regression gates
 
-Any capture/codec/bridge spelling or renderer/assessment change runs
-`pnpm test:differential` after `pnpm pdf-helper`, plus its named focused tests
-and the shared [assessment oracle](../fixtures/assessment/oracle.json) on both
-sides (`pnpm test` and `pnpm test:pdf-helper`). The dedicated suite is separate
-from unit/UI discovery and runs in CI. A missing baseline/helper is a failure.
+Local capture/codec/bridge changes run
+`pnpm exec vitest run --config tests/differential/vitest.config.ts tests/differential/capture.test.ts`.
+Renderer/assessment/export-warning changes run
+`pnpm exec vitest run --config tests/differential/vitest.config.ts tests/differential/renderer.test.ts tests/differential/mixed-renderer.test.ts`
+plus focused contracts and the shared [assessment oracle](../fixtures/assessment/oracle.json)
+on both sides (focused assessment tests and `pnpm test:pdf-helper`). Run both
+selections when both boundaries change. For helper-using gates verify
+`python3 tools/pdf-helper/verify_runtime.py target/pdf-helper/runtime --exact`;
+build with `pnpm pdf-helper` only when missing or changed. The full
+`pnpm test:differential` remains in CI and final integration/release checks.
+A missing required baseline/helper is a failure, not a skip or waived test.
+
+Keep the two existing generated corpora fixed. Broader corpus expansion needs
+a separately selected bounded question, expected coverage benefit and stopping
+rule; discovery counts alone do not authorize or prioritize product changes.
+Known findings retain exact inventories and explicit disposition below.
 
 - [Capture gate](../tests/differential/capture.test.ts): the full 16-context ×
   53-text F4 single-row corpus, including natural headings/cues/transitions,
@@ -82,7 +93,8 @@ from unit/UI discovery and runs in CI. A missing baseline/helper is a failure.
 - Every editor/capture gate includes synthetic externally authored/unforced
   sources. Force-marked app-authored fixtures alone are insufficient.
   A new unexplained refusal or disagreement blocks the relevant change until
-  reproduced, scoped in a brief and fixed or explicitly dispositioned.
+  reproduced and fixed or explicitly dispositioned. Existing recorded findings
+  do not select another audit automatically or block unrelated product work.
 
 Optional retained reports: set `BABEL_DIFFERENTIAL_REPORT` to a fresh path
 prefix outside fixtures; the suite writes exclusive-create JSON summaries.
@@ -94,8 +106,33 @@ admission change, candidate and unannounced source, including duplicates.
 Reproducers under `tests/investigation/` run by name only, outside `pnpm test`,
 this gate and CI; one may stay red while its tracked finding is open. The
 reading-candidates reproducer is green since AUDIT-D04-R4.
-`BABEL_DIFFERENTIAL_FAULT=capture`, `renderer`, `assessment` or `announced` injects an in-memory fault
-in the dedicated suite only; all must fail. No product source is modified.
+`BABEL_DIFFERENTIAL_FAULT=capture`, `renderer`, `assessment` or `announced`
+injects an in-memory fault in the dedicated suite only. Repeat these rejection
+checks when the injection/configuration, compared assertions, corpus/oracle or
+inventory logic changes, not for every product correction. Use the applicable
+file selections above; all affected modes must fail in their expected gate,
+after an uninjected pass. Setup/timeouts are not successful fault detection.
+No product source is modified. Unchanged harness checks may cite prior evidence.
+
+## Finding disposition
+
+Prioritize ordinary writing, content protection and owner workflow over corpus
+breadth. Record one of: open investigation, repaired with independent evidence,
+or accepted limitation. A limitation names exact triggers, visible behavior,
+preserved source/recovery, regression evidence and explicit reviewer/owner
+acceptance; safe export refusal names the category and leaves no artifact.
+Acceptance is distinct from repair and preserves the original failure record.
+
+Do not waive source corruption, falsely saved/current status, unprotected
+ordinary drafting, silent publication loss or unsafe native/privacy behavior.
+New parser disagreement on admitted sources, unknown/unannounced warnings and
+capture regressions remain hard failures. Reviewed baseline/inventory changes
+still require literal independent evidence; never regenerate for green.
+Native residual-risk decisions follow the [native register](native-findings.md#disposition-and-escalation).
+Timebox an investigation to one scoped attempt/control or artifact review;
+finish with a disposition or a concrete narrowed follow-up, not an automatic
+repeat of the same non-reproducing sweep. No deadline or clean rerun grants
+acceptance, and unrelated eligible work may continue with findings recorded.
 
 ## Mandatory save faults (SPEC S15.2)
 
@@ -103,7 +140,17 @@ Crash before/after temporary write and replacement, partial write, sync failure,
 
 ## Evidence conventions
 
-One compact report per milestone at `docs/test-evidence/M*.md`. Keep large logs outside routinely loaded docs and reference them by path. For each task, record exact command, host, outcome, skipped checks, and evidence. A source-only unit pass does not close a native packaging gate. Local-v1 adoption additionally needs an installed offline app, disposable writing/recovery/backup drills, migration review, and owner-reviewed pilot per SPEC S15.5.
+Use one compact task section/report under `docs/test-evidence/`: brief outcome,
+base/host/build, then a table of command / kind / result / elapsed / skip reason.
+Group equivalent static checks; add only necessary failure/disposition detail.
+Trackers and handoffs link it instead of repeating check counts or narratives.
+Full logs, per-source inventories and corpus statistics stay in ignored task
+output or retained CI artifacts; tracked fixtures/inventories remain executable
+expectations. Preserve historical failure records and independent evidence.
+Before pruning irreplaceable artifacts, establish durable provenance/retention;
+an ignored path alone is not archival storage. Existing evidence is retained;
+do not append new tasks to the large audit report. A source-only pass does not
+close native packaging or Local-v1 adoption gates in SPEC S15.5.
 
 Test on synthetic files only. Expected outputs need independent review; never generate goldens from the implementation and accept them automatically.
 

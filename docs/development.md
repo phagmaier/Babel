@@ -116,7 +116,7 @@ and retained limitations: [DEV-01 evidence](test-evidence/M5.md#dev-01--laptop-d
 | Desktop package     | `pnpm tauri build`                                      | Native package; platform prerequisite gate                               |
 | PDF helper          | `pnpm pdf-helper`; `pnpm test:pdf-helper`               | M5-01 bundled renderer build/self-test                                   |
 | Link check          | `pnpm check:links`                                      | Full tracked Markdown links/anchors (CI); changed links for local Tier 1 |
-| Workspace matrix    | `python3 tools/run-workspace-matrix.py <tmpfs> <btrfs>` | Tier 3 `cargo test --workspace` on both filesystems                      |
+| Workspace matrix    | `python3 tools/run-workspace-matrix.py <tmpfs> <btrfs>` | Focused command via `--`; full workspace at integration/release          |
 
 `pnpm check` also runs full links and guidance budgets/status checks.
 `pnpm test` discovers only current contract/UI tests under `tests/`; archives
@@ -142,21 +142,46 @@ Do not interpret `pnpm test` or `pnpm test:browser` as native IPC verification. 
 
 ## Check tiers (use the lowest tier that covers the change)
 
-Tiers reduce repeat runs for small changes; they never weaken SPEC S15/S18 gates. A behavior change still needs its focused tests plus the tier's shared gates. Record the tier and one-line skip rationale in evidence (for example, "Tier 1: docs-only, no code paths touched").
+Use the lowest tier covering the changed boundary. Run focused checks while
+iterating and selected local checks once on final code. These rules supersede
+older routine shared-check lists in briefs, including M6, without removing
+acceptance criteria, named regressions/fault cases or relevant native checks.
+Record selected checks and skips; a newly demonstrated cross-boundary failure
+expands verification for that boundary, not every unrelated subsystem.
 
-| Tier                   | Use when                                                                                                                                                 | Required checks                                                                                                                                                                                                        |
-| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Tier 1 — fast          | Docs/comment-only, or UI text-only with no logic, persistence, IPC, or native change                                                                     | `pnpm format:check` on touched files, changed local-link check (`python3 tools/check-links.py`), `git diff --check`. Add `pnpm lint`/`pnpm typecheck` if JS/TS was touched.                                            |
-| Tier 2 — shared        | Frontend-only logic (codec, editor, UI state) or Rust-only unit change that does not touch the filesystem matrix paths below                             | Tier 1 plus focused `vitest`/`cargo test` paths from the task table, then full `pnpm test`, `pnpm lint`, `pnpm typecheck`, `pnpm build`, `cargo fmt --check`, `cargo clippy -- -D warnings`, `cargo test --workspace`. |
-| Tier 3 — native/matrix | Change touches filesystem matrix paths, native IPC/commands, packaging, or a milestone/release gate; or prior Tier 2 run showed a cross-boundary failure | Tier 2 plus `pnpm test:browser`, relevant `pnpm tauri build`/`dev` native drill from the task table, and the tmpfs/Btrfs matrix (`python3 tools/run-workspace-matrix.py`).                                             |
+| Tier                       | Changed boundary                                                | Required local checks                                                                                                                                                                                                                                               |
+| -------------------------- | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Tier 1 — docs/text         | Docs/comments or UI text without logic/native impact            | Format touched files, relevant links, `pnpm check:guidance`, `git diff --check`; lint/typecheck if JS/TS changed.                                                                                                                                                   |
+| Tier 2 — logic             | Frontend/domain/UI logic or Rust without filesystem/IPC changes | Tier 1; focused contract/failure/Undo tests. TS: `pnpm lint`, `pnpm typecheck`. Rust: focused `cargo test`, `cargo fmt --all -- --check`, package-scoped Clippy. Browser interaction for changed rendered/input behavior; applicable differential gates below.      |
+| Tier 3 — native/filesystem | Persistence, IPC, interruption, leases, paths, packaging        | Tier 2 for affected languages; relevant filesystem/fault tests on verified tmpfs/Btrfs, named native boundary modes with exact-byte/version/failure oracles. Build the default app for native changes; packaging changes require relevant installed/offline checks. |
 
-Filesystem-matrix triggers (Tier 3 required): `crates/screenwriter-core/src/` save/replacement/recovery/journal/snapshot/history/identity/lease paths, `src-tauri/src/` command/IPC/file-dialogue paths, sync/interruption handling, native metadata/path behavior, or packaging changes. Pure codec/envelope/state/view-preference/palette-label changes stay Tier 2 (single filesystem for shared Rust gates is enough); record why no second-filesystem run was needed.
+Filesystem triggers: save/replacement/recovery/journal/snapshot/history/identity,
+leases, native IPC/file-dialogue, sync/interruption and metadata/path behavior.
+Use the existing matrix runner's focused-command support, for example
+`python3 tools/run-workspace-matrix.py /tmp/babel-<task> "$PWD/target/babel-<task>" --output target/<task>/source-matrix -- cargo test -p screenwriter-core source_store --locked`.
+Select every affected suite and actual root selector; never count tests that
+ignore the supplied root as second-filesystem coverage. Full workspace runs
+are required for integration/release or a demonstrated broad regression.
+Pure codec/envelope/state/UI tests require no second filesystem or unrelated
+Rust run. Keep generated helper/runtime builds and matrix runs sequential.
 
 Browser-smoke trigger: frontend behavior change that renders or handles input in WebKit/Chromium (editor, Home, dialogs, palette, panels). Skip only with a stated reason (for example, "Rust-only comment change, no DOM path").
 
-Native-drill trigger: only when the task brief names a drill or the change crosses the frontend/native boundary. Do not rerun the full 19-mode integrated matrix for an unrelated small fix; run the named modes and note the omission.
+Native-drill trigger: the change crosses a native boundary or a named native
+acceptance remains relevant. Run affected modes, not the full 19-mode matrix
+for an unrelated fix. An artifact-only investigation builds/runs nothing unless
+its bounded question requires fresh native evidence.
 
-Timing: record elapsed wall time beside native/matrix and `pnpm check`/`cargo test --workspace` lines in evidence (one line per check suffices, for example, "`cargo test --workspace` passed tmpfs (4m12s)"). This is how future agents prove the tiers save time.
+Broad gates: existing CI runs `pnpm check`, Rust workspace/lint, helper,
+differential and Chromium checks plus package build. Before integration/release,
+verify their exact candidate result; when CI is unavailable run applicable broad
+commands locally and label CI unrun. Final milestone/release candidates also
+run the full workspace filesystem matrix, integrated native/installed/adoption
+checks required by their acceptance. Local focused passes never certify release.
+
+Evidence records command, kind, result, elapsed (or unknown), and skip rationale
+in one table; refer to unchanged earlier evidence by commit only when its scope
+still applies. Do not sum concurrent command durations as task wall time.
 
 ## Dependencies and licensing
 
@@ -203,9 +228,10 @@ exact native/transitive license and distribution-review limits.
 
 ## Task-specific focused checks
 
-Each active task brief names its tier, exact focused commands, named native drill modes (if any),
-and what is skipped with a one-line rationale. Run the focused commands while iterating; run the full
-tier gate once before commit. Focused tests never replace required shared/milestone gates for behavior changes.
+Each active brief names acceptance, exact focused/native commands and a local
+tier with skips; link the policy above for broad gates. Historical completed
+task commands describe their original verification, not mandatory reruns for a
+later correction. Keep relevant fault, failure, Undo and exact-byte acceptance.
 
 Historical per-task commands for completed milestones (M2-01–M5-05) live in
 [development-history](development-history.md); their exact results remain in the linked evidence files.
@@ -217,8 +243,8 @@ leases/files and injected close effects; they do not verify actual GTK terminati
 Run `python3 tests/native/writing-lifecycle/test_isolated_ime.py`,
 `python3 tests/native/writing-lifecycle/test_process_watch.py` and
 `python3 tests/native/writing-lifecycle/test_shutdown_observer.py`.
-Shared frontend/browser/Rust checks and full tmpfs/Btrfs workspace matrix remain
-required. After `pnpm tauri build --no-bundle`, freeze the binary/stack and run
+For a new close-boundary correction use Tier 3 affected local checks; the full
+matrix remains an integration/release gate. After `pnpm tauri build --no-bundle`, freeze the binary/stack and run
 [SHUTDOWN-RETAINED](../tests/native/writing-lifecycle/README.md#m6-01-shutdown-retained)
 for ordinary/restart, forced WebDriver DELETE, parent SIGKILL/recovery and the
 bounded non-automation control. The guide registers exact existing runners,

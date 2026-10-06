@@ -73,3 +73,12 @@ C1 parent SIGKILL and F2 active WebDriver deletion still bypass this close
 request. Both remain M6 release gate C until supported-resolution evidence or
 explicit reviewed residual-risk disposition. Ordinary-close regression passes
 and preserved bytes do not resolve them. [M6 evidence](../test-evidence/M6.md).
+
+Residual-risk review is an independent path; it does not require an unavailable
+corrected runtime or claim the failures were repaired. Use the
+[native disposition policy](../native-findings.md#disposition-and-escalation)
+to record C1/F2 reachability, protection evidence, candidate/runtime and explicit
+acceptance limits. Missing runtime availability blocks only a runtime trial.
+Historical strict failures remain recorded; ordinary-operation/content safety
+and the complete SPEC S15.5 adoption sequence still apply. No risk is accepted
+by this policy update.
