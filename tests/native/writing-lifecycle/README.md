@@ -1078,3 +1078,66 @@ BABEL_SHUTDOWN_MODE=ordinary python3 tests/native/writing-lifecycle/isolated_ime
 ```
 
 [PARK-H evidence](../../../docs/test-evidence/AUDIT.md#audit-park-h--empty-scene-heading-capture).
+
+## M6-03 SNAPSHOT-RETENTION
+
+`tools/run-snapshot-retention.py` runs owned SIGKILL barriers after record
+unlink, record-directory sync and blob unlink in the production snapshot store
+(core lib-test executable). Each child publishes a fixture manifest before
+pruning. A fresh process then verifies exact named, pre-destructive, newest and
+future-clock bytes, shared-blob references, source, recovery and previous source.
+Record-side interruption must retain an orphan, flag attention and refuse
+further maintenance without repair; blob-side interruption must leave every
+surviving record readable and permit the remaining safe prune.
+
+The runner also mounts a **private 48 MiB tmpfs** in a user/mount namespace.
+Native `fstatvfs` observes less than the 64 MiB retention guard: prune refuses
+without changing snapshot files, but ordinary source Save still succeeds with
+an exact receipt. It does not fill global `/tmp`, inject an ENOSPC error or
+claim hardware/power-loss coverage. The mount contents are copied into evidence
+before the namespace exits. All interruption roots are mirrored too.
+
+```sh
+df -i /tmp
+mkdir -p /tmp/babel-m6-03 "$PWD/target/m6-03-roots"
+python3 tools/run-snapshot-retention.py /tmp/babel-m6-03 "$PWD/target/m6-03-roots" --output target/m6-03-retention-new
+```
+
+Both base roots must already exist, be absolute and reside on tmpfs/Btrfs
+respectively. Output must be fresh. The tool builds/selects exactly one core
+lib-test executable; `--test-binary /absolute/path` reuses a recorded executable.
+Barriers are test-only; the shipping app has no fault-hook IPC or feature.
+
+For production WebKit/GTK panel coverage, build the keyboard helper once, use
+the live graphical session's environment and add `--native`:
+
+```sh
+python3 tests/native/editor-input/build-keyboard.py
+BABEL_SHUTDOWN_MODE=ordinary GTK_IM_MODULE=gtk-im-context-simple python3 tools/run-snapshot-retention.py /tmp/babel-m6-03 "$PWD/target/m6-03-roots" --native --output target/m6-03-native-new
+```
+
+`--native-binary /absolute/path` can select the unchanged default release or an
+externally FUSE-mounted AppImage's `AppRun`. Mount FUSE **outside** the private
+namespace and keep it alive through the command. The app/driver run as the
+current non-root UID with **zero capabilities**, never root-mapped GTK. This
+mode does not claim offline-package installation; that remains separate evidence.
+
+The `snapshot-retention` UI mode publishes named versions through the actual
+controls, seeds explicitly labelled synthetic clock/expired/protected records,
+applies native retention and audits exact files. A labelled orphan fixture tests
+visible attention/blocked maintenance without claiming another process kill.
+Actual SIGKILL is the core arm above. It also opens a managed source on the
+private low-space root, verifies typed native refusal and independent ordinary
+Save. Reports/screenshots, ordinary-exit process ledgers and crash-journal scans
+are retained under the output; failed roots never become passing evidence.
+
+Focused store matrix:
+
+```sh
+python3 tools/run-workspace-matrix.py /tmp/babel-m6-03 "$PWD/target/m6-03-roots" --output target/m6-03-store-new -- cargo test -p screenwriter-core snapshot_store --locked
+pnpm exec vitest run tests/contract/snapshots.test.ts tests/contract/save-cadence.test.ts tests/ui/Snapshots.test.tsx
+```
+
+Broader keyboard/IME/accessibility and physical-disk/power-loss guarantees are
+not certified by this mode. Restore/copy/Undo/reopen package coverage remains in
+the [bounded pilot](../../../docs/test-evidence/M6-16-2026-10-06.md).

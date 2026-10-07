@@ -3,7 +3,7 @@ use super::*;
 use crate::documents::persistence::CheckpointRequest;
 use crate::test_support::TestRoot;
 use std::io::{BufRead, BufReader};
-use std::os::unix::fs::PermissionsExt;
+use std::os::unix::fs::{MetadataExt, PermissionsExt};
 use std::process::{Command, Stdio};
 
 const ORIGINAL: &[u8] = b"\xef\xbb\xbfINT. OLD - DAY\r\n\r\nKeep  spaces.\r\n";
@@ -998,6 +998,582 @@ fn crash_child() {
         );
     }
     std::mem::forget(f);
+}
+
+// External drill roots are deliberately not TestRoot-owned: the driver retains
+// the real files and reports after both SIGKILL and a successful child exit.
+const RETENTION_CLOCK: u64 = 40 * 86400;
+const RETENTION_PREVIOUS: &[u8] = b"\xef\xbb\xbfEXT. PREVIOUS - DAWN\r\n\r\nPrevious  source.\r\n";
+const RETENTION_SHARED: &[u8] =
+    b"\xef\xbb\xbfINT. SHARED - DAY\r\n\r\nNamed and expired share this.\r\n";
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct RetentionFileOracle {
+    device: u64,
+    inode: u64,
+    mode: u32,
+    byte_length: u64,
+    sha256: String,
+    bytes: Vec<u8>,
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct RetentionVersionOracle {
+    role: String,
+    entry: SnapshotEntry,
+    bytes: Vec<u8>,
+    retained: bool,
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct RetentionDrillFixture {
+    schema: String,
+    mode: String,
+    clock_seconds: u64,
+    document_id: String,
+    source: Vec<u8>,
+    recovery: Vec<u8>,
+    previous_source: Vec<u8>,
+    versions: Vec<RetentionVersionOracle>,
+    catalog: SnapshotCatalog,
+    snapshot_files: BTreeMap<String, RetentionFileOracle>,
+    protected_files: BTreeMap<String, RetentionFileOracle>,
+    save_receipt: crate::documents::saving::SaveReceipt,
+}
+
+fn retention_file_oracle(path: &Path) -> RetentionFileOracle {
+    let metadata = std::fs::symlink_metadata(path).unwrap();
+    assert!(metadata.is_file() && !metadata.file_type().is_symlink());
+    let bytes = std::fs::read(path).unwrap();
+    RetentionFileOracle {
+        device: metadata.dev(),
+        inode: metadata.ino(),
+        mode: metadata.mode(),
+        byte_length: metadata.len(),
+        sha256: hash(&bytes),
+        bytes,
+    }
+}
+
+fn retention_inventory(root: &Path) -> BTreeMap<String, RetentionFileOracle> {
+    fn visit(base: &Path, path: &Path, files: &mut BTreeMap<String, RetentionFileOracle>) {
+        let metadata = std::fs::symlink_metadata(path).unwrap();
+        assert!(!metadata.file_type().is_symlink());
+        if metadata.is_dir() {
+            for entry in std::fs::read_dir(path).unwrap() {
+                visit(base, &entry.unwrap().path(), files);
+            }
+        } else {
+            files.insert(
+                path.strip_prefix(base)
+                    .unwrap()
+                    .to_str()
+                    .unwrap()
+                    .to_owned(),
+                retention_file_oracle(path),
+            );
+        }
+    }
+    let mut files = BTreeMap::new();
+    visit(root, root, &mut files);
+    files
+}
+
+fn retention_protected_files(root: &Path) -> BTreeMap<String, RetentionFileOracle> {
+    let mut files = BTreeMap::new();
+    for relative in [
+        "source.fountain",
+        "app-data/recovery",
+        "app-data/source-save",
+    ] {
+        let path = root.join(relative);
+        if path.is_file() {
+            files.insert(relative.to_owned(), retention_file_oracle(&path));
+        } else {
+            for (name, oracle) in retention_inventory(&path) {
+                files.insert(format!("{relative}/{name}"), oracle);
+            }
+        }
+    }
+    files
+}
+
+fn retention_report(root: &Path, name: &str, report: &impl Serialize) {
+    let bytes = serde_json::to_vec_pretty(report).unwrap();
+    let mut file = std::fs::File::create(root.join(name)).unwrap();
+    file.write_all(&bytes).unwrap();
+    file.sync_all().unwrap();
+    std::fs::File::open(root).unwrap().sync_all().unwrap();
+}
+
+fn retention_open(root: &Path) -> (DocumentService, OpenDocument) {
+    let mut service = DocumentService::new(&root.join("app-data")).unwrap();
+    let open = service
+        .open_selected(&root.join("source.fountain"))
+        .unwrap();
+    (service, open)
+}
+
+fn retention_snapshot_dir(root: &Path, document_id: &str) -> PathBuf {
+    root.join("app-data/snapshots").join(document_id)
+}
+
+fn retention_fixture(root: &Path, mode: &str) -> RetentionDrillFixture {
+    assert!(root.is_absolute() && root.is_dir());
+    assert!(!root.join("retention-fixture.json").exists());
+    std::fs::write(root.join("source.fountain"), RETENTION_PREVIOUS).unwrap();
+    std::fs::set_permissions(
+        root.join("source.fountain"),
+        std::fs::Permissions::from_mode(0o600),
+    )
+    .unwrap();
+    let (mut service, open) = retention_open(root);
+    // A real ordinary Save establishes three independent oracles: exact BOM/
+    // CRLF disk bytes, current recovery bytes, and a distinct previous source.
+    let receipt = service
+        .save_request(SaveRequest {
+            identity: open.identity.clone(),
+            version: 21,
+            source: ORIGINAL.to_vec(),
+            source_sha256: hash(ORIGINAL),
+            expected_fingerprint: open.fingerprint.clone().unwrap(),
+            draft_metadata: serde_json::json!({"retentionDrill": "source oracle"}),
+        })
+        .unwrap();
+    assert_eq!(receipt.version, 21);
+    assert_eq!(receipt.source_sha256, hash(ORIGINAL));
+    let mut versions = Vec::new();
+    for (role, bytes, kind, seconds, retained) in [
+        (
+            "expiredUnique",
+            &b"expired unique blob\r\n"[..],
+            SnapshotKind::Rolling,
+            1,
+            false,
+        ),
+        (
+            "namedShared",
+            RETENTION_SHARED,
+            SnapshotKind::Named,
+            2,
+            true,
+        ),
+        (
+            "named",
+            &b"independent named bytes\r\n"[..],
+            SnapshotKind::Named,
+            3,
+            true,
+        ),
+        (
+            "preDestructive",
+            &b"pre-destructive safety bytes\r\n"[..],
+            SnapshotKind::PreDestructive,
+            4,
+            true,
+        ),
+        (
+            "expiredShared",
+            RETENTION_SHARED,
+            SnapshotKind::Rolling,
+            601,
+            false,
+        ),
+        (
+            "futureClock",
+            &b"future clock bytes\r\n"[..],
+            SnapshotKind::Rolling,
+            RETENTION_CLOCK + 600,
+            true,
+        ),
+        (
+            "newest",
+            &b"newest exact bytes without final newline"[..],
+            SnapshotKind::Rolling,
+            RETENTION_CLOCK + 1200,
+            true,
+        ),
+    ] {
+        versions.push(RetentionVersionOracle {
+            role: role.to_owned(),
+            entry: create_at(&service, &open, bytes, kind, seconds),
+            bytes: bytes.to_vec(),
+            retained,
+        });
+    }
+    let fixture = RetentionDrillFixture {
+        schema: "babel-retention-drill-v1".into(),
+        mode: mode.to_owned(),
+        clock_seconds: RETENTION_CLOCK,
+        document_id: open.identity.document_id.clone(),
+        source: ORIGINAL.to_vec(),
+        recovery: ORIGINAL.to_vec(),
+        previous_source: RETENTION_PREVIOUS.to_vec(),
+        versions,
+        catalog: service.list_snapshots(&open.identity).unwrap(),
+        snapshot_files: retention_inventory(&retention_snapshot_dir(
+            root,
+            &open.identity.document_id,
+        )),
+        protected_files: retention_protected_files(root),
+        save_receipt: receipt,
+    };
+    assert!(!fixture.catalog.needs_attention);
+    retention_assert_oracles(root, &service, &open, &fixture);
+    retention_report(root, "retention-fixture.json", &fixture);
+    fixture
+}
+
+fn retention_assert_oracles(
+    root: &Path,
+    service: &DocumentService,
+    open: &OpenDocument,
+    fixture: &RetentionDrillFixture,
+) {
+    assert_eq!(open.identity.document_id, fixture.document_id);
+    assert_eq!(
+        std::fs::read(root.join("source.fountain")).unwrap(),
+        fixture.source
+    );
+    let recovery = service
+        .inspect_recovery(&open.identity)
+        .unwrap()
+        .latest
+        .unwrap();
+    assert_eq!(recovery.source, fixture.recovery);
+    assert_eq!(recovery.metadata.version, 21);
+    let transaction = service.inspect_source_save(&open.identity).unwrap();
+    assert_eq!(
+        transaction.previous.as_deref(),
+        Some(fixture.previous_source.as_slice())
+    );
+    assert!(transaction.intent.is_none() && transaction.previous_pending.is_none());
+    assert_eq!(
+        transaction.observation,
+        SaveObservation::ConfirmedRecordMatchesSource
+    );
+    assert_eq!(retention_protected_files(root), fixture.protected_files);
+    for version in fixture.versions.iter().filter(|v| v.retained) {
+        let preview = service
+            .read_snapshot(&SnapshotReadRequest {
+                identity: open.identity.clone(),
+                selection: version.entry.selection.clone(),
+            })
+            .unwrap();
+        assert_eq!(preview.entry, version.entry);
+        assert_eq!(preview.source, version.bytes);
+    }
+    for entry in service.list_snapshots(&open.identity).unwrap().entries {
+        let oracle = fixture.versions.iter().find(|v| v.entry == entry).unwrap();
+        let preview = service
+            .read_snapshot(&SnapshotReadRequest {
+                identity: open.identity.clone(),
+                selection: entry.selection,
+            })
+            .unwrap();
+        assert_eq!(
+            preview.source, oracle.bytes,
+            "no retained dangling reference"
+        );
+    }
+}
+
+fn retention_reopen(root: &Path) {
+    let fixture: RetentionDrillFixture =
+        serde_json::from_slice(&std::fs::read(root.join("retention-fixture.json")).unwrap())
+            .unwrap();
+    assert!(["RecordRemoved", "PruneSynced", "BlobRemoved"].contains(&fixture.mode.as_str()));
+    let dir = retention_snapshot_dir(root, &fixture.document_id);
+    let before_open = retention_inventory(&dir);
+    let unique = fixture
+        .versions
+        .iter()
+        .find(|v| v.role == "expiredUnique")
+        .unwrap();
+    let mut expected = fixture.snapshot_files.clone();
+    expected
+        .remove(&record_name(&unique.entry.record.snapshot_id))
+        .unwrap();
+    let orphan_expected = fixture.mode != "BlobRemoved";
+    if !orphan_expected {
+        expected
+            .remove(&blob_name(&unique.entry.record.source_sha256))
+            .unwrap();
+    }
+    assert_eq!(before_open, expected);
+    let (service, open) = retention_open(root);
+    retention_assert_oracles(root, &service, &open, &fixture);
+    assert_eq!(
+        retention_inventory(&dir),
+        before_open,
+        "reopen must not repair orphans"
+    );
+    let catalog = service.list_snapshots(&open.identity).unwrap();
+    assert_eq!(catalog.needs_attention, orphan_expected);
+    assert_eq!(catalog.orphan_blobs, usize::from(orphan_expected));
+    assert_eq!(catalog.unresolved_artifacts, 0);
+    let refusal = if orphan_expected {
+        let refusal = service
+            .prune_with(&open.identity, fixture.clock_seconds, |_| Ok(()))
+            .unwrap_err();
+        assert_eq!(refusal.code, ErrorCode::SnapshotNeedsAttention);
+        assert_eq!(
+            retention_inventory(&dir),
+            before_open,
+            "refusal preserves every byte and file identity"
+        );
+        Some(refusal)
+    } else {
+        let pruned = service
+            .prune_with(&open.identity, fixture.clock_seconds, |_| Ok(()))
+            .unwrap();
+        assert!(!pruned.needs_attention);
+        assert_eq!(pruned.orphan_blobs, 0);
+        let retained: Vec<_> = fixture
+            .versions
+            .iter()
+            .filter(|v| v.retained)
+            .map(|v| v.entry.clone())
+            .collect();
+        assert_eq!(pruned.entries, retained);
+        let shared = fixture
+            .versions
+            .iter()
+            .find(|v| v.role == "expiredShared")
+            .unwrap();
+        expected
+            .remove(&record_name(&shared.entry.record.snapshot_id))
+            .unwrap();
+        assert_eq!(
+            retention_inventory(&dir),
+            expected,
+            "shared named blob survives further maintenance"
+        );
+        None
+    };
+    retention_assert_oracles(root, &service, &open, &fixture);
+    retention_report(
+        root,
+        "retention-reopen.json",
+        &serde_json::json!({
+            "schema": "babel-retention-reopen-v1",
+            "mode": fixture.mode,
+            "verified": true,
+            "exactRetainedSelections": fixture.versions.iter().filter(|v| v.retained).collect::<Vec<_>>(),
+            "catalogBeforeMaintenance": catalog,
+            "catalogAfterMaintenance": service.list_snapshots(&open.identity).unwrap(),
+            "typedRefusal": refusal,
+            "snapshotFilesBeforeReopen": before_open,
+            "snapshotFilesAfterMaintenance": retention_inventory(&dir),
+            "protectedFiles": retention_protected_files(root),
+            "orphanAutoRepaired": false,
+        }),
+    );
+}
+
+fn retention_low_space(root: &Path, fixture: &RetentionDrillFixture) {
+    let (mut service, open) = retention_open(root);
+    let dir = retention_snapshot_dir(root, &fixture.document_id);
+    let native_dir = std::fs::File::open(&dir).unwrap();
+    let space = fs::fstatvfs(&native_dir).unwrap();
+    let available = space.f_bavail.saturating_mul(space.f_frsize);
+    assert!(
+        available < 64 * 1024 * 1024,
+        "requires a real private low-space filesystem"
+    );
+    // Do not synthesize ENOSPC or fill a shared /tmp filesystem.
+    retention_assert_oracles(root, &service, &open, fixture);
+    let before = retention_inventory(&dir);
+    let refusal = service
+        .prune_with(&open.identity, fixture.clock_seconds, |_| Ok(()))
+        .unwrap_err();
+    assert_eq!(refusal.code, ErrorCode::SnapshotNeedsAttention);
+    assert_eq!(retention_inventory(&dir), before);
+    retention_assert_oracles(root, &service, &open, fixture);
+    let saved_bytes =
+        b"\xef\xbb\xbfINT. LOW SPACE SAVE - DAY\r\n\r\nOrdinary Save remains exact.\r\n";
+    let receipt = service
+        .save_request(SaveRequest {
+            identity: open.identity.clone(),
+            version: 22,
+            source: saved_bytes.to_vec(),
+            source_sha256: hash(saved_bytes),
+            expected_fingerprint: open.fingerprint.clone().unwrap(),
+            draft_metadata: serde_json::json!({"retentionDrill": "ordinary Save after refusal"}),
+        })
+        .unwrap();
+    assert_eq!(receipt.version, 22);
+    assert_eq!(receipt.source_sha256, hash(saved_bytes));
+    assert_eq!(receipt.recovery.version, 22);
+    assert_eq!(receipt.identity, open.identity);
+    assert_eq!(receipt.recovery.identity, open.identity);
+    assert_eq!(receipt.recovery.source_sha256, hash(saved_bytes));
+    assert_eq!(receipt.protection, SaveProtection::SourceFile);
+    let source_metadata = std::fs::metadata(root.join("source.fountain")).unwrap();
+    assert_eq!(
+        receipt.fingerprint.device,
+        source_metadata.dev().to_string()
+    );
+    assert_eq!(receipt.fingerprint.inode, source_metadata.ino().to_string());
+    assert_eq!(receipt.fingerprint.byte_length, saved_bytes.len() as u64);
+    assert_eq!(receipt.fingerprint.sha256, hash(saved_bytes));
+    assert_eq!(
+        std::fs::read(root.join("source.fountain")).unwrap(),
+        saved_bytes
+    );
+    assert_eq!(
+        service
+            .inspect_recovery(&open.identity)
+            .unwrap()
+            .latest
+            .unwrap()
+            .source,
+        saved_bytes
+    );
+    assert_eq!(
+        service
+            .inspect_source_save(&open.identity)
+            .unwrap()
+            .previous
+            .as_deref(),
+        Some(fixture.source.as_slice())
+    );
+    assert_eq!(
+        service
+            .inspect_source_save(&open.identity)
+            .unwrap()
+            .observation,
+        SaveObservation::ConfirmedRecordMatchesSource,
+    );
+    assert_eq!(
+        retention_inventory(&dir),
+        before,
+        "ordinary Save never prunes snapshots"
+    );
+    retention_report(
+        root,
+        "retention-low-space.json",
+        &serde_json::json!({
+            "schema": "babel-retention-low-space-v1",
+            "verified": true,
+            "availableBytes": available,
+            "guardBytes": 64 * 1024 * 1024,
+            "filesystem": {"availableBlocks": space.f_bavail, "fragmentSize": space.f_frsize, "device": native_dir.metadata().unwrap().dev()},
+            "typedRefusal": refusal,
+            "snapshotFilesBefore": before,
+            "snapshotFilesAfterSave": retention_inventory(&dir),
+            "catalog": service.list_snapshots(&open.identity).unwrap(),
+            "saveReceipt": receipt,
+            "saveSourceBytes": saved_bytes.as_slice(),
+            "protectedFilesAfterSave": retention_protected_files(root),
+        }),
+    );
+}
+
+#[test]
+fn retention_drill_child() {
+    let Some(root) = std::env::var_os("BABEL_RETENTION_DRILL_ROOT") else {
+        return;
+    };
+    let root = PathBuf::from(root);
+    assert!(root.is_absolute() && root.is_dir());
+    let mode = std::env::var("BABEL_RETENTION_DRILL_MODE").unwrap();
+    if mode == "reopen" {
+        retention_reopen(&root);
+        return;
+    }
+    assert!(["RecordRemoved", "PruneSynced", "BlobRemoved", "low-space"].contains(&mode.as_str()));
+    let fixture = retention_fixture(&root, &mode);
+    if mode == "low-space" {
+        retention_low_space(&root, &fixture);
+        return;
+    }
+    let (service, open) = retention_open(&root);
+    service
+        .prune_with(&open.identity, fixture.clock_seconds, |stage| {
+            if format!("{stage:?}") == mode {
+                println!("BABEL_RETENTION_BARRIER:{mode}");
+                std::io::stdout().flush().unwrap();
+                let mut byte = [0];
+                std::io::stdin().read_exact(&mut byte).unwrap();
+                panic!("interruption driver must kill its owned child at the barrier");
+            }
+            Ok(())
+        })
+        .unwrap();
+    panic!("requested retention barrier was not reached");
+}
+
+#[test]
+fn shared_blob_retention_removes_only_expired_record() {
+    let f = Fixture::new();
+    let (service, open) = f.open();
+    let expired = create_at(&service, &open, RETENTION_SHARED, SnapshotKind::Rolling, 1);
+    let named = create_at(&service, &open, RETENTION_SHARED, SnapshotKind::Named, 2);
+    let newest = create_at(&service, &open, NEW, SnapshotKind::Rolling, RETENTION_CLOCK);
+    let before = retention_inventory(&f.dir(&open));
+    let catalog = service
+        .prune_with(&open.identity, RETENTION_CLOCK, |_| Ok(()))
+        .unwrap();
+    assert_eq!(catalog.entries, vec![named.clone(), newest]);
+    assert!(!catalog.needs_attention);
+    assert_eq!(catalog.orphan_blobs, 0);
+    let mut expected = before;
+    expected
+        .remove(&record_name(&expired.record.snapshot_id))
+        .unwrap();
+    assert_eq!(retention_inventory(&f.dir(&open)), expected);
+    assert_eq!(
+        service
+            .read_snapshot(&SnapshotReadRequest {
+                identity: open.identity.clone(),
+                selection: named.selection,
+            })
+            .unwrap()
+            .source,
+        RETENTION_SHARED
+    );
+}
+
+#[test]
+fn native_sigkill_retention_reopen_preserves_oracles_and_refuses_orphans() {
+    for mode in ["RecordRemoved", "PruneSynced", "BlobRemoved"] {
+        let f = Fixture::new();
+        let mut child = Command::new(std::env::current_exe().unwrap())
+            .args([
+                "--exact",
+                "documents::linux::snapshot_store::tests::retention_drill_child",
+                "--nocapture",
+            ])
+            .env("BABEL_RETENTION_DRILL_ROOT", &f.0)
+            .env("BABEL_RETENTION_DRILL_MODE", mode)
+            .stdin(Stdio::piped())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::inherit())
+            .spawn()
+            .unwrap();
+        let mut output = BufReader::new(child.stdout.take().unwrap());
+        let mut line = String::new();
+        loop {
+            line.clear();
+            assert_ne!(
+                output.read_line(&mut line).unwrap(),
+                0,
+                "child exited before {mode}"
+            );
+            if line.contains(&format!("BABEL_RETENTION_BARRIER:{mode}")) {
+                break;
+            }
+        }
+        child.kill().unwrap();
+        let status = child.wait().unwrap();
+        use std::os::unix::process::ExitStatusExt;
+        assert_eq!(status.signal(), Some(9));
+        retention_reopen(&f.0);
+    }
 }
 
 #[test]

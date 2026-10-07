@@ -21,6 +21,7 @@ MODES = (
         ('--external-reload', 'external_reload', 'run'),
         ('--recovery-reopen', 'recovery_reopen', 'run'),
         ('--persistence-paths', 'persistence_paths', 'run'),
+        ('--snapshot-retention', 'snapshot_retention', 'run'),
     ),
     (
         ('--daily-session', 'integrated_workflows', 'run'),

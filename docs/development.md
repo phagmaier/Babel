@@ -305,3 +305,15 @@ byte/head auditor. `persistence-two-instances` is the deliberately separate-
 store diagnostic of ADR 0012's existing lease limitation, not a passing
 shared-store concurrency gate. Real restore SIGKILL checks run in
 `snapshot_store_tests` with `BABEL_SNAPSHOT_TEST_ROOT` on tmpfs/Btrfs.
+
+M6-03 `SNAPSHOT-RETENTION`: after `df -i /tmp`, use existing absolute tmpfs/Btrfs
+disposable roots and a fresh output:
+`python3 tools/run-snapshot-retention.py /tmp/babel-m6-03 "$PWD/target/m6-03-roots" --output target/m6-03-retention-new`.
+`--native` adds actual production panel/IPC and independent Save coverage;
+`--native-binary` selects a recorded default release or externally mounted
+AppRun. The [native guide](../tests/native/writing-lifecycle/README.md#m6-03-snapshot-retention)
+owns barriers, private 48 MiB tmpfs, non-root/zero-capability runtime and retained
+manifests. Focused filesystem suite:
+`python3 tools/run-workspace-matrix.py /tmp/babel-m6-03 "$PWD/target/m6-03-roots" --output target/m6-03-store-new -- cargo test -p screenwriter-core snapshot_store --locked`.
+Existing contracts:
+`pnpm exec vitest run tests/contract/snapshots.test.ts tests/contract/save-cadence.test.ts tests/ui/Snapshots.test.tsx`.
